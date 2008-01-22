@@ -23,7 +23,7 @@
  * Boston, MA  02111-1307  USA
  * -----------------------------------------------------------------------------
  */
-package org.celllife.clforms.util;
+package org.javarosa.clforms.util;
 
 import java.util.Vector;
 import java.util.Enumeration;

@@ -1,4 +1,4 @@
-package org.celllife.clforms.util;
+package org.javarosa.clforms.util;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -6,8 +6,8 @@ import java.util.Vector;
 
 import javax.microedition.lcdui.ChoiceGroup;
 
-import org.celllife.clforms.api.Constants;
-import org.celllife.clforms.api.Prompt;
+import org.javarosa.clforms.api.Constants;
+import org.javarosa.clforms.api.Prompt;
 
 import de.enough.polish.util.TextUtil;
 
