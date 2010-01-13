@@ -16,7 +16,6 @@
 
 package org.javarosa.form.api;
 
-import java.util.Enumeration;
 import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
@@ -26,30 +25,17 @@ import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.formmanager.view.FormElementBinding;
 
 
 
 public class FormEntryModel {
     private FormDef form;
-
     private FormIndex currentFormindex;
-    private FormIndex startIndex;
-    private int instanceID;
-    private boolean unsavedChanges;
-    private boolean formCompleted;
 
-    private Vector observers;
-
-    public int totalQuestions; // total number of questions in the form; used
-    // for progress bar
-
-    private boolean readOnly;
-
-
+    // total number of questions in the form; used for progress bar
+    public int totalQuestions; 
 
     // Start New stuff today.
-
 
     /**
      * Given a FormIndex, returns the event this formindex should display in a view.
@@ -62,10 +48,13 @@ public class FormEntryModel {
             return FormEntryController.END_OF_FORM_EVENT;
         }
 
-        Vector defs = form.explodeIndex(index);
-        IFormElement last = (defs.size() == 0 ? null : (IFormElement) defs.lastElement());
-        if (last instanceof GroupDef) {
-            if (((GroupDef) last).getRepeat()
+        //This came from chatterbox, and is unclear how correct it is, commented out for now. 
+        //DELETEME: If things work fine
+        //Vector defs = form.explodeIndex(index);
+        //IFormElement last = (defs.size() == 0 ? null : (IFormElement) defs.lastElement());
+        IFormElement element = form.getChild(index);
+        if (element instanceof GroupDef) {
+            if (((GroupDef) element).getRepeat()
                     && form.getDataModel().resolveReference(form.getChildInstanceRef(index)) == null) {
                 return FormEntryController.PROMPT_NEW_REPEAT_EVENT;
             } else {
@@ -86,18 +75,14 @@ public class FormEntryModel {
     public int getCurrentEvent() {
         return getEvent(currentFormindex);
 	}
-	
-
-
-    public String[] getGroupHierarchy() {
-        //TODO 
-        return null;
-    }
-
 
     public String getEventTitle() {
-        //TODO
-        return null;
+    	return getEventTitle(currentFormindex);
+    }
+
+    public String getEventTitle(FormIndex index) {
+    	IFormElement element = form.getChild(index);
+    	return element.getTitle();
     }
 
 
@@ -109,10 +94,14 @@ public class FormEntryModel {
         return form.getTitle();
     }
 
-
-    public Prompt getQuestionPrompt() {
+    
+    public FormEntryPrompt getQuestionPrompt(FormIndex index) {
         //TODO
         return null
+    }
+
+    public FormEntryPrompt getQuestionPrompt() {
+        return getQuestionPrompt(currentFormindex);
     }
 
 
@@ -154,105 +143,22 @@ public class FormEntryModel {
 
     public void setQuestionIndex(FormIndex index) {
         if (!currentFormindex.equals(index)) {
-
-            // See if a hint exists that says we should have a model for this
-            // already
+            // See if a hint exists that says we should have a model for this already
             createModelIfNecessary(index);
-
             currentFormindex = index;
-
-            for (Enumeration e = observers.elements(); e.hasMoreElements();) {
-                ((FormEntryModelListener) e.nextElement())
-                        .questionIndexChanged(currentFormindex);
-            }
         }
     }
 
-
-    // depending on boolean, counts the number of unanswered required questions,
-    // or
-    // counts the number of unanswered questions.
-    public int countUnansweredQuestions(boolean countRequiredOnly) {
-        int counter = 0;
-
-        for (FormIndex a = form.incrementIndex(FormIndex.createBeginningOfFormIndex()); a
-                .compareTo(FormIndex.createEndOfFormIndex()) < 0; a = form.incrementIndex(a)) {
-            FormElementBinding bind = new FormElementBinding(null, a, form);
-
-            if (countRequiredOnly && bind.instanceNode.required && bind.getValue() == null) {
-                counter++;
-            } else if (bind.getValue() == null) {
-                counter++;
-            }
-        }
-        return counter;
-    }
-
-
+    
     public FormDef getForm() {
         return form;
     }
 
-
-    public int getInstanceID() {
-        return instanceID;
-    }
-
-
-    public boolean isSaved() {
-        return !unsavedChanges;
-    }
-
-
-    public void modelChanged() {
-        if (!unsavedChanges) {
-            unsavedChanges = true;
-
-            for (Enumeration e = observers.elements(); e.hasMoreElements();) {
-                ((FormEntryModelListener) e.nextElement()).saveStateChanged(instanceID,
-                        unsavedChanges);
-            }
-        }
-    }
-
-
-    public void modelSaved(int instanceID) {
-        this.instanceID = instanceID;
-        unsavedChanges = false;
-
-        for (Enumeration e = observers.elements(); e.hasMoreElements();) {
-            ((FormEntryModelListener) e.nextElement()).saveStateChanged(instanceID, unsavedChanges);
-        }
-    }
-
-
-    public boolean isFormComplete() {
-        return formCompleted;
-    }
-
-
-    public void setFormComplete() {
-        if (!formCompleted) {
-            formCompleted = true;
-
-            if (!currentFormindex.isEndOfFormIndex()) {
-                setQuestionIndex(FormIndex.createEndOfFormIndex());
-            }
-
-            for (Enumeration e = observers.elements(); e.hasMoreElements();) {
-                ((FormEntryModelListener) e.nextElement()).formComplete();
-            }
-        }
-    }
-
-
-    public void notifyStartOfForm() {
-        for (Enumeration e = observers.elements(); e.hasMoreElements();) {
-            ((FormEntryModelListener) e.nextElement()).startOfForm();
-        }
-    }
-
-
+    
+    /**
+     * 
+     * @return total number of questions in the form
+     */
     public int getNumQuestions() {
         return form.getDeepChildCount();
     }
@@ -297,24 +203,13 @@ public class FormEntryModel {
 
         if (relevant) { // if instance flag/condition says relevant, we still
             // have to check the <group>/<repeat> hierarchy
-            Vector defs = form.explodeIndex(questionIndex);
+            FormIndex ancestorIndex = questionIndex;
+            while(ancestorIndex != null) {
+            	ancestorIndex = ancestorIndex.getNextLevel();
 
-            FormIndex ancestorIndex = null;
-            FormIndex cur = null;
-            FormIndex qcur = questionIndex;
-            for (int i = 0; i < defs.size() - 1; i++) {
-                FormIndex next = new FormIndex(qcur.getLocalIndex(), qcur.getInstanceIndex(),qcur.getReference());
-                if (ancestorIndex == null) {
-                    ancestorIndex = next;
-                    cur = next;
-                } else {
-                    cur.setNextLevel(next);
-                    cur = next;
-                }
-                qcur = qcur.getNextLevel();
-
-                TreeElement ancestorNode =
-                        form.getDataModel().resolveReference(ancestorIndex.getReference());
+            	//This should be safe now that the TreeReference is contained in the ancestor index itself
+                TreeElement ancestorNode = form.getDataModel().resolveReference(ancestorIndex.getReference());
+                
                 if (!ancestorNode.isRelevant()) {
                     relevant = false;
                     break;
@@ -324,49 +219,6 @@ public class FormEntryModel {
 
         return relevant;
     }
-
-
-    public void registerObservable(FormEntryModelListener feml) {
-        if (!observers.contains(feml)) {
-            observers.addElement(feml);
-        }
-    }
-
-
-    public void unregisterObservable(FormEntryModelListener feml) {
-        observers.removeElement(feml);
-    }
-
-
-    public void unregisterAll() {
-        observers.removeAllElements();
-    }
-
-
-    /**
-     * @return Whether or not the form model should be written to.
-     */
-    public boolean isReadOnly() {
-        return readOnly;
-    }
-
-
-    /**
-     * @param readOnly Whether or not the form model should be changed by the
-     *        form entry interaction.
-     */
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-    }
-
-
-    /**
-     * @return the startIndex
-     */
-    public FormIndex getStartIndex() {
-        return startIndex;
-    }
-
 
     /**
      * For the current index: Checks whether the index represents a node which
