@@ -271,9 +271,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		parentElement.removeChild(deleteElement);
 
 		// update multiplicities of other child nodes
-		Vector v = parentElement.getChildren();
-		for (int i = 0; i < v.size(); i++) {
-			TreeElement child = (TreeElement) v.elementAt(i);
+		for (int i = 0; i < parentElement.getNumChildren(); i++) {
+			TreeElement child = parentElement.getChildAt(i);
 			if (child.getMult() > childMult) {
 				child.setMult(child.getMult() - 1);
 			}
@@ -648,18 +647,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		// } else {
 		if (!node.isLeaf()) {
 			for (int i = 0; i < node.getNumChildren(); i++) {
-				TreeElement child = (TreeElement) node.getChildren().elementAt(
-						i);
-				if (child.getMult() != TreeReference.INDEX_TEMPLATE) // don't
-					// preload
-					// templates;
-					// new
-					// repeats
-					// are
-					// preloaded
-					// as
-					// they're
-					// created
+				TreeElement child = node.getChildAt(i);
+				if (child.getMult() != TreeReference.INDEX_TEMPLATE)
+					// don't preload templates; new repeats are preloaded as they're created
 					preloadModel(child);
 			}
 		}
@@ -706,8 +696,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		} else {
 			boolean modelModified = false;
 			for (int i = 0; i < node.getNumChildren(); i++) {
-				TreeElement child = (TreeElement) node.getChildren().elementAt(
-						i);
+				TreeElement child = node.getChildAt(i);
 				if (child.getMult() != TreeReference.INDEX_TEMPLATE)
 					modelModified |= postProcessModel(child);
 			}
@@ -825,12 +814,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		FormIndex cur = null;
 		Vector curMultiplicities = new Vector();
 		for(int j = 0; j < multiplicities.size() ; ++j) {
-			curMultiplicities.add(multiplicities.elementAt(j));	
+			curMultiplicities.addElement(multiplicities.elementAt(j));	
 		}
 		
 		Vector curElements = new Vector();
 		for(int j = 0; j < elements.size() ; ++j) {
-			curElements.add(elements.elementAt(j));	
+			curElements.addElement(elements.elementAt(j));	
 		}
 		
 		for (int i = indexes.size() - 1; i >= 0; i--) {
@@ -845,8 +834,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			}
 
 			cur = new FormIndex(cur, ix, mult,getChildInstanceRef(curElements,curMultiplicities));
-			curMultiplicities.remove(curMultiplicities.size() - 1);
-			curElements.remove(curElements.size() - 1);
+			curMultiplicities.removeElementAt(curMultiplicities.size() - 1);
+			curElements.removeElementAt(curElements.size() - 1);
 		}
 		return cur;
 	}
@@ -1149,7 +1138,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 	private void attachControlsToInstanceData (TreeElement node, TreeReference ref) {
 		for (int i = 0; i < node.getNumChildren(); i++) {
-			TreeElement child = (TreeElement)node.getChildren().elementAt(i);
+			TreeElement child = node.getChildAt(i);
 			attachControlsToInstanceData(child, ref.extendRef(child.getName(), TreeReference.INDEX_UNBOUND));
 		}
 		
