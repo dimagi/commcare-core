@@ -16,20 +16,20 @@
 
 package org.javarosa.core.model.utils;
 
-import org.javarosa.core.model.IFormDataModel;
+import org.javarosa.core.model.instance.FormInstance;
 
 /**
- * An IDataModelVisitor visits every element in a DataModel
+ * An IInstanceVisitor visits every element in a DataModel
  * following the visitor design pattern.
  * 
  * @author Clayton Sims
  *
  */
-public interface IDataModelVisitor {
+public interface IInstanceVisitor {
 	/**
 	 * Performs any necessary operations on the IFormDataModel without
 	 * visiting any of the Model's potential children.
 	 * @param dataModel
 	 */
-	void visit(IFormDataModel dataModel);
+	void visit(FormInstance instance);
 }
