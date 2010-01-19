@@ -57,6 +57,9 @@ public class FormEntryCaption {
 
 
     public String substituteStringArgs(String templateStr) {
+        if(templateStr == null) {
+        	return null;
+        }
         return form.fillTemplateString(templateStr, index.getReference());
     }
 
@@ -76,4 +79,8 @@ public class FormEntryCaption {
     		return false;
     	}
     }
+
+	public FormIndex getIndex() {
+		return index;
+	}
 }
