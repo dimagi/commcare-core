@@ -3,7 +3,6 @@
  */
 package org.commcare.reference;
 
-import java.io.File;
 
 /**
  * @author ctsims
@@ -63,8 +62,6 @@ public class ReferenceUtil {
 		if(uri.startsWith("resource/")) {
 			ResourceReference r = new ResourceReference(reference, uri.substring(8));
 			return r;
-		} if(uri.startsWith("file/")) {
-			return new FileSytemResource(reference, uri.substring(4));
 		} else {
 			throw new InvalidReferenceException("No valid javarosa reference could be created for the string \"" + reference + "\"", reference);
 		}
