@@ -1,24 +1,33 @@
 /**
  * 
  */
-package org.commcare.resources.model;
+package org.commcare.resources.model.installers;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.commcare.reference.Reference;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInstaller;
+import org.commcare.resources.model.ResourceLocation;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
  *
  */
-public class BasicResourceInitializer implements ResourceInstaller {
-
+public class BasicInstaller implements ResourceInstaller {
 	ResourceLocation installed;
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
-	public boolean initializeResource(Resource r) {
+	public boolean initialize() {
 		return true;
 	}
 
@@ -32,7 +41,7 @@ public class BasicResourceInitializer implements ResourceInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#resourceReady(org.commcare.resources.model.Resource)
 	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) {
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
 		//If we have local resource authority, and the file exists, things are golden. We can just use that file.
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
 			if(ref.doesBinaryExist()) {
@@ -54,11 +63,21 @@ public class BasicResourceInitializer implements ResourceInstaller {
 		}
 		return false;
 	}
-	public boolean upgrade(Resource r) {
+	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+		throw new RuntimeException("Locale files Shouldn't ever be marked upgrade yet");
+	}
+
+	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
 		return true;
 	}
 
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) {
-		return true;
+	public void readExternal(DataInputStream in, PrototypeFactory pf)
+			throws IOException, DeserializationException {
+		
+	}
+
+	public void writeExternal(DataOutputStream out) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

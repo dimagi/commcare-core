@@ -49,7 +49,8 @@ public class EntryParser extends ElementParser<Entry> {
 				//only child should be a text node.
 				if(this.nextTagInBlock("text")) {
 					commandText = new TextParser(parser).parse();
-					
+				} else {
+					throw new InvalidStructureException();
 				}
 			}
 			else if(parser.getName().equals("entity")) {

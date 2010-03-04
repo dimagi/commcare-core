@@ -67,6 +67,8 @@
 					
 					<attribute name="CommCare-ShowReminders" value="${commcare.show.reminders}" />
 					<attribute name="CommCare-Release"	value="${commcare.release}" />
+					<attribute name="Initial-Suite-Reference" value="${suite.reference}"/>
+					<attribute name="Initial-Suite-Version" value="${suite.version}"/>
 				</jad>
 
 				<!-- midlets definition -->
@@ -76,7 +78,7 @@
 				<!-- All source-level inclusions should be made here -->
 				<sources>
 					<source dir="${dir.src}"/>
-					<source dir="${dir.commcare-core}/org.commcare.core/src/"/>
+					<source dir="${dir.commcare}/src/"/>
 
 					<!--Taking this out for now...-->
 					<!--source dir="${dir.test}"/-->
@@ -125,6 +127,7 @@
 					<parameter name="keep   ,     allowShrinking" value="!abstract class org.javarosa.** implements org.javarosa.core.services.locale.LocaleDataSource"/>
 					<parameter name="keep        ,       allowShrinking" value="class * implements org.javarosa.services.transport.TransportMessage"/>
 					<parameter name="keep       ,         allowShrinking" value="class * implements org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper"/>
+					<parameter name="keep          ,         allowShrinking" value="class * implements org.commcare.resources.model.ResourceInstaller"/>
 				</obfuscator>
 
 				<!-- log settings: only use debug setting when the test-property is true -->
@@ -148,9 +151,8 @@
 			<!-- Target two: Run emulator only, with no profiling tools if debugging is disabled but testing is -->
 			<emulator wait="true" trace="none" securityDomain="trusted" enableProfiler="false" enableMemoryMonitor="false" enableNetworkMonitor="false" if="test and not debug">
 				<!-- Enable the following line to test memory constraints on the device -->
-				<!--parameter name="-Xheapsize" value="850000"/-->
+				<parameter name="-Xheapsize" value="2850000"/>
 			</emulator>
-
 
 		</buildPolish>
 	</target>
@@ -356,6 +358,9 @@
 	    <property name="@{name}" value="${@{from}}"/>
 	  </sequential>
 	</macrodef>
+	
+	<!-- import non-version-controlled local properties           -->
+	<property file="${basedir}/local.properties" />
 	
 	<!-- import user specific properties                          -->
 	<property file="${basedir}/build.properties" />

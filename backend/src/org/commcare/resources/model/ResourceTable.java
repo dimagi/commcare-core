@@ -1,18 +1,31 @@
 package org.commcare.resources.model;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.commcare.reference.InvalidReferenceException;
 import org.commcare.reference.Reference;
 import org.commcare.reference.ReferenceUtil;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.services.storage.StorageManager;
 
+/**
+ * TODO: We have too many vectors here. It's lazy and incorrect. ~everything
+ * should be using iterators, not vectors; 
+ * @author ctsims
+ *
+ */
 public class ResourceTable {
+	
+	public static final String STORAGE_KEY_GLOBAL = "GLOBAL_RESOURCE_TABLE";
+	private static final String STORAGE_KEY_TEMPORARY = "RESOURCE_TABLE_";
 
-	private Hashtable<String, Resource> resources;
-
-	// private IStorageUtilityIndexed<Resource> resources;
+	private IStorageUtilityIndexed storage;
+	
+	private static ResourceTable global;
 
 	/**
 	 * For Serialization Only!
@@ -22,67 +35,114 @@ public class ResourceTable {
 	}
 
 	public static ResourceTable RetrieveGlobalResourceTable() {
-		return null;
+		if(global == null) {
+			global = new ResourceTable();
+			global.storage = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY_GLOBAL);
+		} else {			
+			//Close and re-open, for conservative management.
+			global.storage.close();
+			global.storage = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY_GLOBAL);
+		}
+		//Not sure if this reference is actually a good idea, or whether we should 
+		//get the storage link every time... For now, we'll reload storage each time
+		System.out.println("Global Resource Table");
+		System.out.println(global);
+		return global;
 	}
 
-	public static ResourceTable CreateTemporaryResourceTable() {
+	public static ResourceTable CreateTemporaryResourceTable(String name) {
 		ResourceTable table = new ResourceTable();
-		table.resources = new Hashtable<String, Resource>();
+		IStorageUtilityIndexed storage = null; 
+		String storageKey = STORAGE_KEY_TEMPORARY + name.toUpperCase();
+		
+		//Check if this table already exists, and return it if so.
+		for(String utilityName : StorageManager.listRegisteredUtilities()) {
+			if(utilityName.equals(storageKey)) {
+				storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
+				table.storage = storage;
+				//And for now, clear it out, because we don't know what's in there.
+				table.storage.removeAll();
+				table.storage.close();
+				table.storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
+			}
+		}
+		//Otherwise, create a new one.
+		if(storage == null) {
+			StorageManager.registerStorage(storageKey, storageKey, Resource.class);
+			table.storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
+		}
+		System.out.println("Temporary Resource Table");
+		System.out.println(table);
 		return table;
 	}
 
-	public void addResource(Resource resource) {
-		this.addResource(resource, new BasicResourceInitializer(), "");
+	public void addResource(Resource resource) throws StorageFullException {
+		try {
+			//TODO: Check if it exists?
+			if(resource.getID() != -1) {
+				//Assume that we're going cross-table, so we need a new RecordId.
+				resource.setID(-1);
+				
+				//Check to make sure that there's no existing GUID for this record.
+				if(getResourceWithGuid(resource.getRecordGuid()) != null) {
+					throw new RuntimeException("Why are you adding a record that already exists? Huh?");
+				}
+			}
+			storage.write(resource);
+		} catch (StorageFullException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void removeResource(Resource resource) {
-		this.resources.remove(resource.getResourceId());
+		storage.remove(resource);
 	}
 
-	public void addResource(Resource resource, ResourceInstaller initializer, String parentId) {
-		resource.setInitializer(initializer);
+	public void addResource(Resource resource, ResourceInstaller initializer, String parentId) throws StorageFullException{
+		resource.setInstaller(initializer);
 		resource.setParentId(parentId);
-		resources.put(resource.getResourceId(), resource);
+		addResource(resource);
 	}
 	
 	public Vector<Resource> getResourcesForParent(String parent) {
 		Vector<Resource> v = new Vector<Resource>();
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			Resource r = (Resource) en.nextElement();
-			if(parent.equals(r.getParentId())) {
-				v.addElement(r);
-			}
+		for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID,parent).elements(); en.hasMoreElements();) {
+			Resource r = (Resource) storage.read(((Integer)en.nextElement()).intValue());
+			v.addElement(r);
 		}
 		return v;
 	}
 
 	public Resource getResourceWithId(String id) {
-		return resources.get(id);
+		try {
+			return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_ID, id);
+		} catch(NoSuchElementException nsee) {
+			return null;
+		}
 	}
 	
 	public Resource getResourceWithGuid(String guid) {
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			Resource r = (Resource) en.nextElement();
-			if(r.getRecordGuid().equals(guid)) {
-				return r;
-			}
+		try {
+		return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, guid);
+		} catch(NoSuchElementException nsee) {
+			return null;
 		}
-		return null;
 	}
-
 
 	private Vector<Resource> GetResources() {
 		Vector<Resource> v = new Vector<Resource>();
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			v.addElement((Resource) en.nextElement());
+		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+			Resource r = (Resource)it.nextRecord();
+			v.addElement(r);
 		}
 		return v;
 	}
 	
 	private Vector<Resource> GetResources(int status) {
 		Vector<Resource> v = new Vector<Resource>();
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			Resource r = (Resource) en.nextElement();
+		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+			Resource r = (Resource)it.nextRecord();
 			if(r.getStatus() == status) {
 				v.addElement(r);
 			}
@@ -92,10 +152,9 @@ public class ResourceTable {
 
 	private Vector<Resource> GetUnreadyResources() {
 		Vector<Resource> v = new Vector<Resource>();
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			Resource r = (Resource) en.nextElement();
-			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED
-					&& r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE) {
+		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+			Resource r = (Resource)it.nextRecord();
+			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED && r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE) {
 				v.addElement(r);
 			}
 		}
@@ -107,6 +166,27 @@ public class ResourceTable {
 			return false;
 		} else {
 			return true;
+		}
+	}
+	
+	/*public boolean contains(Resource r) {
+		storage.getRecordForValue(fieldName, value)
+		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
+			if(((Resource)en.nextElement()).same(r)){
+				return true;
+			}
+		}
+		return false;
+	}*/
+	
+	public void commit(Resource r) throws UnresolvedResourceException{
+		//r should already be in the storage table...
+		try {
+			storage.write(r);
+			System.out.println(this);
+		}
+		catch(StorageFullException e) {
+			throw new UnresolvedResourceException(r,"Ran out of space while updating resource definition...");
 		}
 	}
 
@@ -124,7 +204,6 @@ public class ResourceTable {
 				//All operations regarding peers and master table
 				if (master != null) {
 					Resource peer = master.getResourceWithId(r.getResourceId());
-				
 					if (peer != null) {
 						//TODO: For now we're assuming that Versions greater than the 
 						//current are always acceptable
@@ -132,7 +211,9 @@ public class ResourceTable {
 							// This resource is already up to date in the master. Set 
 							// its status to installed already.
 							r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
+							commit(r);
 							continue;
+							
 						} else {
 							upgrade = true;
 						}
@@ -157,7 +238,7 @@ public class ResourceTable {
 							if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
 								// Nothing
 							} else {
-								handled = r.getInitializer().install(r, location, ref, this, upgrade);
+								handled = r.getInstaller().install(r, location, ref, this, upgrade);
 								if(handled) {
 									break;
 								}
@@ -165,7 +246,7 @@ public class ResourceTable {
 						}
 					} else {
 						try {
-							handled = r.getInitializer().install(r, location, ReferenceUtil.DeriveReference(location.getLocation()), this, upgrade);
+							handled = r.getInstaller().install(r, location, ReferenceUtil.DeriveReference(location.getLocation()), this, upgrade);
 							if(handled) {
 								break;
 							}
@@ -184,12 +265,13 @@ public class ResourceTable {
 		}
 	}
 	
-	public boolean upgradeTable(ResourceTable incoming) {
+	public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
 		if(!incoming.isReady()) {
 			return false;
 		}
 		
 		for(Resource r : incoming.GetResources()) {
+			try {
 			Resource peer = this.getResourceWithId(r.getResourceId());
 			if(peer == null) {
 				this.addResource(r);
@@ -201,15 +283,23 @@ public class ResourceTable {
 					//about for the future.
 				}
 				if(peer.getVersion() < r.getVersion()) {
-					peer.getInitializer().uninstall(peer, this, incoming);
+					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
+						//TODO: This should be an exception
+						return false;
+					}
 					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
 						this.addResource(r);
 					} else if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
-						r.getInitializer().upgrade(r);
-						r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
-						this.addResource(r);
+						if(r.getInstaller().upgrade(r,this)) {
+							r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
+							this.addResource(r);
+						}
 					}
 				}
+			}
+			} catch(StorageFullException sfe) {
+				sfe.printStackTrace();
+				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
 			}
 		}
 		
@@ -227,7 +317,7 @@ public class ResourceTable {
 		while(pendingDelete.size() > 0) {
 			for(Resource r : pendingDelete) {
 				//Delete pending resource, possibly marking further resources for deletion
-				r.getInitializer().uninstall(r, this, incoming);
+				r.getInstaller().uninstall(r, this, incoming);
 			}
 			pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
 			System.out.println("After of pending deletes:");

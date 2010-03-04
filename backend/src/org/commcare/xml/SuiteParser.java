@@ -7,14 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 
-import org.commcare.resources.model.LocaleFileResourceInitializer;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.XFormResourceInitializer;
+import org.commcare.resources.model.installers.LocaleFileInstaller;
+import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -44,7 +45,6 @@ public class SuiteParser extends ElementParser<Suite>  {
 		if(!parser.getName().toLowerCase().equals("suite")) {
 			throw new InvalidStructureException();
 		}
-		
     	
 		String sVersion = parser.getAttributeValue(null, "version");
 		int version = Integer.parseInt(sVersion);
@@ -73,12 +73,12 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	//resource def
                 	parser.nextTag();
                 	Resource r = new ResourceParser(parser).parse();
-                	table.addResource(r, new LocaleFileResourceInitializer(localeKey), resourceGuid);
+                	table.addResource(r, new LocaleFileInstaller(localeKey), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("xform")) {
                 	//skip xform stuff for now
                 	parser.nextTag();
                 	Resource r = new ResourceParser(parser).parse();
-                	table.addResource(r, new XFormResourceInitializer(), resourceGuid);
+                	table.addResource(r, new XFormInstaller(), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("detail")) {
                 	Detail d = new DetailParser(parser).parse();
                 	details.put(d.getId(), d);
@@ -93,7 +93,7 @@ public class SuiteParser extends ElementParser<Suite>  {
             eventType = parser.next();
         } while (eventType != KXmlParser.END_DOCUMENT);
 				
-		suite = new Suite(table, version, details, entries);
+		suite = new Suite(version, details, entries);
 		return suite;
 		
         
@@ -104,6 +104,11 @@ public class SuiteParser extends ElementParser<Suite>  {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new InvalidStructureException();
+		} catch (StorageFullException e) {
+			e.printStackTrace();
+			//BUT not really! This should maybe be added to the high level declaration
+			//instead? Or maybe there should be a more general Resource Management Exception?
 			throw new InvalidStructureException();
 		}
 	}

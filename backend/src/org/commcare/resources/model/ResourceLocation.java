@@ -8,17 +8,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.commcare.reference.ReferenceUtil;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
  *
  */
-public class ResourceLocation implements Persistable {
-	private int recordId = -1;
+public class ResourceLocation implements Externalizable {
 	private int authority;
 	private String location;
 	private boolean relative;
@@ -33,14 +32,6 @@ public class ResourceLocation implements Persistable {
 		this.relative = ReferenceUtil.isRelative(location);
 	}
 
-	public int getID() {
-		return recordId;
-	}
-
-	public void setID(int ID) {
-		recordId = ID;
-	}
-	
 	public int getAuthority() {
 		return authority;
 	}

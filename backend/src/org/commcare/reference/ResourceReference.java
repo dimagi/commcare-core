@@ -46,7 +46,7 @@ public class ResourceReference implements Reference {
 	}
 	
 	public String getURI() {
-		return "jr:/" + this.getURI();
+		return "jr:/" + this.URI;
 	}
 	
 	public Reference contextualize(String raw) {

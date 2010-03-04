@@ -64,9 +64,7 @@ public class TextParser extends ElementParser<Text> {
 	        if(texts.size() == 1) {
 	        	return texts.elementAt(0);
 	        } else {
-	        	Text[] composites = new Text[texts.size()];
-	        	texts.copyInto(composites);
-	        	Text c =  Text.CompositeText(composites);
+	        	Text c =  Text.CompositeText(texts);
 	        	return c;
 	        }
 		

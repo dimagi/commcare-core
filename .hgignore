@@ -1,3 +1,4 @@
 glob:local.properties
 glob:backend/bin/
 glob:application/bin/
+glob:application\build

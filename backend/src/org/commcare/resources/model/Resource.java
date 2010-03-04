@@ -16,6 +16,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -23,6 +24,11 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class Resource implements Persistable, IMetaData {
+	
+	public static final String META_INDEX_RESOURCE_ID = "ID";
+	public static final String META_INDEX_RESOURCE_GUID = "RGUID";
+	public static final String META_INDEX_PARENT_GUID = "PGUID";
+	public static final String META_INDEX_VERSION = "PGUID";
 	
 	public static final int RESOURCE_AUTHORITY_LOCAL = 0;
 	public static final int RESOURCE_AUTHORITY_REMOTE = 1;
@@ -109,11 +115,11 @@ public class Resource implements Persistable, IMetaData {
 		return version;
 	}
 	
-	public void setInitializer(ResourceInstaller initializer) {
+	public void setInstaller(ResourceInstaller initializer) {
 		this.initializer = initializer;
 	}
 	
-	public ResourceInstaller getInitializer() {
+	public ResourceInstaller getInstaller() {
 		return initializer;
 	}
 	public void setStatus(int status) {
@@ -129,23 +135,27 @@ public class Resource implements Persistable, IMetaData {
 	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		this.recordId = ExtUtil.readInt(in);
 		this.version = ExtUtil.readInt(in);
 		this.id = ExtUtil.readString(in);
 		this.guid = ExtUtil.readString(in);
 		this.status = ExtUtil.readInt(in);
+		this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		
-		locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList());
-		//TODO: Initializer
+		locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class),pf);
+		this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeNumeric(out,recordId);
 		ExtUtil.writeNumeric(out,version);
 		ExtUtil.writeString(out, id);
 		ExtUtil.writeString(out,guid);
-		ExtUtil.writeNumeric(out,version);
+		ExtUtil.writeNumeric(out,status);
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(parent));
 		
 		ExtUtil.write(out, new ExtWrapList(locations));
-		//TODO: Initializer
+		ExtUtil.write(out, new ExtWrapTagged(initializer));
 	}
 
 	public Hashtable getMetaData() {
@@ -158,13 +168,19 @@ public class Resource implements Persistable, IMetaData {
 	}
 
 	public Object getMetaData(String fieldName) {
-		if(fieldName.equals("id")) {
+		if(fieldName.equals(META_INDEX_RESOURCE_ID)) {
 			return id;
+		} else  if(fieldName.equals(META_INDEX_RESOURCE_GUID)) {
+			return guid;
+		} else if(fieldName.equals(META_INDEX_PARENT_GUID)) {
+			return parent == null ? "" : parent;
+		} else if(fieldName.equals(META_INDEX_VERSION)) {
+			return new Integer(version);
 		}
 		throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {"id"};
+		return new String[] {META_INDEX_RESOURCE_ID,META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID,META_INDEX_VERSION};
 	}
 }

@@ -4,6 +4,7 @@
 package org.commcare.resources.model;
 
 import org.commcare.reference.Reference;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
  * A resource installer is CommCare's local record of what a resource's
@@ -17,7 +18,7 @@ import org.commcare.reference.Reference;
  * @author ctsims
  *
  */
-public interface ResourceInstaller {
+public interface ResourceInstaller extends Externalizable {
 	
 	/**
 	 * @return true if a resource requires an initialization at
@@ -26,11 +27,11 @@ public interface ResourceInstaller {
 	public boolean requiresRuntimeInitialization();
 	
 	/**
-	 * initializes a resource for use at runtime.
+	 * initializes an installed resource for use at runtime.
 	 * @return true if a resource is ready for use. False if
 	 * a problem occurred.
 	 */
-	public boolean initializeResource(Resource r);
+	public boolean initialize();
 	
 	/**
 	 * Proceeds with the next step of installing resource r, keeping
@@ -42,13 +43,13 @@ public interface ResourceInstaller {
 	 * @param peer the current copy of a resource (if one exists)
 	 * @return The next step to be completed after this one.
 	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade);
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException;
 	
 	/**
 	 * Removes the binary files and cached data associated with a resource, often in order to 
 	 * overwrite their old location with a new resource.
 	 */
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming);
+	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException;
 	
-	public boolean upgrade(Resource r);
+	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException;
 }
