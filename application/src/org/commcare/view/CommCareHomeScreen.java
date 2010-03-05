@@ -4,6 +4,7 @@ package org.commcare.view;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.cases.util.ICaseType;
 import org.javarosa.core.services.locale.Localization;
@@ -33,17 +34,16 @@ public class CommCareHomeScreen extends List {
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
 	public Command admResetDemo = new Command("Reset Demo", Command.ITEM, 1);
 
-	public CommCareHomeScreen(CommCareHomeController controller, Vector<ICaseType> caseTypes, boolean adminMode) {
-		super("BRAC", List.IMPLICIT);
+	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode) {
+		super("CommCare", List.IMPLICIT);
 		this.controller = controller;
 		
-		Enumeration en = caseTypes.elements();
+		Enumeration en = suites.elements();
 		while(en.hasMoreElements()) {
-			ICaseType type = (ICaseType)en.nextElement();
-			append(type.getCaseTypeName(), null);
+			Suite suite = (Suite)en.nextElement();
+			append(suite.getName(), null);
 		}
 
-		//append(pendingReferrals);
 		append(sendAllUnsent);
 		setSendUnsent();
 
@@ -57,7 +57,6 @@ public class CommCareHomeScreen extends List {
 			addCommand(admEditUsers);
 			addCommand(admBackupRestore);
 			addCommand(admResetDemo);
-			//addCommand(admJunkInDaTrunk);
 		}
 	}
 	

@@ -13,6 +13,7 @@ import javax.microedition.midlet.MIDlet;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -99,6 +100,9 @@ public class CommCareContext {
 		inDemoMode = false;
 		
 		purgeScheduler();
+		registerResources();
+		
+		LanguageUtils.initializeLanguage(true,"sw");
 	}
 
 	private void failsafeInit (MIDlet m) {
@@ -192,8 +196,6 @@ public class CommCareContext {
 		PropertyManager._().setProperty(CommCareProperties.BACKUP_URL, postURL);
 		PropertyManager._().setProperty(CommCareProperties.RESTORE_URL, restoreURL );
 		PropertyManager._().setProperty(CommCareProperties.BACKUP_MODE, CommCareProperties.BACKUP_MODE_HTTP);
-        
-		LanguageUtils.initializeLanguage(true,"sw");
 	}
 	
 	public static void init(MIDlet m) {
@@ -394,6 +396,16 @@ public class CommCareContext {
 				sb.append(",");			
 		}
 		return sb.toString();
+	}
+	
+	private void registerResources() {
+		ResourceTable g = ResourceTable.RetrieveGlobalResourceTable();
+		try {
+			g.initializeResources();
+		} catch (ResourceInitializationException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error initializing Resource! " + e.getMessage());
+		}
 	}
 	
 }

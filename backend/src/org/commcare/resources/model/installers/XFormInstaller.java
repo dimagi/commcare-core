@@ -12,6 +12,7 @@ import java.util.Hashtable;
 
 import org.commcare.reference.Reference;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -46,7 +47,7 @@ public class XFormInstaller implements ResourceInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
-	public boolean initialize() {
+	public boolean initialize() throws ResourceInitializationException {
 		return false;
 	}
 

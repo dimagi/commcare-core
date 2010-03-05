@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.commcare.reference.ReferenceUtil;
+import org.commcare.reference.ReferenceManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -29,7 +29,7 @@ public class ResourceLocation implements Externalizable {
 	public ResourceLocation(int authority, String location) {
 		this.authority = authority;
 		this.location = location;
-		this.relative = ReferenceUtil.isRelative(location);
+		this.relative = ReferenceManager.isRelative(location);
 	}
 
 	public int getAuthority() {
@@ -47,13 +47,13 @@ public class ResourceLocation implements Externalizable {
 			throws IOException, DeserializationException {
 		this.authority = ExtUtil.readInt(in);
 		this.location = ExtUtil.readString(in);
-		this.relative = ReferenceUtil.isRelative(location);
+		this.relative = ReferenceManager.isRelative(location);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, authority);
 		ExtUtil.writeString(out, location);
-		this.relative = ReferenceUtil.isRelative(location);
+		this.relative = ReferenceManager.isRelative(location);
 	}
 	
 	

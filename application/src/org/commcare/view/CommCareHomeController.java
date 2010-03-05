@@ -10,6 +10,7 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.javarosa.cases.util.ICaseType;
 import org.javarosa.j2me.log.CrashHandler;
@@ -25,11 +26,11 @@ public class CommCareHomeController implements HandledCommandListener {
 	CommCareHomeTransitions transitions;
 	CommCareHomeScreen view;
 	
-	Vector<ICaseType> caseTypes;
+	Vector<Suite> suites;
 	
-	public CommCareHomeController (Vector<ICaseType> caseTypes) {
-		this.caseTypes = caseTypes;		
-		view = new CommCareHomeScreen(this, caseTypes, CommCareContext._().getUser().isAdminUser());
+	public CommCareHomeController (Vector<Suite> suites) {
+		this.suites = suites;		
+		view = new CommCareHomeScreen(this, suites, CommCareContext._().getUser().isAdminUser());
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {
@@ -46,16 +47,18 @@ public class CommCareHomeController implements HandledCommandListener {
 
 	public void _commandAction(Command c, Displayable d) {
 		if (c == view.select) {
-			Enumeration en = caseTypes.elements();
-			while(en.hasMoreElements()) {
-				ICaseType type = (ICaseType)en.nextElement();
-				if(view.getString(view.getCurrentIndex()).equals(type.getCaseTypeName())) {
-					transitions.caseChosen(type);
-				}
-			}
 
 			if(view.getCurrentItem() == view.sendAllUnsent) {
 				transitions.sendAllUnsent();
+			} else {
+			
+				Enumeration en = suites.elements();
+				while(en.hasMoreElements()) {
+					Suite suite = (Suite)en.nextElement();
+					if(view.getString(view.getCurrentIndex()).equals(suite.getName())) {
+						transitions.viewSuite(suite);
+					}
+				}
 			}
 		} else if (c == view.exit) {
 			transitions.logout();

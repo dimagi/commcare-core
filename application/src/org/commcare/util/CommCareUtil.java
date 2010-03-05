@@ -8,22 +8,20 @@ import java.util.Vector;
 
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.IPatientReferralFilter;
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.Map;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportService;
-import org.javarosa.xform.util.XFormUtils;
 
 /**
  * @author ctsims
@@ -75,40 +73,6 @@ public class CommCareUtil {
 		}
 	}
 	
-	/**
-	 * @param formList - A String array of the names of the forms.  This should be the name of the 
-	 * XForm file in the resources
-	 * @return
-	 */
-	public static void reloadForms(String []formList) {
-		IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
-		Map titleToID = new Map();
-		
-		// Loop through rms finding title -> formID mapping
-		IStorageIterator fi = forms.iterate();
-		while (fi.hasMore()) {
-			try {
-				FormDef f = (FormDef)fi.nextRecord();
-				titleToID.put(f.getTitle(), new Integer(f.getID()));
-			} catch(Exception e) {
-				System.out.println(e);
-			}
-		}
-		
-		// Now loop through the forms on the file system
-		for(int i=0; i<formList.length; i++) {
-			FormDef f = XFormUtils.getFormFromResource(formList[i]);
-			if(titleToID.containsKey(f.getTitle())) {
-				System.out.println("Replacing form: " + f.getTitle());
-				f.setID(((Integer)titleToID.get(f.getTitle())).intValue());
-				try {
-					forms.write(f);
-				} catch (StorageFullException e) {
-					throw new RuntimeException("uh-oh, storage full [forms]"); //TODO: handle this
-				}
-			}
-		}
-	}
 	
 	public static int getNumberUnsent() {
 		return TransportService.getCachedMessagesSize();
@@ -195,6 +159,17 @@ public class CommCareUtil {
 	}
 	
 	public static void launchHomeState() {
-		new CommCareHomeState().start();
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+	}
+	
+	public static Vector<Suite> getInstalledSuites() {
+		Vector<Suite> suites = new Vector<Suite>();
+		
+		IStorageUtility storage = StorageManager.getStorage(Suite.STORAGE_KEY);
+		for(IStorageIterator iterator = storage.iterate(); iterator.hasMore();) {
+			Suite s = (Suite)iterator.nextRecord();
+			suites.addElement(s);
+		}
+		return suites;
 	}
 }

@@ -22,7 +22,8 @@ public interface ResourceInstaller extends Externalizable {
 	
 	/**
 	 * @return true if a resource requires an initialization at
-	 * runtime in order to work properly. False otherwise 
+	 * runtime in order to work properly. False otherwise.
+	 * This method may be unnecessary.
 	 */
 	public boolean requiresRuntimeInitialization();
 	
@@ -31,7 +32,7 @@ public interface ResourceInstaller extends Externalizable {
 	 * @return true if a resource is ready for use. False if
 	 * a problem occurred.
 	 */
-	public boolean initialize();
+	public boolean initialize() throws ResourceInitializationException;
 	
 	/**
 	 * Proceeds with the next step of installing resource r, keeping

@@ -23,7 +23,7 @@ public class HttpReference implements Reference {
 	 * @see org.commcare.reference.Reference#contextualize(java.lang.String)
 	 */
 	public Reference contextualize(String raw) {
-		return new HttpReference(raw, ReferenceUtil.contextualizeURI(this.URI, raw));
+		return new HttpReference(raw, ReferenceManager.contextualizeURI(this.URI, raw));
 	}
 
 	/* (non-Javadoc)

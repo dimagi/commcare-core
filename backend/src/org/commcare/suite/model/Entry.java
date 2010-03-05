@@ -47,6 +47,18 @@ public class Entry implements Externalizable{
 	public String getCommandId() {
 		return commandId;
 	}
+	
+	public Text getText() {
+		return commandText;
+	}
+	
+	public Hashtable<String, String> getReferences() {
+		return references;
+	}
+	
+	public String getXFormNamespace() {
+		return xFormNamespace;
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
@@ -56,7 +68,7 @@ public class Entry implements Externalizable{
 		this.commandId = ExtUtil.readString(in);
 		this.commandText = (Text)ExtUtil.read(in, Text.class, pf);
 		
-		ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+		references = (Hashtable<String,String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {

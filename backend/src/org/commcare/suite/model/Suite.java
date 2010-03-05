@@ -51,6 +51,20 @@ public class Suite implements Persistable {
 	public void setID(int ID) {
 		recordId = ID;
 	}
+	
+	public String getName() {
+		//BAD! BAD! BAD!
+		return "Suite " + this.recordId;
+	}
+	
+	/**
+	 * WOAH! UNSAFE! Copy, maybe? But this is _wicked_ dangerous.
+	 * 
+	 * @return
+	 */
+	public Hashtable<String, Entry> getEntries() {
+		return entries;
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {

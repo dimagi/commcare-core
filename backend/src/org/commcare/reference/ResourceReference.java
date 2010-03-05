@@ -46,15 +46,19 @@ public class ResourceReference implements Reference {
 	}
 	
 	public String getURI() {
-		return "jr:/" + this.URI;
+		return "jr://" + "resource" + this.URI;
 	}
 	
 	public Reference contextualize(String raw) {
-		return new ResourceReference(raw, ReferenceUtil.contextualizeURI(this.URI, raw));
+		return new ResourceReference(raw, ReferenceManager.contextualizeURI(this.URI, raw));
 	}
 
 	public boolean isReadOnly() {
 		return true;
+	}
+	
+	public String getResourceURI() {
+		return URI;
 	}
 	
 	public boolean equals(Object o) {

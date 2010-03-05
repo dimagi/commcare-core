@@ -3,14 +3,14 @@
  */
 package org.commcare.api.transitions;
 
-import org.javarosa.cases.util.ICaseType;
+import org.commcare.suite.model.Suite;
 
 /**
  * @author ctsims
  *
  */
 public interface CommCareHomeTransitions {
-	void caseChosen (ICaseType type);
+	void viewSuite (Suite suite);
 	void sendAllUnsent();
 	void logout();
 	

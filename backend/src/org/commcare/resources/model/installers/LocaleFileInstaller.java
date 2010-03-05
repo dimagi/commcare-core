@@ -10,13 +10,14 @@ import java.io.InputStream;
 
 import org.commcare.reference.InvalidReferenceException;
 import org.commcare.reference.Reference;
-import org.commcare.reference.ReferenceUtil;
+import org.commcare.reference.ReferenceDataSource;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.javarosa.core.services.locale.LocalizationUtils;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -45,30 +46,9 @@ public class LocaleFileInstaller implements ResourceInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
-	public boolean initialize() {
-		//TODO: Set 'r' status as error on error?
-			InputStream is = null;
-			try {
-				LocalizationUtils.parseLocaleInput(ReferenceUtil.DeriveReference(localReference).getStream());
-				return true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			} catch (InvalidReferenceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			} finally {
-				if(is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						//Is this actually a problem? Who knows...
-						e.printStackTrace();
-					}
-				}
-			}
+	public boolean initialize() throws ResourceInitializationException {
+		Localization.getGlobalLocalizerAdvanced().registerLocaleResource(locale, new ReferenceDataSource(localReference));
+		return true;
 	}
 
 	/* (non-Javadoc)

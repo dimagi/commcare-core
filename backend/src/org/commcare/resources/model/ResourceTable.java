@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import org.commcare.reference.InvalidReferenceException;
 import org.commcare.reference.Reference;
-import org.commcare.reference.ReferenceUtil;
+import org.commcare.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -38,11 +38,7 @@ public class ResourceTable {
 		if(global == null) {
 			global = new ResourceTable();
 			global.storage = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY_GLOBAL);
-		} else {			
-			//Close and re-open, for conservative management.
-			global.storage.close();
-			global.storage = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY_GLOBAL);
-		}
+		} 
 		//Not sure if this reference is actually a good idea, or whether we should 
 		//get the storage link every time... For now, we'll reload storage each time
 		System.out.println("Global Resource Table");
@@ -246,7 +242,7 @@ public class ResourceTable {
 						}
 					} else {
 						try {
-							handled = r.getInstaller().install(r, location, ReferenceUtil.DeriveReference(location.getLocation()), this, upgrade);
+							handled = r.getInstaller().install(r, location, ReferenceManager.DeriveReference(location.getLocation()), this, upgrade);
 							if(handled) {
 								break;
 							}
@@ -353,6 +349,15 @@ public class ResourceTable {
 			return "Unknown";
 		}
 	}
+	
+	public void initializeResources() throws ResourceInitializationException {
+		for(Resource r : this.GetResources()) {
+			ResourceInstaller i = r.getInstaller();
+			if(i.requiresRuntimeInitialization()) {
+				i.initialize();
+			}
+		}
+	}
 
 	private static Vector<Reference> explodeLocalReferences(Resource r, ResourceTable t) {
 		Vector<ResourceLocation> locations = r.getLocations();
@@ -366,7 +371,7 @@ public class ResourceTable {
 						Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
 						for(Reference context : parentRefs) {
 							try{
-								ret.addElement(ReferenceUtil.DeriveReference(context, location.getLocation()));
+								ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
 							}catch(InvalidReferenceException ire) {
 								ire.printStackTrace();
 							}
@@ -376,7 +381,7 @@ public class ResourceTable {
 			}
 			else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
 				try {
-					ret.addElement(ReferenceUtil.DeriveReference(location.getLocation()));
+					ret.addElement(ReferenceManager.DeriveReference(location.getLocation()));
 				} catch (InvalidReferenceException e) {
 					e.printStackTrace();
 				}
@@ -400,7 +405,7 @@ public class ResourceTable {
 				Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
 				for(Reference context : parentRefs) {
 					try {
-						ret.addElement(ReferenceUtil.DeriveReference(context, location.getLocation()));
+						ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
 					} catch (InvalidReferenceException e) {
 						e.printStackTrace();
 					}
@@ -428,7 +433,7 @@ public class ResourceTable {
 						Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
 						for(Reference context : parentRefs) {
 							try {
-								ret.addElement(ReferenceUtil.DeriveReference(context, location.getLocation()));
+								ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
 							} catch (InvalidReferenceException e) {
 								e.printStackTrace();
 							}
@@ -437,7 +442,7 @@ public class ResourceTable {
 				}
 			} else  {
 				try {
-					ret.addElement(ReferenceUtil.DeriveReference(location.getLocation()));
+					ret.addElement(ReferenceManager.DeriveReference(location.getLocation()));
 				} catch (InvalidReferenceException e) {
 					e.printStackTrace();
 				}

@@ -3,15 +3,13 @@
  */
 package org.commcare.applogic;
 
-import java.util.Vector;
-
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareBackupRestoreSnapshot;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
-import org.javarosa.cases.util.ICaseType;
 import org.javarosa.core.api.State;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.properties.api.PropertyUpdateState;
@@ -23,7 +21,7 @@ import org.javarosa.services.properties.api.PropertyUpdateState;
 public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 	public void start () {
-		CommCareHomeController home = new CommCareHomeController(new Vector<ICaseType>());
+		CommCareHomeController home = new CommCareHomeController(CommCareUtil.getInstalledSuites());
 		home.setTransitions(this);
 		home.start();
 	}
@@ -35,8 +33,15 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		new CommCareLoginState().start();
 	}
 
-	public void caseChosen(ICaseType type) {
-		//new BracCaseManagementState(type).start();
+	public void viewSuite(Suite suite) {
+		CommCareSuiteHomeState state = new CommCareSuiteHomeState(suite) {
+
+			public void exit() {
+				CommCareUtil.launchHomeState();
+			}
+			
+		};
+		J2MEDisplay.startStateWithLoadingScreen(state);
 	}
 
 	public void sendAllUnsent() {

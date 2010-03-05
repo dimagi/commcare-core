@@ -3,12 +3,22 @@
  */
 package org.commcare.reference;
 
+import java.util.Vector;
+
 
 /**
  * @author ctsims
  *
  */
-public class ReferenceUtil {
+public class ReferenceManager {
+	
+	private static Vector<Reference> referenceRoots = new Vector<Reference>();
+	
+	public static Reference[] getRoots() {
+		Reference[] roots = new Reference[referenceRoots.size()];
+		referenceRoots.copyInto(roots);
+		return roots;
+	}
 	
 	public static Reference DeriveReference(String value) throws InvalidReferenceException{
 		return DeriveReference(null, value);
