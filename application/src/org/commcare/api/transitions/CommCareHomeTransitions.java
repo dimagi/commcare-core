@@ -3,14 +3,15 @@
  */
 package org.commcare.api.transitions;
 
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 
 /**
  * @author ctsims
  *
  */
-public interface CommCareHomeTransitions {
-	void viewSuite (Suite suite);
+public interface CommCareHomeTransitions  extends SuiteTransitions {
+	void viewSuite (Suite suite, Menu m);
 	void sendAllUnsent();
 	void logout();
 	

@@ -4,6 +4,8 @@
 package org.commcare.applogic;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareBackupRestoreSnapshot;
 import org.commcare.util.CommCareContext;
@@ -33,8 +35,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		new CommCareLoginState().start();
 	}
 
-	public void viewSuite(Suite suite) {
-		CommCareSuiteHomeState state = new CommCareSuiteHomeState(suite) {
+	public void viewSuite(Suite suite, Menu m) {
+		CommCareSuiteHomeState state = new CommCareSuiteHomeState(suite, m) {
 
 			public void exit() {
 				CommCareUtil.launchHomeState();
@@ -90,6 +92,14 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 	public void viewSaved() {
 		throw new RuntimeException("not hooked up yet");
+	}
+
+	public void entry(Entry entry) {
+		CommCareUtil.launchEntry(entry,this);
+	}
+
+	public void exit() {
+		logout();
 	}
 
 }

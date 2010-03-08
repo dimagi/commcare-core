@@ -3,16 +3,16 @@
  */
 package org.commcare.view;
 
-import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
-import org.javarosa.cases.util.ICaseType;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -51,14 +51,18 @@ public class CommCareHomeController implements HandledCommandListener {
 			if(view.getCurrentItem() == view.sendAllUnsent) {
 				transitions.sendAllUnsent();
 			} else {
-			
-				Enumeration en = suites.elements();
-				while(en.hasMoreElements()) {
-					Suite suite = (Suite)en.nextElement();
-					if(view.getString(view.getCurrentIndex()).equals(suite.getName())) {
-						transitions.viewSuite(suite);
+				
+				Menu m = view.getSelectedMenu();
+				if(m != null) {
+					Suite s = view.getSelectedSuite();
+					transitions.viewSuite(s, m);
+				} else {
+					Entry e = view.getSelectedEntry();
+					if(e != null) {
+						Suite s = view.getSelectedSuite();
+						transitions.entry(e);
 					}
-				}
+				} 
 			}
 		} else if (c == view.exit) {
 			transitions.logout();

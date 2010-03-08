@@ -6,6 +6,7 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -13,6 +14,7 @@ import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -50,6 +52,7 @@ public class SuiteParser extends ElementParser<Suite>  {
 		int version = Integer.parseInt(sVersion);
 		Hashtable<String, Detail> details = new Hashtable<String, Detail>();
 		Hashtable<String, Entry> entries = new Hashtable<String, Entry>();
+		Vector<Menu> menus = new Vector<Menu>();
 		
 		try {
 			
@@ -82,6 +85,9 @@ public class SuiteParser extends ElementParser<Suite>  {
                 } else if(parser.getName().toLowerCase().equals("detail")) {
                 	Detail d = new DetailParser(parser).parse();
                 	details.put(d.getId(), d);
+                } else if(parser.getName().toLowerCase().equals("menu")) {
+                	Menu m = new MenuParser(parser).parse();
+                	menus.addElement(m);
                 } else {
                 	System.out.println("Unrecognized Tag: " + parser.getName());
                 }
@@ -93,7 +99,7 @@ public class SuiteParser extends ElementParser<Suite>  {
             eventType = parser.next();
         } while (eventType != KXmlParser.END_DOCUMENT);
 				
-		suite = new Suite(version, details, entries);
+		suite = new Suite(version, details, entries,menus);
 		return suite;
 		
         

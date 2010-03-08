@@ -2,11 +2,13 @@ package org.commcare.view;
 
 
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareUtil;
-import org.javarosa.cases.util.ICaseType;
 import org.javarosa.core.services.locale.Localization;
 
 import de.enough.polish.ui.ChoiceItem;
@@ -33,6 +35,11 @@ public class CommCareHomeScreen extends List {
 	public Command admBackupRestore = new Command("Backup/Restore", Command.ITEM, 1);
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
 	public Command admResetDemo = new Command("Reset Demo", Command.ITEM, 1);
+	
+	//I hate this...
+	private Hashtable<Integer, Suite> suiteTable = new Hashtable<Integer,Suite>();
+	private Hashtable<Integer, Entry> entryTable = new Hashtable<Integer,Entry>();
+	private Hashtable<Integer, Menu> menuTable = new Hashtable<Integer,Menu>();
 
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode) {
 		super("CommCare", List.IMPLICIT);
@@ -41,7 +48,21 @@ public class CommCareHomeScreen extends List {
 		Enumeration en = suites.elements();
 		while(en.hasMoreElements()) {
 			Suite suite = (Suite)en.nextElement();
-			append(suite.getName(), null);
+			for(Menu m : suite.getMenus()) {
+				if("root".equals(m.getId())){
+					for(String id : m.getCommandIds()) {
+						Entry e = suite.getEntries().get(id);
+						int location = append(e.getText().evaluate(), null);
+						suiteTable.put(new Integer(location),suite);
+						entryTable.put(new Integer(location),e);
+					}
+				}
+				else if(m.getRoot().equals("root")) {
+					int location = append(m.getName().evaluate(), null);
+					suiteTable.put(new Integer(location),suite);
+					menuTable.put(new Integer(location),m);
+				}
+			}
 		}
 
 		append(sendAllUnsent);
@@ -59,12 +80,40 @@ public class CommCareHomeScreen extends List {
 			addCommand(admResetDemo);
 		}
 	}
-	
 
 	public void setSendUnsent() {
 		String numunsent = "error"; 
 		numunsent = String.valueOf(CommCareUtil.getNumberUnsent());
 		sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
 	}
-
+	
+	public Suite getSelectedSuite() {
+		Integer selected = new Integer(this.getSelectedIndex());
+		
+		if(suiteTable.containsKey(selected)) {
+			return suiteTable.get(selected);
+		} else {
+			return null;
+		}
+	}
+	
+	public Menu getSelectedMenu() {
+		Integer selected = new Integer(this.getSelectedIndex());
+		
+		if(menuTable.containsKey(selected)) {
+			return menuTable.get(selected);
+		} else {
+			return null;
+		}
+	}
+	
+	public Entry getSelectedEntry() {
+		Integer selected = new Integer(this.getSelectedIndex());
+		
+		if(entryTable.containsKey(selected)) {
+			return entryTable.get(selected);
+		} else {
+			return null;
+		}
+	}
 }

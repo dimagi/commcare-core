@@ -5,7 +5,6 @@ package org.commcare.view;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
@@ -13,6 +12,7 @@ import javax.microedition.lcdui.List;
 
 import org.commcare.api.transitions.SuiteTransitions;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
@@ -28,11 +28,13 @@ public class CommCareSuiteController implements HandledCommandListener {
 	SuiteTransitions transitions;
 	
 	Suite suite;
+	Menu m;
 
 	Entry[] indexMapping = new Entry[]{};
 	
-	public CommCareSuiteController(Suite suite) {
+	public CommCareSuiteController(Suite suite, Menu m) {
 		this.suite = suite;
+		this.m = m;
 		
 		view = new CommCareSuiteView("Select Action");
 		configView();
@@ -49,9 +51,9 @@ public class CommCareSuiteController implements HandledCommandListener {
 	
 	private void configView() {
 		Hashtable<String, Entry> entries = suite.getEntries();
-		indexMapping = new Entry[entries.size()];
-		for(Enumeration en = entries.elements(); en.hasMoreElements() ; ) {
-			Entry entry = (Entry)en.nextElement();
+		indexMapping = new Entry[m.getCommandIds().size()];
+		for(String id : m.getCommandIds()) {
+			Entry entry = entries.get(id);
 			int index = view.append(entry.getText().evaluate(), null);
 			indexMapping[index] = entry;
 		}

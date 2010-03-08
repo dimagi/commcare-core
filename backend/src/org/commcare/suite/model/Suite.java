@@ -7,13 +7,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Vector;
 
-import org.commcare.resources.model.ResourceTable;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -30,6 +29,7 @@ public class Suite implements Persistable {
 	
 	private Hashtable<String, Detail> details;
 	private Hashtable<String, Entry> entries;
+	private Vector<Menu> menus;
 	
 	/**
 	 * For serialization only;
@@ -38,10 +38,11 @@ public class Suite implements Persistable {
 		
 	}
 	
-	public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries) {
+	public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries, Vector<Menu> menus) {
 		this.version = version;
 		this.details = details;
 		this.entries = entries;
+		this.menus = menus;
 	}
 
 	public int getID() {
@@ -55,6 +56,10 @@ public class Suite implements Persistable {
 	public String getName() {
 		//BAD! BAD! BAD!
 		return "Suite " + this.recordId;
+	}
+	
+	public Vector<Menu> getMenus() {
+		return menus;
 	}
 	
 	/**
@@ -72,6 +77,7 @@ public class Suite implements Persistable {
 		this.version = ExtUtil.readInt(in);
 		this.details = (Hashtable<String, Detail>)ExtUtil.read(in,new ExtWrapMap(String.class, Detail.class), pf);
 		this.entries = (Hashtable<String, Entry>)ExtUtil.read(in,new ExtWrapMap(String.class, Entry.class), pf);
+		this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class),pf);
 		
 	}
 
@@ -80,6 +86,7 @@ public class Suite implements Persistable {
 		ExtUtil.writeNumeric(out, version);
 		ExtUtil.write(out, new ExtWrapMap(details));
 		ExtUtil.write(out, new ExtWrapMap(entries));
+		ExtUtil.write(out, new ExtWrapList(menus));
 	}
 	
 	
