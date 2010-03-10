@@ -3,13 +3,20 @@
  */
 package org.commcare.applogic;
 
+import java.util.Vector;
+
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceLocation;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareBackupRestoreSnapshot;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
+import org.commcare.util.CommCareManager;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
 import org.javarosa.core.api.State;
@@ -23,7 +30,7 @@ import org.javarosa.services.properties.api.PropertyUpdateState;
 public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 	public void start () {
-		CommCareHomeController home = new CommCareHomeController(CommCareUtil.getInstalledSuites());
+		CommCareHomeController home = new CommCareHomeController(CommCareManager._().getInstalledSuites());
 		home.setTransitions(this);
 		home.start();
 	}
@@ -102,4 +109,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		logout();
 	}
 
+	public void upgrade() {
+		CommCareManager._().upgrade();
+	}
 }

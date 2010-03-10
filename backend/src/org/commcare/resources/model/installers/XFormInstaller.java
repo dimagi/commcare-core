@@ -3,59 +3,26 @@
  */
 package org.commcare.resources.model.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Hashtable;
 
 import org.commcare.reference.Reference;
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
-import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.parse.XFormParser;
 
 /**
  * @author ctsims
  *
  */
-public class XFormInstaller implements ResourceInstaller {
-	
-	private IStorageUtility cacheStorage;
-	
-	private IStorageUtility storage() {
-		if(cacheStorage == null) {
-			cacheStorage = StorageManager.getStorage(FormDef.STORAGE_KEY);
-		}
-		return cacheStorage;
-	}
-	
-	int cacheLocation;
+public class XFormInstaller extends CacheInstaller {
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-	 */
-	public boolean initialize() throws ResourceInitializationException {
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-	 */
-	public boolean requiresRuntimeInitialization() {
-		return false;
+	protected String getCacheKey() {
+		return FormDef.STORAGE_KEY;
 	}
 
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
@@ -82,14 +49,12 @@ public class XFormInstaller implements ResourceInstaller {
 				cacheLocation = formDef.getID();
 				
 				//Resource is installed and ready for upgrade 
-				r.setStatus(Resource.RESOURCE_STATUS_UPGRADE);
-				table.commit(r);
+				table.commit(r,Resource.RESOURCE_STATUS_UPGRADE);
 			} else {
 				storage().write(formDef);
 				cacheLocation = formDef.getID();
 				//Resource is fully installed
-				r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
-				table.commit(r);
+				table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
 			}
 			return true;
 		}
@@ -99,12 +64,6 @@ public class XFormInstaller implements ResourceInstaller {
 			e.printStackTrace();
 			return false;
 		}
-	}
-	
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
-		storage().remove(cacheLocation);
-		table.removeResource(r);
-		return true;
 	}
 	
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
@@ -118,13 +77,5 @@ public class XFormInstaller implements ResourceInstaller {
 			return false;
 		}
 		return true;
-	}
-
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		cacheLocation = ExtUtil.readInt(in);
-	}
-
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out, cacheLocation);
 	}
 }

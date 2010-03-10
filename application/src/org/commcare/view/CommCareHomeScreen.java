@@ -35,6 +35,7 @@ public class CommCareHomeScreen extends List {
 	public Command admBackupRestore = new Command("Backup/Restore", Command.ITEM, 1);
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
 	public Command admResetDemo = new Command("Reset Demo", Command.ITEM, 1);
+	public Command admUpgrade = new Command("Check For Updates", Command.ITEM, 1);
 	
 	//I hate this...
 	private Hashtable<Integer, Suite> suiteTable = new Hashtable<Integer,Suite>();
@@ -78,6 +79,7 @@ public class CommCareHomeScreen extends List {
 			addCommand(admEditUsers);
 			addCommand(admBackupRestore);
 			addCommand(admResetDemo);
+			addCommand(admUpgrade);
 		}
 	}
 

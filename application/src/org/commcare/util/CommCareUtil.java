@@ -12,9 +12,9 @@ import org.commcare.applogic.CommCareCaseSelectState;
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareReferralSelectState;
-import org.commcare.applogic.CommCareSuiteHomeState;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CaseEntity;
@@ -50,8 +50,7 @@ public class CommCareUtil {
 	private final static String PROP_BUILD_DATE = "Built-on";
 	private final static String PROP_RELEASE_DATE = "Released-on";
 	private final static String PROP_BUILD_NUM = "Build-Number";
-	public final static String PROP_INITIAL_SUITE = "Initial-Suite-Reference";
-	public final static String PROP_INITIAL_VERSION = "Initial-Suite-Version";
+	private final static String PROP_PROFILE_REFERENCE = "Profile";
 	
 	public final static int VERSION_SHORT = 1;
 	public final static int VERSION_MED = 2;
@@ -86,6 +85,10 @@ public class CommCareUtil {
 	
 	public static int getNumberUnsent() {
 		return TransportService.getCachedMessagesSize();
+	}
+	
+	public static String getProfileReference() {
+		return getAppProperty(PROP_PROFILE_REFERENCE);
 	}
 		
 	public static String getAppProperty (String key) {
@@ -239,16 +242,5 @@ public class CommCareUtil {
 			}
 			J2MEDisplay.startStateWithLoadingScreen(select);
 		}
-	}
-	
-	public static Vector<Suite> getInstalledSuites() {
-		Vector<Suite> suites = new Vector<Suite>();
-		
-		IStorageUtility storage = StorageManager.getStorage(Suite.STORAGE_KEY);
-		for(IStorageIterator iterator = storage.iterate(); iterator.hasMore();) {
-			Suite s = (Suite)iterator.nextRecord();
-			suites.addElement(s);
-		}
-		return suites;
 	}
 }

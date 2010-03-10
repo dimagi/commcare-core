@@ -27,9 +27,7 @@ public class EntryParser extends ElementParser<Entry> {
 	 * @see org.commcare.xml.ElementParser#parse()
 	 */
 	public Entry parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("entry")) {
-			throw new InvalidStructureException();
-		}
+		this.checkNode("entry");
 		
 		try {
 		

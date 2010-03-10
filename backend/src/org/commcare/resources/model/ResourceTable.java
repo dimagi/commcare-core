@@ -56,10 +56,6 @@ public class ResourceTable {
 			if(utilityName.equals(storageKey)) {
 				storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
 				table.storage = storage;
-				//And for now, clear it out, because we don't know what's in there.
-				table.storage.removeAll();
-				table.storage.close();
-				table.storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
 			}
 		}
 		//Otherwise, create a new one.
@@ -72,7 +68,22 @@ public class ResourceTable {
 		return table;
 	}
 
-	public void addResource(Resource resource) throws StorageFullException {
+	public void removeResource(Resource resource) {
+		storage.remove(resource);
+	}
+	
+	public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException{
+		resource.setInstaller(initializer);
+		resource.setParentId(parentId);
+		addResource(resource, status);
+	}
+	
+	public void addResource(Resource resource, ResourceInstaller initializer, String parentId) throws StorageFullException{
+		addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
+	}
+	
+	public void addResource(Resource resource, int status) throws StorageFullException {
+		resource.setStatus(status);
 		try {
 			//TODO: Check if it exists?
 			if(resource.getID() != -1) {
@@ -89,16 +100,6 @@ public class ResourceTable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public void removeResource(Resource resource) {
-		storage.remove(resource);
-	}
-
-	public void addResource(Resource resource, ResourceInstaller initializer, String parentId) throws StorageFullException{
-		resource.setInstaller(initializer);
-		resource.setParentId(parentId);
-		addResource(resource);
 	}
 	
 	public Vector<Resource> getResourcesForParent(String parent) {
@@ -150,7 +151,10 @@ public class ResourceTable {
 		Vector<Resource> v = new Vector<Resource>();
 		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
 			Resource r = (Resource)it.nextRecord();
-			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED && r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE) {
+			//If the resource is installed, it doesn't need anything
+			//If the resource is marked as ready for upgrade, it's ready
+			//If the resource is marked as pending, it isn't capable of installation yet
+			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED && r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE && r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
 				v.addElement(r);
 			}
 		}
@@ -165,15 +169,20 @@ public class ResourceTable {
 		}
 	}
 	
-	/*public boolean contains(Resource r) {
-		storage.getRecordForValue(fieldName, value)
-		for (Enumeration en = resources.elements(); en.hasMoreElements();) {
-			if(((Resource)en.nextElement()).same(r)){
-				return true;
-			}
+	public void commit(Resource r, int status, int version) throws UnresolvedResourceException{
+		if(r.getVersion() == Resource.RESOURCE_VERSION_UNKNOWN) {
+			//Try to update the version. 
+			r.setVersion(version);
+		} else {
+			//Otherwise, someone screwed up
 		}
-		return false;
-	}*/
+		commit(r, status);
+	}
+	
+	public void commit(Resource r, int status) throws UnresolvedResourceException{
+		r.setStatus(status);
+		commit(r);
+	}
 	
 	public void commit(Resource r) throws UnresolvedResourceException{
 		//r should already be in the storage table...
@@ -203,19 +212,18 @@ public class ResourceTable {
 					if (peer != null) {
 						//TODO: For now we're assuming that Versions greater than the 
 						//current are always acceptable
-						if (peer.getVersion() >= r.getVersion()) {
+						if (!r.isNewer(peer)) {
 							// This resource is already up to date in the master. Set 
 							// its status to installed already.
-							r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
-							commit(r);
+							//TODO: If the resource has kids in this table who are pending
+							//we should probably just remove them. Probably a non-issue/
+							//no-op, though.
+							commit(r,Resource.RESOURCE_STATUS_INSTALLED);
 							continue;
 							
 						} else {
 							upgrade = true;
 						}
-						//TODO: This might not be worth the time it takes to pre-calculate.
-						//Should consider moving this to after it is determined whether
-						//local references exist;
 						invalid = ResourceTable.explodeLocalReferences(peer, master);
 					}
 				}
@@ -224,6 +232,9 @@ public class ResourceTable {
 				// master);
 
 				boolean handled = false;
+				
+				//TODO: Possibly check if resource status is local and proceeding
+				//to skip this huge (although in reality like one step) chunk
 
 				for (ResourceLocation location : r.getLocations()) {
 					if(handled) {
@@ -232,7 +243,7 @@ public class ResourceTable {
 					if (location.isRelative()) {
 						for (Reference ref : explodeReferences(location, r,this, master)) {
 							if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
-								// Nothing
+								System.out.println("Invalid (Stale) local reference attempt for: " + location.getLocation());
 							} else {
 								handled = r.getInstaller().install(r, location, ref, this, upgrade);
 								if(handled) {
@@ -259,18 +270,25 @@ public class ResourceTable {
 			}
 			v = GetUnreadyResources();
 		}
+		
+		//Wipe out any resources which are still pending. If they weren't updated by their 
+		//parent, they aren't relevant.
+		for(Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
+			this.removeResource(stillPending);
+		}
 	}
 	
 	public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
 		if(!incoming.isReady()) {
 			return false;
 		}
+		//Everything incoming should be marked either ready or upgrade
 		
 		for(Resource r : incoming.GetResources()) {
 			try {
 			Resource peer = this.getResourceWithId(r.getResourceId());
 			if(peer == null) {
-				this.addResource(r);
+				this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
 			} else {
 				if(peer.getVersion() == r.getVersion()) {
 					//Same resource. Don't do anything with it, it has no
@@ -284,11 +302,10 @@ public class ResourceTable {
 						return false;
 					}
 					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-						this.addResource(r);
+						this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
 					} else if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
 						if(r.getInstaller().upgrade(r,this)) {
-							r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
-							this.addResource(r);
+							this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
 						}
 					}
 				}
@@ -320,15 +337,25 @@ public class ResourceTable {
 			System.out.println(this);
 		}
 		
+		incoming.cleanup();
 		return true;
 	}
 	
 	public String toString() {
 		String output = "";
+		int ml = 0;
 		for(Resource r : GetResources()) {
-			output += "| " + r.getResourceId() + " | " + r.getVersion() + " | " + getStatus(r.getStatus()) + " |\n";
+			String line = "| " + r.getResourceId() + " | " + r.getVersion() + " | " + getStatus(r.getStatus()) + " |\n";
+			output += line;
+			if(line.length() > ml) {
+				ml = line.length();
+			}
 		}
-		return output;
+		String cap = "";
+		for(int i = 0 ; i < ml ; ++i ) {
+			cap += "-";
+		}
+		return cap + "\n" + output + cap + "\n";
 	}
 	
 	public String getStatus(int status) {
@@ -337,8 +364,8 @@ public class ResourceTable {
 			return "Uninitialized";
 		case Resource.RESOURCE_STATUS_LOCAL:
 			return "Local";
-		case Resource.RESOURCE_STATUS_REMOTE:
-			return "Remote";
+		case Resource.RESOURCE_STATUS_PENDING:
+			return "Pending other Resource";
 		case Resource.RESOURCE_STATUS_INSTALLED:
 			return "Installed";
 		case Resource.RESOURCE_STATUS_UPGRADE:
@@ -347,6 +374,22 @@ public class ResourceTable {
 			return "Flagged for Deletion";
 		default:
 			return "Unknown";
+		}
+	}
+	
+	public void destroy() {
+		clear();
+		storage.destroy();
+	}
+	
+	public void clear() {
+		cleanup();
+		storage.removeAll();
+	}
+	
+	private void cleanup() {
+		for(Resource r : GetResources()) {
+			r.getInstaller().cleanup();
 		}
 	}
 	

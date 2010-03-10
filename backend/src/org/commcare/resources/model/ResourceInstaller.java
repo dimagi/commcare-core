@@ -52,5 +52,14 @@ public interface ResourceInstaller extends Externalizable {
 	 */
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException;
 	
+	/**
+	 * 
+	 * @param r
+	 * @param table
+	 * @return
+	 * @throws UnresolvedResourceException
+	 */
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException;
+	
+	public void cleanup();
 }

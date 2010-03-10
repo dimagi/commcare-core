@@ -71,6 +71,10 @@ public class BasicInstaller implements ResourceInstaller {
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
 		return true;
 	}
+	
+	public void cleanup() {
+		
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {

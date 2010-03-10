@@ -67,8 +67,7 @@
 					
 					<attribute name="CommCare-ShowReminders" value="${commcare.show.reminders}" />
 					<attribute name="CommCare-Release"	value="${commcare.release}" />
-					<attribute name="Initial-Suite-Reference" value="${suite.reference}"/>
-					<attribute name="Initial-Suite-Version" value="${suite.version}"/>
+					<attribute name="Profile" value="${commcare.profile}"/>
 				</jad>
 
 				<!-- midlets definition -->

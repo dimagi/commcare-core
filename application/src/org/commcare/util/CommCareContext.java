@@ -17,7 +17,8 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.resources.model.installers.SuiteInstaller;
+import org.commcare.resources.model.installers.ProfileInstaller;
+import org.commcare.suite.model.Profile;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
@@ -93,14 +94,14 @@ public class CommCareContext {
 		registerAddtlStorage();
 		StorageManager.repairAll();
 		
-		loadInitialConfig();
+		CommCareManager._().init(CommCareUtil.getProfileReference());
 		setProperties();
 		
 		UserUtility.populateAdminUser();
 		inDemoMode = false;
 		
 		purgeScheduler();
-		registerResources();
+		CommCareManager._().initialize();
 		
 		LanguageUtils.initializeLanguage(true,"sw");
 	}
@@ -113,50 +114,7 @@ public class CommCareContext {
 	protected void registerAddtlStorage () {
 		//do nothing
 	}
-	
-	private void loadInitialConfig() {
-		try {
-			ResourceTable t = ResourceTable.RetrieveGlobalResourceTable();
 
-			if (!t.isReady()) {
-				t.prepareResources(null);
-			}
-
-			ResourceLocation l = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, CommCareUtil
-							.getAppProperty(CommCareUtil.PROP_INITIAL_SUITE));
-			Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-			locations.addElement(l);
-			int version = Integer.parseInt(CommCareUtil
-					.getAppProperty(CommCareUtil.PROP_INITIAL_VERSION));
-			Resource r = new Resource(version, "initialsuite", locations);
-			
-			Resource peer = t.getResourceWithId(r.getResourceId());
-			if (peer == null) {
-				t.addResource(r, new SuiteInstaller(), "");
-				t.prepareResources(null);
-			} else {
-				// This is stupid, we should obviously be handling this with the
-				// same call as t.contains
-				if (peer.getVersion() < r.getVersion()) {
-					// upgrade-leons!
-					ResourceTable upgradeTable = ResourceTable.CreateTemporaryResourceTable("UPGRADE");
-					upgradeTable.addResource(r, new SuiteInstaller(),"");
-					upgradeTable.prepareResources(t);
-					//upgrade table ready for upgrade.
-					t.upgradeTable(upgradeTable);
-				}
-			}
-		}
-
-		catch (UnresolvedResourceException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Initialization Failed.");
-		} catch (StorageFullException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 	private void loadModules() {
 		new JavaRosaCoreModule().registerModule();
 		new UserModule().registerModule();
@@ -397,15 +355,4 @@ public class CommCareContext {
 		}
 		return sb.toString();
 	}
-	
-	private void registerResources() {
-		ResourceTable g = ResourceTable.RetrieveGlobalResourceTable();
-		try {
-			g.initializeResources();
-		} catch (ResourceInitializationException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error initializing Resource! " + e.getMessage());
-		}
-	}
-	
 }

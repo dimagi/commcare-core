@@ -70,8 +70,7 @@ public class LocaleFileInstaller implements ResourceInstaller {
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
 			if(ref.doesBinaryExist()) {
 				localReference = ref.getURI();
-				r.setStatus(Resource.RESOURCE_STATUS_INSTALLED);
-				table.commit(r);
+				table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
 				return true;
 			} else {
 				//If the file isn't there, not much we can do about it.
@@ -96,9 +95,12 @@ public class LocaleFileInstaller implements ResourceInstaller {
 	}
 
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
-		//Since for now there might be resources in the resource directory which we can't delete.
 		table.removeResource(r);
 		return true;
+	}
+	
+	public void cleanup() {
+		
 	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)

@@ -76,6 +76,8 @@ public class CommCareHomeController implements HandledCommandListener {
 			transitions.backupRestore();
 		} else if (c == view.admResetDemo) {
 			transitions.resetDemo();
+		}else if (c == view.admUpgrade) {
+			transitions.upgrade();
 		}
 	}
 }

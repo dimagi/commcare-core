@@ -38,11 +38,13 @@ public class Resource implements Persistable, IMetaData {
 	
 	public static final int RESOURCE_STATUS_UNINITIALIZED = 0;
 	public static final int RESOURCE_STATUS_LOCAL = 1;
-	public static final int RESOURCE_STATUS_REMOTE = 2;
+	public static final int RESOURCE_STATUS_PENDING = 2;
 	public static final int RESOURCE_STATUS_INSTALLED = 4;
 	public static final int RESOURCE_STATUS_UPGRADE = 8;
 	public static final int RESOURCE_STATUS_DELETE = 16;
 	public static final int RESOURCE_STATUS_OBSELETE = 32;
+	
+	public static final int RESOURCE_VERSION_UNKNOWN = -2;
 	
 	private int recordId = -1;
 	private int version;
@@ -115,6 +117,12 @@ public class Resource implements Persistable, IMetaData {
 		return version;
 	}
 	
+	protected void setVersion(int version) {
+		if(this.version == Resource.RESOURCE_VERSION_UNKNOWN) {
+			this.version = version;
+		}
+	}
+	
 	public void setInstaller(ResourceInstaller initializer) {
 		this.initializer = initializer;
 	}
@@ -122,7 +130,8 @@ public class Resource implements Persistable, IMetaData {
 	public ResourceInstaller getInstaller() {
 		return initializer;
 	}
-	public void setStatus(int status) {
+	
+	protected void setStatus(int status) {
 		this.status = status;
 	}
 
@@ -132,6 +141,14 @@ public class Resource implements Persistable, IMetaData {
 
 	public void setID(int ID) {
 		recordId = ID;
+	}
+	
+	public boolean isNewer(Resource peer) {
+		if(version == RESOURCE_VERSION_UNKNOWN) {
+			return true;
+		} else {
+			return this.version > peer.getVersion();
+		}
 	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
