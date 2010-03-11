@@ -11,8 +11,8 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.Root;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.reference.Root;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -67,7 +67,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						}
 					} else if (parser.getName().toLowerCase().equals("root")) {
 						Root root = new RootParser(this.parser).parse();
-						
+						profile.addRoot(root);
 					} else if (parser.getName().toLowerCase().equals("login")) {
 						//Get the resource block or fail out
 						if(!nextTagInBlock("login")) {
@@ -84,7 +84,6 @@ public class ProfileParser extends ElementParser<Profile> {
 								isActive = true;
 							}
 							if (tag.equals("checkoff")) {
-								// nothing
 							} else if (tag.equals("reminders")) {
 								if(nextTagInBlock("reminders")) {
 									checkNode("time");
@@ -98,6 +97,8 @@ public class ProfileParser extends ElementParser<Profile> {
 							} else if (tag.equals("package")) {
 								//nothing (yet)
 							}
+							
+							profile.setFeatureActive(tag, isActive);
 							
 							//TODO: set feature activation in profile
 						}

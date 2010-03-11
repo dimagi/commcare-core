@@ -3,15 +3,16 @@
  */
 package org.commcare.resources.model.installers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.commcare.reference.Reference;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xform.parse.XFormParser;
 
@@ -63,6 +64,9 @@ public class XFormInstaller extends CacheInstaller {
 			//Couldn't install, no room left in storage.
 			e.printStackTrace();
 			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false; 
 		}
 	}
 	

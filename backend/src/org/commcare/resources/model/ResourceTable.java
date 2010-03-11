@@ -4,9 +4,10 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.commcare.reference.InvalidReferenceException;
-import org.commcare.reference.Reference;
-import org.commcare.reference.ReferenceManager;
+import org.commcare.util.CommCareInstance;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -253,7 +254,7 @@ public class ResourceTable {
 						}
 					} else {
 						try {
-							handled = r.getInstaller().install(r, location, ReferenceManager.DeriveReference(location.getLocation()), this, upgrade);
+							handled = r.getInstaller().install(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, upgrade);
 							if(handled) {
 								break;
 							}
@@ -393,11 +394,11 @@ public class ResourceTable {
 		}
 	}
 	
-	public void initializeResources() throws ResourceInitializationException {
+	public void initializeResources(CommCareInstance instance) throws ResourceInitializationException {
 		for(Resource r : this.GetResources()) {
 			ResourceInstaller i = r.getInstaller();
 			if(i.requiresRuntimeInitialization()) {
-				i.initialize();
+				i.initialize(instance);
 			}
 		}
 	}
@@ -414,7 +415,7 @@ public class ResourceTable {
 						Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
 						for(Reference context : parentRefs) {
 							try{
-								ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
+								ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(),context));
 							}catch(InvalidReferenceException ire) {
 								ire.printStackTrace();
 							}
@@ -424,7 +425,7 @@ public class ResourceTable {
 			}
 			else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
 				try {
-					ret.addElement(ReferenceManager.DeriveReference(location.getLocation()));
+					ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
 				} catch (InvalidReferenceException e) {
 					e.printStackTrace();
 				}
@@ -448,7 +449,7 @@ public class ResourceTable {
 				Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
 				for(Reference context : parentRefs) {
 					try {
-						ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
+						ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(),context));
 					} catch (InvalidReferenceException e) {
 						e.printStackTrace();
 					}
@@ -476,7 +477,7 @@ public class ResourceTable {
 						Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
 						for(Reference context : parentRefs) {
 							try {
-								ret.addElement(ReferenceManager.DeriveReference(context, location.getLocation()));
+								ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(),context));
 							} catch (InvalidReferenceException e) {
 								e.printStackTrace();
 							}
@@ -485,7 +486,7 @@ public class ResourceTable {
 				}
 			} else  {
 				try {
-					ret.addElement(ReferenceManager.DeriveReference(location.getLocation()));
+					ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
 				} catch (InvalidReferenceException e) {
 					e.printStackTrace();
 				}

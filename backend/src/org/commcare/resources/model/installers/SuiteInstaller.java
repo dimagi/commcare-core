@@ -3,16 +3,18 @@
  */
 package org.commcare.resources.model.installers;
 
-import org.commcare.reference.Reference;
+import java.io.IOException;
+
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCareManager;
+import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
 
 /**
@@ -24,8 +26,8 @@ public class SuiteInstaller extends CacheInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
-	public boolean initialize() throws ResourceInitializationException {
-		CommCareManager._().registerSuite(cacheLocation);
+	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
+		instance.registerSuite((Suite)storage().read(cacheLocation));
 		return true;
 	}
 
@@ -45,8 +47,8 @@ public class SuiteInstaller extends CacheInstaller {
 			//If it's in the cache, we should just get it from there
 			return false;
 		} else {
-			SuiteParser parser = new SuiteParser(ref.getStream(), table, r.getRecordGuid());
 			try {
+				SuiteParser parser = new SuiteParser(ref.getStream(), table, r.getRecordGuid());
 				Suite s = parser.parse();
 				storage().write(s);
 				cacheLocation = s.getID();
@@ -65,6 +67,9 @@ public class SuiteInstaller extends CacheInstaller {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false; 
 			}
 		}
 	}

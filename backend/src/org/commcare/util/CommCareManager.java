@@ -30,23 +30,14 @@ import org.javarosa.core.services.storage.StorageManager;
  * @author ctsims
  *
  */
-public class CommCareManager {
+public class CommCareManager implements CommCareInstance {
 	//TODO: We should make this unique using the parser to invalidate this ID or something
 	private static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
-	
-	private static CommCareManager singleton;
 	
 	private Vector<Integer> suites;
 	private int profile;
 	
-	public static CommCareManager _() {
-		if(singleton == null) {
-			singleton = new CommCareManager();
-		}
-		return singleton;
-	}
-	
-	private CommCareManager() {
+	public CommCareManager() {
 		profile = -1;
 		suites = new Vector<Integer>();
 	}
@@ -144,18 +135,19 @@ public class CommCareManager {
 		return installedSuites;
 	}
 	
-	public void setProfile(int profileId) {
-		this.profile = profileId;
+	public void setProfile(Profile p) {
+		this.profile = p.getID();
 	}
 	
-	public void registerSuite(int suiteId) {
-		this.suites.addElement(new Integer(suiteId));
+	
+	public void registerSuite(Suite s) {
+		this.suites.addElement(new Integer(s.getID()));
 	}
 	
 	public void initialize() {
 		ResourceTable g = ResourceTable.RetrieveGlobalResourceTable();
 		try {
-			g.initializeResources();
+			g.initializeResources(this);
 		} catch (ResourceInitializationException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error initializing Resource! "+ e.getMessage());

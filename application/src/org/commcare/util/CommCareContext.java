@@ -12,13 +12,6 @@ import java.util.Vector;
 import javax.microedition.midlet.MIDlet;
 
 import org.commcare.core.properties.CommCareProperties;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInitializationException;
-import org.commcare.resources.model.ResourceLocation;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.resources.model.installers.ProfileInstaller;
-import org.commcare.suite.model.Profile;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
@@ -34,7 +27,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
@@ -65,6 +57,8 @@ public class CommCareContext {
 	private MIDlet midlet;
 	private User user;
 	
+	private CommCareManager manager;
+	
 	protected boolean inDemoMode;
 	
 	public TransportMessage buildMessage(IDataPayload payload) {
@@ -84,6 +78,10 @@ public class CommCareContext {
 		return midlet;
 	}
 	
+	public CommCareManager getManager() {
+		return manager;
+	}
+	
 	public void configureApp(MIDlet m) {
 		failsafeInit(m);
 		Logger.log("app-start", "");
@@ -94,14 +92,15 @@ public class CommCareContext {
 		registerAddtlStorage();
 		StorageManager.repairAll();
 		
-		CommCareManager._().init(CommCareUtil.getProfileReference());
+		manager = new CommCareManager();
+		manager.init(CommCareUtil.getProfileReference());
 		setProperties();
 		
 		UserUtility.populateAdminUser();
 		inDemoMode = false;
 		
 		purgeScheduler();
-		CommCareManager._().initialize();
+		manager.initialize();
 		
 		LanguageUtils.initializeLanguage(true,"sw");
 	}

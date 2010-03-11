@@ -3,8 +3,8 @@
  */
 package org.commcare.xml;
 
-import org.commcare.suite.model.Root;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.reference.Root;
 import org.kxml2.io.KXmlParser;
 
 /**
@@ -32,15 +32,17 @@ public class RootParser extends ElementParser<Root> {
 		}
 		
 		String referenceType = parser.getName().toLowerCase();
+		String path = parser.getAttributeValue(null,"path"); 
 		if(referenceType.equals("filesystem")) {
-			
+			return new Root("jr://" + id + "/","jr://file" + path);
 		} else if(referenceType.equals("resource")) {
-			
+			return new Root("jr://" + id + "/", "jr://resource" + path);
 		} else if(referenceType.equals("absolute")) {
-			
+			return new Root("jr://" + id + "/", path);
 		}
-		
-		return new Root();
+		else {
+			throw new InvalidStructureException();
+		}
 	}
 
 }

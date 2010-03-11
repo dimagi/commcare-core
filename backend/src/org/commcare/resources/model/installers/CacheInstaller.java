@@ -8,13 +8,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.commcare.reference.Reference;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCareInstance;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -51,7 +52,7 @@ public abstract class CacheInstaller implements ResourceInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
-	public boolean initialize() throws ResourceInitializationException {
+	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
 		//Suites don't need any local initialization (yet).
 		return false;
 	}

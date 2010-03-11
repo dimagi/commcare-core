@@ -3,7 +3,8 @@
  */
 package org.commcare.resources.model;
 
-import org.commcare.reference.Reference;
+import org.commcare.util.CommCareInstance;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
@@ -32,7 +33,7 @@ public interface ResourceInstaller extends Externalizable {
 	 * @return true if a resource is ready for use. False if
 	 * a problem occurred.
 	 */
-	public boolean initialize() throws ResourceInitializationException;
+	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException;
 	
 	/**
 	 * Proceeds with the next step of installing resource r, keeping
