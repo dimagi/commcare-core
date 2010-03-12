@@ -94,8 +94,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		throw new RuntimeException("not hooked up yet");
 	}
 
-	public void entry(Entry entry) {
-		CommCareUtil.launchEntry(entry,this);
+	public void entry(Suite suite, Entry entry) {
+		CommCareUtil.launchEntry(suite, entry,this);
 	}
 
 	public void exit() {

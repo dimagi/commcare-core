@@ -15,7 +15,7 @@ import org.javarosa.core.api.State;
  */
 public abstract class SuiteHomeState implements SuiteTransitions, State {
 	
-	CommCareSuiteController controller;
+	private CommCareSuiteController controller;
 	
 	public SuiteHomeState(Suite suite, Menu m) {
 		this.controller = getController(suite, m);

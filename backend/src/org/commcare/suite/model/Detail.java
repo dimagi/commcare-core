@@ -22,6 +22,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class Detail implements Externalizable {
 	String id;
 	
+	Text title;
+	
 	FormInstance context;
 	
 	Vector<Text> headers;
@@ -34,8 +36,9 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, FormInstance context, Vector<Text> headers, Vector<Text> templates) {
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates) {
 		this.id = id;
+		this.title = title;
 		this.context = context;
 		this.headers = headers;
 		this.templates = templates;
@@ -44,14 +47,38 @@ public class Detail implements Externalizable {
 	public String getId() {
 		return id;
 	}
+	
+	public Text getTitle() {
+		return title;
+	}
+	
+	public Text[] getHeaders() {
+		Text[] array = new Text[headers.size()];
+		headers.copyInto(array);
+		return array;
+	}
+	
+	public Text[] getTemplates() {
+		Text[] array = new Text[templates.size()];
+		templates.copyInto(array);
+		return array;
+	}	
+	
+	public FormInstance getInstance() {
+		return context;
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		id = ExtUtil.readString(in);
+		title = (Text)ExtUtil.read(in, Text.class, pf);
 		context = (FormInstance)ExtUtil.read(in, FormInstance.class, pf);
 		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeString(out,id);
+		ExtUtil.write(out, title);
 		ExtUtil.write(out, context);
 		ExtUtil.write(out, new ExtWrapList(headers));
 		ExtUtil.write(out, new ExtWrapList(templates));

@@ -11,25 +11,25 @@ import java.util.Vector;
 import org.commcare.applogic.CommCareCaseSelectState;
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
-import org.commcare.applogic.CommCareReferralSelectState;
+import org.commcare.applogic.CommCareSelectState;
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.entity.CaseInstanceLoader;
+import org.commcare.entity.CommCareEntity;
+import org.commcare.entity.ReferralInstanceLoader;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
-import org.javarosa.cases.util.CaseEntity;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.IPatientReferralFilter;
-import org.javarosa.chsreferral.util.ReferralEntity;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportService;
 
@@ -175,7 +175,7 @@ public class CommCareUtil {
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
 	
-	public static void launchEntry(Entry entry, State returnState) {
+	public static void launchEntry(Suite suite, Entry entry, State returnState) {
 		final Entry e = entry;
 		final State s = returnState;
 		
@@ -202,7 +202,8 @@ public class CommCareUtil {
 			}
 			State select = null;
 			if(referral) {
-				select = new CommCareReferralSelectState(new ReferralEntity()) {
+				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
+				select = new CommCareSelectState<PatientReferral>(entity, PatientReferral.STORAGE_KEY) {
 					
 					public void cancel() {
 						J2MEDisplay.startStateWithLoadingScreen(s);
@@ -218,7 +219,8 @@ public class CommCareUtil {
 					}
 				};
 			} else {
-				select = new CommCareCaseSelectState(new CaseEntity()) {
+				Entity<Case> entity = new CommCareEntity<Case>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
+				select = new CommCareSelectState<Case>(entity,Case.STORAGE_KEY) {
 					
 					public void cancel() {
 						J2MEDisplay.startStateWithLoadingScreen(s);

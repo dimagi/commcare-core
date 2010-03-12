@@ -29,7 +29,7 @@ public abstract class CommCareSuiteHomeState extends SuiteHomeState {
 	/* (non-Javadoc)
 	 * @see org.commcare.api.transitions.SuiteTransitions#entry(org.commcare.suite.model.Entry)
 	 */
-	public void entry(Entry entry) {
-		CommCareUtil.launchEntry(entry, this);
+	public void entry(Suite suite, Entry entry) {
+		CommCareUtil.launchEntry(suite, entry, this);
 	}
 }

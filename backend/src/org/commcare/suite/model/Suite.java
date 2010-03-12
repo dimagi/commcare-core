@@ -70,6 +70,10 @@ public class Suite implements Persistable {
 	public Hashtable<String, Entry> getEntries() {
 		return entries;
 	}
+	
+	public Detail getDetail(String id) {
+		return details.get(id);
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {

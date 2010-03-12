@@ -56,6 +56,14 @@ public class Entry implements Externalizable{
 		return references;
 	}
 	
+	public String getShortDetailId() {
+		return shortDetailId;
+	}
+	
+	public String getLongDetailId() {
+		return longDetailId;
+	}
+	
 	public String getXFormNamespace() {
 		return xFormNamespace;
 	}

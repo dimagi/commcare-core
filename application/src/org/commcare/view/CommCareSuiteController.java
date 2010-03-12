@@ -66,7 +66,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 	public void _commandAction(Command c, Displayable d) {
 		if(c.equals(List.SELECT_COMMAND)) {
 			Entry e = indexMapping[view.getSelectedIndex()];
-			transitions.entry(e);
+			transitions.entry(suite, e);
 		}
 		else if(c.equals(CommCareSuiteView.BACK)) {
 			transitions.exit();

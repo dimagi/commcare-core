@@ -1,23 +1,25 @@
 package org.commcare.applogic;
 
-import org.javarosa.chsreferral.model.PatientReferral;
-import org.javarosa.chsreferral.util.ReferralEntity;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.api.EntitySelectController;
 import org.javarosa.entity.api.EntitySelectState;
+import org.javarosa.entity.model.Entity;
 import org.javarosa.entity.model.view.EntitySelectView;
 
-public abstract class CommCareReferralSelectState extends EntitySelectState<PatientReferral> {
+public abstract class CommCareSelectState<E extends Persistable> extends EntitySelectState<E> {
 
-	ReferralEntity entity;
+	Entity<E> entity;
+	String storageKey;
 	
-	public CommCareReferralSelectState (ReferralEntity entity) {
+	public CommCareSelectState (Entity<E> entity, String storageKey) {
 		this.entity = entity;
+		this.storageKey = storageKey;
 	}
 	
-	protected EntitySelectController<PatientReferral> getController () {
-		return new EntitySelectController<PatientReferral>("Pending Referrals",
-			   StorageManager.getStorage(PatientReferral.STORAGE_KEY), entity,
+	protected EntitySelectController<E> getController () {
+		return new EntitySelectController<E>(entity.entityType(),
+			   StorageManager.getStorage(storageKey), entity,
 			   EntitySelectView.NEW_DISALLOWED, true, false);
 	}
 

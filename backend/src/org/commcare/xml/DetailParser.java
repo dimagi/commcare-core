@@ -32,8 +32,16 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		try {
 			String id = parser.getAttributeValue(null,"id");
-			parser.nextTag();
-			//model first
+			
+			//First fetch the title
+			if(!nextTagInBlock("detail")) { throw new InvalidStructureException(); }
+			//inside title, should be a text node as the child
+			checkNode("title");
+			if(!nextTagInBlock("title")) { throw new InvalidStructureException(); }
+			Text title = new TextParser(parser).parse();
+			
+			if(!nextTagInBlock("detail")) { throw new InvalidStructureException(); }
+			//Now the model
 			FormInstance model = parseModel();
 			
 			Vector<Text> headers = new Vector<Text>();;
@@ -61,7 +69,7 @@ public class DetailParser extends ElementParser<Detail> {
 			}
 		
 		
-		Detail d = new Detail(id, model, headers, templates);
+		Detail d = new Detail(id, title, model, headers, templates);
 		return d;
 		
 		} catch (XmlPullParserException e) {

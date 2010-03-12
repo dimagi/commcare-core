@@ -60,7 +60,7 @@ public class CommCareHomeController implements HandledCommandListener {
 					Entry e = view.getSelectedEntry();
 					if(e != null) {
 						Suite s = view.getSelectedSuite();
-						transitions.entry(e);
+						transitions.entry(s,e);
 					}
 				} 
 			}

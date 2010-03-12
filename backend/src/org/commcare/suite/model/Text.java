@@ -10,13 +10,18 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -108,6 +113,14 @@ public class Text implements Externalizable {
 			}
 			return Localization.get(id);
 		case TEXT_TYPE_XPATH:
+			try {
+					XPathExpression expression = XPathParseTool.parseXPath(argument);
+					EvaluationContext temp = new EvaluationContext(new EvaluationContext(), context.getRoot().getRef());
+					return (String)expression.eval(context,temp);
+				} catch (XPathSyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			//For testing;
 			return argument;
 		case TEXT_TYPE_COMPOSITE:
