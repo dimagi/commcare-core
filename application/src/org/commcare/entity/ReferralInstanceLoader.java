@@ -5,12 +5,13 @@ import java.util.Hashtable;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
-import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.chsreferral.util.PatientReferralPreloader;
 
 public class ReferralInstanceLoader extends FormInstanceLoader<PatientReferral> {
 
-	PatientReferral r;
-	Case c;
+	private PatientReferral r;
+	private Case c;
+	private PatientReferralPreloader preloader;
 	
 	public ReferralInstanceLoader(Hashtable<String,String> references) {
 		super(references);
@@ -18,13 +19,14 @@ public class ReferralInstanceLoader extends FormInstanceLoader<PatientReferral> 
 	
 	public void prepare(PatientReferral r) {
 		this.r = r;
+		preloader = new PatientReferralPreloader(r);
 		this.c = null;
 	}
 	
 	protected Object resolveReferenceData(String reference, String key) {
 		String refType = references.get(reference).toLowerCase();
 		if(refType.equals("referral")) {
-			//return r.getProperty(reference);
+			return preloader.handlePreload(key);
 		} else if(refType.equals("case")){
 			return getCase().getProperty(key);
 		}

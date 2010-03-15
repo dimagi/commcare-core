@@ -48,11 +48,11 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 */
 	public String[] getHeaders(boolean detailed) {
 		Text[] text;
-		//if(!detailed) {
+		if(!detailed) {
 			text = shortDetail.getHeaders();
-		//} else{
-//			text = longDetail.getHeaders();
-		//}
+		} else{
+			text = longDetail.getHeaders();
+		}
 		
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
@@ -65,20 +65,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 * @see org.javarosa.entity.model.Entity#getLongFields(org.javarosa.core.services.storage.Persistable)
 	 */
 	public String[] getLongFields(E e) {
-		Text[] text = shortDetail.getTemplates();
+		loader.prepare(e);
+		FormInstance specificInstance = loader.loadInstance(longDetail.getInstance());
+		Text[] text = longDetail.getTemplates();
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(instance);
+			output[i] = text[i].evaluate(specificInstance);
 		}
 		return output;
-//		loader.prepare(e);
-//		FormInstance specificInstance = loader.loadInstance(shortDetail.getInstance());
-//		Text[] text = longDetail.getTemplates();
-//		String[] output = new String[text.length];
-//		for(int i = 0 ; i < output.length ; ++i) {
-//			output[i] = text[i].evaluate(specificInstance);
-//		}
-//		return output;
 	}
 
 	/* (non-Javadoc)

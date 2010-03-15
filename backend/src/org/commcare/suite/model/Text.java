@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -108,7 +107,7 @@ public class Text implements Externalizable {
 			return argument;
 		case TEXT_TYPE_LOCALE:
 			String id = argument;
-			if(argument == null) {
+			if(argument.equals("")) {
 				id = arguments.get("id").evaluate(context);
 			}
 			return Localization.get(id);
@@ -116,6 +115,12 @@ public class Text implements Externalizable {
 			try {
 					XPathExpression expression = XPathParseTool.parseXPath(argument);
 					EvaluationContext temp = new EvaluationContext(new EvaluationContext(), context.getRoot().getRef());
+					
+					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
+						String key = (String)en.nextElement();
+						temp.setVariable(key,arguments.get(key));
+					}
+					
 					return (String)expression.eval(context,temp);
 				} catch (XPathSyntaxException e) {
 					// TODO Auto-generated catch block
