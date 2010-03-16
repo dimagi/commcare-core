@@ -6,12 +6,15 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -113,12 +116,48 @@ public class Text implements Externalizable {
 			return Localization.get(id);
 		case TEXT_TYPE_XPATH:
 			try {
-					XPathExpression expression = XPathParseTool.parseXPath(argument);
+					//Do an XPath cast to a string as part of the operation.
+					XPathExpression expression = XPathParseTool.parseXPath("string(" + argument + ")");
 					EvaluationContext temp = new EvaluationContext(new EvaluationContext(), context.getRoot().getRef());
+					
+					temp.addFunctionHandler(new IFunctionHandler() {
+
+						public Object eval(Object[] args) {
+							String type = (String)args[1];
+							int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
+							if(type.equals("short")) {
+								format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
+							} else if(type.equals("long")){
+								format = DateUtils.FORMAT_ISO8601;
+							}
+							return DateUtils.formatDate((Date)args[0], format);
+						}
+
+						public String getName() {
+							return "format_date";
+						}
+
+						public Vector getPrototypes() {
+							Vector format = new Vector();
+							Class[] prototypes = new Class[] {
+									Date.class,
+									String.class
+							};
+							format.addElement(prototypes);
+							return format;
+						}
+
+						public boolean rawArgs() { return false; }
+
+						public boolean realTime() { return false; }
+						
+					});
+					
 					
 					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
 						String key = (String)en.nextElement();
-						temp.setVariable(key,arguments.get(key));
+						String value = arguments.get(key).evaluate(context);
+						temp.setVariable(key,value);
 					}
 					
 					return (String)expression.eval(context,temp);

@@ -20,7 +20,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	Detail shortDetail;
 	Detail longDetail;
 	FormInstanceLoader<E> loader;
-	FormInstance instance;
+	String[] shortText;
 	
 	public CommCareEntity(Entry e, Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
 		this.e = e;
@@ -56,7 +56,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(instance);
+			output[i] = text[i].evaluate();
 		}
 		return output;
 	}
@@ -79,12 +79,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 * @see org.javarosa.entity.model.Entity#getShortFields()
 	 */
 	public String[] getShortFields() {
-		Text[] text = shortDetail.getTemplates();
-		String[] output = new String[text.length];
-		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(instance);
-		}
-		return output;
+		return shortText;
 	}
 
 	/* (non-Javadoc)
@@ -92,6 +87,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 */
 	protected void loadEntity(E entity) {
 		loader.prepare(entity);
-		instance = loader.loadInstance(shortDetail.getInstance());
+		loadShortText(loader.loadInstance(shortDetail.getInstance()));
+	}
+	
+	private void loadShortText(FormInstance instance) {
+		Text[] text = shortDetail.getTemplates();
+		shortText = new String[text.length];
+		for(int i = 0 ; i < shortText.length ; ++i) {
+			shortText[i] = text[i].evaluate(instance);
+		}
 	}
 }

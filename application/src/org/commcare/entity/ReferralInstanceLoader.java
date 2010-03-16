@@ -4,6 +4,7 @@ import java.util.Hashtable;
 
 import org.commcare.util.CommCareUtil;
 import org.javarosa.cases.model.Case;
+import org.javarosa.cases.util.CasePreloadHandler;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.PatientReferralPreloader;
 
@@ -12,6 +13,7 @@ public class ReferralInstanceLoader extends FormInstanceLoader<PatientReferral> 
 	private PatientReferral r;
 	private Case c;
 	private PatientReferralPreloader preloader;
+	private CasePreloadHandler casePreloader;
 	
 	public ReferralInstanceLoader(Hashtable<String,String> references) {
 		super(references);
@@ -28,15 +30,16 @@ public class ReferralInstanceLoader extends FormInstanceLoader<PatientReferral> 
 		if(refType.equals("referral")) {
 			return preloader.handlePreload(key);
 		} else if(refType.equals("case")){
-			return getCase().getProperty(key);
+			return getCasePreloader().handlePreload(key);
 		}
 		return null;
 	}
 	
-	private Case getCase() {
+	private CasePreloadHandler getCasePreloader() {
 		if(c == null) {
 			c = CommCareUtil.getCase(r.getLinkedId());
+			casePreloader = new CasePreloadHandler(c);
 		}
-		return c;
+		return casePreloader;
 	}
 }
