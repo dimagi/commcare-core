@@ -49,13 +49,16 @@ public abstract class ElementParser<T> {
 	
 	protected void checkNode(String name) throws InvalidStructureException {
 		if(!parser.getName().toLowerCase().equals(name)) {
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Expected <" + name + "> element <"+ parser.getName() + "> found instead",parser);
 		}
 	}
 	
-	protected boolean nextTagInBlock(String terminal) throws InvalidStructureException {
+	protected void getNextTagInBlock(String terminal) throws InvalidStructureException, IOException, XmlPullParserException {
+		if(!nextTagInBlock(terminal)) {throw new InvalidStructureException("Expected another node inside of element <" + terminal + ">.",parser);}
+	}
+	
+	protected boolean nextTagInBlock(String terminal) throws InvalidStructureException, IOException, XmlPullParserException {
         int eventType;
-		try {
 			eventType = parser.nextTag();
 			
             if(eventType == KXmlParser.START_DOCUMENT) {
@@ -76,28 +79,22 @@ public abstract class ElementParser<T> {
                 return true;
             }
             return true;
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		} catch (IOException e) {
-			throw new InvalidStructureException();
-		}
 	}
 	
-	protected boolean nextTagInBlock() throws InvalidStructureException {
+	protected boolean nextTagInBlock() throws InvalidStructureException, IOException, XmlPullParserException {
 		return nextTagInBlock(null);
 	}
 	
 	protected int parseInt(String value) throws InvalidStructureException  {
 		if(value == null) {
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Expected an integer value, found null text instead",parser);
 		}
 		try  {
 			return Integer.parseInt(value);
 		} catch(NumberFormatException nfe) {
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Expected an integer value, found " + value + " instead",parser);
 		}
 	}
 	
-	public abstract T parse() throws InvalidStructureException;
+	public abstract T parse() throws InvalidStructureException, IOException, XmlPullParserException;
 }

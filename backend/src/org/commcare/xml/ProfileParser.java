@@ -34,10 +34,8 @@ public class ProfileParser extends ElementParser<Profile> {
 		this.initialResourceStatus = initialResourceStatus;
 	}
 
-	public Profile parse() throws InvalidStructureException {
-		if (!parser.getName().toLowerCase().equals("profile")) {
-			throw new InvalidStructureException();
-		}
+	public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("profile");
 
 		String sVersion = parser.getAttributeValue(null, "version");
 		int version = parseInt(sVersion);
@@ -70,9 +68,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						profile.addRoot(root);
 					} else if (parser.getName().toLowerCase().equals("login")) {
 						//Get the resource block or fail out
-						if(!nextTagInBlock("login")) {
-							throw new InvalidStructureException();
-						}
+						getNextTagInBlock("login");
 						Resource resource = new ResourceParser(parser).parse();
 						table.addResource(resource, new LoginImageInstaller(), resourceId,initialResourceStatus);
 					} else if (parser.getName().toLowerCase().equals("features")) {
@@ -88,11 +84,7 @@ public class ProfileParser extends ElementParser<Profile> {
 								if(nextTagInBlock("reminders")) {
 									checkNode("time");
 									String reminderTime = parser.nextText();
-									try {
-										int days = Integer.parseInt(reminderTime);
-									} catch(NumberFormatException nfe) {
-										throw new InvalidStructureException();
-									}
+									int days = this.parseInt(reminderTime);
 								}
 							} else if (tag.equals("package")) {
 								//nothing (yet)
@@ -104,9 +96,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						}
 					} else if (parser.getName().toLowerCase().equals("suite")) {
 						// Get the resource block or fail out
-						if (!nextTagInBlock("suite")) {
-							throw new InvalidStructureException();
-						}
+						getNextTagInBlock("suite");
 						Resource resource = new ResourceParser(parser).parse();
 						
 						//TODO: Possibly add a real parent reference if we decide these go in the table
@@ -127,15 +117,19 @@ public class ProfileParser extends ElementParser<Profile> {
 		return profile;
 
 		} catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Pull Parse Exception, malformed XML.",parser);
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Problem with IO read/write while reading XML document.",parser);
 		} catch (StorageFullException e) {
 			e.printStackTrace();
-			throw new InvalidStructureException();
-		} 
+			//BUT not really! This should maybe be added to the high level declaration
+			//instead? Or maybe there should be a more general Resource Management Exception?
+			throw new InvalidStructureException("Problem storing parser suite XML",parser);
+		}
 	}
 
 }

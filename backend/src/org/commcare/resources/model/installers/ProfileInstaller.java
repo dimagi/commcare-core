@@ -17,6 +17,7 @@ import org.commcare.xml.ProfileParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
@@ -103,6 +104,10 @@ public class ProfileInstaller extends CacheInstaller {
 		}  catch (IOException e) {
 			e.printStackTrace();
 			return false; 
+		} catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
 	}
 	

@@ -26,12 +26,8 @@ public class ViewParser extends ElementParser<Entry> {
 	/* (non-Javadoc)
 	 * @see org.commcare.xml.ElementParser#parse()
 	 */
-	public Entry parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("view")) {
-			throw new InvalidStructureException();
-		}
-		
-		try {
+	public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("view");
 		
 		String xFormNamespace = null;
 		Hashtable<String, String> references = new Hashtable<String,String>();
@@ -63,10 +59,10 @@ public class ViewParser extends ElementParser<Entry> {
 				if(this.nextTagInBlock("details")) {
 					//short
 					if(parser.getName().toLowerCase().equals("short")) {
-						shortDetailId = parser.getAttributeValue(null,"id"); 
+						shortDetailId = parser.getAttributeValue(null,"id");
 					}
 					else {
-						throw new InvalidStructureException();
+						throw new InvalidStructureException("Expected at least one short as the first element of detail, found " + parser.getName(),parser);
 					}
 				}
 				if(this.nextTagInBlock("details")) {
@@ -74,20 +70,12 @@ public class ViewParser extends ElementParser<Entry> {
 					if(parser.getName().toLowerCase().equals("long")) {
 						longDetailId = parser.getAttributeValue(null,"id");
 					} else {
-						throw new InvalidStructureException();
+						throw new InvalidStructureException("Expected only a long as the second element of a detail, found " + parser.getName(), parser);
 					}
 				}
 			}
 		}
 		Entry e = new Entry(commandId, commandText, longDetailId, shortDetailId, references, xFormNamespace);
 		return e;
-		
-		} catch(IOException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		}
 	}
 }

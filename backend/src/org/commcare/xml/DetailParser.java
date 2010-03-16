@@ -8,6 +8,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.instance.FormInstance;
@@ -25,22 +26,27 @@ public class DetailParser extends ElementParser<Detail> {
 		super(parser);
 	}
 
-	public Detail parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("detail")) {
-			throw new InvalidStructureException();
-		}
+	public Detail parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("detail");
 		
-		try {
 			String id = parser.getAttributeValue(null,"id");
 			
 			//First fetch the title
-			if(!nextTagInBlock("detail")) { throw new InvalidStructureException(); }
+			getNextTagInBlock("detail");
 			//inside title, should be a text node as the child
 			checkNode("title");
-			if(!nextTagInBlock("title")) { throw new InvalidStructureException(); }
+			getNextTagInBlock("title");
 			Text title = new TextParser(parser).parse();
 			
-			if(!nextTagInBlock("detail")) { throw new InvalidStructureException(); }
+			getNextTagInBlock("detail");
+			
+			Filter filter = Filter.EmptyFilter();
+			
+			if(parser.getName().toLowerCase().equals("filter")) {
+				filter = new FilterParser(parser).parse();
+				getNextTagInBlock("detail");
+			}
+			
 			//Now the model
 			FormInstance model = parseModel();
 			
@@ -69,19 +75,11 @@ public class DetailParser extends ElementParser<Detail> {
 			}
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates);
+		Detail d = new Detail(id, title, model, headers, templates,filter);
 		return d;
-		
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		}
 	}
 	
-	private FormInstance parseModel() throws InvalidStructureException {
+	private FormInstance parseModel() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("model");
 		int startingDepth = parser.getDepth();
 		int currentDepth = 1;

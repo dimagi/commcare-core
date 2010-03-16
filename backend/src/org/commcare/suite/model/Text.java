@@ -79,9 +79,11 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
-	public static Text XPathText(String function, Hashtable<String, Text> arguments) {
+	public static Text XPathText(String function, Hashtable<String, Text> arguments) throws XPathSyntaxException {
 		Text t = TextFactory();
 		t.argument = function;
+		//Test parse real fast to make sure it's valid text.
+		XPathExpression expression = XPathParseTool.parseXPath("string(" + t.argument + ")");
 		t.arguments = arguments;
 		t.type = TEXT_TYPE_XPATH;
 		return t;

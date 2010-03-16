@@ -26,6 +26,8 @@ public class Detail implements Externalizable {
 	
 	FormInstance context;
 	
+	Filter filter;
+	
 	Vector<Text> headers;
 	Vector<Text> templates;
 	
@@ -36,12 +38,13 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates) {
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter) {
 		this.id = id;
 		this.title = title;
 		this.context = context;
 		this.headers = headers;
 		this.templates = templates;
+		this.filter = filter;
 	}
 	
 	public String getId() {
@@ -67,10 +70,15 @@ public class Detail implements Externalizable {
 	public FormInstance getInstance() {
 		return context;
 	}
+	
+	public Filter getFilter() {
+		return filter;
+	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		id = ExtUtil.readString(in);
 		title = (Text)ExtUtil.read(in, Text.class, pf);
+		filter = (Filter)ExtUtil.read(in, Filter.class, pf);
 		context = (FormInstance)ExtUtil.read(in, FormInstance.class, pf);
 		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
@@ -79,6 +87,7 @@ public class Detail implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out,id);
 		ExtUtil.write(out, title);
+		ExtUtil.write(out, filter);
 		ExtUtil.write(out, context);
 		ExtUtil.write(out, new ExtWrapList(headers));
 		ExtUtil.write(out, new ExtWrapList(templates));

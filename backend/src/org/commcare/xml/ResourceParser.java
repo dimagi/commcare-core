@@ -15,11 +15,9 @@ public class ResourceParser extends ElementParser<Resource> {
 		super(parser);
 	}
 
-	public Resource parse() throws InvalidStructureException {
-		if(!parser.getName().equals("resource")) {
-			throw new InvalidStructureException(); 
-		}
-		try {
+	public Resource parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("resource");
+		
 		String id = parser.getAttributeValue(null,"id");
 		int version = parseInt(parser.getAttributeValue(null, "version"));
 		
@@ -41,13 +39,5 @@ public class ResourceParser extends ElementParser<Resource> {
 		}
 		
 		return new Resource(version, id, locations);
-		
-		} catch (XmlPullParserException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException(); 
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new InvalidStructureException(); 
-		}
 	}
 }

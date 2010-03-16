@@ -5,8 +5,11 @@ package org.commcare.entity;
 
 import java.util.Hashtable;
 
+import org.commcare.suite.model.Filter;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.EntityFilter;
 
 /**
  * @author ctsims
@@ -30,6 +33,18 @@ public class CaseInstanceLoader extends FormInstanceLoader<Case> {
 		} else {
 			return null;
 		}
+	}
+	
+	protected EntityFilter<Case> resolveFilter(final Filter filter, final FormInstance template) {
+		return new EntityFilter<Case> () {
+			public boolean matches(Case c) {
+				if(filter.isEmpty()) {
+					return !c.isClosed();
+				} else {
+					return true;
+				}
+			}
+		};
 	}
 
 }

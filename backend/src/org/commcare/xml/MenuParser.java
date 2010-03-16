@@ -26,25 +26,16 @@ public class MenuParser extends ElementParser<Menu> {
 	/* (non-Javadoc)
 	 * @see org.commcare.xml.ElementParser#parse()
 	 */
-	public Menu parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("menu")) {
-			throw new InvalidStructureException();
-		}
+	public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("menu");
 
 		String id = parser.getAttributeValue(null, "id");
 		String root = parser.getAttributeValue(null, "root");
 		root = root == null? "root" : root;
-		if (!nextTagInBlock("menu")) {
-			throw new InvalidStructureException();
-		}
+		getNextTagInBlock("menu");
 		
 		Text name;
-
-		if (!parser.getName().equals("text")) {
-			throw new InvalidStructureException();
-		} else {
-			name = new TextParser(parser).parse();
-		}
+		name = new TextParser(parser).parse();
 
 		Vector<String> commandIds = new Vector<String>();
 		while (nextTagInBlock("menu")) {

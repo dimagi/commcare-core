@@ -7,6 +7,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.model.Entity;
 
@@ -87,7 +88,12 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 */
 	protected void loadEntity(E entity) {
 		loader.prepare(entity);
-		loadShortText(loader.loadInstance(shortDetail.getInstance()));
+		FormInstance instance = loader.loadInstance(shortDetail.getInstance());
+		loadShortText(instance);
+	}
+	
+	public EntityFilter<? super E> getFilter () {
+		return loader.resolveFilter(shortDetail.getFilter(), shortDetail.getInstance());
 	}
 	
 	private void loadShortText(FormInstance instance) {

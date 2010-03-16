@@ -43,10 +43,8 @@ public class SuiteParser extends ElementParser<Suite>  {
 		this.resourceGuid = resourceGuid;
 	}
 	
-	public Suite parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("suite")) {
-			throw new InvalidStructureException();
-		}
+	public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("suite");
     	
 		String sVersion = parser.getAttributeValue(null, "version");
 		int version = Integer.parseInt(sVersion);
@@ -106,16 +104,16 @@ public class SuiteParser extends ElementParser<Suite>  {
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Pull Parse Exception, malformed XML.",parser);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Problem with IO read/write while reading XML document.",parser);
 		} catch (StorageFullException e) {
 			e.printStackTrace();
 			//BUT not really! This should maybe be added to the high level declaration
 			//instead? Or maybe there should be a more general Resource Management Exception?
-			throw new InvalidStructureException();
+			throw new InvalidStructureException("Problem storing parser suite XML",parser);
 		}
 	}
 

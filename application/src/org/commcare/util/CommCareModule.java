@@ -10,8 +10,10 @@ import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
+import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.api.IModule;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.StorageManager;
@@ -30,7 +32,9 @@ public class CommCareModule implements IModule {
 										    LocaleFileInstaller.class.getName(),
 										    SuiteInstaller.class.getName(),
 										    ProfileInstaller.class.getName(),
-										    XFormInstaller.class.getName()};
+										    XFormInstaller.class.getName(),
+										    Text.class.getName(),
+										    Filter.class.getName()};
 		PrototypeManager.registerPrototypes(prototypes);
 		
 		StorageManager.registerStorage(ResourceTable.STORAGE_KEY_GLOBAL, Resource.class);

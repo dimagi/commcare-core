@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -15,10 +16,8 @@ public class TextParser extends ElementParser<Text> {
 		super(parser);
 	}	
 	
-	public Text parse() throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals("text")) {
-			throw new InvalidStructureException();
-		}
+	public Text parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("text");
 		try {
 			parser.next();
 		} catch (XmlPullParserException e) {
@@ -32,10 +31,9 @@ public class TextParser extends ElementParser<Text> {
 		return parseBody();
 	}
 	
-	private Text parseBody() throws InvalidStructureException {
+	private Text parseBody() throws InvalidStructureException, IOException, XmlPullParserException {
 		//TODO: Should prevent compositing text and xpath/locales
 		Vector<Text> texts = new Vector<Text>();
-		try {
 			int eventType = parser.getEventType();
 			String text = "";
 	        do {
@@ -67,36 +65,23 @@ public class TextParser extends ElementParser<Text> {
 	        	Text c =  Text.CompositeText(texts);
 	        	return c;
 	        }
-		
-		
-		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new InvalidStructureException();
-		}
 	}
 	
-	private Text parseLocale() throws InvalidStructureException {
+	private Text parseLocale() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("locale");
 		String id = parser.getAttributeValue(null,"id");
 		if(id != null) {
 			return Text.LocaleText(id);
 		} else {
 			//Get ID Node, throw exception if there isn't a tag
-			if(!nextTagInBlock("locale")) {
-				throw new InvalidStructureException();
-			}
+			getNextTagInBlock("locale");
 			checkNode("id");
 			Text idText = new TextParser(parser).parseBody();
 			return Text.LocaleText(idText);
 		}
 	}
 	
-	private Text parseXPath() throws InvalidStructureException {
+	private Text parseXPath() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("xpath");
 		String function = parser.getAttributeValue(null,"function");
 		Hashtable<String, Text> arguments = new Hashtable<String, Text>();
@@ -108,6 +93,11 @@ public class TextParser extends ElementParser<Text> {
 			Text variableText = new TextParser(parser).parseBody();
 			arguments.put(name, variableText);
 		}
-		return Text.XPathText(function, arguments);
+		try {
+			return Text.XPathText(function, arguments);
+		} catch (XPathSyntaxException e) {
+			e.printStackTrace();
+			throw new InvalidStructureException("Invalid XPath Expression : " + function + ". Parse error: " + e.getMessage(), parser);
+		}
 	}
 }

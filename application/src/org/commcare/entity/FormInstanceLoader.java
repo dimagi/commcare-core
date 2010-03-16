@@ -6,9 +6,11 @@ package org.commcare.entity;
 import java.util.Hashtable;
 import java.util.Stack;
 
+import org.commcare.suite.model.Filter;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.PreloadUtils;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 
 /**
@@ -45,6 +47,8 @@ public abstract class FormInstanceLoader<E extends Persistable> {
 		}
 		return instance;
 	}
+	
+	protected abstract EntityFilter<E> resolveFilter(final Filter filter, final FormInstance template);
 	
 	protected abstract Object resolveReferenceData(String reference, String key);
 }
