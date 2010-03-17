@@ -3,6 +3,8 @@ package org.commcare.applogic;
 import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCareContext;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -85,8 +87,12 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	protected boolean postProcess (FormInstance instanceData) {
 		CaseModelProcessor processor = new CaseModelProcessor();
 		processor.processInstance(instanceData);
-		//Since it goes straight to the queue for now.
-		return false;
+		//If we're doing reviews, we need to save instances!
+		if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {			
+			return true;
+		} else{
+			return false;
+		}
 	}
 	
 	/**

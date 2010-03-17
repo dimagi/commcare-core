@@ -315,7 +315,7 @@
 	<!-- for use primarily by the build server to extract the required 3rd-party libraries into the
 	     commcare source tree. (see javarosa-core buildfile for details) -->
 	<target name="extract-libs" if="cc.extract-libs-fresh">
-		<unzip src="${commcare-deps}" dest="${dir.commcare-core}/org.commcare.core" overwrite="true" />
+		<unzip src="${commcare-deps}" dest="${basedir}" overwrite="true" />
 	</target>
 
 	<target name="disableObfuscator">

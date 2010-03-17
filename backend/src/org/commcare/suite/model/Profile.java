@@ -27,6 +27,8 @@ public class Profile implements Persistable {
 	
 	public static final String STORAGE_KEY = "PROFILE";
 	
+	public static final String FEATURE_REVIEW = "checkoff";
+	
 	int recordId = -1;
 	int version;
 	String authRef;
@@ -80,6 +82,10 @@ public class Profile implements Persistable {
 	
 	public void setFeatureActive(String feature, boolean active) {
 		this.featureStatus.put(feature, new Boolean(active));
+	}
+	
+	public boolean isFeatureActive(String feature) {
+		return featureStatus.get(feature).booleanValue();
 	}
 	
 	/**

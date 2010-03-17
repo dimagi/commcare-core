@@ -11,6 +11,7 @@ import javax.microedition.lcdui.Displayable;
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.javarosa.j2me.log.CrashHandler;
@@ -25,12 +26,14 @@ import org.javarosa.j2me.view.J2MEDisplay;
 public class CommCareHomeController implements HandledCommandListener {
 	CommCareHomeTransitions transitions;
 	CommCareHomeScreen view;
+	Profile profile;
 	
 	Vector<Suite> suites;
 	
-	public CommCareHomeController (Vector<Suite> suites) {
-		this.suites = suites;		
-		view = new CommCareHomeScreen(this, suites, CommCareContext._().getUser().isAdminUser());
+	public CommCareHomeController (Vector<Suite> suites, Profile profile) {
+		this.suites = suites;
+		this.profile = profile;
+		view = new CommCareHomeScreen(this, suites, CommCareContext._().getUser().isAdminUser(), profile.isFeatureActive(Profile.FEATURE_REVIEW));
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {
@@ -50,6 +53,8 @@ public class CommCareHomeController implements HandledCommandListener {
 
 			if(view.getCurrentItem() == view.sendAllUnsent) {
 				transitions.sendAllUnsent();
+			} else if(view.getCurrentItem() == view.reviewRecent) {
+				transitions.review();
 			} else {
 				
 				Menu m = view.getSelectedMenu();

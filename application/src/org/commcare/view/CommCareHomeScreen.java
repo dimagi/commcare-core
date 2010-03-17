@@ -23,7 +23,8 @@ import de.enough.polish.ui.List;
 public class CommCareHomeScreen extends List {
 	CommCareHomeController controller;
 	
-	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);  
+	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
+	public ChoiceItem reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
 
 	public Command select = new Command("Select", Command.ITEM, 1);
 	public Command exit = new Command("Exit", Command.EXIT, 1);
@@ -42,7 +43,7 @@ public class CommCareHomeScreen extends List {
 	private Hashtable<Integer, Entry> entryTable = new Hashtable<Integer,Entry>();
 	private Hashtable<Integer, Menu> menuTable = new Hashtable<Integer,Menu>();
 
-	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode) {
+	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super("CommCare", List.IMPLICIT);
 		this.controller = controller;
 		
@@ -64,6 +65,10 @@ public class CommCareHomeScreen extends List {
 					menuTable.put(new Integer(location),m);
 				}
 			}
+		}
+		
+		if(reviewEnabled) {
+			append(reviewRecent);
 		}
 
 		append(sendAllUnsent);

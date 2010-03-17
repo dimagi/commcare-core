@@ -21,4 +21,5 @@ public interface CommCareHomeTransitions  extends SuiteTransitions {
 	void backupRestore ();
 	void resetDemo ();
 	void upgrade ();
+	void review ();
 }

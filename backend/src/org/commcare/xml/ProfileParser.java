@@ -80,6 +80,7 @@ public class ProfileParser extends ElementParser<Profile> {
 								isActive = true;
 							}
 							if (tag.equals("checkoff")) {
+								
 							} else if (tag.equals("reminders")) {
 								if(nextTagInBlock("reminders")) {
 									checkNode("time");
