@@ -24,7 +24,7 @@ public class CommCareHomeScreen extends List {
 	CommCareHomeController controller;
 	
 	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
-	public ChoiceItem reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
+	public ChoiceItem reviewRecent;
 
 	public Command select = new Command("Select", Command.ITEM, 1);
 	public Command exit = new Command("Exit", Command.EXIT, 1);
@@ -68,6 +68,7 @@ public class CommCareHomeScreen extends List {
 		}
 		
 		if(reviewEnabled) {
+			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
 			append(reviewRecent);
 		}
 

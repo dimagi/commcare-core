@@ -102,9 +102,14 @@ public class CommCareContext {
 		inDemoMode = false;
 		
 		purgeScheduler();
+		
+		//When we might initailzie language files, we need to make sure it's not trying
+		//to load any of them into memory, since the default ones are not guaranteed to
+		//be added later.
+		Localization.setLocale("default");
 		manager.initialize();
 		
-		//Localization.getGlobalLocalizerAdvanced().setDefaultLocale(defaultLocale)
+		//Now we can initialize the language for real.
 		LanguageUtils.initializeLanguage(true,"default");
 	}
 
