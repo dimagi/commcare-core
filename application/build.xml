@@ -295,9 +295,9 @@
 		<py-run script="${dir.postjad}/utilities/submit_build.py" />
 	</target>
 
-    <target name="BuildAndPostJad" depends="BuildServerExtras,PostJad" description="Build the jad and post it."/>
+    <target name="BuildAndPostJad" depends="BuildClean,PostJad" description="Build the jad and post it."/>
 
-    <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildServerExtras,PostJad" description="Build the jad and post it."/>
+    <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad" description="Build the jad and post it."/>
 
 	<!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
 	<target name="BuildServerExtras" depends="BuildClean,PrepareWebDemo"/>
