@@ -25,6 +25,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageManager;
@@ -89,12 +90,13 @@ public class CommCareContext {
 		this.midlet = m;
 		J2MEDisplay.init(m);
 		loadModules();
+		setProperties();
+		
 		registerAddtlStorage();
 		StorageManager.repairAll();
 		
 		manager = new CommCareManager();
 		manager.init(CommCareUtil.getProfileReference());
-		setProperties();
 		
 		UserUtility.populateAdminUser();
 		inDemoMode = false;
@@ -102,7 +104,8 @@ public class CommCareContext {
 		purgeScheduler();
 		manager.initialize();
 		
-		LanguageUtils.initializeLanguage(true,"sw");
+		//Localization.getGlobalLocalizerAdvanced().setDefaultLocale(defaultLocale)
+		LanguageUtils.initializeLanguage(true,"default");
 	}
 
 	private void failsafeInit (MIDlet m) {
@@ -132,27 +135,6 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
-		
-		//TODO: make this easier to override.
-		PropertyUtils.initializeProperty(CommCareProperties.BACKUP_URL, "file:///E:/CommCare.Backup" );
-        PropertyUtils.initializeProperty(CommCareProperties.RESTORE_URL, "file:///E:/CommCare.Backup" );
-        PropertyUtils.initializeProperty(CommCareProperties.BACKUP_MODE, CommCareProperties.BACKUP_MODE_FILE);
-        PropertyUtils.initializeProperty(CommCareProperties.PURGE_FREQ, "7");
-        
-		
-		String postURL, restoreURL;
-        if(CommCareUtil.isTestingMode()) {
-        	postURL = "http://staging.commcarehq.org/receiver/submit/BRAC";
-        	restoreURL = "http://staging.commcarehq.org/backups/";
-		}else{
-			postURL = "http://dev.commcarehq.org/receiver/submit/BRAC";
-			restoreURL = "http://dev.commcarehq.org/backups/";
-		}
-        
-    	CommCareUtil.initializePostURL(postURL);
-		PropertyManager._().setProperty(CommCareProperties.BACKUP_URL, postURL);
-		PropertyManager._().setProperty(CommCareProperties.RESTORE_URL, restoreURL );
-		PropertyManager._().setProperty(CommCareProperties.BACKUP_MODE, CommCareProperties.BACKUP_MODE_HTTP);
 	}
 	
 	public static void init(MIDlet m) {

@@ -60,9 +60,12 @@ public class ProfileParser extends ElementParser<Profile> {
 						String force = parser.getAttributeValue(null,"force");
 						if(force != null) {
 							if("true".equals(force.toLowerCase())) {
-								
+								profile.addPropertySetter(key,value, true);
+							} else {
+								profile.addPropertySetter(key,value,false);
 							}
 						}
+						profile.addPropertySetter(key,value);
 					} else if (parser.getName().toLowerCase().equals("root")) {
 						Root root = new RootParser(this.parser).parse();
 						profile.addRoot(root);

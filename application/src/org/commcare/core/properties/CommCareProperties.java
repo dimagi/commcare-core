@@ -24,7 +24,6 @@ public class CommCareProperties implements IPropertyRules {
     public static final String BACKUP_MODE_FILE = "file_mode";
     
 	// http, since it doesn't go in transport layer anymore
-    public final static String POST_URL_LIST_PROPERTY = "PostURLlist";
     public final static String POST_URL_PROPERTY = "PostURL";
 
     //auto-purging
@@ -50,17 +49,7 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(BACKUP_MODE, allowableModes);	
         
         // PostURL List Property
-        rules.put(POST_URL_LIST_PROPERTY, new Vector());
-        readOnlyProperties.addElement(POST_URL_LIST_PROPERTY);
-        Vector postList = PropertyManager._().getProperty(POST_URL_LIST_PROPERTY);
-        if(postList == null) {
-        	PropertyManager._().setProperty(POST_URL_LIST_PROPERTY, new Vector());
-        }
-        
-        // PostURL Property
-        Vector postUrls = new Vector();
-        postUrls.addElement(POST_URL_LIST_PROPERTY);
-        rules.put(POST_URL_PROPERTY, postUrls);
+        rules.put(POST_URL_PROPERTY, new Vector());
         
         rules.put(PURGE_LAST, new Vector());
         rules.put(PURGE_FREQ, new Vector());

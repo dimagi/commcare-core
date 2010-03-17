@@ -6,13 +6,10 @@ package org.commcare.util;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
-import org.commcare.applogic.CommCareCaseSelectState;
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
-import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.ReferralInstanceLoader;
@@ -24,11 +21,11 @@ import org.javarosa.chsreferral.util.IPatientReferralFilter;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportService;
@@ -55,33 +52,6 @@ public class CommCareUtil {
 	public final static int VERSION_SHORT = 1;
 	public final static int VERSION_MED = 2;
 	public final static int VERSION_LONG = 3;
-	
-	/**
-	 * 
-	 * @param defaultPostURL
-	 */
-	public static void initializePostURL(String defaultPostURL) {
-		Vector urls = PropertyManager._().getProperty(CommCareProperties.POST_URL_LIST_PROPERTY);
-		
-		//Default behavior for clean phones.
-		if(urls == null || urls.size() == 0) {
-			PropertyUtils.initializeProperty(CommCareProperties.POST_URL_LIST_PROPERTY, defaultPostURL);
-			PropertyUtils.initializeProperty(CommCareProperties.POST_URL_PROPERTY, defaultPostURL);
-		} else {
-			//There is at least one URL on the phone.
-			if(urls.contains(defaultPostURL)) {
-				//The default URL is on the phone. 
-			} else {
-				//The default URL isn't on the phone, which means we're upgrading. Add it to the list and make it the
-				//default
-				urls.addElement(defaultPostURL);
-				PropertyManager._().setProperty(CommCareProperties.POST_URL_LIST_PROPERTY, urls);
-				
-				PropertyManager._().setProperty(CommCareProperties.POST_URL_PROPERTY, defaultPostURL);
-			}			
-		}
-	}
-	
 	
 	public static int getNumberUnsent() {
 		return TransportService.getCachedMessagesSize();
@@ -243,6 +213,49 @@ public class CommCareUtil {
 				};
 			}
 			J2MEDisplay.startStateWithLoadingScreen(select);
+		}
+	}
+	
+	public static int countEntities(Entry entry, Suite suite) {
+		final Entry e = entry;
+		
+		Hashtable<String, String> references = entry.getReferences();
+		if(references.size() == 0) {
+			throw new RuntimeException("Attempt to count entities for an entry with no references!");
+		}
+		else {
+			//this will be revisited and rewritten 
+			boolean referral = false;
+			int count = 0;
+			// Need to do some reference gathering... 
+			for(Enumeration en = references.keys() ; en.hasMoreElements() ; ) {
+				String key = (String)en.nextElement();
+				String refType = references.get(key);
+				if(refType.toLowerCase().equals("referral")) {
+					referral = true;
+				}
+			}
+			if(referral) {
+				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
+				EntityFilter<? super PatientReferral> filter = entity.getFilter();
+				for(IStorageIterator i = StorageManager.getStorage(PatientReferral.STORAGE_KEY).iterate(); i.hasMore() ;) {
+					if(filter.matches((PatientReferral)i.nextRecord())) {
+						count++;
+					}
+				}
+				
+				return count;
+			} else {
+				Entity<Case> entity = new CommCareEntity<Case>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
+				EntityFilter<? super Case> filter = entity.getFilter();
+				for(IStorageIterator i = StorageManager.getStorage(Case.STORAGE_KEY).iterate(); i.hasMore() ;) {
+					if(filter.matches((Case)i.nextRecord())) {
+						count++;
+					}
+				}
+				
+				return count;
+			}
 		}
 	}
 }
