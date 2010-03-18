@@ -31,6 +31,9 @@ public class Detail implements Externalizable {
 	Vector<Text> headers;
 	Vector<Text> templates;
 	
+	int[] headerHints;
+	int[] templateHints;
+	
 	/**
 	 * Serialization Only
 	 */
@@ -45,6 +48,27 @@ public class Detail implements Externalizable {
 		this.headers = headers;
 		this.templates = templates;
 		this.filter = filter;
+		this.headerHints = initBlank(headers.size());
+		this.templateHints = initBlank(templates.size());
+	}
+	
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints) {
+		this.id = id;
+		this.title = title;
+		this.context = context;
+		this.headers = headers;
+		this.templates = templates;
+		this.filter = filter;
+		this.headerHints = headerHints;
+		this.templateHints = templateHints;
+	}
+	
+	private int[] initBlank(int size) {
+		int[] blank = new int[size];
+		for(int i = 0; i < size ; ++i) {
+			blank[i] = -1;
+		}
+		return blank;
 	}
 	
 	public String getId() {
@@ -65,7 +89,15 @@ public class Detail implements Externalizable {
 		Text[] array = new Text[templates.size()];
 		templates.copyInto(array);
 		return array;
-	}	
+	}
+	
+	public int[] getHeaderSizeHints() {
+		return headerHints;
+	}
+	
+	public int[] getTemplateSizeHints() {
+		return templateHints;
+	}
 	
 	public FormInstance getInstance() {
 		return context;
@@ -82,6 +114,9 @@ public class Detail implements Externalizable {
 		context = (FormInstance)ExtUtil.read(in, FormInstance.class, pf);
 		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
+		headerHints = (int[])ExtUtil.readInts(in);
+		templateHints = (int[])ExtUtil.readInts(in);
+		
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
@@ -91,6 +126,8 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, context);
 		ExtUtil.write(out, new ExtWrapList(headers));
 		ExtUtil.write(out, new ExtWrapList(templates));
+		ExtUtil.writeInts(out, headerHints);
+		ExtUtil.writeInts(out, templateHints);
 	}
 	
 }

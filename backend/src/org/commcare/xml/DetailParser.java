@@ -50,8 +50,11 @@ public class DetailParser extends ElementParser<Detail> {
 			//Now the model
 			FormInstance model = parseModel();
 			
-			Vector<Text> headers = new Vector<Text>();;
+			//Now get the headers and templates.
+			Vector<Text> headers = new Vector<Text>();
 			Vector<Text> templates = new Vector<Text>();
+			Vector<Integer> headerHints = new Vector<Integer>();
+			Vector<Integer> templateHints = new Vector<Integer>();
 			
 			while(nextTagInBlock("detail")) {
 				checkNode("field");
@@ -59,6 +62,9 @@ public class DetailParser extends ElementParser<Detail> {
 				if(nextTagInBlock("field")) {
 					//Header
 					checkNode("header");
+					
+					headerHints.addElement(new Integer(getWidth()));
+					
 					parser.nextTag();
 					checkNode("text");
 					Text header = new TextParser(parser).parse();
@@ -67,6 +73,9 @@ public class DetailParser extends ElementParser<Detail> {
 				if(nextTagInBlock("field")) {
 					//Template
 					checkNode("template");
+					
+					templateHints.addElement(new Integer(getWidth()));
+					
 					parser.nextTag();
 					checkNode("text");
 					Text template = new TextParser(parser).parse();
@@ -75,8 +84,28 @@ public class DetailParser extends ElementParser<Detail> {
 			}
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter);
+		
+		Detail d = new Detail(id, title, model, headers, templates,filter, toArray(headerHints), toArray(templateHints));
 		return d;
+	}
+	
+	private int getWidth() throws InvalidStructureException {
+		String width = parser.getAttributeValue(null,"width");
+		if(width == null) { return -1; };
+		
+		//Remove the trailing % sign if any
+		if(width.indexOf("%") != -1) {
+			width = width.substring(0,width.indexOf("%"));
+		}
+		return this.parseInt(width);
+	}
+	
+	private int[] toArray(Vector<Integer> vector) {
+		int[] ret = new int[vector.size()];
+		for(int i = 0; i < ret.length ; ++i) {
+			ret[i] = vector.elementAt(i).intValue();
+		}
+		return ret;
 	}
 	
 	private FormInstance parseModel() throws InvalidStructureException, IOException, XmlPullParserException {

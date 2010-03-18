@@ -61,6 +61,20 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		}
 		return output;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.javarosa.patient.select.activity.IEntity#matchID(java.lang.String)
+	 */
+	public boolean match (String key) {
+		key = key.toLowerCase();
+		String[] fields = this.getShortFields();
+		for(int i = 0; i < fields.length; ++i) {
+			if(fields[i].toLowerCase().startsWith(key)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getLongFields(org.javarosa.core.services.storage.Persistable)
@@ -81,6 +95,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 */
 	public String[] getShortFields() {
 		return shortText;
+	}
+	
+	public int[] getStyleHints (boolean header) {
+		if(header) {
+			return shortDetail.getHeaderSizeHints();
+		} else {
+			return shortDetail.getTemplateSizeHints();
+		}
 	}
 
 	/* (non-Javadoc)

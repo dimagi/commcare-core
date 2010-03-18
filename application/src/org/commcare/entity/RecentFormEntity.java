@@ -51,6 +51,14 @@ public class RecentFormEntity extends Entity<FormInstance> {
 		return true;
 	}
 	
+	public int[] getStyleHints (boolean header) {
+		if(header) {
+			return new int[] {-1, -1} ;
+		} else {
+			return new int[] {-1, 36 };
+		}
+	}
+	
 	public String[] getHeaders(boolean detailed) {
 		return new String[] {Localization.get("review.type"), Localization.get("review.date")}; 
 	}
