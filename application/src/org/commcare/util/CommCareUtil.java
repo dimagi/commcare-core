@@ -40,7 +40,7 @@ public class CommCareUtil {
 	private static final String COMMCARE_RELEASE_PROPERTY = "CommCare-Release";
 	private final static String PROP_APP_VERSION = "App-Version";
 	private final static String PROP_JR_BUILD_VERSION = "JR-Build-Version";
-	private final static String PROP_CC_CORE_BUILD_VERSION = "CC-Core-Build-Version";
+	private final static String PROP_CC_BUILD_VERSION = "CC-Build-Version";
 	private final static String PROP_CC_DEPLOY_BUILD_VERSION = "CC-Deploy-Build-Version";
 	private final static String PROP_POLISH_VERSION = "Polish-Version";
 	private final static String PROP_POLISH_DEVICE = "Polish-Device";
@@ -78,7 +78,7 @@ public class CommCareUtil {
 		final int hashLength = 6;
 		String vApp = getAppProperty(PROP_APP_VERSION, "??");
 		String vBuildJR = getAppProperty(PROP_JR_BUILD_VERSION, "??");
-		String vBuildCCCore = getAppProperty(PROP_CC_CORE_BUILD_VERSION, "??");
+		String vBuildCC = getAppProperty(PROP_CC_BUILD_VERSION, "??");
 		String vBuildCCDeploy = getAppProperty(PROP_CC_DEPLOY_BUILD_VERSION, "??");
 		String vPolish = getAppProperty(PROP_POLISH_VERSION, "??");
 		String vDevice = getAppProperty(PROP_POLISH_DEVICE, "??");
@@ -88,7 +88,7 @@ public class CommCareUtil {
 		boolean released = !releaseDate.equals("--");
 		
 		vBuildJR = vBuildJR.substring(0, Math.min(hashLength, vBuildJR.length()));
-		vBuildCCCore = vBuildCCCore.substring(0, Math.min(hashLength, vBuildCCCore.length()));
+		vBuildCC = vBuildCC.substring(0, Math.min(hashLength, vBuildCC.length()));
 		vBuildCCDeploy = vBuildCCDeploy.substring(0, Math.min(hashLength, vBuildCCDeploy.length()));
 		vPolish = (String)DateUtils.split(vPolish, " ", true).elementAt(0);
 		buildDate = (String)DateUtils.split(buildDate, " ", true).elementAt(0);
@@ -96,7 +96,7 @@ public class CommCareUtil {
 		
 		switch (type) {
 		case VERSION_LONG:
-			return vApp + " (" + vBuildJR + "-" + vBuildCCCore + "-" + vBuildCCDeploy + "-" + vPolish + "-" + vDevice +
+			return vApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vBuildCCDeploy + "-" + vPolish + "-" + vDevice +
 				")" + (released ? " #" + buildNum : "") + " b:" + buildDate + " r:" + releaseDate;
 		case VERSION_MED:
 			return vApp + " " + (released ? "#" + buildNum + " (" + releaseDate + ")" : "<unreleased>");

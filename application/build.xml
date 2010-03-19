@@ -60,7 +60,7 @@
 				<jad>
 					<attribute name="App-Version" value="${commcare.version}/${commcare.flavor}" />
 					<attribute name="CC-Deploy-Build-Version" value="${cc-deploy-build-version}" />
-					<attribute name="CC-Core-Build-Version" value="${cc-core-build-version}" />
+					<attribute name="CC-Build-Version" value="${cc-build-version}" />
 					<attribute name="JR-Build-Version" value="${jr-build-version}" />
 					<attribute name="Polish-Device" value="${device.identifier}" />
 					<attribute name="Built-on" value="${built-on}" />
@@ -176,7 +176,7 @@
 			<arg line="parents --template {node|short}"/>
 		</exec>
 		<exec executable="hg" outputproperty="cc-core-build-version">
-			<arg line="parents --template {node|short} -R &quot;${dir.commcare-core}&quot;"/>
+			<arg line="parents --template {node|short}"/>
 		</exec>
 
 	    <taskdef name="if" onerror="report" classname="net.sf.antcontrib.logic.IfTask" classpath="${dir.tools}/ant-contrib.jar" />
