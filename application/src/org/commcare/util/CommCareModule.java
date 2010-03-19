@@ -12,6 +12,7 @@ import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.api.IModule;
@@ -34,7 +35,8 @@ public class CommCareModule implements IModule {
 										    ProfileInstaller.class.getName(),
 										    XFormInstaller.class.getName(),
 										    Text.class.getName(),
-										    Filter.class.getName()};
+										    Filter.class.getName(),
+										    PropertySetter.class.getName()};
 		PrototypeManager.registerPrototypes(prototypes);
 		
 		StorageManager.registerStorage(ResourceTable.STORAGE_KEY_GLOBAL, Resource.class);

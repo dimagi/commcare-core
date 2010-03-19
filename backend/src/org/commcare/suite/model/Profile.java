@@ -123,49 +123,4 @@ public class Profile implements Persistable {
 		ExtUtil.write(out, new ExtWrapList(roots));
 		ExtUtil.write(out, new ExtWrapMap(featureStatus));
 	}
-
-	
-	/**
-	 * This is just a tiny little struct to make it reasonable to maintain 
-	 * the properties until they are installed. 
-	 * 
-	 * @author ctsims
-	 *
-	 */
-	private class PropertySetter implements Externalizable {
-		String key;
-		String value;
-		boolean force;
-		
-		public String getKey() { return key; }
-		public String getValue() { return value; }
-		public boolean isForce() { return force; }
-
-		/**
-		 * Serialization Only!!!
-		 */
-		public PropertySetter() {
-			
-		}
-		
-		public PropertySetter(String key, String value, boolean force) {
-			this.key = key;
-			this.value = value;
-			this.force = force;
-		}
-
-		public void readExternal(DataInputStream in, PrototypeFactory pf)
-				throws IOException, DeserializationException {
-			key = ExtUtil.readString(in);
-			value = ExtUtil.readString(in);
-			force = ExtUtil.readBool(in);
-		}
-
-		public void writeExternal(DataOutputStream out) throws IOException {
-			ExtUtil.writeString(out,key);
-			ExtUtil.writeString(out,value);
-			ExtUtil.writeBool(out, force);
-		}
-		
-	}
 }

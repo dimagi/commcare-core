@@ -27,7 +27,7 @@ public class ProfileParser extends ElementParser<Profile> {
 	String resourceId;
 	int initialResourceStatus;
 
-	public ProfileParser(InputStream suiteStream, ResourceTable table, String resourceId, int initialResourceStatus) {
+	public ProfileParser(InputStream suiteStream, ResourceTable table, String resourceId, int initialResourceStatus) throws IOException {
 		super(suiteStream);
 		this.table = table;
 		this.resourceId = resourceId;

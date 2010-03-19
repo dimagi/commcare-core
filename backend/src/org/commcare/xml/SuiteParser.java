@@ -31,7 +31,7 @@ public class SuiteParser extends ElementParser<Suite>  {
 	ResourceTable table;
 	String resourceGuid;
 	
-	public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) {
+	public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) throws IOException {
 		super(suiteStream);
 		this.table = table;
 		this.resourceGuid = resourceGuid;

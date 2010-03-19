@@ -22,11 +22,11 @@ public abstract class ElementParser<T> {
 	
 	int level = 0;
 	
-	public ElementParser(Resource resource) {
+	public ElementParser(Resource resource) throws IOException {
 		this(resource.OpenStream());
 	}
 	
-	public ElementParser(InputStream suiteStream) {
+	public ElementParser(InputStream suiteStream) throws IOException{
 		parser = new KXmlParser();
 		try {
 			parser.setInput(suiteStream,"UTF-8");
@@ -36,9 +36,8 @@ public abstract class ElementParser<T> {
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			throw new IOException(e.getMessage());
 		}
 	}
 	
