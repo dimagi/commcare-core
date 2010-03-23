@@ -23,6 +23,7 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
@@ -33,6 +34,7 @@ import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.J2MEModule;
+import org.javarosa.j2me.file.J2meFileRoot;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.util.DumpRMS;
@@ -95,6 +97,8 @@ public class CommCareContext {
 		registerAddtlStorage();
 		StorageManager.repairAll();
 		
+		initReferences();
+		
 		manager = new CommCareManager();
 		manager.init(CommCareUtil.getProfileReference());
 		
@@ -120,6 +124,10 @@ public class CommCareContext {
 	
 	protected void registerAddtlStorage () {
 		//do nothing
+	}
+	
+	protected void initReferences() {
+		ReferenceManager._().addRawReferenceRoot(new J2meFileRoot("root1"));
 	}
 
 	private void loadModules() {

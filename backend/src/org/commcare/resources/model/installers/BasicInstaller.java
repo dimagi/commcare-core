@@ -46,10 +46,15 @@ public class BasicInstaller implements ResourceInstaller {
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
 		//If we have local resource authority, and the file exists, things are golden. We can just use that file.
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
-			if(ref.doesBinaryExist()) {
-				return true;
-			} else {
-				//If the file isn't there, not much we can do about it.
+			try {
+				if(ref.doesBinaryExist()) {
+					return true;
+				} else {
+					//If the file isn't there, not much we can do about it.
+					return false;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 				return false;
 			}
 		} else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
