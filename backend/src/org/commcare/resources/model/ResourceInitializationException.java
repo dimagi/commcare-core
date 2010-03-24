@@ -4,6 +4,10 @@
 package org.commcare.resources.model;
 
 /**
+ * Resource Initialization Exceptions are thrown when there 
+ * is a problem with an installed resource initializing itself
+ * locally. 
+ * 
  * @author ctsims
  *
  */

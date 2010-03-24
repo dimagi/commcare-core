@@ -16,7 +16,6 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -27,6 +26,22 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
+ * <p>Text objects are a model for holding strings which
+ * will be displayed to users. Text's can be defined
+ * in a number of ways, static Strings, localized values,
+ * even xpath expressions. They are dynamically evaluated
+ * at runtime in order to allow for CommCare apps to flexibly
+ * provide rich information from a number of sources.</p>
+ * 
+ * <p>There are 4 types of Text sources which can be defined
+ * <ul>
+ * <li>Raw Text</li>
+ * <li>Localized String</li>
+ * <li>XPath Expression</li>
+ * <li>Compound Text</li>
+ * </ul>
+ * </p>
+ *  
  * @author ctsims
  *
  */
@@ -49,6 +64,9 @@ public class Text implements Externalizable {
 		
 	}
 	
+	/**
+	 * @return An empty text object
+	 */
 	private static Text TextFactory() {
 		Text t = new Text();
 		t.type = -1;
@@ -57,6 +75,11 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
+	/**
+	 * @param id The locale key.
+	 * @return A Text object that evaluates to the 
+	 * localized value of the ID provided.
+	 */
 	public static Text LocaleText(String id) {
 		Text t = TextFactory();
 		t.argument = id;
@@ -64,6 +87,13 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
+	/**
+	 * @param localeText A Text object which evaluates
+	 * to a locale key.
+	 * @return A Text object that evaluates to the 
+	 * localized value of the id returned by evaluating
+	 * localeText
+	 */
 	public static Text LocaleText(Text localeText) {
 		Text t = TextFactory();
 		t.arguments = new Hashtable<String, Text>();
@@ -73,6 +103,11 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
+	/**
+	 * @param text A text string.
+	 * @return A Text object that evaluates to the 
+	 * string provided.
+	 */
 	public static Text PlainText(String text) {
 		Text t = TextFactory();
 		t.argument = text;
@@ -80,6 +115,19 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
+	/**
+	 * 
+	 * @param function A valid XPath function.
+	 * @param arguments A key/value set defining arguments
+	 * which, when evaluated, will provide a value for variables
+	 * in the provided function. 
+	 * @return A Text object that evaluates to the 
+	 * resulting value of the xpath expression defined
+	 * by function when presented with a compatible data
+	 * model.
+	 * @throws XPathSyntaxException If the provided xpath function does
+	 * not have valid syntax. 
+	 */
 	public static Text XPathText(String function, Hashtable<String, Text> arguments) throws XPathSyntaxException {
 		Text t = TextFactory();
 		t.argument = function;
@@ -90,6 +138,12 @@ public class Text implements Externalizable {
 		return t;
 	}
 	
+	/**
+	 * @param text A vector of Text objects.
+	 * @return A Text object that evaluates to the 
+	 * value of each member of the text vector, with
+	 * a space character between each.
+	 */
 	public static Text CompositeText(Vector<Text> text) {
 		Text t = TextFactory();
 		int i = 0;
@@ -102,11 +156,20 @@ public class Text implements Externalizable {
 	}
 	
 	
-	
+	/**
+	 * @return The evaluated string value for this Text object. Note
+	 * that if this string is expecting a model in order to evaluate
+	 * (like an XPath text), this will likely fail.
+	 */
 	public String evaluate() {
 		return evaluate(null);
 	}
 	
+	/**
+	 * @param context A data model which is compatible with any 
+	 * xpath functions in the underlying Text
+	 * @return The evaluated string value for this Text object.
+	 */
 	public String evaluate(FormInstance context) {
 		switch(type) {
 		case TEXT_TYPE_FLAT:
@@ -181,12 +244,20 @@ public class Text implements Externalizable {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		type = ExtUtil.readInt(in);
 		argument = ExtUtil.readString(in);
 		arguments = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out,type);
 		ExtUtil.writeString(out,argument);

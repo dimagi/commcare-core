@@ -17,6 +17,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * <p>Suites are the central point of   
  * @author ctsims
  *
  */

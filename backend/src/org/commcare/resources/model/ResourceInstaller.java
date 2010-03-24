@@ -8,13 +8,18 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
- * A resource installer is CommCare's local record of what a resource's
- * local status is. It is responsible for managing installation, uninstallation,
- * updates, initialization at runtime, etc.
+ * <p>A Resource Installer (Possible name change pending) is 
+ * responsible for taking a Resource definition and taking 
+ * steps to make it available in the local environment.</p>
  * 
- * While resource records manage a resource's abstract status (where it can
- * be found, what should be done with it), a resource installer is more accountable
- * for what to do with a resource while it's on the device.
+ * <p>Resource record objects record and keep track of the state
+ * of resources, while installers actually manage the local 
+ * representation of the resource and manage their initialization
+ * and how to get them installed or uninstalled</p>
+ * 
+ * <p>Currently these installers are tracked as part of the resource
+ * record itself. However, this will probably change as they are 
+ * transitioned to a device-specific factory. </p>
  * 
  * @author ctsims
  *
@@ -32,6 +37,7 @@ public interface ResourceInstaller extends Externalizable {
 	 * initializes an installed resource for use at runtime.
 	 * @return true if a resource is ready for use. False if
 	 * a problem occurred.
+	 * @throws ResourceInitializationException If the resource could not be initialized
 	 */
 	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException;
 	
@@ -43,7 +49,9 @@ public interface ResourceInstaller extends Externalizable {
 	 * @param r The resource to be stepped
 	 * @param table the table where the resource is being managed
 	 * @param peer the current copy of a resource (if one exists)
-	 * @return The next step to be completed after this one.
+	 * @return Whether the resource was able to complete an installation
+	 * step in the current circumstances.
+	 * @throws UnresolvedResourceException If the local resource definition could not be found
 	 */
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException;
 	
@@ -54,11 +62,17 @@ public interface ResourceInstaller extends Externalizable {
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException;
 	
 	/**
+	 * Upgrade is called when a resource is installed locally, but is waiting for a 
+	 * previous version of itself to be uninstalled. This method generally moves 
+	 * any unique indexes from a temporary value to the appropriate value which would
+	 * be used for the installed resource.
 	 * 
-	 * @param r
-	 * @param table
-	 * @return
-	 * @throws UnresolvedResourceException
+	 * After this step is completed, the resource should be marked as installed. 
+	 * 
+	 * @param r The resource to be upgraded.
+	 * @param table The table in which the resource belongs.
+	 * @return True if the upgrade step was completed successfully.
+	 * @throws UnresolvedResourceException If the local resource definition could not be found
 	 */
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException;
 	

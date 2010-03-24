@@ -14,12 +14,18 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 
 /**
- * TODO: We have too many vectors here. It's lazy and incorrect. ~everything
- * should be using iterators, not vectors; 
+ * <p>A Resource Table maintains a set of Resource Records,
+ * resolves dependencies between records, and provides hooks
+ * for maintenance, updating, and initializing resources.</p>
+ * 
+ * 
+ * 
  * @author ctsims
- *
  */
 public class ResourceTable {
+	
+	//TODO: We have too many vectors here. It's lazy and incorrect. ~everything
+	//should be using iterators, not vectors; 
 	
 	public static final String STORAGE_KEY_GLOBAL = "GLOBAL_RESOURCE_TABLE";
 	private static final String STORAGE_KEY_TEMPORARY = "RESOURCE_TABLE_";
@@ -35,6 +41,9 @@ public class ResourceTable {
 
 	}
 
+	/**
+	 * @return A static resource table which 
+	 */
 	public static ResourceTable RetrieveGlobalResourceTable() {
 		if(global == null) {
 			global = new ResourceTable();

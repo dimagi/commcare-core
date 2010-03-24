@@ -20,6 +20,44 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * <p>
+ * Resources are records which resolve the location of data
+ * definitions (Suites, Xforms, Images, etc), and keep track 
+ * of their status in the local environment. A Resource model 
+ * knows where certain resources definitions can be found, what 
+ * abstract resource those definitions are, a unique status about
+ * whether that resource is installed or locally available,
+ * and what installer it uses.</p>
+ * 
+ * <p>
+ * Resources are immutable and should be treated as such. The 
+ * abstract definition of a resource model is actually inside 
+ * of the Resource Table, and changes should be committed to
+ * the table in order to change the resource.</p>
+ * 
+ * <p>
+ * As resources are installed into the local environment, their
+ * status is updated to reflect that progress. The possible status
+ * enumerations are: 
+ * 
+ * <ul>
+ * <li>RESOURCE_STATUS_UNINITIALIZED - The resource has not yet been 
+ * evaluated by the the resource table.</li>
+ * <li>RESOURCE_STATUS_LOCAL - The resource definition is locally present 
+ * and ready to be read and installed</li>
+ * <li>RESOURCE_STATUS_PENDING - This resource's definition is needed by
+ * a separate resource, and is waiting for that resource to mark it as
+ * relevant.</li>
+ * <li>RESOURCE_STATUS_INSTALLED - This resource is present locally and has
+ * been installed. It is ready to be used.</li>
+ * <li>RESOURCE_STATUS_UPGRADE - This resource definition has been read, and
+ * the resource is present locally and ready to install, but a previous
+ * version of it must be uninstalled first so its place can be taken.</li>
+ * <li>RESOURCE_STATUS_DELETE - This resource is no longer needed and should
+ * be uninstalled and its record removed.</li>
+ * </ul> 
+ * </p>
+ * 
  * @author ctsims
  *
  */
@@ -42,7 +80,6 @@ public class Resource implements Persistable, IMetaData {
 	public static final int RESOURCE_STATUS_INSTALLED = 4;
 	public static final int RESOURCE_STATUS_UPGRADE = 8;
 	public static final int RESOURCE_STATUS_DELETE = 16;
-	public static final int RESOURCE_STATUS_OBSELETE = 32;
 	
 	public static final int RESOURCE_VERSION_UNKNOWN = -2;
 	
@@ -64,6 +101,16 @@ public class Resource implements Persistable, IMetaData {
 		
 	}
 	
+	/**
+	 * Creates a resource record identifying where a specific version of a resource
+	 * can be located. 
+	 * 
+	 * @param version The version of the resource being defined.
+	 * @param id A unique string identifying the abstract resource
+	 * @param locations A set of locations from which this resource's definition
+	 * can be retrieved. Note that this vector is copied and should not be changed
+	 * after being passed in here.
+	 */
 	public Resource(int version, String id, Vector<ResourceLocation> locations) {
 		this.version = version;
 		this.id = id;
@@ -72,35 +119,56 @@ public class Resource implements Persistable, IMetaData {
 		this.status = RESOURCE_STATUS_UNINITIALIZED;
 	}
 	
+	/**
+	 * This method is obsolete and should be deleted as soon as it is verified
+	 * that it is.
+	 */
 	public InputStream OpenStream() {
 		return null;
 	}
 	
 	/**
-	 * TODO: It is in the air whether this should be an operation
-	 * which uses a copy, rather than the master list.
-	 * @return
+	 * @return The locations where this resource's definition can be obtained.
 	 */
 	public Vector<ResourceLocation> getLocations() {
 		return locations;
 	}
 	
+	/**
+	 * @return An enumerated ID identifying the status of this resource on
+	 * the local device. 
+	 */
 	public int getStatus() {
 		return status;
 	}
 	
+	/**
+	 * @return The unique identifier for what resource this record offers the definition of.
+	 */
 	public String getResourceId() {
 		return id;
 	}
 	
+	/**
+	 * @return A GUID that the resource table uses to identify this definition.
+	 */
 	public String getRecordGuid() {
 		return guid;
 	}
 	
-	public void setParentId(String parent) {
+	/**
+	 * @param parent The GUID of the resource record which has made this resource relevant
+	 * for installation. This method should only be called by a resource table committing 
+	 * this resource record definition. 
+	 */
+	protected void setParentId(String parent) {
 		this.parent = parent;
 	}
 	
+	/**
+	 * @return True if this resource's relevance is derived from another resource. False
+	 * otherwise.
+	 */
 	public boolean hasParent() {
 		if(parent == null || "".equals(parent)) {
 			return false;
@@ -109,41 +177,84 @@ public class Resource implements Persistable, IMetaData {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return The GUID of the resource record which has made this resource relevant
+	 * for installation. This method should only be called by a resource table committing 
+	 * this resource record definition. 
+	 */
 	public String getParentId() {
 		return parent;
 	}
 	
+	/**
+	 * @return The version of the resource that this record defines.
+	 */
 	public int getVersion() {
 		return version;
 	}
 	
+	/**
+	 * @param version The version of the resource that this record defines. Can only be used
+	 * to set the version if the current version is RESOURCE_VERSION_UNKOWN.
+	 */
 	protected void setVersion(int version) {
 		if(this.version == Resource.RESOURCE_VERSION_UNKNOWN) {
 			this.version = version;
 		}
 	}
 	
-	public void setInstaller(ResourceInstaller initializer) {
+	/**
+	 * @param initializer Associates a ResourceInstaller with this resource record. This method 
+	 * should only be called by a resource table committing this resource record definition. 
+	 */
+	protected void setInstaller(ResourceInstaller initializer) {
 		this.initializer = initializer;
 	}
 	
+	/** 
+	 * @return The installer which should be used to install the resource for this record.
+	 */
 	public ResourceInstaller getInstaller() {
 		return initializer;
 	}
 	
+	/**
+	 * @param status The current status of this resource. Should only be called by the resource
+	 * table.
+	 */
 	protected void setStatus(int status) {
 		this.status = status;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.Persistable#getID()
+	 */
 	public int getID() {
 		return recordId;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.Persistable#setID(int)
+	 */
 	public void setID(int ID) {
 		recordId = ID;
 	}
 	
+	/**
+	 * @param peer A resource record which defines the same resource as this record.
+	 *   
+	 * @return True if this record defines a newer version of the same resource as
+	 * peer, or if this resource generally is suspected to obsolete peer (if, for
+	 * instance this resource's version is yet unknown it will be assumed that it
+	 * is newer until it is.)
+	 */
 	public boolean isNewer(Resource peer) {
+		if(!peer.id.equals(this.id)) {
+			return false;
+		}
 		if(version == RESOURCE_VERSION_UNKNOWN) {
 			return true;
 		} else {
@@ -151,6 +262,10 @@ public class Resource implements Persistable, IMetaData {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		this.recordId = ExtUtil.readInt(in);
 		this.version = ExtUtil.readInt(in);
@@ -163,6 +278,10 @@ public class Resource implements Persistable, IMetaData {
 		this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out,recordId);
 		ExtUtil.writeNumeric(out,version);
@@ -175,6 +294,10 @@ public class Resource implements Persistable, IMetaData {
 		ExtUtil.write(out, new ExtWrapTagged(initializer));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
+	 */
 	public Hashtable getMetaData() {
 		Hashtable md = new Hashtable();
 		String[] fields = getMetaDataFields();
@@ -184,6 +307,10 @@ public class Resource implements Persistable, IMetaData {
 		return md;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
+	 */
 	public Object getMetaData(String fieldName) {
 		if(fieldName.equals(META_INDEX_RESOURCE_ID)) {
 			return id;
@@ -196,7 +323,11 @@ public class Resource implements Persistable, IMetaData {
 		}
 		throw new IllegalArgumentException("No Field w/name " + fieldName + " is relevant for resources");
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
+	 */
 	public String[] getMetaDataFields() {
 		return new String[] {META_INDEX_RESOURCE_ID,META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID,META_INDEX_VERSION};
 	}
