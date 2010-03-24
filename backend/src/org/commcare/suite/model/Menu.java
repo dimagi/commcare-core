@@ -15,6 +15,10 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * <p>A Menu definition describes the structure of how
+ * actions should be provided to the user in a CommCare
+ * application.</p>
+ * 
  * @author ctsims
  *
  */
@@ -32,6 +36,7 @@ public class Menu implements Externalizable {
 		
 	}
 	
+	
 	public Menu(String id, String root, Text name, Vector<String> commandIds) {
 		this.id = id;
 		this.root = root;
@@ -39,18 +44,35 @@ public class Menu implements Externalizable {
 		this.commandIds = commandIds;
 	}
 	
+	/**
+	 * @return The ID of what menu an option to navigate to
+	 * this menu should be displayed in.
+	 */
 	public String getRoot() {
 		return root;
 	}
 	
+	/**
+	 * @return A Text which should be displayed to the user as
+	 * the action which will display this menu.
+	 */
 	public Text getName() {
 		return name;
 	}
 	
+	/**
+	 * @return The ID of this menu. <p>If this value is "root"
+	 * many CommCare applications will support displaying this
+	 * menu's options at the app home screen</p> 
+	 */
 	public String getId() {
 		return id;
 	}
 	
+	/**
+	 * @return The ID of what command actions should be available
+	 * when viewing this menu.
+	 */
 	public Vector<String> getCommandIds() {
 		//UNSAFE! UNSAFE!
 		return commandIds;

@@ -17,7 +17,12 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * <p>Suites are the central point of   
+ * <p>Suites are containers for a set of actions,
+ * detail definitions, and UI information. A suite
+ * generally contains a set of form entry actions
+ * related to the same case ID, sometimes including
+ * referrals.</p> 
+ *  
  * @author ctsims
  *
  */
@@ -49,19 +54,26 @@ public class Suite implements Persistable {
 		this.menus = menus;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.Persistable#getID()
+	 */
 	public int getID() {
 		return recordId;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.services.storage.Persistable#setID(int)
+	 */
 	public void setID(int ID) {
 		recordId = ID;
 	}
 	
-	public String getName() {
-		//BAD! BAD! BAD!
-		return "Suite " + this.recordId;
-	}
-	
+	/**
+	 * @return The menus which define how to access the actions 
+	 * which are available in this suite.
+	 */
 	public Vector<Menu> getMenus() {
 		return menus;
 	}
@@ -69,16 +81,27 @@ public class Suite implements Persistable {
 	/**
 	 * WOAH! UNSAFE! Copy, maybe? But this is _wicked_ dangerous.
 	 * 
-	 * @return
+	 * @return The set of entry actions which are defined by this 
+	 * suite, indexed by their id (which is present in the menu
+	 * definitions).
 	 */
 	public Hashtable<String, Entry> getEntries() {
 		return entries;
 	}
 	
+	/**
+	 * @param id The String ID of a detail definition
+	 * @return A Detail definition associated with the provided
+	 * id.
+	 */
 	public Detail getDetail(String id) {
 		return details.get(id);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
 		this.recordId = ExtUtil.readInt(in);
@@ -89,6 +112,10 @@ public class Suite implements Persistable {
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, recordId);
 		ExtUtil.writeNumeric(out, version);
