@@ -14,11 +14,18 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
+ * <p>ViewParser parsers the &lt;view&gt; XML structure
+ * defining a view object</p> 
+ * 
  * @author ctsims
  *
  */
 public class ViewParser extends ElementParser<Entry> {
 
+	/**
+	 * Creates a new parser for the &lt;view&gt; XML structure
+	 * @param parser The xml pull parser being used.
+	 */
 	public ViewParser(KXmlParser parser) {
 		super(parser);
 	}
