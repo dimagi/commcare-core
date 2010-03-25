@@ -11,6 +11,16 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+/**
+ * <p>
+ * Filter definitions provide the relevant fields on which
+ * data should be filtered for display in detail views.
+ * 
+ *  
+ * </p>
+ * 
+ * @author ctsims
+ */
 public class Filter implements Externalizable {
 	private static Filter empty;
 	
