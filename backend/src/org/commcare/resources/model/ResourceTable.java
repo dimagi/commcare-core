@@ -26,13 +26,9 @@ public class ResourceTable {
 	
 	//TODO: We have too many vectors here. It's lazy and incorrect. ~everything
 	//should be using iterators, not vectors; 
-	
-	public static final String STORAGE_KEY_GLOBAL = "GLOBAL_RESOURCE_TABLE";
-	private static final String STORAGE_KEY_TEMPORARY = "RESOURCE_TABLE_";
 
 	private IStorageUtilityIndexed storage;
 	
-	private static ResourceTable global;
 
 	/**
 	 * For Serialization Only!
@@ -40,41 +36,10 @@ public class ResourceTable {
 	public ResourceTable() {
 
 	}
-
-	/**
-	 * @return A static resource table which 
-	 */
-	public static ResourceTable RetrieveGlobalResourceTable() {
-		if(global == null) {
-			global = new ResourceTable();
-			global.storage = (IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_KEY_GLOBAL);
-		} 
-		//Not sure if this reference is actually a good idea, or whether we should 
-		//get the storage link every time... For now, we'll reload storage each time
-		System.out.println("Global Resource Table");
-		System.out.println(global);
-		return global;
-	}
-
-	public static ResourceTable CreateTemporaryResourceTable(String name) {
+	
+	public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
 		ResourceTable table = new ResourceTable();
-		IStorageUtilityIndexed storage = null; 
-		String storageKey = STORAGE_KEY_TEMPORARY + name.toUpperCase();
-		
-		//Check if this table already exists, and return it if so.
-		for(String utilityName : StorageManager.listRegisteredUtilities()) {
-			if(utilityName.equals(storageKey)) {
-				storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
-				table.storage = storage;
-			}
-		}
-		//Otherwise, create a new one.
-		if(storage == null) {
-			StorageManager.registerStorage(storageKey, storageKey, Resource.class);
-			table.storage = (IStorageUtilityIndexed)StorageManager.getStorage(storageKey);
-		}
-		System.out.println("Temporary Resource Table");
-		System.out.println(table);
+		table.storage = storage;
 		return table;
 	}
 
@@ -198,7 +163,7 @@ public class ResourceTable {
 		//r should already be in the storage table...
 		try {
 			storage.write(r);
-			System.out.println(this);
+			//System.out.println(this);
 		}
 		catch(StorageFullException e) {
 			throw new UnresolvedResourceException(r,"Ran out of space while updating resource definition...");
@@ -326,7 +291,7 @@ public class ResourceTable {
 			}
 		}
 		
-		System.out.println(this);
+		//System.out.println(this);
 		
 		// All of the incoming resources should now be installed and ready to roll.
 		// The only thing left to do is run a cleanup on this table to clear out any
@@ -343,8 +308,8 @@ public class ResourceTable {
 				r.getInstaller().uninstall(r, this, incoming);
 			}
 			pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
-			System.out.println("After of pending deletes:");
-			System.out.println(this);
+			//System.out.println("After of pending deletes:");
+			//System.out.println(this);
 		}
 		
 		incoming.cleanup();

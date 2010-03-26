@@ -58,8 +58,10 @@ public class LocaleFileInstaller implements ResourceInstaller {
 	 */
 	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
 		if(cache == null) {
-			Localization.getGlobalLocalizerAdvanced().registerLocaleResource(locale, new ReferenceDataSource(localReference));
+			Localization.registerLanguageReference(locale, localReference);
 		} else {
+			//TODO: This will _not_ create a locale's availability if it doesn't exist. Need to determine
+			//what to do about that... 
 			Localization.getGlobalLocalizerAdvanced().registerLocaleResource(locale, new TableLocaleSource(cache));
 		}
 		return true;

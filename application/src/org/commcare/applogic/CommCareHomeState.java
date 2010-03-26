@@ -145,6 +145,6 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void upgrade() {
-		CommCareContext._().getManager().upgrade();
+		CommCareContext._().getManager().upgrade(CommCareContext.RetrieveGlobalResourceTable(), CommCareContext.CreateTemporaryResourceTable("UPGRADGE"));
 	}
 }

@@ -42,16 +42,15 @@ public class CommCareManager implements CommCareInstance {
 		suites = new Vector<Integer>();
 	}
 	
-	public void init(String profileReference) {
+	public void init(String profileReference, ResourceTable global) {
 		try {
-			ResourceTable t = ResourceTable.RetrieveGlobalResourceTable();
 
-			if (!t.isReady()) {
-				t.prepareResources(null);
+			if (!global.isReady()) {
+				global.prepareResources(null);
 			}
 			
 			// First, see if the appropriate profile exists
-			Resource profile = t.getResourceWithId(APP_PROFILE_RESOURCE_ID);
+			Resource profile = global.getResourceWithId(APP_PROFILE_RESOURCE_ID);
 			
 			//If it does not, we need to grab it locally, and get parsing...
 			if (profile == null) {
@@ -62,8 +61,8 @@ public class CommCareManager implements CommCareInstance {
 				//We need a way to identify this version...
 				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 
-				t.addResource(r, new ProfileInstaller(), "");
-				t.prepareResources(null);
+				global.addResource(r, new ProfileInstaller(), "");
+				global.prepareResources(null);
 			} else{
 				//Assuming it does exist, we might want to do an automatic
 				//upgrade here, leaving that for a future date....
@@ -79,16 +78,14 @@ public class CommCareManager implements CommCareInstance {
 	}
 	
 	
-	public void upgrade() {
-		ResourceTable m = ResourceTable.RetrieveGlobalResourceTable();
+	public void upgrade(ResourceTable global, ResourceTable temporary) {
 
-		if (!m.isReady()) {
+		if (!global.isReady()) {
 			throw new RuntimeException("The Global Resource Table was not properly made ready");
 		}
 		
-		ResourceTable upgradeTable = ResourceTable.CreateTemporaryResourceTable("UPGRADGE");
 		//In the future: Continuable upgrades. Now: Clear old upgrade info
-		upgradeTable.clear();
+		temporary.clear();
 		
 		Profile current = getCurrentProfile();
 		String profileReference = current.getAuthReference();
@@ -100,9 +97,9 @@ public class CommCareManager implements CommCareInstance {
 		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 		
 		try {
-			upgradeTable.addResource(r, new ProfileInstaller(), null);
-			upgradeTable.prepareResources(m);
-			m.upgradeTable(upgradeTable);
+			temporary.addResource(r, new ProfileInstaller(), null);
+			temporary.prepareResources(global);
+			global.upgradeTable(temporary);
 			
 			//Not implemented yet!
 			//upgradeTable.destroy();
@@ -119,7 +116,7 @@ public class CommCareManager implements CommCareInstance {
 		//registered elsewhere, and we can't guarantee we're the only thing in there, so we can't
 		//straight up clear it...
 		
-		initialize();
+		initialize(global);
 	}
 	
 	public Profile getCurrentProfile() {
@@ -144,10 +141,9 @@ public class CommCareManager implements CommCareInstance {
 		this.suites.addElement(new Integer(s.getID()));
 	}
 	
-	public void initialize() {
-		ResourceTable g = ResourceTable.RetrieveGlobalResourceTable();
+	public void initialize(ResourceTable global) {
 		try {
-			g.initializeResources(this);
+			global.initializeResources(this);
 		} catch (ResourceInitializationException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error initializing Resource! "+ e.getMessage());

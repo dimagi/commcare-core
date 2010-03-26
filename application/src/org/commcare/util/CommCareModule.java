@@ -39,7 +39,7 @@ public class CommCareModule implements IModule {
 										    PropertySetter.class.getName()};
 		PrototypeManager.registerPrototypes(prototypes);
 		
-		StorageManager.registerStorage(ResourceTable.STORAGE_KEY_GLOBAL, Resource.class);
+		StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
 		StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
 		StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
 	}

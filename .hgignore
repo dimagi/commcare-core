@@ -2,3 +2,8 @@ glob:local.properties
 glob:backend/bin/
 glob:application/bin/
 glob:application\build
+glob:util/bin
+glob:application/dist
+glob:application/lib
+glob:application/.polishSettings
+glob:application/tools

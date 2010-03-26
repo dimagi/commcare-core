@@ -12,6 +12,8 @@ import java.util.Vector;
 import javax.microedition.midlet.MIDlet;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
@@ -29,6 +31,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
@@ -100,7 +103,7 @@ public class CommCareContext {
 		initReferences();
 		
 		manager = new CommCareManager();
-		manager.init(CommCareUtil.getProfileReference());
+		manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable());
 		
 		UserUtility.populateAdminUser();
 		inDemoMode = false;
@@ -111,7 +114,7 @@ public class CommCareContext {
 		//to load any of them into memory, since the default ones are not guaranteed to
 		//be added later.
 		Localization.setLocale("default");
-		manager.initialize();
+		manager.initialize(RetrieveGlobalResourceTable());
 		
 		//Now we can initialize the language for real.
 		LanguageUtils.initializeLanguage(true,"default");
@@ -349,4 +352,46 @@ public class CommCareContext {
 		}
 		return sb.toString();
 	}
+	
+	
+	public static final String STORAGE_TABLE_GLOBAL = "GLOBAL_RESOURCE_TABLE";
+	private static final String STORAGE_KEY_TEMPORARY = "RESOURCE_TABLE_";
+	
+	private static ResourceTable global;
+	
+	/**
+	 * @return A static resource table which 
+	 */
+	public static ResourceTable RetrieveGlobalResourceTable() {
+		if(global == null) {
+			global = ResourceTable.RetrieveTable((IStorageUtilityIndexed)StorageManager.getStorage(STORAGE_TABLE_GLOBAL));
+		} 
+		//Not sure if this reference is actually a good idea, or whether we should 
+		//get the storage link every time... For now, we'll reload storage each time
+		System.out.println("Global Resource Table");
+		System.out.println(global);
+		return global;
+	}
+
+	public static ResourceTable CreateTemporaryResourceTable(String name) {
+		ResourceTable table = new ResourceTable();
+		IStorageUtilityIndexed storage = null; 
+		String storageKey = STORAGE_KEY_TEMPORARY + name.toUpperCase();
+		
+		//Check if this table already exists, and return it if so.
+		for(String utilityName : StorageManager.listRegisteredUtilities()) {
+			if(utilityName.equals(storageKey)) {
+				table = ResourceTable.RetrieveTable((IStorageUtilityIndexed)StorageManager.getStorage(storageKey));
+			}
+		}
+		//Otherwise, create a new one.
+		if(storage == null) {
+			StorageManager.registerStorage(storageKey, storageKey, Resource.class);
+			table = ResourceTable.RetrieveTable((IStorageUtilityIndexed)StorageManager.getStorage(storageKey));
+		}
+		System.out.println("Temporary Resource Table");
+		System.out.println(table);
+		return table;
+	}
+	
 }
