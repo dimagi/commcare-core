@@ -116,24 +116,25 @@ public class FormInstance implements Persistable, Restorable {
 		return (TreeReference) ref.getReference();
 	}
 
-	public TreeReference copyNode(TreeReference from, TreeReference to) {
-		if (!from.isAbsolute())
-			return null;
+	public TreeReference copyNode(TreeReference from, TreeReference to) throws InvalidReferenceException {
+		if (!from.isAbsolute()) {
+			throw new InvalidReferenceException("Source reference must be absolute for copying", from);
+		}
 
 		TreeElement src = resolveReference(from);
-		if (src == null)
-			return null; // source does not exist
+		if (src == null) {
+			throw new InvalidReferenceException("Null Source reference while attempting to copy node", from);
+		}
 
-		TreeElement copied = copyNode(src, to);
-		return (copied != null ? copied.getRef() : null);
+		return copyNode(src, to).getRef();
 	}
 
 	// for making new repeat instances; 'from' and 'to' must be unambiguous
 	// references EXCEPT 'to' may be ambiguous at its final step
 	// return true is successfully copied, false otherwise
-	public TreeElement copyNode(TreeElement src, TreeReference to) {
+	public TreeElement copyNode(TreeElement src, TreeReference to) throws InvalidReferenceException {
 		if (!to.isAbsolute())
-			return null;
+			throw new InvalidReferenceException("Destination reference must be absolute for copying", to);
 
 		// strip out dest node info and get dest parent
 		String dstName = to.getNameLast();
@@ -141,15 +142,17 @@ public class FormInstance implements Persistable, Restorable {
 		TreeReference toParent = to.getParentRef();
 
 		TreeElement parent = resolveReference(toParent);
-		if (parent == null)
-			return null; // dest parent does not exist
-		if (!parent.isChildable())
-			return null; // dest parent is an unfit parent
+		if (parent == null) {
+			throw new InvalidReferenceException("Null parent reference whle attempting to copy", toParent);
+		}
+		if (!parent.isChildable()) {
+			throw new InvalidReferenceException("Invalid Parent Node: cannot accept children.", toParent);
+		}
 
 		if (dstMult == TreeReference.INDEX_UNBOUND) {
 			dstMult = parent.getChildMultiplicity(dstName);
 		} else if (parent.getChild(dstName, dstMult) != null) {
-			return null; // dest node already exists
+			throw new InvalidReferenceException("Destination already exists!", to);
 		}
 
 		TreeElement dest = src.deepCopy(false);
@@ -159,7 +162,7 @@ public class FormInstance implements Persistable, Restorable {
 		return dest;
 	}
 
-	public void copyItemsetNode (TreeElement copyNode, TreeReference destRef, FormDef f) {
+	public void copyItemsetNode (TreeElement copyNode, TreeReference destRef, FormDef f) throws InvalidReferenceException {
 		TreeElement templateNode = getTemplate(destRef);
 		TreeElement newNode = copyNode(templateNode, destRef);
 		newNode.populateTemplate(copyNode, f);

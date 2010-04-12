@@ -36,6 +36,7 @@ import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.QuestionPreloader;
@@ -282,7 +283,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		return newIndex;
 	}
 
-	public void createNewRepeat(FormIndex index) {
+	public void createNewRepeat(FormIndex index) throws InvalidReferenceException {
 		TreeReference destRef = getChildInstanceRef(index);
 		TreeElement template = instance.getTemplate(destRef);
 
@@ -292,6 +293,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
 		initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
 	}
+	
+	
 
 	public boolean canCreateRepeat(TreeReference repeatRef) {
 		Condition c = (Condition) conditionRepeatTargetIndex.get(repeatRef.genericize());
@@ -304,7 +307,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		return true;
 	}
 	
-	public void copyItemsetAnswer(QuestionDef q, TreeElement targetNode, IAnswerData data) {
+	public void copyItemsetAnswer(QuestionDef q, TreeElement targetNode, IAnswerData data) throws InvalidReferenceException{
 		ItemsetBinding itemset = q.getDynamicChoices();
 		TreeReference targetRef = targetNode.getRef();
 		TreeReference destRef = itemset.getDestRef().contextualize(targetRef);
@@ -657,6 +660,16 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		return template;
 	}
 
+	/**
+	 * Identify the itemset in the backend model, and create a set of SelectChoice 
+	 * objects at the current question reference based on the data in the model.
+	 * 
+	 * Will modify the itemset binding to contain the relevant choices 
+	 * 
+	 * @param itemset The binding for an itemset, where the choices will be populated
+	 * @param curQRef A reference to the current question's element, which will be
+	 * used to determine the values to be chosen from.
+	 */
 	public void populateDynamicChoices (ItemsetBinding itemset, TreeReference curQRef) {
 		Vector<SelectChoice> choices = new Vector<SelectChoice>();
 		
@@ -1266,4 +1279,20 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		return null;
 	}
 
+	/**
+	 * Appearance isn't a valid attribute for form, but this method must be included
+	 * as a result of conforming to the IFormElement interface.
+	 */
+	public String getAppearanceAttr () {
+		throw new RuntimeException("This method call is not relevant for FormDefs");
+	}
+	
+	/**
+	 * Appearance isn't a valid attribute for form, but this method must be included
+	 * as a result of conforming to the IFormElement interface.
+	 */
+	public void setAppearanceAttr (String appearanceAttr) {
+		throw new RuntimeException("This method call is not relevant for FormDefs");
+	}	
+	
 }

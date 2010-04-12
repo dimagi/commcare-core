@@ -39,6 +39,7 @@ import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -58,6 +59,7 @@ import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /* droos: i think we need to start storing the contents of the <bind>s in the formdef again */
 
@@ -246,6 +248,10 @@ public class XFormParser {
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
 			
 			doc.parse(parser);
+		}  catch (XmlPullParserException e) {
+			System.err.println("XML Syntax Error at Line: " + e.getLineNumber() +", Column: "+ e.getColumnNumber()+ "!");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch(Exception e){
 			//#if debug.output==verbose || debug.output==exception
 			System.err.println("XML Syntax Error!");
@@ -293,7 +299,7 @@ public class XFormParser {
 		} else {
 			if (!name.equals("html") && !name.equals("head") && !name.equals("body")) {
 				//#if debug.output==verbose
-				System.err.println("XForm Parse: Unrecognized element [" + name	+ "]. Ignoring and processing children...");
+				System.err.println("XForm Parse: Unrecognized element [" + name	+ "]. Ignoring and processing children..." + getVagueLocation(e));
 				//#endif
 			}
 			for (int i = 0; i < e.getChildCount(); i++) {
@@ -332,7 +338,7 @@ public class XFormParser {
 	private static void parseModel (FormDef f, Element e) {
 		if (modelFound) {
 			//#if debug.output==verbose
-			System.err.println("Multiple models not supported. Ignoring subsequent models.");
+			System.err.println("Multiple models not supported. Ignoring subsequent models." + getVagueLocation(e));
 			//#endif
 			return;
 		}
@@ -354,9 +360,9 @@ public class XFormParser {
 				parseBind(f, child);
 			} else { //invalid model content
 				if (type == Node.ELEMENT) {
-					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>");
+					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
 				} else if (type == Node.TEXT && getXMLText(e, i, true).length() != 0) {
-					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"");					
+					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"",child);					
 				}
 			}
 			
@@ -377,14 +383,14 @@ public class XFormParser {
 
 	private static void saveInstanceNode (Element instance) {
 		if (instanceNode != null) {
-			System.err.println("Multiple instances not supported. Ignoring subsequent instances.");
+			System.err.println("Multiple instances not supported. Ignoring subsequent instances." + getVagueLocation(instance));
 			return;
 		}
 			
 		for (int i = 0; i < instance.getChildCount(); i++) {
 			if (instance.getType(i) == Node.ELEMENT) {
 				if (instanceNode != null) {
-					throw new XFormParseException("XForm Parse: <instance> has more than one child element");
+					throw new XFormParseException("XForm Parse: <instance> has more than one child element", instance);
 				} else {
 					instanceNode = instance.getElement(i);
 				}
@@ -425,7 +431,7 @@ public class XFormParser {
 		if (bind != null) {
 			DataBinding binding = (DataBinding)bindingsByID.get(bind);
 			if (binding == null) {
-				throw new XFormParseException("XForm Parse: invalid binding ID '" + bind + "'");
+				throw new XFormParseException("XForm Parse: invalid binding ID '" + bind + "'", e);
 			}
 			dataRef = binding.getReference();
 			refFromBind = true;
@@ -435,7 +441,7 @@ public class XFormParser {
 			if (controlType == Constants.CONTROL_TRIGGER) {
 				//TODO: special handling for triggers? also, not all triggers created equal
 			} else {
-				throw new XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'");
+				throw new XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'",e);
 			}
 		}
 
@@ -569,7 +575,7 @@ public class XFormParser {
 			xpath = e.getAttributeValue(null, "value");
 		}
 		if (xpath == null) {
-			throw new XFormParseException("XForm Parse: <output> without 'ref' or 'value'");	
+			throw new XFormParseException("XForm Parse: <output> without 'ref' or 'value'",e);	
 		}
 		
 		XPathConditional expr = null;
@@ -632,14 +638,14 @@ public class XFormParser {
 
 						verifyTextMappings(f, textRef, "Item <label>", false);
 					} else {
-						throw new XFormParseException("malformed ref [" + ref + "] for <item>");
+						throw new XFormParseException("malformed ref [" + ref + "] for <item>",child);
 					}
 				}
 			} else if ("value".equals(childName)) {
 				value = getXMLText(child, true);
 				
 				if (value.length() > MAX_VALUE_LEN) {
-					System.err.println("WARNING: choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars");
+					System.err.println("WARNING: choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars" + getVagueLocation(child));
 				}
 				
 				//validate
@@ -649,7 +655,7 @@ public class XFormParser {
 					if (" \n\t\f\r\'\"`".indexOf(c) >= 0) {
 						boolean isMultiSelect = (q.getControlType() == Constants.CONTROL_SELECT_MULTI);
 						System.err.println("XForm Parse WARNING: " + (isMultiSelect ? "select" : "select1") + " question <value>s [" + value + "] " +
-								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks");
+								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks" + getVagueLocation(child));
 						break;
 					}
 				}
@@ -657,10 +663,10 @@ public class XFormParser {
 		}
 		
 		if (textRef == null && label == null) {
-			throw new XFormParseException("<item> without proper <label>");
+			throw new XFormParseException("<item> without proper <label>",e);
 		}
 		if (value == null) {
-			throw new XFormParseException("<item> without proper <value>");
+			throw new XFormParseException("<item> without proper <value>",e);
 		}
 
 		if (textRef != null) {
@@ -753,11 +759,12 @@ public class XFormParser {
 		String ref = e.getAttributeValue(null, "ref");
 		String nodeset = e.getAttributeValue(null, "nodeset");
 		String bind = e.getAttributeValue(null, "bind");
+		group.setAppearanceAttr(e.getAttributeValue(null, "appearance"));
 		
 		if (bind != null) {
 			DataBinding binding = (DataBinding)bindingsByID.get(bind);
 			if (binding == null) {
-				throw new XFormParseException("XForm Parse: invalid binding ID [" + bind + "]");
+				throw new XFormParseException("XForm Parse: invalid binding ID [" + bind + "]",e);
 			}
 			dataRef = binding.getReference();
 			refFromBind = true;
@@ -766,7 +773,7 @@ public class XFormParser {
 				if (nodeset != null) {
 					dataRef = new XPathReference(nodeset);
 				} else {
-					throw new XFormParseException("XForm Parse: <repeat> with no binding ('bind' or 'nodeset')");
+					throw new XFormParseException("XForm Parse: <repeat> with no binding ('bind' or 'nodeset')",e);
 				}
 			} else {
 				if (ref != null) {
@@ -902,7 +909,7 @@ public class XFormParser {
 		}
 
 		if (l.getAvailableLocales().length == 0)
-			throw new XFormParseException("no <translation>s defined");
+			throw new XFormParseException("no <translation>s defined",itext);
 
 		if (l.getDefaultLocale() == null)
 			l.setDefaultLocale(l.getAvailableLocales()[0]);
@@ -911,15 +918,15 @@ public class XFormParser {
 	private static void parseTranslation (Localizer l, Element trans, FormDef f) {
 		String lang = trans.getAttributeValue("", "lang");
 		if (lang == null || lang.length() == 0)
-			throw new XFormParseException("no language specified for <translation>");
+			throw new XFormParseException("no language specified for <translation>",trans);
 		String isDefault = trans.getAttributeValue("", "default");
 
 		if (!l.addAvailableLocale(lang))
-			throw new XFormParseException("duplicate <translation> for language '" + lang + "'");
+			throw new XFormParseException("duplicate <translation> for language '" + lang + "'",trans);
 
 		if (isDefault != null) {
 			if (l.getDefaultLocale() != null)
-				throw new XFormParseException("more than one <translation> set as default");
+				throw new XFormParseException("more than one <translation> set as default",trans);
 			l.setDefaultLocale(lang);
 		}
 		
@@ -947,7 +954,7 @@ public class XFormParser {
 	private static void parseTextHandle (TableLocaleSource l, Element text, FormDef f) {
 		String id = text.getAttributeValue("", "id");
 		if (id == null || id.length() == 0)
-			throw new XFormParseException("no id defined for <text>");
+			throw new XFormParseException("no id defined for <text>",text);
 
 		for (int k = 0; k < text.getChildCount(); k++) {
 			Element value = text.getElement(k);
@@ -963,7 +970,7 @@ public class XFormParser {
 
 			String textID = (form == null ? id : id + ";" + form);  //kind of a hack
 			if (l.hasMapping(textID))
-				throw new XFormParseException("duplicate definition for text ID \"" + id + "\" and form \"" + form + "\"");
+				throw new XFormParseException("duplicate definition for text ID \"" + id + "\" and form \"" + form + "\"",text);
 			l.setLocaleMapping(textID, data);
 		}
 	}
@@ -996,7 +1003,7 @@ public class XFormParser {
 
 		String nodeset = e.getAttributeValue(null, "nodeset");
 		if (nodeset == null) {
-			throw new XFormParseException("XForm Parse: <bind> without nodeset");
+			throw new XFormParseException("XForm Parse: <bind> without nodeset",e);
 		}
 		IDataReference ref = new XPathReference(nodeset);
 		ref = getAbsRef(ref, f);
@@ -1049,7 +1056,7 @@ public class XFormParser {
 				binding.constraint = new XPathConditional(xpathConstr);
 			} catch (XPathSyntaxException xse) {
 				//#if debug.output==verbose
-				System.err.println("Invalid XPath expression [" + xpathConstr + "]!");
+				System.err.println("Invalid XPath expression [" + xpathConstr + "]!" + getVagueLocation(e));
 				//#endif
 			}
 			binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
@@ -1194,7 +1201,7 @@ public class XFormParser {
 		if (node.getAttributeValue(NAMESPACE_JAVAROSA, "template") != null) {
 			multiplicity = TreeReference.INDEX_TEMPLATE;
 			if (parent != null && parent.getChild(name, TreeReference.INDEX_TEMPLATE) != null) {
-				throw new XFormParseException("More than one node declared as the template for the same repeated set [" + name + "]");
+				throw new XFormParseException("More than one node declared as the template for the same repeated set [" + name + "]",node);
 			}
 		} else {
 			multiplicity = (parent == null ? 0 : parent.getChildMultiplicity(name));
@@ -1207,7 +1214,7 @@ public class XFormParser {
 			element = new TreeElement(name, multiplicity);
 		} else {
             if( typeMappings.get(modelType) == null ){
-                throw new XFormParseException("ModelType " + modelType + " is not recognized.");                
+                throw new XFormParseException("ModelType " + modelType + " is not recognized.",node);                
             }
             element = (TreeElement)modelPrototypes.getNewInstance(((Integer)typeMappings.get(modelType)).toString());
 			if(element == null) {
@@ -1424,9 +1431,11 @@ public class XFormParser {
 				firstMatch = (TreeReference)nodes.elementAt(0);
 			}
 			
-			if (instance.copyNode(firstMatch, templRef) == null) {
+			try {
+				instance.copyNode(firstMatch, templRef);
+			} catch (InvalidReferenceException e) {
 				System.out.println("WARNING! Could not create a default repeat template; this is almost certainly a homogeneity error! Your form will not work! (Failed on " + templRef.toString() + ")");
-				//if the warning above is not heeded, this is the result
+				e.printStackTrace();
 			}
 			trimRepeatChildren(instance.resolveReference(templRef)); 
 		}
@@ -1991,5 +2000,52 @@ public class XFormParser {
 		loadInstanceData(e, te, null);
 		
 		return dm;
+	}
+	
+	public static String getVagueLocation(Element e) {
+		String path = e.getName();
+		Element walker = e;
+		while(walker != null) {
+			Node n = walker.getParent();
+			if(n instanceof Element) {
+				walker = (Element)n;
+				String step = walker.getName();
+				for(int i = 0; i <  walker.getAttributeCount() ; ++i) {
+					step += "[@" +walker.getAttributeName(i) + "=";
+					step += walker.getAttributeValue(i) + "]";
+				}
+				path = step + "/" + path;
+			} else {
+				walker = null;
+				path = "/" + path;
+			}
+		}
+		
+		String elementString = getVagueElementPrintout(e, 2);
+		
+		String fullmsg = "\n    Problem found at nodeset: " + path;
+		fullmsg += "\n    With element " + elementString + "\n";
+		return fullmsg;
+	}
+	
+	public static String getVagueElementPrintout(Element e, int maxDepth) {
+		String elementString = "<" + e.getName();
+		for(int i = 0; i <  e.getAttributeCount() ; ++i) {
+			elementString += " " + e.getAttributeName(i) + "=\"";
+			elementString += e.getAttributeValue(i) + "\"";
+		}
+		if(e.getChildCount() > 0) {
+			elementString += ">";
+			if(e.getType(0) ==Element.ELEMENT) {
+				if(maxDepth > 0) {
+					elementString += getVagueElementPrintout((Element)e.getChild(0),maxDepth -1);
+				} else {
+					elementString += "...";
+				}
+			}
+		} else {
+			elementString += "/>";
+		}
+		return elementString;
 	}
 }
