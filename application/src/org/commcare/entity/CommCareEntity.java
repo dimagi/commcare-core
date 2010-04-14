@@ -75,6 +75,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		}
 		return false;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.entity.model.Entity#getForms(boolean)
+	 */
+	public String[] getForms(boolean header) {
+		return header ? shortDetail.getHeaderForms() : shortDetail.getTemplateForms();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getLongFields(org.javarosa.core.services.storage.Persistable)

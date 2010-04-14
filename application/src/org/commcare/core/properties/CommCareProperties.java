@@ -25,6 +25,9 @@ public class CommCareProperties implements IPropertyRules {
     
 	// http, since it doesn't go in transport layer anymore
     public final static String POST_URL_PROPERTY = "PostURL";
+    
+	// http, since it doesn't go in transport layer anymore
+    public final static String POST_URL_TEST_PROPERTY = "PostTestURL";
 
     //auto-purging
     public final static String PURGE_LAST = "last-purge";
@@ -50,6 +53,7 @@ public class CommCareProperties implements IPropertyRules {
         
         // PostURL List Property
         rules.put(POST_URL_PROPERTY, new Vector());
+        rules.put(POST_URL_TEST_PROPERTY, new Vector());
         
         rules.put(PURGE_LAST, new Vector());
         rules.put(PURGE_FREQ, new Vector());
@@ -142,6 +146,10 @@ public class CommCareProperties implements IPropertyRules {
         	return "Last Purge on";
         } else if (PURGE_FREQ.equals(propertyName)) {
         	return "Purge Freq. (days)";
+        } else if (POST_URL_TEST_PROPERTY.equals(propertyName)) {
+        	return "Testing Submission URL";
+        } else if (POST_URL_PROPERTY.equals(propertyName)) {
+        	return "Form Submission URL";
         }
     	return propertyName;
 	}

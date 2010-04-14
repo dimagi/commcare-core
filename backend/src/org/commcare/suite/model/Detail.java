@@ -45,6 +45,9 @@ public class Detail implements Externalizable {
 	private int[] headerHints;
 	private int[] templateHints;
 	
+	private String[] headerForms;
+	private String[] templateForms;
+	
 	/**
 	 * Serialization Only
 	 */
@@ -61,17 +64,20 @@ public class Detail implements Externalizable {
 		this.filter = filter;
 		this.headerHints = initBlank(headers.size());
 		this.templateHints = initBlank(templates.size());
+		this.headerForms = new String[headers.size()];
+		this.templateForms = new String[templates.size()];
 	}
 	
 	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints) {
-		this.id = id;
-		this.title = title;
-		this.context = context;
-		this.headers = headers;
-		this.templates = templates;
-		this.filter = filter;
+		this(id,title,context,headers,templates,filter);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
+	}
+	
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms) {
+		this(id,title,context,headers,templates,filter,headerHints,templateHints);
+		this.headerForms = headerForms;
+		this.templateForms = templateForms;
 	}
 	
 	private int[] initBlank(int size) {
@@ -138,6 +144,14 @@ public class Detail implements Externalizable {
 		return templateHints;
 	}
 	
+	public String[] getHeaderForms() {
+		return headerForms;
+	}
+	
+	public String[] getTemplateForms() {
+		return templateForms;
+	}
+	
 	/**
 	 * @return A data model which describes the format of data which
 	 * is expected by the templates in this detail definition. This
@@ -169,6 +183,8 @@ public class Detail implements Externalizable {
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		headerHints = (int[])ExtUtil.readInts(in);
 		templateHints = (int[])ExtUtil.readInts(in);
+		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
+		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		
 	}
 
@@ -185,6 +201,24 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, new ExtWrapList(templates));
 		ExtUtil.writeInts(out, headerHints);
 		ExtUtil.writeInts(out, templateHints);
+		ExtUtil.write(out, new ExtWrapList(toVector(headerForms)));
+		ExtUtil.write(out, new ExtWrapList(toVector(templateForms)));
+	}
+	
+	public Vector<String> toVector(String[] array) {
+		Vector<String> ret = new Vector<String>();
+		for(String s : array) {
+			ret.addElement(ExtUtil.emptyIfNull(s));
+		}
+		return ret;
+	}
+	
+	public String[] toArray(Vector<String> v) {
+		String[] a = new String[v.size()];
+		for(int i = 0; i < a.length ; ++i ){
+			a[i] = ExtUtil.nullIfEmpty(v.elementAt(i));
+		}
+		return a;
 	}
 	
 }

@@ -358,6 +358,11 @@
 	  </sequential>
 	</macrodef>
 	
+	
+	<!-- import properties which introduce localization hacks for 
+	     j2me polish commands and UI elements                     -->
+	<property file="${basedir}/polish.localehacks.properties" />
+	
 	<!-- import non-version-controlled local properties           -->
 	<property file="${basedir}/local.properties" />
 	
@@ -365,7 +370,7 @@
 	<property file="${basedir}/build.properties" />
 
 	<!-- import global properties                                 -->
-	<property file="${polish.home}/global.properties" />
+	<property file="${polish.home}/global.properties" />             
 	
 	<property name="TALK" value="true" />
 

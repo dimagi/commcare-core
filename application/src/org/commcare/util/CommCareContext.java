@@ -72,8 +72,16 @@ public class CommCareContext {
 		//since the transport layer won't take payloads. This should be fixed _as soon 
 		//as possible_ so that we don't either (A) blow up the memory or (B) lose the ability
 		//to send payloads > than the phones' heap.
+		
+		String url = PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_PROPERTY);
+		
+		String testUrl = PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_TEST_PROPERTY);
+		if(CommCareUtil.isTestingMode() && testUrl != null) {
+			//In testing mode, use this URL instead, if available.
+			url = testUrl;
+		}
 		try {
-			return new SimpleHttpTransportMessage(payload.getPayloadStream(), PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_PROPERTY));
+			return new SimpleHttpTransportMessage(payload.getPayloadStream(), url);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error Serializing Data to be transported");
@@ -93,7 +101,6 @@ public class CommCareContext {
 		Logger.log("app-start", "");
 		
 		this.midlet = m;
-		J2MEDisplay.init(m);
 		loadModules();
 		setProperties();
 		
@@ -110,7 +117,7 @@ public class CommCareContext {
 		
 		purgeScheduler();
 		
-		//When we might initailzie language files, we need to make sure it's not trying
+		//When we might initialize language files, we need to make sure it's not trying
 		//to load any of them into memory, since the default ones are not guaranteed to
 		//be added later.
 		Localization.setLocale("default");
@@ -118,6 +125,9 @@ public class CommCareContext {
 		
 		//Now we can initialize the language for real.
 		LanguageUtils.initializeLanguage(true,"default");
+		
+		//We need to let All Localizations register before we can do this
+		J2MEDisplay.init(m);
 	}
 
 	private void failsafeInit (MIDlet m) {

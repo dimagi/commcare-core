@@ -55,6 +55,8 @@ public class DetailParser extends ElementParser<Detail> {
 			Vector<Text> templates = new Vector<Text>();
 			Vector<Integer> headerHints = new Vector<Integer>();
 			Vector<Integer> templateHints = new Vector<Integer>();
+			Vector<String> headerForms = new Vector<String>();
+			Vector<String> templateForms = new Vector<String>();
 			
 			while(nextTagInBlock("detail")) {
 				checkNode("field");
@@ -64,6 +66,9 @@ public class DetailParser extends ElementParser<Detail> {
 					checkNode("header");
 					
 					headerHints.addElement(new Integer(getWidth()));
+					
+					String form = parser.getAttributeValue(null, "form");
+					headerForms.addElement(form == null ? "" : form);
 					
 					parser.nextTag();
 					checkNode("text");
@@ -76,6 +81,9 @@ public class DetailParser extends ElementParser<Detail> {
 					
 					templateHints.addElement(new Integer(getWidth()));
 					
+					String form = parser.getAttributeValue(null, "form");
+					templateForms.addElement(form == null ? "" : form);
+					
 					parser.nextTag();
 					checkNode("text");
 					Text template = new TextParser(parser).parse();
@@ -85,7 +93,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter, toArray(headerHints), toArray(templateHints));
+		Detail d = new Detail(id, title, model, headers, templates,filter, toArray(headerHints), toArray(templateHints), toArray(headerForms), toArray(templateForms));
 		return d;
 	}
 	
@@ -104,6 +112,18 @@ public class DetailParser extends ElementParser<Detail> {
 		int[] ret = new int[vector.size()];
 		for(int i = 0; i < ret.length ; ++i) {
 			ret[i] = vector.elementAt(i).intValue();
+		}
+		return ret;
+	}
+	
+	private String[] toArray(Vector<String> vector) {
+		String[] ret = new String[vector.size()];
+		for(int i = 0; i < ret.length ; ++i) {
+			if(vector.elementAt(i).equals("")) {
+				ret[i] = null;
+			} else {
+				ret[i] = vector.elementAt(i);
+			}
 		}
 		return ret;
 	}
