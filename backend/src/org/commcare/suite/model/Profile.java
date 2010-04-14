@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.reference.Root;
+import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -39,7 +39,7 @@ public class Profile implements Persistable {
 	int version;
 	String authRef;
 	Vector<PropertySetter> properties;
-	Vector<Root> roots;
+	Vector<RootTranslator> roots;
 	
 	Hashtable<String,Boolean> featureStatus;
 	
@@ -68,7 +68,7 @@ public class Profile implements Persistable {
 		this.version = version;
 		this.authRef = authRef;
 		properties = new Vector<PropertySetter>();
-		roots = new Vector<Root>();
+		roots = new Vector<RootTranslator>();
 		featureStatus = new Hashtable<String, Boolean>();
 	}
 	
@@ -124,7 +124,7 @@ public class Profile implements Persistable {
 	// The below methods should all be replaced by a model builder
 	// or a change to how the profile parser works
 	
-	public void addRoot(Root r) {
+	public void addRoot(RootTranslator r) {
 		this.roots.addElement(r);
 	}
 	
@@ -170,7 +170,7 @@ public class Profile implements Persistable {
 		authRef = ExtUtil.readString(in);
 		
 		properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class),pf);
-		roots = (Vector<Root>)ExtUtil.read(in, new ExtWrapList(Root.class),pf);
+		roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class),pf);
 		featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class),pf);
 	}
 

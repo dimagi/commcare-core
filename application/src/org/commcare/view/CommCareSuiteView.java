@@ -6,6 +6,7 @@ package org.commcare.view;
 import javax.microedition.lcdui.Command;
 
 import de.enough.polish.ui.List;
+import de.enough.polish.ui.TextField;
 
 /**
  * @author ctsims
@@ -17,5 +18,6 @@ public class CommCareSuiteView extends List{
 	public CommCareSuiteView(String title) {
 		super(title, List.IMPLICIT);
 		this.addCommand(BACK);
+		TextField f = null;
 	}
 }

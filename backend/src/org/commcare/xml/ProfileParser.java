@@ -12,7 +12,7 @@ import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.xml.util.InvalidStructureException;
-import org.javarosa.core.reference.Root;
+import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -67,7 +67,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						}
 						profile.addPropertySetter(key,value);
 					} else if (parser.getName().toLowerCase().equals("root")) {
-						Root root = new RootParser(this.parser).parse();
+						RootTranslator root = new RootParser(this.parser).parse();
 						profile.addRoot(root);
 					} else if (parser.getName().toLowerCase().equals("login")) {
 						//Get the resource block or fail out

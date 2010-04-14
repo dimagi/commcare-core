@@ -23,7 +23,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.Root;
+import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -86,7 +86,7 @@ public class CommCareConfigEngine {
 	}
 	
 	private void setRoots() {
-		ReferenceManager._().addRawReferenceRoot(new JavaHttpRoot());
+		ReferenceManager._().addReferenceFactory(new JavaHttpRoot());
 	}
 	
 	public void addLocalFileResource(String resource) {
@@ -97,10 +97,10 @@ public class CommCareConfigEngine {
 		resource = resource.substring(resource.lastIndexOf(File.separator));
 		
 		//(That root now reads as jr://file/)
-		ReferenceManager._().addRawReferenceRoot(new JavaFileRoot(root));
+		ReferenceManager._().addReferenceFactory(new JavaFileRoot(root));
 		
 		//(Now jr://resource/ points there too)
-		ReferenceManager._().addRoot(new Root("jr://resource","jr://file"));
+		ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource","jr://file"));
 		
 		//Now build the testing reference we'll use
 		String reference = "jr://file/" + resource;

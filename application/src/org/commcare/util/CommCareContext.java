@@ -140,7 +140,7 @@ public class CommCareContext {
 	}
 	
 	protected void initReferences() {
-		ReferenceManager._().addRawReferenceRoot(new J2meFileRoot("root1"));
+		ReferenceManager._().addReferenceFactory(new J2meFileRoot("root1"));
 	}
 
 	private void loadModules() {
