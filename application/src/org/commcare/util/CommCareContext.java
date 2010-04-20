@@ -26,6 +26,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
@@ -141,6 +142,7 @@ public class CommCareContext {
 	
 	protected void initReferences() {
 		ReferenceManager._().addReferenceFactory(new J2meFileRoot("root1"));
+		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/","jr://resource/img/"));
 	}
 
 	private void loadModules() {
