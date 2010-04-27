@@ -3,10 +3,13 @@
  */
 package org.commcare.entity;
 
+import java.util.Vector;
+
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.model.Entity;
@@ -16,7 +19,7 @@ import org.javarosa.entity.model.Entity;
  *
  */
 public class CommCareEntity<E extends Persistable> extends Entity<E> {
-	
+
 	Entry e;
 	Detail shortDetail;
 	Detail longDetail;
@@ -69,6 +72,10 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		key = key.toLowerCase();
 		String[] fields = this.getShortFields();
 		for(int i = 0; i < fields.length; ++i) {
+			//Skip sorting by this key if it's not a normal string
+			if("image".equals(shortDetail.getTemplateForms()[i])) {
+				continue;
+			}
 			if(fields[i].toLowerCase().startsWith(key)) {
 				return true;
 			}
@@ -131,6 +138,57 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		shortText = new String[text.length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
 			shortText[i] = text[i].evaluate(instance);
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.entity.model.Entity#getSortFields()
+	 */
+	public String[] getSortFields () {
+		String[] names = getSortFieldNames();
+		String[] ret = new String[names.length];
+		ret[0] = "DEFAULT";
+		for(int i = 1 ; i < ret.length ; ++i ) {
+			ret[i] = String.valueOf(i);
+		}
+		return ret;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.entity.model.Entity#getSortFieldNames()
+	 */
+	public String[] getSortFieldNames () {
+		Vector<String> fields = new Vector<String>();
+		fields.addElement(Localization.get("case.id"));
+		for(String s : getHeaders(false)) {
+			if(s == null || "".equals(s)) {
+				continue;
+			}
+			fields.addElement(s);
+		}
+		String[] ret = new String[fields.size()];
+		for(int i = 0 ; i < ret.length ; ++i) {
+			ret[i] = fields.elementAt(i);
+		}
+		return ret;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.entity.model.Entity#getSortKey(java.lang.String)
+	 */
+	public Object getSortKey (String fieldKey) {
+		if (fieldKey.equals("DEFAULT")) {
+			return new Integer(this.getRecordID());
+		} else {
+			try{
+				return getShortFields()[Integer.valueOf(fieldKey).intValue()];
+			} catch(NumberFormatException nfe) {
+				nfe.printStackTrace();
+				throw new RuntimeException("Invalid sort key in CommCare Entity: " + fieldKey);
+			}
 		}
 	}
 }

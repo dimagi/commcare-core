@@ -26,8 +26,8 @@ public class CommCareHomeScreen extends List {
 	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
 	public ChoiceItem reviewRecent;
 
-	public Command select = new Command("Select", Command.ITEM, 1);
-	public Command exit = new Command("Exit", Command.EXIT, 1);
+	public Command select = new Command(Localization.get("polish.command.select"), Command.ITEM, 1);
+	public Command exit = new Command(Localization.get("polish.command.exit"), Command.EXIT, 1);
 	public Command admNewUser = new Command("New User", Command.ITEM, 1);
 	public Command admSettings = new Command("Settings", Command.ITEM, 1);
 	public Command admFeedbackReport = new Command("Report Feedback", Command.ITEM, 1);

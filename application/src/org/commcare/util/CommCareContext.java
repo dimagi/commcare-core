@@ -43,6 +43,8 @@ import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.log.LogManagementModule;
+import org.javarosa.log.util.LogReportUtils;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.resources.locale.LanguageUtils;
@@ -102,8 +104,8 @@ public class CommCareContext {
 		Logger.log("app-start", "");
 		
 		this.midlet = m;
-		loadModules();
 		setProperties();
+		loadModules();
 		
 		registerAddtlStorage();
 		StorageManager.repairAll();
@@ -123,6 +125,9 @@ public class CommCareContext {
 		//be added later.
 		Localization.setLocale("default");
 		manager.initialize(RetrieveGlobalResourceTable());
+		
+		//Establish default logging deadlines
+		LogReportUtils.initPendingDates(new Date().getTime());
 		
 		//Now we can initialize the language for real.
 		LanguageUtils.initializeLanguage(true,"default");
@@ -146,6 +151,8 @@ public class CommCareContext {
 	}
 
 	private void loadModules() {
+		//So that properties appear at the bottom...
+		new LogManagementModule().registerModule();
 		new JavaRosaCoreModule().registerModule();
 		new UserModule().registerModule();
 		new LanguagePackModule().registerModule();

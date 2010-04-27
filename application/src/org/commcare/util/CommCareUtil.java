@@ -152,7 +152,7 @@ public class CommCareUtil {
 		Hashtable<String, String> references = entry.getReferences();
 		if(references.size() == 0) {
 			String namespace = entry.getXFormNamespace();
-			CommCareFormEntryState state = new CommCareFormEntryState(namespace, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers()) {
+			CommCareFormEntryState state = new CommCareFormEntryState(e.getText().evaluate(), namespace, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers()) {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(s);			
 				}
@@ -180,7 +180,7 @@ public class CommCareUtil {
 					}
 					
 					public void entitySelected(int id) {
-						CommCareFormEntryState state = new CommCareFormEntryState(e.getXFormNamespace(), CommCareContext._().getPreloaders(CommCareUtil.getReferral(id)), CommCareContext._().getFuncHandlers()) {
+						CommCareFormEntryState state = new CommCareFormEntryState(e.getText().evaluate(),e.getXFormNamespace(), CommCareContext._().getPreloaders(CommCareUtil.getReferral(id)), CommCareContext._().getFuncHandlers()) {
 							protected void goHome() {
 								J2MEDisplay.startStateWithLoadingScreen(s);
 							}
@@ -202,7 +202,7 @@ public class CommCareUtil {
 						if(form == null) {
 							state = s;
 						} else {
-							state = new CommCareFormEntryState(form, CommCareContext._().getPreloaders(CommCareUtil.getCase(id)), CommCareContext._().getFuncHandlers()) {
+							state = new CommCareFormEntryState(e.getText().evaluate(),form, CommCareContext._().getPreloaders(CommCareUtil.getCase(id)), CommCareContext._().getFuncHandlers()) {
 								protected void goHome() {
 									J2MEDisplay.startStateWithLoadingScreen(s);					
 								}

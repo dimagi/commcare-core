@@ -28,9 +28,11 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	private String formName;
 	private Vector<IPreloadHandler> preloaders;
 	private Vector<IFunctionHandler> funcHandlers;
+	String title;
 		
-	public CommCareFormEntryState (String formName,
+	public CommCareFormEntryState (String title,String formName,
 			Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers) {
+		this.title = title;
 		this.formName = formName;
 		this.preloaders = preloaders;
 		this.funcHandlers = funcHandlers;
@@ -39,7 +41,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	protected JrFormEntryController getController() {
 		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers);
 		JrFormEntryController controller = new JrFormEntryController(new JrFormEntryModel(fetcher.getFormDef()));
-		controller.setView(new Chatterbox("Chatterbox",controller));
+		controller.setView(new Chatterbox(title,controller));
 		return controller;
 	}
 	
