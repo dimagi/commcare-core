@@ -60,6 +60,10 @@ public class JavaFileReference implements Reference {
 	}
 	
 	private File file() {
-		return new File(localPart + File.separator + uri);
+		return new File(getLocalURI());
+	}
+
+	public String getLocalURI() {
+		return localPart + File.separator + uri;
 	}
 }

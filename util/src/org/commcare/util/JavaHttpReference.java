@@ -68,4 +68,9 @@ public class JavaHttpReference implements Reference {
 		throw new IOException("Http references are read only!");
 	}
 
+
+	public String getLocalURI() {
+		return uri;
+	}
+
 }
