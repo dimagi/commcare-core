@@ -6,7 +6,6 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.commcare.resources.model.Resource;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -29,7 +28,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public abstract class ElementParser<T> {
-	KXmlParser parser;
+	protected KXmlParser parser;
 	
 	T element;
 	
@@ -144,6 +143,34 @@ public abstract class ElementParser<T> {
                 return true;
             }
             return true;
+	}
+	
+	/**
+	 * Retrieves the next tag in the XML document, assuming
+	 * that it is named the same as the provided parameter.
+	 * If there is no next tag in the current block, or
+	 * if the tag is named something else, an InvalidStructureException
+	 * is thrown. 
+	 * 
+	 * @param name The name which should match the next tag.
+	 * @throws InvalidStructureException
+	 * @throws IOException
+	 * @throws XmlPullParserException
+	 */
+	protected void nextTag(String name) throws InvalidStructureException, IOException, XmlPullParserException {
+		int depth = parser.getDepth();
+		if(nextTagInBlock(null)) {
+			if(parser.getDepth() == depth || parser.getDepth() == depth + 1) {
+				if(parser.getName().toLowerCase().equals(name.toLowerCase())) {
+					return;
+				}
+				throw new InvalidStructureException("Expected tag " + name + " but got tag: " + parser.getName(), parser);
+			}
+			throw new InvalidStructureException("Expected tag " + name + " but reached end of block instead", parser);
+		}
+		
+		throw new InvalidStructureException("Expected tag " + name + " but it wasn't found", parser);
+		
 	}
 	
 	/**
