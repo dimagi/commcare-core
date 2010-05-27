@@ -33,12 +33,23 @@ public class CommCareProperties implements IPropertyRules {
     public final static String PURGE_LAST = "last-purge";
     public final static String PURGE_FREQ = "purge-freq";
     
+    // First Run
+    public final static String IS_FIRST_RUN = "cc-first-run";
+    public final static String FIRST_RUN_YES = "Yes";
+    public final static String FIRST_RUN_NO = "No";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
 	public CommCareProperties() {
 		rules = new Hashtable();
 		readOnlyProperties = new Vector();
+		
+		Vector firstRun = new Vector();
+		firstRun.addElement(FIRST_RUN_YES);
+		firstRun.addElement(FIRST_RUN_NO);
+		
+		rules.put(IS_FIRST_RUN, new Vector());
 		
         rules.put(COMMCARE_VERSION, new Vector());
         readOnlyProperties.addElement(COMMCARE_VERSION);
@@ -150,6 +161,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Testing Submission URL";
         } else if (POST_URL_PROPERTY.equals(propertyName)) {
         	return "Form Submission URL";
+        } else if (IS_FIRST_RUN.equals(propertyName)) {
+        	return "First Run Screen at Startup?";
         }
     	return propertyName;
 	}

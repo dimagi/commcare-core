@@ -6,8 +6,8 @@ package org.commcare.midlet;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-import org.commcare.applogic.CommCareLoginState;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareUtil;
 
 /**
  * @author ctsims
@@ -34,7 +34,7 @@ public class CommCareMidlet extends MIDlet {
 	 */
 	protected void startApp() throws MIDletStateChangeException {
 		CommCareContext.init(this);
-		new CommCareLoginState().start();
+		CommCareUtil.launchFirstState();
 	}
 
 }

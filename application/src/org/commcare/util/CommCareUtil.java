@@ -7,9 +7,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
+import org.commcare.applogic.CommCareLoginState;
 import org.commcare.applogic.CommCareSelectState;
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.ReferralInstanceLoader;
@@ -21,6 +24,7 @@ import org.javarosa.chsreferral.util.IPatientReferralFilter;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -256,6 +260,14 @@ public class CommCareUtil {
 				
 				return count;
 			}
+		}
+	}
+	
+	public static void launchFirstState() {
+		if(CommCareProperties.FIRST_RUN_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN))) {
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
+		} else {
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
 		}
 	}
 }

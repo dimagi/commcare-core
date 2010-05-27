@@ -112,6 +112,8 @@ public class CommCareContext {
 		
 		initReferences();
 		
+		Localization.registerLanguageReference("default","jr://resource/messages_cc_default.txt");
+		
 		manager = new CommCareManager();
 		manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable());
 		
@@ -169,6 +171,7 @@ public class CommCareContext {
 		PropertyManager._().addRules(new CommCareProperties());
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
+		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 	}
 	
@@ -411,6 +414,10 @@ public class CommCareContext {
 		System.out.println("Temporary Resource Table");
 		System.out.println(table);
 		return table;
+	}
+	
+	public void exitApp() {
+		midlet.notifyDestroyed();
 	}
 	
 }

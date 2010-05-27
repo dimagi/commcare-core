@@ -76,7 +76,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void backupRestore() {
-		new CommCareBackupRestoreState(CommCareBackupRestoreSnapshot.class){
+		//new CommCareBackupRestoreState(CommCareBackupRestoreSnapshot.class){
+		new DataRestoreState(){
 			public void done() {
 				CommCareUtil.launchHomeState();
 			}
