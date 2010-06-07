@@ -17,4 +17,5 @@ restore.success=Data sync successful
 restore.success.partial=Data sync partially successful. Some errors occurred.
 restore.fail=Exception during restore!
 restore.baddownload=Download failed, please try again.
+restore.noserveruri=No Restore Server Configured!
 polish.date.select=Select Date

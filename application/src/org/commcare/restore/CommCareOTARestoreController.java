@@ -25,7 +25,9 @@ import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
+import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
+import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 import org.kxml2.io.KXmlParser;
@@ -43,8 +45,18 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	CommCareOTARestoreTransitions transitions;
 	
 	int authAttempts = 0;
+	String restoreURI;
 	
-	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions) {
+	HttpAuthenticator authenticator;
+	
+	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
+		this(transitions,restoreURI,null);
+	}
+	
+	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
+		this.restoreURI = restoreURI;
+		this.authenticator = authenticator;
+		
 		view = new CommCareOTARestoreView(Localization.get("intro.restore"));
 		view.setCommandListener(this);
 		
@@ -54,15 +66,15 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		this.transitions = transitions;
 	}
 	
-	public void startFromTransport() {
-		authAttempts = 1;
-		J2MEDisplay.setView(view);
-		tryDownload(getCustomMessage());
-	}
-	
-	public void startFromEntry() {
-		authAttempts = 0;
-		getCredentials();
+	public void start() {
+		if(authenticator == null) {
+			authAttempts = 0;
+			getCredentials();
+		} else {
+			authAttempts = 1;
+			J2MEDisplay.setView(view);
+			tryDownload(AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator));
+		}
 	}
 	
 	private void getCredentials() {
@@ -73,14 +85,21 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	private void tryDownload(AuthenticatedHttpTransportMessage message) {
 		view.addToMessage(Localization.get("restore.message.startdownload"));
 		try {
+			if(message.getUrl() == null) {
+				fail(Localization.get("restore.noserveruri"));
+				J2MEDisplay.setView(view);
+				return;
+			}
 			AuthenticatedHttpTransportMessage sent = (AuthenticatedHttpTransportMessage)TransportService.sendBlocking(message);
 			if(sent.isSuccess()) {
 				view.addToMessage(Localization.get("restore.message.connectionmade"));
 				try {
 					downloadRemoteData(sent.getResponse());
+					return;
 				} catch(IOException e) {
 					J2MEDisplay.setView(entry);
 					entry.sendMessage(Localization.get("restore.baddownload"));
+					return;
 				}
 			} else {
 				view.addToMessage(Localization.get("restore.message.connection.failed"));
@@ -91,10 +110,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 						authAttempts--;
 						getCredentials();
 					}
+					return;
 				} else if(sent.getResponseCode() == 404) {
 					entry.sendMessage(Localization.get("restore.badserver"));
+					return;
 				} else {
 					entry.sendMessage(sent.getFailureReason());
+					return;
 				}
 			}
 		} catch (TransportException e) {
@@ -129,7 +151,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					}
 					output = ref.getOutputStream();
 				}
-			    catch (IOException e) {
+			    catch (Exception e) {
 			    	noCache(stream);
 			    	return;
 				}
@@ -201,23 +223,9 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		return "jr://file/commcare_ota_backup.xml";
 	}
 	
-	protected AuthenticatedHttpTransportMessage getCustomMessage() {
-		return null;
-	}
-	
 	private AuthenticatedHttpTransportMessage getClientMessage() {
-		AuthenticatedHttpTransportMessage message = new AuthenticatedHttpTransportMessage("http://dev.commcarehq.org/releasemanager/digest_test",
-				new HttpAuthenticator() {
-
-			protected String getPassword() {
-				return entry.getPassword();
-			}
-
-			protected String getUsername() {
-				return entry.getUsername();
-			}
-			
-		});
+		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, 
+				new HttpAuthenticator(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword()), false));
 		return message;
 	}
 

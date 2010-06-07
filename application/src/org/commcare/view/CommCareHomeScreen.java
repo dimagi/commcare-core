@@ -33,7 +33,7 @@ public class CommCareHomeScreen extends List {
 	public Command admFeedbackReport = new Command("Report Feedback", Command.ITEM, 1);
 	public Command admEditUsers = new Command("Edit Users", Command.ITEM, 1);
 	public Command admDeletePatient = new Command("Delete Patient", Command.ITEM, 1);
-	public Command admBackupRestore = new Command("Backup/Restore", Command.ITEM, 1);
+	public Command admDownload = new Command("Restore User Data", Command.ITEM, 1);
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
 	public Command admResetDemo = new Command("Reset Demo", Command.ITEM, 1);
 	public Command admUpgrade = new Command("Check For Updates", Command.ITEM, 1);
@@ -83,7 +83,7 @@ public class CommCareHomeScreen extends List {
 			addCommand(admSettings);
 			addCommand(admNewUser);
 			addCommand(admEditUsers);
-			addCommand(admBackupRestore);
+			addCommand(admDownload);
 			addCommand(admResetDemo);
 			addCommand(admUpgrade);
 		}

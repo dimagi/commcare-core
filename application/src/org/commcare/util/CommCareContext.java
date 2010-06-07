@@ -38,7 +38,6 @@ import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.J2MEModule;
-import org.javarosa.j2me.file.J2meFileRoot;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.util.DumpRMS;
@@ -148,7 +147,6 @@ public class CommCareContext {
 	}
 	
 	protected void initReferences() {
-		ReferenceManager._().addReferenceFactory(new J2meFileRoot("root1"));
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/","jr://resource/img/"));
 	}
 

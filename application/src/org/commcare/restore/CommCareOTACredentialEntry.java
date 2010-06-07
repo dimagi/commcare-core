@@ -34,9 +34,9 @@ public class CommCareOTACredentialEntry extends Form {
 		instructions = new StringItem("",Localization.get("restore.login.instructions"));
 		this.append(instructions);
 		
-		username = new TextField(Localization.get("form.login.username"), null, 50, TextField.ANY);
+		username = new TextField(Localization.get("form.login.username"), "ctsims", 50, TextField.ANY);
 		
-		password = new TextField(Localization.get("form.login.password"), null, 100, TextField.PASSWORD);
+		password = new TextField(Localization.get("form.login.password"), "dimagi4life", 100, TextField.PASSWORD);
 		
 		this.append(username);
 		this.append(password);

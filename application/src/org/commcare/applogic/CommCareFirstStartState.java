@@ -10,6 +10,7 @@ import org.commcare.view.FirstStartupView;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.user.model.User;
 
 /**
  * @author ctsims
@@ -35,8 +36,19 @@ public class CommCareFirstStartState implements State, FirstStartupTransitions{
 	}
 
 	public void login() {
-		PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState() {
+
+			public void loggedIn(User u) {
+				
+				//If they logged in as an admin user, we can assume they don't need the first start screen anymore.
+				if(!(u.getUserType().equals(User.DEMO_USER))) {
+					PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_NO);
+				}
+
+				super.loggedIn(u);
+			}
+			
+		});
 	}
 
 	public void restore() {

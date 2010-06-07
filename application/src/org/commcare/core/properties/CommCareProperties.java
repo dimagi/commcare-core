@@ -38,6 +38,9 @@ public class CommCareProperties implements IPropertyRules {
     public final static String FIRST_RUN_YES = "Yes";
     public final static String FIRST_RUN_NO = "No";
     
+    //OTA Restore
+    public final static String OTA_RESTORE_URL = "ota-restore-url";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -69,6 +72,8 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(PURGE_LAST, new Vector());
         rules.put(PURGE_FREQ, new Vector());
         readOnlyProperties.addElement(PURGE_LAST);
+        
+        rules.put(OTA_RESTORE_URL, new Vector());
 	}
 
 	/**
@@ -163,6 +168,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Form Submission URL";
         } else if (IS_FIRST_RUN.equals(propertyName)) {
         	return "First Run Screen at Startup?";
+        }else if (OTA_RESTORE_URL.equals(propertyName)) {
+        	return "URL of OTA Restore Server";
         }
     	return propertyName;
 	}
