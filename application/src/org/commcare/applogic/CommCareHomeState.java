@@ -18,6 +18,7 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
@@ -134,15 +135,19 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void review() {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<FormInstance>(new RecentFormEntity(CommCareContext._().getManager().getInstalledSuites()), FormInstance.STORAGE_KEY) {
+		final RecentFormEntity prototype = new RecentFormEntity(CommCareContext._().getManager().getInstalledSuites());
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<FormInstance>(prototype, FormInstance.STORAGE_KEY) {
 			
 			public void entitySelected(final int instanceID) {
+				//Man this is dumb....
+				FormInstance instance = (FormInstance)StorageManager.getStorage(FormInstance.STORAGE_KEY).read(instanceID);
+				final String title = prototype.getTypeName(instance.schema);
 				J2MEDisplay.startStateWithLoadingScreen(new FormEntryState () {
 					protected JrFormEntryController getController() {
 						FormDefFetcher fetcher = new FormDefFetcher(new ModelRmsRetrievalMethod(instanceID), instanceID,
 								CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
 						JrFormEntryController controller = new JrFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), true));
-						controller.setView(new Chatterbox("Chatterbox", controller));
+						controller.setView(new Chatterbox(title, controller));
 						return controller;
 					}
 						

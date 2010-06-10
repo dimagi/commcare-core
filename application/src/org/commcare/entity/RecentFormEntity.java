@@ -35,7 +35,7 @@ public class RecentFormEntity extends Entity<FormInstance> {
 	}
 
 	public String entityType() {
-		return "Saved Form";
+		return Localization.get("review.title");
 	}
 
 	public RecentFormEntity factory() {
