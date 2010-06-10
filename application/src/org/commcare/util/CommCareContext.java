@@ -121,6 +121,7 @@ public class CommCareContext {
 		initReferences();
 		
 		Localization.registerLanguageReference("default","jr://resource/messages_cc_default.txt");
+		Localization.registerLanguageReference("sw","jr://resource/messages_cc_sw.txt");
 		
 		manager = new CommCareManager();
 		manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable());

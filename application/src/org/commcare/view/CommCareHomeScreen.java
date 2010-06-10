@@ -44,7 +44,7 @@ public class CommCareHomeScreen extends List {
 	private Hashtable<Integer, Menu> menuTable = new Hashtable<Integer,Menu>();
 
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
-		super("CommCare", List.IMPLICIT);
+		super(Localization.get("homescreen.title"), List.IMPLICIT);
 		this.controller = controller;
 		
 		Enumeration en = suites.elements();

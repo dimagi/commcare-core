@@ -1,5 +1,5 @@
-homescreen.title=CommCare
 intro.title=CommCare Startup
+
 intro.text=You are starting CommCare for the first time. Do you want to restore your data from the server, or start fresh in Admin mode?
 intro.restore=Restore from Server
 intro.start=Login as Admin
@@ -21,6 +21,9 @@ restore.baddownload=Download failed, please try again.
 restore.noserveruri=No Restore Server Configured!
 polish.date.select=Select Date
 
-commcare.review=Review Recent Forms
+commcare.review=Taarifa ulizoingiza
 
-activity.login.demomode.intro=You are starting CommCare in Demo mode. Demo mode is for testing and practice only! Log in with your user account to perform client visits.
+sending.status.success=Ujumbe Umepokelewa. Leo tumepokea fomu ${0} kutoka kwako.
+sending.status.problem.datasafe=Ujumbe Umepokelewa.Taarifa zako zipo salama. Tumekosea kidogo, tunarekebisha.
+
+activity.login.demomode.intro=unafungua CommCare kwenye mazoezi, hii ni kwa ajili ya mazoezi. Fungua kwa kutumia ufunguo kama taarifa hizi ni halisi.

@@ -39,7 +39,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 		this.suite = suite;
 		this.m = m;
 		
-		view = new CommCareSuiteView("Select Action");
+		view = new CommCareSuiteView(m.getName().evaluate());
 		configView();
 		view.setCommandListener(this);
 	}
