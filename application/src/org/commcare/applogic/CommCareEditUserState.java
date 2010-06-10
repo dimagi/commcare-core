@@ -6,21 +6,21 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.user.api.AddUserFormEntryState;
+import org.javarosa.user.api.EditUserFormEntryState;
 import org.javarosa.user.api.RegisterUserState;
 import org.javarosa.user.model.User;
 
-public class CommCareAddUserState extends AddUserFormEntryState {
+public class CommCareEditUserState extends EditUserFormEntryState {
 	
-	public CommCareAddUserState() {
-		super(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
+	public CommCareEditUserState(User u) {
+		super(u, PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
 	}
 
 	public void cancel() {
 		new CommCareHomeState().start();
 	}
 
-	public void userAdded(User newUser) {
+	public void userEdited(User newUser) {
 		//#if commcare.user.registration
 		
 		new RegisterUserState(newUser) {

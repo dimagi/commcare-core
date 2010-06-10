@@ -39,7 +39,7 @@ public class CommCareLoginState extends LoginState {
 	 */
 	public void loggedIn(User u) {
 		CommCareContext._().setUser(u);
-		Logger.log("login", u.getUserID() + "-" + u.getUsername());
+		Logger.log("login", u.getUniqueId() + "-" + u.getUsername());
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
 

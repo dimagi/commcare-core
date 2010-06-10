@@ -15,14 +15,6 @@ public class CommCareProperties implements IPropertyRules {
 
 	public final static String COMMCARE_VERSION = "app-version";
 	
-	public static final String BACKUP_URL = "backup-url";
-	public static final String RESTORE_URL = "restore-url";
-    public static final String BACKUP_MODE = "BackupMode";
-
-    // Backup Modes
-    public static final String BACKUP_MODE_HTTP = "http_mode";
-    public static final String BACKUP_MODE_FILE = "file_mode";
-    
 	// http, since it doesn't go in transport layer anymore
     public final static String POST_URL_PROPERTY = "PostURL";
     
@@ -41,6 +33,17 @@ public class CommCareProperties implements IPropertyRules {
     //OTA Restore
     public final static String OTA_RESTORE_URL = "ota-restore-url";
     
+    //User registration
+    public final static String USER_REG_NAMESPACE = "user_reg_namespace";
+    
+    public final static String SEND_STYLE ="cc-send-procedure";
+    	
+    public final static String SEND_STYLE_HTTP ="cc-send-http";
+    	
+    public final static String SEND_STYLE_FILE ="cc-send-file";
+    	
+    public final static String SEND_STYLE_NONE ="cc-send-none";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -52,18 +55,10 @@ public class CommCareProperties implements IPropertyRules {
 		firstRun.addElement(FIRST_RUN_YES);
 		firstRun.addElement(FIRST_RUN_NO);
 		
-		rules.put(IS_FIRST_RUN, new Vector());
+		rules.put(IS_FIRST_RUN, firstRun);
 		
         rules.put(COMMCARE_VERSION, new Vector());
         readOnlyProperties.addElement(COMMCARE_VERSION);
-		
-        rules.put(BACKUP_URL, new Vector());
-        rules.put(RESTORE_URL, new Vector());
-
-        Vector allowableModes = new Vector();
-        allowableModes.addElement(BACKUP_MODE_HTTP);
-        allowableModes.addElement(BACKUP_MODE_FILE);
-        rules.put(BACKUP_MODE, allowableModes);	
         
         // PostURL List Property
         rules.put(POST_URL_PROPERTY, new Vector());
@@ -74,6 +69,16 @@ public class CommCareProperties implements IPropertyRules {
         readOnlyProperties.addElement(PURGE_LAST);
         
         rules.put(OTA_RESTORE_URL, new Vector());
+        
+        rules.put(USER_REG_NAMESPACE, new Vector());
+        readOnlyProperties.addElement(USER_REG_NAMESPACE);
+        
+        Vector sendStyles = new Vector();
+        sendStyles.addElement(SEND_STYLE_HTTP);
+        sendStyles.addElement(SEND_STYLE_FILE);
+        sendStyles.addElement(SEND_STYLE_NONE);
+        
+        rules.put(SEND_STYLE, sendStyles);
 	}
 
 	/**
@@ -152,13 +157,7 @@ public class CommCareProperties implements IPropertyRules {
 	public String getHumanReadableDescription(String propertyName) {
 		if(COMMCARE_VERSION.equals(propertyName)) {
 			return "CommCare Version";
-		} else if (BACKUP_URL.equals(propertyName)) {
-     		return "Backup URL";
-     	} else if (RESTORE_URL.equals(propertyName)) {
-     		return "Restore URL";
-        } else if (BACKUP_MODE.equals(propertyName)) {
-            return "Backup Mode";
-        } else if (PURGE_LAST.equals(propertyName)) {
+		} else if (PURGE_LAST.equals(propertyName)) {
         	return "Last Purge on";
         } else if (PURGE_FREQ.equals(propertyName)) {
         	return "Purge Freq. (days)";
@@ -170,18 +169,23 @@ public class CommCareProperties implements IPropertyRules {
         	return "First Run Screen at Startup?";
         }else if (OTA_RESTORE_URL.equals(propertyName)) {
         	return "URL of OTA Restore Server";
+        } else if(SEND_STYLE.equals(propertyName)) {
+        	return "Form Send/Save Process";
         }
     	return propertyName;
 	}
 
 	public String getHumanReadableValue(String propertyName, String value) {
-        if(BACKUP_MODE.equals(propertyName)) {
-            if(BACKUP_MODE_HTTP.equals(value)) {
-                return "Over the Air";
-            } else if(BACKUP_MODE_FILE.equals(value)) {
-                return "Memory Card"; 
-            }
+		if(SEND_STYLE.equals(propertyName)) {
+        	if(SEND_STYLE_HTTP.equals(value)) {
+        		return "HTTP Post";
+        	} else if(SEND_STYLE_FILE.equals(value)) {
+        		return "Save to File";
+        	} else if(SEND_STYLE_NONE.equals(value)) {
+        		return "Don't Save";
+        	}
         }
+
         return value;
 	}
 

@@ -21,10 +21,12 @@ import org.javarosa.chsreferral.PatientReferralModule;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.PatientReferralPreloader;
 import org.javarosa.core.model.CoreModelModule;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -33,6 +35,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
@@ -53,6 +56,7 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.javarosa.user.activity.UserModule;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserUtility;
+import org.javarosa.xform.util.XFormUtils;
 
 /**
  * @author ctsims
@@ -69,12 +73,7 @@ public class CommCareContext {
 	
 	protected boolean inDemoMode;
 	
-	public TransportMessage buildMessage(IDataPayload payload) {
-		//Right now we have to just give the message the stream, rather than the payload,
-		//since the transport layer won't take payloads. This should be fixed _as soon 
-		//as possible_ so that we don't either (A) blow up the memory or (B) lose the ability
-		//to send payloads > than the phones' heap.
-		
+	public String getSubmitURL() {
 		String url = PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_PROPERTY);
 		
 		String testUrl = PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_TEST_PROPERTY);
@@ -82,6 +81,16 @@ public class CommCareContext {
 			//In testing mode, use this URL instead, if available.
 			url = testUrl;
 		}
+		return url;
+	}
+	
+	public TransportMessage buildMessage(IDataPayload payload) {
+		//Right now we have to just give the message the stream, rather than the payload,
+		//since the transport layer won't take payloads. This should be fixed _as soon 
+		//as possible_ so that we don't either (A) blow up the memory or (B) lose the ability
+		//to send payloads > than the phones' heap.
+		
+		String url = getSubmitURL();
 		try {
 			return new SimpleHttpTransportMessage(payload.getPayloadStream(), url);
 		} catch (IOException e) {
@@ -116,9 +125,6 @@ public class CommCareContext {
 		manager = new CommCareManager();
 		manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable());
 		
-		UserUtility.populateAdminUser();
-		inDemoMode = false;
-		
 		purgeScheduler();
 		
 		//When we might initialize language files, we need to make sure it's not trying
@@ -126,6 +132,12 @@ public class CommCareContext {
 		//be added later.
 		Localization.setLocale("default");
 		manager.initialize(RetrieveGlobalResourceTable());
+		
+		//Now that the profile has had a chance to set properties (without them requiring
+		//override) set the fallbcak defaults.
+		postProfilePropertyInit();
+		
+		initUserFramework();
 		
 		//Establish default logging deadlines
 		LogReportUtils.initPendingDates(new Date().getTime());
@@ -140,6 +152,35 @@ public class CommCareContext {
 	private void failsafeInit (MIDlet m) {
 		DumpRMS.RMSRecoveryHook(m);
 		new J2MEModule().registerModule();
+	}
+	
+	private void initUserFramework() {
+		if(manager.getCurrentProfile().isFeatureActive("users")) {
+			UserUtility.populateAdminUser();
+			inDemoMode = false;
+			String namespace = PropertyUtils.initializeProperty(CommCareProperties.USER_REG_NAMESPACE, "http://code.javarosa.org/user_registration");
+			
+			if(namespace.equals("http://code.javarosa.org/user_registration")) {
+				IStorageUtilityIndexed formDefStorage = (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+				Vector forms = formDefStorage.getIDsForValue("XMLNS", namespace);
+				if(forms.size() == 0) {
+					//Default user registration form isn't present, parse if from the default location.
+					try {
+						formDefStorage.write(XFormUtils.getFormFromInputStream(ReferenceManager._().DeriveReference("jr://resource/register_user.xhtml").getStream()));
+					} catch (IOException e) {
+						//I dunno? Log it? 
+						e.printStackTrace();
+					} catch (InvalidReferenceException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (StorageFullException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}
 	}
 	
 	protected void registerAddtlStorage () {
@@ -165,12 +206,21 @@ public class CommCareContext {
 	}
 	
 	protected void setProperties() {
+		
+		//NOTE: These properties should all be properties which are not expected to
+		//be set by the profile, otherwise the profile will need to override the existing property.
+		//Put generic fallbacks into postProfile property intiializer below.
 		PropertyManager._().addRules(new JavaRosaPropertyRules());
 		PropertyManager._().addRules(new CommCareProperties());
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
+	}
+	
+
+	private void postProfilePropertyInit() {
+		PropertyUtils.initializeProperty(CommCareProperties.SEND_STYLE, CommCareProperties.SEND_STYLE_HTTP);
 	}
 	
 	public static void init(MIDlet m) {

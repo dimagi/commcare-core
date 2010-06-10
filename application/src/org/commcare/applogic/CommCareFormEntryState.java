@@ -3,6 +3,7 @@ package org.commcare.applogic;
 import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
 import org.javarosa.cases.util.CaseModelProcessor;
@@ -12,6 +13,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -67,14 +69,34 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		        postSaveProcess(instanceData);
 			}
 			
-			new CommCarePostFormEntryState(instanceData) {
-				public void goHome() {
-					CommCareFormEntryState.this.goHome();
-				}
-			}.start();
+			
+			//Figure out what to do...
+			String action = PropertyManager._().getSingularProperty(CommCareProperties.SEND_STYLE);
+			
+			//This name is generic, but it's actually HTTP only
+			if(action == null || CommCareProperties.SEND_STYLE_HTTP.equals(action)) {
+				send(instanceData);
+				return;
+			} else if(CommCareProperties.SEND_STYLE_NONE.equals(action)) {
+				CommCareFormEntryState.this.goHome();
+			}else if(CommCareProperties.SEND_STYLE_FILE.equals(action)) {
+				//TODO: File Save here...
+				CommCareFormEntryState.this.goHome();
+			} else {
+				//The 'Ol Fallback.
+				send(instanceData);
+			}
 		} else {
 			abort();
 		}
+	}
+	
+	private void send(FormInstance instanceData) {
+		new CommCarePostFormEntryState(instanceData) {
+			public void goHome() {
+				CommCareFormEntryState.this.goHome();
+			}
+		}.start();
 	}
 
 	public void suspendForMediaCapture(int captureType) {

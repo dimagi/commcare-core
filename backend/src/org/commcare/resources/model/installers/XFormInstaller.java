@@ -37,7 +37,7 @@ public class XFormInstaller extends CacheInstaller {
 			if(input == null) {
 				return false;
 			}
-			FormDef formDef = XFormParser.getFormDef(new InputStreamReader(input));
+			FormDef formDef = XFormParser.getFormDef(new InputStreamReader(input, "UTF-8"));
 			if(formDef == null) {
 				//Bad Form!
 				return false;

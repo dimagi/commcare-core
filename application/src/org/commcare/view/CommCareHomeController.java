@@ -33,7 +33,13 @@ public class CommCareHomeController implements HandledCommandListener {
 	public CommCareHomeController (Vector<Suite> suites, Profile profile) {
 		this.suites = suites;
 		this.profile = profile;
-		view = new CommCareHomeScreen(this, suites, CommCareContext._().getUser().isAdminUser(), profile.isFeatureActive(Profile.FEATURE_REVIEW));
+		boolean admin = false;
+		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
+			admin = true;
+		} else {
+			admin = CommCareContext._().getUser().isAdminUser();
+		}
+		view = new CommCareHomeScreen(this, suites, admin, profile.isFeatureActive(Profile.FEATURE_REVIEW));
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {

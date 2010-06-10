@@ -42,7 +42,7 @@ public class UserXmlParser extends TransactionParser<User> {
 		User u = retrieve(uuid);
 		
 		if(u == null) {
-			u = new User(username, passwordHash, -1);
+			u = new User(username, passwordHash, uuid);
 		}
 		
 		//Now look for optional components

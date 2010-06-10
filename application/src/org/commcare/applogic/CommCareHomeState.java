@@ -8,7 +8,6 @@ import org.commcare.entity.RecentFormEntity;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.CommCareBackupRestoreSnapshot;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
@@ -27,9 +26,9 @@ import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.ModelRmsRetrievalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
+import org.javarosa.user.utility.UserEntity;
 
 /**
  * @author ctsims
@@ -47,7 +46,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	 * @see org.javarosa.superrosa.api.transitions.SuperRosaHomeTransitions#logout()
 	 */
 	public void logout() {
-		new CommCareLoginState().start();
+		CommCareUtil.exitMain();
 	}
 
 	public void viewSuite(Suite suite, Menu m) {
@@ -113,7 +112,17 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void editUsers() {
-		throw new RuntimeException("not hooked up yet");
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<User>(new UserEntity(), User.STORAGE_KEY) {
+
+			public void cancel() {
+				CommCareUtil.launchHomeState();
+			}
+
+			public void entitySelected(int id) {
+				User u = (User)StorageManager.getStorage(User.STORAGE_KEY).read(id);
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u));
+			}
+		});
 	}
 	
 	public void reloadForms() {

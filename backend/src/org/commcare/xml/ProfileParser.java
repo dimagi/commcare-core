@@ -5,11 +5,14 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
+import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.reference.RootTranslator;
@@ -41,6 +44,8 @@ public class ProfileParser extends ElementParser<Profile> {
 		int version = parseInt(sVersion);
 
 		String authRef = parser.getAttributeValue(null, "update");
+		
+		String registrationNamespace = null;
 		
 		Profile profile = new Profile(version, authRef);
 		try {
@@ -92,6 +97,12 @@ public class ProfileParser extends ElementParser<Profile> {
 								}
 							} else if (tag.equals("package")) {
 								//nothing (yet)
+							} else if (tag.equals("users")) {
+								if(nextTagInBlock("users")) {
+									checkNode("registration");
+									registrationNamespace = parser.nextText();
+									profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
+								}
 							}
 							
 							profile.setFeatureActive(tag, isActive);
@@ -117,7 +128,7 @@ public class ProfileParser extends ElementParser<Profile> {
 				}
 				eventType = parser.next();
 			} while (eventType != KXmlParser.END_DOCUMENT);
-
+			
 		return profile;
 
 		} catch (XmlPullParserException e) {
