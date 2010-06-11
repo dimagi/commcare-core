@@ -26,26 +26,30 @@ public class FilterParser extends ElementParser<Filter> {
 	public Filter parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("filter");
 		
-		getNextTagInBlock("filter");
+		Filter f = Filter.EmptyFilter();
 		
-		//We should now be on the actual filter.
-		String handler = parser.getName().toLowerCase();
-		
-		if(handler.equals("raw")) {
-			String function =  parser.getAttributeValue(null,"function");
-			return new Filter();
-		} else if(handler.equals("referral")) {
-			String function =  parser.getAttributeValue(null,"function");
-			String caseType = parser.getAttributeValue(null,"case-type");
-			String referralType = parser.getAttributeValue(null,"referral-type");
-			return new Filter();
-		} else if(handler.equals("case")) {
-			String function =  parser.getAttributeValue(null,"function");
-			String caseType = parser.getAttributeValue(null,"case-type");
-			return new Filter();
-		} else{
-			throw new InvalidStructureException("Unrecognized filter type " + handler,parser);
+		//getNextTagInBlock("filter");
+		while(nextTagInBlock("filter")) {
+			
+			//We should now be on the actual filter.
+			String handler = parser.getName().toLowerCase();
+			
+			if(handler.equals("raw")) {
+				String function =  parser.getAttributeValue(null,"function");
+				f = f.merge(Filter.RawFilter(function));
+			} else if(handler.equals("referral")) {
+				String referralType = parser.getAttributeValue(null,"referral-type");
+				String resolved = parser.getAttributeValue(null,"view-resolved");
+				f = f.merge(Filter.ReferralFilter(referralType, new Boolean(true).toString().equals(resolved)));
+			} else if(handler.equals("case")) {
+				String seeClosed = parser.getAttributeValue(null,"view-closed");
+				String caseType = parser.getAttributeValue(null,"case-type");
+				f = f.merge(Filter.CaseFilter(caseType, new Boolean(true).toString().equals(seeClosed)));
+			} else{
+				throw new InvalidStructureException("Unrecognized filter type " + handler,parser);
+			}
 		}
+		return f;
 	}
 
 }

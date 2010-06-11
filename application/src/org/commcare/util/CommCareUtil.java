@@ -25,6 +25,7 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -156,7 +157,7 @@ public class CommCareUtil {
 		Hashtable<String, String> references = entry.getReferences();
 		if(references.size() == 0) {
 			String namespace = entry.getXFormNamespace();
-			CommCareFormEntryState state = new CommCareFormEntryState(e.getText().evaluate(), namespace, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers()) {
+			CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()), namespace, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers()) {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(s);			
 				}
@@ -184,7 +185,7 @@ public class CommCareUtil {
 					}
 					
 					public void entitySelected(int id) {
-						CommCareFormEntryState state = new CommCareFormEntryState(e.getText().evaluate(),e.getXFormNamespace(), CommCareContext._().getPreloaders(CommCareUtil.getReferral(id)), CommCareContext._().getFuncHandlers()) {
+						CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()),e.getXFormNamespace(), CommCareContext._().getPreloaders(CommCareUtil.getReferral(id)), CommCareContext._().getFuncHandlers()) {
 							protected void goHome() {
 								J2MEDisplay.startStateWithLoadingScreen(s);
 							}
@@ -206,7 +207,7 @@ public class CommCareUtil {
 						if(form == null) {
 							state = s;
 						} else {
-							state = new CommCareFormEntryState(e.getText().evaluate(),form, CommCareContext._().getPreloaders(CommCareUtil.getCase(id)), CommCareContext._().getFuncHandlers()) {
+							state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()),form, CommCareContext._().getPreloaders(CommCareUtil.getCase(id)), CommCareContext._().getFuncHandlers()) {
 								protected void goHome() {
 									J2MEDisplay.startStateWithLoadingScreen(s);					
 								}

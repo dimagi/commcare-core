@@ -17,7 +17,10 @@ public class TextParser extends ElementParser<Text> {
 	}	
 	
 	public Text parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		Vector<Text> texts = new Vector<Text>();
+		
 		checkNode("text");
+		int entryLevel = parser.getDepth();
 		try {
 			parser.next();
 		} catch (XmlPullParserException e) {
@@ -28,12 +31,24 @@ public class TextParser extends ElementParser<Text> {
 			e.printStackTrace();
 		}
 		
-		return parseBody();
+		while(parser.getDepth() > entryLevel ) {
+			Text t = parseBody();
+			if(t != null) {
+				texts.addElement(t);
+			}
+		}
+        if(texts.size() == 1) {
+        	return texts.elementAt(0);
+        } else {
+        	Text c =  Text.CompositeText(texts);
+        	return c;
+        }
 	}
 	
 	private Text parseBody() throws InvalidStructureException, IOException, XmlPullParserException {
 		//TODO: Should prevent compositing text and xpath/locales
 		Vector<Text> texts = new Vector<Text>();
+		
 			int eventType = parser.getEventType();
 			String text = "";
 	        do {
@@ -58,6 +73,9 @@ public class TextParser extends ElementParser<Text> {
 	        	Text t = Text.PlainText(text);
 	        	texts.addElement(t);
 	        }
+	        if(texts.size() == 0) {
+	        	return null;
+	        }
 	        
 	        if(texts.size() == 1) {
 	        	return texts.elementAt(0);
@@ -70,6 +88,9 @@ public class TextParser extends ElementParser<Text> {
 	private Text parseLocale() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("locale");
 		String id = parser.getAttributeValue(null,"id");
+		if("pf.client.referral".equals(id)) {
+			String.valueOf(true);
+		}
 		if(id != null) {
 			return Text.LocaleText(id);
 		} else {

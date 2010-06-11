@@ -6,10 +6,12 @@ package org.commcare.entity;
 import java.util.Hashtable;
 
 import org.commcare.suite.model.Filter;
+import org.commcare.suite.model.Text;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -36,11 +38,48 @@ public class CaseInstanceLoader extends FormInstanceLoader<Case> {
 	}
 	
 	protected EntityFilter<Case> resolveFilter(final Filter filter, final FormInstance template) {
+		
 		return new EntityFilter<Case> () {
+			
+			public int preFilter(int id, Hashtable<String, Object> metaData) {
+				// this apparently isn't supported yet
+				if(metaData == null) {
+					return EntityFilter.PREFILTER_FILTER;
+				}
+				if(filter.isEmpty()) {
+					return EntityFilter.PREFILTER_FILTER;
+				} else {
+					if(filter.paramSet(Filter.TYPE)) {
+						if(!metaData.get("case-type").equals(filter.getParam(Filter.TYPE))) {
+							return EntityFilter.PREFILTER_EXCLUDE;
+						}
+					}
+				}
+				return EntityFilter.PREFILTER_FILTER;
+			}
+
 			public boolean matches(Case c) {
+				
 				if(filter.isEmpty()) {
 					return !c.isClosed();
 				} else {
+					
+					//Apparently meta data isn't supported yet, so we have to do this here, too...
+					if(filter.paramSet(Filter.TYPE)) {
+						if(!c.getTypeId().equals(filter.getParam(Filter.TYPE))) {
+							return false;
+						}
+					}
+					
+					if(c.isClosed()) {
+						if(filter.paramSet(Filter.SHOW_CLOSED)) {
+							return new Boolean(true).toString().equals(filter.getParam(Filter.SHOW_CLOSED));
+						} else {
+							return false;
+						}
+					}
+					
+					//TODO: Only admin or user
 					return true;
 				}
 			}

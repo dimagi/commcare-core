@@ -34,3 +34,7 @@ activity.login.demomode.intro=You are starting CommCare in Demo mode. Demo mode 
 #Used by chatterbox dynamically for the "name" of the xform itext locale 
 locale.name.en=English
 locale.name.sw=Swahili
+
+
+#This is the default decorator wrapped numbers in the user interface
+commcare.numwrapper=(${0})

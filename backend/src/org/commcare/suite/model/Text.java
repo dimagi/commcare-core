@@ -141,8 +141,7 @@ public class Text implements Externalizable {
 	/**
 	 * @param text A vector of Text objects.
 	 * @return A Text object that evaluates to the 
-	 * value of each member of the text vector, with
-	 * a space character between each.
+	 * value of each member of the text vector.
 	 */
 	public static Text CompositeText(Vector<Text> text) {
 		Text t = TextFactory();
@@ -162,7 +161,7 @@ public class Text implements Externalizable {
 	 * (like an XPath text), this will likely fail.
 	 */
 	public String evaluate() {
-		return evaluate(null);
+		return evaluate(null, null);
 	}
 	
 	/**
@@ -170,21 +169,22 @@ public class Text implements Externalizable {
 	 * xpath functions in the underlying Text
 	 * @return The evaluated string value for this Text object.
 	 */
-	public String evaluate(FormInstance context) {
+	public String evaluate(FormInstance context, EvaluationContext parent) {
 		switch(type) {
 		case TEXT_TYPE_FLAT:
 			return argument;
 		case TEXT_TYPE_LOCALE:
 			String id = argument;
 			if(argument.equals("")) {
-				id = arguments.get("id").evaluate(context);
+				id = arguments.get("id").evaluate(context,parent);
 			}
 			return Localization.get(id);
 		case TEXT_TYPE_XPATH:
 			try {
 					//Do an XPath cast to a string as part of the operation.
 					XPathExpression expression = XPathParseTool.parseXPath("string(" + argument + ")");
-					EvaluationContext temp = new EvaluationContext(new EvaluationContext(), context.getRoot().getRef());
+					EvaluationContext p =  parent == null ? new EvaluationContext() : parent;
+					EvaluationContext temp = new EvaluationContext(p, context == null ? null : context.getRoot().getRef());
 					
 					temp.addFunctionHandler(new IFunctionHandler() {
 
@@ -222,7 +222,7 @@ public class Text implements Externalizable {
 					
 					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
 						String key = (String)en.nextElement();
-						String value = arguments.get(key).evaluate(context);
+						String value = arguments.get(key).evaluate(context, parent);
 						temp.setVariable(key,value);
 					}
 					
@@ -236,7 +236,7 @@ public class Text implements Externalizable {
 		case TEXT_TYPE_COMPOSITE:
 			String ret = "";
 			for(Enumeration en = arguments.elements() ; en.hasMoreElements() ;) {
-				ret += ((Text)en.nextElement()).evaluate() +"::";
+				ret += ((Text)en.nextElement()).evaluate() +"";
 			}
 			return ret;
 		default:

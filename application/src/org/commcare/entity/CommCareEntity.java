@@ -13,6 +13,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.entity.util.StackedEntityFilter;
 
 /**
  * @author ctsims
@@ -100,7 +101,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		Text[] text = longDetail.getTemplates();
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(specificInstance);
+			output[i] = text[i].evaluate(specificInstance, null);
 		}
 		return output;
 	}
@@ -130,14 +131,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	}
 	
 	public EntityFilter<? super E> getFilter () {
-		return loader.resolveFilter(shortDetail.getFilter(), shortDetail.getInstance());
+		return new StackedEntityFilter<E>(loader.resolveFilter(shortDetail.getFilter(), shortDetail.getInstance()), new InstanceEntityFilter<E>(loader, shortDetail.getFilter(), shortDetail.getInstance()));
 	}
 	
 	private void loadShortText(FormInstance instance) {
 		Text[] text = shortDetail.getTemplates();
 		shortText = new String[text.length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = text[i].evaluate(instance);
+			shortText[i] = text[i].evaluate(instance, null);
 		}
 	}
 	

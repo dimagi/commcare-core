@@ -4,6 +4,7 @@
 package org.commcare.view;
 
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
@@ -16,6 +17,9 @@ import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareUtil;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
@@ -84,7 +88,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 	 * @param entry
 	 * @return
 	 */
-	private String getText(Entry entry) {
+	private String getText(final Entry entry) {
 		String text = entry.getText().evaluate();
 		if(Localizer.getArgs(text).size() == 0) {
 			return text;
@@ -95,7 +99,9 @@ public class CommCareSuiteController implements HandledCommandListener {
 		} else {
 			//Sweet spot! This argument should be the count of all entities
 			//which are possible inside of its selection.
-			return Localizer.processArguments(text, new String[] { String.valueOf(CommCareUtil.countEntities(entry, suite)) });
+			String wrapper = Localization.get("commcare.numwrapper"); 
+			String wrapped = Localizer.processArguments(wrapper, new String[] { String.valueOf(CommCareUtil.countEntities(entry, suite)) });
+			return Localizer.processArguments(text, new String[] {wrapped} );
 		}
 	}
 }
