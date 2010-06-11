@@ -22,8 +22,16 @@ restore.noserveruri=No Restore Server Configured!
 polish.date.select=Select Date
 
 commcare.review=Taarifa ulizoingiza
+review.title=Taarifa ulizoingiza
+review.type=Type[s]
+review.date=Date[s]
+review.type.unknown=Unknown[s]
 
 sending.status.success=Ujumbe Umepokelewa. Leo tumepokea fomu ${0} kutoka kwako.
 sending.status.problem.datasafe=Ujumbe Umepokelewa.Taarifa zako zipo salama. Tumekosea kidogo, tunarekebisha.
 
 activity.login.demomode.intro=unafungua CommCare kwenye mazoezi, hii ni kwa ajili ya mazoezi. Fungua kwa kutumia ufunguo kama taarifa hizi ni halisi.
+
+#Used by chatterbox dynamically for the "name" of the xform itext locale 
+locale.name.en=Kiingereza
+locale.name.sw=Kiswahili

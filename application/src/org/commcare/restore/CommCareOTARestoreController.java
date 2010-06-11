@@ -211,7 +211,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	private void done() {
 		view.setFinished();
-		view.addToMessage("Press any key to continue...");
+		view.addToMessage(Localization.get("restore.key.continue"));
 	}
 	
 	private void fail(String message) {
