@@ -88,9 +88,6 @@ public class TextParser extends ElementParser<Text> {
 	private Text parseLocale() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("locale");
 		String id = parser.getAttributeValue(null,"id");
-		if("pf.client.referral".equals(id)) {
-			String.valueOf(true);
-		}
 		if(id != null) {
 			return Text.LocaleText(id);
 		} else {

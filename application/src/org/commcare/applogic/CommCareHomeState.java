@@ -131,8 +131,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void resetDemo() {
-		CommCareContext._().autoPurge();
-		//CommCareContext._().resetDemoData();
+		//CommCareContext._().autoPurge();
+		CommCareContext._().resetDemoData();
 	}
 	
 	public void review() {
