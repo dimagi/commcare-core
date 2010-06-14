@@ -16,6 +16,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -202,10 +203,16 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			
 		} catch(IOException e) {
 			fail(Localization.get("restore.fail"));
+			e.printStackTrace();
 		} catch (InvalidStructureException e) {
 			fail(Localization.get("restore.fail"));
+			e.printStackTrace();
 		} catch (XmlPullParserException e) {
 			fail(Localization.get("restore.fail"));
+			e.printStackTrace();
+		} catch (UnfullfilledRequirementsException e) {
+			fail(Localization.get("restore.fail"));
+			e.printStackTrace();
 		}
 	}
 	

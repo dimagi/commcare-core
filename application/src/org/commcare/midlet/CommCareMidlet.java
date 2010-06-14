@@ -8,6 +8,7 @@ import javax.microedition.midlet.MIDletStateChangeException;
 
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.InitializationListener;
 
 /**
  * @author ctsims
@@ -33,8 +34,17 @@ public class CommCareMidlet extends MIDlet {
 	 * @see javax.microedition.midlet.MIDlet#startApp()
 	 */
 	protected void startApp() throws MIDletStateChangeException {
-		CommCareContext.init(this);
-		CommCareUtil.launchFirstState();
+		CommCareContext.init(this, new InitializationListener() {
+
+			public void onFailure() {
+				CommCareUtil.exit();
+			}
+
+			public void onSuccess() {
+				CommCareUtil.launchFirstState();
+			}
+			
+		});
 	}
 
 }

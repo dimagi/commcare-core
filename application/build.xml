@@ -58,14 +58,13 @@
 				</libraries>
 				
 				<jad>
-					<attribute name="App-Version" value="${commcare.version}/${commcare.flavor}" />
-					<attribute name="CC-Deploy-Build-Version" value="${cc-deploy-build-version}" />
+					<attribute name="App-Version" value="${app.version}"/>
+					<attribute name="CommCare-Version" value="${commcare.version}"/>
 					<attribute name="CC-Build-Version" value="${cc-build-version}" />
 					<attribute name="JR-Build-Version" value="${jr-build-version}" />
 					<attribute name="Polish-Device" value="${device.identifier}" />
 					<attribute name="Built-on" value="${built-on}" />
 					
-					<attribute name="CommCare-ShowReminders" value="${commcare.show.reminders}" />
 					<attribute name="CommCare-Release"	value="${commcare.release}" />
 					<attribute name="Profile" value="${commcare.profile}"/>
 				</jad>
@@ -163,20 +162,11 @@
 				<isset property="commcare.release"/>
 			</not>
 		</condition>
-		<condition property="commcare.show.reminders" value="${commcare.default.show.reminders}">
-			<not>
-				<isset property="commcare.show.reminders"/>
-			</not>
-		</condition>
 		<echo message="CommCare Release: ${commcare.release}" />
-		<echo message="CommCare show reminders: ${commcare.show.reminders}" />
 	</target>
 	
 	<target name="UpdateBuildNumber" description="Get the revision numbers of the various things from mercurial">
-		<exec executable="hg" outputproperty="cc-deploy-build-version">
-			<arg line="parents --template {node|short}"/>
-		</exec>
-		<exec executable="hg" outputproperty="cc-core-build-version">
+		<exec executable="hg" outputproperty="cc-build-version">
 			<arg line="parents --template {node|short}"/>
 		</exec>
 
@@ -227,12 +217,6 @@
 		<property name="commcare.release" value="true" />
 		<echo>setting commcare.release to ${commcare.release}</echo>
 	</target>
-	
-	<target name="SetNoReminders" >
-		<property name="commcare.show.reminders" value="false" />
-		<echo>setting commcare.show.reminders to ${commcare.show.reminders}</echo>
-	</target>
-
 	
 	<!-- Main Target: Set for MVPTZ release, clean and build with obfuscator -->
 	<target name="BuildRelease" description="Build a release" depends="SetRelease, BuildClean" />

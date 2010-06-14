@@ -4,6 +4,7 @@
 package org.commcare.resources.model;
 
 import org.commcare.util.CommCareInstance;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
 
@@ -52,8 +53,9 @@ public interface ResourceInstaller extends Externalizable {
 	 * @return Whether the resource was able to complete an installation
 	 * step in the current circumstances.
 	 * @throws UnresolvedResourceException If the local resource definition could not be found
+	 * @throws UnfullfilledRequirementsException If the current platform does not fullfill the needs for this resource
 	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException;
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 	
 	/**
 	 * Removes the binary files and cached data associated with a resource, often in order to 

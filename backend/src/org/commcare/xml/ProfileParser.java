@@ -5,16 +5,15 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.installers.LoginImageInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
-import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCareInstance;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
@@ -29,22 +28,57 @@ public class ProfileParser extends ElementParser<Profile> {
 	ResourceTable table;
 	String resourceId;
 	int initialResourceStatus;
+	CommCareInstance instance;
+	boolean forceVersion = false;
 
-	public ProfileParser(InputStream suiteStream, ResourceTable table, String resourceId, int initialResourceStatus) throws IOException {
+	public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table, String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
 		super(suiteStream);
 		this.table = table;
 		this.resourceId = resourceId;
 		this.initialResourceStatus = initialResourceStatus;
+		this.instance = instance;
+		this.forceVersion = forceVersion;
 	}
 
-	public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		checkNode("profile");
 
 		String sVersion = parser.getAttributeValue(null, "version");
 		int version = parseInt(sVersion);
 
 		String authRef = parser.getAttributeValue(null, "update");
+
+		String sMajor = parser.getAttributeValue(null,"requiredMajor");
+		String sMinor = parser.getAttributeValue(null,"requiredMinor");
 		
+		int major = -1;
+		int minor = -1;
+		
+		if(sMajor != null) {
+			major = parseInt(sMajor);
+		}
+		
+		if(sMinor != null) {
+			minor = parseInt(sMinor);
+		}
+
+		if (!forceVersion && this.instance != null) {
+			if (this.instance.getMajorVersion() != -1
+					&& this.instance.getMajorVersion() < major) {
+				throw new UnfullfilledRequirementsException(
+						"Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
+						UnfullfilledRequirementsException.SEVERITY_PROMPT,
+						UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION);
+			}
+			if (this.instance.getMinorVersion() != -1
+					&& this.instance.getMinorVersion() < minor) {
+				throw new UnfullfilledRequirementsException(
+						"Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
+						UnfullfilledRequirementsException.SEVERITY_PROMPT,
+						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION);
+			}
+		}
+
 		String registrationNamespace = null;
 		
 		Profile profile = new Profile(version, authRef);
@@ -58,6 +92,7 @@ public class ProfileParser extends ElementParser<Profile> {
 			eventType = parser.getEventType();
 			do {
 				if (eventType == KXmlParser.END_DOCUMENT) {
+					
 				} else if (eventType == KXmlParser.START_TAG) {
 					if (parser.getName().toLowerCase().equals("property")) {
 						String key = parser.getAttributeValue(null,"key");

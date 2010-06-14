@@ -3,6 +3,8 @@
  */
 package org.commcare.resources.model.installers;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -15,8 +17,12 @@ import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.ProfileParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -24,8 +30,17 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class ProfileInstaller extends CacheInstaller {
-	
+
 	private static Hashtable<String, Profile> localTable;
+	private boolean forceVersion;
+	
+	public ProfileInstaller() {
+		forceVersion = false;
+	}
+	
+	public ProfileInstaller(boolean forceVersion) {
+		this.forceVersion = forceVersion;
+	}
 	
 	private Hashtable<String, Profile> getlocal() {
 		if(localTable == null) {
@@ -53,10 +68,10 @@ public class ProfileInstaller extends CacheInstaller {
 		return Profile.STORAGE_KEY;
 	}
 	
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException{
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
 		//Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
 		//Step two is to actually install the resource if it needs to be (whether or not it should will be handled
-		//by the resource table.
+		//by the resource table).
 		
 		//If we've already got the local copy, and the installer is marked as such, install and roll out.
 		try {
@@ -78,8 +93,8 @@ public class ProfileInstaller extends CacheInstaller {
 			//If it's in the cache, we should just get it from there
 			return false;
 		} else {
-			ProfileParser parser = new ProfileParser(ref.getStream(), table, r.getRecordGuid(), 
-					upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED);
+			ProfileParser parser = new ProfileParser(ref.getStream(), instance, table, r.getRecordGuid(), 
+					upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
 				Profile p = parser.parse();
 				
 				//If we're upgrading we need to come back and see if the statuses need to change
@@ -139,5 +154,16 @@ public class ProfileInstaller extends CacheInstaller {
 			localTable.clear();
 			localTable = null;
 		}
+	}
+	
+	public void readExternal(DataInputStream in, PrototypeFactory pf)
+			throws IOException, DeserializationException {
+		super.readExternal(in, pf);
+		forceVersion = ExtUtil.readBool(in);
+	}
+
+	public void writeExternal(DataOutputStream out) throws IOException {
+		super.writeExternal(out);
+		ExtUtil.writeBool(out, forceVersion);
 	}
 }

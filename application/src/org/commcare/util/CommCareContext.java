@@ -14,6 +14,8 @@ import javax.microedition.midlet.MIDlet;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.view.CommCareStartupInteraction;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CasePreloadHandler;
@@ -58,6 +60,8 @@ import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserUtility;
 import org.javarosa.xform.util.XFormUtils;
 
+import de.enough.polish.ui.Display;
+
 /**
  * @author ctsims
  *
@@ -69,7 +73,7 @@ public class CommCareContext {
 	private MIDlet midlet;
 	private User user;
 	
-	private CommCareManager manager;
+	private CommCarePlatform manager;
 	
 	protected boolean inDemoMode;
 	
@@ -103,15 +107,16 @@ public class CommCareContext {
 		return midlet;
 	}
 	
-	public CommCareManager getManager() {
+	public CommCarePlatform getManager() {
 		return manager;
 	}
 	
-	public void configureApp(MIDlet m) {
+	public void configureApp(MIDlet m, InitializationListener listener) {
 		failsafeInit(m);
 		Logger.log("app-start", "");
 		
 		this.midlet = m;
+		
 		setProperties();
 		loadModules();
 		
@@ -123,31 +128,79 @@ public class CommCareContext {
 		Localization.registerLanguageReference("default","jr://resource/messages_cc_default.txt");
 		Localization.registerLanguageReference("sw","jr://resource/messages_cc_sw.txt");
 		
-		manager = new CommCareManager();
-		manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable());
+		final CommCareStartupInteraction interaction = new CommCareStartupInteraction(CommCareStartupInteraction.failSafeText("commcare.init", "CommCare is Starting..."));
+		Display.getDisplay(m).setCurrent(interaction);
 		
-		purgeScheduler();
+		CommCareInitializer initializer = new CommCareInitializer() {
+			protected void runWrapper() throws UnfullfilledRequirementsException {
+				
+				manager = new CommCarePlatform(CommCareUtil.getMajorVersion(), CommCareUtil.getMinorVersion());
+				
+				//Try to initialize and install the application resources...
+				try {
+					ResourceTable global = RetrieveGlobalResourceTable();
+					if(global.isEmpty()) {
+						this.setMessage(CommCareStartupInteraction.failSafeText("commcare.firstload","First start detected, loading resources..."));
+					}
+					manager.init(CommCareUtil.getProfileReference(), global, false);
+				} catch (UnfullfilledRequirementsException e) {
+					if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
+						String message = e.getMessage();
+						if(e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION) {
+							message = CommCareStartupInteraction.failSafeText("commcare.badversion", 
+									"The application requires a newer version of CommCare than is installed. It may not work correctly. Should installation be attempted anyway?");	
+						}
+						if(this.blockForResponse(message)) {
+							try {
+								//If we're going to try to run commcare with an incompatible version, first clear everything
+								RetrieveGlobalResourceTable().clear();
+								manager.init(CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
+							} catch (UnfullfilledRequirementsException e1) {
+								//Maybe we should try to clear the table here, too?
+								throw e1;
+							}
+						} else {
+							throw e;
+						}
+					} else {
+						throw e;
+					}
+				}
+				
+				purgeScheduler();
+				
+				//When we might initialize language files, we need to make sure it's not trying
+				//to load any of them into memory, since the default ones are not guaranteed to
+				//be added later.
+				Localization.setLocale("default");
+				manager.initialize(RetrieveGlobalResourceTable());
+				
+				//Now that the profile has had a chance to set properties (without them requiring
+				//override) set the fallbcak defaults.
+				postProfilePropertyInit();
+				
+				initUserFramework();
+				
+				//Establish default logging deadlines
+				LogReportUtils.initPendingDates(new Date().getTime());
+				
+				//Now we can initialize the language for real.
+				LanguageUtils.initializeLanguage(true,"default");
+				
+				//We need to let All Localizations register before we can do this
+				J2MEDisplay.init(CommCareContext.this.midlet);
+			}
+
+			protected void askForResponse(String message, YesNoListener yesNoListener) {
+				interaction.AskYesNo(message,yesNoListener);
+			}
+
+			protected void setMessage(String message) {
+				interaction.setMessage(message);
+			}
+		};
 		
-		//When we might initialize language files, we need to make sure it's not trying
-		//to load any of them into memory, since the default ones are not guaranteed to
-		//be added later.
-		Localization.setLocale("default");
-		manager.initialize(RetrieveGlobalResourceTable());
-		
-		//Now that the profile has had a chance to set properties (without them requiring
-		//override) set the fallbcak defaults.
-		postProfilePropertyInit();
-		
-		initUserFramework();
-		
-		//Establish default logging deadlines
-		LogReportUtils.initPendingDates(new Date().getTime());
-		
-		//Now we can initialize the language for real.
-		LanguageUtils.initializeLanguage(true,"default");
-		
-		//We need to let All Localizations register before we can do this
-		J2MEDisplay.init(m);
+		initializer.initialize(listener);
 	}
 
 	private void failsafeInit (MIDlet m) {
@@ -224,9 +277,9 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty(CommCareProperties.SEND_STYLE, CommCareProperties.SEND_STYLE_HTTP);
 	}
 	
-	public static void init(MIDlet m) {
+	public static void init(MIDlet m, InitializationListener listener) {
 		i = new CommCareContext();
-		i.configureApp(m);
+		i.configureApp(m, listener);
 	}
 	
 	public static CommCareContext _() {

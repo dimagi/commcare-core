@@ -12,11 +12,13 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -185,6 +187,10 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void upgrade() {
-		CommCareContext._().getManager().upgrade(CommCareContext.RetrieveGlobalResourceTable(), CommCareContext.CreateTemporaryResourceTable("UPGRADGE"));
+		try {
+			CommCareContext._().getManager().upgrade(CommCareContext.RetrieveGlobalResourceTable(), CommCareContext.CreateTemporaryResourceTable("UPGRADGE"));
+		} catch (UnfullfilledRequirementsException e) {
+			J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
+		}
 	}
 }

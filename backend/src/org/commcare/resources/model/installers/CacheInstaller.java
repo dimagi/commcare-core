@@ -15,6 +15,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
@@ -65,7 +66,7 @@ public abstract class CacheInstaller implements ResourceInstaller {
 		return false;
 	}
 	
-	public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException;
+	public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 	
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
 		//Don't need to do anything, since the resource is in the RMS already.

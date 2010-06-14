@@ -43,7 +43,7 @@ public class BasicInstaller implements ResourceInstaller {
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#resourceReady(org.commcare.resources.model.Resource)
 	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
 		//If we have local resource authority, and the file exists, things are golden. We can just use that file.
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
 			try {

@@ -6,6 +6,7 @@ package org.commcare.util;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareFormEntryState;
@@ -46,7 +47,6 @@ public class CommCareUtil {
 	private final static String PROP_APP_VERSION = "App-Version";
 	private final static String PROP_JR_BUILD_VERSION = "JR-Build-Version";
 	private final static String PROP_CC_BUILD_VERSION = "CC-Build-Version";
-	private final static String PROP_CC_DEPLOY_BUILD_VERSION = "CC-Deploy-Build-Version";
 	private final static String PROP_POLISH_VERSION = "Polish-Version";
 	private final static String PROP_POLISH_DEVICE = "Polish-Device";
 	private final static String PROP_BUILD_DATE = "Built-on";
@@ -84,27 +84,25 @@ public class CommCareUtil {
 		String vApp = getAppProperty(PROP_APP_VERSION, "??");
 		String vBuildJR = getAppProperty(PROP_JR_BUILD_VERSION, "??");
 		String vBuildCC = getAppProperty(PROP_CC_BUILD_VERSION, "??");
-		String vBuildCCDeploy = getAppProperty(PROP_CC_DEPLOY_BUILD_VERSION, "??");
 		String vPolish = getAppProperty(PROP_POLISH_VERSION, "??");
 		String vDevice = getAppProperty(PROP_POLISH_DEVICE, "??");
 		String buildDate = getAppProperty(PROP_BUILD_DATE, "??");
 		String releaseDate = getAppProperty(PROP_RELEASE_DATE, "--");
-		String buildNum = getAppProperty(PROP_BUILD_NUM);
-		boolean released = !releaseDate.equals("--");
+		String buildNum = getAppProperty(PROP_BUILD_NUM,"custom");
+		boolean released = !isTestingMode();
 		
 		vBuildJR = vBuildJR.substring(0, Math.min(hashLength, vBuildJR.length()));
 		vBuildCC = vBuildCC.substring(0, Math.min(hashLength, vBuildCC.length()));
-		vBuildCCDeploy = vBuildCCDeploy.substring(0, Math.min(hashLength, vBuildCCDeploy.length()));
 		vPolish = (String)DateUtils.split(vPolish, " ", true).elementAt(0);
 		buildDate = (String)DateUtils.split(buildDate, " ", true).elementAt(0);
 		releaseDate = (String)DateUtils.split(releaseDate, " ", true).elementAt(0);
 		
 		switch (type) {
 		case VERSION_LONG:
-			return vApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vBuildCCDeploy + "-" + vPolish + "-" + vDevice +
+			return vApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vPolish + "-" + vDevice +
 				")" + (released ? " #" + buildNum : "") + " b:" + buildDate + " r:" + releaseDate;
 		case VERSION_MED:
-			return vApp + " " + (released ? "#" + buildNum + " (" + releaseDate + ")" : "<unreleased>");
+			return vApp + " " + "#" + buildNum + (released ? " (" + releaseDate + ")" : "<unreleased>");
 		case VERSION_SHORT:
 			return vApp;
 		default: throw new RuntimeException("unknown version type");
@@ -261,6 +259,46 @@ public class CommCareUtil {
 				
 				return count;
 			}
+		}
+	}
+	
+	private static int[] getVersions() {
+		try {
+			String vApp = getAppProperty(PROP_APP_VERSION, "blank");
+			if ("blank".equals(vApp)) {
+				return null;
+			}
+
+			Vector<String> split = DateUtils.split(vApp, ".", false);
+			if (split.size() < 2) {
+				return null;
+			}
+
+			int[] version = new int[split.size()];
+			for (int i = 0; i < version.length; ++i) {
+				version[i] = Integer.parseInt(split.elementAt(i));
+			}
+			return version;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public static int getMajorVersion() {
+		int[] versions = getVersions();
+		if(versions != null) {
+			return versions[0];
+		} else {
+			return -1;
+		}
+	}
+	
+	public static int getMinorVersion() {
+		int[] versions = getVersions();
+		if(versions != null) {
+			return versions[1];
+		} else {
+			return -1;
 		}
 	}
 	

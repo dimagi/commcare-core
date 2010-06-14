@@ -11,6 +11,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCareInstance;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -26,7 +27,7 @@ public class XFormInstaller extends CacheInstaller {
 		return FormDef.STORAGE_KEY;
 	}
 
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException {
 		
 		try {
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {

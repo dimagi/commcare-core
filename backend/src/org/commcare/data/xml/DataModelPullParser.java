@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.commcare.xml.ElementParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -39,7 +40,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 		errors = new Vector<String>();
 	}
 
-	public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		String rootName = parser.getName();
 		//Here we'll go through in search of CommCare data models and parse
 		//them using the appropriate CommCare Model data parser.

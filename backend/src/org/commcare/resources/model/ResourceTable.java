@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.commcare.util.CommCareInstance;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -35,6 +36,14 @@ public class ResourceTable {
 	 */
 	public ResourceTable() {
 
+	}
+	
+	public boolean isEmpty() {
+		if(storage.getNumRecords() > 0) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
@@ -170,7 +179,7 @@ public class ResourceTable {
 		}
 	}
 
-	public void prepareResources(ResourceTable master) throws UnresolvedResourceException {
+	public void prepareResources(ResourceTable master, CommCareInstance instance) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 		Vector<Resource> v = GetUnreadyResources();
 		int round = -1;
 		while (v.size() > 0) {
@@ -220,7 +229,7 @@ public class ResourceTable {
 							if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
 								System.out.println("Invalid (Stale) local reference attempt for: " + location.getLocation());
 							} else {
-								handled = r.getInstaller().install(r, location, ref, this, upgrade);
+								handled = r.getInstaller().install(r, location, ref, this, instance, upgrade);
 								if(handled) {
 									break;
 								}
@@ -228,7 +237,7 @@ public class ResourceTable {
 						}
 					} else {
 						try {
-							handled = r.getInstaller().install(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, upgrade);
+							handled = r.getInstaller().install(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
 							if(handled) {
 								break;
 							}

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -223,5 +224,5 @@ public abstract class ElementParser<T> {
 	 * @throws XmlPullParserException If the document does not contain well-
 	 * formed XML.
 	 */
-	public abstract T parse() throws InvalidStructureException, IOException, XmlPullParserException;
+	public abstract T parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException;
 }

@@ -43,7 +43,7 @@ public class SuiteInstaller extends CacheInstaller {
 		return Suite.STORAGE_KEY;
 	}
 	
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, boolean upgrade) throws UnresolvedResourceException{
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException{
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
 			//If it's in the cache, we should just get it from there
 			return false;

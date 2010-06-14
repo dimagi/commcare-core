@@ -13,6 +13,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -30,23 +31,28 @@ import org.javarosa.core.services.storage.StorageManager;
  * @author ctsims
  *
  */
-public class CommCareManager implements CommCareInstance {
+public class CommCarePlatform implements CommCareInstance {
 	//TODO: We should make this unique using the parser to invalidate this ID or something
 	private static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
 	
 	private Vector<Integer> suites;
 	private int profile;
 	
-	public CommCareManager() {
+	private int majorVersion;
+	private int minorVersion;
+	
+	public CommCarePlatform(int majorVersion, int minorVersion) {
 		profile = -1;
 		suites = new Vector<Integer>();
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
 	}
 	
-	public void init(String profileReference, ResourceTable global) {
+	public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException {
 		try {
 
 			if (!global.isReady()) {
-				global.prepareResources(null);
+				global.prepareResources(null, this);
 			}
 			
 			// First, see if the appropriate profile exists
@@ -61,8 +67,8 @@ public class CommCareManager implements CommCareInstance {
 				//We need a way to identify this version...
 				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 
-				global.addResource(r, new ProfileInstaller(), "");
-				global.prepareResources(null);
+				global.addResource(r, new ProfileInstaller(forceInstall), "");
+				global.prepareResources(null, this);
 			} else{
 				//Assuming it does exist, we might want to do an automatic
 				//upgrade here, leaving that for a future date....
@@ -77,8 +83,16 @@ public class CommCareManager implements CommCareInstance {
 		}
 	}
 	
+	public int getMajorVersion() {
+		return majorVersion;
+	}
 	
-	public void upgrade(ResourceTable global, ResourceTable temporary) {
+	public int getMinorVersion() {
+		return minorVersion;
+	}
+	
+	
+	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException {
 
 		if (!global.isReady()) {
 			throw new RuntimeException("The Global Resource Table was not properly made ready");
@@ -97,8 +111,8 @@ public class CommCareManager implements CommCareInstance {
 		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 		
 		try {
-			temporary.addResource(r, new ProfileInstaller(), null);
-			temporary.prepareResources(global);
+			temporary.addResource(r, new ProfileInstaller(false), null);
+			temporary.prepareResources(global, this);
 			global.upgradeTable(temporary);
 			
 			//Not implemented yet!
