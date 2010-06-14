@@ -45,6 +45,7 @@ public class CommCareUtil {
 	
 	private static final String COMMCARE_RELEASE_PROPERTY = "CommCare-Release";
 	private final static String PROP_APP_VERSION = "App-Version";
+	private final static String PROP_CC_APP_VERSION = "CommCare-Version";
 	private final static String PROP_JR_BUILD_VERSION = "JR-Build-Version";
 	private final static String PROP_CC_BUILD_VERSION = "CC-Build-Version";
 	private final static String PROP_POLISH_VERSION = "Polish-Version";
@@ -82,6 +83,7 @@ public class CommCareUtil {
 	public static String getVersion (int type) {
 		final int hashLength = 6;
 		String vApp = getAppProperty(PROP_APP_VERSION, "??");
+		String vHumanApp = getAppProperty(PROP_CC_APP_VERSION, vApp);
 		String vBuildJR = getAppProperty(PROP_JR_BUILD_VERSION, "??");
 		String vBuildCC = getAppProperty(PROP_CC_BUILD_VERSION, "??");
 		String vPolish = getAppProperty(PROP_POLISH_VERSION, "??");
@@ -99,12 +101,12 @@ public class CommCareUtil {
 		
 		switch (type) {
 		case VERSION_LONG:
-			return vApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vPolish + "-" + vDevice +
+			return vHumanApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vPolish + "-" + vDevice +
 				")" + (released ? " #" + buildNum : "") + " b:" + buildDate + " r:" + releaseDate;
 		case VERSION_MED:
-			return vApp + " " + "#" + buildNum + (released ? " (" + releaseDate + ")" : "<unreleased>");
+			return vHumanApp + " " + "#" + buildNum + (released ? " (" + releaseDate + ")" : "<unreleased>");
 		case VERSION_SHORT:
-			return vApp;
+			return vHumanApp;
 		default: throw new RuntimeException("unknown version type");
 		}
 	}
