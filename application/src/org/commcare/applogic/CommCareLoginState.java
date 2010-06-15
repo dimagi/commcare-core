@@ -48,12 +48,16 @@ public class CommCareLoginState extends LoginState {
 			public TransportMessage constructMessageFromPayload(InputStream reportPayload) {
 				SimpleHttpTransportMessage message;
 				try {
-					message = new SimpleHttpTransportMessage(reportPayload,PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL));
+					String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
+					if(url == null) {
+						url = CommCareContext._().getSubmitURL();
+					}
+					message = new SimpleHttpTransportMessage(reportPayload,url);
 					message.setCacheable(false);
 					return message;
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
+					//this gets caught by the report state and swallowed properly
 					throw new RuntimeException("Failed to read report payload while creating http transport data");
 				}
 			}
