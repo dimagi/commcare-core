@@ -10,8 +10,6 @@ import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.installers.LocaleFileInstaller;
-import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -73,12 +71,12 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	//resource def
                 	parser.nextTag();
                 	Resource r = new ResourceParser(parser).parse();
-                	table.addResource(r, new LocaleFileInstaller(localeKey), resourceGuid);
+                	table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("xform")) {
                 	//skip xform stuff for now
                 	parser.nextTag();
                 	Resource r = new ResourceParser(parser).parse();
-                	table.addResource(r, new XFormInstaller(), resourceGuid);
+                	table.addResource(r,table.getInstallers().getXFormInstaller(), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("detail")) {
                 	Detail d = new DetailParser(parser).parse();
                 	details.put(d.getId(), d);

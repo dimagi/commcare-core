@@ -29,6 +29,7 @@ public class ResourceTable {
 	//should be using iterators, not vectors; 
 
 	private IStorageUtilityIndexed storage;
+	private InstallerFactory factory;
 	
 
 	/**
@@ -47,9 +48,18 @@ public class ResourceTable {
 	}
 	
 	public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
+		return RetrieveTable(storage, new InstallerFactory());
+	}
+	
+	public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage, InstallerFactory factory) {
 		ResourceTable table = new ResourceTable();
 		table.storage = storage;
+		table.factory = factory;
 		return table;
+	}
+	
+	public InstallerFactory getInstallers() {
+		return factory;
 	}
 
 	public void removeResource(Resource resource) {
@@ -67,6 +77,15 @@ public class ResourceTable {
 	}
 	
 	public void addResource(Resource resource, int status) throws StorageFullException {
+		Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
+		for(Integer i : existing ) {
+			Resource r = (Resource)storage.read(i.intValue());
+			if(r.getVersion() == resource.getVersion()) {
+				//this resource is already here! No worries
+				return;
+			}
+		}
+		
 		resource.setStatus(status);
 		try {
 			//TODO: Check if it exists?

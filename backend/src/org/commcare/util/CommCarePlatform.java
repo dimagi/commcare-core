@@ -3,6 +3,8 @@
  */
 package org.commcare.util;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
@@ -11,6 +13,8 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.ProfileInstaller;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -62,12 +66,12 @@ public class CommCarePlatform implements CommCareInstance {
 			if (profile == null) {
 
 				Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-				locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
+				locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileReference));
 				
 				//We need a way to identify this version...
 				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 
-				global.addResource(r, new ProfileInstaller(forceInstall), "");
+				global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
 				global.prepareResources(null, this);
 			} else{
 				//Assuming it does exist, we might want to do an automatic
@@ -111,7 +115,7 @@ public class CommCarePlatform implements CommCareInstance {
 		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 		
 		try {
-			temporary.addResource(r, new ProfileInstaller(false), null);
+			temporary.addResource(r, temporary.getInstallers().getProfileInstaller(false), null);
 			temporary.prepareResources(global, this);
 			global.upgradeTable(temporary);
 			
@@ -162,5 +166,19 @@ public class CommCarePlatform implements CommCareInstance {
 			e.printStackTrace();
 			throw new RuntimeException("Error initializing Resource! "+ e.getMessage());
 		}
+	}
+	
+	public Hashtable<String, Entry> getMenuMap() {
+		Vector<Suite> installed = getInstalledSuites();
+		Hashtable<String, Entry> merged = new Hashtable<String, Entry>();
+		
+		for(Suite s : installed) {
+			Hashtable<String, Entry> table = s.getEntries();
+			for(Enumeration en = table.keys() ; en.hasMoreElements() ; ) {
+				String key = (String)en.nextElement();
+				merged.put(key, table.get(key));
+			}
+		}
+		return merged;
 	}
 }

@@ -66,7 +66,7 @@ public class Resource implements Persistable, IMetaData {
 	public static final String META_INDEX_RESOURCE_ID = "ID";
 	public static final String META_INDEX_RESOURCE_GUID = "RGUID";
 	public static final String META_INDEX_PARENT_GUID = "PGUID";
-	public static final String META_INDEX_VERSION = "PGUID";
+	public static final String META_INDEX_VERSION = "VERSION";
 	
 	public static final int RESOURCE_AUTHORITY_LOCAL = 0;
 	public static final int RESOURCE_AUTHORITY_REMOTE = 1;
