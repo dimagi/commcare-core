@@ -185,7 +185,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 			return new Integer(this.getRecordID());
 		} else {
 			try{
-				return getShortFields()[Integer.valueOf(fieldKey).intValue()];
+				return getShortFields()[Integer.valueOf(fieldKey).intValue() - 1];
 			} catch(NumberFormatException nfe) {
 				nfe.printStackTrace();
 				throw new RuntimeException("Invalid sort key in CommCare Entity: " + fieldKey);
