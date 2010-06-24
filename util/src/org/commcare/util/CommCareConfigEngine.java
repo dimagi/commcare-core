@@ -21,6 +21,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -59,6 +60,14 @@ public class CommCareConfigEngine {
 			public void setProfile(Profile p) {
 				CommCareConfigEngine.this.profile = p;
 			}
+
+			public int getMajorVersion() {
+				return 1;
+			}
+
+			public int getMinorVersion() {
+				return 1;
+			}
 			
 		};
 		
@@ -94,7 +103,7 @@ public class CommCareConfigEngine {
 		String root = resource.substring(0,resource.lastIndexOf(File.separator));
 		
 		//cut off the end
-		resource = resource.substring(resource.lastIndexOf(File.separator));
+		resource = resource.substring(resource.lastIndexOf(File.separator) + 1);
 		
 		//(That root now reads as jr://file/)
 		ReferenceManager._().addReferenceFactory(new JavaFileRoot(root));
@@ -125,11 +134,15 @@ public class CommCareConfigEngine {
 	
 	public void resolveTable() {
 			try {
-				table.prepareResources(null);
+				table.prepareResources(null, instance);
 				print.println("Table resources intialized and fully resolved.");
 				print.println(table);
 			} catch (UnresolvedResourceException e) {
 				print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
+				e.printStackTrace(print);
+				System.exit(-1);
+			} catch (UnfullfilledRequirementsException e) {
+				print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
 				e.printStackTrace(print);
 				System.exit(-1);
 			}
