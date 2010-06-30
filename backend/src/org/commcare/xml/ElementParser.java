@@ -48,7 +48,7 @@ public abstract class ElementParser<T> {
 		parser = new KXmlParser();
 		try {
 			parser.setInput(suiteStream,"UTF-8");
-			//parser.setFeature(KXmlParser., arg1)
+			parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
 			parser.next();
 			
 		} catch (XmlPullParserException e) {
