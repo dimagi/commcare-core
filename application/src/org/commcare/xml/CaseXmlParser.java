@@ -34,10 +34,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		
 		//parse (with verification) the next tag
 		this.nextTag("case_id");
-		String caseId = parser.nextText();
+		String caseId = parser.nextText().trim();
 		
 		this.nextTag("date_modified");
-		String dateModified = parser.nextText();
+		String dateModified = parser.nextText().trim();
 		Date modified = DateUtils.parseDateTime(dateModified);
 		
 		//Now look for actions
@@ -50,13 +50,13 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				//Collect all data
 				while(this.nextTagInBlock("create")) {
 					if(parser.getName().equals("case_type_id")) {
-						data[0] = parser.nextText();
+						data[0] = parser.nextText().trim();
 					} else if(parser.getName().equals("external_id")) {
-						data[1] = parser.nextText();
+						data[1] = parser.nextText().trim();
 					} else if(parser.getName().equals("user_id")) {
-						data[2] = parser.nextText();
+						data[2] = parser.nextText().trim();
 					} else if(parser.getName().equals("case_name")) {
-						data[3] = parser.nextText();
+						data[3] = parser.nextText().trim();
 					} else {
 						throw new InvalidStructureException("Expected one of [case_type_id, external_id, user_id, case_name], found " + parser.getName(), parser);
 					}
@@ -71,7 +71,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				
 				//Create the case.
 				Case c = new Case(data[3], data[0]);
-				c.setUserId(this.parseInt(data[2]));
+				c.setUserId(data[2]);
 				c.setExternalId(data[1]);
 				c.setCaseId(caseId);
 				commit(c);
@@ -80,7 +80,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				Case c = retrieve(caseId);
 				while(this.nextTagInBlock("update")) {
 					String key = parser.getName();
-					String value = parser.nextText();
+					String value = parser.nextText().trim();
 					c.setProperty(key,value);
 				}
 				commit(c);
