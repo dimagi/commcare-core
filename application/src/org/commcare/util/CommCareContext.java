@@ -523,5 +523,14 @@ public class CommCareContext {
 	public void exitApp() {
 		midlet.notifyDestroyed();
 	}
+
+	public String getOTAURL() {
+		String url = PropertyManager._().getSingularProperty(CommCareProperties.OTA_RESTORE_URL);
+		String testingURL = PropertyManager._().getSingularProperty(CommCareProperties.OTA_RESTORE_TEST_URL);
+		if(CommCareUtil.isTestingMode() && testingURL != null) {
+			url = testingURL;
+		}
+		return url;
+	}
 	
 }

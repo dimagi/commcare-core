@@ -32,6 +32,7 @@ public class CommCareProperties implements IPropertyRules {
     
     //OTA Restore
     public final static String OTA_RESTORE_URL = "ota-restore-url";
+    public final static String OTA_RESTORE_TEST_URL = "ota-restore-url-testing";
     
     //User registration
     public final static String USER_REG_NAMESPACE = "user_reg_namespace";
@@ -72,6 +73,7 @@ public class CommCareProperties implements IPropertyRules {
         readOnlyProperties.addElement(PURGE_LAST);
         
         rules.put(OTA_RESTORE_URL, new Vector());
+        rules.put(OTA_RESTORE_TEST_URL,new Vector());
         
         rules.put(USER_REG_NAMESPACE, new Vector());
         readOnlyProperties.addElement(USER_REG_NAMESPACE);
@@ -172,8 +174,10 @@ public class CommCareProperties implements IPropertyRules {
         	return "Form Submission URL";
         } else if (IS_FIRST_RUN.equals(propertyName)) {
         	return "First Run Screen at Startup?";
-        }else if (OTA_RESTORE_URL.equals(propertyName)) {
+        } else if (OTA_RESTORE_URL.equals(propertyName)) {
         	return "URL of OTA Restore Server";
+        } else if (OTA_RESTORE_TEST_URL.equals(propertyName)) {
+        	return "URL of OTA Restore Testing Server";
         } else if(SEND_STYLE.equals(propertyName)) {
         	return "Form Send/Save Process";
         }

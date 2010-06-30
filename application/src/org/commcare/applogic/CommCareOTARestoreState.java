@@ -6,6 +6,7 @@ package org.commcare.applogic;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.restore.CommCareOTARestoreTransitions;
+import org.commcare.util.CommCareContext;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.PropertyManager;
 
@@ -29,6 +30,6 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 	}
 	
 	protected CommCareOTARestoreController getController() {
-		return new CommCareOTARestoreController(this,PropertyManager._().getSingularProperty(CommCareProperties.OTA_RESTORE_URL));
+		return new CommCareOTARestoreController(this,CommCareContext._().getOTAURL());
 	}
 }
