@@ -20,6 +20,7 @@ restore.success.partial=Upangaji taarifa umefanikiwa kwa sehemu. kuna matatizo y
 restore.fail=Matatizo katika kurudisha taarifa!
 restore.baddownload=Usafirishaji umeshindikana. Tafadhali jaribu tena.
 restore.noserveruri=Kumbukumbu zetu hazijaandaliwa kutuma taarifa!
+polish.date.select=Chagua siku
 
 commcare.review=Taarifa ulizoingiza
 review.title=Taarifa ulizoingiza
@@ -35,3 +36,10 @@ activity.login.demomode.intro=unafungua CommCare kwenye mazoezi, hii ni kwa ajil
 #Used by chatterbox dynamically for the "name" of the xform itext locale 
 locale.name.en=Kiingereza
 locale.name.sw=Kiswahili
+
+home.user.new=Mtumiaji mpya
+home.setttings=Mpangilio
+home.user.edit=Badilisha watumiaji
+home.data.restore=Rudisha Taarifa
+home.demo.reset=Anza Mazoezi Upya
+home.updates=Anza Mazoezi Upya

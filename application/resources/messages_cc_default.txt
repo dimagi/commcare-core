@@ -43,3 +43,10 @@ commcare.noupgrade.version=The newest resources cannot be installed locally beca
 commcare.badversion=The application requires a newer version of CommCare than is installed. It may not work correctly. Should installation be attempted anyway?
 commcare.fail=There was an error, and CommCare could not be started.
 commcare.firstload=First start detected, loading resources...
+
+home.user.new=New User
+home.setttings=Settings
+home.user.edit=Edit Users
+home.data.restore=Restore User Data
+home.demo.reset=Reset Demo Data
+home.updates=Check for Updates
