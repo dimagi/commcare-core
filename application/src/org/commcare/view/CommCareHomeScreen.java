@@ -28,15 +28,15 @@ public class CommCareHomeScreen extends List {
 
 	public Command select = new Command(Localization.get("polish.command.select"), Command.ITEM, 1);
 	public Command exit = new Command(Localization.get("polish.command.exit"), Command.EXIT, 1);
-	public Command admNewUser = new Command("New User", Command.ITEM, 1);
-	public Command admSettings = new Command("Settings", Command.ITEM, 1);
+	public Command admNewUser = new Command(Localization.get("home.user.new"), Command.ITEM, 1);
+	public Command admSettings = new Command(Localization.get("home.setttings"), Command.ITEM, 1);
 	public Command admFeedbackReport = new Command("Report Feedback", Command.ITEM, 1);
-	public Command admEditUsers = new Command("Edit Users", Command.ITEM, 1);
+	public Command admEditUsers = new Command(Localization.get("home.user.edit"), Command.ITEM, 1);
 	public Command admDeletePatient = new Command("Delete Patient", Command.ITEM, 1);
-	public Command admDownload = new Command("Restore User Data", Command.ITEM, 1);
+	public Command admDownload = new Command(Localization.get("home.data.restore"), Command.ITEM, 1);
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
-	public Command admResetDemo = new Command("Reset Demo", Command.ITEM, 1);
-	public Command admUpgrade = new Command("Check For Updates", Command.ITEM, 1);
+	public Command admResetDemo = new Command(Localization.get("home.demo.reset"), Command.ITEM, 1);
+	public Command admUpgrade = new Command(Localization.get("home.updates"), Command.ITEM, 1);
 	
 	//I hate this...
 	private Hashtable<Integer, Suite> suiteTable = new Hashtable<Integer,Suite>();
