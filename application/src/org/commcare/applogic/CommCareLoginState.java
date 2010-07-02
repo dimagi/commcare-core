@@ -64,7 +64,7 @@ public class CommCareLoginState extends LoginState {
 
 			public void done() {
 				// Go to the home state if we're done or if we skip it.
-				new CommCareHomeState().start();
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 			}
 		});
 	}
