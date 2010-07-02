@@ -3,15 +3,17 @@
  */
 package org.commcare.util;
 
+import org.javarosa.j2me.log.HandledThread;
+
 /**
  * @author ctsims
  *
  */
 public abstract class InitializationListener {
 	
-	Thread thread;
+	HandledThread thread;
 
-	public void setInitThread(Thread t) {
+	public void setInitThread(HandledThread t) {
 		this.thread = t;
 	}
 

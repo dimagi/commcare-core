@@ -284,7 +284,7 @@ public class CommCareContext {
 	
 	public static CommCareContext _() {
 		if(i == null) {
-			throw new RuntimeException("CommCareContext must be initialized with the Midlet and Implementation to be used.");
+			throw new RuntimeException("CommCareContext must be initialized with the Midlet to be used.");
 		}
 		return i;
 	}
