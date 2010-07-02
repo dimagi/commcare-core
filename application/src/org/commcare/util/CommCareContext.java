@@ -167,13 +167,13 @@ public class CommCareContext {
 					}
 				}
 				
-				purgeScheduler();
-				
 				//When we might initialize language files, we need to make sure it's not trying
 				//to load any of them into memory, since the default ones are not guaranteed to
 				//be added later.
 				Localization.setLocale("default");
 				manager.initialize(RetrieveGlobalResourceTable());
+				
+				purgeScheduler();
 				
 				//Now that the profile has had a chance to set properties (without them requiring
 				//override) set the fallbcak defaults.
