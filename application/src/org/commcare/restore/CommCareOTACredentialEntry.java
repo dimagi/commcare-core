@@ -36,7 +36,7 @@ public class CommCareOTACredentialEntry extends Form {
 		
 		username = new TextField(Localization.get("form.login.username"), null, 50, TextField.ANY);
 		
-		password = new TextField(Localization.get("form.login.password"), null, 100, TextField.PASSWORD);
+		password = new TextField(Localization.get("form.login.password"), null, 100, TextField.PASSWORD | TextField.NUMERIC);
 		
 		this.append(username);
 		this.append(password);
