@@ -20,6 +20,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.StreamUtil;
 import org.javarosa.j2me.log.CrashHandler;
@@ -194,11 +195,12 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 				view.addToMessage(Localization.get("restore.success"));
 				done();
 			} else {
-				view.addToMessage(Localization.get("restore.success.partial"));
+				String[] errors = parser.getParseErrors();
+				view.addToMessage(Localization.get("restore.success.partial") + " " + errors.length);
 				for(String s : parser.getParseErrors()) {
-					view.addToMessage(s);
-					done();
+					Logger.log("restore", s);
 				}
+				done();
 			}
 			
 		} catch(IOException e) {
