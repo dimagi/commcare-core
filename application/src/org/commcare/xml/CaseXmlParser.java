@@ -78,6 +78,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				
 			} else if(action.equals("update")) {
 				Case c = retrieve(caseId);
+				if(c == null) {
+					throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+				}
 				while(this.nextTagInBlock("update")) {
 					String key = parser.getName();
 					String value = parser.nextText().trim();
@@ -86,6 +89,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				commit(c);
 			} else if(action.equals("close")) {
 				Case c = retrieve(caseId);
+				if(c == null) {
+					throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+				}
 				c.setClosed(true);
 				commit(c);
 			} else if(action.equals("referral")) {

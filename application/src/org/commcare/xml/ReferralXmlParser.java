@@ -37,16 +37,20 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 		
 		//parse (with verification) the next tag
 		this.nextTag("referral_id");
-		String refId = parser.nextText();
-		
-		this.nextTag("followup_date");
-		String followupDate = parser.nextText();
-		Date followup = DateUtils.parseDate(followupDate);
+		String refId = parser.nextText().trim();
 		
 		//Now look for actions
 		while(this.nextTagInBlock("referral")) {
 			
 			String action = parser.getName().toLowerCase();
+			//As a temporary thing.
+			Date followup = created;
+			
+			//this should always happen before the below....
+			if(action.equals("followup_date")) {
+				String followupDate = parser.nextText();
+				followup = DateUtils.parseDate(followupDate);
+			}
 			
 			if(action.equals("open")) {
 				this.getNextTagInBlock("open");
@@ -62,8 +66,13 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 			} else if(action.equals("update")) {
 				this.getNextTagInBlock("update");
 				checkNode("referral_type");
-				String refType = parser.nextText();
+				String refType = parser.nextText().trim();
 				PatientReferral r = retrieve(refId, refType);
+				if(r == null) {
+					//There's no referral to be updated on the system. It is likely that the server
+					//is missing data.
+					throw new InvalidStructureException("No existing referral for update. Skipping ID: " + refId, parser);
+				}
 				r.setDateDue(followup);
 				if(this.nextTagInBlock("update")) {
 					String dateClosed = parser.nextText();

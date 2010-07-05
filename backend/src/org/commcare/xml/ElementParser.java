@@ -225,4 +225,27 @@ public abstract class ElementParser<T> {
 	 * formed XML.
 	 */
 	public abstract T parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException;
+	
+	
+	public void skipBlock(String tag) throws XmlPullParserException, IOException {
+		
+		while(parser.getEventType() != KXmlParser.END_DOCUMENT) {
+	        int eventType;
+			eventType = parser.next();
+			
+	        if(eventType == KXmlParser.START_DOCUMENT) {
+	
+	        } else if(eventType == KXmlParser.END_DOCUMENT) {
+	            return;
+	        } else if(eventType == KXmlParser.START_TAG) {
+	            
+	        } else if(eventType == KXmlParser.END_TAG) {
+	            if(parser.getName().equals(tag)) {
+	            	return;
+	            }
+	        } else if(eventType == KXmlParser.TEXT) {
+	            
+	        }
+		}
+	}
 }
