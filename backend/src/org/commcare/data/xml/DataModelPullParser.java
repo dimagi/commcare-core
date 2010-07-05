@@ -56,13 +56,13 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 			TransactionParser transaction = factory.getParser(name,namespace,parser);
 			if(transaction == null) {
 				//nothing to be done for this element, need to step over it
-				parser.skipSubTree();
+				this.skipBlock(name);
 				//TODO: Don't skip over, jump in...
 			} else {
 				try{
 					transaction.parse();
 				} catch(InvalidStructureException ise) {
-					deal(ise, depth);
+					deal(ise, depth, name);
 				}
 			}
 		}
@@ -71,16 +71,14 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 		return Boolean.TRUE;
 	}
 	
-	private void deal(InvalidStructureException e, int depth) throws InvalidStructureException, XmlPullParserException, IOException {
+	private void deal(InvalidStructureException e, int depth, String parentTag) throws InvalidStructureException, XmlPullParserException, IOException {
 		if(failfast) {
 			throw e;
 		} else{
 			String message = e.getMessage();
 			errors.addElement(message);
 			System.out.println("error: " + e.getMessage());
-			while(parser.getDepth() > depth) {
-				parser.skipSubTree();
-			}
+			this.skipBlock(parentTag);
 		}
 	}
 	
