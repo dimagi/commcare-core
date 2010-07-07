@@ -6,6 +6,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.user.api.AddUserFormEntryState;
 import org.javarosa.user.api.RegisterUserState;
 import org.javarosa.user.model.User;
@@ -17,7 +18,7 @@ public class CommCareAddUserState extends AddUserFormEntryState {
 	}
 
 	public void cancel() {
-		new CommCareHomeState().start();
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
 
 	public void userAdded(User newUser) {
@@ -30,7 +31,7 @@ public class CommCareAddUserState extends AddUserFormEntryState {
 			}
 
 			public void cancel() {
-				new CommCareHomeState().start();
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 			}
 
 			public void succesfullyRegistered(User user) {
@@ -41,14 +42,14 @@ public class CommCareAddUserState extends AddUserFormEntryState {
 					throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
 				}
 				
-				new CommCareHomeState().start();
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 			}
 			
 		}.start();
 		
 		//#else
 		
-		new CommCareHomeState().start();
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 		
 		//#endif
 	}

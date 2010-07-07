@@ -23,6 +23,7 @@ import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.NamespaceRetrievalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
+import org.javarosa.j2me.view.J2MEDisplay;
 
 //can't support editing saved forms; for new forms only
 public abstract class CommCareFormEntryState extends FormEntryState {
@@ -92,11 +93,11 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	}
 	
 	private void send(FormInstance instanceData) {
-		new CommCarePostFormEntryState(instanceData) {
+		J2MEDisplay.startStateWithLoadingScreen(new CommCarePostFormEntryState(instanceData) {
 			public void goHome() {
 				CommCareFormEntryState.this.goHome();
 			}
-		}.start();
+		});
 	}
 
 	public void suspendForMediaCapture(int captureType) {
