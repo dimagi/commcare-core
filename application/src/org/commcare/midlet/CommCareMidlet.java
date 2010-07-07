@@ -9,6 +9,9 @@ import javax.microedition.midlet.MIDletStateChangeException;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.InitializationListener;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.services.transport.TransportService;
 
 /**
  * @author ctsims
@@ -20,7 +23,12 @@ public class CommCareMidlet extends MIDlet {
 	 * @see javax.microedition.midlet.MIDlet#destroyApp(boolean)
 	 */
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
-
+		System.out.println("Halting all resources.");
+		//We really want to close all of our RMS's to shield them from harm.
+		TransportService.halt();
+		StorageManager.halt();
+		Logger.halt();
+		System.out.println("Success in halting resources.");
 	}
 
 	/* (non-Javadoc)

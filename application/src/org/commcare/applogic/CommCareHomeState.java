@@ -64,7 +64,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void sendAllUnsent() {
-		new SendAllUnsentState () {
+		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
 				return new SendAllUnsentController(new CommCareHQResponder());
 			}
@@ -72,19 +72,19 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			public void done() {
 				new CommCareHomeState().start();
 			}
-		}.start();
+		});
 	}
 	
 	public void settings() {
-		new PropertyUpdateState () {
+		J2MEDisplay.startStateWithLoadingScreen(new PropertyUpdateState () {
 			public void done () {
 				new CommCareHomeState().start();
 			}
-		}.start();
+		});
 	}
 	
 	public void restoreUserData() {
-		new CommCareOTARestoreState() {
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState() {
 
 			public void cancel() {
 				new CommCareHomeState().start();
@@ -94,7 +94,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				new CommCareHomeState().start();
 			}
 			
-		}.start();
+		});
 	}
 	
 	private void clearUserData() {
