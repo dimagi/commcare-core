@@ -23,11 +23,11 @@ public abstract class CommCarePostFormEntryState extends CompletedFormOptionsSta
 	 */
 	public void sendData(FormInstance data) {
 		try {
-			new CommCareFormSendState(data) {
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareFormSendState(data) {
 				public void done() {
 					CommCarePostFormEntryState.this.goHome();
 				}
-			}.start();
+			});
 		} catch (IOException e) {
 			goHome();
 			J2MEDisplay.showError(Localization.get("sending.status.error"), Localization.get("sending.status.error"));
