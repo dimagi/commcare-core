@@ -50,3 +50,5 @@ home.user.edit=Edit Users
 home.data.restore=Restore User Data
 home.demo.reset=Reset Demo Data
 home.updates=Check for Updates
+
+restore.user.exists=Cannot restore a user that is already on the phone!

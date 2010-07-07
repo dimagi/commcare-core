@@ -22,6 +22,9 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.core.util.StreamUtil;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
@@ -29,9 +32,9 @@ import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
-import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
+import org.javarosa.user.model.User;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -240,12 +243,42 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	public void _commandAction(Command c, Displayable d) {
 		if(c.equals(CommCareOTACredentialEntry.DOWNLOAD)) {
+			if(userExists(entry.getUsername())) {
+				entry.sendMessage(Localization.get("restore.user.exists"));
+				return;
+			}
+			
 			tryDownload(getClientMessage());
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
 			transitions.cancel();
 		} else if(c.equals(view.FINISHED)) {
 			transitions.done();
 		}
+	}
+	
+	private boolean userExists(String username) {
+		int attempts = 0;
+		//An absurd number of tries
+		while(attempts < 50) {
+			try{
+				IStorageIterator iterator = StorageManager.getStorage(User.STORAGE_KEY).iterate();
+				while(iterator.hasMore()) {
+					User u = (User)iterator.nextRecord();
+					if(username.toLowerCase().equals(u.getUsername().toLowerCase())) {
+						return true;
+					}
+				}
+				return false;
+			}
+			catch(StorageModifiedException sme) {
+				//storage modified while we were going through users. Try again
+				attempts++;
+			}
+		}
+		//Dunno what to do here, really, it would be crazy to gt to this point.
+		//Maybe should throw an exception, actually.
+		Logger.log("restore", "Could not look through User list to determine if user " + username + " exists.");
+		return false;
 	}
 
 	public void commandAction(Command c, Displayable d) {
