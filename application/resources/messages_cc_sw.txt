@@ -43,3 +43,4 @@ home.user.edit=Badilisha watumiaji
 home.data.restore=Rudisha Taarifa
 home.demo.reset=Anza Mazoezi Upya
 home.updates=Anza Mazoezi Upya
+restore.user.exists=Huwezi kurudisha mtumiaji ambaye tayari yuko kwenye simu
