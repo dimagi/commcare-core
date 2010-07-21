@@ -65,7 +65,8 @@
 					<attribute name="Polish-Device" value="${device.identifier}" />
 					<attribute name="Built-on" value="${built-on}" />
 					
-					<attribute name="CommCare-Release"	value="${commcare.release}" />
+					<!-- Release property can't go in jad if it will be changed -->
+					<!--attribute name="CommCare-Release"	value="${commcare.release}" /-->
 					<attribute name="Profile" value="${commcare.profile}"/>
 				</jad>
 
