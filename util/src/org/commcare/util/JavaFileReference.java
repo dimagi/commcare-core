@@ -20,10 +20,16 @@ public class JavaFileReference implements Reference {
 	
 	String localPart;
 	String uri;
+	String authority;
 	
 	public JavaFileReference(String localPart, String uri) {
+		this(localPart, uri, "file");
+	}
+	
+	public JavaFileReference(String localPart, String uri, String authority) {
 		this.localPart = localPart;
 		this.uri = uri;
+		this.authority = authority;
 	}
 
 	public boolean doesBinaryExist() throws IOException {
@@ -45,7 +51,7 @@ public class JavaFileReference implements Reference {
 	}
 
 	public String getURI() {
-		return "jr://file/" + uri;
+		return "jr://" + authority + "/" + uri;
 	}
 
 	public boolean isReadOnly() {

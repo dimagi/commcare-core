@@ -3,6 +3,8 @@
  */
 package org.commcare.util;
 
+import java.io.File;
+
 /**
  * @author ctsims
  *
@@ -28,6 +30,16 @@ public class Harness {
 			//make sure it's absolute
 			
 			engine.addLocalFileResource(args[1]);
+			if(args.length > 2) {
+				if(args[2].equals("-nojarresources")) {
+					//Skip it
+				} else {
+					engine.addJarResources(args[2]);
+				}
+			} else {
+				engine.addJarResources(".." + File.separator + "application"  + File.separator + "resources");
+				engine.addJarResources(".." + File.separator + ".."  + File.separator + "javarosa" + File.separator + "j2me" + File.separator + "shared-resources" + File.separator + "resources");
+			}
 			engine.resolveTable();
 			engine.validateResources();
 			engine.describeApplication();
@@ -40,7 +52,7 @@ public class Harness {
 	}
 	
 	private static void printvalidateformat() {
-		System.out.println("Usage: java -jar thejar.jar validate inputfile.xml [otherfiles.xml ....]");
+		System.out.println("Usage: java -jar thejar.jar validate inputfile.xml [-nojarresources|path/to/jar/resources]");
 	}
 
 }

@@ -42,10 +42,6 @@ public class CommCareSuiteController implements HandledCommandListener {
 	public CommCareSuiteController(Suite suite, Menu m) {
 		this.suite = suite;
 		this.m = m;
-		
-		view = new CommCareSuiteView(m.getName().evaluate());
-		configView();
-		view.setCommandListener(this);
 	}
 	
 	public void setTransitions (SuiteTransitions transitions) {
@@ -53,6 +49,13 @@ public class CommCareSuiteController implements HandledCommandListener {
 	}
 
 	public void start() {
+		//csims@dimagi.com - Aug 11, 2010 - Moved view creation
+		//and instantiation logic here, since there's no good
+		//way to return from another state without doing so if
+		//the values determined in getText() change.
+		view = new CommCareSuiteView(m.getName().evaluate());
+		view.setCommandListener(this);
+		configView();
 		J2MEDisplay.setView(view);
 	}
 	

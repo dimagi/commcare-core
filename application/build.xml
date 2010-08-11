@@ -93,6 +93,8 @@
                     <root dir="${dir.resources-external}" />
                     <root dir="${dir.resources}"/>
                 	<root dir="${dir.resources}" includeSubDirs="true" includeBaseDir="false"/>
+                	<root dir="${dir.resources.app}" if="dir.resources.app:defined"/>
+                	<root dir="${dir.resources.app}" if="dir.resources.app:defined" includeSubDirs="true" includeBaseDir="false"/>
                     <!-- Set the language for the strings in the application -->
                     <localization>
                         <locale name="none" />

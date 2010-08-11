@@ -14,6 +14,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -21,6 +22,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -41,6 +43,7 @@ public class CommCareConfigEngine {
 	private CommCareInstance instance;
 	private Vector<Suite> suites;
 	private Profile profile;
+	private int fileuricount = 0;
 	
 	public CommCareConfigEngine() {
 		this(System.out);
@@ -58,6 +61,15 @@ public class CommCareConfigEngine {
 
 			public void setProfile(Profile p) {
 				CommCareConfigEngine.this.profile = p;
+			}
+
+			public int getMajorVersion() {
+				return 1;
+			}
+
+			public int getMinorVersion() {
+				// TODO Auto-generated method stub
+				return 0;
 			}
 			
 		};
@@ -118,6 +130,45 @@ public class CommCareConfigEngine {
 		}
 	}
 	
+	/**
+	 * super, super hacky for now, gets a jar directory and loads language resources
+	 * from it.
+	 * @param pathToResources
+	 */
+	public void addJarResources(String pathToResources) {
+		File resources = new File(pathToResources);
+		if(!resources.exists() && resources.isDirectory()) {
+			throw new RuntimeException("Couldn't find jar resources at " + resources.getAbsolutePath() + " . Please correct the path, or use the -nojarresources flag to skip loading jar resources.");
+		}
+		
+		fileuricount++;
+		String jrroot = "extfile" + fileuricount;
+		ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[] {jrroot}, resources.getAbsolutePath()));
+		
+		for(File file : resources.listFiles()) {
+			String name = file.getName();
+			if(name.endsWith("txt")) {
+				ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, "jr://" + jrroot + "/" + name);
+				Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+				locations.add(location);
+				if(!(name.lastIndexOf("_") < name.lastIndexOf("."))) {
+					//skip it
+				} else {
+					String locale = name.substring(name.lastIndexOf("_") + 1, name.lastIndexOf("."));
+					Resource test = new Resource(-2, name, locations);
+					try {
+						table.addResource(test, new LocaleFileInstaller(locale),null);
+					} catch (StorageFullException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} else { 
+				//we don't support other file types yet
+			}
+		}
+	}
+	
 	
 	public void addResource(String reference) {
 		
@@ -125,11 +176,22 @@ public class CommCareConfigEngine {
 	
 	public void resolveTable() {
 			try {
-				table.prepareResources(null);
+				table.prepareResources(null, instance);
 				print.println("Table resources intialized and fully resolved.");
 				print.println(table);
 			} catch (UnresolvedResourceException e) {
 				print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
+				e.printStackTrace(print);
+				System.exit(-1);
+			} catch (UnfullfilledRequirementsException e) {
+				String whichversion = "UNKNOWN";
+				if(e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION) {
+					whichversion = "Major";
+				} else if (e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION) {
+					whichversion = "Minor";
+				}
+				print.println("This version of the CommCare platform is insufficient to parse and test the provided resources. The " + whichversion + " version is not sufficient");
+				
 				e.printStackTrace(print);
 				System.exit(-1);
 			}
