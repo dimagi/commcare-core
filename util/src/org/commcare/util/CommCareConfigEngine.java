@@ -14,6 +14,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -42,6 +43,7 @@ public class CommCareConfigEngine {
 	private CommCareInstance instance;
 	private Vector<Suite> suites;
 	private Profile profile;
+	private int fileuricount = 0;
 	
 	public CommCareConfigEngine() {
 		this(System.out);
@@ -67,6 +69,15 @@ public class CommCareConfigEngine {
 
 			public int getMinorVersion() {
 				return 1;
+			}
+
+			public int getMajorVersion() {
+				return 1;
+			}
+
+			public int getMinorVersion() {
+				// TODO Auto-generated method stub
+				return 0;
 			}
 			
 		};
@@ -124,6 +135,45 @@ public class CommCareConfigEngine {
 			print.println("Error with Configuration Engine, ran out of room somehow");
 			e.printStackTrace(print);
 			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * super, super hacky for now, gets a jar directory and loads language resources
+	 * from it.
+	 * @param pathToResources
+	 */
+	public void addJarResources(String pathToResources) {
+		File resources = new File(pathToResources);
+		if(!resources.exists() && resources.isDirectory()) {
+			throw new RuntimeException("Couldn't find jar resources at " + resources.getAbsolutePath() + " . Please correct the path, or use the -nojarresources flag to skip loading jar resources.");
+		}
+		
+		fileuricount++;
+		String jrroot = "extfile" + fileuricount;
+		ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[] {jrroot}, resources.getAbsolutePath()));
+		
+		for(File file : resources.listFiles()) {
+			String name = file.getName();
+			if(name.endsWith("txt")) {
+				ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, "jr://" + jrroot + "/" + name);
+				Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+				locations.add(location);
+				if(!(name.lastIndexOf("_") < name.lastIndexOf("."))) {
+					//skip it
+				} else {
+					String locale = name.substring(name.lastIndexOf("_") + 1, name.lastIndexOf("."));
+					Resource test = new Resource(-2, name, locations);
+					try {
+						table.addResource(test, new LocaleFileInstaller(locale),null);
+					} catch (StorageFullException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			} else { 
+				//we don't support other file types yet
+			}
 		}
 	}
 	

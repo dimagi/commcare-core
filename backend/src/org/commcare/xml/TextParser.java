@@ -31,7 +31,7 @@ public class TextParser extends ElementParser<Text> {
 			e.printStackTrace();
 		}
 		
-		while(parser.getDepth() > entryLevel ) {
+		while(parser.getDepth() > entryLevel || parser.getEventType() == KXmlParser.TEXT) {
 			Text t = parseBody();
 			if(t != null) {
 				texts.addElement(t);
