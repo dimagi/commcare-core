@@ -182,26 +182,26 @@ focused{
 */
 }
 
-.arrowFoc extends focused {
-    before: url (focussed.png);
+.cgFocused extends focused {
+    before: url (focused.png);
     background-color: selectedBg;
 }
 
-.testItem {
-   focused-style: .arrowFoc;
+.cgItemFocused {
+   focused-style: .cgFocused;
 }
 
 listitem {
-	focused-style: .arrowFoc;
+	focused-style: .cgFocused;
 }
 radiobox {
-	focused-style: .arrowFoc;
+	focused-style: .cgFocused;
 }
 checkbox {
-	focused-style: .arrowFoc;
+	focused-style: .cgFocused;
 }
 popup {
-	focused-style: .arrowFoc;
+	focused-style: .cgFocused;
 }
 
 choiceGroup extends textBox {
