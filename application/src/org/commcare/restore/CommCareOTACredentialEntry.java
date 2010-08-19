@@ -22,7 +22,7 @@ import de.enough.polish.ui.TextField;
 public class CommCareOTACredentialEntry extends Form {
 	
 	public static final Command DOWNLOAD = new Command(Localization.get("restore.fetch"), Command.OK, 1);
-	public static final Command CANCEL = new Command(Localization.get("polish.command.cancel"), Command.CANCEL, 1);
+	public static final Command CANCEL = new Command(Localization.get("polish.command.cancel"), Command.BACK, 2);
 	
 	private StringItem fetch;
 	
