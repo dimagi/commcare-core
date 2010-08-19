@@ -48,7 +48,9 @@ colors {
 	buttonFocusedBg: lighterBlue;
 	buttonFocusedTextColor: white;
 	
-	popupBgColor: #648CC0;
+	/*popupBgColor: #648CC0;*/
+	popupBgColor: #C6D7EC;
+	
 	popupFontColor: black;
 	
 	selectedBg: #D5D8DD;
@@ -439,8 +441,20 @@ rightcommand {
     //#endif
 }
 
+
+alertcontent {
+    font-color: popupFontColor	;
+}
+
 .mailAlert extends .mailForm {
-    title-style: none;
+    title-style: title;
+    background-color: popupBgColor;
+    font-color: popupFontColor;
+    
+    border-width: 1;
+	border-color: black;
+    
+        
     margin-right: 10;
     margin-left: 10;
     padding-left: 5;
@@ -450,8 +464,6 @@ rightcommand {
     //#if polish.midp2 and false
         screen-change-animation: fade;
     //#endif
-    background-color: popupBgColor;
-    font-color: popupFontColor;
 }
 
 .accessDeniedAlert extends .mailForm {
@@ -466,10 +478,6 @@ rightcommand {
         screen-change-animation: fade;
     //#endif
     background-color: red;
-}
-
-alertcontent {
-    font-color: white;
 }
 .ReviewFramedForm extends .framedForm {
 	background-color: white;
