@@ -48,6 +48,8 @@ public class CommCareProperties implements IPropertyRules {
     //Number of days before a form can be deleted
     public final static String DAYS_FOR_REVIEW = "cc-review-days";
     
+    public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -86,6 +88,8 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(SEND_STYLE, sendStyles);
         
         rules.put(DAYS_FOR_REVIEW, new Vector());
+        
+        rules.put(OTA_RESTORE_OFFLINE, new Vector());
 	}
 
 	/**
@@ -180,6 +184,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "URL of OTA Restore Testing Server";
         } else if(SEND_STYLE.equals(propertyName)) {
         	return "Form Send/Save Process";
+        } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
+        	return "Offline File Ref for OTA Bypass";
         }
     	return propertyName;
 	}

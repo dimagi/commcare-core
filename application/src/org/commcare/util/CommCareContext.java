@@ -275,6 +275,7 @@ public class CommCareContext {
 
 	private void postProfilePropertyInit() {
 		PropertyUtils.initializeProperty(CommCareProperties.SEND_STYLE, CommCareProperties.SEND_STYLE_HTTP);
+		PropertyUtils.initializeProperty(CommCareProperties.OTA_RESTORE_OFFLINE, "jr://file/commcare_ota_backup_offline.xml");
 	}
 	
 	public static void init(MIDlet m, InitializationListener listener) {
