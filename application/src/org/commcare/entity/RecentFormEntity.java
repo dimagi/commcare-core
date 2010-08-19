@@ -25,7 +25,12 @@ public class RecentFormEntity extends Entity<FormInstance> {
 		for(Suite s : suites) {
 			for(Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
 				Entry entry = (Entry)en.nextElement();
-				names.put(entry.getXFormNamespace(),entry.getText());
+				if(entry.getXFormNamespace() == null) {
+					//This is a <view>, not an <entry>, so
+					//it can't define a form
+				} else {
+					names.put(entry.getXFormNamespace(),entry.getText());
+				}
 			}
 		}
 	}
