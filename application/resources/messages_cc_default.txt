@@ -21,6 +21,7 @@ restore.fail=Exception during restore!
 restore.baddownload=Download failed, please try again.
 restore.noserveruri=No Restore Server Configured!
 restore.key.continue=Press any key to continue...
+
 polish.date.select=Select Date
 
 commcare.review=Review Recent Forms
@@ -52,3 +53,11 @@ home.demo.reset=Reset Demo Data
 home.updates=Check for Updates
 
 restore.user.exists=Cannot restore a user that is already on the phone!
+
+#Restore Bypass Strings
+restore.bypass.start=Beginning restore from local file ${0}, bypassing OTA
+restore.bypass.clean=Attempting to clear local bypass file...
+restore.bypass.clean.success=Local bypass file deleted
+restore.bypass.cleanfail=Couldn't delete OTA bypass file. It is recommended you delete the file ${0} manually.
+restore.bypass.fail=Local Restore bypass failed. Falling back to OTA restore.
+restore.bypass.instructions=Local Restore failed. Please sign-in for OTA Restore. 

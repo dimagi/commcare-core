@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -21,13 +22,16 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.core.util.StreamUtil;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
+import org.javarosa.j2me.log.HandledThread;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
@@ -72,7 +76,18 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	}
 	
 	public void start() {
-		if(authenticator == null) {
+		Reference bypassRef = getBypassRef();
+		if(bypassRef != null) {
+			J2MEDisplay.setView(view);
+			tryBypass(bypassRef);
+		} else{ 
+			entry.sendMessage("");
+			startOtaProcess();
+		}
+	}
+	
+	private void startOtaProcess() {
+		 if(authenticator == null) {
 			authAttempts = 0;
 			getCredentials();
 		} else {
@@ -83,7 +98,6 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	}
 	
 	private void getCredentials() {
-		entry.sendMessage("");
 		J2MEDisplay.setView(entry);
 	}
 	
@@ -178,7 +192,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		startRestore(input);
 	}
 
-	public void startRestore(InputStream input) {
+	public boolean startRestore(InputStream input) {
 		J2MEDisplay.setView(view);
 		view.addToMessage(Localization.get("restore.starting")); 
 		try {
@@ -197,6 +211,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			if(parser.parse()) {
 				view.addToMessage(Localization.get("restore.success"));
 				done();
+				return true;
 			} else {
 				String[] errors = parser.getParseErrors();
 				view.addToMessage(Localization.get("restore.success.partial") + " " + errors.length);
@@ -204,20 +219,25 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					Logger.log("restore", s);
 				}
 				done();
+				return true;
 			}
 			
 		} catch(IOException e) {
 			fail(Localization.get("restore.fail"));
 			e.printStackTrace();
+			return false;
 		} catch (InvalidStructureException e) {
 			fail(Localization.get("restore.fail"));
 			e.printStackTrace();
+			return false;
 		} catch (XmlPullParserException e) {
 			fail(Localization.get("restore.fail"));
 			e.printStackTrace();
+			return false;
 		} catch (UnfullfilledRequirementsException e) {
 			fail(Localization.get("restore.fail"));
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
@@ -283,5 +303,76 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	public void commandAction(Command c, Displayable d) {
 		CrashHandler.commandAction(this,c,d);
+	}
+	
+	/**
+	 * 
+	 * @return Null if the bypass file doesn't exist or couldn't be resolved. A Reference to the bypass
+	 * file if one appears to exist.
+	 */
+	protected Reference getBypassRef() {
+		try {
+			String bypassRef = PropertyManager._().getSingularProperty(CommCareProperties.OTA_RESTORE_OFFLINE);
+			if(bypassRef == null || bypassRef == "") {
+				return null;
+			}
+		
+			Reference bypass = ReferenceManager._().DeriveReference(bypassRef);
+			if(bypass == null || !bypass.doesBinaryExist()) {
+				return null;
+			}
+			return bypass;
+		} catch(Exception e){
+			e.printStackTrace();
+			//It would be absurdly stupid if we couldn't OTA restore because of an error here
+			return null;
+		}
+		
+	}
+	
+	public void tryBypass(final Reference bypass) {
+		//Need to launch the bypass attempt in a thread.
+		
+		HandledThread t = new HandledThread() {
+			public void _run() {
+				view.addToMessage(Localization.get("restore.bypass.start", new String [] {bypass.getLocalURI()}));
+				
+				try {
+					Logger.log("restore", "starting bypass restore attempt with file: " + bypass.getLocalURI());
+					InputStream restoreStream = bypass.getStream();
+					if(startRestore(restoreStream)) {
+						try {
+							//Success! Try to wipe the local file and then let the UI handle the rest.
+							restoreStream.close();
+							if(!bypass.isReadOnly()) {
+								view.addToMessage(Localization.get("restore.bypass.clean"));
+								bypass.remove();
+								view.addToMessage(Localization.get("restore.bypass.clean.success"));
+							}
+						} catch (IOException e) {
+							//Even if we fail to delete the local file, it's mostly fine. Jut let the user know
+							e.printStackTrace();
+							view.addToMessage(Localization.get("restore.bypass.cleanfail", new String[] {bypass.getLocalURI()}));
+						}
+						Logger.log("restore", "bypass restore succeeded");
+						return;
+					}
+				} catch(IOException e) {
+					//Couldn't open a stream to the restore file, we'll need to dump out to
+					//OTA
+					e.printStackTrace();
+				}
+				
+				//Something bad about the restore file. 
+				//Skip it and dump back to OTA Restore
+				
+				Logger.log("restore", "bypass restore failed, falling back to OTA");
+				view.addToMessage(Localization.get("restore.bypass.fail"));
+				
+				entry.sendMessage(Localization.get("restore.bypass.instructions"));
+				startOtaProcess();
+			}
+		};
+		t.start();
 	}
 }

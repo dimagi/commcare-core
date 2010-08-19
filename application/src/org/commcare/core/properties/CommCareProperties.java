@@ -50,6 +50,8 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String PASSWORD_FORMAT = "password_format";
     
+    public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -88,6 +90,8 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(SEND_STYLE, sendStyles);
         
         rules.put(DAYS_FOR_REVIEW, new Vector());
+
+        rules.put(OTA_RESTORE_OFFLINE, new Vector());
         
         //TODO: This actually does have a limited set
         rules.put(PASSWORD_FORMAT, new Vector());
@@ -185,6 +189,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "URL of OTA Restore Testing Server";
         } else if(SEND_STYLE.equals(propertyName)) {
         	return "Form Send/Save Process";
+        } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
+        	return "Offline File Ref for OTA Bypass";
         }
     	return propertyName;
 	}
