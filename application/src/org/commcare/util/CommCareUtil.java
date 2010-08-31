@@ -26,6 +26,7 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -323,4 +324,30 @@ public class CommCareUtil {
 			exit();
 		}
 	}
+	
+	/**
+	 * Gets the text associated with this entry, while dynamically evaluating
+	 * and resolving any necessary count arguments that might need to be 
+	 * included. 
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public static String getEntryText(Entry entry, Suite suite) {
+		String text = entry.getText().evaluate();
+		if(Localizer.getArgs(text).size() == 0) {
+			return text;
+		}
+		else if(Localizer.getArgs(text).size() > 1) {
+			//We really don't know how to deal with this yet. Shouldn't happen!
+			return text;
+		} else {
+			//Sweet spot! This argument should be the count of all entities
+			//which are possible inside of its selection.
+			String wrapper = Localization.get("commcare.numwrapper"); 
+			String wrapped = Localizer.processArguments(wrapper, new String[] { String.valueOf(CommCareUtil.countEntities(entry, suite)) });
+			return Localizer.processArguments(text, new String[] {wrapped} );
+		}
+	}
+
 }

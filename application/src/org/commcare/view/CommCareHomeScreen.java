@@ -54,7 +54,7 @@ public class CommCareHomeScreen extends List {
 				if("root".equals(m.getId())){
 					for(String id : m.getCommandIds()) {
 						Entry e = suite.getEntries().get(id);
-						int location = append(e.getText().evaluate(), null);
+						int location = append(CommCareUtil.getEntryText(e,suite), null);
 						suiteTable.put(new Integer(location),suite);
 						entryTable.put(new Integer(location),e);
 					}

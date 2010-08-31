@@ -61,7 +61,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 		indexMapping = new Entry[m.getCommandIds().size()];
 		for(String id : m.getCommandIds()) {
 			Entry entry = entries.get(id);
-			int index = view.append(getText(entry), null);
+			int index = view.append(CommCareUtil.getEntryText(entry, suite), null);
 			indexMapping[index] = entry;
 		}
 	}
@@ -78,30 +78,5 @@ public class CommCareSuiteController implements HandledCommandListener {
 		else if(c.equals(CommCareSuiteView.BACK)) {
 			transitions.exit();
 		}
-	}
-	
-	/**
-	 * Gets the text associated with this entry, while dynamically evaluating
-	 * and resolving any necessary count arguments that might need to be 
-	 * included. 
-	 * 
-	 * @param entry
-	 * @return
-	 */
-	private String getText(final Entry entry) {
-		String text = entry.getText().evaluate();
-		if(Localizer.getArgs(text).size() == 0) {
-			return text;
-		}
-		else if(Localizer.getArgs(text).size() > 1) {
-			//We really don't know how to deal with this yet. Shouldn't happen!
-			return text;
-		} else {
-			//Sweet spot! This argument should be the count of all entities
-			//which are possible inside of its selection.
-			String wrapper = Localization.get("commcare.numwrapper"); 
-			String wrapped = Localizer.processArguments(wrapper, new String[] { String.valueOf(CommCareUtil.countEntities(entry, suite)) });
-			return Localizer.processArguments(text, new String[] {wrapped} );
-		}
-	}
+	}	
 }
