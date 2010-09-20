@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
 
 import org.commcare.api.transitions.SuiteTransitions;
@@ -21,9 +22,11 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.formmanager.view.chatterbox.widget.ExpandedWidget;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.utilities.media.MediaUtils;
 
 /**
  * @author ctsims
@@ -64,7 +67,12 @@ public class CommCareSuiteController implements HandledCommandListener {
 		indexMapping = new Entry[m.getCommandIds().size()];
 		for(String id : m.getCommandIds()) {
 			Entry entry = entries.get(id);
-			int index = view.append(getText(entry), null);
+			
+			System.out.println(entry.getImageURI()+", for entry:"+getText(entry));
+			if(entry.getImageURI() != null) System.out.println("Attempting to get label image for form:"+getText(entry)+", image:"+entry.getImageURI());
+			
+			Image im = MediaUtils.getImage(entry.getImageURI());
+			int index = view.append(getText(entry), MediaUtils.getImage(entry.getImageURI()));
 			indexMapping[index] = entry;
 		}
 	}
@@ -107,4 +115,6 @@ public class CommCareSuiteController implements HandledCommandListener {
 			return Localizer.processArguments(text, new String[] {wrapped} );
 		}
 	}
+	
+
 }

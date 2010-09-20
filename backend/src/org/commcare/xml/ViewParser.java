@@ -82,7 +82,7 @@ public class ViewParser extends ElementParser<Entry> {
 				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, longDetailId, shortDetailId, references, xFormNamespace);
+		Entry e = new Entry(commandId, commandText, longDetailId, shortDetailId, references, xFormNamespace, null, null);
 		return e;
 	}
 }

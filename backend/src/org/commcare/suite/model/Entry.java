@@ -32,6 +32,8 @@ public class Entry implements Externalizable{
 	private String longDetailId;
 	private Text commandText;
 	private String commandId;
+	private String imageResource;
+	private String audioResource;
 	
 	/**
 	 * Serialization only!
@@ -42,13 +44,15 @@ public class Entry implements Externalizable{
 	
 	public Entry(String commandId, Text commandText, String longDetailId,
 			String shortDetailId, Hashtable<String, String> references,
-			String formNamespace) {
+			String formNamespace, String imageResource, String audioResource) {
 		this.commandId = commandId  == null ? "" : commandId;;
 		this.commandText = commandText;
 		this.longDetailId = longDetailId == null ? "" : longDetailId;
 		this.shortDetailId = shortDetailId  == null ? "" : shortDetailId;
 		this.references = references;
 		xFormNamespace = formNamespace;
+		this.imageResource = imageResource == null ? "" : imageResource;
+		this.audioResource = audioResource == null ? "" : audioResource;
 	}
 	
 	/**
@@ -103,6 +107,21 @@ public class Entry implements Externalizable{
 	public String getXFormNamespace() {
 		return xFormNamespace;
 	}
+	
+	/**
+	 * @return the URI of an optionally specified image resource to be used in the
+	 * view displaying all xform entries.
+	 */
+	public String getImageURI(){
+		return imageResource;
+	}
+	
+	/**
+	 * @return the URI of an optional audio resource to be used in the view displaying all xform entries
+	 */
+	public String getAudioURI(){
+		return audioResource;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -115,6 +134,8 @@ public class Entry implements Externalizable{
 		this.longDetailId = ExtUtil.readString(in);
 		this.commandId = ExtUtil.readString(in);
 		this.commandText = (Text)ExtUtil.read(in, Text.class, pf);
+		this.imageResource = ExtUtil.readString(in);
+		this.audioResource = ExtUtil.readString(in);
 		
 		references = (Hashtable<String,String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
 	}
@@ -129,6 +150,8 @@ public class Entry implements Externalizable{
 		ExtUtil.writeString(out,longDetailId);
 		ExtUtil.writeString(out,commandId);
 		ExtUtil.write(out,commandText);
+		ExtUtil.write(out, imageResource);
+		ExtUtil.write(out, audioResource);
 		
 		ExtUtil.write(out, new ExtWrapMap(references));
 	}

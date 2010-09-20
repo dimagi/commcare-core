@@ -24,7 +24,7 @@ colors {
 	focusedFontColor: #000; /* black */
 	bgColor:  #eee; /** grey **/
 	focusedBgColor:  #fff;
-	focusedBackground: white;
+	focusedBackground: #FFFF00;
 	borderColor: fontColor;
 	focusedBorderColor: focusedFontColor;
 	menubarColor: rgb( 240, 240, 240 );  /** almost white **/
@@ -41,17 +41,8 @@ colors {
 	otherLighterBlue:#2B7BE3;
 	dimagiBackground: #F5F1E5;
 	dimagiGold: #DD9911;
-	
-	buttonTextColor: black;
-	buttonBgColor: #EEE3C6;
-	
+	buttonBgColor: dimagiBlue;
 	buttonFocusedBg: lighterBlue;
-	buttonFocusedTextColor: white;
-	
-	/*popupBgColor: #648CC0;*/
-	popupBgColor: #C6D7EC;
-	
-	popupFontColor: black;
 	
 	selectedBg: #D5D8DD;
 }
@@ -71,11 +62,11 @@ focusHighlight extends focused {
 }
 	
 .buttonfocused {
-	font-color: buttonFocusedTextColor;
+	font-color: white;
 	font-style: bold;
 	border-color: black;
 	border-width: 1;
-	background-color: buttonFocusedBg;
+	background-color: otherLighterBlue;
 
 /*
 	padding-vertical: 2;
@@ -87,11 +78,11 @@ focusHighlight extends focused {
 }
 
 .button {
-	font-color:buttonTextColor;
+	font-color:white;
 	font-style:bold;
 	padding:1;
 	focused-style: buttonfocused;
-	background-color: buttonBgColor;
+	background-color: dimagiBlue;
 }
 
 .groupName {
@@ -100,7 +91,7 @@ focusHighlight extends focused {
 	background {
 		type: round-rect;
 		arc: 9;
-		color: dimagiBlue;
+		color: buttonBgColor;
 
 	}
 }
@@ -184,28 +175,6 @@ focused{
 */
 }
 
-.cgFocused extends focused {
-    before: url (focused.png);
-    background-color: selectedBg;
-}
-
-.cgItemFocused {
-   focused-style: .cgFocused;
-}
-
-listitem {
-	focused-style: .cgFocused;
-}
-radiobox {
-	focused-style: .cgFocused;
-}
-checkbox {
-	focused-style: .cgFocused;
-}
-popup {
-	focused-style: .cgFocused;
-}
-
 choiceGroup extends textBox {
 	
 }
@@ -225,7 +194,7 @@ choiceGroup extends textBox {
 	margin: 0;
 	icon-image-align: bottom;
 	font-size: medium;
-}	
+}
 
 .yesNoItem {
 	margin: 2;
@@ -241,7 +210,7 @@ choiceGroup extends textBox {
 	
 .questiontext extends textBox{
 	font-face: proportional;
-	font-size: medium;	
+	font-size: large;	
 	layout: horizontal-center | expand | bottom; 
 }
 
@@ -441,20 +410,8 @@ rightcommand {
     //#endif
 }
 
-
-alertcontent {
-    font-color: popupFontColor	;
-}
-
 .mailAlert extends .mailForm {
-    title-style: title;
-    background-color: popupBgColor;
-    font-color: popupFontColor;
-    
-    border-width: 1;
-	border-color: black;
-    
-        
+    title-style: none;
     margin-right: 10;
     margin-left: 10;
     padding-left: 5;
@@ -464,6 +421,7 @@ alertcontent {
     //#if polish.midp2 and false
         screen-change-animation: fade;
     //#endif
+    background-color: green;
 }
 
 .accessDeniedAlert extends .mailForm {
@@ -478,6 +436,10 @@ alertcontent {
         screen-change-animation: fade;
     //#endif
     background-color: red;
+}
+
+alertcontent {
+    font-color: white;
 }
 .ReviewFramedForm extends .framedForm {
 	background-color: white;
@@ -710,7 +672,7 @@ alertcontent {
 		arc-width:6;
 		arc-height:6;
 		width:2;
-		color:buttonFocusedBg;
+		color:dimagiBlue;
 	}	
 }
 
@@ -733,11 +695,11 @@ alertcontent {
 }
 
 .buttonSend:hover{
-	font-color: buttonFocusedTextColor;
+	font-color: white;
 	font-style: bold;
 	border-color: black;
 	border-width: 1;
-	background-color: buttonFocusedBg;
+	background-color: otherLighterBlue;
 	margin-left:5;
 	margin-right:5;
 /*
