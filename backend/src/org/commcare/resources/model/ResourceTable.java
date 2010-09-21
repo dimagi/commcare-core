@@ -303,6 +303,9 @@ public class ResourceTable {
 					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
 						//TODO: This should be an exception
 						return false;
+					} else {
+						//If we don't remove the resource, they're duplicates
+						this.removeResource(peer);
 					}
 					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
 						this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
@@ -336,8 +339,6 @@ public class ResourceTable {
 				r.getInstaller().uninstall(r, this, incoming);
 			}
 			pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
-			//System.out.println("After of pending deletes:");
-			//System.out.println(this);
 		}
 		
 		incoming.cleanup();

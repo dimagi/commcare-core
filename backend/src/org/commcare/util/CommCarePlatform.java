@@ -95,8 +95,18 @@ public class CommCarePlatform implements CommCareInstance {
 		return minorVersion;
 	}
 	
-	
 	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException {
+		if (!global.isReady()) {
+			throw new RuntimeException("The Global Resource Table was not properly made ready");
+		}
+		
+		Profile current = getCurrentProfile();
+
+		this.upgrade(global, temporary, current.getAuthReference());
+	}
+	
+	
+	public void upgrade(ResourceTable global, ResourceTable temporary, String profileReference) throws UnfullfilledRequirementsException {
 
 		if (!global.isReady()) {
 			throw new RuntimeException("The Global Resource Table was not properly made ready");
@@ -104,10 +114,7 @@ public class CommCarePlatform implements CommCareInstance {
 		
 		//In the future: Continuable upgrades. Now: Clear old upgrade info
 		temporary.clear();
-		
-		Profile current = getCurrentProfile();
-		String profileReference = current.getAuthReference();
-		
+
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
 		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 			

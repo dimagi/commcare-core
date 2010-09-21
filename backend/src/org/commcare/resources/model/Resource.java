@@ -252,12 +252,13 @@ public class Resource implements Persistable, IMetaData {
 	 * is newer until it is.)
 	 */
 	public boolean isNewer(Resource peer) {
-		if(!peer.id.equals(this.id)) {
-			return false;
-		}
 		if(version == RESOURCE_VERSION_UNKNOWN) {
 			return true;
-		} else {
+		} 
+		else if(!peer.id.equals(this.id)) {
+			return false;
+		}
+		else {
 			return this.version > peer.getVersion();
 		}
 	}
