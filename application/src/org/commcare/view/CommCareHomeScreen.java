@@ -10,6 +10,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.ChoiceItem;
 import de.enough.polish.ui.Command;
@@ -54,7 +55,10 @@ public class CommCareHomeScreen extends List {
 				if("root".equals(m.getId())){
 					for(String id : m.getCommandIds()) {
 						Entry e = suite.getEntries().get(id);
-						int location = append(e.getText().evaluate(), null);
+						
+						System.out.println("Appending entry:"+e.getText().evaluate()+". ImageURI:"+e.getImageURI());
+						
+						int location = append(e.getText().evaluate(), MediaUtils.getImage(e.getImageURI()));
 						suiteTable.put(new Integer(location),suite);
 						entryTable.put(new Integer(location),e);
 					}

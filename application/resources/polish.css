@@ -24,7 +24,7 @@ colors {
 	focusedFontColor: #000; /* black */
 	bgColor:  #eee; /** grey **/
 	focusedBgColor:  #fff;
-	focusedBackground: #FFFF00;
+	focusedBackground: white;
 	borderColor: fontColor;
 	focusedBorderColor: focusedFontColor;
 	menubarColor: rgb( 240, 240, 240 );  /** almost white **/

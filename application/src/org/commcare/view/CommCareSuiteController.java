@@ -67,11 +67,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 		indexMapping = new Entry[m.getCommandIds().size()];
 		for(String id : m.getCommandIds()) {
 			Entry entry = entries.get(id);
-			
-			System.out.println(entry.getImageURI()+", for entry:"+getText(entry));
-			if(entry.getImageURI() != null) System.out.println("Attempting to get label image for form:"+getText(entry)+", image:"+entry.getImageURI());
-			
-			Image im = MediaUtils.getImage(entry.getImageURI());
+			System.out.println("In CommCareSuiteController, appending entry:"+getText(entry)+",ImageURI:"+entry.getImageURI());
 			int index = view.append(getText(entry), MediaUtils.getImage(entry.getImageURI()));
 			indexMapping[index] = entry;
 		}
