@@ -6,7 +6,6 @@ package org.commcare.entity;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.locale.Localization;
@@ -21,14 +20,12 @@ import org.javarosa.entity.util.StackedEntityFilter;
  */
 public class CommCareEntity<E extends Persistable> extends Entity<E> {
 
-	Entry e;
 	Detail shortDetail;
 	Detail longDetail;
 	FormInstanceLoader<E> loader;
 	String[] shortText;
 	
-	public CommCareEntity(Entry e, Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
-		this.e = e;
+	public CommCareEntity(Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
 		this.shortDetail = shortDetail;
 		this.longDetail = longDetail;
 		this.loader = loader;
@@ -45,7 +42,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 * @see org.javarosa.entity.model.Entity#factory()
 	 */
 	public Entity<E> factory() {
-		return new CommCareEntity<E>(e,shortDetail,longDetail, loader);
+		return new CommCareEntity<E>(shortDetail,longDetail, loader);
 	}
 
 	/* (non-Javadoc)

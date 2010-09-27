@@ -12,7 +12,6 @@ import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareLoginState;
-import org.commcare.applogic.CommCareSelectState;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
@@ -23,6 +22,7 @@ import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.IPatientReferralFilter;
 import org.javarosa.core.api.State;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
@@ -137,6 +137,23 @@ public class CommCareUtil {
 		IStorageUtility referrals = StorageManager.getStorage(PatientReferral.STORAGE_KEY);
 		return (PatientReferral)referrals.read(id);
 	}
+	
+	public static PatientReferral getReferral (String referralId, String type) {
+		IStorageUtilityIndexed referrals = (IStorageUtilityIndexed)StorageManager.getStorage(PatientReferral.STORAGE_KEY);
+		for(Integer id : (Vector<Integer>)referrals.getIDsForValue("referral-id", referralId)) {
+			PatientReferral ref = (PatientReferral)referrals.read(id.intValue());
+			if(ref.getType().equals(type)) {
+				return ref;
+			}
+		}
+		return null;
+	}
+	 
+	
+	public static FormDef getForm (int id) {
+		IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
+		return (FormDef)forms.read(id);
+	}
 		
 	public static boolean isTestingMode() {
 		return !"true".equals(CommCareUtil.getAppProperty(COMMCARE_RELEASE_PROPERTY));
@@ -150,78 +167,7 @@ public class CommCareUtil {
 	public static void launchHomeState() {
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
-	
-	public static void launchEntry(Suite suite, Entry entry, State returnState) {
-		final Entry e = entry;
-		final State s = returnState;
 		
-		Hashtable<String, String> references = entry.getReferences();
-		if(references.size() == 0) {
-			String namespace = entry.getXFormNamespace();
-			CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()), namespace, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers()) {
-				protected void goHome() {
-					J2MEDisplay.startStateWithLoadingScreen(s);			
-				}
-			};
-			J2MEDisplay.startStateWithLoadingScreen(state);
-		}
-		else {
-			//this will be revisited and rewritten 
-			boolean referral = false;
-			// Need to do some reference gathering... 
-			for(Enumeration en = references.keys() ; en.hasMoreElements() ; ) {
-				String key = (String)en.nextElement();
-				String refType = references.get(key);
-				if(refType.toLowerCase().equals("referral")) {
-					referral = true;
-				}
-			}
-			State select = null;
-			if(referral) {
-				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
-				select = new CommCareSelectState<PatientReferral>(entity, PatientReferral.STORAGE_KEY) {
-					
-					public void cancel() {
-						J2MEDisplay.startStateWithLoadingScreen(s);
-					}
-					
-					public void entitySelected(int id) {
-						CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()),e.getXFormNamespace(), CommCareContext._().getPreloaders(CommCareUtil.getReferral(id)), CommCareContext._().getFuncHandlers()) {
-							protected void goHome() {
-								J2MEDisplay.startStateWithLoadingScreen(s);
-							}
-						};
-						J2MEDisplay.startStateWithLoadingScreen(state);
-					}
-				};
-			} else {
-				Entity<Case> entity = new CommCareEntity<Case>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
-				select = new CommCareSelectState<Case>(entity,Case.STORAGE_KEY) {
-					
-					public void cancel() {
-						J2MEDisplay.startStateWithLoadingScreen(s);
-					}
-					
-					public void entitySelected(int id) {
-						String form = e.getXFormNamespace();
-						State state;
-						if(form == null) {
-							state = s;
-						} else {
-							state = new CommCareFormEntryState(Localizer.clearArguments(e.getText().evaluate()),form, CommCareContext._().getPreloaders(CommCareUtil.getCase(id)), CommCareContext._().getFuncHandlers()) {
-								protected void goHome() {
-									J2MEDisplay.startStateWithLoadingScreen(s);					
-								}
-							};
-						}
-						J2MEDisplay.startStateWithLoadingScreen(state);
-					}
-				};
-			}
-			J2MEDisplay.startStateWithLoadingScreen(select);
-		}
-	}
-	
 	public static int countEntities(Entry entry, Suite suite) {
 		final Entry e = entry;
 		
@@ -242,7 +188,7 @@ public class CommCareUtil {
 				}
 			}
 			if(referral) {
-				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
+				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
 				EntityFilter<? super PatientReferral> filter = entity.getFilter();
 				for(IStorageIterator i = StorageManager.getStorage(PatientReferral.STORAGE_KEY).iterate(); i.hasMore() ;) {
 					if(filter.matches((PatientReferral)i.nextRecord())) {
@@ -252,7 +198,7 @@ public class CommCareUtil {
 				
 				return count;
 			} else {
-				Entity<Case> entity = new CommCareEntity<Case>(entry,suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
+				Entity<Case> entity = new CommCareEntity<Case>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
 				EntityFilter<? super Case> filter = entity.getFilter();
 				for(IStorageIterator i = StorageManager.getStorage(Case.STORAGE_KEY).iterate(); i.hasMore() ;) {
 					if(filter.matches((Case)i.nextRecord())) {

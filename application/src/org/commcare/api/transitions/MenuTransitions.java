@@ -10,7 +10,7 @@ import org.commcare.suite.model.Suite;
  * @author ctsims
  *
  */
-public interface SuiteTransitions {
+public interface MenuTransitions {
 	public void entry(Suite suite, Entry entry);
-	public void exit();
+	public void exitMenuTransition();
 }

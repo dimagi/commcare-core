@@ -37,36 +37,11 @@ public class CommCareHomeScreen extends List {
 	public Command admJunkInDaTrunk = new Command("Generate Junk", Command.ITEM, 1);
 	public Command admResetDemo = new Command(Localization.get("home.demo.reset"), Command.ITEM, 1);
 	public Command admUpgrade = new Command(Localization.get("home.updates"), Command.ITEM, 1);
-	
-	//I hate this...
-	private Hashtable<Integer, Suite> suiteTable = new Hashtable<Integer,Suite>();
-	private Hashtable<Integer, Entry> entryTable = new Hashtable<Integer,Entry>();
-	private Hashtable<Integer, Menu> menuTable = new Hashtable<Integer,Menu>();
 
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
 		this.controller = controller;
-		
-		Enumeration en = suites.elements();
-		while(en.hasMoreElements()) {
-			Suite suite = (Suite)en.nextElement();
-			for(Menu m : suite.getMenus()) {
-				if("root".equals(m.getId())){
-					for(String id : m.getCommandIds()) {
-						Entry e = suite.getEntries().get(id);
-						int location = append(CommCareUtil.getEntryText(e,suite), null);
-						suiteTable.put(new Integer(location),suite);
-						entryTable.put(new Integer(location),e);
-					}
-				}
-				else if(m.getRoot().equals("root")) {
-					int location = append(m.getName().evaluate(), null);
-					suiteTable.put(new Integer(location),suite);
-					menuTable.put(new Integer(location),m);
-				}
-			}
-		}
-		
+				
 		if(reviewEnabled) {
 			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
 			append(reviewRecent);
@@ -93,35 +68,5 @@ public class CommCareHomeScreen extends List {
 		String numunsent = "error"; 
 		numunsent = String.valueOf(CommCareUtil.getNumberUnsent());
 		sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
-	}
-	
-	public Suite getSelectedSuite() {
-		Integer selected = new Integer(this.getSelectedIndex());
-		
-		if(suiteTable.containsKey(selected)) {
-			return suiteTable.get(selected);
-		} else {
-			return null;
-		}
-	}
-	
-	public Menu getSelectedMenu() {
-		Integer selected = new Integer(this.getSelectedIndex());
-		
-		if(menuTable.containsKey(selected)) {
-			return menuTable.get(selected);
-		} else {
-			return null;
-		}
-	}
-	
-	public Entry getSelectedEntry() {
-		Integer selected = new Integer(this.getSelectedIndex());
-		
-		if(entryTable.containsKey(selected)) {
-			return entryTable.get(selected);
-		} else {
-			return null;
-		}
 	}
 }

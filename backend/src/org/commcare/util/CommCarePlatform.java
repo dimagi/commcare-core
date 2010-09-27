@@ -45,14 +45,22 @@ public class CommCarePlatform implements CommCareInstance {
 	private int majorVersion;
 	private int minorVersion;
 	
+	protected CommCareSession session;
+	
 	public CommCarePlatform(int majorVersion, int minorVersion) {
+		this(majorVersion, minorVersion, new CommCareSession());
+	}
+	
+	public CommCarePlatform(int majorVersion, int minorVersion, CommCareSession session) {
 		profile = -1;
 		suites = new Vector<Integer>();
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
+		this.session = session;
+		session.setPlatform(this);
 	}
 	
-	public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException {
+	public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException,  UnresolvedResourceException{
 		try {
 
 			if (!global.isReady()) {
@@ -77,10 +85,6 @@ public class CommCarePlatform implements CommCareInstance {
 				//Assuming it does exist, we might want to do an automatic
 				//upgrade here, leaving that for a future date....
 			}
-		}
-		catch (UnresolvedResourceException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Initialization Failed.");
 		} catch (StorageFullException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -173,6 +177,10 @@ public class CommCarePlatform implements CommCareInstance {
 			e.printStackTrace();
 			throw new RuntimeException("Error initializing Resource! "+ e.getMessage());
 		}
+	}
+	
+	public CommCareSession session() {
+		return session;
 	}
 	
 	public Hashtable<String, Entry> getMenuMap() {

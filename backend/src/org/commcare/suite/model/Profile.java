@@ -139,6 +139,14 @@ public class Profile implements Persistable {
 		properties.addElement(new PropertySetter(key,value,force));
 	}
 	
+	public PropertySetter[] getPropertySetters() {
+		PropertySetter[] setters = new PropertySetter[properties.size()];
+		for(int i = 0 ; i < properties.size() ; ++i ) {
+			setters[i] = properties.elementAt(i);
+		}
+		return setters;
+	}
+	
 	public void setFeatureActive(String feature, boolean active) {
 		this.featureStatus.put(feature, new Boolean(active));
 	}
@@ -150,6 +158,8 @@ public class Profile implements Persistable {
 	 * Note: This should probably be stored elsewhere, since the operation
 	 * mutates the model by removing the properties afterwards. Probably
 	 * in the property installer?
+	 * 
+	 * NOTE: Moving at earliest opportunity to j2me profile installer
 	 */
 	public void initializeProperties() {
 		for(PropertySetter setter : properties) {

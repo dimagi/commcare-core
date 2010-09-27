@@ -10,6 +10,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
+import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -20,7 +21,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
@@ -39,8 +39,11 @@ import org.javarosa.user.utility.UserEntity;
  */
 public class CommCareHomeState implements CommCareHomeTransitions, State {
 
+	CommCareSessionController session;
+	
 	public void start () {
-		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getInstalledSuites(), CommCareContext._().getManager().getCurrentProfile());
+		session = new CommCareSessionController(CommCareContext._().getManager().session(), this);
+		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getInstalledSuites(), CommCareContext._().getManager().getCurrentProfile(), session);
 		home.setTransitions(this);
 		home.start();
 	}
@@ -51,16 +54,12 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	public void logout() {
 		CommCareUtil.exitMain();
 	}
+	
 
-	public void viewSuite(Suite suite, Menu m) {
-		CommCareSuiteHomeState state = new CommCareSuiteHomeState(suite, m) {
-
-			public void exit() {
-				CommCareUtil.launchHomeState();
-			}
-			
-		};
-		J2MEDisplay.startStateWithLoadingScreen(state);
+	public void sessionItemChosen(int item) {
+		//this hands off control to the session until it returns here.
+		session.chooseSessionItem(item);
+		session.next();
 	}
 
 	public void sendAllUnsent() {
@@ -179,10 +178,11 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void entry(Suite suite, Entry entry) {
-		CommCareUtil.launchEntry(suite, entry,this);
+		//Not relevant anymore
+		//CommCareUtil.launchEntry(suite, entry,this);
 	}
 
-	public void exit() {
+	public void exitMenuTransition() {
 		logout();
 	}
 

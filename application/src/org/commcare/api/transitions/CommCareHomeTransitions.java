@@ -10,8 +10,8 @@ import org.commcare.suite.model.Suite;
  * @author ctsims
  *
  */
-public interface CommCareHomeTransitions  extends SuiteTransitions {
-	void viewSuite (Suite suite, Menu m);
+public interface CommCareHomeTransitions  extends MenuTransitions {
+	void sessionItemChosen(int item);
 	void sendAllUnsent();
 	void logout();
 	
