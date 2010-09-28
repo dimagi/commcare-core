@@ -459,6 +459,7 @@ public class FormEntryModel {
     }
     
     public FormIndex[] getCompoundIndices(FormIndex container) {
+    	//ArrayLists are a no-go for J2ME
     	Vector<FormIndex> indices = new Vector<FormIndex>();
     	FormIndex walker = getForm().incrementIndex(container);
     	while(FormIndex.isSubElement(container, walker)) {
@@ -467,11 +468,10 @@ public class FormEntryModel {
     		}
     		walker = getForm().incrementIndex(walker);
     	}
-    	
-    	FormIndex[] ret = new FormIndex[indices.size()];
-    	for(int i = 0; i < ret.length ; ++i) {
-    		ret[i] = indices.elementAt(i);
+    	FormIndex[] array = new FormIndex[indices.size()];
+    	for(int i = 0 ; i < indices.size() ; ++i) {
+    		array[i] = indices.elementAt(i);
     	}
-    	return ret;
+    	return array;
     }
 }
