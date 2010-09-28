@@ -3,6 +3,7 @@ package org.commcare.applogic;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.services.Logger;
@@ -12,6 +13,7 @@ import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.properties.LogPropertyRules;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
+import org.javarosa.user.api.AddUserController;
 import org.javarosa.user.api.LoginController;
 import org.javarosa.user.api.LoginState;
 import org.javarosa.user.model.User;
@@ -24,7 +26,11 @@ public class CommCareLoginState extends LoginState {
 		String[] extraText = (CommCareUtil.isTestingMode() ? new String[] {ver, "*** TEST BUILD ***"}
 											  : new String[] {ver});
 		
-		return new LoginController(extraText);
+		String passFormat = PropertyManager._().getSingularProperty(CommCareProperties.PASSWORD_FORMAT);
+		
+		return new LoginController(extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
+				                              AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
+				                              AddUserController.PASSWORD_FORMAT_NUMERIC);
 	}
 
 	/* (non-Javadoc)

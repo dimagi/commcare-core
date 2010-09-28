@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.applogic.CommCareFormEntryState;
+import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
 import org.commcare.entity.CaseInstanceLoader;
@@ -127,7 +128,7 @@ public class CommCareSessionController {
 			String xmlns = session.getForm();
 			CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(entry.getText().evaluate()),xmlns, getPreloaders(), CommCareContext._().getFuncHandlers()) {
 				protected void goHome() {
-					//TODO: Figure out how to go home.
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
 			};
 			J2MEDisplay.startStateWithLoadingScreen(state);
@@ -234,9 +235,7 @@ public class CommCareSessionController {
 	}
 
 	protected void back() {
-		//Hm, not sure how to do this super well...
-		//TODO: Make better
 		session.clearState();
-		next();
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
 }

@@ -48,10 +48,7 @@ public class CommCareSession {
     /** CommCare needs the XMLNS of the form to be entered to proceed **/
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 	
-	public CommCareSession() {
-	}
-	
-	public void setPlatform(CommCarePlatform platform) {
+	public CommCareSession(CommCarePlatform platform) {
 		this.platform = platform;
 	}
 	

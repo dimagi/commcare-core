@@ -6,10 +6,10 @@ package org.commcare.applogic;
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.entity.RecentFormEntity;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
+import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
@@ -39,11 +39,11 @@ import org.javarosa.user.utility.UserEntity;
  */
 public class CommCareHomeState implements CommCareHomeTransitions, State {
 
-	CommCareSessionController session;
+	CommCareSessionController sessionController;
 	
 	public void start () {
-		session = new CommCareSessionController(CommCareContext._().getManager().session(), this);
-		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getInstalledSuites(), CommCareContext._().getManager().getCurrentProfile(), session);
+		sessionController = new CommCareSessionController(new CommCareSession(CommCareContext._().getManager()), this);
+		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getInstalledSuites(), CommCareContext._().getManager().getCurrentProfile(), sessionController);
 		home.setTransitions(this);
 		home.start();
 	}
@@ -58,8 +58,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 	public void sessionItemChosen(int item) {
 		//this hands off control to the session until it returns here.
-		session.chooseSessionItem(item);
-		session.next();
+		sessionController.chooseSessionItem(item);
+		sessionController.next();
 	}
 
 	public void sendAllUnsent() {

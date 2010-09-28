@@ -48,6 +48,8 @@ public class CommCareProperties implements IPropertyRules {
     //Number of days before a form can be deleted
     public final static String DAYS_FOR_REVIEW = "cc-review-days";
     
+    public final static String PASSWORD_FORMAT = "password_format";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -86,6 +88,9 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(SEND_STYLE, sendStyles);
         
         rules.put(DAYS_FOR_REVIEW, new Vector());
+        
+        //TODO: This actually does have a limited set
+        rules.put(PASSWORD_FORMAT, new Vector());
 	}
 
 	/**
