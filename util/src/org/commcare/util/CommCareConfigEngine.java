@@ -70,16 +70,6 @@ public class CommCareConfigEngine {
 			public int getMinorVersion() {
 				return 1;
 			}
-
-			public int getMajorVersion() {
-				return 1;
-			}
-
-			public int getMinorVersion() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-			
 		};
 		
 		setRoots();

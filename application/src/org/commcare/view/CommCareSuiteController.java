@@ -39,25 +39,10 @@ public class CommCareSuiteController implements HandledCommandListener {
 	}
 
 	public void start() {
-		//csims@dimagi.com - Aug 11, 2010 - Moved view creation
-		//and instantiation logic here, since there's no good
-		//way to return from another state without doing so if
-		//the values determined in getText() change.
 		view = new CommCareSuiteView(m.getName().evaluate());
 		view.setCommandListener(this);
-		configView();
 		J2MEDisplay.setView(view);
 	}
-	
-//	private void configView() {
-//		Hashtable<String, Entry> entries = suite.getEntries();
-//		indexMapping = new Entry[m.getCommandIds().size()];
-//		for(String id : m.getCommandIds()) {
-//			Entry entry = entries.get(id);
-//			int index = view.append(CommCareUtil.getEntryText(entry, suite), null);
-//			indexMapping[index] = entry;
-//		}
-//	}
 
 	public void commandAction(Command c, Displayable d) {
 		CrashHandler.commandAction(this, c, d);
