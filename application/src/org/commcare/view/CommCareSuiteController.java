@@ -31,7 +31,6 @@ public class CommCareSuiteController implements HandledCommandListener {
 		
 		view = new CommCareSuiteView(m.getName().evaluate());
 		view.setCommandListener(this);
-		controller.populateMenu(view, m.getId());
 	}
 	
 	public void setTransitions (MenuTransitions transitions) {
@@ -39,8 +38,8 @@ public class CommCareSuiteController implements HandledCommandListener {
 	}
 
 	public void start() {
-		view = new CommCareSuiteView(m.getName().evaluate());
-		view.setCommandListener(this);
+		view.deleteAll();
+		controller.populateMenu(view, m.getId());
 		J2MEDisplay.setView(view);
 	}
 
