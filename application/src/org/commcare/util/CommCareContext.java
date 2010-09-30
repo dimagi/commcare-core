@@ -42,6 +42,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
@@ -266,9 +267,11 @@ public class CommCareContext {
 		//Put generic fallbacks into postProfile property intiializer below.
 		PropertyManager._().addRules(new JavaRosaPropertyRules());
 		PropertyManager._().addRules(new CommCareProperties());
+		PropertyManager._().addRules(new FormManagerProperties());
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
+		PropertyUtils.initializeProperty(FormManagerProperties.USE_HASH_FOR_AUDIO_PLAYBACK, FormManagerProperties.HASH_AUDIO_PLAYBACK_YES);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 	}
 	

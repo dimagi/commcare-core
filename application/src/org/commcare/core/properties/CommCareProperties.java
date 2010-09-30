@@ -20,7 +20,7 @@ public class CommCareProperties implements IPropertyRules {
     
 	// http, since it doesn't go in transport layer anymore
     public final static String POST_URL_TEST_PROPERTY = "PostTestURL";
-
+    
     //auto-purging
     public final static String PURGE_LAST = "last-purge";
     public final static String PURGE_FREQ = "purge-freq";
