@@ -6,6 +6,7 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -209,6 +210,31 @@ public class Text implements Externalizable {
 									Date.class,
 									String.class
 							};
+							format.addElement(prototypes);
+							return format;
+						}
+
+						public boolean rawArgs() { return false; }
+
+						public boolean realTime() { return false; }
+						
+					});
+					
+					temp.addFunctionHandler(new IFunctionHandler() {
+
+						public Object eval(Object[] args) {
+							Calendar c = Calendar.getInstance();
+							c.setTime(new Date());
+							return String.valueOf(c.get(Calendar.DAY_OF_WEEK));
+						}
+
+						public String getName() {
+							return "dow";
+						}
+
+						public Vector getPrototypes() {
+							Vector format = new Vector();
+							Class[] prototypes = new Class[] {};
 							format.addElement(prototypes);
 							return format;
 						}
