@@ -7,3 +7,4 @@ glob:application/dist
 glob:application/lib
 glob:application/.polishSettings
 glob:application/tools
+glob:backend/dist/*
