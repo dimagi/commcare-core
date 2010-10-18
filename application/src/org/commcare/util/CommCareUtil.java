@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.applogic.CommCareAlertState;
 import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareLoginState;
@@ -303,4 +304,12 @@ public class CommCareUtil {
 		}
 	}
 
+	public static CommCareAlertState alertFactory (String title, String content) {
+		return new CommCareAlertState(title, content) {
+			public void done() {
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+			}
+		};
+	}
+	
 }

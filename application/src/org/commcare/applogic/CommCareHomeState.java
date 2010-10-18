@@ -84,84 +84,19 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		});
 	}
 	
-	private static CommCareAlertState alertFactory (String title, String content) {
-		return new CommCareAlertState(title, content) {
-			public void done() {
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
-			}
-		};
-	}
+
 	
 	public void serverSync () {
-		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
-			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder(), false, true);
-			}
-
-			public void done () {
-				throw new RuntimeException("method not applicable");
+		J2MEDisplay.startStateWithLoadingScreen(new ServerSyncState () {
+			public void onSuccess (String detail) {
+				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Update", detail));
 			}
 			
-			public void done(boolean errorsOccurred) {
-				if (errorsOccurred) {
-					System.out.println("debug: server sync: errors occurred during send-all-unsent");
-					J2MEDisplay.startStateWithLoadingScreen(alertFactory(
-						"Failed to update",
-					//	"We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception and/or more talk-time."
-						"We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception. If this keeps happening, get help from your program manager."
-					));
-				} else {
-					System.out.println("debug: server sync: send-all-unsent successful");
-					
-					J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState (true,
-							new HttpAuthenticator(new UserCredentialProvider(CommCareContext._().getUser()))) {
-
-						public void cancel() {
-							//don't think this is cancellable, since the only place you can cancel from is
-							//the credentials screen, and we skip that
-							throw new RuntimeException("shouldn't be cancellable");
-						}
-
-						public String restoreDetailMsg () {
-							Hashtable<String, Integer> tallies = controller.getCaseTallies();
-							int created = tallies.get("create").intValue();
-							int updated = tallies.get("update").intValue();
-							int closed = tallies.get("close").intValue();
-							
-							if (created + updated + closed == 0) {
-								return "No new updates.";
-							} else {
-								String msg = "";
-								if (created > 0) {
-									msg += (msg.length() > 0 ? "; " : "") + created + " new follow-ups";
-								}
-								if (closed > 0) {
-									msg += (msg.length() > 0 ? "; " : "") + closed + " follow-ups closed by clinic";
-								}
-								if (updated > 0) {
-									msg += (msg.length() > 0 ? "; " : "") + updated + " open follow-ups updated";
-								}
-								return msg + ".";
-							}
-						}
-						
-						public void done(boolean errorsOccurred) {
-							if (errorsOccurred) {
-								System.out.println("debug: server sync: errors occurred during pull-down");
-								J2MEDisplay.startStateWithLoadingScreen(alertFactory(
-									"Failed to update",
-//									"There was a problem and we couldn't get all of your new follow-ups from the clinic. You should try again when you have better reception and/or more talk-time."
-									"There was a problem and we couldn't get your new follow-ups from the clinic. You should try again when you have better reception. If this keeps happening, get help from your program manager."
-								));								
-							} else {
-								J2MEDisplay.startStateWithLoadingScreen(alertFactory("Update", "Update successful! " + restoreDetailMsg()));
-							}
-						}						
-					});
-				}
-			}
+			public void onError (String detail) {
+				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Failed to update", detail));
+			}	
 		});
- 	}
+	}
 	
 	public void settings() {
 		J2MEDisplay.startStateWithLoadingScreen(new PropertyUpdateState () {
@@ -286,10 +221,10 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	public void rmsdump () {
 		try {
 			DumpRMS.dumpRMS(CommCareContext._().getMidlet().getAppProperty("RMS-Image-Path"));
-			J2MEDisplay.startStateWithLoadingScreen(alertFactory("RMS Dump", "Dump successful!"));
+			J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("RMS Dump", "Dump successful!"));
 		} catch (Exception e) {
 			Logger.exception(e);
-			J2MEDisplay.startStateWithLoadingScreen(alertFactory("RMS Dump Failed!", WrappedException.printException(e)));
+			J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("RMS Dump Failed!", WrappedException.printException(e)));
 		}
 	}
 	
