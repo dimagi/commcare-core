@@ -25,7 +25,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
  * @author ctsims
  *
  */
-public interface ResourceInstaller extends Externalizable {
+public interface ResourceInstaller<T extends CommCareInstance> extends Externalizable {
 	
 	/**
 	 * @return true if a resource requires an initialization at
@@ -40,7 +40,7 @@ public interface ResourceInstaller extends Externalizable {
 	 * a problem occurred.
 	 * @throws ResourceInitializationException If the resource could not be initialized
 	 */
-	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException;
+	public boolean initialize(T instance) throws ResourceInitializationException;
 	
 	/**
 	 * Proceeds with the next step of installing resource r, keeping
@@ -55,7 +55,7 @@ public interface ResourceInstaller extends Externalizable {
 	 * @throws UnresolvedResourceException If the local resource definition could not be found
 	 * @throws UnfullfilledRequirementsException If the current platform does not fullfill the needs for this resource
 	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, T instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 	
 	/**
 	 * Removes the binary files and cached data associated with a resource, often in order to 

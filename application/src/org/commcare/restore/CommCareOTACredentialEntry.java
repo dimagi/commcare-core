@@ -5,7 +5,11 @@ package org.commcare.restore;
 
 import javax.microedition.lcdui.Command;
 
+import org.commcare.core.properties.CommCareProperties;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.user.api.AddUserController;
+import org.javarosa.user.api.LoginController;
 
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.StringItem;
@@ -36,7 +40,11 @@ public class CommCareOTACredentialEntry extends Form {
 		
 		username = new TextField(Localization.get("form.login.username"), null, 50, TextField.ANY);
 		
-		password = new TextField(Localization.get("form.login.password"), null, 100, TextField.PASSWORD | TextField.NUMERIC);
+		String passFormat = PropertyManager._().getSingularProperty(CommCareProperties.PASSWORD_FORMAT);
+		
+		int flags = AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? TextField.PASSWORD : TextField.PASSWORD | TextField.NUMERIC;
+
+		password = new TextField(Localization.get("form.login.password"), null, 100, flags);
 		
 		this.append(username);
 		this.append(password);

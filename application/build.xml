@@ -130,6 +130,9 @@
 					<parameter name="keep        ,       allowShrinking" value="class * implements org.javarosa.services.transport.TransportMessage"/>
 					<parameter name="keep       ,         allowShrinking" value="class * implements org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper"/>
 					<parameter name="keep          ,         allowShrinking" value="class * implements org.commcare.resources.model.ResourceInstaller"/>
+					<parameter name="keep              " value="class org.javarosa.core.model.SubmissionProfile"/>
+					<parameter name="keep              ,            allowShrinking" value="class org.javarosa.core.model.SubmissionProfile"/>
+					<parameter name="keep                ,              allowShrinking" value="class * extends org.javarosa.core.model.SubmissionProfile"/>
 				</obfuscator>
 
 				<!-- log settings: only use debug setting when the test-property is true -->
@@ -288,7 +291,12 @@
     <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad" description="Build the jad and post it."/>
 
 	<!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
-	<target name="BuildServerExtras" depends="BuildClean,PrepareWebDemo"/>
+	<target name="BuildServerComplete" depends="BuildAndPostJad">
+		<ant antfile="../backend/build.xml" target="package" dir="../backend/">
+			  <property name="dir.lib" value="${dir.lib}"/>
+			  <property name="dir.jrlib" value="${dir.tools}"/>
+		</ant>
+	</target>
 		
 	<!-- Initialization for the build targets                    -->
 	<target name="init" depends="extract-libs">	

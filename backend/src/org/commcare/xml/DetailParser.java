@@ -93,7 +93,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter, toArray(headerHints), toArray(templateHints), toStringArray(headerForms), toStringArray(templateForms));
+		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms));
 		return d;
 	}
 	
@@ -108,7 +108,7 @@ public class DetailParser extends ElementParser<Detail> {
 		return this.parseInt(width);
 	}
 	
-	private int[] toArray(Vector<Integer> vector) {
+	private int[] toIntArray(Vector<Integer> vector) {
 		int[] ret = new int[vector.size()];
 		for(int i = 0; i < ret.length ; ++i) {
 			ret[i] = vector.elementAt(i).intValue();

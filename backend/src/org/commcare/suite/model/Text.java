@@ -6,6 +6,7 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -51,6 +52,8 @@ public class Text implements Externalizable {
 	
 	//Will this maintain order? I don't think so....
 	private Hashtable<String, Text> arguments;
+	
+	private XPathExpression cacheParse;
 	
 	public static final int TEXT_TYPE_FLAT = 1;
 	public static final int TEXT_TYPE_LOCALE = 2;
@@ -181,8 +184,10 @@ public class Text implements Externalizable {
 			return Localization.get(id);
 		case TEXT_TYPE_XPATH:
 			try {
-					//Do an XPath cast to a string as part of the operation.
-					XPathExpression expression = XPathParseTool.parseXPath("string(" + argument + ")");
+					if(cacheParse == null) {
+					    //Do an XPath cast to a string as part of the operation.
+						cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
+					}
 					EvaluationContext p =  parent == null ? new EvaluationContext() : parent;
 					EvaluationContext temp = new EvaluationContext(p, context == null ? null : context.getRoot().getRef());
 					
@@ -219,6 +224,31 @@ public class Text implements Externalizable {
 						
 					});
 					
+					temp.addFunctionHandler(new IFunctionHandler() {
+
+						public Object eval(Object[] args) {
+							Calendar c = Calendar.getInstance();
+							c.setTime(new Date());
+							return String.valueOf(c.get(Calendar.DAY_OF_WEEK));
+						}
+
+						public String getName() {
+							return "dow";
+						}
+
+						public Vector getPrototypes() {
+							Vector format = new Vector();
+							Class[] prototypes = new Class[] {};
+							format.addElement(prototypes);
+							return format;
+						}
+
+						public boolean rawArgs() { return false; }
+
+						public boolean realTime() { return false; }
+						
+					});
+					
 					
 					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
 						String key = (String)en.nextElement();
@@ -226,7 +256,7 @@ public class Text implements Externalizable {
 						temp.setVariable(key,value);
 					}
 					
-					return (String)expression.eval(context,temp);
+					return (String)cacheParse.eval(context,temp);
 				} catch (XPathSyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

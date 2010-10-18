@@ -34,7 +34,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class LocaleFileInstaller implements ResourceInstaller {
+public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> {
 	
 	String locale;
 	String localReference;

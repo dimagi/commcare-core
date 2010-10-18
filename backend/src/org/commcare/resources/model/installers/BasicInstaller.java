@@ -23,7 +23,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class BasicInstaller implements ResourceInstaller {
+public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 	ResourceLocation installed;
 	
 	/* (non-Javadoc)

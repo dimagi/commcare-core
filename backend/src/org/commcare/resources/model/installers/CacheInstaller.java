@@ -35,7 +35,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public abstract class CacheInstaller implements ResourceInstaller {
+public abstract class CacheInstaller implements ResourceInstaller<CommCareInstance> {
 	
 	private IStorageUtility cacheStorage;
 	

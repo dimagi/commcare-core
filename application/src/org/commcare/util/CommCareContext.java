@@ -14,6 +14,7 @@ import javax.microedition.midlet.MIDlet;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
@@ -159,6 +160,9 @@ public class CommCareContext {
 							} catch (UnfullfilledRequirementsException e1) {
 								//Maybe we should try to clear the table here, too?
 								throw e1;
+							}  catch (UnresolvedResourceException e3) {
+								//this whole process needs to be cleaned up 
+								throw new RuntimeException(e3.getMessage());
 							}
 						} else {
 							throw e;
@@ -166,6 +170,9 @@ public class CommCareContext {
 					} else {
 						throw e;
 					}
+				} catch (UnresolvedResourceException e) {
+					//this whole process needs to be cleaned up 
+					throw new RuntimeException(e.getMessage());
 				}
 				
 				//When we might initialize language files, we need to make sure it's not trying

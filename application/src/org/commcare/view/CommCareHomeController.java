@@ -9,11 +9,10 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareSessionController;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -27,10 +26,11 @@ public class CommCareHomeController implements HandledCommandListener {
 	CommCareHomeTransitions transitions;
 	CommCareHomeScreen view;
 	Profile profile;
+	CommCareSessionController session;
 	
 	Vector<Suite> suites;
 	
-	public CommCareHomeController (Vector<Suite> suites, Profile profile) {
+	public CommCareHomeController (Vector<Suite> suites, Profile profile, CommCareSessionController session) {
 		this.suites = suites;
 		this.profile = profile;
 		boolean admin = false;
@@ -40,6 +40,7 @@ public class CommCareHomeController implements HandledCommandListener {
 			admin = CommCareContext._().getUser().isAdminUser();
 		}
 		view = new CommCareHomeScreen(this, suites, admin, profile.isFeatureActive(Profile.FEATURE_REVIEW));
+		session.populateMenu(view, "root");
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {
@@ -62,18 +63,7 @@ public class CommCareHomeController implements HandledCommandListener {
 			} else if(view.getCurrentItem() == view.reviewRecent) {
 				transitions.review();
 			} else {
-				
-				Menu m = view.getSelectedMenu();
-				if(m != null) {
-					Suite s = view.getSelectedSuite();
-					transitions.viewSuite(s, m);
-				} else {
-					Entry e = view.getSelectedEntry();
-					if(e != null) {
-						Suite s = view.getSelectedSuite();
-						transitions.entry(s,e);
-					}
-				} 
+				transitions.sessionItemChosen(view.getSelectedIndex()); 
 			}
 		} else if (c == view.exit) {
 			transitions.logout();

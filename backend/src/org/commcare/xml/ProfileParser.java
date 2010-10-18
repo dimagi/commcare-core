@@ -113,7 +113,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						//Get the resource block or fail out
 						getNextTagInBlock("login");
 						Resource resource = new ResourceParser(parser).parse();
-						table.addResource(resource, new LoginImageInstaller(), resourceId,initialResourceStatus);
+						table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId,initialResourceStatus);
 					} else if (parser.getName().toLowerCase().equals("features")) {
 						while(nextTagInBlock("features")) {
 							String tag = parser.getName().toLowerCase();
@@ -150,7 +150,7 @@ public class ProfileParser extends ElementParser<Profile> {
 						Resource resource = new ResourceParser(parser).parse();
 						
 						//TODO: Possibly add a real parent reference if we decide these go in the table
-						table.addResource(resource, new SuiteInstaller(), resourceId, initialResourceStatus);
+						table.addResource(resource, table.getInstallers().getSuiteInstaller(), resourceId, initialResourceStatus);
 					} else {
 						System.out.println("Unrecognized Tag: "
 								+ parser.getName());

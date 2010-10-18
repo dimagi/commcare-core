@@ -68,10 +68,8 @@ public class CommCareConfigEngine {
 			}
 
 			public int getMinorVersion() {
-				// TODO Auto-generated method stub
-				return 0;
+				return 1;
 			}
-			
 		};
 		
 		setRoots();
@@ -106,7 +104,7 @@ public class CommCareConfigEngine {
 		String root = resource.substring(0,resource.lastIndexOf(File.separator));
 		
 		//cut off the end
-		resource = resource.substring(resource.lastIndexOf(File.separator));
+		resource = resource.substring(resource.lastIndexOf(File.separator) + 1);
 		
 		//(That root now reads as jr://file/)
 		ReferenceManager._().addReferenceFactory(new JavaFileRoot(root));
@@ -184,14 +182,7 @@ public class CommCareConfigEngine {
 				e.printStackTrace(print);
 				System.exit(-1);
 			} catch (UnfullfilledRequirementsException e) {
-				String whichversion = "UNKNOWN";
-				if(e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION) {
-					whichversion = "Major";
-				} else if (e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION) {
-					whichversion = "Minor";
-				}
-				print.println("This version of the CommCare platform is insufficient to parse and test the provided resources. The " + whichversion + " version is not sufficient");
-				
+				print.println("While attempting to resolve the necessary resources, a requirement wasn't met");
 				e.printStackTrace(print);
 				System.exit(-1);
 			}

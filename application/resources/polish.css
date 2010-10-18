@@ -41,8 +41,17 @@ colors {
 	otherLighterBlue:#2B7BE3;
 	dimagiBackground: #F5F1E5;
 	dimagiGold: #DD9911;
-	buttonBgColor: dimagiBlue;
+	
+	buttonTextColor: black;
+	buttonBgColor: #EEE3C6;
+	
 	buttonFocusedBg: lighterBlue;
+	buttonFocusedTextColor: white;
+	
+	/*popupBgColor: #648CC0;*/
+	popupBgColor: #C6D7EC;
+	
+	popupFontColor: black;
 	
 	selectedBg: #D5D8DD;
 }
@@ -62,11 +71,11 @@ focusHighlight extends focused {
 }
 	
 .buttonfocused {
-	font-color: white;
+	font-color: buttonFocusedTextColor;
 	font-style: bold;
 	border-color: black;
 	border-width: 1;
-	background-color: otherLighterBlue;
+	background-color: buttonFocusedBg;
 
 /*
 	padding-vertical: 2;
@@ -78,11 +87,11 @@ focusHighlight extends focused {
 }
 
 .button {
-	font-color:white;
+	font-color:buttonTextColor;
 	font-style:bold;
 	padding:1;
 	focused-style: buttonfocused;
-	background-color: dimagiBlue;
+	background-color: buttonBgColor;
 }
 
 .groupName {
@@ -91,7 +100,7 @@ focusHighlight extends focused {
 	background {
 		type: round-rect;
 		arc: 9;
-		color: buttonBgColor;
+		color: dimagiBlue;
 
 	}
 }
@@ -175,6 +184,28 @@ focused{
 */
 }
 
+.cgFocused extends focused {
+    before: url (focused.png);
+    background-color: selectedBg;
+}
+
+.cgItemFocused {
+   focused-style: .cgFocused;
+}
+
+listitem {
+	focused-style: .cgFocused;
+}
+radiobox {
+	focused-style: .cgFocused;
+}
+checkbox {
+	focused-style: .cgFocused;
+}
+popup {
+	focused-style: .cgFocused;
+}
+
 choiceGroup extends textBox {
 	
 }
@@ -194,7 +225,7 @@ choiceGroup extends textBox {
 	margin: 0;
 	icon-image-align: bottom;
 	font-size: medium;
-}
+}	
 
 .yesNoItem {
 	margin: 2;
@@ -410,8 +441,20 @@ rightcommand {
     //#endif
 }
 
+
+alertcontent {
+    font-color: popupFontColor	;
+}
+
 .mailAlert extends .mailForm {
-    title-style: none;
+    title-style: title;
+    background-color: popupBgColor;
+    font-color: popupFontColor;
+    
+    border-width: 1;
+	border-color: black;
+    
+        
     margin-right: 10;
     margin-left: 10;
     padding-left: 5;
@@ -421,7 +464,6 @@ rightcommand {
     //#if polish.midp2 and false
         screen-change-animation: fade;
     //#endif
-    background-color: green;
 }
 
 .accessDeniedAlert extends .mailForm {
@@ -436,10 +478,6 @@ rightcommand {
         screen-change-animation: fade;
     //#endif
     background-color: red;
-}
-
-alertcontent {
-    font-color: white;
 }
 .ReviewFramedForm extends .framedForm {
 	background-color: white;
@@ -672,7 +710,7 @@ alertcontent {
 		arc-width:6;
 		arc-height:6;
 		width:2;
-		color:dimagiBlue;
+		color:buttonFocusedBg;
 	}	
 }
 
@@ -695,11 +733,11 @@ alertcontent {
 }
 
 .buttonSend:hover{
-	font-color: white;
+	font-color: buttonFocusedTextColor;
 	font-style: bold;
 	border-color: black;
 	border-width: 1;
-	background-color: otherLighterBlue;
+	background-color: buttonFocusedBg;
 	margin-left:5;
 	margin-right:5;
 /*
