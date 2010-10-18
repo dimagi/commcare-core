@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.commcare.util.CommCareContext;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.formmanager.api.CompletedFormOptionsState;
@@ -29,8 +30,9 @@ public abstract class CommCarePostFormEntryState extends CompletedFormOptionsSta
 				}
 			});
 		} catch (IOException e) {
-			goHome();
+			Logger.exception("CommCarePostFormEntryState.sendData", e);
 			J2MEDisplay.showError(Localization.get("sending.status.error"), Localization.get("sending.status.error"));
+			goHome();
 		}
 	}
 
@@ -46,15 +48,18 @@ public abstract class CommCarePostFormEntryState extends CompletedFormOptionsSta
 	 */
 	public void skipSend(FormInstance data) {
 		try {
+			Logger.log("send", "later");
 			IDataPayload payload = new XFormSerializingVisitor().createSerializedPayload(data);
 			TransportService.send(CommCareContext._().buildMessage(payload), 0, 0);
 			goHome();
 		} catch (IOException e) {
-			goHome();
+			Logger.exception("CommCarePostFormEntryState.skipSend", e);
 			J2MEDisplay.showError(Localization.get("sending.status.error"), "Form could not be serialized and can't be sent");
-		} catch (TransportException e) {
 			goHome();
+		} catch (TransportException e) {
+			Logger.exception("CommCarePostFormEntryState.skipSend", e);
 			J2MEDisplay.showError(Localization.get("sending.status.error"), Localization.get("sending.status.error"));
+			goHome();
 		}
 	}
 	

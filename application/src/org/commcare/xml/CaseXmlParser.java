@@ -11,9 +11,11 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -24,9 +26,11 @@ import org.xmlpull.v1.XmlPullParserException;
 public class CaseXmlParser extends TransactionParser<Case> {
 
 	IStorageUtilityIndexed storage;
+	int[] tallies;
 	
-	public CaseXmlParser(KXmlParser parser) {
+	public CaseXmlParser(KXmlParser parser, int[] tallies) {
 		super(parser, "case", null);
+		this.tallies = tallies;
 	}
 
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -39,6 +43,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		this.nextTag("date_modified");
 		String dateModified = parser.nextText().trim();
 		Date modified = DateUtils.parseDateTime(dateModified);
+		
+		boolean create = false;
+		boolean update = false;
+		boolean close = false;
 		
 		//Now look for actions
 		while(this.nextTagInBlock("case")) {
@@ -75,6 +83,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				c.setExternalId(data[1]);
 				c.setCaseId(caseId);
 				commit(c);
+				create = true;
+				Logger.log("case-create", c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
 				
 			} else if(action.equals("update")) {
 				Case c = retrieve(caseId);
@@ -87,6 +97,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					c.setProperty(key,value);
 				}
 				commit(c);
+				update = true;
 			} else if(action.equals("close")) {
 				Case c = retrieve(caseId);
 				if(c == null) {
@@ -94,11 +105,20 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				}
 				c.setClosed(true);
 				commit(c);
+				Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
+				close = true;
 			} else if(action.equals("referral")) {
 				new ReferralXmlParser(parser,caseId,modified).parse();
 			}
 		}
 		
+		if (create) {
+			tallies[0]++;
+		} else if (close) {
+			tallies[2]++;
+		} else if (update) {
+			tallies[1]++;
+		}
 		
 		return null;
 	}

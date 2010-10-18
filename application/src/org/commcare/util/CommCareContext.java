@@ -46,6 +46,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.J2MEModule;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
+import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.log.LogManagementModule;
@@ -123,6 +124,7 @@ public class CommCareContext {
 		
 		registerAddtlStorage();
 		StorageManager.repairAll();
+		RMSTransaction.cleanup();
 		
 		initReferences();
 		
@@ -277,6 +279,7 @@ public class CommCareContext {
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
+		PropertyUtils.initializeProperty(CommCareProperties.DEPLOYMENT_MODE, CommCareProperties.DEPLOY_DEFAULT);
 	}
 	
 

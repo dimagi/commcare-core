@@ -8,7 +8,8 @@ import java.util.Vector;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
-import org.javarosa.core.util.TrivialTransitions;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.util.TrivialTransitionsWithErrors;
 import org.javarosa.formmanager.view.transport.MultiSubmitStatusScreen;
 import org.javarosa.formmanager.view.transport.TransportResponseProcessor;
 import org.javarosa.j2me.log.CrashHandler;
@@ -25,18 +26,24 @@ import org.javarosa.services.transport.impl.TransportException;
  */
 public class SendAllUnsentController implements HandledCommandListener {
 
-	private TrivialTransitions transitions;
+	private TrivialTransitionsWithErrors transitions;
 	private MultiSubmitStatusScreen screen;
+	private boolean shortcircuit;
 	
 	public SendAllUnsentController() {
 		this(null);
 	}
 	
-	public SendAllUnsentController(TransportResponseProcessor responder) {
-		screen = new MultiSubmitStatusScreen(this, responder);
-	}
-
-	public void setTransitions (TrivialTransitions transitions) {
+ 	public SendAllUnsentController(TransportResponseProcessor responder) {
+ 		this(responder, true, false);
+ 	}
+ 		
+ 	public SendAllUnsentController(TransportResponseProcessor responder, boolean silenceable, boolean shortcircuit) {
+ 		screen = new MultiSubmitStatusScreen(this, responder, silenceable);
+ 		this.shortcircuit = shortcircuit;
+ 	}
+	
+	public void setTransitions (TrivialTransitionsWithErrors transitions) {
 		this.transitions = transitions;
 	}
 
@@ -45,6 +52,11 @@ public class SendAllUnsentController implements HandledCommandListener {
 		Vector messages = TransportService.getCachedMessages();
 		String[] ids = new String[messages.size()];
 
+		if (ids.length == 0 && this.shortcircuit) {
+			transitions.done(false);
+			return;
+		}
+		
 		for (int i = 0; i < ids.length; ++i) {
 			ids[i] = ((TransportMessage) messages.elementAt(i)).getCacheIdentifier();
 		}
@@ -59,8 +71,9 @@ public class SendAllUnsentController implements HandledCommandListener {
 				try {
 					TransportService.sendCached(screen);
 				} catch (TransportException e) {
+					Logger.exception("SendAllUnsentController.start", e);
 					screen.receiveError(e.getMessage());
-					transitions.done();
+					transitions.done(true);
 				}
 			}
 		}).start();
@@ -71,7 +84,7 @@ public class SendAllUnsentController implements HandledCommandListener {
 	}  
 
 	public void _commandAction(Command c, Displayable d) {
-		transitions.done();
+		transitions.done(screen.hasErrors());
 	}
 
 }

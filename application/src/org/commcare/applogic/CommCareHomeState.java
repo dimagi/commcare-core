@@ -5,6 +5,7 @@ package org.commcare.applogic;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.entity.RecentFormEntity;
+import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
@@ -12,13 +13,16 @@ import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.UserCredentialProvider;
 import org.commcare.view.CommCareHomeController;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
+import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageManager;
@@ -28,7 +32,11 @@ import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.ModelRmsRetrievalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
+import org.javarosa.j2me.log.viewer.LogViewerState;
+import org.javarosa.j2me.util.DumpRMS;
+import org.javarosa.j2me.util.GPRSTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserEntity;
@@ -73,6 +81,91 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			}
 		});
 	}
+	
+	private static CommCareAlertState alertFactory (String title, String content) {
+		return new CommCareAlertState(title, content) {
+			public void done() {
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+			}
+		};
+	}
+	
+	public void serverSync () {
+		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
+			protected SendAllUnsentController getController () {
+				return new SendAllUnsentController(new CommCareHQResponder(), false, true);
+			}
+
+			public void done () {
+				throw new RuntimeException("method not applicable");
+			}
+			
+			public void done(boolean errorsOccurred) {
+				if (errorsOccurred) {
+					System.out.println("debug: server sync: errors occurred during send-all-unsent");
+					J2MEDisplay.startStateWithLoadingScreen(alertFactory(
+						"Failed to update",
+					//	"We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception and/or more talk-time."
+						"We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception. If this keeps happening, get help from your program manager."
+					));
+				} else {
+					System.out.println("debug: server sync: send-all-unsent successful");
+					
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState () {
+						protected CommCareOTARestoreController getController() {
+							return new CommCareOTARestoreController(
+								this,
+								CommCareContext._().getOTAURL(),
+								new HttpAuthenticator(new UserCredentialProvider(CommCareContext._().getUser())),
+								true, true
+							);
+						}
+
+						public void cancel() {
+							//don't think this is cancellable, since the only place you can cancel from is
+							//the credentials screen, and we skip that
+							throw new RuntimeException("shouldn't be cancellable");
+						}
+
+						public String restoreDetailMsg () {
+							int created = controller.caseTallies[0];
+							int updated = controller.caseTallies[1];
+							int closed = controller.caseTallies[2];
+							
+							if (created + updated + closed == 0) {
+								return "No new updates.";
+							} else {
+								String msg = "";
+								if (created > 0) {
+									msg += (msg.length() > 0 ? "; " : "") + created + " new follow-ups";
+								}
+								if (closed > 0) {
+									msg += (msg.length() > 0 ? "; " : "") + closed + " follow-ups closed by clinic";
+								}
+								if (updated > 0) {
+									msg += (msg.length() > 0 ? "; " : "") + updated + " open follow-ups updated";
+								}
+								return msg + ".";
+							}
+						}
+						
+						public void done(boolean errorsOccurred) {
+							if (errorsOccurred) {
+								System.out.println("debug: server sync: errors occurred during pull-down");
+								J2MEDisplay.startStateWithLoadingScreen(alertFactory(
+									"Failed to update",
+//									"There was a problem and we couldn't get all of your new follow-ups from the clinic. You should try again when you have better reception and/or more talk-time."
+									"There was a problem and we couldn't get your new follow-ups from the clinic. You should try again when you have better reception. If this keeps happening, get help from your program manager."
+								));								
+							} else {
+								J2MEDisplay.startStateWithLoadingScreen(alertFactory("Update", "Update successful! " + restoreDetailMsg()));
+							}
+						}						
+					});
+				}
+			}
+		});
+ 	}
 	
 	public void settings() {
 		J2MEDisplay.startStateWithLoadingScreen(new PropertyUpdateState () {
@@ -192,5 +285,31 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		} catch (UnfullfilledRequirementsException e) {
 			J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
 		}
+	}
+	
+	public void rmsdump () {
+		try {
+			DumpRMS.dumpRMS(CommCareContext._().getMidlet().getAppProperty("RMS-Image-Path"));
+			J2MEDisplay.startStateWithLoadingScreen(alertFactory("RMS Dump", "Dump successful!"));
+		} catch (Exception e) {
+			Logger.exception(e);
+			J2MEDisplay.startStateWithLoadingScreen(alertFactory("RMS Dump Failed!", WrappedException.printException(e)));
+		}
+	}
+	
+	public void viewLogs () {
+		J2MEDisplay.startStateWithLoadingScreen(new LogViewerState () {
+			public void done() {
+				new CommCareHomeState().start();
+			}			
+		});
+	}
+	
+	public void gprsTest () {
+		new GPRSTestState () {
+			public void done () {
+				new CommCareHomeState().start();
+			}
+		}.start();
 	}
 }

@@ -2,8 +2,9 @@ package org.commcare.applogic;
 
 import org.javarosa.core.api.State;
 import org.javarosa.core.util.TrivialTransitions;
+import org.javarosa.core.util.TrivialTransitionsWithErrors;
 
-public abstract class SendAllUnsentState implements TrivialTransitions, State {
+public abstract class SendAllUnsentState implements TrivialTransitions, TrivialTransitionsWithErrors, State {
 
 	public void start () {
 		SendAllUnsentController controller = getController();
@@ -14,5 +15,9 @@ public abstract class SendAllUnsentState implements TrivialTransitions, State {
 	protected SendAllUnsentController getController () {
 		return new SendAllUnsentController();
 	}
+
+	public void done (boolean errorsOccurred) {
+		done();
+	}	
 	
 }

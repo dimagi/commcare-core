@@ -13,6 +13,7 @@ import org.commcare.suite.model.Suite;
 public interface CommCareHomeTransitions  extends MenuTransitions {
 	void sessionItemChosen(int item);
 	void sendAllUnsent();
+	void serverSync();
 	void logout();
 	
 	void settings ();
@@ -22,4 +23,9 @@ public interface CommCareHomeTransitions  extends MenuTransitions {
 	void resetDemo ();
 	void upgrade ();
 	void review ();
+	
+	// dev / debugging
+	void rmsdump ();
+	void viewLogs ();
+	void gprsTest ();
 }

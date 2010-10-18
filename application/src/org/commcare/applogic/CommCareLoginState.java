@@ -6,8 +6,10 @@ import java.io.InputStream;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
+import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.properties.LogPropertyRules;
@@ -30,7 +32,8 @@ public class CommCareLoginState extends LoginState {
 		
 		return new LoginController(extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
 				                              AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
-				                              AddUserController.PASSWORD_FORMAT_NUMERIC);
+				                              AddUserController.PASSWORD_FORMAT_NUMERIC,
+				                              true);
 	}
 
 	/* (non-Javadoc)
@@ -45,7 +48,7 @@ public class CommCareLoginState extends LoginState {
 	 */
 	public void loggedIn(User u) {
 		CommCareContext._().setUser(u);
-		Logger.log("login", u.getUniqueId() + "-" + u.getUsername());
+		Logger.log("login", PropertyUtils.trim(u.getUniqueId(), 8) + "-" + u.getUsername());
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
 
@@ -64,7 +67,7 @@ public class CommCareLoginState extends LoginState {
 				} catch (IOException e) {
 					e.printStackTrace();
 					//this gets caught by the report state and swallowed properly
-					throw new RuntimeException("Failed to read report payload while creating http transport data");
+					throw new WrappedException("Failed to read report payload while creating http transport data", e);
 				}
 			}
 

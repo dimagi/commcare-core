@@ -68,6 +68,10 @@
 					<!-- Release property can't go in jad if it will be changed -->
 					<!--attribute name="CommCare-Release"	value="${commcare.release}" /-->
 					<attribute name="Profile" value="${commcare.profile}"/>
+					
+					<attribute name="MIDlet-Permissions" if="sign.locally"
+					 value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm"
+					/>
 				</jad>
 
 				<!-- midlets definition -->
@@ -144,6 +148,12 @@
 
 				<postcompiler name="java5" />					
 
+				<sign if="build.locally"
+					keystore="${key.keystore}"
+					key="${key.keyname}"
+					password="${key.password}"
+				/>
+				
 			</build>
 
 			<!-- execution of emulator(s) -->
@@ -306,6 +316,10 @@
 		<condition property="compile.from.source.true">
 			<equals arg1="${compile.source}" arg2="true" />
 		</condition>
+		
+		<condition property="sign.locally">
+			<equals arg1="${build.sign}" arg2="true" />
+		</condition>
 	</target>
 
 	<!-- for use primarily by the build server to extract the required 3rd-party libraries into the
@@ -367,6 +381,8 @@
 
 	<!-- import global properties                                 -->
 	<property file="${polish.home}/global.properties" />             
+	
+	<property file="${basedir}/key.properties" />
 	
 	<property name="TALK" value="true" />
 
