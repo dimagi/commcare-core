@@ -55,10 +55,6 @@ public class CommCareFirstStartState implements State, FirstStartupTransitions{
 	public void restore() {
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState() {
 
-			public CommCareOTARestoreController getController () {
-				return new CommCareOTARestoreController(this, CommCareContext._().getOTAURL(), null, false, true);
-			}
-			
 			public void cancel() {
 				J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
 			}

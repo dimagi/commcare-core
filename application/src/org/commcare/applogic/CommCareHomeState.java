@@ -3,6 +3,8 @@
  */
 package org.commcare.applogic;
 
+import java.util.Hashtable;
+
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.entity.RecentFormEntity;
 import org.commcare.restore.CommCareOTARestoreController;
@@ -111,15 +113,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				} else {
 					System.out.println("debug: server sync: send-all-unsent successful");
 					
-					J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState () {
-						protected CommCareOTARestoreController getController() {
-							return new CommCareOTARestoreController(
-								this,
-								CommCareContext._().getOTAURL(),
-								new HttpAuthenticator(new UserCredentialProvider(CommCareContext._().getUser())),
-								true, true
-							);
-						}
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState (true,
+							new HttpAuthenticator(new UserCredentialProvider(CommCareContext._().getUser()))) {
 
 						public void cancel() {
 							//don't think this is cancellable, since the only place you can cancel from is
@@ -128,9 +123,10 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 						}
 
 						public String restoreDetailMsg () {
-							int created = controller.caseTallies[0];
-							int updated = controller.caseTallies[1];
-							int closed = controller.caseTallies[2];
+							Hashtable<String, Integer> tallies = controller.getCaseTallies();
+							int created = tallies.get("create").intValue();
+							int updated = tallies.get("update").intValue();
+							int closed = tallies.get("close").intValue();
 							
 							if (created + updated + closed == 0) {
 								return "No new updates.";
@@ -182,7 +178,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				new CommCareHomeState().start();
 			}
 
-			public void done() {
+			public void done(boolean errorsOccured) {
 				new CommCareHomeState().start();
 			}
 			

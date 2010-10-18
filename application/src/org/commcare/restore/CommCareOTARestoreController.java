@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
@@ -75,6 +76,10 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 				
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
 			HttpAuthenticator authenticator, boolean isSync, boolean noPartial) {
+		if (isSync && !noPartial) {
+			System.err.println("WARNING: no-partial mode is strongly recommended when syncing");
+		}
+		
 		this.restoreURI = restoreURI;
 		this.authenticator = authenticator;
 			
@@ -491,5 +496,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			}
 		};
 		t.start();
+	}
+	
+	public Hashtable<String, Integer> getCaseTallies() {
+		Hashtable<String, Integer> tall = new Hashtable<String, Integer>();
+		tall.put("create", new Integer(this.caseTallies[0]));
+		tall.put("update", new Integer(this.caseTallies[1]));
+		tall.put("close", new Integer(this.caseTallies[2]));
+		return tall;
 	}
 }

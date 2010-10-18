@@ -60,6 +60,7 @@
 				<jad>
 					<attribute name="App-Version" value="${app.version}"/>
 					<attribute name="CommCare-Version" value="${commcare.version}"/>
+					<attribute name="CC-Content-Version" value="${cc-content-version}" />
 					<attribute name="CC-Build-Version" value="${cc-build-version}" />
 					<attribute name="JR-Build-Version" value="${jr-build-version}" />
 					<attribute name="Polish-Device" value="${device.identifier}" />
