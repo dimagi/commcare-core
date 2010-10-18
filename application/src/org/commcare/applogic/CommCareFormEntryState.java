@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareUtil;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -19,7 +20,6 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
-import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.NamespaceRetrievalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
@@ -43,7 +43,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	
 	protected JrFormEntryController getController() {
 		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers);
-		JrFormEntryController controller = new JrFormEntryController(new JrFormEntryModel(fetcher.getFormDef()));
+		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher);
 		controller.setView(new Chatterbox(title,controller));
 		return controller;
 	}

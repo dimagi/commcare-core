@@ -33,6 +33,11 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.formmanager.api.JrFormEntryController;
+import org.javarosa.formmanager.api.JrFormEntryModel;
+import org.javarosa.formmanager.properties.FormManagerProperties;
+import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportService;
 
@@ -322,5 +327,14 @@ public class CommCareUtil {
 		} else{
 			exit();
 		}
+	}
+
+	public static JrFormEntryController createFormEntryController(FormDefFetcher fetcher) {
+		return createFormEntryController(new JrFormEntryModel(fetcher.getFormDef()));
+		
+	}
+	
+	public static JrFormEntryController createFormEntryController(JrFormEntryModel model) {
+		return new JrFormEntryController(model, PropertyManager._().getSingularProperty(FormManagerProperties.EXTRA_KEY_FORMAT), true, CommCareProperties.ENTRY_MODE_QUICK.equals(PropertyManager._().getSingularProperty(CommCareProperties.ENTRY_MODE)));
 	}
 }

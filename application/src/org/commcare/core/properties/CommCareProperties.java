@@ -49,6 +49,10 @@ public class CommCareProperties implements IPropertyRules {
     public final static String DAYS_FOR_REVIEW = "cc-review-days";
     
     public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
+	public final static String ENTRY_MODE = "cc-entry-mode";
+	public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
+	public final static String ENTRY_MODE_REVIEW = "cc-entry-review";
+	
     
 	/**
 	 * Creates the JavaRosa set of property rules
@@ -90,6 +94,14 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(DAYS_FOR_REVIEW, new Vector());
         
         rules.put(OTA_RESTORE_OFFLINE, new Vector());
+        
+        Vector entrymode = new Vector();
+        entrymode.addElement(ENTRY_MODE_QUICK);
+        entrymode.addElement(ENTRY_MODE_REVIEW);
+        
+        rules.put(ENTRY_MODE, entrymode);
+        
+        readOnlyProperties.addElement(ENTRY_MODE);
 	}
 
 	/**

@@ -147,9 +147,8 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				final String title = prototype.getTypeName(instance.schema);
 				J2MEDisplay.startStateWithLoadingScreen(new FormEntryState () {
 					protected JrFormEntryController getController() {
-						FormDefFetcher fetcher = new FormDefFetcher(new ModelRmsRetrievalMethod(instanceID), instanceID,
-								CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
-						JrFormEntryController controller = new JrFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), true));
+						FormDefFetcher fetcher = new FormDefFetcher(new ModelRmsRetrievalMethod(instanceID), instanceID, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
+						JrFormEntryController controller = CommCareUtil.createFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), true));
 						controller.setView(new Chatterbox(title, controller));
 						return controller;
 					}

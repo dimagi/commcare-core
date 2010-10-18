@@ -271,7 +271,7 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
-		PropertyUtils.initializeProperty(FormManagerProperties.USE_HASH_FOR_AUDIO_PLAYBACK, FormManagerProperties.HASH_AUDIO_PLAYBACK_YES);
+		PropertyUtils.initializeProperty(FormManagerProperties.EXTRA_KEY_FORMAT, FormManagerProperties.EXTRA_KEY_LANGUAGE_CYCLE);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 	}
 	
