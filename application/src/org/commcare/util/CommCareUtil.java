@@ -8,8 +8,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.applogic.CommCareAlertState;
 import org.commcare.applogic.CommCareFirstStartState;
-import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareLoginState;
 import org.commcare.core.properties.CommCareProperties;
@@ -21,7 +21,6 @@ import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.IPatientReferralFilter;
-import org.javarosa.core.api.State;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -33,6 +32,7 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.formmanager.api.JrFormEntryController;
@@ -54,6 +54,7 @@ public class CommCareUtil {
 	private final static String PROP_CC_APP_VERSION = "CommCare-Version";
 	private final static String PROP_JR_BUILD_VERSION = "JR-Build-Version";
 	private final static String PROP_CC_BUILD_VERSION = "CC-Build-Version";
+	private final static String PROP_CONTENT_VERSION = "CC-Content-Version";
 	private final static String PROP_POLISH_VERSION = "Polish-Version";
 	private final static String PROP_POLISH_DEVICE = "Polish-Device";
 	private final static String PROP_BUILD_DATE = "Built-on";
@@ -92,22 +93,24 @@ public class CommCareUtil {
 		String vHumanApp = getAppProperty(PROP_CC_APP_VERSION, vApp);
 		String vBuildJR = getAppProperty(PROP_JR_BUILD_VERSION, "??");
 		String vBuildCC = getAppProperty(PROP_CC_BUILD_VERSION, "??");
+		String vContent = getAppProperty(PROP_CONTENT_VERSION, "??");
 		String vPolish = getAppProperty(PROP_POLISH_VERSION, "??");
 		String vDevice = getAppProperty(PROP_POLISH_DEVICE, "??");
 		String buildDate = getAppProperty(PROP_BUILD_DATE, "??");
 		String releaseDate = getAppProperty(PROP_RELEASE_DATE, "--");
-		String buildNum = getAppProperty(PROP_BUILD_NUM,"custom");
+		String buildNum = getAppProperty(PROP_BUILD_NUM, "custom");
 		boolean released = !isTestingMode();
 		
-		vBuildJR = vBuildJR.substring(0, Math.min(hashLength, vBuildJR.length()));
-		vBuildCC = vBuildCC.substring(0, Math.min(hashLength, vBuildCC.length()));
+		vBuildJR = PropertyUtils.trim(vBuildJR, hashLength);
+		vBuildCC = PropertyUtils.trim(vBuildCC, hashLength);
+		vContent = PropertyUtils.trim(vContent, hashLength);
 		vPolish = (String)DateUtils.split(vPolish, " ", true).elementAt(0);
 		buildDate = (String)DateUtils.split(buildDate, " ", true).elementAt(0);
 		releaseDate = (String)DateUtils.split(releaseDate, " ", true).elementAt(0);
 		
 		switch (type) {
 		case VERSION_LONG:
-			return vHumanApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vPolish + "-" + vDevice +
+			return vHumanApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vContent + "-" + vPolish + "-" + vDevice +
 				")" + (released ? " #" + buildNum : "") + " b:" + buildDate + " r:" + releaseDate;
 		case VERSION_MED:
 			return vHumanApp + " " + "#" + buildNum + (released ? " (" + releaseDate + ")" : "<unreleased>");
@@ -161,7 +164,12 @@ public class CommCareUtil {
 	}
 		
 	public static boolean isTestingMode() {
-		return !"true".equals(CommCareUtil.getAppProperty(COMMCARE_RELEASE_PROPERTY));
+		String mode = PropertyManager._().getSingularProperty(CommCareProperties.DEPLOYMENT_MODE);
+		if (mode == null || mode.equals(CommCareProperties.DEPLOY_DEFAULT)) {
+			return !"true".equals(CommCareUtil.getAppProperty(COMMCARE_RELEASE_PROPERTY));
+		} else {
+			return mode.equals(CommCareProperties.DEPLOY_TESTING);
+		}
 	}
 			
 	public static void exit () {
@@ -310,4 +318,19 @@ public class CommCareUtil {
 		}
 	}
 
+	public static CommCareAlertState alertFactory (String title, String content) {
+		return new CommCareAlertState(title, content) {
+			public void done() {
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+			}
+		};
+	}
+	
+	public static boolean demoEnabled() {
+		return !CommCareProperties.DEMO_DISABLED.equals(PropertyManager._().getSingularProperty(CommCareProperties.DEMO_MODE));
+	}
+	
+	public static boolean partialRestoreEnabled() {
+		return !CommCareProperties.REST_TOL_STRICT.equals(PropertyManager._().getSingularProperty(CommCareProperties.RESTORE_TOLERANCE));
+	}
 }

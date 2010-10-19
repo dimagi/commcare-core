@@ -10,9 +10,11 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -59,6 +61,7 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 				for(Object s : DateUtils.split(referralTypes, " ", true)) {
 					PatientReferral pr = new PatientReferral((String)s, created, refId, caseId, followup);
 					commit(pr);
+					Logger.log("referral-open", pr.getID() + ";" + PropertyUtils.trim(pr.getReferralId(), 12) + ";" + pr.getType());
 				}
 				if(this.nextTagInBlock("open")) {
 					throw new InvalidStructureException("Expected </open>, found " + parser.getName(), parser);
@@ -80,6 +83,7 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 					//Date closed = DateUtils.parseDate(dateClosed);
 					r.close();
 					commit(r);
+					Logger.log("referral-resolve", PropertyUtils.trim(r.getReferralId(), 12) + ";" + r.getType()); //type currently needed to uniquely identify referral
 					
 					if(this.nextTagInBlock("update")) {
 						throw new InvalidStructureException("Expected </update>, found " + parser.getName(), parser);

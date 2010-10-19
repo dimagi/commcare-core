@@ -6,6 +6,8 @@ package org.commcare.restore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
+import java.util.Hashtable;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
@@ -18,13 +20,14 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.StorageModifiedException;
@@ -32,6 +35,7 @@ import org.javarosa.core.util.StreamUtil;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.log.HandledThread;
+import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
@@ -55,16 +59,35 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	int authAttempts = 0;
 	String restoreURI;
+	boolean noPartial;
+	boolean isSync;
 	
 	HttpAuthenticator authenticator;
+	boolean errorsOccurred;
+	final int[] caseTallies = new int[3];
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
-		this(transitions,restoreURI,null);
+		this(transitions, restoreURI, null);
 	}
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
+		this(transitions, restoreURI, authenticator, false, false);
+	}
+				
+	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
+			HttpAuthenticator authenticator, boolean isSync, boolean noPartial) {
+		if (isSync && !noPartial) {
+			System.err.println("WARNING: no-partial mode is strongly recommended when syncing");
+		}
+		
 		this.restoreURI = restoreURI;
 		this.authenticator = authenticator;
+			
+		this.isSync = isSync;
+		if (isSync) {
+			setLastSyncToken();
+		}
+		this.noPartial = noPartial;
 		
 		view = new CommCareOTARestoreView(Localization.get("intro.restore"));
 		view.setCommandListener(this);
@@ -103,10 +126,12 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	private void tryDownload(AuthenticatedHttpTransportMessage message) {
 		view.addToMessage(Localization.get("restore.message.startdownload"));
+		Logger.log("restore", "start");
 		try {
 			if(message.getUrl() == null) {
-				fail(Localization.get("restore.noserveruri"));
+				fail(Localization.get("restore.noserveruri"), null, "no restore url");
 				J2MEDisplay.setView(view);
+				doneFail(null);
 				return;
 			}
 			AuthenticatedHttpTransportMessage sent = (AuthenticatedHttpTransportMessage)TransportService.sendBlocking(message);
@@ -118,6 +143,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 				} catch(IOException e) {
 					J2MEDisplay.setView(entry);
 					entry.sendMessage(Localization.get("restore.baddownload"));
+					doneFail("download failure: " + WrappedException.printException(e));
 					return;
 				}
 			} else {
@@ -126,20 +152,26 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					view.addToMessage(Localization.get("restore.badcredentials"));
 					entry.sendMessage(Localization.get("restore.badcredentials"));
 					if(authAttempts > 0) {
+						Logger.log("restore", "bad credentials; " + authAttempts + " attempts remain");
 						authAttempts--;
 						getCredentials();
+					} else {
+						doneFail("bad credentials");
 					}
 					return;
 				} else if(sent.getResponseCode() == 404) {
 					entry.sendMessage(Localization.get("restore.badserver"));
+					doneFail("404");
 					return;
 				} else {
 					entry.sendMessage(sent.getFailureReason());
+					doneFail("other: " + sent.getFailureReason());
 					return;
 				}
 			}
 		} catch (TransportException e) {
 			entry.sendMessage(Localization.get("restore.message.connection.failed"));
+			doneFail("tx exception: " + WrappedException.printException(e));
 		}
 	}
 	
@@ -187,58 +219,128 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	}
 	
-	private void noCache(InputStream input) {
-		view.addToMessage(Localization.get("restore.nocache"));
-		startRestore(input);
+	private void setLastSyncToken () {
+		//get property
+		String lastSyncToken = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SUCCESSFUL_SYNC);
+		if (lastSyncToken != null) {
+			this.restoreURI += "?since=" + lastSyncToken;
+		}
 	}
-
+	
+	private void noCache(InputStream input) throws IOException {
+		if (this.noPartial) {
+			Logger.log("ota-restore", "attempted to restore OTA in 'no partial' mode, but could not cache payload locally");
+			throw new IOException();
+		} else {
+			view.addToMessage(Localization.get("restore.nocache"));
+			startRestore(input);
+		}
+ 	}
+	
 	public boolean startRestore(InputStream input) {
 		J2MEDisplay.setView(view);
 		view.addToMessage(Localization.get("restore.starting")); 
+		
+		final String[] restoreIDWrapper = {null};
+		errorsOccurred = false;
+		
+		boolean success = false;
+		String restoreID = null;
+		String[] parseErrors = new String[0];
+		
 		try {
+			beginTransaction();
+			
 			DataModelPullParser parser = new DataModelPullParser(input, new TransactionParserFactory() {
 	
 				public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 					if(name.toLowerCase().equals("case")) {
-						return new CaseXmlParser(parser);
+						return new CaseXmlParser(parser, caseTallies);
 					} else if(name.toLowerCase().equals("registration")) {
 						return new UserXmlParser(parser);
+					} else if (name.equalsIgnoreCase("restore_id")) {
+						return new TransactionParser<String> (parser, "restore_id", null) {
+							public void commit(String parsed) throws IOException {
+								//do nothing
+							}
+							
+							public String parse() throws XmlPullParserException, IOException {
+								String restoreID = parser.nextText().trim();
+								restoreIDWrapper[0] = restoreID;
+								return restoreID;
+							}
+						};
 					}
 					return null;
 				}
 				
 			});
-			if(parser.parse()) {
-				view.addToMessage(Localization.get("restore.success"));
-				done();
-				return true;
-			} else {
-				String[] errors = parser.getParseErrors();
-				view.addToMessage(Localization.get("restore.success.partial") + " " + errors.length);
-				for(String s : parser.getParseErrors()) {
-					Logger.log("restore", s);
-				}
-				done();
-				return true;
-			}
 			
-		} catch(IOException e) {
-			fail(Localization.get("restore.fail"));
-			e.printStackTrace();
+			success = parser.parse();
+			restoreID = restoreIDWrapper[0];
+			if (success) {
+				PropertyManager._().setProperty(CommCareProperties.LAST_SUCCESSFUL_SYNC, restoreID);
+				PropertyManager._().setProperty(CommCareProperties.LAST_SYNC_AT, DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
+			}
+			parseErrors = parser.getParseErrors();
+			
+		} catch (IOException e) {
+			fail(Localization.get("restore.fail"), e, null);
 			return false;
 		} catch (InvalidStructureException e) {
-			fail(Localization.get("restore.fail"));
-			e.printStackTrace();
+			fail(Localization.get("restore.fail"), e, null);
 			return false;
 		} catch (XmlPullParserException e) {
-			fail(Localization.get("restore.fail"));
-			e.printStackTrace();
+			fail(Localization.get("restore.fail"), e, null);
 			return false;
 		} catch (UnfullfilledRequirementsException e) {
-			fail(Localization.get("restore.fail"));
-			e.printStackTrace();
+			fail(Localization.get("restore.fail"), e, null);
 			return false;
+		} catch (RuntimeException e) {
+			success = false;
+		} finally {
+			if (success) {
+				commitTransaction();
+			} else {
+				rollbackTransaction();
+			}
 		}
+		
+		if (success) {
+			view.addToMessage(Localization.get("restore.success"));
+			Logger.log("restore", "successful: " + (restoreID != null ? restoreID : "???"));
+		} else {
+			if (noPartial) {
+				view.addToMessage(Localization.get("restore.fail"));				
+			} else {
+				view.addToMessage(Localization.get("restore.success.partial") + " " + parseErrors.length);
+			}
+			
+			Logger.log("restore", (noPartial ? "restore errors; rolled-back" : "unsuccessful or partially successful") +
+					": " + (restoreID != null ? restoreID : "???"));
+			for(String s : parseErrors) {
+				Logger.log("restore", "err: " + s);
+			}
+						
+			errorsOccurred = true;
+		}
+		done();
+		return success || !noPartial;
+	}
+	
+	private void beginTransaction () {
+		if (this.noPartial)
+			RMSTransaction.beginTransaction();
+	}	
+				
+	private void commitTransaction () {
+		if (this.noPartial)
+			RMSTransaction.commitTransaction();
+	}
+			
+	private void rollbackTransaction () {
+		if (this.noPartial)
+			RMSTransaction.rollbackTransaction();
 	}
 	
 	private void done() {
@@ -246,8 +348,28 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		view.addToMessage(Localization.get("restore.key.continue"));
 	}
 	
-	private void fail(String message) {
+	private void doneFail(String msg) {
+		if (msg != null) {
+			Logger.log("restore", "fatal error: " + msg);
+		}
+		if (this.isSync) {
+			done();
+			errorsOccurred = true;
+		}
+	}
+	
+	private void fail(String message, Exception e, String logmsg) {
 		view.addToMessage(message);
+		
+		if (logmsg == null) {
+			logmsg = (e != null ? WrappedException.printException(e) : "no message");
+		}
+		Logger.log("restore", "fatal error: " + logmsg);
+		
+		if (e != null) {
+			e.printStackTrace();
+		}
+		
 		//Retry/Cancel from scratch or by 
 	}
 
@@ -272,7 +394,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
 			transitions.cancel();
 		} else if(c.equals(view.FINISHED)) {
-			transitions.done();
+			transitions.done(errorsOccurred);
 		}
 	}
 	
@@ -374,5 +496,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			}
 		};
 		t.start();
+	}
+	
+	public Hashtable<String, Integer> getCaseTallies() {
+		Hashtable<String, Integer> tall = new Hashtable<String, Integer>();
+		tall.put("create", new Integer(this.caseTallies[0]));
+		tall.put("update", new Integer(this.caseTallies[1]));
+		tall.put("close", new Integer(this.caseTallies[2]));
+		return tall;
 	}
 }

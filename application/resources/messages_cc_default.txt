@@ -17,10 +17,11 @@ restore.downloaded=Data downloaded locally.
 restore.starting=Beginning data sync
 restore.success=Data sync successful
 restore.success.partial=Data sync partially successful. Some errors occurred.
-restore.fail=Exception during restore!
+restore.fail=Errors occurred when fetching updates from server.
 restore.baddownload=Download failed, please try again.
 restore.noserveruri=No Restore Server Configured!
 restore.key.continue=Press any key to continue...
+restore.user.exists=Cannot restore a user that is already on the phone!
 
 polish.date.select=Select Date
 
@@ -51,8 +52,6 @@ home.user.edit=Edit Users
 home.data.restore=Restore User Data
 home.demo.reset=Reset Demo Data
 home.updates=Check for Updates
-
-restore.user.exists=Cannot restore a user that is already on the phone!
 
 #Restore Bypass Strings
 restore.bypass.start=Beginning restore from local file ${0}, bypassing OTA

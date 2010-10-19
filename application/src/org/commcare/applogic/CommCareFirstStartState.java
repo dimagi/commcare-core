@@ -5,6 +5,7 @@ package org.commcare.applogic;
 
 import org.commcare.api.transitions.FirstStartupTransitions;
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.util.CommCareContext;
 import org.commcare.view.FirstStartupView;
 import org.javarosa.core.api.State;
@@ -58,7 +59,7 @@ public class CommCareFirstStartState implements State, FirstStartupTransitions{
 				J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
 			}
 
-			public void done() {
+			public void done(boolean errorsOccurred) {
 				PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_NO);
 				J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
 			}

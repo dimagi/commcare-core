@@ -60,6 +60,8 @@ public class CommCareHomeController implements HandledCommandListener {
 
 			if(view.getCurrentItem() == view.sendAllUnsent) {
 				transitions.sendAllUnsent();
+			} else if (view.getCurrentItem() == view.serverSync) {
+				transitions.serverSync();
 			} else if(view.getCurrentItem() == view.reviewRecent) {
 				transitions.review();
 			} else {
@@ -67,7 +69,7 @@ public class CommCareHomeController implements HandledCommandListener {
 			}
 		} else if (c == view.exit) {
 			transitions.logout();
-		}else if (c == view.admSettings) {
+		} else if (c == view.admSettings) {
 			transitions.settings();
 		} else if (c == view.admNewUser) {
 			transitions.newUser();
@@ -77,8 +79,14 @@ public class CommCareHomeController implements HandledCommandListener {
 			transitions.restoreUserData();
 		} else if (c == view.admResetDemo) {
 			transitions.resetDemo();
-		}else if (c == view.admUpgrade) {
+		} else if (c == view.admUpgrade) {
 			transitions.upgrade();
+		} else if (c == view.admRMSDump) {
+			transitions.rmsdump();
+		} else if (c == view.admViewLogs) {
+			transitions.viewLogs();
+		} else if (c == view.admGPRSTest) {
+			transitions.gprsTest();
 		}
 	}
 }

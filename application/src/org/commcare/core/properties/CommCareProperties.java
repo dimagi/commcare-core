@@ -15,6 +15,11 @@ public class CommCareProperties implements IPropertyRules {
 
 	public final static String COMMCARE_VERSION = "app-version";
 	
+	public final static String DEPLOYMENT_MODE = "deployment";
+	public final static String DEPLOY_TESTING = "deploy-test";
+	public final static String DEPLOY_RELEASE = "deploy-rel";
+	public final static String DEPLOY_DEFAULT = "deploy-def";
+	
 	// http, since it doesn't go in transport layer anymore
     public final static String POST_URL_PROPERTY = "PostURL";
     
@@ -33,6 +38,20 @@ public class CommCareProperties implements IPropertyRules {
     //OTA Restore
     public final static String OTA_RESTORE_URL = "ota-restore-url";
     public final static String OTA_RESTORE_TEST_URL = "ota-restore-url-testing";
+    public final static String LAST_SUCCESSFUL_SYNC = "last-sync-token";
+    public final static String LAST_SYNC_AT = "last-sync-timestamp";
+    
+    public final static String RESTORE_TOLERANCE = "restore-tolerance";
+    public final static String REST_TOL_STRICT = "strict";
+    public final static String REST_TOL_LOOSE = "loose";
+    
+    public final static String DEMO_MODE = "demo-mode";
+    public final static String DEMO_ENABLED = "yes";
+    public final static String DEMO_DISABLED = "no";
+    
+    public final static String TETHER_MODE = "server-tether";
+    public final static String TETHER_PUSH_ONLY = "push-only";
+    public final static String TETHER_SYNC = "sync";
     
     //User registration
     public final static String USER_REG_NAMESPACE = "user_reg_namespace";
@@ -72,6 +91,12 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(COMMCARE_VERSION, new Vector());
         readOnlyProperties.addElement(COMMCARE_VERSION);
         
+        Vector deployment_modes = new Vector();
+        deployment_modes.addElement(DEPLOY_DEFAULT);
+        deployment_modes.addElement(DEPLOY_TESTING);
+        deployment_modes.addElement(DEPLOY_RELEASE);
+        rules.put(DEPLOYMENT_MODE, deployment_modes);
+        
         // PostURL List Property
         rules.put(POST_URL_PROPERTY, new Vector());
         rules.put(POST_URL_TEST_PROPERTY, new Vector());
@@ -82,6 +107,27 @@ public class CommCareProperties implements IPropertyRules {
         
         rules.put(OTA_RESTORE_URL, new Vector());
         rules.put(OTA_RESTORE_TEST_URL,new Vector());
+        rules.put(LAST_SUCCESSFUL_SYNC, new Vector());
+        rules.put(LAST_SYNC_AT, new Vector());
+        readOnlyProperties.addElement(LAST_SUCCESSFUL_SYNC);
+        readOnlyProperties.addElement(LAST_SYNC_AT);
+        
+        Vector vTol = new Vector();
+        vTol.addElement(REST_TOL_STRICT);
+        vTol.addElement(REST_TOL_LOOSE);
+        rules.put(RESTORE_TOLERANCE, vTol);
+        readOnlyProperties.addElement(RESTORE_TOLERANCE);
+
+        Vector vDemo = new Vector();
+        vDemo.addElement(DEMO_ENABLED);
+        vDemo.addElement(DEMO_DISABLED);
+        rules.put(DEMO_MODE, vDemo);
+        
+        Vector vTeth = new Vector();
+        vTeth.addElement(TETHER_PUSH_ONLY);
+        vTeth.addElement(TETHER_SYNC);
+        rules.put(TETHER_MODE, vTeth);
+        readOnlyProperties.addElement(TETHER_MODE);
         
         rules.put(USER_REG_NAMESPACE, new Vector());
         readOnlyProperties.addElement(USER_REG_NAMESPACE);
@@ -184,6 +230,8 @@ public class CommCareProperties implements IPropertyRules {
 	public String getHumanReadableDescription(String propertyName) {
 		if(COMMCARE_VERSION.equals(propertyName)) {
 			return "CommCare Version";
+		} else if (DEPLOYMENT_MODE.equals(propertyName)) {
+			return "Deployment mode";
 		} else if (PURGE_LAST.equals(propertyName)) {
         	return "Last Purge on";
         } else if (PURGE_FREQ.equals(propertyName)) {
@@ -202,6 +250,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Form Send/Save Process";
         } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
         	return "Offline File Ref for OTA Bypass";
+        } else if (DEMO_MODE.equals(propertyName)) {
+        	return "Demo Mode Enabled";
         }
     	return propertyName;
 	}
@@ -215,6 +265,14 @@ public class CommCareProperties implements IPropertyRules {
         	} else if(SEND_STYLE_NONE.equals(value)) {
         		return "Don't Save";
         	}
+		} else if (DEPLOYMENT_MODE.equals(propertyName)) {
+			if (DEPLOY_TESTING.equals(value)) {
+				return "Testing";
+			} else if (DEPLOY_RELEASE.equals(value)) {
+				return "Release";
+			} else if (DEPLOY_DEFAULT.equals(value)) {
+				return "JAD setting";
+			}
         }
 
         return value;

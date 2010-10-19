@@ -10,6 +10,7 @@ import java.util.Vector;
 import org.commcare.xml.ElementParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -62,8 +63,8 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 			} else {
 				try{
 					transaction.parse();
-				} catch(InvalidStructureException ise) {
-					deal(ise, depth, name);
+				} catch(Exception e) {
+					deal(e, depth, name);
 				}
 			}
 		}
@@ -75,14 +76,12 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 		}
 	}
 	
-	private void deal(InvalidStructureException e, int depth, String parentTag) throws InvalidStructureException, XmlPullParserException, IOException {
+	private void deal(Exception e, int depth, String parentTag) throws XmlPullParserException, IOException {
+		errors.addElement(WrappedException.printException(e));
+		this.skipBlock(parentTag);
+		
 		if(failfast) {
-			throw e;
-		} else{
-			String message = e.getMessage();
-			errors.addElement(message);
-			System.out.println("error: " + e.getMessage());
-			this.skipBlock(parentTag);
+			throw new WrappedException(e);
 		}
 	}
 	

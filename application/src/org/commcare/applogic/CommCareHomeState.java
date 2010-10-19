@@ -3,8 +3,11 @@
  */
 package org.commcare.applogic;
 
+import java.util.Hashtable;
+
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.entity.RecentFormEntity;
+import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
@@ -12,13 +15,16 @@ import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.UserCredentialProvider;
 import org.commcare.view.CommCareHomeController;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
+import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageManager;
@@ -28,7 +34,11 @@ import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.ModelRmsRetrievalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
+import org.javarosa.j2me.log.viewer.LogViewerState;
+import org.javarosa.j2me.util.DumpRMS;
+import org.javarosa.j2me.util.GPRSTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserEntity;
@@ -74,6 +84,20 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		});
 	}
 	
+
+	
+	public void serverSync () {
+		J2MEDisplay.startStateWithLoadingScreen(new ServerSyncState () {
+			public void onSuccess (String detail) {
+				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Update", detail));
+			}
+			
+			public void onError (String detail) {
+				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Failed to update", detail));
+			}	
+		});
+	}
+	
 	public void settings() {
 		J2MEDisplay.startStateWithLoadingScreen(new PropertyUpdateState () {
 			public void done () {
@@ -89,7 +113,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				new CommCareHomeState().start();
 			}
 
-			public void done() {
+			public void done(boolean errorsOccured) {
 				new CommCareHomeState().start();
 			}
 			
@@ -191,5 +215,31 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 		} catch (UnfullfilledRequirementsException e) {
 			J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
 		}
+	}
+	
+	public void rmsdump () {
+		try {
+			DumpRMS.dumpRMS(CommCareContext._().getMidlet().getAppProperty("RMS-Image-Path"));
+			J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("RMS Dump", "Dump successful!"));
+		} catch (Exception e) {
+			Logger.exception(e);
+			J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("RMS Dump Failed!", WrappedException.printException(e)));
+		}
+	}
+	
+	public void viewLogs () {
+		J2MEDisplay.startStateWithLoadingScreen(new LogViewerState () {
+			public void done() {
+				new CommCareHomeState().start();
+			}			
+		});
+	}
+	
+	public void gprsTest () {
+		new GPRSTestState () {
+			public void done () {
+				new CommCareHomeState().start();
+			}
+		}.start();
 	}
 }

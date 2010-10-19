@@ -18,6 +18,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.utility.FormDefFetcher;
@@ -139,6 +140,6 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 			guid = "?";
 		}
 		
-		Logger.log("form-completed", instanceData.getFormId() + ":" + guid);
+		Logger.log("form-completed", instanceData.getFormId() + ":" + PropertyUtils.trim(guid, 12));
 	}
 }
