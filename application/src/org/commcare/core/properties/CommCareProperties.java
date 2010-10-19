@@ -49,7 +49,7 @@ public class CommCareProperties implements IPropertyRules {
     public final static String DAYS_FOR_REVIEW = "cc-review-days";
     
     public final static String PASSWORD_FORMAT = "password_format";
-    public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
+    
 	public final static String ENTRY_MODE = "cc-entry-mode";
 	public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
 	public final static String ENTRY_MODE_REVIEW = "cc-entry-review";

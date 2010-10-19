@@ -26,6 +26,7 @@ import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.List;
 
@@ -65,7 +66,7 @@ public class CommCareSessionController {
 				if(menu.equals(m.getId())){
 					for(String id : m.getCommandIds()) {
 						Entry e = suite.getEntries().get(id);
-						int location = list.append(CommCareUtil.getEntryText(e,suite), null);
+						int location = list.append(CommCareUtil.getEntryText(e,suite), MediaUtils.getImage(e.getImageURI()));
 						suiteTable.put(new Integer(location),suite);
 						entryTable.put(new Integer(location),e);
 					}

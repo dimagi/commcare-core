@@ -42,11 +42,7 @@ public class CommCareHomeScreen extends List {
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
 		this.controller = controller;
-				
-						
-						System.out.println("Appending entry:"+e.getText().evaluate()+". ImageURI:"+e.getImageURI());
-						
-						int location = append(e.getText().evaluate(), MediaUtils.getImage(e.getImageURI()));
+				 
 		if(reviewEnabled) {
 			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
 			append(reviewRecent);

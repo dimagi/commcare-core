@@ -43,6 +43,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
@@ -265,6 +266,7 @@ public class CommCareContext {
 		new CaseManagementModule().registerModule();
 		new TransportManagerModule().registerModule();
 		new CommCareModule().registerModule();
+		new FormManagerModule().registerModule();
 	}
 	
 	protected void setProperties() {
@@ -279,6 +281,7 @@ public class CommCareContext {
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
 		PropertyUtils.initializeProperty(FormManagerProperties.EXTRA_KEY_FORMAT, FormManagerProperties.EXTRA_KEY_LANGUAGE_CYCLE);
+		PropertyUtils.initializeProperty(CommCareProperties.ENTRY_MODE, CommCareProperties.ENTRY_MODE_QUICK);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 	}
 	
