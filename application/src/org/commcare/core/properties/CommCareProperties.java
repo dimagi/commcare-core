@@ -41,6 +41,18 @@ public class CommCareProperties implements IPropertyRules {
     public final static String LAST_SUCCESSFUL_SYNC = "last-sync-token";
     public final static String LAST_SYNC_AT = "last-sync-timestamp";
     
+    public final static String RESTORE_TOLERANCE = "restore-tolerance";
+    public final static String REST_TOL_STRICT = "strict";
+    public final static String REST_TOL_LOOSE = "loose";
+    
+    public final static String DEMO_MODE = "demo-mode";
+    public final static String DEMO_ENABLED = "yes";
+    public final static String DEMO_DISABLED = "no";
+    
+    public final static String TETHER_MODE = "server-tether";
+    public final static String TETHER_PUSH_ONLY = "push-only";
+    public final static String TETHER_SYNC = "sync";
+    
     //User registration
     public final static String USER_REG_NAMESPACE = "user_reg_namespace";
     
@@ -95,6 +107,23 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(LAST_SYNC_AT, new Vector());
         readOnlyProperties.addElement(LAST_SUCCESSFUL_SYNC);
         readOnlyProperties.addElement(LAST_SYNC_AT);
+        
+        Vector vTol = new Vector();
+        vTol.addElement(REST_TOL_STRICT);
+        vTol.addElement(REST_TOL_LOOSE);
+        rules.put(RESTORE_TOLERANCE, vTol);
+        readOnlyProperties.addElement(RESTORE_TOLERANCE);
+
+        Vector vDemo = new Vector();
+        vDemo.addElement(DEMO_ENABLED);
+        vDemo.addElement(DEMO_DISABLED);
+        rules.put(DEMO_MODE, vDemo);
+        
+        Vector vTeth = new Vector();
+        vTeth.addElement(TETHER_PUSH_ONLY);
+        vTeth.addElement(TETHER_SYNC);
+        rules.put(TETHER_MODE, vTeth);
+        readOnlyProperties.addElement(TETHER_MODE);
         
         rules.put(USER_REG_NAMESPACE, new Vector());
         readOnlyProperties.addElement(USER_REG_NAMESPACE);
@@ -210,6 +239,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Form Send/Save Process";
         } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
         	return "Offline File Ref for OTA Bypass";
+        } else if (DEMO_MODE.equals(propertyName)) {
+        	return "Demo Mode Enabled";
         }
     	return propertyName;
 	}

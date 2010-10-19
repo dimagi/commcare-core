@@ -51,10 +51,13 @@ public class CommCareHomeScreen extends List {
 			append(reviewRecent);
 		}
 
-		append(sendAllUnsent);
-		setSendUnsent();
-		append(serverSync);
-		setSync();
+		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
+			append(serverSync);
+			setSync();
+		} else {
+			append(sendAllUnsent);
+			setSendUnsent();
+		}
 		
 		setCommandListener(controller);
 		setSelectCommand(select);

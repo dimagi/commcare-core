@@ -3,12 +3,11 @@
  */
 package org.commcare.applogic;
 
-import org.commcare.core.properties.CommCareProperties;
 import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.restore.CommCareOTARestoreTransitions;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareUtil;
 import org.javarosa.core.api.State;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 
 /**
@@ -53,6 +52,6 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 	}
 	
 	private boolean getPartialRestoreSetting () {
-		throw new RuntimeException("not implemented yet");
+		return CommCareUtil.partialRestoreEnabled();
 	}
 }

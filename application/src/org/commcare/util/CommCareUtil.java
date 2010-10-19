@@ -312,4 +312,11 @@ public class CommCareUtil {
 		};
 	}
 	
+	public static boolean demoEnabled() {
+		return !CommCareProperties.DEMO_DISABLED.equals(PropertyManager._().getSingularProperty(CommCareProperties.DEMO_MODE));
+	}
+	
+	public static boolean partialRestoreEnabled() {
+		return !CommCareProperties.REST_TOL_STRICT.equals(PropertyManager._().getSingularProperty(CommCareProperties.RESTORE_TOLERANCE));
+	}
 }

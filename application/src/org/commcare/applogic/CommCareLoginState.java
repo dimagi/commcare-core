@@ -33,7 +33,7 @@ public class CommCareLoginState extends LoginState {
 		return new LoginController(extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
 				                              AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
 				                              AddUserController.PASSWORD_FORMAT_NUMERIC,
-				                              true);
+				                              CommCareUtil.demoEnabled());
 	}
 
 	/* (non-Javadoc)

@@ -286,6 +286,9 @@ public class CommCareContext {
 	private void postProfilePropertyInit() {
 		PropertyUtils.initializeProperty(CommCareProperties.SEND_STYLE, CommCareProperties.SEND_STYLE_HTTP);
 		PropertyUtils.initializeProperty(CommCareProperties.OTA_RESTORE_OFFLINE, "jr://file/commcare_ota_backup_offline.xml");
+		PropertyUtils.initializeProperty(CommCareProperties.RESTORE_TOLERANCE, CommCareProperties.REST_TOL_LOOSE);
+		PropertyUtils.initializeProperty(CommCareProperties.DEMO_MODE, CommCareProperties.DEMO_ENABLED);
+		PropertyUtils.initializeProperty(CommCareProperties.TETHER_MODE, CommCareProperties.TETHER_PUSH_ONLY);
 	}
 	
 	public static void init(MIDlet m, InitializationListener listener) {
