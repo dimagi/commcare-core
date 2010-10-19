@@ -37,6 +37,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -59,6 +60,7 @@ import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.user.activity.UserModule;
 import org.javarosa.user.model.User;
+import org.javarosa.user.utility.UserPreloadHandler;
 import org.javarosa.user.utility.UserUtility;
 import org.javarosa.xform.util.XFormUtils;
 
@@ -315,6 +317,7 @@ public class CommCareContext {
 	public Vector<IFunctionHandler> getFuncHandlers () {
 		Vector<IFunctionHandler> handlers = new Vector<IFunctionHandler>();
 		handlers.addElement(new HouseholdExistsFuncHandler());
+		handlers.addElement(new CHWReferralNumFunc()); //BHOMA custom!
 		return handlers;
 	}
 	
@@ -344,6 +347,7 @@ public class CommCareContext {
 		}
 		MetaPreloadHandler meta = new MetaPreloadHandler(this.getUser());
 		handlers.addElement(meta);
+		handlers.addElement(new UserPreloadHandler(this.getUser()));
 		return handlers;		
 	}
 	
@@ -546,5 +550,53 @@ public class CommCareContext {
 		}
 		return url;
 	}
-	
+
+	//custom code for BHOMA -- don't tell anyone
+	class CHWReferralNumFunc implements IFunctionHandler {
+		public String getName() {
+			return "chw-referral-num";
+		}
+
+		public Vector getPrototypes() {
+			Vector p = new Vector();
+			p.addElement(new Class[] {});
+			return p;
+		}
+
+		public boolean rawArgs() {
+			return false;
+		}
+
+		public boolean realTime() {
+			return false;
+		}
+
+		public Object eval(Object[] args) {
+			User u = CommCareContext._().getUser();
+			String refCode = u.getProperty("clinic_prefix") + "-" + u.getProperty("chw_zone") + "-";
+			
+			String sRefCounter = u.getProperty("ref_count");
+			int refCounter = (sRefCounter == null ? 0 : Integer.parseInt(sRefCounter));
+
+			refCounter += 1;
+			if (refCounter >= 1000)
+				refCounter = 1;
+			sRefCounter = Integer.toString(refCounter);
+			u.setProperty("ref_count", sRefCounter);
+			
+			IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+			try {
+				users.write(u);
+			} catch (StorageFullException e) {
+				Logger.exception(e);
+			}
+			
+			while (sRefCounter.length() < 3) {
+				sRefCounter = "0" + sRefCounter;
+			}
+			refCode += sRefCounter;
+			
+			return refCode;
+		}
+	}
 }
