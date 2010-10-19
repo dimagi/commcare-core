@@ -14,7 +14,7 @@
 	<!-- Main Target: Call to build the project -->
 	<!-- This is the main work target, it actually builds the code -->
 	<target name="BuildPolish" depends="init, CompileAndLinkSource, UpdateBuildNumber, SetDefaults" description="This is the controller for the J2ME build process.">
-		
+
 		<!-- Definition of the J2ME Polish task:                      -->
 		<taskdef name="buildPolish" classname="de.enough.polish.ant.PolishTask" classpath="${dir.tools}/j2merosa-libraries.jar:${polish.home}/lib/enough-j2mepolish-build.jar:${polish.home}/lib/jdom.jar:${polish.home}/lib/j2me-lib_1.1.jar:${polish.home}/lib/microewt_0.92.jar:${polish.home}/lib/microEWT-Examples.jar:${polish.home}/import/nokia-ui.jar:${polish.home}/import/m3g.jar:${polish.home}}/import/btapi.jar:${wtk.home}/lib/jsr082.jar:${wtk.home}/lib/jsr82.jar:${polish.home}/import/cldc-1.1-java5.jar:${polish.home}/import/enough-j2mepolish-client-java5.jar" />
 			<path id="classpath.base">
@@ -29,7 +29,8 @@
         		<include name="resources/*"/>
 		    </patternset>
 		</unzip>
-		
+
+		<property name="cc-content-version" value="unversioned" />
 		<buildPolish>
 			<info name="${app.name}" 
 				version="${app.version}" 
@@ -149,7 +150,7 @@
 
 				<postcompiler name="java5" />					
 
-				<sign if="build.locally"
+				<sign if="sign.locally"
 					keystore="${key.keystore}"
 					key="${key.keyname}"
 					password="${key.password}"
