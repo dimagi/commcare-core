@@ -31,6 +31,7 @@
 		</unzip>
 
 		<property name="cc-content-version" value="unversioned" />
+		<property name="key.keystore" value="" />
 		<buildPolish>
 			<info name="${app.name}" 
 				version="${app.version}" 
