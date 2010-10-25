@@ -53,7 +53,12 @@ public class ProfileInstaller extends CacheInstaller {
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
 	 */
 	public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
-		instance.setProfile((Profile)storage().read(cacheLocation));
+		//Certain properties may not have been able to set during install, so we'll make sure they're
+		//set here.
+		Profile p = (Profile)storage().read(cacheLocation);
+		p.initializeProperties(false);
+		
+		instance.setProfile(p);
 		return true;
 	}
 
@@ -102,7 +107,7 @@ public class ProfileInstaller extends CacheInstaller {
 					getlocal().put(r.getRecordGuid(), p);
 					table.commit(r,Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
 				} else {
-					p.initializeProperties();
+					p.initializeProperties(true);
 					installInternal(p);
 					//TODO: What if this fails? Maybe we should be throwing exceptions...
 					table.commit(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
@@ -138,7 +143,7 @@ public class ProfileInstaller extends CacheInstaller {
 		} else {
 			p = (Profile)storage().read(cacheLocation);
 		}
-		p.initializeProperties();
+		p.initializeProperties(true);
 		try {
 			storage().write(p);
 			return true;
