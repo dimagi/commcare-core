@@ -29,18 +29,18 @@ public class CommCareHomeController implements HandledCommandListener {
 	CommCareSessionController session;
 	
 	Vector<Suite> suites;
+	boolean admin;
 	
 	public CommCareHomeController (Vector<Suite> suites, Profile profile, CommCareSessionController session) {
 		this.suites = suites;
 		this.profile = profile;
-		boolean admin = false;
+		this.session = session;
+		admin = false;
 		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
 			admin = true;
 		} else {
 			admin = CommCareContext._().getUser().isAdminUser();
 		}
-		view = new CommCareHomeScreen(this, suites, admin, profile.isFeatureActive(Profile.FEATURE_REVIEW));
-		session.populateMenu(view, "root");
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {
@@ -48,6 +48,9 @@ public class CommCareHomeController implements HandledCommandListener {
 	}
 
 	public void start() {
+		view = new CommCareHomeScreen(this, suites, admin, profile.isFeatureActive(Profile.FEATURE_REVIEW));
+		session.populateMenu(view, "root");
+		view.init();
 		J2MEDisplay.setView(view);
 	}
 

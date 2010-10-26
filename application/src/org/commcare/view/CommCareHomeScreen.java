@@ -24,6 +24,8 @@ import de.enough.polish.ui.List;
 public class CommCareHomeScreen extends List {
 	CommCareHomeController controller;
 	
+	private boolean reviewEnabled;
+	
 	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
 	public ChoiceItem serverSync = new ChoiceItem(Localization.get("menu.sync"), null, List.IMPLICIT);
 	public ChoiceItem reviewRecent;
@@ -46,19 +48,6 @@ public class CommCareHomeScreen extends List {
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
 		this.controller = controller;
-				 
-		if(reviewEnabled) {
-			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
-			append(reviewRecent);
-		}
-
-		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
-			append(serverSync);
-			setSync();
-		} else {
-			append(sendAllUnsent);
-			setSendUnsent();
-		}
 		
 		setCommandListener(controller);
 		setSelectCommand(select);
@@ -74,6 +63,22 @@ public class CommCareHomeScreen extends List {
 			addCommand(admRMSDump);
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
+		}
+		this.reviewEnabled = reviewEnabled;
+	}
+	
+	public void init() {
+		if(reviewEnabled) {
+			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
+			append(reviewRecent);
+		}
+
+		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
+			append(serverSync);
+			setSync();
+		} else {
+			append(sendAllUnsent);
+			setSendUnsent();
 		}
 	}
 
