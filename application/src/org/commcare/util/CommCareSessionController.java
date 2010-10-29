@@ -140,8 +140,13 @@ public class CommCareSessionController {
 			//You only get commands from menus, so the current 
 			//command has to be a menu, we should load a menu state
 			
-			//TODO: If the current session command is nothing, we should
-			//choose either root, or go home.
+			if(session.getCommand() == null) {
+				//We're at the root selection, we need to go home
+				session.clearState();
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+				return;
+			}
+			
 			MenuHomeState state = new MenuHomeState(this, session.getMenu(session.getCommand())) {
 
 				public void entry(Suite suite, Entry entry) {
@@ -155,11 +160,6 @@ public class CommCareSessionController {
 				
 			};
 			J2MEDisplay.startStateWithLoadingScreen(state);
-			return;
-		}
-		
-		if(next.equals(CommCareSession.STATE_MENU_ID)) {
-			//legacy, should be removed ASAP
 			return;
 		}
 		
@@ -236,7 +236,7 @@ public class CommCareSessionController {
 	}
 
 	protected void back() {
-		session.clearState();
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+		session.stepBack();
+		next();
 	}
 }

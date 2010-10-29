@@ -161,15 +161,14 @@ public class Profile implements Persistable {
 	 * 
 	 * NOTE: Moving at earliest opportunity to j2me profile installer
 	 */
-	public void initializeProperties() {
+	public void initializeProperties(boolean enableForce) {
 		for(PropertySetter setter : properties) {
 			String property = PropertyManager._().getSingularProperty(setter.getKey());
 			//We only want to set properties which are undefined or are forced
-			if(property == null || setter.force) {
+			if(property == null || (enableForce && setter.force)) {
 				PropertyManager._().setProperty(setter.getKey(), setter.getValue());
 			}
 		}
-		this.properties.removeAllElements();
 	}
 
 	/*

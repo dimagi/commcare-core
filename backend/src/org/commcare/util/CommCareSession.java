@@ -37,10 +37,10 @@ public class CommCareSession {
 	protected String currentRefType;
 	protected String currentXmlns;
 	
+	protected Vector<String[]> steps = new Vector<String[]>();
+	
 	/** CommCare needs a Command (an entry, view, etc) to proceed. Generally sitting on a menu screen. */
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
-    /** CommCare needs the ID of a menu to proceed. Generally called from the start state */
-    public static final String STATE_MENU_ID = "MENU_ID";
     /** CommCare needs the ID of a Case to proceed **/
     public static final String STATE_CASE_ID = "CASE_ID";
     /** CommCare needs the ID of a Referral to proceed **/
@@ -197,19 +197,31 @@ public class CommCareSession {
 		
 		return null;
 	}
+	
+	public void stepBack() {
+		steps.removeElementAt(steps.size() - 1);
+		syncState();
+	}
 
 	
 	public void setCaseId(String caseId) {
-		this.currentCase = caseId;
+		steps.addElement(new String[] {STATE_CASE_ID, caseId});
+		syncState();
 	}
 	
 	public void setCommand(String commandId) {
-		this.currentCmd = commandId;
+		this.steps.addElement(new String[] {STATE_COMMAND_ID, commandId});
+		syncState();
 	}
 	
 	public void setReferral(String referralId, String refType) {
-		this.currentRef = referralId;
-		this.currentRefType = refType;
+		this.steps.addElement(new String[] {STATE_REFERRAL_ID, referralId, refType});
+		syncState();
+	}
+	
+	public void setXmlns(String xmlns) {
+		this.steps.addElement(new String[] {STATE_FORM_XMLNS, xmlns});
+		syncState();
 	}
 	
 	public String getReferralId() {
@@ -220,8 +232,25 @@ public class CommCareSession {
 		return this.currentRefType;
 	}
 	
-	public void setXmlns(String xmlns) {
-		this.currentXmlns = xmlns;
+	private void syncState() {
+		this.currentCase = null;
+		this.currentCmd = null;
+		this.currentRef = null;
+		this.currentRefType = null;
+		this.currentXmlns = null;
+		
+		for(String[] step : steps) {
+			if(STATE_CASE_ID.equals(step[0])) {
+				this.currentCase = step[1];
+			} else if(STATE_COMMAND_ID.equals(step[0])) {
+				this.currentCmd = step[1];
+			} else if(STATE_REFERRAL_ID.equals(step[0])) {
+				this.currentRef = step[1];
+				this.currentRefType = step[2];
+			}  else if(STATE_FORM_XMLNS.equals(step[0])) {
+				this.currentXmlns = step[1];
+			}
+		}
 	}
 	
 	public String getCaseId() {
@@ -244,10 +273,7 @@ public class CommCareSession {
 	}
 	
 	public void clearState() {
-		this.currentCase = null;
-		this.currentCmd = null;
-		this.currentRef = null;
-		this.currentRefType = null;
-		this.currentXmlns = null;
+		steps.removeAllElements();
+		syncState();
 	}
 }
