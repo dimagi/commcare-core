@@ -54,21 +54,12 @@ public class CommCareLoginState extends LoginState {
 
 		J2MEDisplay.startStateWithLoadingScreen(new DeviceReportState() {
 
-			public TransportMessage constructMessageFromPayload(InputStream reportPayload) {
-				SimpleHttpTransportMessage message;
-				try {
-					String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
-					if(url == null) {
-						url = CommCareContext._().getSubmitURL();
-					}
-					message = new SimpleHttpTransportMessage(reportPayload,url);
-					message.setCacheable(false);
-					return message;
-				} catch (IOException e) {
-					e.printStackTrace();
-					//this gets caught by the report state and swallowed properly
-					throw new WrappedException("Failed to read report payload while creating http transport data", e);
+			public String getDestURL() {
+				String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
+				if(url == null) {
+					url = CommCareContext._().getSubmitURL();
 				}
+				return url;
 			}
 
 			public void done() {
