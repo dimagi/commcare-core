@@ -31,7 +31,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.StorageModifiedException;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.log.HandledThread;
@@ -209,7 +209,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			    
 			    //Now any further IOExceptions will get handled as "download failed", 
 			    //rather than "couldn't attempt to download"
-				StreamUtil.transfer(stream, output);
+				StreamsUtil.writeFromInputToOutput(stream, output);
 				view.addToMessage(Localization.get("restore.downloaded"));
 				startRestore(ref.getStream());
 			}

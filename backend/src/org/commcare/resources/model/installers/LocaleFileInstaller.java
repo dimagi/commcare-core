@@ -18,13 +18,12 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceDataSource;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.StreamUtil;
+import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -135,8 +134,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					//destination is now a valid local reference, so we can store the file there.
 					
 					OutputStream output = destination.getOutputStream();
-					StreamUtil.transfer(incoming, output);
-					incoming.close();
+					StreamsUtil.writeFromInputToOutput(incoming, output);
 					output.close();
 					
 					this.localReference = destination.getURI();
