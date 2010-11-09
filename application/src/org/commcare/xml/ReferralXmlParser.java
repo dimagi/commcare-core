@@ -25,13 +25,15 @@ import org.xmlpull.v1.XmlPullParserException;
 public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 	String caseId;
 	Date created;
+	boolean acceptCreateOverwrites;
 	
 	IStorageUtilityIndexed storage;
 
-	public ReferralXmlParser(KXmlParser parser, String caseId, Date created) {
+	public ReferralXmlParser(KXmlParser parser, String caseId, Date created, boolean acceptCreateOverwrites) {
 		super(parser, "referral", null);
 		this.caseId = caseId;
 		this.created = created;
+		this.acceptCreateOverwrites = acceptCreateOverwrites;
 	}
 	
 	public PatientReferral parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -60,8 +62,20 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 				String referralTypes = parser.nextText();
 				for(Object s : DateUtils.split(referralTypes, " ", true)) {
 					PatientReferral pr = new PatientReferral((String)s, created, refId, caseId, followup);
+					boolean overriden = false;
+					//If we're on loose tolerance, check whether our node exists
+					if(acceptCreateOverwrites) {
+						PatientReferral old = retrieve(refId, (String)s);
+						
+						if(old != null) {
+							//If so, overwrite with new data
+							pr.setID(old.getID());
+							overriden = true;
+						}
+					}
 					commit(pr);
-					Logger.log("referral-open", pr.getID() + ";" + PropertyUtils.trim(pr.getReferralId(), 12) + ";" + pr.getType());
+					String succesfulAction = overriden ? "referral-reopen" : "referral-open"; 
+					Logger.log(succesfulAction, pr.getID() + ";" + PropertyUtils.trim(pr.getReferralId(), 12) + ";" + pr.getType());
 				}
 				if(this.nextTagInBlock("open")) {
 					throw new InvalidStructureException("Expected </open>, found " + parser.getName(), parser);

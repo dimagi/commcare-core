@@ -255,7 +255,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 				public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 					if(name.toLowerCase().equals("case")) {
-						return new CaseXmlParser(parser, caseTallies);
+						return new CaseXmlParser(parser, caseTallies, !noPartial);
 					} else if(name.toLowerCase().equals("registration")) {
 						return new UserXmlParser(parser);
 					} else if (name.equalsIgnoreCase("restore_id")) {
