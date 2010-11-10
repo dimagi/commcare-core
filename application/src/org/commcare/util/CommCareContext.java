@@ -585,7 +585,7 @@ public class CommCareContext {
 			int refCounter = (sRefCounter == null ? 0 : Integer.parseInt(sRefCounter));
 
 			refCounter += 1;
-			if (refCounter >= 1000)
+			if (refCounter >= 10000)
 				refCounter = 1;
 			sRefCounter = Integer.toString(refCounter);
 			u.setProperty("ref_count", sRefCounter);
@@ -597,7 +597,7 @@ public class CommCareContext {
 				Logger.exception(e);
 			}
 			
-			while (sRefCounter.length() < 3) {
+			while (sRefCounter.length() < 4) {
 				sRefCounter = "0" + sRefCounter;
 			}
 			refCode += sRefCounter;
