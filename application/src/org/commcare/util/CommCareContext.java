@@ -284,14 +284,18 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
-		PropertyUtils.initializeProperty(FormManagerProperties.EXTRA_KEY_FORMAT, FormManagerProperties.EXTRA_KEY_LANGUAGE_CYCLE);
-		PropertyUtils.initializeProperty(CommCareProperties.ENTRY_MODE, CommCareProperties.ENTRY_MODE_QUICK);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 		PropertyUtils.initializeProperty(CommCareProperties.DEPLOYMENT_MODE, CommCareProperties.DEPLOY_DEFAULT);
+		
+		//NOTE: Don't put any properties here which should be able to be override inside of the app profile. Users
+		//should be able to override most properties without forcing.
 	}
 	
 
 	private void postProfilePropertyInit() {
+		PropertyUtils.initializeProperty(FormManagerProperties.EXTRA_KEY_FORMAT, FormManagerProperties.EXTRA_KEY_LANGUAGE_CYCLE);
+		PropertyUtils.initializeProperty(CommCareProperties.ENTRY_MODE, CommCareProperties.ENTRY_MODE_QUICK);
+		
 		PropertyUtils.initializeProperty(CommCareProperties.SEND_STYLE, CommCareProperties.SEND_STYLE_HTTP);
 		PropertyUtils.initializeProperty(CommCareProperties.OTA_RESTORE_OFFLINE, "jr://file/commcare_ota_backup_offline.xml");
 		PropertyUtils.initializeProperty(CommCareProperties.RESTORE_TOLERANCE, CommCareProperties.REST_TOL_LOOSE);

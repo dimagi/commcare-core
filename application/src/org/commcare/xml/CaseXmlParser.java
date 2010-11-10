@@ -27,10 +27,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
 	IStorageUtilityIndexed storage;
 	int[] tallies;
+	boolean acceptCreateOverwrites;
 	
-	public CaseXmlParser(KXmlParser parser, int[] tallies) {
+	public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites) {
 		super(parser, "case", null);
 		this.tallies = tallies;
+		this.acceptCreateOverwrites = acceptCreateOverwrites;
 	}
 
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -77,14 +79,35 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					}
 				}
 				
-				//Create the case.
-				Case c = new Case(data[3], data[0]);
+				Case c = null;
+				boolean overriden = false;
+				//CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
+				if(acceptCreateOverwrites) {
+					//If it exists, try to retrieve it
+					c = retrieve(caseId);
+					
+					//If we found one, override the existing data
+					if(c != null) {
+						c.setName(data[3]);
+						c.setTypeId(data[0]);
+						overriden = true;
+					}
+				} 
+				
+				if(c == null) {
+					//The case is either not present on the phone, or we're on strict tolerance
+					c = new Case(data[3], data[0]);
+					c.setCaseId(caseId);
+				}
+				
 				c.setUserId(data[2]);
 				c.setExternalId(data[1]);
-				c.setCaseId(caseId);
 				commit(c);
-				create = true;
-				Logger.log("case-create", c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
+				if(!overriden) {
+					create = true;
+				}
+				String succesfulAction = overriden ? "case-recreate" : "case-create";
+				Logger.log(succesfulAction, c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
 				
 			} else if(action.equals("update")) {
 				Case c = retrieve(caseId);
@@ -108,7 +131,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
 				close = true;
 			} else if(action.equals("referral")) {
-				new ReferralXmlParser(parser,caseId,modified).parse();
+				new ReferralXmlParser(parser,caseId,modified,acceptCreateOverwrites).parse();
 			}
 		}
 		
