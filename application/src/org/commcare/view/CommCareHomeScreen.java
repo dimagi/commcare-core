@@ -15,6 +15,7 @@ import org.javarosa.utilities.media.MediaUtils;
 import de.enough.polish.ui.ChoiceItem;
 import de.enough.polish.ui.Command;
 import de.enough.polish.ui.List;
+import de.enough.polish.ui.UiAccess;
 
 /**
  * @author Clayton Sims
@@ -84,13 +85,25 @@ public class CommCareHomeScreen extends List {
 
 	public void setSendUnsent() {
 		String numunsent = "error"; 
-		numunsent = String.valueOf(CommCareUtil.getNumberUnsent());
+		int unsent = CommCareUtil.getNumberUnsent();
+		numunsent = String.valueOf(unsent);
+		
 		sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
+		
+		if(unsent > 10) {
+			//#style unsentImportant
+			UiAccess.setStyle(sendAllUnsent);
+		} else {
+			//#style listitem
+			UiAccess.setStyle(sendAllUnsent);
+		}
 	}
 		
 	//TODO: localize me
 	public void setSync () {
 		String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
+		
+		boolean bad = false;
 		
 		String message = null;
 		if (sLastSync != null) {
@@ -98,14 +111,19 @@ public class CommCareHomeScreen extends List {
 			int secs_ago = (int)((new Date().getTime() - lastSync.getTime()) / 1000);
 			if (secs_ago < 0) {
 				message = "please update ASAP";
+				bad = true;
 			} else {
 				int days_ago = secs_ago / 86400;
 				if (days_ago >= 2) {
 					message = "updated " + days_ago + " days ago";
 				}
+				if(days_ago > 5) {
+					bad = true;
+				}
 			}
 		} else {
 			message = "please update ASAP";
+			bad = true;
 		}
 			
 		int numUnsent = CommCareUtil.getNumberUnsent();
@@ -117,8 +135,20 @@ public class CommCareHomeScreen extends List {
 			message += "; " + sUnsent;
 		}
 		
+		if(numUnsent > 10) {
+			bad = true;
+		}
+		
 		if (message != null) {
 			serverSync.setText(serverSync.getText() + " (" + message + ")");
+		}
+		
+		if(bad) {
+			//#style unsentImportant
+			UiAccess.setStyle(serverSync);
+		} else {
+			//#style listitem
+			UiAccess.setStyle(serverSync);
 		}
 	}
 		

@@ -32,6 +32,8 @@ colors {
 	oldQuestionColor: #E2E2E2;	/* little less almost white */
 	overlay: argb( 150, 255, 255, 255 ); /*see through white */
 	
+	manyUnsent: #FF0000; /*Red as Red can be */
+	
 	
 	requiredColor: 	#FF7F50; /* nerve damage orange */
 	requiredColorFocus: #DC143C; /* pretty much red */
@@ -214,6 +216,10 @@ choiceGroup extends textBox {
 	font-face: proportional;
 	/* font-size: large; */
 	layout: horizontal-center | newline-after;
+}
+
+.unsentImportant extends listitem {
+    font-color: manyUnsent;
 }
 
 .yesNoChoiceGroup extends choicegroup{

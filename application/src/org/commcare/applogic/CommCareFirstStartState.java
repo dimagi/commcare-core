@@ -5,7 +5,6 @@ package org.commcare.applogic;
 
 import org.commcare.api.transitions.FirstStartupTransitions;
 import org.commcare.core.properties.CommCareProperties;
-import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.util.CommCareContext;
 import org.commcare.view.FirstStartupView;
 import org.javarosa.core.api.State;
