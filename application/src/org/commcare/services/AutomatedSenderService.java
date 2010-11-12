@@ -79,6 +79,11 @@ public class AutomatedSenderService {
 				return;
 			}
 			
+			if( nextValidAttempt != 0) {
+				//Overcame a wait time, log this (to identify whether this ever comes up)
+				Logger.log("auto-send", "Wait time expired. Re-trying send all unsent");
+			}
+			
 			//Start sending data in this thread
 			try {
 				listener.reinit();
@@ -87,7 +92,11 @@ public class AutomatedSenderService {
 				
 				if(listener.failed()) {
 					//If we failed to send successfully, wait a bit before trying again.
-					nextValidAttempt += new Date().getTime() + FAILURE_REST_INTERVAL;
+					nextValidAttempt = new Date().getTime() + FAILURE_REST_INTERVAL;
+					Logger.log("auto-send", "Sender failed to submit data, suspending attempts for an hour");
+				} else {
+					//Clear any wait time
+					nextValidAttempt = 0;
 				}
 				
 				listener.expire();
@@ -96,7 +105,7 @@ public class AutomatedSenderService {
 				Logger.exception("Send all unsent auto-failure", e);
 				
 				//If we failed to send successfully, wait a bit before trying again.
-				nextValidAttempt += new Date().getTime() + FAILURE_REST_INTERVAL;
+				nextValidAttempt = new Date().getTime() + FAILURE_REST_INTERVAL;
 			}
 		}
 	}
