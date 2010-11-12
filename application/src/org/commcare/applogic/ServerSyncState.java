@@ -12,8 +12,8 @@ import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 public abstract class ServerSyncState implements State {
 
 	//TODO: localize me
-	String sendFailMsg = "We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception. If this keeps happening, get help from your program manager.";
-	String pullFailMsg = "There was a problem and we couldn't get your new follow-ups from the clinic. You should try again when you have better reception. If this keeps happening, get help from your program manager.";
+	String sendFailMsg = "We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.";
+	String pullFailMsg = "There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.";
 	
 	SendAllUnsentState send;
 	CommCareOTARestoreState pull;

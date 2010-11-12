@@ -163,6 +163,11 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					entry.sendMessage(Localization.get("restore.badserver"));
 					doneFail("404");
 					return;
+				} else if(sent.getResponseCode() == 503) {
+					view.addToMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
+					entry.sendMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
+					doneFail("503");
+					return;
 				} else {
 					entry.sendMessage(sent.getFailureReason());
 					doneFail("other: " + sent.getFailureReason());
