@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.services.AutomatedSenderService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
@@ -77,7 +78,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 			
 			//This name is generic, but it's actually HTTP only
 			if(action == null || CommCareProperties.SEND_STYLE_HTTP.equals(action)) {
-				send(instanceData);
+				httpTransport(instanceData);
 				return;
 			} else if(CommCareProperties.SEND_STYLE_NONE.equals(action)) {
 				CommCareFormEntryState.this.goHome();
@@ -86,19 +87,31 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 				CommCareFormEntryState.this.goHome();
 			} else {
 				//The 'Ol Fallback.
-				send(instanceData);
+				httpTransport(instanceData);
 			}
 		} else {
 			abort();
 		}
 	}
 	
-	private void send(FormInstance instanceData) {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCarePostFormEntryState(instanceData) {
+	private void httpTransport(FormInstance instanceData) {
+		
+		//No matter what, we want a state for the next step.
+		CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(instanceData) {
 			public void goHome() {
 				CommCareFormEntryState.this.goHome();
 			}
-		});
+		};
+		
+		//If we're doing our sending automatically, don't bother asking.
+		if(CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
+			//Follow the same procedure as send later 
+			httpAskSendState.skipSend(instanceData);
+			//Notify the service that old deadlines have expired.
+			AutomatedSenderService.NotifyPending();
+		} else {
+			J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
+		}
 	}
 
 	public void suspendForMediaCapture(int captureType) {

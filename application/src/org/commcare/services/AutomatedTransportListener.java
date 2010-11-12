@@ -15,6 +15,7 @@ public class AutomatedTransportListener implements TransportListener {
 	private static final int FAILURE_THRESHOLD = 2;
 	
 	private int failureCount = 0;
+	private int successCount = 0;
 	private boolean engaged = false;
 	
 	public AutomatedTransportListener() {
@@ -27,6 +28,7 @@ public class AutomatedTransportListener implements TransportListener {
 	
 	public void reinit() {
 		failureCount = 0;
+		successCount = 0;
 		engaged = true;
 	}
 	
@@ -48,11 +50,23 @@ public class AutomatedTransportListener implements TransportListener {
 	public void onStatusChange(TransportMessage message) {
 		if(!(message.isSuccess())) {
 			failureCount++;
+		} else {
+			successCount++;
 		}
 		if(failureCount > FAILURE_THRESHOLD) {
 			TransportService.halt();
 			//The listener gets halted explicitly by the sending service, no need to do so here.
 		}
+	}
+	
+	/**
+	 * Note: Only valid after not engaged. 
+	 * 
+	 * @return True if the sender has failed to send successfully, false
+	 * otherwise. 
+	 */
+	public boolean failed() {
+		return failureCount > FAILURE_THRESHOLD || successCount ==0;
 	}
 
 }

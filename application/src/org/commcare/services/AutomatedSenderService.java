@@ -32,16 +32,18 @@ public class AutomatedSenderService {
 	private static Timer serviceTimer;
 	private static AutomatedSenderService service;
 	
-	//One hour since last send-all-unsent attempt
-	private static final long MINIMUM_TIMEOUT_INTERVAL = 1000 * 60 * 60 * 1; 
+	private static final String lock = "lock";
 	
-	//Every 5 Minutes
-	private static final long TIMER_PERIOD = 1000 * 60 * 5;
+	//One hour since last send-all-unsent attempt
+	private static final long FAILURE_REST_INTERVAL = 1000 * 60 * 60 * 1; 
+	
+	//Every 2 Minutes
+	private static final long TIMER_PERIOD = 1000 * 60 * 2;
 	
 	//One minute
 	private static final long TIMER_FIRST = 1000 * 60;
 	
-	private long lastTimeout = 0;
+	private static long nextValidAttempt = 0;
 	
 	SignalLevelProvider provider;
 	
@@ -54,40 +56,48 @@ public class AutomatedSenderService {
 	}
 	
 	private void timeout() {
-		//Identify that no previous timeout is occurring (Shouldn't happen anyway, due to 
-		//timer)
-		if(listener.engaged()) {
-			return;
-		}
-		
-		//Establish whether we should skip due to bad signal or too recent
-		//send attempt
-		if(provider == null) {
-			if(new Date().getTime() - lastTimeout  <  MINIMUM_TIMEOUT_INTERVAL) {
+		synchronized(lock) {
+			//Identify that no previous timeout is occurring (Shouldn't happen anyway, due to 
+			//timer)
+			if(listener.engaged()) {
 				return;
 			}
-		} else {
-			if(!provider.isDataPossible()) {
-				return;
-			}
-		}
-		//Establish whether there's anything to send
-		if(TransportService.getCachedMessagesSize() < 1) {
-			return;
-		}
-		
-		lastTimeout = new Date().getTime();
-		
-		//Start sending data in this thread
-		try {
-			listener.reinit();
-			//This isn't in a thread, so we know that we're done whenever it finishes.
-			TransportService.sendCached(listener);
 			
-			listener.expire();
-		} catch (TransportException e) {
-			e.printStackTrace();
-			Logger.exception("Send all unsent auto-failure", e);
+			//Establish whether we should skip due to bad signal or too recent
+			//send attempt
+			if(provider == null) {
+				if(new Date().getTime() < nextValidAttempt ) {
+					return;
+				}
+			} else {
+				if(!provider.isDataPossible()) {
+					return;
+				}
+			}
+			//Establish whether there's anything to send
+			if(TransportService.getCachedMessagesSize() < 1) {
+				return;
+			}
+			
+			//Start sending data in this thread
+			try {
+				listener.reinit();
+				//This isn't in a thread, so we know that we're done whenever it finishes.
+				TransportService.sendCached(listener);
+				
+				if(listener.failed()) {
+					//If we failed to send successfully, wait a bit before trying again.
+					nextValidAttempt += new Date().getTime() + FAILURE_REST_INTERVAL;
+				}
+				
+				listener.expire();
+			} catch (TransportException e) {
+				e.printStackTrace();
+				Logger.exception("Send all unsent auto-failure", e);
+				
+				//If we failed to send successfully, wait a bit before trying again.
+				nextValidAttempt += new Date().getTime() + FAILURE_REST_INTERVAL;
+			}
 		}
 	}
 	
@@ -97,14 +107,26 @@ public class AutomatedSenderService {
 	 * and configure the sender service for the lifetime of the application.
 	 */
 	public static void InitializeAndSpawnSenderService() {
-		//Establish whether a signal level provider is available
-		service = new AutomatedSenderService(EstablishProvider());
-		serviceTimer = new Timer();
-		serviceTimer.schedule(new HandledTimerTask() {
-			public void _run() {
-				service.timeout();
-			}
-		}, TIMER_FIRST, TIMER_PERIOD);
+		synchronized(lock) {
+			//Establish whether a signal level provider is available
+			service = new AutomatedSenderService(EstablishProvider());
+			serviceTimer = new Timer();
+			serviceTimer.schedule(new HandledTimerTask() {
+				public void _run() {
+					service.timeout();
+				}
+			}, TIMER_FIRST, TIMER_PERIOD);
+		}
+	}
+	
+	/**
+	 * Notify the service that a new element is on the queue and ready to be sent.
+	 * Overrides any delays from previous failures.
+	 */
+	public static void NotifyPending() {
+		synchronized(lock) {
+			nextValidAttempt = 0;
+		}
 	}
 	
 	/**
