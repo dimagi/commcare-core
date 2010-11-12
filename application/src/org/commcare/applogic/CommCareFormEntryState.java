@@ -7,6 +7,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.services.AutomatedSenderService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
@@ -104,7 +105,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		};
 		
 		//If we're doing our sending automatically, don't bother asking.
-		if(CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
+		if(CommCareSense.isAutoSendEnabled()) {
 			//Follow the same procedure as send later 
 			httpAskSendState.skipSend(instanceData);
 			//Notify the service that old deadlines have expired.

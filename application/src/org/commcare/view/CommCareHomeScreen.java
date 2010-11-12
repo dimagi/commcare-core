@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
@@ -77,7 +78,7 @@ public class CommCareHomeScreen extends List {
 		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
 			append(serverSync);
 			setSync();
-		} else if(!CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
+		} else if(!CommCareSense.isAutoSendEnabled()) {
 			append(sendAllUnsent);
 			setSendUnsent();
 		}

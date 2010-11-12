@@ -289,7 +289,7 @@ public class CommCareUtil {
 	}	
 	
 	public static JrFormEntryController createFormEntryController(JrFormEntryModel model) {
-		return new JrFormEntryController(model, PropertyManager._().getSingularProperty(FormManagerProperties.EXTRA_KEY_FORMAT), true, !CommCareProperties.ENTRY_MODE_REVIEW.equals(PropertyManager._().getSingularProperty(CommCareProperties.ENTRY_MODE)));
+		return new JrFormEntryController(model, CommCareSense.formEntryExtraKey(), true, CommCareSense.formEntryQuick());
 	}
 
 	

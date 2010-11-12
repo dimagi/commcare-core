@@ -204,7 +204,7 @@ public class CommCareContext {
 				//We need to let All Localizations register before we can do this
 				J2MEDisplay.init(CommCareContext.this.midlet);
 				
-				if(CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
+				if(CommCareSense.isAutoSendEnabled()) {
 					AutomatedSenderService.InitializeAndSpawnSenderService();
 				}
 			}

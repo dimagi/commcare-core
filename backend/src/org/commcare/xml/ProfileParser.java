@@ -138,6 +138,8 @@ public class ProfileParser extends ElementParser<Profile> {
 									registrationNamespace = parser.nextText();
 									profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
 								}
+							} else if (tag.equals("sense")) {
+								
 							}
 							
 							profile.setFeatureActive(tag, isActive);
