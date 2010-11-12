@@ -77,7 +77,7 @@ public class CommCareHomeScreen extends List {
 		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
 			append(serverSync);
 			setSync();
-		} else {
+		} else if(!CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
 			append(sendAllUnsent);
 			setSendUnsent();
 		}

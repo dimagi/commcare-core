@@ -72,6 +72,10 @@ public class CommCareProperties implements IPropertyRules {
 	public final static String ENTRY_MODE = "cc-entry-mode";
 	public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
 	public final static String ENTRY_MODE_REVIEW = "cc-entry-review";
+	
+	public final static String SEND_UNSENT_STYLE = "cc-send-unsent";
+	public final static String SEND_UNSENT_MANUAL = "cc-su-man";
+	public final static String SEND_UNSENT_AUTOMATIC = "cc-su-auto";
     
     public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
     
@@ -149,9 +153,15 @@ public class CommCareProperties implements IPropertyRules {
         entrymode.addElement(ENTRY_MODE_QUICK);
         entrymode.addElement(ENTRY_MODE_REVIEW);
         
+        Vector sendunsent = new Vector();
+        sendunsent.addElement(SEND_UNSENT_AUTOMATIC);
+        sendunsent.addElement(SEND_UNSENT_MANUAL);
+        rules.put(SEND_UNSENT_STYLE, sendunsent);
+             
         rules.put(ENTRY_MODE, entrymode);
         
         readOnlyProperties.addElement(ENTRY_MODE);
+        readOnlyProperties.addElement(SEND_UNSENT_STYLE);
 	}
 
 	/**

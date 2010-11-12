@@ -3,12 +3,11 @@
  */
 package org.commcare.services;
 
+import java.util.Date;
 import java.util.Timer;
-import java.util.TimerTask;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.j2me.log.HandledTimerTask;
-import org.javarosa.services.transport.TransportListener;
-import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 
@@ -33,39 +32,40 @@ public class AutomatedSenderService {
 	private static Timer serviceTimer;
 	private static AutomatedSenderService service;
 	
+	//One hour since last send-all-unsent attempt
+	private static final long MINIMUM_TIMEOUT_INTERVAL = 1000 * 60 * 60 * 1; 
+	
 	//Every 5 Minutes
-	private static final int TIMER_PERIOD = 1000 * 60 * 5;
+	private static final long TIMER_PERIOD = 1000 * 60 * 5;
 	
 	//One minute
-	private static final int TIMER_FIRST = 1000 * 60;
+	private static final long TIMER_FIRST = 1000 * 60;
+	
+	private long lastTimeout = 0;
 	
 	SignalLevelProvider provider;
 	
-	TransportListener listener;
+	AutomatedTransportListener listener;
 	
 	private AutomatedSenderService(SignalLevelProvider provider) {
 		this.provider = provider;
 		
-		listener = new TransportListener() {
-
-			public void onChange(TransportMessage message, String remark) {
-				//Not relevant.
-			}
-
-			public void onStatusChange(TransportMessage message) {
-				//
-			}
-			
-		};
+		listener = new AutomatedTransportListener();
 	}
 	
 	private void timeout() {
-		//Identify that no previous timeout is occurring.
+		//Identify that no previous timeout is occurring (Shouldn't happen anyway, due to 
+		//timer)
+		if(listener.engaged()) {
+			return;
+		}
 		
 		//Establish whether we should skip due to bad signal or too recent
 		//send attempt
 		if(provider == null) {
-			
+			if(new Date().getTime() - lastTimeout  <  MINIMUM_TIMEOUT_INTERVAL) {
+				return;
+			}
 		} else {
 			if(!provider.isDataPossible()) {
 				return;
@@ -75,15 +75,19 @@ public class AutomatedSenderService {
 		if(TransportService.getCachedMessagesSize() < 1) {
 			return;
 		}
-			
-		//Start sending data (which thread?)
+		
+		lastTimeout = new Date().getTime();
+		
+		//Start sending data in this thread
 		try {
+			listener.reinit();
+			//This isn't in a thread, so we know that we're done whenever it finishes.
 			TransportService.sendCached(listener);
+			
+			listener.expire();
 		} catch (TransportException e) {
 			e.printStackTrace();
-			
-			//LOG!!!!
-			//NOTE: I don't think this can ever happen.
+			Logger.exception("Send all unsent auto-failure", e);
 		}
 	}
 	
@@ -97,7 +101,6 @@ public class AutomatedSenderService {
 		service = new AutomatedSenderService(EstablishProvider());
 		serviceTimer = new Timer();
 		serviceTimer.schedule(new HandledTimerTask() {
-			@Override
 			public void _run() {
 				service.timeout();
 			}
@@ -110,7 +113,8 @@ public class AutomatedSenderService {
 	 * has completed.
 	 */
 	public static void StopSenderService() {
-		
+		serviceTimer.cancel();
+		TransportService.halt();
 	}
 	
 	private static SignalLevelProvider EstablishProvider() {

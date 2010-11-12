@@ -15,6 +15,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.services.AutomatedSenderService;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
@@ -189,7 +190,7 @@ public class CommCareContext {
 				purgeScheduler();
 				
 				//Now that the profile has had a chance to set properties (without them requiring
-				//override) set the fallbcak defaults.
+				//override) set the fallback defaults.
 				postProfilePropertyInit();
 				
 				initUserFramework();
@@ -202,6 +203,10 @@ public class CommCareContext {
 				
 				//We need to let All Localizations register before we can do this
 				J2MEDisplay.init(CommCareContext.this.midlet);
+				
+				if(CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))) {
+					AutomatedSenderService.InitializeAndSpawnSenderService();
+				}
 			}
 
 			protected void askForResponse(String message, YesNoListener yesNoListener) {
