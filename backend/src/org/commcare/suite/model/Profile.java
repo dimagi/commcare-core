@@ -121,7 +121,7 @@ public class Profile implements Persistable {
 	 * to end users.
 	 */
 	public boolean isFeatureActive(String feature) {
-		if(!featureStatus.contains(feature)) { return false; }
+		if(!featureStatus.containsKey(feature)) { return false; }
 		return featureStatus.get(feature).booleanValue();
 	}
 	
