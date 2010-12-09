@@ -78,7 +78,7 @@
 				</jad>
 
 				<!-- midlets definition -->
-				<midlet class="${app.class}" name="${app.name}" />
+				<midlet class="${app.class}" name="${app.name}" icon="${app.icon}"/>
 				
 				<!-- Code source files to include in compilation -->
 				<!-- All source-level inclusions should be made here -->
