@@ -9,6 +9,7 @@ import org.commcare.util.CommCareUtil;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.log.activity.DeviceReportState;
@@ -30,7 +31,10 @@ public class CommCareLoginState extends LoginState {
 		
 		String passFormat = PropertyManager._().getSingularProperty(CommCareProperties.PASSWORD_FORMAT);
 		
-		return new LoginController(extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
+		return new LoginController(
+				Localization.get("login.title"),
+				PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGE),
+				extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
 				                              AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
 				                              AddUserController.PASSWORD_FORMAT_NUMERIC,
 				                              CommCareUtil.demoEnabled());

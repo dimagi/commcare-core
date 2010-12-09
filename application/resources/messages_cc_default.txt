@@ -1,4 +1,5 @@
 homescreen.title=CommCare
+login.title=CommCare
 
 intro.title=CommCare Startup
 intro.text=You are starting CommCare for the first time. Do you want to restore your data from the server, or start fresh in Admin mode?

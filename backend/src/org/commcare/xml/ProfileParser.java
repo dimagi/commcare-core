@@ -133,10 +133,16 @@ public class ProfileParser extends ElementParser<Profile> {
 							} else if (tag.equals("package")) {
 								//nothing (yet)
 							} else if (tag.equals("users")) {
-								if(nextTagInBlock("users")) {
-									checkNode("registration");
-									registrationNamespace = parser.nextText();
-									profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
+								while(nextTagInBlock("users")) {
+									if(parser.getName().toLowerCase().equals("registration")) {									
+										registrationNamespace = parser.nextText();
+										profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
+									} else if(parser.getName().toLowerCase().equals("logo")) {
+										String logo = parser.nextText();
+										profile.addPropertySetter("cc_login_image", logo, true);
+									} else {
+										throw new InvalidStructureException("Unrecognized tag " + parser.getName() + " inside of users feature block", parser);
+									}
 								}
 							} else if (tag.equals("sense")) {
 								

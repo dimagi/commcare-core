@@ -1,4 +1,5 @@
 intro.title=CommCare Inafunguka
+login.title=CommCare
 
 intro.text=Unafungua CommCare kwa mara ya kwanza.Je unataka kurudisha taarifa zako kutoka katika kumbukumbu zetu, au kujaza taarifa upya?
 intro.restore=Rudisha kutoka katika kumbukumbu zetu

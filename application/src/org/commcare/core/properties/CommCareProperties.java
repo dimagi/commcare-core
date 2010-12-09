@@ -79,6 +79,8 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
     
+    public final static String LOGIN_IMAGE = "cc_login_image";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -160,8 +162,11 @@ public class CommCareProperties implements IPropertyRules {
              
         rules.put(ENTRY_MODE, entrymode);
         
+        rules.put(LOGIN_IMAGE, new Vector());
+        
         readOnlyProperties.addElement(ENTRY_MODE);
         readOnlyProperties.addElement(SEND_UNSENT_STYLE);
+        readOnlyProperties.addElement(LOGIN_IMAGE);
 	}
 
 	/**

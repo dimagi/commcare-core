@@ -634,9 +634,14 @@ alertcontent {
     layout: horizontal-center | vertical-center;
 }
 
+.loginTitle {
+	layout:center | expand;
+	font-style: bold;
+	font-size: big;
+}
 
-.logoImage {
-	layout:center;
+.loginImage {
+    layout: center | expand;
 }
 
 .loginTextFields {
@@ -675,6 +680,9 @@ alertcontent {
 		font-style: bold;
 }
 
+.loginExtraText {
+    font-size: small;
+}
 
 .patselTitleRowText{
 	text-wrap: false;

@@ -306,6 +306,7 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty(CommCareProperties.RESTORE_TOLERANCE, CommCareProperties.REST_TOL_LOOSE);
 		PropertyUtils.initializeProperty(CommCareProperties.DEMO_MODE, CommCareProperties.DEMO_ENABLED);
 		PropertyUtils.initializeProperty(CommCareProperties.TETHER_MODE, CommCareProperties.TETHER_PUSH_ONLY);
+		PropertyUtils.initializeProperty(CommCareProperties.LOGIN_IMAGE, "jr://resource/icon.png");
 	}
 	
 	public static void init(MIDlet m, InitializationListener listener) {
