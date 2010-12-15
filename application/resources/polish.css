@@ -248,7 +248,7 @@ choiceGroup extends textBox {
 .questiontext extends textBox{
 	font-face: proportional;
 	font-size: large;	
-	layout: horizontal-center | expand | bottom; 
+	layout: left | expand | bottom; 
 }
 
 .prompttext extends questiontext {

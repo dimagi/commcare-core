@@ -20,8 +20,11 @@
 			<path id="classpath.base">
 		</path>
 		
-		<!-- A property containing the path to the preprocessed source files -->
-		<property name="builtsource" value="${dir.build}/real/${device.identifier}/none/source/" />
+		<!-- If not already set, set to nothing -->
+		<property name="dest.suffix" value=""/>
+		
+		<!-- If not already set, set to nothing -->
+		<property name="device.dir.dist" value="${dir.dist.root}${dest.suffix}"/>
 		
 		<!-- extract shared resources for j2merosa lib -->
 		<unzip src="${dir.tools}/j2merosa-libraries.jar" dest="${dir.build}">
@@ -42,8 +45,12 @@
 				jarUrl="${deploy-url}${app.jarName}" copyright="" />
 			
 			<!-- selection of supported devices, set this in build.properties -->
-			<deviceRequirements>
-				<requirement name="Identifier" value="${device.identifier}" />
+			<deviceRequirements if="build.batch">
+				<requirement name="Feature" value="javarosa" />
+			</deviceRequirements>
+			
+			<deviceRequirements unless="build.batch">
+				<requirement name="Identifier" value="${device.identifier.test}" />
 			</deviceRequirements>
 
 			<!-- build settings -->
@@ -52,7 +59,7 @@
 			<build fullscreen="menu" 
 				usePolishGui="${javarosa.usepolishui}" 
 				workDir="${dir.work}" 
-				destDir="${dir.dist}">
+				destDir="${device.dir.dist}">
 				
 				<libraries>
 					<library dir="${dir.lib}" />
@@ -65,7 +72,7 @@
 					<attribute name="CC-Content-Version" value="${cc-content-version}" />
 					<attribute name="CC-Build-Version" value="${cc-build-version}" />
 					<attribute name="JR-Build-Version" value="${jr-build-version}" />
-					<attribute name="Polish-Device" value="${device.identifier}" />
+					<attribute name="Polish-Device" value="${polish.identifier}" />
 					<attribute name="Built-on" value="${built-on}" />
 					
 					<!-- Release property can't go in jad if it will be changed -->
@@ -93,6 +100,7 @@
 				<!-- Build variables -->
 				<variables includeAntProperties="true">
 					<variable file="configuration/configuration.properties" />
+					<variable name="polish.TextField.useDirectInput" value="true" unless="polish.international"/>
 				</variables>
 
 				<!-- Resources that should be used in the Polish build (images, the polish.css file, etc) --> 
@@ -112,11 +120,14 @@
 				<!-- Whether to run the obfuscator, which makes reverse engineering the byte-code
 					 more difficult, and compresses the built JAR -->
 				<!-- obfuscator settings: do not obfuscate when the test-property is true -->
-				<obfuscator name="ProGuard" unless="test or noobfuscate">
+				<obfuscator name="ProGuard" unless="(test or noobfuscate) or polish.blackberry">
 				<!--obfuscator name="ProGuard"-->
 					<parameter name="optimize" value="true" />
 					<!-- removing until there's a fix -->
-					<parameter name="printmapping" value="'${dir.dist}/obfuscation_mapping.txt'"/>
+					
+					<!-- Unfortunately, the ${polish.device} identifier isn't available in the regular ANT context, so we can't actually properly 
+					     place these obfuscation maps anywhere yet -->
+					<!--parameter name="printmapping" value="'${dir.dist}/obfuscation_mapping.txt'"/-->
 					
 					<!-- none of the parameter names below can be the same, or else they will clobber previous parameters; hence the varied spacing -->
 					<parameter name="keep,allowshrinking" value="!abstract class org.javarosa.core.model.* implements org.javarosa.core.model.IFormElement" />
@@ -230,7 +241,7 @@
 	<!-- Main Target: Call to clean directories created by a build -->
 	<target name="Clean" description="allows a clean build. You should call [ant clean] whenever you made changes to devices.xml, vendors.xml or groups.xml">
 		<delete dir="build" />
-		<delete dir="dist" />
+		<delete dir="${dir.dist.root}" />
 	</target>
 
 	<target name="SetRelease" >
@@ -243,6 +254,9 @@
 	
 	<!-- Main Target: Cleans, and then runs the build target -->
 	<target name="BuildClean" description="allows a clean build. You should call [ant cleanbuild] whenever you made changes to devices.xml, vendors.xml or groups.xml" depends="Clean, BuildPolish" />
+	
+	<!-- Main Target: Cleans, and then runs the build target -->
+	<target name="BuildAllClean" description="allows a clean build. You should call [ant cleanbuild] whenever you made changes to devices.xml, vendors.xml or groups.xml" depends="SetBatch, Clean, BuildPolish" />
 	
 	<!-- Main Target: Cleans, and then runs the build target with the emulator -->
 	<target name="BuildCleanRunEmulator" description="allows a clean build, and then launches the emulator" depends="Clean, enableEmulator, disableObfuscator, BuildPolish" />
@@ -305,12 +319,18 @@
     <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad" description="Build the jad and post it."/>
 
 	<!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
-	<target name="BuildServerComplete" depends="BuildAndPostJad">
+	<target name="BuildServerComplete" depends="SetBatch, BuildAndPostJad">
 		<ant antfile="../backend/build.xml" target="package" dir="../backend/">
 			  <property name="dir.lib" value="${dir.lib}"/>
 			  <property name="dir.jrlib" value="${dir.tools}"/>
 		</ant>
 	</target>
+	
+	<target name="SetBatch">
+		<property name="build.batch" value="true"/>
+		<property name="dest.suffix" value="${file.separator}${polish.identifier}${file.separator}"/>
+	</target>
+
 		
 	<!-- Initialization for the build targets                    -->
 	<target name="init" depends="extract-libs">	
