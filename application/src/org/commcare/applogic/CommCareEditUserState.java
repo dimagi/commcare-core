@@ -14,7 +14,7 @@ import org.javarosa.user.model.User;
 public class CommCareEditUserState extends EditUserFormEntryState {
 	
 	public CommCareEditUserState(User u) {
-		super(u, PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
+		super(u, PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),CommCareAddUserState.filterPreloaders(CommCareContext._().getPreloaders()), CommCareContext._().getFuncHandlers());
 	}
 
 	public void cancel() {

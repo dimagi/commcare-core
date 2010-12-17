@@ -1,7 +1,10 @@
 package org.commcare.applogic;
 
+import java.util.Vector;
+
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
+import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -14,7 +17,20 @@ import org.javarosa.user.model.User;
 public class CommCareAddUserState extends AddUserFormEntryState {
 	
 	public CommCareAddUserState() {
-		super(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
+		super(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),filterPreloaders(CommCareContext._().getPreloaders()), CommCareContext._().getFuncHandlers());
+	}
+	
+	public static Vector<IPreloadHandler> filterPreloaders(Vector<IPreloadHandler> preloaders) {
+		Vector<IPreloadHandler> toRemove = new Vector<IPreloadHandler>();
+		for(IPreloadHandler preloader : preloaders) {
+			if(preloader.preloadHandled().equals("user")) {
+				toRemove.addElement(preloader);
+			}
+		}
+		for(IPreloadHandler pending : toRemove) {
+			preloaders.removeElement(pending);
+		}
+		return preloaders;
 	}
 
 	public void cancel() {
