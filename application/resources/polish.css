@@ -775,3 +775,15 @@ alertcontent {
 	layout: horizontal-center | expand;
 	gauge-show-value: false;
 }
+
+/** Single question styles **/
+/**
+ * singlequestionscreen styles
+ */
+.View_All_Form {
+	padding: 2;	
+	background-color: white;
+	screen-change-animation: zoomin;
+	layout: bottom | horizontal-center;
+	always-include: true	
+}

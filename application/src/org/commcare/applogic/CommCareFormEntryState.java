@@ -23,9 +23,12 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
+import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.NamespaceRetrievalMethod;
+import org.javarosa.formmanager.view.IFormEntryView;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
+import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 //can't support editing saved forms; for new forms only
@@ -47,8 +50,22 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	protected JrFormEntryController getController() {
 		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers);
 		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher);
-		controller.setView(new Chatterbox(title,controller));
+		controller.setView(loadView(title,controller));
 		return controller;
+	}
+	
+	private IFormEntryView loadView(String title, JrFormEntryController controller) {
+		String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);		
+		
+		if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
+			return new Chatterbox(title, controller);
+			
+		} else if (FormManagerProperties.VIEW_SINGLEQUESTIONSCREEN.equals(viewType)) {
+			return new SingleQuestionView(controller);
+			
+		} else {
+			return new Chatterbox(title, controller);
+		}
 	}
 	
 	public void abort () {
