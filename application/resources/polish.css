@@ -163,7 +163,7 @@ focused{
 }
 	
 .textBox {
-	label-style: choiceGroupLabel;
+	label-style: questiontext;
 	layout: horizontal-center;
 	background-color: white;
 	/* border-width: 1;
