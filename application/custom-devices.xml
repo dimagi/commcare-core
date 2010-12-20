@@ -28,6 +28,19 @@ at large.
 	</device>
 	
 	<device>
+		<identifier>Nokia/S60-generic</identifier>
+		<features>javarosa</features>
+		<parent>Nokia/E70</parent> 
+	</device>
+	
+	<device>
+		<identifier>Nokia/S60-native-input</identifier>
+		<capability name="international" value="true" />
+		<features>javarosa</features>
+		<parent>Nokia/E70</parent> 
+	</device>
+	
+	<device>
 		<identifier>Generic/Default</identifier>
 		<features>javarosa</features>
 		<parent>Generic/AnyPhone</parent>

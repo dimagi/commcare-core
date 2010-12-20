@@ -1,5 +1,6 @@
 package org.commcare.applogic;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -9,6 +10,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.FormTransportWorkflow;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -30,6 +32,10 @@ import org.javarosa.formmanager.view.IFormEntryView;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.javarosa.services.transport.TransportMessage;
+import org.javarosa.services.transport.TransportService;
+import org.javarosa.services.transport.impl.TransportException;
 
 //can't support editing saved forms; for new forms only
 public abstract class CommCareFormEntryState extends FormEntryState {
@@ -77,7 +83,29 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	 */
 	public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
 		if(formWasCompleted) {
+			
 			logCompleted(instanceData);
+			
+			// This process will take place in three parts, in order to ensure that the server and client don't get
+			// out of sync. 
+			
+			// 1) First we'll ensure that a transport message or other off-line element can be created and
+			// saved. This should establish that it will be sent from the device no matter what.
+			
+			
+			//Figure out what the 'send' action is
+			String action = PropertyManager._().getSingularProperty(CommCareProperties.SEND_STYLE);
+			
+			// Get the workflow that will be responsible for managing the flow of form sending
+			FormTransportWorkflow workflow = getWorkflowFactory(action);
+			
+			//Let the workflow perform its first action
+			workflow.preProcessing(instanceData);
+			
+			
+			// 2) Next we'll post process the data and manage any local information that should be handled on
+			// the local device
+			
 			boolean save = postProcess(instanceData);
 			if (save) {
 				IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
@@ -90,45 +118,10 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		        postSaveProcess(instanceData);
 			}
 			
-			
-			//Figure out what to do...
-			String action = PropertyManager._().getSingularProperty(CommCareProperties.SEND_STYLE);
-			
-			//This name is generic, but it's actually HTTP only
-			if(action == null || CommCareProperties.SEND_STYLE_HTTP.equals(action)) {
-				httpTransport(instanceData);
-				return;
-			} else if(CommCareProperties.SEND_STYLE_NONE.equals(action)) {
-				CommCareFormEntryState.this.goHome();
-			}else if(CommCareProperties.SEND_STYLE_FILE.equals(action)) {
-				//TODO: File Save here...
-				CommCareFormEntryState.this.goHome();
-			} else {
-				//The 'Ol Fallback.
-				httpTransport(instanceData);
-			}
+			// 3) Actually manage what to do after the data is processed locally
+			workflow.postProcessing();
 		} else {
 			abort();
-		}
-	}
-	
-	private void httpTransport(FormInstance instanceData) {
-		
-		//No matter what, we want a state for the next step.
-		CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(instanceData) {
-			public void goHome() {
-				CommCareFormEntryState.this.goHome();
-			}
-		};
-		
-		//If we're doing our sending automatically, don't bother asking.
-		if(CommCareSense.isAutoSendEnabled()) {
-			//Follow the same procedure as send later 
-			httpAskSendState.skipSend(instanceData);
-			//Notify the service that old deadlines have expired.
-			AutomatedSenderService.NotifyPending();
-		} else {
-			J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
 		}
 	}
 
@@ -172,5 +165,79 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		}
 		
 		Logger.log("form-completed", instanceData.getFormId() + ":" + PropertyUtils.trim(guid, 12));
+	}
+	
+	/**
+	 *  Get the workflow for how to manage each step in the pre/post processing workflow.
+	 *  
+	 *  TODO: This can/should be shared with JavaRosa core, probably. Safest way to stay in sync
+	 *  WRT SMS transport, etc.
+	 */
+	private FormTransportWorkflow getWorkflowFactory(String action) {
+		if(CommCareProperties.SEND_STYLE_NONE.equals(action)) {
+			return new FormTransportWorkflow() {
+				
+				public void preProcessing(FormInstance instance) {
+					// Nothing
+				}
+				public void postProcessing() {
+					CommCareFormEntryState.this.goHome();
+				}
+			};
+		}else if(CommCareProperties.SEND_STYLE_FILE.equals(action)) {
+			return new FormTransportWorkflow() {
+				public void preProcessing(FormInstance instance) {
+					// TODO: Save data to file system
+				}
+				public void postProcessing() {
+					CommCareFormEntryState.this.goHome();
+				}
+			};
+				
+		} else {
+			return new FormTransportWorkflow() {
+				TransportMessage message;
+				
+				public void preProcessing(FormInstance instance) {
+					//HTTP or Fallback(Nothing)
+					//This actually won't send anything just yet. It'll just put it straight in the cache
+					try {
+						message = CommCareContext._().buildMessage(new XFormSerializingVisitor().createSerializedPayload(instance));
+						TransportService.send(message, 0, 0);
+						Logger.log("formentry", "Transport message[" + message.getCacheIdentifier() + "] created for instance.");
+						
+						// If there is a failure building or caching the transport message, we don't want to further process data.
+						// Otherwise the phone will have data that can never get to the server.
+					} catch (IOException e) { 
+						e.printStackTrace();
+						Logger.die("create-form-message", e);
+						return;
+					} catch (TransportException e) {
+						e.printStackTrace();
+						Logger.die("create-form-message", e);
+						return;
+					} 
+				}
+				public void postProcessing() {
+					//No matter what, we want a state for the next step.
+					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message) {
+						public void goHome() {
+							CommCareFormEntryState.this.goHome();
+						}
+					};
+					
+					//If we're doing our sending automatically, don't bother asking.
+					if(CommCareSense.isAutoSendEnabled()) {
+						//Follow the same procedure as send later 
+						httpAskSendState.skipSend(message);
+						//Notify the service that old deadlines have expired.
+						AutomatedSenderService.NotifyPending();
+					} else {
+						J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
+					}
+				}
+			};
+		}
+
 	}
 }

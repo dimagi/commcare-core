@@ -7,12 +7,12 @@ import org.commcare.util.CommCareHQResponder;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.formmanager.api.FormTransportState;
 import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.javarosa.services.transport.TransportMessage;
 
 public abstract class CommCareFormSendState extends FormTransportState {
 	
-	public CommCareFormSendState (FormInstance data) throws IOException {
-		super(CommCareContext._().buildMessage(new XFormSerializingVisitor().createSerializedPayload(data)),
-			  new CommCareHQResponder());
+	public CommCareFormSendState (TransportMessage message) throws IOException {
+		super(message,new CommCareHQResponder());
 	}
 
 	public void sendToBackground() {
