@@ -81,6 +81,8 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String LOGIN_IMAGE = "cc_login_image";
     
+    public final static String USER_DOMAIN = "cc_user_domain";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -163,6 +165,8 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(ENTRY_MODE, entrymode);
         
         rules.put(LOGIN_IMAGE, new Vector());
+        
+        rules.put(USER_DOMAIN, new Vector());
         
         readOnlyProperties.addElement(ENTRY_MODE);
         readOnlyProperties.addElement(SEND_UNSENT_STYLE);

@@ -40,6 +40,7 @@ import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 
 /**
@@ -332,5 +333,14 @@ public class CommCareUtil {
 	
 	public static boolean partialRestoreEnabled() {
 		return !CommCareProperties.REST_TOL_STRICT.equals(PropertyManager._().getSingularProperty(CommCareProperties.RESTORE_TOLERANCE));
+	}
+
+	public static HttpCredentialProvider wrapCredentialProvider(HttpCredentialProvider credentialProvider) {
+		String domain = PropertyManager._().getSingularProperty(CommCareProperties.USER_DOMAIN);
+		if(domain == null || domain == "") {
+			return credentialProvider;
+		} else {
+			return new CommCareUserCredentialProvider(credentialProvider, domain);
+		}
 	}
 }

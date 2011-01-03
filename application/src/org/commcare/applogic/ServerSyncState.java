@@ -4,6 +4,7 @@ import java.util.Hashtable;
 
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
+import org.commcare.util.CommCareUtil;
 import org.commcare.util.UserCredentialProvider;
 import org.javarosa.core.api.State;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -39,7 +40,7 @@ public abstract class ServerSyncState implements State {
 			}
 		};
 					
-		HttpAuthenticator auth = new HttpAuthenticator(new UserCredentialProvider(CommCareContext._().getUser()));
+		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new UserCredentialProvider(CommCareContext._().getUser())));
 		pull = new CommCareOTARestoreState (true, auth) {
 			public void cancel() {
 				//don't think this is cancellable, since the only place you can cancel from is

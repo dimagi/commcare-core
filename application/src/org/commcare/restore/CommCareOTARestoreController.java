@@ -16,6 +16,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.CommCareUtil;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
@@ -379,7 +380,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	private AuthenticatedHttpTransportMessage getClientMessage() {
 		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, 
-				new HttpAuthenticator(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword()), false));
+				new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword())), false));
 		return message;
 	}
 
