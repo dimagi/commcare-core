@@ -101,6 +101,8 @@
 				<variables includeAntProperties="true">
 					<variable file="configuration/configuration.properties" />
 					<variable name="polish.TextField.useDirectInput" value="true" unless="polish.international"/>
+					<variable name="polish.FullScreen" value="false" if="${ isOS( Windows ) }" />
+					<variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) }" /> 
 				</variables>
 
 				<!-- Resources that should be used in the Polish build (images, the polish.css file, etc) --> 
@@ -120,8 +122,7 @@
 				<!-- Whether to run the obfuscator, which makes reverse engineering the byte-code
 					 more difficult, and compresses the built JAR -->
 				<!-- obfuscator settings: do not obfuscate when the test-property is true -->
-				<obfuscator name="ProGuard" unless="(test or noobfuscate) or polish.blackberry">
-				<!--obfuscator name="ProGuard"-->
+				<obfuscator name="ProGuard" unless="((noobfuscate or test) and not release) or polish.blackberry or obfuscate.force.no">
 					<parameter name="optimize" value="true" />
 					<!-- removing until there's a fix -->
 					
@@ -227,6 +228,8 @@
 			<property name="polish.home" value="${polish.home}"/>
 		</ant>
 		<copy file="${dir.jrlibs}/dist/j2merosa-libraries.jar" todir="${dir.tools}"/>
+		<!-- Get the full device definitions -->
+		<copy file="${device.list}" todir="${basedir}"/>
 	</target>
 	
 	<!-- Main Target: Call to build the project and call up the emulator -->
