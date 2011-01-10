@@ -11,3 +11,4 @@ application/.polishSettings
 application/tools
 backend/dist/*
 key.properties
+glob:application/custom-devices.xml

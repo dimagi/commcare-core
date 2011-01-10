@@ -5,11 +5,14 @@ import org.javarosa.formmanager.view.transport.TransportResponseProcessor;
 import org.javarosa.services.transport.CommUtil;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
+import org.javarosa.user.transport.HttpUserRegistrationTranslator;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 
 public class CommCareHQResponder implements TransportResponseProcessor {
-
+	
+	//TODO: Replace all response semantics with a single unified response system
+	
 	public String getResponseMessage(TransportMessage message) {
     	String returnstr = "";
     	
@@ -20,12 +23,32 @@ public class CommCareHQResponder implements TransportResponseProcessor {
     		byte[] response = null;
     		
     		// No class-cast-exception possible since we just checked
-    		SimpleHttpTransportMessage msg = (SimpleHttpTransportMessage)message; 
+    		SimpleHttpTransportMessage msg = (SimpleHttpTransportMessage)message;
+    		
+    		
+			response = msg.getResponseBody();    			
+			Document doc = CommUtil.getXMLResponse(response);
+
+    		if(doc != null && "OpenRosaResponse".equals(doc.getRootElement().getName()) && HttpUserRegistrationTranslator.XMLNS_ORR.equals(doc.getRootElement().getNamespace())) {
+    			//Only relevant (for now!) for Form Submissions
+    			try{
+    				Element e = doc.getRootElement().getElement(HttpUserRegistrationTranslator.XMLNS_ORR,"message");
+    				String responseText = e.getText(0);
+    				return responseText;
+    			} catch(Exception e) {
+    				//No response message
+    	    		if( msg.getResponseCode() == 202 ) {
+    	    			return Localization.get("sending.status.problem.datasafe");
+    	    		} else if(msg.getResponseCode() >= 200 && msg.getResponseCode() < 300) {
+    	    			return Localization.get("sending.status.success");
+    	    		} else {
+    	    			return "";
+    	    		}
+    			}
+    		}
 		 
     		// 200 means everything is cool. 202 means data safe, but a problem
     		if( msg.getResponseCode() == 200 ) {
-    			response = msg.getResponseBody();    			
-    			Document doc = CommUtil.getXMLResponse(response);
     			
     			if (doc != null) {
     				Element e = doc.getRootElement();
