@@ -135,7 +135,7 @@ public abstract class ElementParser<T> {
             } else if(eventType == KXmlParser.END_TAG) {
                 //If we've reached the end of the current node path, 
                 //return false (signaling that the parsing action should end).
-                if(parser.getName().toLowerCase().equals(terminal)) { return false; }
+                if(parser.getName().toLowerCase().equals(terminal.toLowerCase())) { return false; }
                 //Elsewise, as long as we haven't left the current context, keep diving
                 else if(parser.getDepth() >= level) { return nextTagInBlock(terminal); }
                 //if we're below the limit, get out.
