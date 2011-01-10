@@ -30,7 +30,7 @@ public class CommCareUserCredentialProvider implements HttpCredentialProvider {
 	 * @see org.javarosa.service.transport.securehttp.HttpCredentialProvider#getUsername()
 	 */
 	public String getUsername() {
-		return derived.getUsername() + (domain == null ? "" : "@" + domain);
+		return derived.getUsername().toLowerCase() + (domain == null ? "" : "@" + domain);
 	}
 
 	/* (non-Javadoc)
