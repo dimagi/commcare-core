@@ -67,7 +67,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 			return new Chatterbox(title, controller);
 			
 		} else if (FormManagerProperties.VIEW_SINGLEQUESTIONSCREEN.equals(viewType)) {
-			return new SingleQuestionView(controller);
+			return new SingleQuestionView(controller, title);
 			
 		} else {
 			return new Chatterbox(title, controller);
