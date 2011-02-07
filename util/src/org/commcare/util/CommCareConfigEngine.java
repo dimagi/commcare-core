@@ -112,6 +112,9 @@ public class CommCareConfigEngine {
 		//(Now jr://resource/ points there too)
 		ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource","jr://file"));
 		
+		//(Now jr://resource/ points there too)
+		ReferenceManager._().addRootTranslator(new RootTranslator("jr://media","jr://file"));
+		
 		//Now build the testing reference we'll use
 		String reference = "jr://file/" + resource;
 		

@@ -109,14 +109,12 @@ public abstract class ElementParser<T> {
 	/**
 	 * Retrieves the next tag in the XML document which is internal 
 	 * to the tag identified by terminal. If there are no further tags
-	 * inside this tag, an invalid structure is detected and the proper
-	 * exception is thrown. 
+	 * inside this tag, false will be returned.
 	 * 
 	 * @param terminal The name of the tag which the next tag expected 
 	 * should be inside of.
 	 * 
-	 * @throws InvalidStructureException If no further tags inside of terminal
-	 * are available or if any other invalid CommCare XML structures are 
+	 * @throws InvalidStructureException If any invalid CommCare XML structures are 
 	 * detected.
 	 * @throws IOException If the parser has a problem reading the document
 	 * @throws XmlPullParserException If the stream does not contain well-formed

@@ -5,6 +5,7 @@ package org.commcare.resources.model;
 
 import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.LoginImageInstaller;
+import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
@@ -33,5 +34,9 @@ public class InstallerFactory {
 	
 	public ResourceInstaller getLoginImageInstaller() {
 		return new LoginImageInstaller();
+	}
+	
+	public ResourceInstaller getMediaInstaller(String path) {
+		return new MediaInstaller(path);
 	}
 }
