@@ -16,6 +16,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.UserXmlParser;
@@ -62,10 +63,10 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	String restoreURI;
 	boolean noPartial;
 	boolean isSync;
+	int[] caseTallies;
 	
 	HttpAuthenticator authenticator;
 	boolean errorsOccurred;
-	final int[] caseTallies = new int[3];
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
 		this(transitions, restoreURI, null);
@@ -242,43 +243,20 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		J2MEDisplay.setView(view);
 		view.addToMessage(Localization.get("restore.starting")); 
 		
-		final String[] restoreIDWrapper = {null};
 		errorsOccurred = false;
 		
 		boolean success = false;
-		String restoreID = null;
 		String[] parseErrors = new String[0];
+		String restoreID = null;
 		
 		try {
 			beginTransaction();
-			
-			DataModelPullParser parser = new DataModelPullParser(input, new TransactionParserFactory() {
-	
-				public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-					if(name.toLowerCase().equals("case")) {
-						return new CaseXmlParser(parser, caseTallies, !noPartial);
-					} else if(name.toLowerCase().equals("registration")) {
-						return new UserXmlParser(parser);
-					} else if (name.equalsIgnoreCase("restore_id")) {
-						return new TransactionParser<String> (parser, "restore_id", null) {
-							public void commit(String parsed) throws IOException {
-								//do nothing
-							}
-							
-							public String parse() throws XmlPullParserException, IOException {
-								String restoreID = parser.nextText().trim();
-								restoreIDWrapper[0] = restoreID;
-								return restoreID;
-							}
-						};
-					}
-					return null;
-				}
-				
-			});
+			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
+			DataModelPullParser parser = new DataModelPullParser(input,factory);
 			
 			success = parser.parse();
-			restoreID = restoreIDWrapper[0];
+			restoreID = factory.getRestoreId();
+			caseTallies = factory.getCaseTallies();
 			if (success) {
 				PropertyManager._().setProperty(CommCareProperties.LAST_SUCCESSFUL_SYNC, restoreID);
 				PropertyManager._().setProperty(CommCareProperties.LAST_SYNC_AT, DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));

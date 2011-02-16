@@ -60,4 +60,7 @@ restore.bypass.clean=Attempting to clear local bypass file...
 restore.bypass.clean.success=Local bypass file deleted
 restore.bypass.cleanfail=Couldn't delete OTA bypass file. It is recommended you delete the file ${0} manually.
 restore.bypass.fail=Local Restore bypass failed. Falling back to OTA restore.
-restore.bypass.instructions=Local Restore failed. Please sign-in for OTA Restore. 
+restore.bypass.instructions=Local Restore failed. Please sign-in for OTA Restore.
+
+#Warning about time
+message.timesync=Your phone's time appears to be set incorrectly, which will cause problems in submitted data. Please set your phone to the correct date and time.  

@@ -12,10 +12,13 @@ import java.util.Vector;
 import javax.microedition.midlet.MIDlet;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.model.PeriodicEvent;
+import org.commcare.model.PeriodicEventRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.services.AutomatedSenderService;
+import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
@@ -257,6 +260,7 @@ public class CommCareContext {
 	
 	protected void registerAddtlStorage () {
 		//do nothing
+		StorageManager.registerStorage(PeriodicEventRecord.STORAGE_KEY, PeriodicEventRecord.class);
 	}
 	
 	protected void initReferences() {
@@ -307,6 +311,8 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty(CommCareProperties.DEMO_MODE, CommCareProperties.DEMO_ENABLED);
 		PropertyUtils.initializeProperty(CommCareProperties.TETHER_MODE, CommCareProperties.TETHER_PUSH_ONLY);
 		PropertyUtils.initializeProperty(CommCareProperties.LOGIN_IMAGE, "jr://resource/icon.png");
+		
+		PropertyUtils.initializeProperty(CommCareProperties.USER_REG_TYPE, CommCareProperties.USER_REG_REQUIRED);
 	}
 	
 	public static void init(MIDlet m, InitializationListener listener) {
@@ -327,6 +333,10 @@ public class CommCareContext {
 	
 	public User getUser () {
 		return user;
+	}
+	
+	public PeriodicEvent[] getEventDescriptors() {
+		return new PeriodicEvent[] {new TimeMessageEvent()};
 	}
 	
 	

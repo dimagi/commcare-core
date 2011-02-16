@@ -8,7 +8,7 @@ import javax.microedition.lcdui.Command;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.user.api.AddUserController;
+import org.javarosa.user.api.CreateUserController;
 import org.javarosa.user.api.LoginController;
 
 import de.enough.polish.ui.Form;
@@ -42,7 +42,7 @@ public class CommCareOTACredentialEntry extends Form {
 		
 		String passFormat = PropertyManager._().getSingularProperty(CommCareProperties.PASSWORD_FORMAT);
 		
-		int flags = AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? TextField.PASSWORD : TextField.PASSWORD | TextField.NUMERIC;
+		int flags = CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? TextField.PASSWORD : TextField.PASSWORD | TextField.NUMERIC;
 
 		password = new TextField(Localization.get("form.login.password"), null, 100, flags);
 		

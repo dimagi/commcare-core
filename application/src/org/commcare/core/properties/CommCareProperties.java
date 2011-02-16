@@ -55,6 +55,11 @@ public class CommCareProperties implements IPropertyRules {
     
     //User registration
     public final static String USER_REG_NAMESPACE = "user_reg_namespace";
+
+    //Whether users need to register with the server
+    public final static String USER_REG_TYPE = "user_reg_server";
+    public final static String USER_REG_REQUIRED = "required";
+    public final static String USER_REG_SKIP = "skip";
     
     public final static String SEND_STYLE ="cc-send-procedure";
     	
@@ -161,6 +166,11 @@ public class CommCareProperties implements IPropertyRules {
         sendunsent.addElement(SEND_UNSENT_AUTOMATIC);
         sendunsent.addElement(SEND_UNSENT_MANUAL);
         rules.put(SEND_UNSENT_STYLE, sendunsent);
+        
+        Vector userReg = new Vector();
+        userReg.addElement(USER_REG_REQUIRED);
+        userReg.addElement(USER_REG_SKIP);
+        rules.put(USER_REG_TYPE, userReg);
              
         rules.put(ENTRY_MODE, entrymode);
         

@@ -2,6 +2,8 @@ package org.commcare.applogic;
 
 import org.commcare.util.CommCareHQResponder;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.formmanager.api.CompletedFormOptionsState;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportMessage;
@@ -22,7 +24,7 @@ public abstract class CommCarePostFormEntryState extends CompletedFormOptionsSta
 		
 		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder());
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
 			}
 
 			public void done() {

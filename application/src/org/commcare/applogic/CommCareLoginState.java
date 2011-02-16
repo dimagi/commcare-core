@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.model.PeriodicWrapperState;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.log.WrappedException;
@@ -16,7 +17,7 @@ import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.properties.LogPropertyRules;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
-import org.javarosa.user.api.AddUserController;
+import org.javarosa.user.api.CreateUserController;
 import org.javarosa.user.api.LoginController;
 import org.javarosa.user.api.LoginState;
 import org.javarosa.user.model.User;
@@ -34,9 +35,9 @@ public class CommCareLoginState extends LoginState {
 		return new LoginController(
 				Localization.get("login.title"),
 				PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGE),
-				extraText, AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
-				                              AddUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
-				                              AddUserController.PASSWORD_FORMAT_NUMERIC,
+				extraText, CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
+				                              CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
+				                              CreateUserController.PASSWORD_FORMAT_NUMERIC,
 				                              CommCareUtil.demoEnabled());
 	}
 
@@ -56,6 +57,9 @@ public class CommCareLoginState extends LoginState {
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
 
+		
+		//TODO: Replace this state completely with the periodic wrapper state and reimplement this
+		//functionality as a periodically wrapped set
 		J2MEDisplay.startStateWithLoadingScreen(new DeviceReportState() {
 
 			public String getDestURL() {
@@ -68,7 +72,12 @@ public class CommCareLoginState extends LoginState {
 
 			public void done() {
 				// Go to the home state if we're done or if we skip it.
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+				J2MEDisplay.startStateWithLoadingScreen(new PeriodicWrapperState(CommCareContext._().getEventDescriptors()){
+
+					public void done() {
+						J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());						
+					}
+				});
 			}
 		});
 	}

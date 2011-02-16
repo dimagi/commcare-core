@@ -4,20 +4,29 @@ import java.util.Vector;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.OpenRosaApiResponseProcessor;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.user.api.AddUserFormEntryState;
+import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
+import org.javarosa.user.api.CreateUserFormEntryState;
+import org.javarosa.user.api.RegisterUserController;
 import org.javarosa.user.api.RegisterUserState;
 import org.javarosa.user.model.User;
+import org.javarosa.user.transport.HttpUserRegistrationTranslator;
 
-public class CommCareAddUserState extends AddUserFormEntryState {
+public class CommCareAddUserState extends CreateUserFormEntryState {
 	
-	public CommCareAddUserState() {
+	boolean requireRegistration;
+	String orApiVersion;
+	
+	public CommCareAddUserState(boolean requireRegistration, String orApiVersion) {
 		super(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_NAMESPACE),filterPreloaders(CommCareContext._().getPreloaders()), CommCareContext._().getFuncHandlers());
+		this.requireRegistration = requireRegistration;
+		this.orApiVersion = orApiVersion;
 	}
 	
 	public static Vector<IPreloadHandler> filterPreloaders(Vector<IPreloadHandler> preloaders) {
@@ -37,37 +46,47 @@ public class CommCareAddUserState extends AddUserFormEntryState {
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
 
-	public void userAdded(User newUser) {
-		//#if commcare.user.registration
+	public void userCreated(final User newUser) {
 		
-		new RegisterUserState(newUser) {
-			
-			public String getRegistrationURL() {
-				return CommCareContext._().getSubmitURL();
-			}
+		if(requireRegistration) {
 
-			public void cancel() {
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
-			}
-
-			public void succesfullyRegistered(User user) {
-				IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
-				try {
-					users.write(user);
-				} catch (StorageFullException e) {
-					throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
+			new RegisterUserState(newUser, orApiVersion) {
+				
+				public String getRegistrationURL() {
+					return CommCareContext._().getSubmitURL();
+				}
+	
+				public void cancel() {
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
 				
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+				protected RegisterUserController<SimpleHttpTransportMessage> getController () {
+					return new RegisterUserController<SimpleHttpTransportMessage>(new HttpUserRegistrationTranslator(user,getRegistrationURL(), orApiVersion), !OpenRosaApiResponseProcessor.ONE_OH.equals(orApiVersion));
+				}
+	
+				public void succesfullyRegistered(User user) {
+					IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+					try {
+						//If the incoming user is null, there were no updates
+						users.write(user == null ? newUser : user);
+					} catch (StorageFullException e) {
+						throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
+					}
+					
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+				}
+				
+			}.start();
+		} else {
+		
+			IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+			try {
+				users.write(newUser);
+			} catch (StorageFullException e) {
+				throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
 			}
-			
-		}.start();
-		
-		//#else
-		
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
-		
-		//#endif
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+		}
 	}
 
 	public void abort() {

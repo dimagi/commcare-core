@@ -7,6 +7,8 @@ import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.UserCredentialProvider;
 import org.javarosa.core.api.State;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 
@@ -22,7 +24,7 @@ public abstract class ServerSyncState implements State {
 	public ServerSyncState () {
 		send = new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder(), false, true);
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), false, true);
 			}
 
 			public void done () {

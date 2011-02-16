@@ -6,6 +6,7 @@ package org.commcare.applogic;
 import java.util.Hashtable;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.RecentFormEntity;
 import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.suite.model.Entry;
@@ -25,7 +26,9 @@ import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
@@ -75,7 +78,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	public void sendAllUnsent() {
 		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder());
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
 			}
 
 			public void done() {
@@ -134,7 +137,9 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void newUser() {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareAddUserState());
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareAddUserState(
+				!CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
+				PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
 	}
 	
 	public void editUsers() {
@@ -146,7 +151,9 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 			public void entitySelected(int id) {
 				User u = (User)StorageManager.getStorage(User.STORAGE_KEY).read(id);
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u));
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u,	
+						!CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
+						PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
 			}
 		});
 	}
