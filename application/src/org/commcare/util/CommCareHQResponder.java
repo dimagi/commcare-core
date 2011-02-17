@@ -25,6 +25,13 @@ public class CommCareHQResponder implements TransportResponseProcessor {
 	
 	String apiLevelGuess;
 	
+	/**
+	 * A processor for responses from CommCare HQ. Currently handles responses
+	 * from CCHQ 0.9, and for CCHQ 1.0 (assuming the OpenRosa 1.0 response API).
+	 * 
+	 * @param apiLevelGuess A guess for what system we're talking to. Available
+	 * through a property set in the profile, generally.
+	 */
 	public CommCareHQResponder(String apiLevelGuess) {
 		this.apiLevelGuess = apiLevelGuess;
 	}
@@ -49,6 +56,8 @@ public class CommCareHQResponder implements TransportResponseProcessor {
     		//Check the API response processor for well-formed, expected results.
     		OpenRosaApiResponseProcessor orHandler = new OpenRosaApiResponseProcessor();
     		
+    		//If the server didn't tell us what OR API version to use, but we have a guess, use
+    		//that.
     		if(msg.getResponseProperties().getORApiVersion() == null && apiLevelGuess != null) {
     			msg.getResponseProperties().setRequestProperty("X-OpenRosa-Version",apiLevelGuess);
     		}
@@ -142,10 +151,15 @@ public class CommCareHQResponder implements TransportResponseProcessor {
     	return returnstr;
 	}
 		
-	
+	/**
+	 * Helper method for identifying whether the server and phone have substantially
+	 * different notions of what the current date and time are.  
+	 * 
+	 * @param date The most recent authoritative (from the server) Date in GMT
+	 */
 	private void dateInconsistencyHelper(long date) {
-		//Don't do anything if we didn't get back a useful date.
 		try {
+			//Don't do anything if we didn't get back a useful date.
 			if(date == 0) {
 				return;
 			} else {
@@ -156,14 +170,14 @@ public class CommCareHQResponder implements TransportResponseProcessor {
 				
 				long difference = Math.abs(c.getTime().getTime() - new Date().getTime());
 				
-				//if(difference > DateUtils.DAY_IN_MS * 1.5) {
-				if(difference > 0) {
+				//TODO: Property for this limit
+				if(difference > DateUtils.DAY_IN_MS * 1.5) {
 					PeriodicEvent.schedule(new TimeMessageEvent());
 				}
 			}
 		}
 		catch(Exception e) {
-			//This is purely helper code. Don't want it to even crash the system
+			//This is purely helper code. Don't want it to ever crash the system
 			Logger.exception("While checking dates", e);
 		}
 	}

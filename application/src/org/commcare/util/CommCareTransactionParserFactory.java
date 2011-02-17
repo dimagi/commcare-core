@@ -14,6 +14,17 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
+ * The CommCare Transaction Parser Factory (whew!) wraps all of the current 
+ * transactions that CommCare knows about, and provides the appropriate hooks for
+ * parsing through XML and dispatching the right handler for each transaction.
+ * 
+ * It should be the central point of processing for transactions (eliminating the
+ * use of the old datamodel based processors) and should be used in any situation where
+ * a transaction is expected to be present.
+ * 
+ * It is expected to behave more or less as a black box, in that it directly creates/modifies
+ * the data models on the system, rather than producing them for another layer or processing.
+ * 
  * @author ctsims
  *
  */
@@ -24,12 +35,21 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private boolean tolerant;
 	private String message;
 	
+	/**
+	 * Creates a new factory for processing incoming XML.
+	 * @param tolerant True if processing should fail in the event of conflicting data,
+	 * false if processing should proceed as long as it is possible.
+	 */
 	public CommCareTransactionParserFactory(boolean tolerant) {
 		restoreId = null;
 		caseTallies = new int[3];
 		this.tolerant = tolerant;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+	 */
 	public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 		if(name.toLowerCase().equals("case")) {
 			return new CaseXmlParser(parser, caseTallies, tolerant);
@@ -56,14 +76,30 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		return null;
 	}
 	
+	/**
+	 * @return An int[3] array containing a count of Cases
+	 * int[0]: created
+	 * int[1]: updated
+	 * int[2]: closed
+	 * 
+	 * after processing has completed.
+	 */
 	public int[] getCaseTallies() {
 		return caseTallies;
 	}
 	
+	/**
+	 * @return After processing is completed, if a restore ID was present in the payload
+	 * it will be returned here. 
+	 */
 	public String getRestoreId() {
 		return restoreId;
 	}
 	
+	/**
+	 * @return After processing is completed, if a message to the user was present, it
+	 * will be returned here.
+	 */
 	public String getResponseMessage() {
 		return message;
 	}

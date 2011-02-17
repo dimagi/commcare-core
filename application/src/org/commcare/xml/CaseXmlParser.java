@@ -20,6 +20,11 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
+ * The CaseXML Parser is responsible for processing and performing
+ * case transactions from an incoming XML stream. It will perform
+ * all of the actions specified by the transaction (Create/modify/close)
+ * against the application's current storage. 
+ * 
  * @author ctsims
  *
  */
@@ -29,6 +34,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	int[] tallies;
 	boolean acceptCreateOverwrites;
 	
+	/**
+	 * Creates a Parser for case blocks in the XML stream provided. 
+	 * 
+	 * @param parser The parser for incoming XML.
+	 * @param tallies an int[3] array to place information about the parser's actions.
+	 * @param acceptCreateOverwrites Whether an Exception should be thrown if the transaction
+	 * contains create actions for cases which already exist.
+	 */
 	public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites) {
 		super(parser, "case", null);
 		this.tallies = tallies;

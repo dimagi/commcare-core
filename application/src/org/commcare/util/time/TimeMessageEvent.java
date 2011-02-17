@@ -14,6 +14,12 @@ import de.enough.polish.ui.Displayable;
 
 
 /**
+ * A time message event displays a message to the user instructing them that
+ * their device's time is probably incorrect.
+ * 
+ * It is a scheduled, daily event, meaning it should only occur when the system
+ * explicitly schedules one, and should not occur more than once a day.
+ * 
  * @author ctsims
  *
  */
@@ -36,14 +42,26 @@ public class TimeMessageEvent extends PeriodicEvent implements CommandListener {
 		J2MEDisplay.setView(display);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.model.PeriodicEvent#getEventKey()
+	 */
 	protected String getEventKey() {
 		return EVENT_KEY;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.model.PeriodicEvent#getEventPeriod()
+	 */
 	protected int getEventPeriod() {
-		return PeriodicEvent.TYPE_SCHEDULED  | PeriodicEvent.TYPE_DAILY;
+		return PeriodicEvent.TYPE_FLAG_SCHEDULED  | PeriodicEvent.TYPE_DAILY;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.enough.polish.ui.CommandListener#commandAction(de.enough.polish.ui.Command, de.enough.polish.ui.Displayable)
+	 */
 	public void commandAction(Command c, Displayable d) {
 		this.done();
 	}

@@ -13,6 +13,11 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
+ * This class contains the process for handling an XML response from an OpenRosa
+ * server. As time goes on, this class should dispatch different API versions to
+ * different handlers or sections of code so that there is a shared long-term source
+ * of capacity for handling server responses. 
+ * 
  * @author ctsims
  *
  */
@@ -20,6 +25,14 @@ public class OpenRosaApiResponseProcessor {
 	
 	public static final String ONE_OH = "1.0"; 
 	
+	/**
+	 * Whether the processor knows that it is capable of processing the response to
+	 * the current message.
+	 * 
+	 * @param message A completed transport message with an available response.
+	 * 
+	 * @return true if the processor should be able to handle the response. false otherwise.
+	 */
 	public boolean handlesResponse(SimpleHttpTransportMessage message) {
 		//The != null should be unnecessary going forward, but just being careful since it might not 
 		//get cached properly?
@@ -30,10 +43,27 @@ public class OpenRosaApiResponseProcessor {
 		return false;
 	}
 	
+	/**
+	 * Process the response to the current message (may have side effects).
+	 * 
+	 * @param message A completed transport message with an available response.
+	 * @return A string with the user facing messages which were parsed out from that response. 
+	 * @throws InvalidStructureException If the response is present, but incorrectly structured
+	 * @throws IOException 
+	 * @throws UnfullfilledRequirementsException If the isn't capable of processing the provided message
+	 * for well recognized reasons (Like the API version of the response being above that currently understood) 
+	 * @throws XmlPullParserException
+	 */
 	public String processResponse(SimpleHttpTransportMessage message) throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
+
 		if(message.getResponseProperties() != null && message.getResponseProperties().getORApiVersion().equals(ONE_OH)) {
+			
+			//TODO: Eliminate byte arrays, and replace with an active stream of the response
 			byte[] response = message.getResponseBody();    			
+			
+			//Use standard transactions
 			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(true);
+			
 			DataModelPullParser parser = new DataModelPullParser(new ByteArrayInputStream(response), factory);
 			
 			boolean success = parser.parse();
