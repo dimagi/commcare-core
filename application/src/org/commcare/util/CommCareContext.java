@@ -246,10 +246,10 @@ public class CommCareContext {
 						//I dunno? Log it? 
 						e.printStackTrace();
 					} catch (InvalidReferenceException e) {
-						// TODO Auto-generated catch block
+						// TODO Auto-referralCache catch block
 						e.printStackTrace();
 					} catch (StorageFullException e) {
-						// TODO Auto-generated catch block
+						// TODO Auto-referralCache catch block
 						e.printStackTrace();
 					}
 				}
@@ -579,13 +579,15 @@ public class CommCareContext {
 
 	//custom code for BHOMA -- don't tell anyone
 	class CHWReferralNumFunc implements IFunctionHandler {
+		Hashtable<String, String> referralCache = new Hashtable<String, String>();
+		
 		public String getName() {
 			return "chw-referral-num";
 		}
 
 		public Vector getPrototypes() {
 			Vector p = new Vector();
-			p.addElement(new Class[] {});
+			p.addElement(new Class[] {String.class});
 			return p;
 		}
 
@@ -598,31 +600,46 @@ public class CommCareContext {
 		}
 
 		public Object eval(Object[] args) {
-			User u = CommCareContext._().getUser();
-			String refCode = u.getProperty("clinic_prefix") + "-" + u.getProperty("chw_zone") + "-";
+			//each repeat has a hidden generated uid. we cache the generated referral code
+			//under this uid, so we don't regenerate it if we navigate through the repeititon
+			//again
+			String key = (String)args[0];
 			
-			String sRefCounter = u.getProperty("ref_count");
-			int refCounter = (sRefCounter == null ? 0 : Integer.parseInt(sRefCounter));
+			if (key.length() == 0) {
+				//referral code is non-relevant; don't generate/increment
+				return "_nonrelev";
+			} else if (referralCache.containsKey(key)) {
+				//fetch cached referral code
+				return referralCache.get(key);
+			} else {
+				//generate/increment fresh referral code and cache it
+				User u = CommCareContext._().getUser();
+				String refCode = u.getProperty("clinic_prefix") + "-" + u.getProperty("chw_zone") + "-";
+			
+				String sRefCounter = u.getProperty("ref_count");
+				int refCounter = (sRefCounter == null ? 0 : Integer.parseInt(sRefCounter));
 
-			refCounter += 1;
-			if (refCounter >= 1000)
-				refCounter = 1;
-			sRefCounter = Integer.toString(refCounter);
-			u.setProperty("ref_count", sRefCounter);
-			
-			IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
-			try {
-				users.write(u);
-			} catch (StorageFullException e) {
-				Logger.exception(e);
+				refCounter += 1;
+				if (refCounter >= 10000)
+					refCounter = 1;
+				sRefCounter = Integer.toString(refCounter);
+				u.setProperty("ref_count", sRefCounter);
+				
+				IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+				try {
+					users.write(u);
+				} catch (StorageFullException e) {
+					Logger.exception(e);
+				}
+				
+				while (sRefCounter.length() < 4) {
+					sRefCounter = "0" + sRefCounter;
+				}
+				refCode += sRefCounter;
+				
+				referralCache.put(key, refCode);
+				return refCode;
 			}
-			
-			while (sRefCounter.length() < 3) {
-				sRefCounter = "0" + sRefCounter;
-			}
-			refCode += sRefCounter;
-			
-			return refCode;
 		}
 	}
 }
