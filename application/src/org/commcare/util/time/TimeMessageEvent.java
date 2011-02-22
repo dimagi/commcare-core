@@ -4,6 +4,7 @@
 package org.commcare.util.time;
 
 import org.commcare.model.PeriodicEvent;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.j2me.view.J2MEDisplay;
 
@@ -40,6 +41,7 @@ public class TimeMessageEvent extends PeriodicEvent implements CommandListener {
 		display.setCommandListener(this);
 		
 		J2MEDisplay.setView(display);
+		Logger.log("time message", "Displayed incorrect time message to user");
 	}
 
 	/*

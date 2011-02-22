@@ -51,7 +51,7 @@ public class CommCareHQResponder implements TransportResponseProcessor {
     		SimpleHttpTransportMessage msg = (SimpleHttpTransportMessage)message;
     		
     		//Check for date inconsistencies
-    		dateInconsistencyHelper(msg.getRequestProperties().getGMTDate());
+    		dateInconsistencyHelper(msg.getResponseProperties().getGMTDate());
     		
     		//Check the API response processor for well-formed, expected results.
     		OpenRosaApiResponseProcessor orHandler = new OpenRosaApiResponseProcessor();
@@ -170,8 +170,10 @@ public class CommCareHQResponder implements TransportResponseProcessor {
 				
 				long difference = Math.abs(c.getTime().getTime() - new Date().getTime());
 				
+				
 				//TODO: Property for this limit
 				if(difference > DateUtils.DAY_IN_MS * 1.5) {
+					Logger.log("dih","Date off. Difference(ms): " + difference + ". Adding event.");
 					PeriodicEvent.schedule(new TimeMessageEvent());
 				}
 			}
