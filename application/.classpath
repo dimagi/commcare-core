@@ -23,5 +23,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.user"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-shared-resources"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/j2me-crypto"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

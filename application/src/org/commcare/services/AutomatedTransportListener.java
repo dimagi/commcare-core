@@ -3,6 +3,9 @@
  */
 package org.commcare.services;
 
+import org.commcare.util.CommCareHQResponder;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.services.transport.TransportListener;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
@@ -17,9 +20,10 @@ public class AutomatedTransportListener implements TransportListener {
 	private int failureCount = 0;
 	private int successCount = 0;
 	private boolean engaged = false;
+	CommCareHQResponder responder;
 	
 	public AutomatedTransportListener() {
-		
+		responder = new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL));
 	}
 	
 	public boolean engaged() {
@@ -52,6 +56,11 @@ public class AutomatedTransportListener implements TransportListener {
 			failureCount++;
 		} else {
 			successCount++;
+			
+			//Process the response for any relevant information
+			responder.getResponseMessage(message);
+			
+			//TODO: Log?
 		}
 		if(failureCount > FAILURE_THRESHOLD) {
 			TransportService.halt();

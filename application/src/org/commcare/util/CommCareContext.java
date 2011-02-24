@@ -122,6 +122,8 @@ public class CommCareContext {
 	}
 	
 	public void configureApp(MIDlet m, InitializationListener listener) {
+		//Application Entry point should be considered to be here
+		
 		failsafeInit(m);
 		Logger.log("app-start", "");
 		

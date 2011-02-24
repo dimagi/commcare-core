@@ -3,12 +3,9 @@
  */
 package org.commcare.applogic;
 
-import java.util.Hashtable;
-
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.RecentFormEntity;
-import org.commcare.restore.CommCareOTARestoreController;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
@@ -16,7 +13,6 @@ import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
-import org.commcare.util.UserCredentialProvider;
 import org.commcare.view.CommCareHomeController;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
@@ -41,7 +37,6 @@ import org.javarosa.j2me.log.viewer.LogViewerState;
 import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.util.GPRSTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserEntity;
