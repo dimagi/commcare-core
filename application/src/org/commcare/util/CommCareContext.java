@@ -291,7 +291,6 @@ public class CommCareContext {
 		//Put generic fallbacks into postProfile property intiializer below.
 		PropertyManager._().addRules(new JavaRosaPropertyRules());
 		PropertyManager._().addRules(new CommCareProperties());
-		PropertyManager._().addRules(new FormManagerProperties());
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
 		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
