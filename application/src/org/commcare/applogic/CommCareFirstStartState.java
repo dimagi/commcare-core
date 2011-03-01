@@ -38,14 +38,14 @@ public class CommCareFirstStartState implements State, FirstStartupTransitions{
 	public void login() {
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState() {
 
-			public void loggedIn(User u) {
+			public void loggedIn(User u, String password) {
 				
 				//If they logged in as an admin user, we can assume they don't need the first start screen anymore.
 				if(!(u.getUserType().equals(User.DEMO_USER))) {
 					PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_NO);
 				}
 
-				super.loggedIn(u);
+				super.loggedIn(u, password);
 			}
 			
 		});

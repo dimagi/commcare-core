@@ -51,6 +51,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
+import org.javarosa.j2me.crypto.util.CryptoSession;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
@@ -61,6 +62,7 @@ import org.javarosa.log.util.LogReportUtils;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.resources.locale.LanguageUtils;
+import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportManagerModule;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
@@ -86,6 +88,9 @@ public class CommCareContext {
 	private CommCarePlatform manager;
 	
 	protected boolean inDemoMode;
+	
+	/** We'll store the credential provider internally to be produced first in syncing **/
+	private HttpCredentialProvider userCredentials;
 	
 	public String getSubmitURL() {
 		String url = PropertyManager._().getSingularProperty(CommCareProperties.POST_URL_PROPERTY);
@@ -120,6 +125,8 @@ public class CommCareContext {
 	public CommCarePlatform getManager() {
 		return manager;
 	}
+	
+	CryptoSession crypt;
 	
 	public void configureApp(MIDlet m, InitializationListener listener) {
 		//Application Entry point should be considered to be here
@@ -328,12 +335,21 @@ public class CommCareContext {
 		return i;
 	}
 
-	public void setUser (User u) {
+	public void setUser (User u, HttpCredentialProvider userCredentials) {
 		this.user = u;
+		this.userCredentials = userCredentials;
 	}
 	
 	public User getUser () {
 		return user;
+	}
+	
+	public HttpCredentialProvider getCurrentUserCredentials() {
+		if( userCredentials != null) {
+			return userCredentials;
+		} else {
+			return new UserCredentialProvider(CommCareContext._().getUser());
+		}
 	}
 	
 	public PeriodicEvent[] getEventDescriptors() {

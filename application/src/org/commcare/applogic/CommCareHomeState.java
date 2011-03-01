@@ -85,7 +85,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 	
 	public void serverSync () {
-		J2MEDisplay.startStateWithLoadingScreen(new ServerSyncState () {
+		J2MEDisplay.startStateWithLoadingScreen(new ServerSyncState (CommCareContext._().getCurrentUserCredentials()) {
 			public void onSuccess (String detail) {
 				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Update", detail));
 			}

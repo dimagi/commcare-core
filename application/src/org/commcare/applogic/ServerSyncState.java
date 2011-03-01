@@ -11,6 +11,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
+import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 
 public abstract class ServerSyncState implements State {
 
@@ -22,6 +23,10 @@ public abstract class ServerSyncState implements State {
 	CommCareOTARestoreState pull;
 	
 	public ServerSyncState () {
+		this(new UserCredentialProvider(CommCareContext._().getUser()));
+	}
+	
+	public ServerSyncState (HttpCredentialProvider currentUserCredentials) {
 		send = new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
 				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), false, true);
@@ -42,12 +47,12 @@ public abstract class ServerSyncState implements State {
 			}
 		};
 					
-		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new UserCredentialProvider(CommCareContext._().getUser())));
+		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(currentUserCredentials));
 		pull = new CommCareOTARestoreState (true, auth) {
 			public void cancel() {
-				//don't think this is cancellable, since the only place you can cancel from is
-				//the credentials screen, and we skip that
-				throw new RuntimeException("shouldn't be cancellable");
+				//when your credentials have changed, the ota restore credentials screen will pop up, so we
+				//do need to support canceling here.
+				ServerSyncState.this.onError("Restore Cancelled");
 			}
 			
 			public void done(boolean errorsOccurred) {
