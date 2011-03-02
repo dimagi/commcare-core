@@ -369,7 +369,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	public void _commandAction(Command c, Displayable d) {
 		if(c.equals(CommCareOTACredentialEntry.DOWNLOAD)) {
-			if(userExists(entry.getUsername())) {
+			if(userExists(entry.getUsername()) && !isSync) {
 				entry.sendMessage(Localization.get("restore.user.exists"));
 				return;
 			}
