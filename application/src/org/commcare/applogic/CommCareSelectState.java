@@ -1,5 +1,6 @@
 package org.commcare.applogic;
 
+import org.commcare.util.CommCareEntitySelectController;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.api.EntitySelectController;
@@ -18,7 +19,7 @@ public abstract class CommCareSelectState<E extends Persistable> extends EntityS
 	}
 	
 	protected EntitySelectController<E> getController () {
-		return new EntitySelectController<E>(entity.entityType(),
+		return new CommCareEntitySelectController<E>(entity.entityType(),
 			   StorageManager.getStorage(storageKey), entity,
 			   EntitySelectView.NEW_DISALLOWED, true, false);
 	}

@@ -1,5 +1,6 @@
 package org.commcare.applogic;
 
+import org.commcare.util.CommCareEntitySelectController;
 import org.javarosa.cases.model.Case;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.api.EntitySelectController;
@@ -16,7 +17,7 @@ public abstract class CommCareCaseSelectState extends EntitySelectState<Case> {
 	}
 	
 	protected EntitySelectController<Case> getController() {
-		return new EntitySelectController<Case>("Choose " + entity.entityType(),
+		return new CommCareEntitySelectController<Case>("Choose " + entity.entityType(),
 			StorageManager.getStorage(Case.STORAGE_KEY), entity, EntitySelectView.NEW_DISALLOWED, true, false);
 	}
 

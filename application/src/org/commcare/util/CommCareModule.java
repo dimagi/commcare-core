@@ -4,9 +4,9 @@
 package org.commcare.util;
 
 import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.installers.BasicInstaller;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
+import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
@@ -33,6 +33,7 @@ public class CommCareModule implements IModule {
 										    LocaleFileInstaller.class.getName(),
 										    SuiteInstaller.class.getName(),
 										    ProfileInstaller.class.getName(),
+										    MediaInstaller.class.getName(),
 										    XFormInstaller.class.getName(),
 										    Text.class.getName(),
 										    Filter.class.getName(),
