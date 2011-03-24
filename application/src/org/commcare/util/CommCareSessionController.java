@@ -26,6 +26,7 @@ import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.List;
@@ -163,7 +164,6 @@ public class CommCareSessionController {
 			return;
 		}
 		
-		
 		//The rest of the selections all depend on the suite being available for checkin'
 		Suite suite = session.getCurrentSuite();
 		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
@@ -185,7 +185,7 @@ public class CommCareSessionController {
 
 				}
 			};
-			J2MEDisplay.startStateWithLoadingScreen(select);
+			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
 			return;
 		}
 
@@ -204,7 +204,7 @@ public class CommCareSessionController {
 
 				}
 			};
-			J2MEDisplay.startStateWithLoadingScreen(select);
+			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
 			return;
 		}
 				
@@ -223,7 +223,7 @@ public class CommCareSessionController {
 
 				}
 			};
-			J2MEDisplay.startStateWithLoadingScreen(select);
+			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
 			return;
 		}
 	}

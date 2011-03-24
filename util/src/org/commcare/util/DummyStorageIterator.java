@@ -15,33 +15,36 @@ import org.javarosa.core.util.externalizable.Externalizable;
  */
 public class DummyStorageIterator implements IStorageIterator {
 	Hashtable<Integer, Externalizable> data;
-	Enumeration<Integer> en;
+	int count;
+	Integer[] keys;
 	
 
 	public DummyStorageIterator(Hashtable<Integer, Externalizable> data) {
 		this.data = data;
-		en = data.keys();
+		keys = (Integer[]) data.keySet().toArray();
+		count = 0;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
 	 */
 	public boolean hasMore() {
-		return en.hasMoreElements();
+		return count < keys.length;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
 	 */
 	public int nextID() {
-		return en.nextElement().intValue();
+		count++;
+		return keys[count -1]; 
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
 	 */
 	public Externalizable nextRecord() {
-		return data.get(en.nextElement());
+		return data.get(nextID());
 	}
 
 	/* (non-Javadoc)
@@ -49,6 +52,10 @@ public class DummyStorageIterator implements IStorageIterator {
 	 */
 	public int numRecords() {
 		return data.size();
+	}
+
+	public int peekID() {
+		return keys[count];
 	}
 
 }
