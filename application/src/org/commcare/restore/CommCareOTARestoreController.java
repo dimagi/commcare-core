@@ -215,6 +215,9 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			    //Now any further IOExceptions will get handled as "download failed", 
 			    //rather than "couldn't attempt to download"
 				StreamsUtil.writeFromInputToOutput(stream, output);
+				//need to close file's write stream before we read from it (S60 is not happy otherwise)
+				output.close();
+				
 				view.addToMessage(Localization.get("restore.downloaded"));
 				startRestore(ref.getStream());
 			}
