@@ -37,7 +37,7 @@ public class OpenRosaApiResponseProcessor {
 		//The != null should be unnecessary going forward, but just being careful since it might not 
 		//get cached properly?
 		//TODO: Better way of saying "this is the list of know API versions"
-		if(message.getResponseProperties() != null && message.getResponseProperties().getORApiVersion().equals(ONE_OH)) {
+		if(message.getResponseProperties() != null && ONE_OH.equals(message.getResponseProperties().getORApiVersion())) {
 			return true;
 		}
 		return false;
@@ -56,7 +56,7 @@ public class OpenRosaApiResponseProcessor {
 	 */
 	public String processResponse(SimpleHttpTransportMessage message) throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
 
-		if(message.getResponseProperties() != null && message.getResponseProperties().getORApiVersion().equals(ONE_OH)) {
+		if(message.getResponseProperties() != null && ONE_OH.equals(message.getResponseProperties().getORApiVersion())) {
 			
 			//TODO: Eliminate byte arrays, and replace with an active stream of the response
 			byte[] response = message.getResponseBody();    			
