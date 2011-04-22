@@ -18,6 +18,7 @@ package org.javarosa.core.model.utils;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import org.javarosa.core.services.locale.Localization;
@@ -39,6 +40,9 @@ public class DateUtils {
 	//public static final int FORMAT_HUMAN_READABLE_LONG = 3;
 	public static final int FORMAT_TIMESTAMP_SUFFIX = 7;
 	
+	/** RFC 822 **/
+	public static final int FORMAT_TIMESTAMP_HTTP = 9;
+	
 	public static final long DAY_IN_MS = 86400000l;
 	
 	public DateUtils() {
@@ -54,6 +58,7 @@ public class DateUtils {
 			minute = 0;
 			second = 0;
 			secTicks = 0;
+			dow = 0;
 			
 //			tzStr = "Z";
 //			tzOffset = 0;
@@ -67,6 +72,9 @@ public class DateUtils {
 		public int second; //0-59
 		public int secTicks; //0-999 (ms)
 		
+		/** NOTE: CANNOT BE USED TO SPECIFY A DATE **/
+		public int dow; //1-7;
+		
 //		public String tzStr;
 //		public int tzOffset; //s ahead of UTC
 		
@@ -77,8 +85,15 @@ public class DateUtils {
 	}
 	
 	public static DateFields getFields (Date d) {
+		return getFields(d, null);
+	}
+	
+	public static DateFields getFields (Date d, String timezone) {
 		Calendar cd = Calendar.getInstance();
 		cd.setTime(d);
+		if(timezone != null) {
+			cd.setTimeZone(TimeZone.getTimeZone(timezone));
+		}
 		
 		DateFields fields = new DateFields();
 		fields.year = cd.get(Calendar.YEAR);
@@ -88,12 +103,20 @@ public class DateUtils {
 		fields.minute = cd.get(Calendar.MINUTE);
 		fields.second = cd.get(Calendar.SECOND);
 		fields.secTicks = cd.get(Calendar.MILLISECOND);
+		fields.dow = cd.get(Calendar.DAY_OF_WEEK);
 		
 		return fields;
 	}
 	
 	public static Date getDate (DateFields f) {
+		return getDate(f, null);
+	}
+	
+	public static Date getDate (DateFields f, String timezone) {
 		Calendar cd = Calendar.getInstance();
+		if(timezone != null) {
+			cd.setTimeZone(TimeZone.getTimeZone(timezone));
+		}
 		cd.set(Calendar.YEAR, f.year);
 		cd.set(Calendar.MONTH, f.month - MONTH_OFFSET);
 		cd.set(Calendar.DAY_OF_MONTH, f.day);
@@ -108,15 +131,17 @@ public class DateUtils {
 	/* ==== FORMATTING DATES/TIMES TO STANDARD STRINGS ==== */
 	
 	public static String formatDateTime (Date d, int format) {
-		if (d == null)
+		if (d == null) {
 			return "";
+		}
 		
-		DateFields fields = getFields(d);
+		DateFields fields = getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null);
 
 		String delim;
 		switch (format) {
 		case FORMAT_ISO8601: delim = "T"; break;
 		case FORMAT_TIMESTAMP_SUFFIX: delim = ""; break;
+		case FORMAT_TIMESTAMP_HTTP: delim = " "; break;
 		default: delim = " "; break;
 		}
 		
@@ -124,11 +149,11 @@ public class DateUtils {
 	}
 	
 	public static String formatDate (Date d, int format) {
-		return (d == null ? "" :formatDate(getFields(d), format));
+		return (d == null ? "" :formatDate(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
 	}
 	
 	public static String formatTime (Date d, int format) {
-		return (d == null ? "" : formatTime(getFields(d), format));
+		return (d == null ? "" : formatTime(getFields(d, format == FORMAT_TIMESTAMP_HTTP ? "UTC" : null), format));
 	}
 	
 	private static String formatDate (DateFields f, int format) {
@@ -137,6 +162,7 @@ public class DateUtils {
 		case FORMAT_HUMAN_READABLE_SHORT: return formatDateColloquial(f);
 		case FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY: return formatDaysFromToday(f);
 		case FORMAT_TIMESTAMP_SUFFIX: return formatDateSuffix(f);
+		case FORMAT_TIMESTAMP_HTTP: return formatDateHttp(f);
 		default: return null;
 		}	
 	}
@@ -146,8 +172,19 @@ public class DateUtils {
 		case FORMAT_ISO8601: return formatTimeISO8601(f);
 		case FORMAT_HUMAN_READABLE_SHORT: return formatTimeColloquial(f);
 		case FORMAT_TIMESTAMP_SUFFIX: return formatTimeSuffix(f);
+		case FORMAT_TIMESTAMP_HTTP: return formatTimeHttp(f);
 		default: return null;
 		}	
+	}
+	
+	/** RFC 822 **/
+	private static String formatDateHttp(DateFields f) {
+		return format(f, "%a, %d %b %Y");
+	}
+	
+	/** RFC 822 **/
+	private static String formatTimeHttp(DateFields f) {
+		return format(f, "%H:%M:%S GMT");
 	}
 	
 	private static String formatDateISO8601 (DateFields f) {
@@ -171,8 +208,28 @@ public class DateUtils {
 	}
 	
 	private static String formatTimeISO8601 (DateFields f) {
-		return intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
-		//want to add time zone info to be fully ISO-8601 compliant, but API is totally on crack!
+		String time = intPad(f.hour, 2) + ":" + intPad(f.minute, 2) + ":" + intPad(f.second, 2) + "." + intPad(f.secTicks, 3);
+
+		//Time Zone ops (1 in the first field corresponds to 'CE' ERA)
+		int offset = TimeZone.getDefault().getOffset(1,f.year, f.month - 1, f.day, f.dow, 0);
+		
+		//NOTE: offset is in millis
+		if(offset ==0 ) {
+			time += "Z";
+		}
+		else {
+			
+			//Start with sign
+			String offsetSign = offset >0 ? "+" : "-";
+			
+			int value = Math.abs(offset) / 1000 / 60;
+			
+			String hrs = intPad(value / 60, 2);
+			String mins = value % 60 != 0 ? ":" + intPad(value % 60, 2) :""; 
+			
+			time += offsetSign + hrs + mins; 
+		}
+		return time;
 	}
 	
 	private static String formatTimeColloquial (DateFields f) {
@@ -184,7 +241,10 @@ public class DateUtils {
 	}
 	
 	public static String format (Date d, String format) {
-		DateFields f = getFields(d);
+		return format(getFields(d), format);
+	}
+	
+	public static String format (DateFields f, String format) {
 		StringBuffer sb = new StringBuffer();
 		
 		for (int i = 0; i < format.length(); i++) {
@@ -225,7 +285,10 @@ public class DateUtils {
 					sb.append(intPad(f.second, 2));
 				} else if (c == '3') {	//0-padded millisecond ticks (000-999)
 					sb.append(intPad(f.secTicks, 3));
-				} else if (c == 'Z' || c == 'A' || c == 'B' || c == 'a') {
+				} else if (c == 'a') {	//Three letter short text day
+					String[] dayNames = new String[] {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+					sb.append(dayNames[f.dow - 1]);
+				} else if (c == 'Z' || c == 'A' || c == 'B') {
 					throw new RuntimeException("unsupported escape in date format string [%" + c + "]");
 				} else {
 					throw new RuntimeException("unrecognized escape in date format string [%" + c + "]");
@@ -288,6 +351,89 @@ public class DateUtils {
 	}
 	
 	private static boolean parseTime (String timeStr, DateFields f) {
+		//get timezone information first. Make a Datefields set for the possible offset
+		//NOTE: DO NOT DO DIRECT COMPUTATIONS AGAINST THIS. It's a holder for hour/minute
+		//data only, but has data in other fields
+		DateFields timeOffset = null; 
+		
+		if(timeStr.charAt(timeStr.length() -1) == 'Z') {
+			//UTC!
+			
+			//Clean up string for later processing
+			timeStr = timeStr.substring(0, timeStr.length() -1);
+			timeOffset = new DateFields();
+		} else if(timeStr.indexOf("+") != -1 || timeStr.indexOf("-") != -1) {
+			timeOffset = new DateFields();
+
+			Vector<String> pieces = split(timeStr, "+", false);
+			
+			//We're going to add the Offset straight up to get UTC 
+			//so we need to invert the sign on the offset string
+			int offsetSign = -1;
+			
+			if(pieces.size() > 1) {
+				//offsetSign is already correct
+			} else {
+				pieces = split(timeStr, "-", false);
+				offsetSign = 1;
+			}
+			
+			timeStr = pieces.elementAt(0);
+			
+			String offset = pieces.elementAt(1);
+			String hours = offset;
+			if(offset.indexOf(":") != -1) {
+				Vector<String> tzPieces = split(offset, ":", false);
+				hours = tzPieces.elementAt(0);
+				int mins = Integer.parseInt(tzPieces.elementAt(1));
+				timeOffset.minute = mins * offsetSign;
+			}
+			timeOffset.hour = Integer.parseInt(hours) * offsetSign;
+		}
+		
+		//Do the actual parse for the real time values;
+		if(!parseRawTime(timeStr, f)) {
+			return false;
+		}
+		
+		if(!(f.check())) {
+			return false;
+		}
+		
+		//Time is good, if there was no timezone info, just return that;
+		if(timeOffset == null) {
+			return true;
+		}
+		
+		//Now apply any relevant offsets from the timezone.
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		
+		c.setTime(new Date(DateUtils.getDate(f, "UTC").getTime() + (((60 * timeOffset.hour)  + timeOffset.minute) * 60 * 1000)));
+		
+		//c is now in the timezone of the parsed value, so put
+		//it in the local timezone.
+		
+		c.setTimeZone(TimeZone.getDefault());
+		long four = c.get(Calendar.HOUR);
+		
+		DateFields adjusted = getFields(c.getTime());
+		
+		f.hour = adjusted.hour;
+		f.minute = adjusted.minute;
+		f.second = adjusted.second;
+		f.secTicks = adjusted.secTicks;
+		
+		return f.check();	
+	}
+	
+	/**
+	 * Parse the raw components of time (hh:mm:ss) with no timezone information
+	 * 
+	 * @param timeStr
+	 * @param f
+	 * @return
+	 */
+	private static boolean parseRawTime (String timeStr, DateFields f) {
 		Vector pieces = split(timeStr, ":", false);
 		if (pieces.size() != 2 && pieces.size() != 3)
 			return false;
@@ -316,6 +462,7 @@ public class DateUtils {
 		
 		return f.check();	
 	}
+
 	
 	/* ==== DATE UTILITY FUNCTIONS ==== */
 	

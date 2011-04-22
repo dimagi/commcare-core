@@ -19,8 +19,11 @@ package org.javarosa.xpath.expr;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.pivot.CmpPivot;
+import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -61,17 +64,6 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
 		}
 		
 		return new Boolean(result);		
-		
-//		String sa = (String)aval;
-//		String sb = (String)bval;
-//		int cmp = sa.compareTo(sb);
-//		
-//		switch (op) {
-//		case LT: result = (cmp < 0); break;
-//		case GT: result = (cmp > 0); break;
-//		case LTE: result = (cmp <= 0); break;
-//		case GTE: result = (cmp >= 0); break;
-//		}
 	}
 
 	public String toString () {
@@ -104,5 +96,58 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, op);
 		super.writeExternal(out);
+	}
+	
+
+	public Object pivot (FormInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
+		Object aval = a.pivot(model, evalContext, pivots, sentinal);
+		Object bval = b.pivot(model, evalContext, pivots, sentinal);
+		
+		if(handled(aval, bval, sentinal, pivots) || handled(bval, aval, sentinal, pivots)) { return null; }
+		
+		return this.eval(model, evalContext);
+	}
+	
+	private boolean handled(Object a, Object b, Object sentinal, Vector<Object> pivots) throws UnpivotableExpressionException {
+		if(sentinal == a) {
+			if(b == null) {
+				//Can't pivot on an expression which is derived from pivoted expressions
+				throw new UnpivotableExpressionException();
+			} else if(sentinal == b) {
+				//WTF?
+				throw new UnpivotableExpressionException();
+			} else {
+				Double val = null;
+				//either of
+				if(b instanceof Double) {
+					val = (Double)b;
+				} else {
+					//These are probably the 
+					if(b instanceof Integer) {
+						val = new Double(((Integer) b).doubleValue());
+					}
+					if(b instanceof Long) {
+						val = new Double(((Long) b).doubleValue());
+					}
+					if(b instanceof Float) {
+						val = new Double(((Float) b).doubleValue());
+					}
+					if(b instanceof Short) {
+						val = new Double(((Short) b).shortValue());
+					}
+					if(b instanceof Byte) {
+						val = new Double(((Byte) b).byteValue());
+					}
+					else {
+						throw new UnpivotableExpressionException("Unrecognized numeric data in cmp expression: " + b);
+					}
+				}
+				
+				
+				pivots.addElement(new CmpPivot(val.doubleValue(), op));
+				return true;
+			}
+		} 
+		return false;
 	}
 }

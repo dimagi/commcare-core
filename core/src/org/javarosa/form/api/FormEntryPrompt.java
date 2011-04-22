@@ -24,7 +24,10 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.pivot.ConstraintHint;
+import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -295,6 +298,9 @@ public class FormEntryPrompt extends FormEntryCaption {
 		if(!(getFormElement() instanceof QuestionDef)) throw new RuntimeException("Can't retrieve question text for non-QuestionDef form elements!");
 		if(sel == null) throw new IllegalArgumentException("Cannot use null as an argument!");
 		
+		//Just in case the selection hasn't had a chance to be initialized yet.
+		if(sel.index == -1) { sel.attachChoice(this.getQuestion()); }
+		
 		//check for the null id case and return labelInnerText if it is so.
 		String tid = sel.choice.getTextID();
 		if(tid == null || tid == "") return substituteStringArgs(sel.choice.getLabelInnerText());
@@ -326,6 +332,10 @@ public class FormEntryPrompt extends FormEntryCaption {
 	 */
 	public String getSpecialFormSelectItemText(Selection sel,String form){
 		if(sel == null) throw new IllegalArgumentException("Cannot use null as an argument for Selection!");
+		
+		//Just in case the selection hasn't had a chance to be initialized yet.
+		if(sel.index == -1) { sel.attachChoice(this.getQuestion()); }
+		
 		String textID = sel.choice.getTextID();
 		if(textID == null || textID.equals("")) return null;
 		
@@ -337,6 +347,18 @@ public class FormEntryPrompt extends FormEntryCaption {
 	
 	public String getSpecialFormSelectChoiceText(SelectChoice sel,String form){
 		return getSpecialFormSelectItemText(sel.selection(),form);
+	}
+	
+	public void requestConstraintHint(ConstraintHint hint) throws UnpivotableExpressionException {
+		//NOTE: Technically there's some rep exposure, here. People could use this mechanism to expose the instance.
+		//We could hide it by dispatching hints through a final abstract class instead.
+		Constraint c =  mTreeElement.getConstraint();
+		if(c != null) {
+			hint.init(new EvaluationContext(new EvaluationContext(), mTreeElement.getRef()), c.constraint, this.form.getInstance());
+		} else {
+			//can't pivot what ain't there.
+			throw new UnpivotableExpressionException();
+		}
 	}
 	
 }
