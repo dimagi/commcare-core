@@ -26,7 +26,6 @@ import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.List;

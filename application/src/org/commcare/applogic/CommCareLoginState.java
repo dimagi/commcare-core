@@ -50,28 +50,6 @@ public class CommCareLoginState extends LoginState {
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
 
-		
-		//TODO: Replace this state completely with the periodic wrapper state and reimplement this
-		//functionality as a periodically wrapped set
-		J2MEDisplay.startStateWithLoadingScreen(new DeviceReportState() {
-
-			public String getDestURL() {
-				String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
-				if(url == null) {
-					url = CommCareContext._().getSubmitURL();
-				}
-				return url;
-			}
-
-			public void done() {
-				// Go to the home state if we're done or if we skip it.
-				J2MEDisplay.startStateWithLoadingScreen(new PeriodicWrapperState(CommCareContext._().getEventDescriptors()){
-
-					public void done() {
-						J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());						
-					}
-				});
-			}
-		});
+		CommCareUtil.launchHomeWithSchedulers();
 	}
 }

@@ -16,6 +16,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.ReferralInstanceLoader;
+import org.commcare.model.PeriodicWrapperState;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
@@ -40,6 +41,8 @@ import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.log.activity.DeviceReportState;
+import org.javarosa.log.properties.LogPropertyRules;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 
@@ -267,7 +270,7 @@ public class CommCareUtil {
 	
 	public static void launchFirstState() {
 		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
-			CommCareUtil.launchHomeState();
+			CommCareUtil.launchHomeWithSchedulers();
 			return;
 		}
 		if(CommCareProperties.FIRST_RUN_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN))) {
@@ -275,6 +278,31 @@ public class CommCareUtil {
 		} else {
 			J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
 		}
+	}
+	
+	public static void launchHomeWithSchedulers() {
+		//TODO: Replace this state completely with the periodic wrapper state and reimplement this
+		//functionality as a periodically wrapped set
+		J2MEDisplay.startStateWithLoadingScreen(new DeviceReportState() {
+
+			public String getDestURL() {
+				String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
+				if(url == null) {
+					url = CommCareContext._().getSubmitURL();
+				}
+				return url;
+			}
+
+			public void done() {
+				// Go to the home state if we're done or if we skip it.
+				J2MEDisplay.startStateWithLoadingScreen(new PeriodicWrapperState(CommCareContext._().getEventDescriptors()){
+
+					public void done() {
+						J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());						
+					}
+				});
+			}
+		});
 	}
 
 	public static void exitMain() {
