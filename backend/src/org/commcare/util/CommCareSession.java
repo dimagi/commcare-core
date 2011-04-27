@@ -199,7 +199,9 @@ public class CommCareSession {
 	}
 	
 	public void stepBack() {
-		steps.removeElementAt(steps.size() - 1);
+		if(steps.size() > 0) {
+			steps.removeElementAt(steps.size() - 1);
+		}
 		syncState();
 	}
 

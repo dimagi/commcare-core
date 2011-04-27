@@ -80,7 +80,7 @@
 					<attribute name="Profile" value="${commcare.profile}"/>
 					
 					<attribute name="MIDlet-Permissions" if="sign.locally"
-					 value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm"
+					 value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.io.Connector.https, javax.microedition.io.Connector.ssl, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm"
 					/>
 				</jad>
 
