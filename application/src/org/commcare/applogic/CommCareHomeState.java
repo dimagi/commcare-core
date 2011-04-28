@@ -255,6 +255,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void forceSend() {
+		//assumes this will cause queued forms to be sent imminently
 		AutomatedSenderService.NotifyPending();
 	}
 }

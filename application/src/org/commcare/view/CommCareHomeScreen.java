@@ -92,8 +92,8 @@ public class CommCareHomeScreen extends List {
 			append(sendAllUnsent);
 			setSendUnsent();
 		} else if (isAdmin) {
-			addCommand(admForceSend);
 			setSendUnsent();
+			addCommand(admForceSend);
 		}
 	}
 

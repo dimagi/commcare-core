@@ -97,7 +97,6 @@ public class AutomatedSenderService {
 				if(listener.failed()) {
 					//If we failed to send successfully, wait a bit before trying again.
 					incrementDelay();
-					Logger.log("auto-send", "Sender failed to submit data, suspending attempts for an hour");
 				} else {
 					//Clear any wait time
 					resetDelay();
@@ -162,9 +161,11 @@ public class AutomatedSenderService {
 	}
 	
 	private static void incrementDelay() {
-		nextValidAttempt = new Date().getTime() + 1000 * BACKOFF_INTERVALS[curBackoffInterval];
+		int delay = BACKOFF_INTERVALS[curBackoffInterval];
+		nextValidAttempt = new Date().getTime() + 1000 * delay;
 		if (curBackoffInterval < BACKOFF_INTERVALS.length - 1) {
 			curBackoffInterval++;
 		}
+		Logger.log("auto-send", "failed; try again in " + delay + "s");
 	}
 }
