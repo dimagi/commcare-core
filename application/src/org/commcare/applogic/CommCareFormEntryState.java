@@ -219,22 +219,19 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 					} 
 				}
 				public void postProcessing() {
-					//No matter what, we want a state for the next step.
-					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message) {
+					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message, CommCareSense.isAutoSendEnabled()) {
 						public void goHome() {
+							//If we're autosending, make sure to expire old deadlines
+							if(CommCareSense.isAutoSendEnabled()) {
+								//Notify the service that old deadlines have expired.
+								AutomatedSenderService.NotifyPending();
+							}
 							CommCareFormEntryState.this.goHome();
 						}
 					};
 					
-					//If we're doing our sending automatically, don't bother asking.
-					if(CommCareSense.isAutoSendEnabled()) {
-						//Follow the same procedure as send later 
-						httpAskSendState.skipSend(message);
-						//Notify the service that old deadlines have expired.
-						AutomatedSenderService.NotifyPending();
-					} else {
-						J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
-					}
+					
+					J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
 				}
 			};
 		}

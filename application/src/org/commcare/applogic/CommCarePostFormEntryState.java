@@ -4,14 +4,22 @@ import org.commcare.util.CommCareHQResponder;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
+import org.javarosa.formmanager.api.CompletedFormOptionsController;
 import org.javarosa.formmanager.api.CompletedFormOptionsState;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportMessage;
 
 public abstract class CommCarePostFormEntryState extends CompletedFormOptionsState {
+	
+	boolean cacheAutomatically = false;
 
-	public CommCarePostFormEntryState (TransportMessage message) {
+	public CommCarePostFormEntryState (TransportMessage message, boolean cacheAutomatically) {
 		super(message);
+		this.cacheAutomatically = cacheAutomatically;
+	}
+	
+	protected CompletedFormOptionsController getController () {
+		return new CompletedFormOptionsController(message, cacheAutomatically);
 	}
 	
 	/* (non-Javadoc)
