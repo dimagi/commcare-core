@@ -24,6 +24,7 @@ public interface CommCareHomeTransitions  extends MenuTransitions {
 	void upgrade ();
 	void review ();
 	void adminLogin ();
+	void forceSend ();
 	
 	// dev / debugging
 	void rmsdump ();

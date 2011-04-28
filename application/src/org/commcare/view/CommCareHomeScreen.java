@@ -25,6 +25,8 @@ import de.enough.polish.ui.UiAccess;
  */
 public class CommCareHomeScreen extends List {
 	CommCareHomeController controller;
+
+	private boolean isAdmin;
 	
 	private boolean reviewEnabled;
 	
@@ -47,6 +49,7 @@ public class CommCareHomeScreen extends List {
 	public Command admViewLogs = new Command("View Logs", Command.ITEM, 1);
 	public Command admGPRSTest = new Command("Network Test", Command.ITEM, 1);
 	public Command adminLogin = new Command("Admin Login", Command.ITEM, 1);
+	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
@@ -56,6 +59,7 @@ public class CommCareHomeScreen extends List {
 		setSelectCommand(select);
 		
 		addCommand(exit);
+		isAdmin = adminMode;
 		if (adminMode) {
 			addCommand(admSettings);
 			addCommand(admNewUser);
@@ -84,8 +88,11 @@ public class CommCareHomeScreen extends List {
 		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
 			append(serverSync);
 			setSync();
-		} else if(!CommCareSense.isAutoSendEnabled()) {
+		} else if (!CommCareSense.isAutoSendEnabled()) {
 			append(sendAllUnsent);
+			setSendUnsent();
+		} else if (isAdmin) {
+			addCommand(admForceSend);
 			setSendUnsent();
 		}
 	}
@@ -104,6 +111,8 @@ public class CommCareHomeScreen extends List {
 			//#style listitem
 			UiAccess.setStyle(sendAllUnsent);
 		}
+		
+		admForceSend.setLabel(admForceSend.getLabel() + " (" + numunsent + ")");
 	}
 		
 	//TODO: localize me
