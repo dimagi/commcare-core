@@ -35,17 +35,9 @@ public class MetaPreloadHandler implements IPreloadHandler {
 	public IAnswerData handlePreload(String preloadParams) {
 		System.out.println("asked to preload: " + preloadParams);
 		if(preloadParams.equals("UserName")) {
-			if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
-				return new UncastData("none");
-			} else {
-				return new UncastData(u.getUsername());
-			}
+			return new UncastData(u.getUsername());
 		}else if(preloadParams.equals("UserID")) {
-			if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
-				return new UncastData("none");
-			} else {
-				return new UncastData(String.valueOf(u.getUniqueId()));
-			}
+			return new UncastData(String.valueOf(u.getUniqueId()));
 		} else if(preloadParams.equals("AppVersion")) {
 			return new StringData(CommCareUtil.getVersion());
 		}

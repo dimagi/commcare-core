@@ -35,12 +35,7 @@ public class CommCareHomeController implements HandledCommandListener {
 		this.suites = suites;
 		this.profile = profile;
 		this.session = session;
-		admin = false;
-		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
-			admin = true;
-		} else {
-			admin = CommCareContext._().getUser().isAdminUser();
-		}
+		admin = CommCareContext._().getUser().isAdminUser();
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {

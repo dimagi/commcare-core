@@ -7,6 +7,9 @@ import org.commcare.util.CommCareUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.log.activity.DeviceReportState;
@@ -18,6 +21,41 @@ import org.javarosa.user.api.LoginState;
 import org.javarosa.user.model.User;
 
 public class CommCareLoginState extends LoginState {
+	boolean interactive;
+	
+	public CommCareLoginState(boolean interactive) {
+		this.interactive = interactive;
+	}
+	
+	public CommCareLoginState() {
+		this(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users"));
+	}
+
+	public void start() {
+		if (interactive) {
+			super.start();
+		} else {
+			User u = getStaticUser();
+			loggedIn(u, u.getPassword());
+		}
+	}
+
+	protected static User getStaticUser() {
+		IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+		IStorageIterator ui = users.iterate();
+		
+		User admin = null;
+		while (ui.hasMore()) {
+			User u = (User)ui.nextRecord();
+			if (u.isAdminUser()) {
+				admin = u;
+			} else {
+				return u;
+			}
+		}
+		return admin;
+	}
+	
 	protected LoginController getController () {		
 		String ver = "CommCare " + CommCareUtil.getVersion(CommCareUtil.VERSION_MED);
 		String[] extraText = (CommCareUtil.isTestingMode() ? new String[] {ver, "*** TEST BUILD ***"}

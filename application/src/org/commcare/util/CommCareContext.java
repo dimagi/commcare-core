@@ -239,31 +239,28 @@ public class CommCareContext {
 	}
 	
 	private void initUserFramework() {
-		if(manager.getCurrentProfile().isFeatureActive("users")) {
-			UserUtility.populateAdminUser();
-			inDemoMode = false;
-			String namespace = PropertyUtils.initializeProperty(CommCareProperties.USER_REG_NAMESPACE, "http://code.javarosa.org/user_registration");
-			
-			if(namespace.equals("http://code.javarosa.org/user_registration")) {
-				IStorageUtilityIndexed formDefStorage = (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
-				Vector forms = formDefStorage.getIDsForValue("XMLNS", namespace);
-				if(forms.size() == 0) {
-					//Default user registration form isn't present, parse if from the default location.
-					try {
-						formDefStorage.write(XFormUtils.getFormFromInputStream(ReferenceManager._().DeriveReference("jr://resource/register_user.xhtml").getStream()));
-					} catch (IOException e) {
-						//I dunno? Log it? 
-						e.printStackTrace();
-					} catch (InvalidReferenceException e) {
-						// TODO Auto-referralCache catch block
-						e.printStackTrace();
-					} catch (StorageFullException e) {
-						// TODO Auto-referralCache catch block
-						e.printStackTrace();
-					}
+		UserUtility.populateAdminUser();
+		inDemoMode = false;
+		String namespace = PropertyUtils.initializeProperty(CommCareProperties.USER_REG_NAMESPACE, "http://code.javarosa.org/user_registration");
+		
+		if(namespace.equals("http://code.javarosa.org/user_registration")) {
+			IStorageUtilityIndexed formDefStorage = (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+			Vector forms = formDefStorage.getIDsForValue("XMLNS", namespace);
+			if(forms.size() == 0) {
+				//Default user registration form isn't present, parse if from the default location.
+				try {
+					formDefStorage.write(XFormUtils.getFormFromInputStream(ReferenceManager._().DeriveReference("jr://resource/register_user.xhtml").getStream()));
+				} catch (IOException e) {
+					//I dunno? Log it? 
+					e.printStackTrace();
+				} catch (InvalidReferenceException e) {
+					// TODO Auto-referralCache catch block
+					e.printStackTrace();
+				} catch (StorageFullException e) {
+					// TODO Auto-referralCache catch block
+					e.printStackTrace();
 				}
 			}
-			
 		}
 	}
 	
