@@ -244,4 +244,12 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			}
 		}.start();
 	}
+	
+	public void adminLogin() {
+		new CommCareLoginState(true) {
+			public void exit() {
+				new CommCareHomeState().start();
+			}
+		}.start();
+	}
 }

@@ -6,12 +6,12 @@ import java.util.Vector;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.ChoiceItem;
 import de.enough.polish.ui.Command;
@@ -46,6 +46,7 @@ public class CommCareHomeScreen extends List {
 	public Command admRMSDump = new Command("Dump RMS", Command.ITEM, 1);
 	public Command admViewLogs = new Command("View Logs", Command.ITEM, 1);
 	public Command admGPRSTest = new Command("Network Test", Command.ITEM, 1);
+	public Command adminLogin = new Command("Admin Login", Command.ITEM, 1);
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
@@ -66,6 +67,11 @@ public class CommCareHomeScreen extends List {
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
 		}
+		if (!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") &&
+			!CommCareContext._().getUser().isAdminUser()) {
+			addCommand(adminLogin);
+		}
+		
 		this.reviewEnabled = reviewEnabled;
 	}
 	
