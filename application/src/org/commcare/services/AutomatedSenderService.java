@@ -34,16 +34,20 @@ public class AutomatedSenderService {
 	
 	private static final String lock = "lock";
 	
-	//One hour since last send-all-unsent attempt
-	private static final long FAILURE_REST_INTERVAL = 1000 * 60 * 60 * 1; 
+	private static final int POLL_INTERVAL = 20; //seconds
 	
-	//Every 2 Minutes
-	private static final long TIMER_PERIOD = 1000 * 60 * 2;
+	private static final int[] BACKOFF_INTERVALS = {
+		30,
+		90,
+		300,
+		900,
+		3600
+	}; //seconds
 	
-	//One minute
-	private static final long TIMER_FIRST = 1000 * 60;
-	
+	//TODO: should we store this in a property so that the back-off interval
+	//persists across app restarts?
 	private static long nextValidAttempt = 0;
+	private static int curBackoffInterval = 0;
 	
 	SignalLevelProvider provider;
 	
@@ -92,11 +96,11 @@ public class AutomatedSenderService {
 				
 				if(listener.failed()) {
 					//If we failed to send successfully, wait a bit before trying again.
-					nextValidAttempt = new Date().getTime() + FAILURE_REST_INTERVAL;
+					incrementDelay();
 					Logger.log("auto-send", "Sender failed to submit data, suspending attempts for an hour");
 				} else {
 					//Clear any wait time
-					nextValidAttempt = 0;
+					resetDelay();
 				}
 				
 				listener.expire();
@@ -105,7 +109,7 @@ public class AutomatedSenderService {
 				Logger.exception("Send all unsent auto-failure", e);
 				
 				//If we failed to send successfully, wait a bit before trying again.
-				nextValidAttempt = new Date().getTime() + FAILURE_REST_INTERVAL;
+				incrementDelay();
 			}
 		}
 	}
@@ -124,7 +128,7 @@ public class AutomatedSenderService {
 				public void _run() {
 					service.timeout();
 				}
-			}, TIMER_FIRST, TIMER_PERIOD);
+			}, POLL_INTERVAL * 1000, POLL_INTERVAL * 1000);
 		}
 	}
 	
@@ -134,7 +138,7 @@ public class AutomatedSenderService {
 	 */
 	public static void NotifyPending() {
 		synchronized(lock) {
-			nextValidAttempt = 0;
+			resetDelay();
 		}
 	}
 	
@@ -150,5 +154,17 @@ public class AutomatedSenderService {
 	
 	private static SignalLevelProvider EstablishProvider() {
 		return null;
+	}
+	
+	private static void resetDelay() {
+		nextValidAttempt = 0;
+		curBackoffInterval = 0;
+	}
+	
+	private static void incrementDelay() {
+		nextValidAttempt = new Date().getTime() + 1000 * BACKOFF_INTERVALS[curBackoffInterval];
+		if (curBackoffInterval < BACKOFF_INTERVALS.length - 1) {
+			curBackoffInterval++;
+		}
 	}
 }
