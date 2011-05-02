@@ -60,13 +60,13 @@ public class CommCareSession {
 		for(Suite s : platform.getInstalledSuites()) {
 			for(Menu m : s.getMenus()) {
 				//We need to see if everything in this menu can be matched
-				if(currentCmd.equals(m.getId())) {
+				if(commandId.equals(m.getId())) {
 					menu = m;
 					break top;
 				}
 				
-				if(s.getEntries().containsKey(currentCmd)) {
-					entry = s.getEntries().get(currentCmd);
+				if(s.getEntries().containsKey(commandId)) {
+					entry = s.getEntries().get(commandId);
 					break top;
 				}
 			}
