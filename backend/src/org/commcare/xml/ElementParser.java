@@ -121,8 +121,13 @@ public abstract class ElementParser<T> {
 	 * XML.
 	 */
 	protected boolean nextTagInBlock(String terminal) throws InvalidStructureException, IOException, XmlPullParserException {
-        int eventType;
-			eventType = parser.nextTag();
+        	int eventType;
+        	
+			//eventType = parser.nextTag();
+		    eventType = parser.next();
+		    if(eventType == KXmlParser.TEXT && parser.isWhitespace()) {   // skip whitespace
+		         eventType = parser.next();
+		    }
 			
             if(eventType == KXmlParser.START_DOCUMENT) {
                 //
