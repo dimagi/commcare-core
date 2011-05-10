@@ -113,6 +113,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					c.setCaseId(caseId);
 				}
 				
+				c.setDateOpened(modified);
 				c.setUserId(data[2]);
 				c.setExternalId(data[1]);
 				commit(c);
