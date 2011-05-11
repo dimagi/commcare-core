@@ -43,12 +43,13 @@ public class ReferralXmlParser extends TransactionParser<PatientReferral> {
 		this.nextTag("referral_id");
 		String refId = parser.nextText().trim();
 		
+		//As a temporary thing.
+		Date followup = created;
+		
 		//Now look for actions
 		while(this.nextTagInBlock("referral")) {
 			
 			String action = parser.getName().toLowerCase();
-			//As a temporary thing.
-			Date followup = created;
 			
 			//this should always happen before the below....
 			if(action.equals("followup_date")) {
