@@ -102,7 +102,7 @@
 					<variable file="configuration/configuration.properties" />
 					<variable name="polish.TextField.useDirectInput" value="true" unless="polish.international"/>
 					<variable name="polish.FullScreen" value="false" if="${ isOS( Windows ) }" />
-					<variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) }" /> 
+					<variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) } or polish.noobfuscate" /> 
 				</variables>
 
 				<!-- Resources that should be used in the Polish build (images, the polish.css file, etc) --> 
@@ -289,28 +289,31 @@
 		<fail if="testresult.global">Unit Tests Failed!</fail>
 	</target>
 	
-	<target name="PrepareWebDemo">
-		<delete dir="${dir.webdist}"/>
-		<mkdir dir="${dir.webdist}"/>
-		<copy todir="${dir.webdist}">
-		  <fileset dir="${dir.weblib}">
+	<target name="PrepareWebDemo" if="dir.web.resources">
+		<property name="dir.web.dist.final" value="${dir.dist.root}/${dir.web.dist}"/>
+		<property name="dir.web.app.source.final" value="${dir.dist.root}/${dir.web.app.source}"/>
+		
+		<delete dir="${dir.web.dist.final}"/>
+		<mkdir dir="${dir.web.dist.final}"/>
+		<copy todir="${dir.web.dist.final}">
+		  <fileset dir="${dir.web.resources}">
 		    <include name="*.jar"/>
 		  	<include name="*.html"/>
 		  </fileset>
 		</copy>
 
-		<javac srcdir="${dir.weblib}">
+		<javac srcdir="${dir.web.resources}">
         	<classpath>
-            	<pathelement location="${dir.weblib}/microemulator.jar"/>
-	        	<pathelement location="${dir.weblib}/"/>
+            	<pathelement location="${dir.web.resources}/microemulator.jar"/>
+	        	<pathelement location="${dir.web.resources}/"/>
 			</classpath>
 		</javac>
 		<java classname="PrepareMidlet">
-			<arg value="${dir.dist}/${app.jarName}"/>
-			<arg value="${dir.webdist}/${app.jarName}"/>
+			<arg value="${dir.web.app.source.final}/${app.jarName}"/>
+			<arg value="${dir.web.dist.final}/${app.jarName}"/>
 	        <classpath>
-	            <pathelement location="${dir.weblib}/microemulator.jar"/>
-	        	<pathelement location="${dir.weblib}/"/>
+	            <pathelement location="${dir.web.resources}/microemulator.jar"/>
+	        	<pathelement location="${dir.web.resources}/"/>
 			</classpath>
 		</java>
 	</target>
@@ -327,7 +330,7 @@
     <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad" description="Build the jad and post it."/>
 
 	<!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
-	<target name="BuildServerComplete" depends="SetBatch, BuildAndPostJad">
+	<target name="BuildServerComplete" depends="SetBatch, BuildAndPostJad, PrepareWebDemo">
 		<ant antfile="../backend/build.xml" target="package" dir="../backend/">
 			  <property name="dir.lib" value="${dir.lib}"/>
 			  <property name="dir.jrlib" value="${dir.tools}"/>
