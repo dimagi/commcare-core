@@ -104,8 +104,9 @@ public class ProfileParser extends ElementParser<Profile> {
 							} else {
 								profile.addPropertySetter(key,value,false);
 							}
+						} else {
+							profile.addPropertySetter(key,value);
 						}
-						profile.addPropertySetter(key,value);
 					} else if (parser.getName().toLowerCase().equals("root")) {
 						RootTranslator root = new RootParser(this.parser).parse();
 						profile.addRoot(root);
