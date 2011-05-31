@@ -204,7 +204,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 					try {
 						message = CommCareContext._().buildMessage(new XFormSerializingVisitor().createSerializedPayload(instance));
 						TransportService.send(message, 0, 0);
-						Logger.log("formentry", "Transport message[" + message.getCacheIdentifier() + "] created for instance.");
+						Logger.log("formentry", "create txmsg " + PropertyUtils.trim(message.getCacheIdentifier(), 6));
 						
 						// If there is a failure building or caching the transport message, we don't want to further process data.
 						// Otherwise the phone will have data that can never get to the server.
