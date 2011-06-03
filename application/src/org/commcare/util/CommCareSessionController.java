@@ -128,7 +128,13 @@ public class CommCareSessionController {
 			//create form entry session
 			Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);
 			String xmlns = session.getForm();
-			CommCareFormEntryState state = new CommCareFormEntryState(Localizer.clearArguments(entry.getText().evaluate()),xmlns, getPreloaders(), CommCareContext._().getFuncHandlers()) {
+			String title;
+			if(CommCareSense.sense()) {
+				title = null;
+			} else {
+				title = Localizer.clearArguments(entry.getText().evaluate());
+			}
+			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers()) {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
