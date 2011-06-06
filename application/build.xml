@@ -324,13 +324,22 @@
 	    <taskdef name="py-run" onerror="report" classname="org.pyant.tasks.PythonRunTask" classpath="${dir.tools}/pyAntTasks-1.3.jar"/>
 		<py-run script="${dir.postjad}/utilities/submit_build.py" />
 	</target>
+	
+	<target name="PostJad10" description="Post a jad file to commcare hq">
+		<dirname property="build.zip.dir" file="${build.zip}"/>
+		<mkdir dir="${build.zip.dir}"/>
+		<zip destfile="${build.zip}" basedir="${dir.dist.root}"/>
+		<taskdef name="py-run" onerror="report" classname="org.pyant.tasks.PythonRunTask" classpath="${dir.tools}/pyAntTasks-1.3.jar"/>
+		<py-run script="${dir.postjad}/utilities/submit_build.py"/>
+		<delete dir="${build.zip.dir}"/>
+	</target>
 
-    <target name="BuildAndPostJad" depends="BuildClean,PostJad" description="Build the jad and post it."/>
+    <target name="BuildAndPostJad" depends="BuildClean,PostJad10" description="Build the jad and post it."/>
 
-    <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad" description="Build the jad and post it."/>
+    <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad10" description="Build the jad and post it."/>
 
 	<!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
-	<target name="BuildServerComplete" depends="SetBatch, BuildAndPostJad, PrepareWebDemo">
+	<target name="BuildServerComplete" depends="SetBatch, PostJad10, PrepareWebDemo">
 		<ant antfile="../backend/build.xml" target="package" dir="../backend/">
 			  <property name="dir.lib" value="${dir.lib}"/>
 			  <property name="dir.jrlib" value="${dir.tools}"/>
