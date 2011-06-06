@@ -16,6 +16,7 @@ import org.commcare.util.CommCareSessionController;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.user.model.User;
 
 
 /**
@@ -27,15 +28,15 @@ public class CommCareHomeController implements HandledCommandListener {
 	CommCareHomeScreen view;
 	Profile profile;
 	CommCareSessionController session;
+	User current;
 	
 	Vector<Suite> suites;
-	boolean admin;
 	
 	public CommCareHomeController (Vector<Suite> suites, Profile profile, CommCareSessionController session) {
 		this.suites = suites;
 		this.profile = profile;
 		this.session = session;
-		admin = CommCareContext._().getUser().isAdminUser();
+		current = CommCareContext._().getUser();
 	}
 	
 	public void setTransitions (CommCareHomeTransitions transitions) {
@@ -43,7 +44,7 @@ public class CommCareHomeController implements HandledCommandListener {
 	}
 
 	public void start() {
-		view = new CommCareHomeScreen(this, suites, admin, profile.isFeatureActive(Profile.FEATURE_REVIEW));
+		view = new CommCareHomeScreen(this, suites, current, profile.isFeatureActive(Profile.FEATURE_REVIEW));
 		session.populateMenu(view, "root");
 		view.init();
 		J2MEDisplay.setView(view);

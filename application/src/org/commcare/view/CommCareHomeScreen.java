@@ -12,6 +12,7 @@ import org.commcare.util.CommCareUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.user.model.User;
 
 import de.enough.polish.ui.ChoiceItem;
 import de.enough.polish.ui.Command;
@@ -27,6 +28,8 @@ public class CommCareHomeScreen extends List {
 	CommCareHomeController controller;
 
 	private boolean isAdmin;
+	
+	private User loggedInUser;
 	
 	private boolean reviewEnabled;
 	
@@ -51,7 +54,7 @@ public class CommCareHomeScreen extends List {
 	public Command adminLogin = new Command("Admin Login", Command.ITEM, 1);
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	
-	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, boolean adminMode, boolean reviewEnabled) {
+	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"), List.IMPLICIT);
 		this.controller = controller;
 		
@@ -59,8 +62,9 @@ public class CommCareHomeScreen extends List {
 		setSelectCommand(select);
 		
 		addCommand(exit);
-		isAdmin = adminMode;
-		if (adminMode) {
+		this.loggedInUser = loggedInUser;
+		isAdmin = (loggedInUser == null) ? true : loggedInUser.isAdminUser();
+		if (isAdmin) {
 			addCommand(admSettings);
 			addCommand(admNewUser);
 			addCommand(admEditUsers);
@@ -71,8 +75,7 @@ public class CommCareHomeScreen extends List {
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
 		}
-		if (!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") &&
-			!CommCareContext._().getUser().isAdminUser()) {
+		if (!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && loggedInUser.isAdminUser()) {
 			addCommand(adminLogin);
 		}
 		
@@ -113,6 +116,12 @@ public class CommCareHomeScreen extends List {
 		}
 		
 		admForceSend.setLabel(admForceSend.getLabel() + " (" + numunsent + ")");
+		
+		//If we're in sense mode, we want to change the title of this screen to reflect the logged in
+		//user and # of unsent forms.
+		if(CommCareSense.sense()) {
+			setTitle(loggedInUser.getUsername() + (unsent > 0 ?  ": " + numunsent : ""));
+		}
 	}
 		
 	//TODO: localize me
