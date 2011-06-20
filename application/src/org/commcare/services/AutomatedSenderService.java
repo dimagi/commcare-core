@@ -4,6 +4,7 @@
 package org.commcare.services;
 
 import java.util.Date;
+import java.util.Stack;
 import java.util.Timer;
 
 import org.javarosa.core.services.Logger;
@@ -48,6 +49,8 @@ public class AutomatedSenderService {
 	//persists across app restarts?
 	private static long nextValidAttempt = 0;
 	private static int curBackoffInterval = 0;
+	
+	private static Stack<Runnable> delayedActions;
 	
 	SignalLevelProvider provider;
 	
@@ -113,6 +116,14 @@ public class AutomatedSenderService {
 		}
 	}
 	
+	private void executeDelayedActionStack() {
+		synchronized(lock) {
+			while(delayedActions.size() > 0) {
+				delayedActions.pop().run();
+			}
+		}
+	}
+	
 	/**
 	 * The main entry point to the sender service. This should be called
 	 * a maximum of one time per application instance and will instantiate
@@ -120,12 +131,14 @@ public class AutomatedSenderService {
 	 */
 	public static void InitializeAndSpawnSenderService() {
 		synchronized(lock) {
+			delayedActions = new Stack<Runnable>();
 			//Establish whether a signal level provider is available
 			service = new AutomatedSenderService(EstablishProvider());
 			serviceTimer = new Timer();
 			serviceTimer.schedule(new HandledTimerTask() {
 				public void _run() {
 					service.timeout();
+					service.executeDelayedActionStack();
 				}
 			}, POLL_INTERVAL * 1000, POLL_INTERVAL * 1000);
 		}
@@ -136,9 +149,10 @@ public class AutomatedSenderService {
 	 * Overrides any delays from previous failures.
 	 */
 	public static void NotifyPending() {
-		synchronized(lock) {
-			resetDelay();
-		}
+		delayedActions.push(new Runnable() { 
+			public void run() {
+				resetDelay();
+		}});
 	}
 	
 	/**
