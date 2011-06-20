@@ -239,7 +239,7 @@ public class CommCareContext {
 	}
 	
 	private void initUserFramework() {
-		UserUtility.populateAdminUser();
+		UserUtility.populateAdminUser(midlet);
 		inDemoMode = false;
 		String namespace = PropertyUtils.initializeProperty(CommCareProperties.USER_REG_NAMESPACE, "http://code.javarosa.org/user_registration");
 		
