@@ -125,9 +125,15 @@ public class CommCareSessionController {
 	public void next() {
 		String next = session.getNeededData();
 		if(next == null) {
+			String xmlns = session.getForm();
+			
+			if(xmlns == null) {
+				//This command is a view, not an entry. We can comfortably return to the previous step.
+				this.back();
+				return;
+			}
 			//create form entry session
 			Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);
-			String xmlns = session.getForm();
 			String title;
 			if(CommCareSense.sense()) {
 				title = null;
