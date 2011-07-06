@@ -7,7 +7,10 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.OpenRosaApiResponseProcessor;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -47,6 +50,22 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 	}
 
 	public void userCreated(final User newUser) {
+		IStorageUtility userStorage = StorageManager.getStorage(User.STORAGE_KEY);
+		//We could get this by meta, but it's hard to track usernames due to case issues
+		for(IStorageIterator iterator = userStorage.iterate(); iterator.hasMore();) {
+			User user = (User)iterator.nextRecord();
+			if(user.getUsername().toLowerCase().equals(newUser.getUsername().toLowerCase()) &&
+					!user.getUniqueId().equals(newUser.getUniqueId())) {
+				//Duplicate username. Don't complete registration!
+				//TODO: Can we be confident that just not-going-anywhere here will
+				//be the right thing to do? It should just keep us on the end question
+				J2MEDisplay.showError(null,Localization.get("activity.adduser.problem.nametaken", new String[] {newUser.getUsername()}));
+				return;
+			}
+		}
+		
+		
+		
 		
 		if(requireRegistration) {
 
@@ -78,10 +97,8 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 				
 			}.start();
 		} else {
-		
-			IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
 			try {
-				users.write(newUser);
+				userStorage.write(newUser);
 			} catch (StorageFullException e) {
 				throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
 			}
