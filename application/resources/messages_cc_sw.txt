@@ -30,7 +30,6 @@ review.date=Tarehe
 review.type.unknown=Unknown
 
 sending.status.success=Ujumbe Umepokelewa. Leo tumepokea fomu ${0} kutoka kwako.
-sending.status.problem.datasafe=Ujumbe Umepokelewa.Taarifa zako zipo salama. Tumekosea kidogo, tunarekebisha.
 
 activity.login.demomode.intro=unafungua CommCare kwenye mazoezi, hii ni kwa ajili ya mazoezi. Fungua kwa kutumia ufunguo kama taarifa hizi ni halisi.
 
@@ -45,3 +44,6 @@ home.data.restore=Rudisha Taarifa
 home.demo.reset=Anza Mazoezi Upya
 home.updates=Anza Mazoezi Upya
 restore.user.exists=Huwezi kurudisha mtumiaji ambaye tayari yuko kwenye simu
+
+menu.send.all=Tuma taarifa ambazo hazijaenda
+menu.send.all.val=Tuma taarifa ambazo hazijaenda (${0})

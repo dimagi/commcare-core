@@ -63,4 +63,12 @@ restore.bypass.fail=Local Restore bypass failed. Falling back to OTA restore.
 restore.bypass.instructions=Local Restore failed. Please sign-in for OTA Restore.
 
 #Warning about time
-message.timesync=Your phone's time appears to be set incorrectly, which will cause problems in submitted data. Please set your phone to the correct date and time.  
+message.timesync=Your phone's time appears to be set incorrectly, which will cause problems in submitted data. Please set your phone to the correct date and time.
+
+menu.send.all=Send All Unsent
+menu.send.all.val=Send All Unsent (${0})
+
+sending.status.problem.datasafe=Successfully Submitted. Your data is safe, but we made a small mistake. We're working on it.
+menu.sync=Sync with Server
+sending.status.didnotunderstand=Did not understand the response from the server [${0}]
+   
