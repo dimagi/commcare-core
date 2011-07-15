@@ -24,6 +24,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
@@ -194,6 +195,12 @@ public class Text implements Externalizable {
 					temp.addFunctionHandler(new IFunctionHandler() {
 
 						public Object eval(Object[] args) {
+							Object o = XPathFuncExpr.toDate(args[0]);
+							if(!(o instanceof Date)) {
+								//return null, date is null.
+								return "";
+							}
+							
 							String type = (String)args[1];
 							int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
 							if(type.equals("short")) {
@@ -201,7 +208,7 @@ public class Text implements Externalizable {
 							} else if(type.equals("long")){
 								format = DateUtils.FORMAT_ISO8601;
 							}
-							return DateUtils.formatDate((Date)args[0], format);
+							return DateUtils.formatDate((Date)o, format);
 						}
 
 						public String getName() {
