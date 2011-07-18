@@ -3,12 +3,13 @@ package org.commcare.applogic;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicWrapperState;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -28,20 +29,29 @@ public class CommCareLoginState extends LoginState {
 	}
 	
 	public CommCareLoginState() {
-		this(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users"));
+		this(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && 
+			 (!CommCareSense.isAutoLoginEnabled() ||
+			 PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER) == null));
 	}
 
 	public void start() {
 		if (interactive) {
 			super.start();
 		} else {
-			User u = getStaticUser();
+			User u = getLoggedInUser();
 			loggedIn(u, u.getPassword());
 		}
 	}
 
-	protected static User getStaticUser() {
-		IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
+	protected static User getLoggedInUser() {
+		IStorageUtilityIndexed users = (IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY);
+		
+		
+		if(CommCareSense.isAutoLoginEnabled()) {
+			User user = (User)users.getRecordForValue(User.META_UID, PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER));
+			return user;
+		}
+		
 		IStorageIterator ui = users.iterate();
 		
 		User admin = null;
@@ -87,6 +97,15 @@ public class CommCareLoginState extends LoginState {
 		Logger.log("login", PropertyUtils.trim(u.getUniqueId(), 8) + "-" + u.getUsername());
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
+		
+		if(CommCareSense.isAutoLoginEnabled()) {
+			if(User.STANDARD.equals(u.getUserType() )) {
+				//We only want to autolog non-admin non-demo users
+				//Set the current user to be automatically logged in 
+				PropertyManager._().setProperty(CommCareProperties.LOGGED_IN_USER, u.getUniqueId());
+			} 
+			//TODO: Do we want to clear the auto-logged-in user if an admin logs in?
+		}
 
 		
 		//TODO: Replace this state completely with the periodic wrapper state and reimplement this

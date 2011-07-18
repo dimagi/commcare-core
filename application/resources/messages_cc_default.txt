@@ -71,4 +71,5 @@ menu.send.all.val=Send All Unsent (${0})
 sending.status.problem.datasafe=Successfully Submitted. Your data is safe, but we made a small mistake. We're working on it.
 menu.sync=Sync with Server
 sending.status.didnotunderstand=Did not understand the response from the server [${0}]
+home.change.user=Login as Admin
    

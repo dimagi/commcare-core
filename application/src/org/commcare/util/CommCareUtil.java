@@ -42,6 +42,7 @@ import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
+import org.javarosa.user.model.User;
 
 /**
  * @author ctsims
@@ -266,7 +267,8 @@ public class CommCareUtil {
 	}
 	
 	public static void launchFirstState() {
-		if(CommCareProperties.FIRST_RUN_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN))) {
+		if(CommCareProperties.FIRST_RUN_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN)) && 
+				CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
 			J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
 		} else {
 			J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
@@ -274,8 +276,9 @@ public class CommCareUtil {
 	}
 
 	public static void exitMain() {
-		if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
-			J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
+		if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && 
+				(!CommCareSense.isAutoLoginEnabled() || !User.STANDARD.equals(CommCareContext._().getUser().getUserType()))) {
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState(true));
 		} else{
 			exit();
 		}

@@ -12,5 +12,5 @@ import org.javarosa.core.model.instance.FormInstance;
  */
 public interface FormTransportWorkflow {
 	public void preProcessing(FormInstance instance);
-	public void postProcessing();	
+	public void postProcessing();
 }

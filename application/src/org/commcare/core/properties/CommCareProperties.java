@@ -77,7 +77,7 @@ public class CommCareProperties implements IPropertyRules {
 	public final static String ENTRY_MODE = "cc-entry-mode";
 	public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
 	public final static String ENTRY_MODE_REVIEW = "cc-entry-review";
-	
+		
 	public final static String SEND_UNSENT_STYLE = "cc-send-unsent";
 	public final static String SEND_UNSENT_MANUAL = "cc-su-man";
 	public final static String SEND_UNSENT_AUTOMATIC = "cc-su-auto";
@@ -87,6 +87,12 @@ public class CommCareProperties implements IPropertyRules {
     public final static String LOGIN_IMAGE = "cc_login_image";
     
     public final static String USER_DOMAIN = "cc_user_domain";
+    
+    public final static String LOGIN_MODE = "cc-user-mode";
+    public final static String LOGIN_MODE_NORMAL = "cc-u-normal";
+    public final static String LOGIN_MODE_AUTO = "cc-u-auto";
+    
+    public final static String LOGGED_IN_USER = "cc-u-logged-in";
     
 	/**
 	 * Creates the JavaRosa set of property rules
@@ -178,9 +184,18 @@ public class CommCareProperties implements IPropertyRules {
         
         rules.put(USER_DOMAIN, new Vector());
         
+        Vector userSettings = new Vector();
+        userSettings.addElement(LOGIN_MODE_NORMAL);
+        userSettings.addElement(LOGIN_MODE_AUTO);
+        
+        rules.put(LOGGED_IN_USER,new Vector());
+        
+        rules.put(LOGIN_MODE, userSettings);
+        
         readOnlyProperties.addElement(ENTRY_MODE);
         readOnlyProperties.addElement(SEND_UNSENT_STYLE);
         readOnlyProperties.addElement(LOGIN_IMAGE);
+        readOnlyProperties.addElement(LOGGED_IN_USER);
 	}
 
 	/**
@@ -281,6 +296,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Offline File Ref for OTA Bypass";
         } else if (DEMO_MODE.equals(propertyName)) {
         	return "Demo Mode Enabled";
+        } else if (LOGIN_MODE.equals(propertyName)) {
+        	return "User Login Mode";
         }
     	return propertyName;
 	}
@@ -302,6 +319,12 @@ public class CommCareProperties implements IPropertyRules {
 			} else if (DEPLOY_DEFAULT.equals(value)) {
 				return "JAD setting";
 			}
+        } else if (LOGIN_MODE.equals(propertyName)) {
+        	if(LOGIN_MODE_NORMAL.equals(value)) {
+        		return "Normal Login";
+        	} else if(LOGIN_MODE_AUTO.equals(value)) {
+        		return "Automatic Login";
+        	}
         }
 
         return value;

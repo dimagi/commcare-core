@@ -38,4 +38,10 @@ public class CommCareSense {
 			return !CommCareProperties.ENTRY_MODE_REVIEW.equals(PropertyManager._().getSingularProperty(CommCareProperties.ENTRY_MODE));
 		}
 	}
+	
+	public static boolean isAutoLoginEnabled() {
+		String loginMode = PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_MODE);
+		if(loginMode == null) { return sense();}
+		else { return CommCareProperties.LOGIN_MODE_AUTO.equals(loginMode);}
+	}
 }

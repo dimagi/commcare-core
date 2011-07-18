@@ -51,7 +51,7 @@ public class CommCareHomeScreen extends List {
 	public Command admRMSDump = new Command("Dump RMS", Command.ITEM, 1);
 	public Command admViewLogs = new Command("View Logs", Command.ITEM, 1);
 	public Command admGPRSTest = new Command("Network Test", Command.ITEM, 1);
-	public Command adminLogin = new Command("Admin Login", Command.ITEM, 1);
+	public Command adminLogin = new Command(Localization.get("home.change.user"), Command.ITEM, 1);
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
@@ -66,16 +66,18 @@ public class CommCareHomeScreen extends List {
 		isAdmin = (loggedInUser == null) ? true : loggedInUser.isAdminUser();
 		if (isAdmin) {
 			addCommand(admSettings);
-			addCommand(admNewUser);
-			addCommand(admEditUsers);
-			addCommand(admDownload);
-			addCommand(admResetDemo);
+			if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
+				addCommand(admNewUser);
+				addCommand(admEditUsers);
+				addCommand(admDownload);
+				addCommand(admResetDemo);
+			}
 			addCommand(admUpgrade);
 			addCommand(admRMSDump);
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
 		}
-		if (!CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && loggedInUser.isAdminUser()) {
+		if (CommCareSense.isAutoLoginEnabled() && !isAdmin) {
 			addCommand(adminLogin);
 		}
 		
@@ -94,9 +96,11 @@ public class CommCareHomeScreen extends List {
 		} else if (!CommCareSense.isAutoSendEnabled()) {
 			append(sendAllUnsent);
 			setSendUnsent();
-		} else if (isAdmin) {
+		} else {
 			setSendUnsent();
-			addCommand(admForceSend);
+			if (isAdmin) {
+				addCommand(admForceSend);
+			}
 		}
 	}
 
