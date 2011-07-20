@@ -398,11 +398,12 @@ public class FormEntryCaption implements FormElementStateListener {
 	}
 
 	public void formElementStateChanged(IFormElement element, int changeFlags) {
-		if (this.element != element)
-			throw new IllegalStateException(
-					"Widget received event from foreign question");
-		if (viewWidget != null)
+		if (this.element != element) {
+			throw new IllegalStateException("Widget received event from foreign question");
+		}
+		if (viewWidget != null) {
 			viewWidget.refreshWidget(changeFlags);
+		}
 	}
 
 	public void formElementStateChanged(TreeElement instanceNode,
