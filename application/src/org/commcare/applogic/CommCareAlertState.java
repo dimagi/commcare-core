@@ -19,7 +19,7 @@ public abstract class CommCareAlertState implements State, HandledCommandListene
 	}
 	
 	public void start() {
-		J2MEDisplay.showError(title, content, null, this);
+		J2MEDisplay.showError(title, content, null, null, this);
 	}
 		
 	public void commandAction(Command c, Displayable d) {

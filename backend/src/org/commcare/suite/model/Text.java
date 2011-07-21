@@ -194,7 +194,7 @@ public class Text implements Externalizable {
 					
 					temp.addFunctionHandler(new IFunctionHandler() {
 
-						public Object eval(Object[] args) {
+						public Object eval(Object[] args, EvaluationContext ec) {
 							Object o = XPathFuncExpr.toDate(args[0]);
 							if(!(o instanceof Date)) {
 								//return null, date is null.
@@ -233,7 +233,7 @@ public class Text implements Externalizable {
 					
 					temp.addFunctionHandler(new IFunctionHandler() {
 
-						public Object eval(Object[] args) {
+						public Object eval(Object[] args, EvaluationContext ec) {
 							Calendar c = Calendar.getInstance();
 							c.setTime(new Date());
 							return String.valueOf(c.get(Calendar.DAY_OF_WEEK));

@@ -29,6 +29,7 @@ import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.PatientReferralPreloader;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
@@ -613,7 +614,7 @@ public class CommCareContext {
 			return false;
 		}
 
-		public Object eval(Object[] args) {
+		public Object eval(Object[] args, EvaluationContext ec) {
 			//each repeat has a hidden generated uid. we cache the generated referral code
 			//under this uid, so we don't regenerate it if we navigate through the repeititon
 			//again

@@ -3,6 +3,7 @@ package org.commcare.util;
 import java.util.Vector;
 
 import org.javarosa.cases.model.Case;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -21,7 +22,7 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
 		return p;
 	}
 
-	public Object eval(Object[] args) {
+	public Object eval(Object[] args, EvaluationContext ec) {
 		boolean exists = false;
 		
 		Double d = (Double)args[0];

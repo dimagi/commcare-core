@@ -47,3 +47,4 @@ restore.user.exists=Huwezi kurudisha mtumiaji ambaye tayari yuko kwenye simu
 
 menu.send.all=Tuma taarifa ambazo hazijaenda
 menu.send.all.val=Tuma taarifa ambazo hazijaenda (${0})
+id=Namba
