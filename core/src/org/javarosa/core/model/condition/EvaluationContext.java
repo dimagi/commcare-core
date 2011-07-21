@@ -66,6 +66,10 @@ public class EvaluationContext {
 		this.outputTextForm = form;
 	}
 	
+	public String getOutputTextForm() {
+		return outputTextForm;
+	}
+	
 	public void setVariables(Hashtable<String, ?> variables) {
 		for (Enumeration e = variables.keys(); e.hasMoreElements(); ) {
 			String var = (String)e.nextElement();

@@ -202,14 +202,11 @@ public class FormEntryPrompt extends FormEntryCaption {
             return null;
         } else {
         	EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
-        	if(textForm != null) {
-        		ec.setOutputTextForm(textForm);
-        	} 
         	if(attemptedValue != null) {
         		ec.isConstraint = true;
         		ec.candidateValue = attemptedValue;
         	}
-            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getInstance());
+            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getInstance(), textForm);
         }
     }
 

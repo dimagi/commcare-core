@@ -656,11 +656,19 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					return "jr:itext";
 				}
 
-				public Object eval(Object[] args) {
+				public Object eval(Object[] args, EvaluationContext ec) {
 					String textID = (String) args[0];
 					try {
-						String text = f.getLocalizer().getText(textID);
-						return text == null ? "[itext:" + textID + "]" : text;
+						//SUUUUPER HACKY
+						String form = ec.getOutputTextForm();
+						if(form != null) {
+							textID = textID + ";" + form;
+							String result = f.getLocalizer().getRawText(f.getLocalizer().getLocale(), textID);
+							return result == null ? "" : result;
+						} else {
+							String text = f.getLocalizer().getText(textID);
+							return text == null ? "[itext:" + textID + "]" : text;
+						}
 					} catch (NoSuchElementException nsee) {
 						return "[nolocale]";
 					}
@@ -702,7 +710,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					return "jr:choice-name";
 				}
 
-				public Object eval(Object[] args) {
+				public Object eval(Object[] args, EvaluationContext ec) {
 					try {
 						String value = (String)args[0];
 						String questionXpath = (String)args[1];

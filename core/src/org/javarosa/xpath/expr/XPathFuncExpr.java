@@ -228,7 +228,7 @@ public class XPathFuncExpr extends XPathExpression {
 			//check for custom handler
 			IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
 			if (handler != null) {
-				return evalCustomFunction(handler, argVals);
+				return evalCustomFunction(handler, argVals, evalContext);
 			} else {
 				throw new XPathUnhandledException("function \'" + name + "\'");
 			}
@@ -247,7 +247,7 @@ public class XPathFuncExpr extends XPathExpression {
 	 * @param args
 	 * @return
 	 */
-	private static Object evalCustomFunction (IFunctionHandler handler, Object[] args) {
+	private static Object evalCustomFunction (IFunctionHandler handler, Object[] args, EvaluationContext ec) {
 		Vector prototypes = handler.getPrototypes();
 		Enumeration e = prototypes.elements();
 		Object[] typedArgs = null;
@@ -257,9 +257,9 @@ public class XPathFuncExpr extends XPathExpression {
 		}
 
 		if (typedArgs != null) {
-			return handler.eval(typedArgs);
+			return handler.eval(typedArgs, ec);
 		} else if (handler.rawArgs()) {
-			return handler.eval(args);  //should we have support for expanding nodesets here?
+			return handler.eval(args, ec);  //should we have support for expanding nodesets here?
 		} else {
 			throw new XPathTypeMismatchException("for function \'" + handler.getName() + "\'");
 		}
