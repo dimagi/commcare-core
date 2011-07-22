@@ -133,16 +133,6 @@ title{
 }
 
 focused{
-	/*
-	background-color: white;
-	border-type: round-rect;
-	border-arc: 6;
-	border-color: yellow;
-	border-width: 2;
-	layout: left | expand;
-	font-color: black;
-	font-style: bold;
-	*/
 	layout: left | expand;
 	background-color: focusedBackground;
 	border {
@@ -177,7 +167,6 @@ focused{
 		color:dimagiBlue;
 	}
 	layout: right | expand;
-
 /*
 	margin-top: 1;
 	margin-bottom: 1;
@@ -191,12 +180,23 @@ focused{
     background-color: selectedBg;
 }
 
-.cgItemFocused {
-   focused-style: .cgFocused;
+.cgItemFocused extends cgFocused {
+   /* To make room for the border */
+   margin-right: 2;
+}
+
+.cgEmptyFocus extends cgItemFocused {
+    background-color: white;
+    border-color: white;
+    before: white;
+}
+
+.uninitializedListItem extends listitem {
+	focused-style: .cgEmptyFocus;
 }
 
 listitem {
-	focused-style: .cgFocused;
+	focused-style: .cgItemFocused;
 }
 radiobox {
 	focused-style: .cgFocused;
@@ -204,7 +204,7 @@ radiobox {
 checkbox {
 	focused-style: .cgFocused;
 }
-popup {
+popup {	
 	focused-style: .cgFocused;
 }
 
