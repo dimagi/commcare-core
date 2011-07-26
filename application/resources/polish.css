@@ -56,6 +56,8 @@ colors {
 	popupFontColor: black;
 	
 	selectedBg: #D5D8DD;
+	selectedBgSense: #00FFEE;
+	borderSense: #2685FF;
 }
 .loginView {
 	background {
@@ -185,6 +187,12 @@ focused{
    margin-right: 2;
 }
 
+.cgSenseItemFocused extends cgItemFocused {
+   /* To make room for the border */
+    background-color: selectedBgSense;
+    border-color: borderSense;
+}
+
 .cgEmptyFocus extends cgItemFocused {
     background-color: white;
     border-color: white;
@@ -198,6 +206,11 @@ focused{
 listitem {
 	focused-style: .cgItemFocused;
 }
+
+.senseListItem extends listitem{
+	focused-style: .cgSenseItemFocused;
+}
+
 radiobox {
 	focused-style: .cgFocused;
 }
