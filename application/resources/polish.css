@@ -195,7 +195,8 @@ focused{
 
 .cgEmptyFocus extends cgItemFocused {
     background-color: white;
-    border-color: white;
+    /*border-color: white;*/
+    border: none;
     before: white;
 }
 

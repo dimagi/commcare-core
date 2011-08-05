@@ -323,7 +323,11 @@ public class CommCareContext {
 	
 	public static void init(MIDlet m, InitializationListener listener) {
 		i = new CommCareContext();
-		i.configureApp(m, listener);
+		try{
+			i.configureApp(m, listener);
+		} catch(Exception e) {
+			Logger.die("Init!", e);
+		}
 	}
 	
 	public static CommCareContext _() {
