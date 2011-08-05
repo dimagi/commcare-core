@@ -46,6 +46,7 @@ public class FormEntryCaption implements FormElementStateListener {
 	public static final String TEXT_FORM_SHORT = "short";
 	public static final String TEXT_FORM_AUDIO = "audio";
 	public static final String TEXT_FORM_IMAGE = "image";
+	public static final String TEXT_FORM_VIDEO = "video";
 
 	protected IQuestionWidget viewWidget;
 
