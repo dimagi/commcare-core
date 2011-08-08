@@ -36,14 +36,16 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 		this.messageItem.setText(message);
 	}
 	
-	public void AskYesNo(String message, YesNoListener listener) {
+	public void AskYesNo(String message, YesNoListener listener) {		
 		messageItem.setText(message);
-		yes = new Command(failSafeText("yes","Yes"), Command.OK, 0);
-		no = new Command(failSafeText("no","No"), Command.CANCEL, 0);
 		this.listener = listener;
-		
-		this.addCommand(yes);
-		this.addCommand(no);
+		if(yes == null) {
+			yes = new Command(failSafeText("yes","Yes"), Command.OK, 0);
+			no = new Command(failSafeText("no","No"), Command.CANCEL, 0);
+			
+			this.addCommand(yes);
+			this.addCommand(no);
+		}
 		
 	}
 	

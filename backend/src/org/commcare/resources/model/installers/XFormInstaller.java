@@ -6,6 +6,8 @@ package org.commcare.resources.model.installers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -13,8 +15,13 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParser;
 
 /**
@@ -82,5 +89,56 @@ public class XFormInstaller extends CacheInstaller {
 			return false;
 		}
 		return true;
+	}
+	
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
+		Vector<UnresolvedResourceException> ret = new Vector<UnresolvedResourceException>();
+		
+		//Check to see whether the formDef exists and reads correctly
+		FormDef formDef;
+		try {
+			formDef = (FormDef)storage().read(cacheLocation);
+		} catch(Exception e) {
+			ret.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			return ret;
+		}
+		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
+		//available
+		Localizer localizer = formDef.getLocalizer();
+		if(localizer == null) {
+			//Can't check if there ain't no localizer!
+			return null;
+		}
+		for(String locale : localizer.getAvailableLocales()) {
+			OrderedHashtable localeData = localizer.getLocaleData(locale);
+			for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
+				String key = (String)en.nextElement();
+				if(key.indexOf(";") != -1) {
+					//got some forms here
+					String form = key.substring(key.indexOf(";") + 1, key.length());
+					if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
+					   form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
+					   form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
+						try {
+							String externalMedia = (String)localeData.get(key);
+							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
+							String localName = ref.getLocalURI();
+							try {
+								if(!ref.doesBinaryExist()) {
+									ret.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
+								}
+							} catch (IOException e) {
+								ret.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+							}
+						} catch (InvalidReferenceException e) {
+							//So the problem is that this might be a valid entry that depends on context
+							//in the form, so we'll ignore this situation for now.
+						}
+					}
+				}
+			}
+		}
+		if(ret.size() == 0 ) { return null;}
+		return ret;
 	}
 }

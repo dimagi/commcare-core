@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -96,5 +97,10 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
+		//Work by default
+		return null;
 	}
 }

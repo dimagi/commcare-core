@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -214,6 +215,29 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		ExtUtil.writeString(out, locale);
 		ExtUtil.writeString(out, localReference);
 		ExtUtil.write(out, new ExtWrapMap(ExtUtil.emptyIfNull(cache)));
+	}
+
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r)  {
+		try {
+		if(locale == null) { throw new UnresolvedResourceException(r, "Bad metadata, no locale");}
+		if(cache != null) {
+			//If we've gotten the cache into memory, we're fine
+		} else {
+			try {
+				if(!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
+					throw new UnresolvedResourceException(r, "Locale data does note exist at: " + localReference);
+				}
+			} catch (IOException e) {
+				throw new UnresolvedResourceException(r, "Problem reading locale data from: " + localReference);
+			} catch (InvalidReferenceException e) {
+				throw new UnresolvedResourceException(r, "Locale reference is invalid: " + localReference);
+			}
+		}} catch(UnresolvedResourceException ure) {
+			Vector<UnresolvedResourceException> v = new Vector<UnresolvedResourceException>();
+			v.addElement(ure);
+			return v;
+		}
+		return null;
 	}
 
 }

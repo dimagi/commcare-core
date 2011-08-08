@@ -153,17 +153,54 @@ public class CommCareContext {
 		Display.getDisplay(m).setCurrent(interaction);
 		
 		CommCareInitializer initializer = new CommCareInitializer() {
-			protected void runWrapper() throws UnfullfilledRequirementsException {
+			
+			private String validate() {
+				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating installation..."));
+				Vector<UnresolvedResourceException> problems = global.verifyInstallation();
+				if(problems.size() > 0 ) {
+					String message = CommCareStartupInteraction.failSafeText("install.bad","There's a problem with CommCare's installation, do you want to retry validation?");
+					
+					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
+					for(UnresolvedResourceException ure : problems) {
+						String res = ure.getResource().getResourceId();
+						Vector<String> list;
+						if(problemList.containsKey(res)) {
+							list = problemList.get(res);
+						} else{
+							list = new Vector<String>();
+						}
+						list.addElement(ure.getMessage());
+						
+						problemList.put(res, list);
+					}
+					
+					for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
+						String resource = (String)en.nextElement();
+						message += "\nResource: " + resource;
+						message += "\n-----------";
+						for(String s : problemList.get(resource)) {
+							message += "\n" + s;
+						}
+					}
+					return message;
+				}
+				return null;
+			}
+			
+			protected boolean runWrapper() throws UnfullfilledRequirementsException {
 				
 				manager = new CommCarePlatform(CommCareUtil.getMajorVersion(), CommCareUtil.getMinorVersion());
 				
 				//Try to initialize and install the application resources...
 				try {
 					ResourceTable global = RetrieveGlobalResourceTable();
+					boolean firstStart = false;
 					if(global.isEmpty()) {
+						firstStart = true;
 						this.setMessage(CommCareStartupInteraction.failSafeText("commcare.firstload","First start detected, loading resources..."));
 					}
 					manager.init(CommCareUtil.getProfileReference(), global, false);
+					
 				} catch (UnfullfilledRequirementsException e) {
 					if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
 						String message = e.getMessage();
@@ -194,6 +231,24 @@ public class CommCareContext {
 					throw new RuntimeException(e.getMessage());
 				}
 				
+				
+				
+				if(!CommCareUtil.getAppProperty("Skip-Validation","no").equals("yes") && !CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.CONTENT_VALIDATED))) {
+					String failureMessage = this.validate();
+					while(failureMessage != null) {
+						Logger.log("startup", "Missing Resources on startup");
+						this.blockForResponse(failureMessage);
+						if(this.response == CommCareInitializer.RESPONSE_YES) {
+							failureMessage = this.validate(); 
+						} else {
+							//TODO: We need to set a flag which says that CommCare can't start up.
+							CommCareContext.this.exitApp();
+							return false;
+						}
+					}
+					PropertyManager._().setProperty(CommCareProperties.CONTENT_VALIDATED, CommCareProperties.PROPERTY_YES);
+				}
+				
 				//When we might initialize language files, we need to make sure it's not trying
 				//to load any of them into memory, since the default ones are not guaranteed to
 				//be added later.
@@ -220,6 +275,7 @@ public class CommCareContext {
 				if(CommCareSense.isAutoSendEnabled()) {
 					AutomatedSenderService.InitializeAndSpawnSenderService();
 				}
+				return true;
 			}
 
 			protected void askForResponse(String message, YesNoListener yesNoListener) {
@@ -298,7 +354,7 @@ public class CommCareContext {
 		PropertyManager._().addRules(new CommCareProperties());
 		PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
 		
-		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.FIRST_RUN_YES);
+		PropertyUtils.initializeProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_YES);
 		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
 		PropertyUtils.initializeProperty(CommCareProperties.DEPLOYMENT_MODE, CommCareProperties.DEPLOY_DEFAULT);
 		

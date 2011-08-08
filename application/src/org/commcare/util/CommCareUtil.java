@@ -267,7 +267,7 @@ public class CommCareUtil {
 	}
 	
 	public static void launchFirstState() {
-		if(CommCareProperties.FIRST_RUN_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN)) && 
+		if(CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN)) && 
 				CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
 			J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
 		} else {

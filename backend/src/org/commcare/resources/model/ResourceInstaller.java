@@ -3,6 +3,8 @@
  */
 package org.commcare.resources.model;
 
+import java.util.Vector;
+
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
@@ -79,4 +81,6 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
 	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException;
 	
 	public void cleanup();
+	
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r);
 }

@@ -32,8 +32,8 @@ public class CommCareProperties implements IPropertyRules {
     
     // First Run
     public final static String IS_FIRST_RUN = "cc-first-run";
-    public final static String FIRST_RUN_YES = "Yes";
-    public final static String FIRST_RUN_NO = "No";
+    public final static String PROPERTY_YES = "Yes";
+    public final static String PROPERTY_NO = "No";
     
     //OTA Restore
     public final static String OTA_RESTORE_URL = "ota-restore-url";
@@ -94,6 +94,8 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String LOGGED_IN_USER = "cc-u-logged-in";
     
+    public final static String CONTENT_VALIDATED = "cc-content-valid";
+    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
@@ -101,11 +103,11 @@ public class CommCareProperties implements IPropertyRules {
 		rules = new Hashtable();
 		readOnlyProperties = new Vector();
 		
-		Vector firstRun = new Vector();
-		firstRun.addElement(FIRST_RUN_YES);
-		firstRun.addElement(FIRST_RUN_NO);
+		Vector yesNo = new Vector();
+		yesNo.addElement(PROPERTY_YES);
+		yesNo.addElement(PROPERTY_NO);
 		
-		rules.put(IS_FIRST_RUN, firstRun);
+		rules.put(IS_FIRST_RUN, yesNo);
 		
         rules.put(COMMCARE_VERSION, new Vector());
         readOnlyProperties.addElement(COMMCARE_VERSION);
@@ -192,6 +194,9 @@ public class CommCareProperties implements IPropertyRules {
         
         rules.put(LOGIN_MODE, userSettings);
         
+        rules.put(CONTENT_VALIDATED, yesNo);
+
+        readOnlyProperties.addElement(CONTENT_VALIDATED);
         readOnlyProperties.addElement(ENTRY_MODE);
         readOnlyProperties.addElement(SEND_UNSENT_STYLE);
         readOnlyProperties.addElement(LOGIN_IMAGE);

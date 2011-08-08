@@ -36,7 +36,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public abstract class CacheInstaller implements ResourceInstaller<CommCareInstance> {
-	
+
 	private IStorageUtility cacheStorage;
 	
 	protected abstract String getCacheKey();
@@ -112,4 +112,11 @@ public abstract class CacheInstaller implements ResourceInstaller<CommCareInstan
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, cacheLocation);
 	}
+	
+	
+	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
+		//We can't actually check here, since this doesn't necessarily know the final location.
+		return null;
+	}
+
 }

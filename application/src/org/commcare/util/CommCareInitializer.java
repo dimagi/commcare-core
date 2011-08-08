@@ -15,9 +15,9 @@ import org.javarosa.j2me.log.HandledThread;
  */
 public abstract class CommCareInitializer implements Runnable {
 
-	protected static int RESPONSE_NONE = 0;
-	protected static int RESPONSE_YES = 1;
-	protected static int RESPONSE_NO = 2;
+	protected static final int RESPONSE_NONE = 0;
+	protected static final int RESPONSE_YES = 1;
+	protected static final int RESPONSE_NO = 2;
 	
 	private InitializationListener listener;
 	int response = RESPONSE_NONE;
@@ -29,12 +29,15 @@ public abstract class CommCareInitializer implements Runnable {
 		t.run();
 	}
 	
-	protected abstract void runWrapper() throws UnfullfilledRequirementsException;
+	protected abstract boolean runWrapper() throws UnfullfilledRequirementsException;
 	
 	public void run() {
 		try {
-			runWrapper();
-			listener.onSuccess();
+			if(runWrapper()) {
+				listener.onSuccess();
+			} else {
+				listener.onFailure();
+			}
 		} catch(Exception e) {
 			Logger.exception(e);
 			fail(e);
