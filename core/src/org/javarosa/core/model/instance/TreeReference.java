@@ -19,6 +19,7 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -26,6 +27,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 public class TreeReference implements Externalizable {
 	public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
@@ -41,6 +43,8 @@ public class TreeReference implements Externalizable {
 	private int refLevel; //0 = context node, 1 = parent, 2 = grandparent ...
 	private Vector names; //Vector<String>
 	private Vector multiplicity; //Vector<Integer>
+	//private Vector<XPathExpression> predicates; //Vector<XPathExpression>
+	private HashMap<Integer, XPathExpression[]> predicates;
 	
 	public static TreeReference rootRef () {
 		TreeReference root = new TreeReference();
@@ -57,6 +61,7 @@ public class TreeReference implements Externalizable {
 	public TreeReference () {
 		names = new Vector(0);
 		multiplicity = new Vector(0);		
+		predicates = new HashMap<Integer, XPathExpression[]>();
 	}
 	
 	public int getMultiplicity(int index) {
@@ -86,6 +91,16 @@ public class TreeReference implements Externalizable {
 	public void add (String name, int index) {
 		names.addElement(name);
 		multiplicity.addElement(new Integer(index));
+	}
+	
+	public void addPredicate(int key, XPathExpression[] xpe)
+	{
+		predicates.put(key, xpe);
+	}
+	
+	public XPathExpression[] getPredicate(int key)
+	{
+		return predicates.get(key);
 	}
 	
 	public int getRefLevel () {
@@ -124,6 +139,11 @@ public class TreeReference implements Externalizable {
 		newRef.setRefLevel(this.refLevel);
 		for (int i = 0; i < this.size(); i++) {
 			newRef.add(this.getName(i), this.getMultiplicity(i));
+		}
+		//copy predicates
+		for(int i : predicates.keySet())
+		{
+			newRef.addPredicate(i, predicates.get(i));
 		}
 		return newRef;
 	}
@@ -206,6 +226,11 @@ public class TreeReference implements Externalizable {
 				}
 				for (int i = 0; i < size(); i++) {
 					newRef.add(this.getName(i), this.getMultiplicity(i));
+				}
+				//copy predicates
+				for(int i : predicates.keySet())
+				{
+					newRef.addPredicate(i, predicates.get(i));
 				}
 				return newRef;
 			}

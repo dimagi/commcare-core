@@ -81,9 +81,9 @@ public class XPathPathExpr extends XPathExpression {
 	 *   all '..' steps must come before anything else
 	 */
 	public TreeReference getReference (boolean allowPredicates) throws XPathUnsupportedException {
+		System.out.println("--------------------------------------------");
 		TreeReference ref = new TreeReference();
 		boolean parentsAllowed;
-		
 		switch (init_context) {
 		case XPathPathExpr.INIT_CONTEXT_ROOT:
 			ref.setRefLevel(TreeReference.REF_ABSOLUTE);
@@ -95,14 +95,17 @@ public class XPathPathExpr extends XPathExpression {
 			break;
 		default: throw new XPathUnsupportedException("filter expression");
 		}
-		
 		for (int i = 0; i < steps.length; i++) {
 			XPathStep step = steps[i];
-			
-			if (!allowPredicates && step.predicates.length > 0) {
-				throw new XPathUnsupportedException("predicates");
+			System.out.println("step: " + step);
+			for(int k = 0; k < step.predicates.length; k++)
+			{
+				System.out.println("\tpredicate: "+ step.predicates[k]);
 			}
-			
+			if (!allowPredicates && step.predicates.length > 0) {
+				//throw new XPathUnsupportedException("predicates");
+			}
+						
 			if (step.axis == XPathStep.AXIS_SELF) {
 				if (step.test != XPathStep.TEST_TYPE_NODE) {
 					throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
@@ -135,8 +138,17 @@ public class XPathPathExpr extends XPathExpression {
 			} else {
 				throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
 			}
+			
+			if(step.predicates.length > 0) {
+				int refLevel = ref.getRefLevel();
+				ref.addPredicate(i, step.predicates);		
+			}
 		}		
-		
+		System.out.println("ref: "+ref);
+		for(int i = 0; i>ref.size(); i++)
+		{
+			System.out.println("\tMultiplicity: "+ref.getMultiplicity(i) + " name: " + ref.getName(i) + " ref Level: " + ref.getRefLevel());
+		}
 		return ref;
 	}
 
@@ -145,7 +157,7 @@ public class XPathPathExpr extends XPathExpression {
 		if (genericRef.isAbsolute() && m.getTemplatePath(genericRef) == null) {
 			throw new XPathTypeMismatchException("Node " + genericRef.toString() + " does not exist!");
 		}
-		
+
 		TreeReference ref = genericRef.contextualize(evalContext.getContextRef());
 		Vector<TreeReference> nodesetRefs = m.expandReference(ref);
 		

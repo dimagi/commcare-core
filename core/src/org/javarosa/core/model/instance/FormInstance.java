@@ -27,6 +27,7 @@ import java.util.Vector;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IDataReference;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.util.restorable.Restorable;
@@ -38,6 +39,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 
 /**
@@ -291,11 +293,13 @@ public class FormInstance implements Persistable, Restorable {
 	// matches sourceRef, templateRef is added to refs
 	private void expandReference(TreeReference sourceRef, TreeElement node, Vector<TreeReference> refs, boolean includeTemplates) {
 		int depth = node.getDepth();
-
+		XPathExpression[] predicates = null;
 		if (depth == sourceRef.size()) {
 			refs.addElement(node.getRef());
 		} else {
 			String name = sourceRef.getName(depth);
+			predicates = sourceRef.getPredicate(depth);
+			//ETHERTON: Is this where we should test for predicates?
 			int mult = sourceRef.getMultiplicity(depth);
 			Vector<TreeElement> set = new Vector<TreeElement>();
 			
@@ -334,7 +338,36 @@ public class FormInstance implements Persistable, Restorable {
 			}
 	
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
-				expandReference(sourceRef, (TreeElement)e.nextElement(), refs, includeTemplates);
+				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
+				TreeElement treeElement = (TreeElement)e.nextElement();				
+				if(predicates != null)
+				{
+					TreeReference treeRef = treeElement.getRef();
+					boolean passedAll = true;
+					for(XPathExpression xpe : predicates)
+					{
+						//test the predicate on the treeElement
+						EvaluationContext evalContext = new EvaluationContext(new EvaluationContext(), treeRef);
+						Object o = xpe.eval(this, evalContext);
+						if(o instanceof Boolean)
+						{
+							boolean passed = ((Boolean)o).booleanValue();
+							if(!passed)
+							{
+								passedAll = false;
+								break;
+							}
+						}
+					}
+					if(passedAll)
+					{
+						expandReference(sourceRef, treeElement, refs, includeTemplates);
+					}
+				}
+				else
+				{
+					expandReference(sourceRef, treeElement, refs, includeTemplates);
+				}
 			}
 		}
 	}
