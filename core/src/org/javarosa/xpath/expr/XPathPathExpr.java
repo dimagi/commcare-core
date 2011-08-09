@@ -81,7 +81,6 @@ public class XPathPathExpr extends XPathExpression {
 	 *   all '..' steps must come before anything else
 	 */
 	public TreeReference getReference (boolean allowPredicates) throws XPathUnsupportedException {
-		System.out.println("--------------------------------------------");
 		TreeReference ref = new TreeReference();
 		boolean parentsAllowed;
 		switch (init_context) {
@@ -96,16 +95,7 @@ public class XPathPathExpr extends XPathExpression {
 		default: throw new XPathUnsupportedException("filter expression");
 		}
 		for (int i = 0; i < steps.length; i++) {
-			XPathStep step = steps[i];
-			System.out.println("step: " + step);
-			for(int k = 0; k < step.predicates.length; k++)
-			{
-				System.out.println("\tpredicate: "+ step.predicates[k]);
-			}
-			if (!allowPredicates && step.predicates.length > 0) {
-				//throw new XPathUnsupportedException("predicates");
-			}
-						
+			XPathStep step = steps[i];					
 			if (step.axis == XPathStep.AXIS_SELF) {
 				if (step.test != XPathStep.TEST_TYPE_NODE) {
 					throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
@@ -144,11 +134,6 @@ public class XPathPathExpr extends XPathExpression {
 				ref.addPredicate(i, step.predicates);		
 			}
 		}		
-		System.out.println("ref: "+ref);
-		for(int i = 0; i>ref.size(); i++)
-		{
-			System.out.println("\tMultiplicity: "+ref.getMultiplicity(i) + " name: " + ref.getName(i) + " ref Level: " + ref.getRefLevel());
-		}
 		return ref;
 	}
 
