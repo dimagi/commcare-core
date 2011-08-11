@@ -45,7 +45,7 @@ public class CommCareHomeController implements HandledCommandListener {
 
 	public void start() {
 		view = new CommCareHomeScreen(this, suites, current, profile.isFeatureActive(Profile.FEATURE_REVIEW));
-		session.populateMenu(view, "root");
+		session.populateMenu(view, "root", view);
 		view.init();
 		J2MEDisplay.setView(view);
 	}

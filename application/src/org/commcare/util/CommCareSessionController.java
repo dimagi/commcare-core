@@ -57,6 +57,10 @@ public class CommCareSessionController {
 	}
 	
 	public void populateMenu(List list, String menu) {
+		populateMenu(list,menu,null);
+	}
+	
+	public void populateMenu(List list, String menu, MultimediaListener listener) {
 		suiteTable.clear();
 		entryTable.clear();
 		menuTable.clear();
@@ -68,6 +72,10 @@ public class CommCareSessionController {
 					for(String id : m.getCommandIds()) {
 						Entry e = suite.getEntries().get(id);
 						int location = list.append(CommCareUtil.getEntryText(e,suite), MediaUtils.getImage(e.getImageURI()));
+						//TODO: All these multiple checks are pretty sloppy
+						if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
+							listener.registerAudioTrigger(location, e.getAudioURI());
+						}
 						suiteTable.put(new Integer(location),suite);
 						entryTable.put(new Integer(location),e);
 					}

@@ -24,7 +24,7 @@ import de.enough.polish.ui.UiAccess;
  * @date Jan 23, 2009 
  *
  */
-public class CommCareHomeScreen extends List {
+public class CommCareHomeScreen extends CommCareListView {
 	CommCareHomeController controller;
 
 	private boolean isAdmin;
@@ -55,7 +55,7 @@ public class CommCareHomeScreen extends List {
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
-		super(Localization.get("homescreen.title"), List.IMPLICIT);
+		super(Localization.get("homescreen.title"));
 		this.controller = controller;
 		
 		setCommandListener(controller);

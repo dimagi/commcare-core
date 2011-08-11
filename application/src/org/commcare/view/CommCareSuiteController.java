@@ -20,7 +20,7 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public class CommCareSuiteController implements HandledCommandListener {
 
-	CommCareSuiteView view;
+	CommCareListView view;
 	MenuTransitions transitions;
 	CommCareSessionController controller;
 	
@@ -29,7 +29,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 		this.m = m;
 		this.controller = controller;
 		
-		view = new CommCareSuiteView(m.getName().evaluate());
+		view = new CommCareListView(m.getName().evaluate());
 		view.setCommandListener(this);
 	}
 	
@@ -39,7 +39,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 
 	public void start() {
 		view.deleteAll();
-		controller.populateMenu(view, m.getId());
+		controller.populateMenu(view, m.getId(), view);
 		J2MEDisplay.setView(view);
 	}
 
@@ -52,7 +52,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 			controller.chooseSessionItem(view.getSelectedIndex());
 			controller.next();
 		}
-		else if(c.equals(CommCareSuiteView.BACK)) {
+		else if(c.equals(CommCareListView.BACK)) {
 			transitions.exitMenuTransition();
 		}
 	}	
