@@ -3,7 +3,6 @@
  */
 package org.commcare.view;
 
-
 import org.commcare.util.YesNoListener;
 import org.javarosa.core.services.locale.Localization;
 
@@ -11,6 +10,7 @@ import de.enough.polish.ui.Command;
 import de.enough.polish.ui.CommandListener;
 import de.enough.polish.ui.Displayable;
 import de.enough.polish.ui.Form;
+import de.enough.polish.ui.Gauge;
 import de.enough.polish.ui.StringItem;
 
 /**
@@ -24,20 +24,28 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 	
 	private Command yes;
 	private Command no;
+	
+	private Gauge gauge;
 
 	public CommCareStartupInteraction(String message) {
 		super(failSafeText("intro.title", "CommCare"));
-		messageItem = new StringItem(null, message);
+		messageItem = new StringItem(null, null);
+		//#style loadingGauge?
+		gauge = new Gauge(null, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
 		this.append(messageItem);
+		this.append(gauge);
+		gauge.setVisible(false);
 		this.setCommandListener(this);
+		setMessage(message, true);
 	}
 	
-	public void setMessage(String message) {
+	public void setMessage(String message, boolean showSpinner) {
 		this.messageItem.setText(message);
+		gauge.setVisible(showSpinner);
 	}
 	
 	public void AskYesNo(String message, YesNoListener listener) {		
-		messageItem.setText(message);
+		setMessage(message, false);
 		this.listener = listener;
 		if(yes == null) {
 			yes = new Command(failSafeText("yes","Yes"), Command.OK, 0);

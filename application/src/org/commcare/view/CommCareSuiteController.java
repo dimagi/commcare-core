@@ -10,6 +10,7 @@ import javax.microedition.lcdui.List;
 import org.commcare.api.transitions.MenuTransitions;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCareSessionController;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -20,6 +21,9 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public class CommCareSuiteController implements HandledCommandListener {
 
+	public final static Command BACK = new Command(Localization.get("command.back"), Command.BACK, 0);
+
+	
 	CommCareListView view;
 	MenuTransitions transitions;
 	CommCareSessionController controller;
@@ -31,6 +35,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 		
 		view = new CommCareListView(m.getName().evaluate());
 		view.setCommandListener(this);
+		view.addCommand(BACK);
 	}
 	
 	public void setTransitions (MenuTransitions transitions) {
@@ -52,7 +57,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 			controller.chooseSessionItem(view.getSelectedIndex());
 			controller.next();
 		}
-		else if(c.equals(CommCareListView.BACK)) {
+		else if(c.equals(BACK)) {
 			transitions.exitMenuTransition();
 		}
 	}	

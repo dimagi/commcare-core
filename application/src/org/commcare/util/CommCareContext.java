@@ -283,7 +283,7 @@ public class CommCareContext {
 			}
 
 			protected void setMessage(String message) {
-				interaction.setMessage(message);
+				interaction.setMessage(message, true);
 			}
 		};
 		

@@ -21,7 +21,6 @@ import de.enough.polish.ui.List;
  *
  */
 public class CommCareListView extends List implements MultimediaListener {	
-	public final static Command BACK = new Command(Localization.get("command.back"), Command.BACK, 0);
 	
 	private Vector<String> audioLocations = new Vector<String>();
 	
@@ -31,7 +30,6 @@ public class CommCareListView extends List implements MultimediaListener {
 	
 	public CommCareListView(String title, boolean autoSelect, boolean numericNavigation) {
 		super(title, List.IMPLICIT);
-		this.addCommand(BACK);
 		this.choiceGroup = new CustomChoiceGroup(null, ChoiceGroup.IMPLICIT, autoSelect, numericNavigation) {
 			public void playAudio(int index) {
 				if(audioLocations.size() > index && audioLocations.elementAt(index) != null) {
