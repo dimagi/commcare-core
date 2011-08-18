@@ -12,6 +12,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
 import org.javarosa.core.reference.Reference;
+import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * A J2ME File reference is a reference type which refers to a 
@@ -99,7 +100,7 @@ public class J2meFileReference implements Reference
 		return connector.openOutputStream();
 	}
 	
-	private FileConnection connector() throws IOException {
+	protected FileConnection connector() throws IOException {
 		String uri = getLocalURI();
 		
 		synchronized (connections) {
@@ -112,7 +113,6 @@ public class J2meFileReference implements Reference
 				FileConnection connection = (FileConnection) Connector.open(uri);
 				// Store the newly opened connection for reuse.
 				connections.put(uri, connection);
-
 				return connection;
 			}
 		}
