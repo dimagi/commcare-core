@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.io.file.FileConnection;
 import javax.microedition.midlet.MIDlet;
 
 import org.commcare.core.properties.CommCareProperties;
@@ -16,8 +17,10 @@ import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.services.AutomatedSenderService;
+import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -35,6 +38,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -53,6 +57,9 @@ import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
 import org.javarosa.j2me.crypto.util.CryptoSession;
+import org.javarosa.j2me.file.J2meFileReference;
+import org.javarosa.j2me.file.J2meFileRoot;
+import org.javarosa.j2me.file.J2meFileSystemProperties;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
@@ -154,6 +161,9 @@ public class CommCareContext {
 		
 		CommCareInitializer initializer = new CommCareInitializer() {
 			
+			int currentProgress = 0;
+			int block = 0;
+			
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating installation..."));
 				Vector<UnresolvedResourceException> problems = global.verifyInstallation();
@@ -188,18 +198,52 @@ public class CommCareContext {
 			}
 			
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {
+				updateProgress(10);
 				
 				manager = new CommCarePlatform(CommCareUtil.getMajorVersion(), CommCareUtil.getMinorVersion());
 				
 				//Try to initialize and install the application resources...
 				try {
 					ResourceTable global = RetrieveGlobalResourceTable();
-					boolean firstStart = false;
+					global.setStateListener(new TableStateListener() {
+						
+						static final int INSTALL_SCORE = 5; 
+						public void resourceStateUpdated(ResourceTable table) {
+							int score = 0;
+							int max = 0;
+							Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+							max = resources.size() * INSTALL_SCORE;
+							
+							if(max <= INSTALL_SCORE*2) {
+								//Apps have to have at least 1 resource (profile), and won't really work without a suite, and 
+								//we don't want to jump around too much past that, so we won't bother updating the slider until
+								//we've found at least those.
+								return;
+							}
+							
+							for(Resource r : resources) {
+								switch(r.getStatus()) {
+								case Resource.RESOURCE_STATUS_INSTALLED:
+									score += INSTALL_SCORE;
+									break;
+								default:
+									score += 1;
+									break;
+								}
+							}
+							updateProgress(10 + (int)Math.ceil(50 * (score * 1.0 / max)));
+						}
+						
+						public void incrementProgress(int complete, int total) {
+							// TODO Auto-generated method stub
+							updateProgress(currentProgress + (int)Math.ceil(block * (complete * 1.0 / total))); 
+						}
+					});
 					if(global.isEmpty()) {
-						firstStart = true;
 						this.setMessage(CommCareStartupInteraction.failSafeText("commcare.firstload","First start detected, loading resources..."));
 					}
 					manager.init(CommCareUtil.getProfileReference(), global, false);
+					updateProgress(60);
 					
 				} catch (UnfullfilledRequirementsException e) {
 					if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
@@ -231,8 +275,8 @@ public class CommCareContext {
 					throw new RuntimeException(e.getMessage());
 				}
 				
-				
-				
+				currentProgress = 60;
+				block = 30;
 				if(!CommCareUtil.getAppProperty("Skip-Validation","no").equals("yes") && !CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.CONTENT_VALIDATED))) {
 					String failureMessage = this.validate();
 					while(failureMessage != null) {
@@ -248,6 +292,8 @@ public class CommCareContext {
 					}
 					PropertyManager._().setProperty(CommCareProperties.CONTENT_VALIDATED, CommCareProperties.PROPERTY_YES);
 				}
+				
+				updateProgress(90);
 				
 				//When we might initialize language files, we need to make sure it's not trying
 				//to load any of them into memory, since the default ones are not guaranteed to
@@ -268,6 +314,8 @@ public class CommCareContext {
 				
 				//Now we can initialize the language for real.
 				LanguageUtils.initializeLanguage(true,"default");
+
+				updateProgress(95);
 				
 				//We need to let All Localizations register before we can do this
 				J2MEDisplay.init(CommCareContext.this.midlet);
@@ -285,14 +333,56 @@ public class CommCareContext {
 			protected void setMessage(String message) {
 				interaction.setMessage(message, true);
 			}
+			
+			protected void updateProgress(int progress) {
+				interaction.updateProgess(progress);
+			}
 		};
 		
 		initializer.initialize(listener);
 	}
 
+	
 	private void failsafeInit (MIDlet m) {
 		DumpRMS.RMSRecoveryHook(m);
-		new J2MEModule().registerModule();
+		
+		//TODO: Hilarious? Yes. Reasonable? No.
+		
+		//#if !j2merosa.disable.autofile
+		new J2MEModule(new J2meFileSystemProperties() {
+			protected J2meFileRoot root(String root) {
+				return new J2meFileRoot(root) {
+					protected Reference factory(String terminal, String URI) {
+						return new J2meFileReference(localRoot,  terminal) {
+							protected FileConnection connector() throws IOException {
+								try {
+									return super.connector();
+								} catch(SecurityException se) {
+									PeriodicEvent.schedule(new PermissionsEvent());
+									//Should get swallowed
+									throw new IOException("Couldn't access data at " + this.getLocalURI() + " do to lack of permissions.");
+								}
+							}
+						};
+					}
+				};
+			}
+			protected void securityException(SecurityException e) {
+				super.securityException(e);
+				PeriodicEvent.schedule(new PermissionsEvent());
+			}
+		}) {
+			protected void postStorageRegistration() {
+				//immediately after the storage is registered, we want to catch file system events
+				StorageManager.registerStorage(PeriodicEventRecord.STORAGE_KEY, PeriodicEventRecord.class);
+				super.postStorageRegistration();
+			}
+		}.registerModule();
+		//#else
+		//new J2MEModule().registerModule();
+		////Since this is being registered in the fancy module init above
+		//StorageManager.registerStorage(PeriodicEventRecord.STORAGE_KEY, PeriodicEventRecord.class);
+		//#endif
 	}
 	
 	private void initUserFramework() {
@@ -323,7 +413,6 @@ public class CommCareContext {
 	
 	protected void registerAddtlStorage () {
 		//do nothing
-		StorageManager.registerStorage(PeriodicEventRecord.STORAGE_KEY, PeriodicEventRecord.class);
 	}
 	
 	protected void initReferences() {
@@ -411,7 +500,7 @@ public class CommCareContext {
 	}
 	
 	public PeriodicEvent[] getEventDescriptors() {
-		return new PeriodicEvent[] {new TimeMessageEvent()};
+		return new PeriodicEvent[] {new TimeMessageEvent(), new PermissionsEvent()};
 	}
 	
 	

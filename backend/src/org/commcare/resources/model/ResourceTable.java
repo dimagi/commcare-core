@@ -268,7 +268,7 @@ public class ResourceTable {
 				if(!handled) {
 					throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId()); 
 				}
-
+				if(stateListener != null) { stateListener.resourceStateUpdated(this);}
 			}
 			v = GetUnreadyResources();
 		}
@@ -500,15 +500,25 @@ public class ResourceTable {
 	
 	public Vector<UnresolvedResourceException> verifyInstallation() {
 		Vector<UnresolvedResourceException> problems = new Vector<UnresolvedResourceException>();
-		for(Resource r : GetResources()) {
+		Vector<Resource> resources = GetResources();
+		int total = resources.size();
+		int count = 0;
+		for(Resource r : resources) {
 			Vector<UnresolvedResourceException> resIssues = r.getInstaller().verifyInstallation(r);
 			if(resIssues != null) {
 				for(UnresolvedResourceException e : resIssues) {
 					problems.addElement(e);
 				}
 			}
+			count++;
+			if(stateListener != null) {stateListener.incrementProgress(count, total);}
 		}
 		return problems;
 	}
 	
+	TableStateListener stateListener = null;
+	
+	public void setStateListener(TableStateListener listener) {
+		this.stateListener = listener;
+	}
 }

@@ -30,8 +30,7 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 	public CommCareStartupInteraction(String message) {
 		super(failSafeText("intro.title", "CommCare"));
 		messageItem = new StringItem(null, null);
-		//#style loadingGauge?
-		gauge = new Gauge(null, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
+		gauge = new Gauge(null, true, 100,0);
 		this.append(messageItem);
 		this.append(gauge);
 		gauge.setVisible(false);
@@ -71,5 +70,9 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 		} else if(c.equals(no)) {
 			listener.no();
 		}
+	}
+	
+	public void updateProgess(int progress) {
+		this.gauge.setValue(progress);
 	}
 }

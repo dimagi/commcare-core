@@ -255,7 +255,17 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void forceSend() {
+		J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
+			protected SendAllUnsentController getController () {
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
+			}
+
+			public void done() {
+				new CommCareHomeState().start();
+			}
+		});
+
 		//assumes this will cause queued forms to be sent imminently
-		AutomatedSenderService.NotifyPending();
+		//AutomatedSenderService.NotifyPending();
 	}
 }

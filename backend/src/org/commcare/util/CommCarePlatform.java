@@ -182,4 +182,24 @@ public class CommCarePlatform implements CommCareInstance {
 		}
 		return merged;
 	}
+	
+	public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
+		Vector<Resource> unresolved = new Vector<Resource>();
+		Vector<Resource> resolved = new Vector<Resource>();
+		Resource r = master.getResourceWithId(APP_PROFILE_RESOURCE_ID);
+		if(r == null) {
+			return resolved;
+		}
+		unresolved.addElement(r);
+		while(unresolved.size() > 0) {
+			Resource current = unresolved.firstElement();
+			unresolved.removeElement(current);
+			resolved.addElement(current);
+			Vector<Resource> children = master.getResourcesForParent(current.getRecordGuid());
+			for(Resource child : children) {
+				unresolved.addElement(child);
+			}
+		}
+		return resolved;
+	}
 }
