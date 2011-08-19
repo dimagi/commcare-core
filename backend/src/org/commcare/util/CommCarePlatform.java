@@ -35,7 +35,7 @@ import org.javarosa.core.services.storage.StorageManager;
  */
 public class CommCarePlatform implements CommCareInstance {
 	//TODO: We should make this unique using the parser to invalidate this ID or something
-	private static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
+	public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
 	
 	private Vector<Integer> suites;
 	private int profile;
@@ -89,42 +89,40 @@ public class CommCarePlatform implements CommCareInstance {
 		return minorVersion;
 	}
 	
-	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException {
-		if (!global.isReady()) {
-			throw new RuntimeException("The Global Resource Table was not properly made ready");
-		}
-		
+	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
 		Profile current = getCurrentProfile();
-
-		this.upgrade(global, temporary, current.getAuthReference());
+		return stageUpgradeTable(global, temporary, current.getAuthReference());
 	}
 	
-	
-	public void upgrade(ResourceTable global, ResourceTable temporary, String profileReference) throws UnfullfilledRequirementsException {
-
-		if (!global.isReady()) {
-			throw new RuntimeException("The Global Resource Table was not properly made ready");
-		}
-		
+	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable temporary, String profileRef) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
 		//In the future: Continuable upgrades. Now: Clear old upgrade info
 		temporary.clear();
 
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
+		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileRef));
 			
-		//We need a way to identify this version...
 		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 		
+		temporary.addResource(r, temporary.getInstallers().getProfileInstaller(false), null);
+		
+		temporary.prepareResources(global, this, APP_PROFILE_RESOURCE_ID);
+		
+		return temporary;
+
+	}
+	
+	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException {
+
+		if (!global.isReady()) {
+			throw new RuntimeException("The Global Resource Table was not properly made ready");
+		}
+		
 		try {
-			temporary.addResource(r, temporary.getInstallers().getProfileInstaller(false), null);
 			temporary.prepareResources(global, this);
 			global.upgradeTable(temporary);
 			
 			//Not implemented yet!
-			//upgradeTable.destroy();
-		} catch (StorageFullException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Storage Full while trying to upgrade! Bad! Clear some room on the device and try again");
+			temporary.destroy();
 		} catch (UnresolvedResourceException e) {
 			e.printStackTrace();
 			throw new RuntimeException("A Resource couldn't be found while trying to upgrade!");

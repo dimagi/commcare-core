@@ -93,8 +93,9 @@ public abstract class CacheInstaller implements ResourceInstaller<CommCareInstan
 			}
 		}
 		
+		//CTS: The table should be taking care of this for the installer, no need to do it manually
 		//Now remove yourself from the table
-		table.removeResource(r);
+		//table.removeResource(r);
 		
 		return true;
 	}

@@ -189,7 +189,8 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 			if(!reference.isReadOnly()) {
 				reference.remove();
 			}
-			table.removeResource(r);
+			//CTS: The table should take care of this for the installer 
+			//table.removeResource(r);
 			return true;
 		} catch (InvalidReferenceException e) {
 			e.printStackTrace();

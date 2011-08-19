@@ -196,11 +196,36 @@ public class ResourceTable {
 			throw new UnresolvedResourceException(r,"Ran out of space while updating resource definition...");
 		}
 	}
-
+	
+	/**
+	 * Makes all of this table's resources available.
+	 *  
+	 * @param master The global resource to prepare against. Used to establish whether resources need to be fetched
+	 * remotely
+	 * @param instance The instance to prepare against
+	 * 
+	 * @throws UnresolvedResourceException If a resource could not be identified and is required
+	 * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+	 */
 	public void prepareResources(ResourceTable master, CommCareInstance instance) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+		this.prepareResources(master, instance, null);
+	}
+
+	/**
+	 * Makes some (or all) of the table's resources available
+	 *  
+	 * @param master The global resource to prepare against. Used to establish whether resources need to be fetched
+	 * remotely
+	 * @param instance The instance to prepare against
+	 * @param toInitialize The ID of a single resource after which the table preparation can stop.
+	 * 
+	 * @throws UnresolvedResourceException If a resource could not be identified and is required
+	 * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+	 */
+	public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 		Vector<Resource> v = GetUnreadyResources();
 		int round = -1;
-		while (v.size() > 0) {
+		while (v.size() > 0 || (toInitialize != null && this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
 			round++;
 			System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
 			for (Resource r : v) {
@@ -273,6 +298,10 @@ public class ResourceTable {
 			v = GetUnreadyResources();
 		}
 		
+		if(toInitialize != null) {
+			//We will need to run  a full init later, so we can skip the next step
+			return;
+		}
 		//Wipe out any resources which are still pending. If they weren't updated by their 
 		//parent, they aren't relevant.
 		for(Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
@@ -382,7 +411,7 @@ public class ResourceTable {
 	
 	public void destroy() {
 		clear();
-		storage.destroy();
+		//storage.destroy();
 	}
 	
 	public void clear() {

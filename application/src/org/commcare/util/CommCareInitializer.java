@@ -26,7 +26,7 @@ public abstract class CommCareInitializer implements Runnable {
 		this.listener = listener;
 		HandledThread t = new HandledThread(this);
 		listener.setInitThread(t);
-		t.run();
+		t.start();
 	}
 	
 	protected abstract boolean runWrapper() throws UnfullfilledRequirementsException;
@@ -51,9 +51,13 @@ public abstract class CommCareInitializer implements Runnable {
 	
 	protected abstract void setMessage(String message);
 	
-	protected abstract void askForResponse(String message, YesNoListener listener);
+	protected abstract void askForResponse(String message, YesNoListener listener, boolean yesNo);
 	
 	protected boolean blockForResponse(String message) {
+		return this.blockForResponse(message, true);
+	}
+	
+	protected boolean blockForResponse(String message, boolean yesNo) {
 		response = RESPONSE_NONE;
 		askForResponse(message,  new YesNoListener() {
 			public void no() {
@@ -63,7 +67,7 @@ public abstract class CommCareInitializer implements Runnable {
 				CommCareInitializer.this.response = CommCareInitializer.RESPONSE_YES;
 			}
 			
-		});
+		}, yesNo);
 		while(response == RESPONSE_NONE);
 		return response == RESPONSE_YES;
 	}

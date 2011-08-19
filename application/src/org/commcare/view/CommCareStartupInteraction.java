@@ -25,9 +25,15 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 	private Command yes;
 	private Command no;
 	
+	private Command cancel;
+	
 	private Gauge gauge;
-
+	
 	public CommCareStartupInteraction(String message) {
+		this(message, false);
+	}
+
+	public CommCareStartupInteraction(String message, boolean cancelable) {
 		super(failSafeText("intro.title", "CommCare"));
 		messageItem = new StringItem(null, null);
 		gauge = new Gauge(null, true, 100,0);
@@ -53,7 +59,16 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 			this.addCommand(yes);
 			this.addCommand(no);
 		}
-		
+	}
+	
+	public void PromptResponse(String message, YesNoListener listener) {
+		setMessage(message, false);
+		this.listener = listener;
+		if(yes == null) {
+			yes = new Command(failSafeText("ok","OK"), Command.OK, 0);
+			
+			this.addCommand(yes);
+		}
 	}
 	
 	public static String failSafeText(String localeId, String fallback) {
@@ -70,9 +85,17 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 		} else if(c.equals(no)) {
 			listener.no();
 		}
+		clearCommands();
 	}
 	
 	public void updateProgess(int progress) {
 		this.gauge.setValue(progress);
+	}
+
+	private void clearCommands() {
+		this.removeCommand(yes);
+		yes = null;
+		this.removeCommand(no);
+		no = null;
 	}
 }

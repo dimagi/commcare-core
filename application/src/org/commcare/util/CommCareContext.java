@@ -326,8 +326,13 @@ public class CommCareContext {
 				return true;
 			}
 
-			protected void askForResponse(String message, YesNoListener yesNoListener) {
-				interaction.AskYesNo(message,yesNoListener);
+			protected void askForResponse(String message, YesNoListener yesNoListener, boolean yesNo) {
+				if(yesNo) {
+					interaction.AskYesNo(message,yesNoListener);
+				} else { 
+					interaction.PromptResponse(message, yesNoListener);
+				}
+
 			}
 
 			protected void setMessage(String message) {

@@ -6,15 +6,22 @@ package org.commcare.applogic;
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.RecentFormEntity;
-import org.commcare.services.AutomatedSenderService;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
+import org.commcare.util.CommCareInitializer;
+import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.InitializationListener;
+import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareHomeController;
+import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
@@ -24,9 +31,9 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
@@ -213,11 +220,84 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void upgrade() {
-		try {
-			CommCareContext._().getManager().upgrade(CommCareContext.RetrieveGlobalResourceTable(), CommCareContext.CreateTemporaryResourceTable("UPGRADGE"));
-		} catch (UnfullfilledRequirementsException e) {
-			J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
-		}
+		final CommCareStartupInteraction interaction  = new CommCareStartupInteraction("Checking for updates....");
+		J2MEDisplay.setView(interaction);
+		
+		CommCareInitializer upgradeInitializer = new CommCareInitializer() {
+
+			protected boolean runWrapper() throws UnfullfilledRequirementsException {
+				
+				ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable("UPGRADGE");
+				ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
+				
+				boolean staged = false;
+				
+				while(!staged) {
+					try {
+						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade);
+						staged = true;
+					} catch (StorageFullException e) {
+						Logger.die("Upgrade", e);
+					} catch (UnresolvedResourceException e) {
+						if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
+							//loop here
+						} else {
+							return false;
+						}
+					}
+				}
+				
+				Resource updateProfile = upgrade.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+				
+				Resource currentProfile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+				
+				if(!(updateProfile.getVersion() > currentProfile.getVersion())){
+					blockForResponse("CommCare is up to date!", false);
+					return true;
+				}
+				if(!blockForResponse("Upgrade is Available! Do you want to start the update?")) {
+					return true;
+				}
+				
+				setMessage("Updating Installation...");
+				CommCareContext._().getManager().upgrade(global, upgrade);
+				
+				blockForResponse("CommCare Updated!", false);
+				return true;
+			}
+
+			protected void setMessage(String message) {
+				interaction.setMessage(message,true);
+			}
+
+			protected void askForResponse(String message, YesNoListener listener, boolean yesNo) {
+				interaction.setMessage(message,false);
+				if(yesNo) {
+					interaction.AskYesNo(message, listener);
+				} else { 
+					interaction.PromptResponse(message, listener);
+				}
+			}
+			
+			protected void fail(Exception e) {
+				Logger.exception(e);
+				blockForResponse("An error occured during the upgrade!", false);
+				CommCareUtil.launchHomeState();
+			}
+		};
+		
+		upgradeInitializer.initialize(new InitializationListener() {
+
+			public void onSuccess() {
+				CommCareUtil.launchHomeState();
+			}
+
+			public void onFailure() {
+				CommCareUtil.launchHomeState();
+			}
+			
+		});
+		//J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
 	}
 	
 	public void rmsdump () {
