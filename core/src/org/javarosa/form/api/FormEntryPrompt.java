@@ -131,8 +131,12 @@ public class FormEntryPrompt extends FormEntryCaption {
 	    					break;
 	    				}
 	    			}
-	    			
-	    			selection.addElement(choice.selection());
+	    			//if it's a dynamic question, then there's a good choice what they selected last time
+	    			//will no longer be an option this go around
+	    			if(choice != null)
+	    			{
+	    				selection.addElement(choice.selection());
+	    			}
 	    		}
 	    		
 	    		//convert to IAnswerData
