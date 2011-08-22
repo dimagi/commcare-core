@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.BooleanData;
@@ -92,6 +93,29 @@ public class XPathPathExpr extends XPathExpression {
 			ref.setRefLevel(0);
 			parentsAllowed = true;
 			break;
+		case XPathPathExpr.INIT_CONTEXT_EXPR:
+			ref.setRefLevel(TreeReference.REF_ABSOLUTE); //i assume when refering the non main instance you have to be absolute
+			if (this.filtExpr.x != null && this.filtExpr.x instanceof XPathFuncExpr)
+			{
+				XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
+				if(func.id.toString().equals("instance"))
+				{
+					if(func.args.length != 1)
+					{
+						throw new XPathUnsupportedException("instance() function used with "+func.args.length+ " arguements. Expecting 1 arguement");
+					}
+					if(!(func.args[0] instanceof XPathStringLiteral))
+					{
+						throw new XPathUnsupportedException("instance() function expecting 1 string literal arguement arguement");
+					}
+					XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
+					//we've got a non-standard instance in play, watch out
+					ref.setInstanceName(strLit.s);
+				}				
+			}
+			
+			parentsAllowed = false;
+			break;
 		default: throw new XPathUnsupportedException("filter expression");
 		}
 		for (int i = 0; i < steps.length; i++) {
@@ -137,8 +161,26 @@ public class XPathPathExpr extends XPathExpression {
 		return ref;
 	}
 
-	public XPathNodeset eval (FormInstance m, EvaluationContext evalContext) {
+	public XPathNodeset eval (FormInstance m, EvaluationContext evalContext) {		
 		TreeReference genericRef = getReference();
+		//check if this nodeset refers to a non-main instance
+		if(genericRef.getInstanceName() != null && genericRef.isAbsolute())
+		{
+			FormInstance nonMain = FormInstance.getNonMainInstance(genericRef.getInstanceName());
+			if(nonMain != null)
+			{
+				m = nonMain;
+			}
+			else
+			{
+				throw new XPathTypeMismatchException("Instance referenced by " + genericRef + " does not exists");
+			}
+		}
+		//check if it implicitly refers to the main instance
+		else if(genericRef.getInstanceName() == null && genericRef.isAbsolute())
+		{
+			m = FormInstance.getMainInstance();
+		}
 		if (genericRef.isAbsolute() && m.getTemplatePath(genericRef) == null) {
 			throw new XPathTypeMismatchException("Node " + genericRef.toString() + " does not exist!");
 		}
