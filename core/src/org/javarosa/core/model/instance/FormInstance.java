@@ -72,8 +72,13 @@ public class FormInstance implements Persistable, Restorable {
 	public String uiVersion;
 	
 	private Hashtable namespaces = new Hashtable();
+	
+	private static  Vector<FormInstance> nonMainInstances = new Vector<FormInstance>();
+	private static Vector<String> nonMainInstancesNamesToIndex = new Vector<String>();
+	private static FormInstance mainInstance = null;
 
 	public FormInstance() {
+		
 	}
 
 	/**
@@ -85,8 +90,60 @@ public class FormInstance implements Persistable, Restorable {
 	public FormInstance(TreeElement root) {
 		setID(-1);
 		setFormId(-1);
-		setRoot(root);
+		setRoot(root);	
 	}
+	
+	
+	/**
+	 * Getters and setters for the vectors tha
+	 */
+	public static void addNonMainInstance(FormInstance instance)
+	{
+		nonMainInstancesNamesToIndex.add(instance.getName());
+		nonMainInstances.add(instance);
+	}
+	
+	public static FormInstance getNonMainInstance(int i)
+	{
+		return nonMainInstances.get(i);
+	}
+	
+	public static FormInstance getNonMainInstance(String name)
+	{
+		int i = nonMainInstancesNamesToIndex.indexOf(name);
+		if(i == -1)
+		{
+			return null;
+		}
+		try
+		{
+			return nonMainInstances.get(i);
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Set the main instance
+	 * @param fi
+	 */
+	public static void setMainInstance(FormInstance fi)
+	{
+		mainInstance = fi;
+	}
+	
+	/**
+	 * Get the main instance
+	 * @return
+	 */
+	public static FormInstance getMainInstance()
+	{
+		return mainInstance;
+	}
+	
+	
 
 	/**
 	 * Sets the root element of this Model's tree
@@ -377,7 +434,7 @@ public class FormInstance implements Persistable, Restorable {
 	// assumes templates are built correctly and obey all data model validity rules
 	public TreeElement getTemplate(TreeReference ref) {
 		TreeElement node = getTemplatePath(ref);
-		return (node == null ? null : node.repeatable ? node : null);
+		return (node == null ? null : ((node.repeatable || node.isAttribute) ? node : null));
 	}
 
 	public TreeElement getTemplatePath(TreeReference ref) {
@@ -763,6 +820,16 @@ public class FormInstance implements Persistable, Restorable {
 		}
 		
 		return cloned;
+	}
+	
+	public String toString()
+	{
+		String name = "NULL";
+		if(this.name != null)
+		{
+			name = this.name;
+		}
+		return name;
 	}
 	
 }
