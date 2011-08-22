@@ -69,7 +69,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         if (!(element instanceof QuestionDef)) {
         	throw new IllegalArgumentException("FormEntryPrompt can only be created for QuestionDef elements");
         }
-        this.mTreeElement = form.getInstance().resolveReference(index.getReference());
+        this.mTreeElement = form.getMainInstance().resolveReference(index.getReference());
     }
 
     public int getControlType() {
@@ -99,10 +99,10 @@ public class FormEntryPrompt extends FormEntryCaption {
 	    		//determine which selections are already present in the answer
 	    		if (itemset.copyMode) {
 	    			TreeReference destRef = itemset.getDestRef().contextualize(mTreeElement.getRef());
-	    			Vector<TreeReference> subNodes = form.getInstance().expandReference(destRef);
+	    			Vector<TreeReference> subNodes = form.getMainInstance().expandReference(destRef);
 	    			for (int i = 0; i < subNodes.size(); i++) {
-	    				TreeElement node = form.getInstance().resolveReference(subNodes.elementAt(i));
-    					String value = itemset.getRelativeValue().evalReadable(form.getInstance(), new EvaluationContext(form.exprEvalContext, node.getRef()));
+	    				TreeElement node = form.getMainInstance().resolveReference(subNodes.elementAt(i));
+    					String value = itemset.getRelativeValue().evalReadable(form.getMainInstance(), new EvaluationContext(form.exprEvalContext, node.getRef()));
     					preselectedValues.addElement(value);
 	    			}
 	    		} else {
@@ -209,7 +209,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         		ec.isConstraint = true;
         		ec.candidateValue = attemptedValue;
         	}
-            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getInstance());
+            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance());
         }
     }
 
@@ -372,7 +372,7 @@ public class FormEntryPrompt extends FormEntryCaption {
 		//We could hide it by dispatching hints through a final abstract class instead.
 		Constraint c =  mTreeElement.getConstraint();
 		if(c != null) {
-			hint.init(new EvaluationContext(form.exprEvalContext, mTreeElement.getRef()), c.constraint, this.form.getInstance());
+			hint.init(new EvaluationContext(form.exprEvalContext, mTreeElement.getRef()), c.constraint, this.form.getMainInstance());
 		} else {
 			//can't pivot what ain't there.
 			throw new UnpivotableExpressionException();
