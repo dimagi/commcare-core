@@ -45,7 +45,10 @@ public class TreeReference implements Externalizable {
 	private Vector multiplicity; //Vector<Integer>
 	//private Vector<XPathExpression> predicates; //Vector<XPathExpression>
 	private HashMap<Integer, XPathExpression[]> predicates;
+	private FormInstance instance = null;
+	private String instanceName = null;
 	
+
 	public static TreeReference rootRef () {
 		TreeReference root = new TreeReference();
 		root.refLevel = REF_ABSOLUTE;
@@ -62,6 +65,24 @@ public class TreeReference implements Externalizable {
 		names = new Vector(0);
 		multiplicity = new Vector(0);		
 		predicates = new HashMap<Integer, XPathExpression[]>();
+		instance = null; //null means the default instance
+		instanceName = null; //dido
+	}
+	
+	public String getInstanceName() {
+		return instanceName;
+	}
+
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
+	}
+
+	public FormInstance getInstance() {
+		return instance;
+	}
+
+	public void setInstance(FormInstance instance) {
+		this.instance = instance;
 	}
 	
 	public int getMultiplicity(int index) {
@@ -144,6 +165,15 @@ public class TreeReference implements Externalizable {
 		for(int i : predicates.keySet())
 		{
 			newRef.addPredicate(i, predicates.get(i));
+		}
+		//copy instances
+		if(instanceName != null)
+		{
+			newRef.setInstanceName(instanceName);
+		}
+		if(instance != null)
+		{
+			newRef.setInstance(instance);
 		}
 		return newRef;
 	}
@@ -376,6 +406,10 @@ public class TreeReference implements Externalizable {
 	
 	public String toString (boolean includePredicates) {
 		StringBuffer sb = new StringBuffer();
+		if(instanceName != null)
+		{
+			sb.append("instance("+instanceName+")");
+		}
 		if (isAbsolute()) {
 			sb.append("/");
 		} else {
