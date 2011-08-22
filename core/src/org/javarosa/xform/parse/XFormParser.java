@@ -116,7 +116,9 @@ public class XFormParser {
 	private Vector<ItemsetBinding> itemsets;
 	private Vector<TreeReference> selectOnes;
 	private Vector<TreeReference> selectMultis;
-	private Element instanceNode; //top-level data node of the instance; saved off so it can be processed after the <bind>s
+	private Element mainInstanceNode; //top-level data node of the instance; saved off so it can be processed after the <bind>s
+	private Vector<Element> instanceNodes; 
+	private Vector<String> instanceNodeIdStrs;
 	private String defaultNamespace;
 	private Vector<String> itextKnownForms;
 	
@@ -227,7 +229,9 @@ public class XFormParser {
 		itemsets = new Vector<ItemsetBinding>();
 		selectOnes = new Vector<TreeReference>();
 		selectMultis = new Vector<TreeReference>();
-		instanceNode = null;
+		mainInstanceNode = null;
+		instanceNodes = new Vector<Element>();
+		instanceNodeIdStrs = new Vector<String>();
 		repeatTree = null;
 		defaultNamespace = null;
 		
@@ -316,9 +320,29 @@ public class XFormParser {
 		parseElement(_xmldoc.getRootElement(), _f, topLevelHandlers);
 		collapseRepeatGroups(_f);
 		
-		if(instanceNode != null) {
-			parseInstance(instanceNode);
+		//parse the non-main instance nodes first
+		//we assume that the non-main instances won't
+		//reference the main node, so we do them first.
+		//if this assumption is wrong, well, then we're screwed.
+		if(instanceNodes.size() > 1)
+		{
+			for(int i = 1; i < instanceNodes.size(); i++)
+			{
+				Element e = instanceNodes.get(i);
+				FormInstance fi = parseInstance(e, false);
+				_f.addInstance(fi);
+				FormInstance.addNonMainInstance(fi);
+			}
 		}
+		//now parse the main instance
+		if(mainInstanceNode != null) {
+			FormInstance fi = parseInstance(mainInstanceNode, true);
+			addMainInstanceToFormDef(mainInstanceNode, fi);
+			
+			//set the main instance
+			FormInstance.setMainInstance(fi);
+		}
+		
 	}
 
 	private void parseElement (Element e, Object parent, Hashtable<String, IElementHandler> handlers) { //,
@@ -514,11 +538,10 @@ public class XFormParser {
 	}
 
 	private void saveInstanceNode (Element instance) {
-		if (instanceNode != null) {
-			System.err.println("Multiple instances not supported. Ignoring subsequent instances." + getVagueLocation(instance));
-			return;
-		}
-			
+		Element instanceNode = null;
+		String instanceId = instance.getAttributeValue("", "id");
+		System.out.println("======================================= " + instanceId + " =======================================");
+		
 		for (int i = 0; i < instance.getChildCount(); i++) {
 			if (instance.getType(i) == Node.ELEMENT) {
 				if (instanceNode != null) {
@@ -528,6 +551,17 @@ public class XFormParser {
 				}
 			}
 		}
+		
+		
+		if (mainInstanceNode == null) {
+			mainInstanceNode = instanceNode;
+		}
+		
+		instanceNodes.add(instanceNode);
+		instanceNodeIdStrs.add(instanceId);
+		
+			
+		
 	}
 	
 	protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
@@ -1106,7 +1140,7 @@ public class XFormParser {
 	private TreeReference getFormElementRef (IFormElement fe) {
 		if (fe instanceof FormDef) {
 			TreeReference ref = TreeReference.rootRef();
-			ref.add(instanceNode.getName(), 0);
+			ref.add(mainInstanceNode.getName(), 0);
 			return ref;
 		} else {
 			return (TreeReference)fe.getBind().getReference();	
@@ -1511,10 +1545,31 @@ public class XFormParser {
 	}
 		
 	//e is the top-level _data_ node of the instance (immediate (and only) child of <instance>)
-	private void parseInstance (Element e) {
+	private void addMainInstanceToFormDef(Element e, FormInstance instanceModel) {
+		TreeElement root = buildInstanceStructure(e, null);
+		loadInstanceData(e, root, _f);
+		
+		checkDependencyCycles();
+		_f.setMainInstance(instanceModel);
+		_f.finalizeTriggerables();		
+		
+		//print unused attribute warning message for parent element
+		//if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
+		//	System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+		//}
+	}
+	
+	private FormInstance parseInstance (Element e, boolean isMainInstance) {
 		TreeElement root = buildInstanceStructure(e, null);
 		FormInstance instanceModel = new FormInstance(root);
-		instanceModel.setName(_f.getTitle());
+		if(isMainInstance)
+		{
+			instanceModel.setName(_f.getTitle());
+		}
+		else
+		{
+			instanceModel.setName(instanceNodeIdStrs.get(instanceNodes.indexOf(e)));
+		}
 		
 		Vector usedAtts = new Vector();
 		usedAtts.addElement("version");
@@ -1528,21 +1583,22 @@ public class XFormParser {
 		instanceModel.uiVersion = e.getAttributeValue(null, "uiVersion");
 		
 		loadNamespaces(e, instanceModel);
-			
-		processRepeats(instanceModel);
-		verifyBindings(instanceModel);
+		if(isMainInstance)
+		{
+			processRepeats(instanceModel);
+			verifyBindings(instanceModel);
+		}
 		applyInstanceProperties(instanceModel);
-		loadInstanceData(e, root, _f);
-		
-		checkDependencyCycles();
-		_f.setInstance(instanceModel);
-		_f.finalizeTriggerables();		
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
 			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
 		}
+		
+		return instanceModel;
 	}
+	
+	
 	
 	private static Hashtable<String, String> loadNamespaces(Element e, FormInstance tree) {
 		Hashtable<String, String> prefixes = new Hashtable<String, String>();
@@ -1719,6 +1775,11 @@ public class XFormParser {
 		
 		for (int i = 0; i < repeatRefs.size(); i++) {
 			TreeReference repeatRef = repeatRefs.elementAt(i);
+			//check and see if this references a repeat from a non-main instance, if so, skip it
+			if(repeatRef.getInstanceName() != null)
+			{
+				continue;
+			}
 			if (repeatRef.size() <= 1) {
 				//invalid repeat: binds too high. ignore for now and error will be raised in verifyBindings
 				continue;
@@ -1911,7 +1972,7 @@ public class XFormParser {
 			TreeReference ref = refs.elementAt(i);
 			
 			if (ref.size() <= 1) {
-				throw new XFormParseException("Cannot bind repeat to '/' or '/" + instanceNode.getName() + "'");
+				throw new XFormParseException("Cannot bind repeat to '/' or '/" + mainInstanceNode.getName() + "'");
 			}
 		}
 
@@ -2034,12 +2095,35 @@ public class XFormParser {
 				throw new XFormParseException("itemset nodeset ref is not a parent of value ref");
 			}
 
-			//check label/value/copy nodes exist
-			if (instance.getTemplatePath(itemset.labelRef) == null) {
+			//make sure the labelref is tested against the right instance
+			//check if it's not the main instance
+			FormInstance fi = null;
+			if(itemset.labelRef.getInstanceName()!= null)
+			{
+				fi = _f.getInstance(itemset.labelRef.getInstanceName());
+				if(fi == null)
+				{
+					throw new XFormParseException("Instance: "+ itemset.labelRef.getInstanceName() + " Does not exists");
+				}
+				itemset.labelRef.setInstance(fi);
+			}
+			else
+			{
+				fi = _f.getInstance(itemset.labelRef.getInstanceName());
+			}
+
+			
+			if(fi.getTemplate(itemset.labelRef) == null)
+			{
 				throw new XFormParseException("<label> node for itemset doesn't exist! [" + itemset.labelRef + "]");
-			} else if (itemset.copyRef != null && instance.getTemplatePath(itemset.copyRef) == null) {
+			}
+			/****  NOT SURE WHAT A COPYREF DOES OR IS, SO I'M NOT CHECKING FOR IT
+			else if (itemset.copyRef != null && instance.getTemplatePath(itemset.copyRef) == null) {
 				throw new XFormParseException("<copy> node for itemset doesn't exist! [" + itemset.copyRef + "]");
-			} else if (itemset.valueRef != null && instance.getTemplatePath(itemset.valueRef) == null) {
+			} 
+			****/
+			//check value nodes exist
+			else if (itemset.valueRef != null && fi.getTemplatePath(itemset.valueRef) == null) {
 				throw new XFormParseException("<value> node for itemset doesn't exist! [" + itemset.valueRef + "]");
 			}
 		}
@@ -2291,7 +2375,7 @@ public class XFormParser {
 	 */
 	public static void loadXmlInstance(FormDef f, Document xmlInst) {
         TreeElement savedRoot = XFormParser.restoreDataModel(xmlInst, null).getRoot();
-        TreeElement templateRoot = f.getInstance().getRoot().deepCopy(true);
+        TreeElement templateRoot = f.getMainInstance().getRoot().deepCopy(true);
 
         // weak check for matching forms
         // TODO: should check that namespaces match?
@@ -2305,7 +2389,7 @@ public class XFormParser {
 	    templateRoot.populate(savedRoot, f);
 
 	    // populated model to current form
-	    f.getInstance().setRoot(templateRoot);
+	    f.getMainInstance().setRoot(templateRoot);
       
 	    // if the new instance is inserted into the formdef before f.initialize() is called, this
 	    // locale refresh is unnecessary
