@@ -83,6 +83,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	
 	private String namespace;
 	
+	private String instanceName = null;
 	
 	/**
 	 * TreeElement with null name and 0 multiplicity? (a "hidden root" node?)
@@ -124,6 +125,16 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 	public boolean isChildable() {
 		return (value == null);
+	}
+	
+	
+
+	public String getInstanceName() {
+		return instanceName;
+	}
+
+	public void setInstanceName(String instanceName) {
+		this.instanceName = instanceName;
 	}
 
 	public void setValue(IAnswerData value) {
@@ -866,7 +877,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 				if (child.repeatable) {
 				    for (int k = 0; k < newChildren.size(); k++) {
-				    	TreeElement template = f.getInstance().getTemplate(child.getRef());
+				    	TreeElement template = f.getMainInstance().getTemplate(child.getRef());
 				        TreeElement newChild = template.deepCopy(false);
 				        newChild.setMult(k);
 				        this.children.insertElementAt(newChild, i + k + 1);
@@ -963,6 +974,26 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	
 	public IAnswerData getValue() {
 		return value;
+	}
+	
+	/**
+	 * Because I'm tired of not knowing what a TreeElement object has just by looking at it.
+	 */
+	public String toString()
+	{
+		String name = "NULL";
+		if(this.name != null)
+		{
+			name = this.name;
+		}
+		
+		String childrenCount = "-1";
+		if(this.children != null)
+		{
+			childrenCount = Integer.toString(this.children.size());
+		}
+		
+		return name + " - Children: " + childrenCount;
 	}
 
 }
