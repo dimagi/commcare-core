@@ -16,6 +16,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -64,7 +65,7 @@ public class CommCarePlatform implements CommCareInstance {
 			if (profile == null) {
 
 				Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-				locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileReference));
+				locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 				
 				//We need a way to identify this version...
 				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
@@ -99,7 +100,7 @@ public class CommCarePlatform implements CommCareInstance {
 		temporary.clear();
 
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileRef));
+		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 			
 		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
 		
@@ -124,7 +125,7 @@ public class CommCarePlatform implements CommCareInstance {
 			//Not implemented yet!
 			temporary.destroy();
 		} catch (UnresolvedResourceException e) {
-			e.printStackTrace();
+			Logger.exception(e);
 			throw new RuntimeException("A Resource couldn't be found while trying to upgrade!");
 		}
 		profile = -1;

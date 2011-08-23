@@ -113,7 +113,7 @@ public class ProfileParser extends ElementParser<Profile> {
 					} else if (parser.getName().toLowerCase().equals("login")) {
 						//Get the resource block or fail out
 						getNextTagInBlock("login");
-						Resource resource = new ResourceParser(parser).parse();
+						Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
 						table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId,initialResourceStatus);
 					} else if (parser.getName().toLowerCase().equals("features")) {
 						while(nextTagInBlock("features")) {
@@ -156,7 +156,7 @@ public class ProfileParser extends ElementParser<Profile> {
 					} else if (parser.getName().toLowerCase().equals("suite")) {
 						// Get the resource block or fail out
 						getNextTagInBlock("suite");
-						Resource resource = new ResourceParser(parser).parse();
+						Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
 						
 						//TODO: Possibly add a real parent reference if we decide these go in the table
 						table.addResource(resource, table.getInstallers().getSuiteInstaller(), resourceId, initialResourceStatus);
@@ -189,6 +189,11 @@ public class ProfileParser extends ElementParser<Profile> {
 			//instead? Or maybe there should be a more general Resource Management Exception?
 			throw new InvalidStructureException("Problem storing parser suite XML",parser);
 		}
+	}
+
+	int maximumResourceAuthority = -1;
+	public void setMaximumAuthority(int authority) {
+		maximumResourceAuthority = authority;
 	}
 
 }

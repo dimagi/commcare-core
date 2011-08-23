@@ -100,6 +100,9 @@ public class ProfileInstaller extends CacheInstaller {
 		} else {
 			ProfileParser parser = new ProfileParser(ref.getStream(), instance, table, r.getRecordGuid(), 
 					upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
+				if(Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
+					parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
+				}
 				Profile p = parser.parse();
 				
 				//If we're upgrading we need to come back and see if the statuses need to change

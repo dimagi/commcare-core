@@ -50,6 +50,9 @@ public class SuiteInstaller extends CacheInstaller {
 		} else {
 			try {
 				SuiteParser parser = new SuiteParser(ref.getStream(), table, r.getRecordGuid());
+				if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
+					parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
+				}
 				Suite s = parser.parse();
 				storage().write(s);
 				cacheLocation = s.getID();

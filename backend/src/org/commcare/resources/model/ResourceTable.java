@@ -225,7 +225,7 @@ public class ResourceTable {
 	public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize) throws UnresolvedResourceException, UnfullfilledRequirementsException {
 		Vector<Resource> v = GetUnreadyResources();
 		int round = -1;
-		while (v.size() > 0 || (toInitialize != null && this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
+		while (v.size() > 0 && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
 			round++;
 			System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
 			for (Resource r : v) {

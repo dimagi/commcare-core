@@ -70,19 +70,19 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	String localeKey = parser.getAttributeValue(null, "language");
                 	//resource def
                 	parser.nextTag();
-                	Resource r = new ResourceParser(parser).parse();
+                	Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
                 	table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("media")) {
                 	String path = parser.getAttributeValue(null, "path");
                 	//Can be an arbitrary number of resources inside of a media block.
                 	while(this.nextTagInBlock("media")) {
-                		Resource r = new ResourceParser(parser).parse();
+                		Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
                     	table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);	
                 	}
                 } else if(parser.getName().toLowerCase().equals("xform")) {
                 	//skip xform stuff for now
                 	parser.nextTag();
-                	Resource r = new ResourceParser(parser).parse();
+                	Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
                 	table.addResource(r,table.getInstallers().getXFormInstaller(), resourceGuid);
                 } else if(parser.getName().toLowerCase().equals("detail")) {
                 	Detail d = new DetailParser(parser).parse();
@@ -119,6 +119,10 @@ public class SuiteParser extends ElementParser<Suite>  {
 			//instead? Or maybe there should be a more general Resource Management Exception?
 			throw new InvalidStructureException("Problem storing parser suite XML",parser);
 		}
+	}
+	int maximumResourceAuthority = -1;
+	public void setMaximumAuthority(int authority) {
+		maximumResourceAuthority = authority;
 	}
 
 }

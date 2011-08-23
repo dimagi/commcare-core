@@ -20,6 +20,7 @@ import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
@@ -116,15 +117,11 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 				String uri = ref.getURI();
 				int lastslash = uri.lastIndexOf('/');
 				//Now we have a local part reference
-				uri = uri.substring(lastslash == -1 ? 0 : lastslash);
+				uri = uri.substring(lastslash == -1 ? 0 : lastslash + 1);
 				int copy = 0; 
 				
 				try {
 					Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
-					if(destination.isReadOnly()) {
-						return cache(incoming, r, table);
-						
-					}
 					while(destination.doesBinaryExist()) {
 						//Need a different location.
 						copy++;
@@ -132,6 +129,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 						destination = ReferenceManager._().DeriveReference("jr://file/" + newUri);
 					}
 					
+					if(destination.isReadOnly()) {
+						return cache(incoming, r, table);	
+					}
 					//destination is now a valid local reference, so we can store the file there.
 					
 					OutputStream output = destination.getOutputStream();
@@ -150,7 +150,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					return cache(incoming, r, table);
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.exception(e);
 				return false; 
 			}
 			

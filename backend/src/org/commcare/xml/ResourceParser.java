@@ -11,8 +11,11 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public class ResourceParser extends ElementParser<Resource> {
 	
-	public ResourceParser(KXmlParser parser) {
+	int maximumAuthority;
+	
+	public ResourceParser(KXmlParser parser, int maximumAuthority) {
 		super(parser);
+		this.maximumAuthority = maximumAuthority;
 	}
 
 	public Resource parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -34,8 +37,10 @@ public class ResourceParser extends ElementParser<Resource> {
 			else if(sAuthority.toLowerCase().equals("remote")) {
 				authority = Resource.RESOURCE_AUTHORITY_REMOTE;
 			}
-			
-			locations.addElement(new ResourceLocation(authority, location));
+			//Don't use any authorities which are outside of the scope of the maximum
+			if(authority >= maximumAuthority) {
+				locations.addElement(new ResourceLocation(authority, location));
+			}
 		}
 		
 		return new Resource(version, id, locations);
