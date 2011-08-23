@@ -12,6 +12,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
@@ -94,6 +95,9 @@ public class J2meFileReference implements Reference
 		FileConnection connector = connector();
 		if(!connector.exists()) {
 			connector.create();
+			if(!connector.exists()) {
+				throw new IOException("File still doesn't exist at  " + this.getLocalURI() + " after create worked succesfully. Reference is probably incorrect");
+			}
 		} else {
 			//TODO: Delete exist file, maybe? Probably....
 		}
