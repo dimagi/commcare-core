@@ -85,9 +85,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	//the list, where tA comes before tB, evaluating tA cannot depend on any result from evaluating tB
 	private boolean triggerablesInOrder; //true if triggerables has been ordered topologically (DON'T DELETE ME EVEN THOUGH I'M UNUSED)
 	
-	private FormInstance mainInstance;
-	private Vector<FormInstance> instances;
-	private Vector<String> instancesNamesToIndex;
+
 	private Vector outputFragments; // <IConditionExpr> contents of <output>
 	// tags that serve as parameterized
 	// arguments to captions
@@ -107,6 +105,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
 	private Hashtable<String,SubmissionProfile> submissionProfiles;
 
+	/** For keeping track of the instances as now, there can be more than one**/
+	private static  Vector<FormInstance> nonMainInstances = new Vector<FormInstance>();
+	private static Vector<String> nonMainInstancesNamesToIndex = new Vector<String>();
+	private static FormInstance mainInstance = null;
+
+
 	/**
 	 * 
 	 */
@@ -119,8 +123,85 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		setEvaluationContext(new EvaluationContext());
 		outputFragments = new Vector();
 		submissionProfiles = new Hashtable<String, SubmissionProfile>();
-		instances = new Vector<FormInstance>();
-		instancesNamesToIndex = new Vector<String>();
+	}
+	
+	
+	
+	
+
+	/**
+	 * Getters and setters for the vectors tha
+	 */
+	public static void addNonMainInstance(FormInstance instance)
+	{
+		nonMainInstancesNamesToIndex.add(instance.getName());
+		nonMainInstances.add(instance);
+	}
+	
+	/**
+	 * Get an instnace based on it's position in the vector
+	 * @param i index
+	 * @return
+	 */
+	public static FormInstance getNonMainInstance(int i)
+	{
+		return nonMainInstances.get(i);
+	}
+	
+	/**
+	 * Get an instance based on a name
+	 * @param name string name
+	 * @return
+	 */
+	public static FormInstance getNonMainInstance(String name)
+	{
+		int i = nonMainInstancesNamesToIndex.indexOf(name);
+		if(i == -1)
+		{
+			return null;
+		}
+		try
+		{
+			return nonMainInstances.get(i);
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Get the non main instances
+	 * @return
+	 */
+	public static Vector<FormInstance> getNonMainInstances()
+	{
+		return nonMainInstances;
+	}
+	
+	/**
+	 * Set the main instance
+	 * @param fi
+	 */
+	public static void setMainInstance(FormInstance fi, FormDef fd)
+	{
+		if (fi.getFormId() != -1 && fd.getID() != fi.getFormId()) {
+			System.err.println("Warning: assigning incompatible instance (type " + fi.getFormId() + ") to a formdef (type " + fd.getID() + ")");
+		}
+		mainInstance = fi;
+		fi.setFormId(fd.getID());
+		fd.attachControlsToInstanceData();
+	
+		
+	}
+	
+	/**
+	 * Get the main instance
+	 * @return
+	 */
+	public static FormInstance getMainInstance()
+	{
+		return mainInstance;
 	}
 
 	
@@ -823,7 +904,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		FormInstance fi = null;
 		if(itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
 		{
-			fi = getInstance(itemset.nodesetRef.getInstanceName());
+			fi = FormDef.getNonMainInstance(itemset.nodesetRef.getInstanceName());
 			if(fi == null)
 			{
 				System.out.println("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
@@ -859,7 +940,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 		
 		if (choices.size() == 0) {
-			throw new RuntimeException("dynamic select question has no choices! [" + itemset.nodesetRef + "]");
+			//throw new RuntimeException("dynamic select question has no choices! [" + itemset.nodesetRef + "]");
+			//When you exit a survey mid way through and want to save it, it seems that Collect wants to
+			//go through all the questions. Well of course not all the questions are going to have answers
+			//to chose from if the user hasn't filled them out. So I'm just going to make a note of this
+			//and not throw an exception.
+			System.out.println("dynamic select question has no choices! [" + itemset.nodesetRef + "]. If this didn't occure durring saving an incomplete form, you've got a problem.");
+			
 		}
 		
 		itemset.setChoices(choices, this.getLocalizer());
@@ -980,7 +1067,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
 		setTitle((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 		setChildren((Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf));
-		setMainInstance((FormInstance) ExtUtil.read(dis, FormInstance.class, pf));
+		FormDef.setMainInstance((FormInstance) ExtUtil.read(dis, FormInstance.class, pf), this);
 
 		setLocalizer((Localizer) ExtUtil.read(dis, new ExtWrapNullable(Localizer.class), pf));
 
@@ -995,6 +1082,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		outputFragments = (Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 		
 		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class));
+		
+		Vector<FormInstance> nonMainInstances = (Vector)ExtUtil.read(dis, new ExtWrapList(FormInstance.class),pf);
+		for(int i = 0; i < nonMainInstances.size(); i++)
+		{
+			FormDef.addNonMainInstance(nonMainInstances.get(i));
+		}
+		
 	}
 
 	/**
@@ -1029,7 +1123,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
 		ExtUtil.write(dos, new ExtWrapNullable(getTitle()));
 		ExtUtil.write(dos, new ExtWrapListPoly(getChildren()));
-		ExtUtil.write(dos, mainInstance);
+		ExtUtil.write(dos, FormDef.getMainInstance());
 		ExtUtil.write(dos, new ExtWrapNullable(localizer));
 
 		Vector conditions = new Vector();
@@ -1047,6 +1141,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
 		ExtUtil.write(dos, new ExtWrapListPoly(outputFragments));
 		ExtUtil.write(dos, new ExtWrapMap(submissionProfiles));
+		
+		//for support of multi-instance forms		
+		
+		ExtUtil.write(dos, new ExtWrapList(FormDef.getNonMainInstances()));
 	}
 
 	public void collapseIndex(FormIndex index, Vector indexes, Vector multiplicities, Vector elements) {
@@ -1200,20 +1298,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		return localizer;
 	}
 
-	public FormInstance getMainInstance() {
-		return mainInstance;
-	}
-
-	public void setMainInstance(FormInstance instance) {
-		if (instance.getFormId() != -1 && getID() != instance.getFormId()) {
-			System.err.println("Warning: assigning incompatible instance (type " + instance.getFormId() + ") to a formdef (type " + getID() + ")");
-		}
-		
-		instance.setFormId(getID());
-		this.mainInstance = instance;
-		attachControlsToInstanceData();
-	}
-
 	public Vector getOutputFragments() {
 		return outputFragments;
 	}
@@ -1260,7 +1344,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * to xml
 	 */
 	public void attachControlsToInstanceData () {
-		attachControlsToInstanceData(mainInstance.getRoot());
+		attachControlsToInstanceData(FormDef.getMainInstance().getRoot());
 	}
 	
 	private void attachControlsToInstanceData (TreeElement node) {
@@ -1317,41 +1401,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 	}
 	
-	/**
-	 * Getters and setters for the vectors tha
-	 */
-	public void addInstance(FormInstance instance)
-	{
-		instancesNamesToIndex.add(instance.getName());
-		instances.add(instance);
-	}
-	
-	public FormInstance getInstance(int i)
-	{
-		return instances.get(i);
-	}
-	
-	public int getInstanceCount()
-	{
-		return instances.size();
-	}
-	
-	public FormInstance getInstance(String name)
-	{
-		int i = instancesNamesToIndex.indexOf(name);
-		if(i == -1)
-		{
-			return null;
-		}
-		try
-		{
-			return instances.get(i);
-		}
-		catch(ArrayIndexOutOfBoundsException e)
-		{
-			return null;
-		}
-	}
 	
 
 	/**

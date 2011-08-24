@@ -19,12 +19,15 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -44,7 +47,7 @@ public class TreeReference implements Externalizable {
 	private Vector names; //Vector<String>
 	private Vector multiplicity; //Vector<Integer>
 	//private Vector<XPathExpression> predicates; //Vector<XPathExpression>
-	private HashMap<Integer, XPathExpression[]> predicates;
+	private Hashtable<Integer, Vector<XPathExpression>> predicates;
 	private FormInstance instance = null;
 	private String instanceName = null;
 	
@@ -64,7 +67,7 @@ public class TreeReference implements Externalizable {
 	public TreeReference () {
 		names = new Vector(0);
 		multiplicity = new Vector(0);		
-		predicates = new HashMap<Integer, XPathExpression[]>();
+		predicates = new Hashtable<Integer, Vector<XPathExpression>>();
 		instance = null; //null means the default instance
 		instanceName = null; //dido
 	}
@@ -114,12 +117,12 @@ public class TreeReference implements Externalizable {
 		multiplicity.addElement(new Integer(index));
 	}
 	
-	public void addPredicate(int key, XPathExpression[] xpe)
+	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
 		predicates.put(key, xpe);
 	}
 	
-	public XPathExpression[] getPredicate(int key)
+	public Vector<XPathExpression> getPredicate(int key)
 	{
 		return predicates.get(key);
 	}
@@ -448,11 +451,38 @@ public class TreeReference implements Externalizable {
 		refLevel = ExtUtil.readInt(in);
 		names = (Vector)ExtUtil.read(in, new ExtWrapList(String.class), pf);
 		multiplicity = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class), pf);
+		instanceName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class),pf);
+		instance = (FormInstance)ExtUtil.read(in, new ExtWrapNullable(FormInstance.class),pf);
+		
+		//now since predicates are made up of 2 composite data types we have to carefully put it all back to gether again
+		Vector<Integer> vi = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
+		for(Integer i : vi)
+		{
+			Vector<XPathExpression> vx = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
+			predicates.put(i, vx);
+		}
+
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, refLevel);
 		ExtUtil.write(out, new ExtWrapList(names));
 		ExtUtil.write(out, new ExtWrapList(multiplicity));
+		ExtUtil.write(out, new ExtWrapNullable(instanceName));
+		ExtUtil.write(out, new ExtWrapNullable(instance));
+		//predicates are complicated because they're a complex data structure, so we have to split them up and then
+		//put them back together again
+		Vector<Integer> vi = new Vector<Integer>();
+		//first the keys of the hash table
+		for(Integer i : predicates.keySet())
+		{
+			vi.add(i);
+		}
+		ExtUtil.write(out, new ExtWrapListPoly(vi));
+		//next the data of the hash table
+		for(Integer i : predicates.keySet())
+		{
+			ExtUtil.write(out, new ExtWrapListPoly(predicates.get(i)));
+		}
 	}
 }

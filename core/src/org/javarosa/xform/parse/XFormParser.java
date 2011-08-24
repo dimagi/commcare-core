@@ -330,8 +330,8 @@ public class XFormParser {
 			{
 				Element e = instanceNodes.get(i);
 				FormInstance fi = parseInstance(e, false);
-				_f.addInstance(fi);
-				FormInstance.addNonMainInstance(fi);
+				FormDef.addNonMainInstance(fi);
+
 			}
 		}
 		//now parse the main instance
@@ -340,7 +340,7 @@ public class XFormParser {
 			addMainInstanceToFormDef(mainInstanceNode, fi);
 			
 			//set the main instance
-			FormInstance.setMainInstance(fi);
+			FormDef.setMainInstance(fi,_f);
 		}
 		
 	}
@@ -540,7 +540,6 @@ public class XFormParser {
 	private void saveInstanceNode (Element instance) {
 		Element instanceNode = null;
 		String instanceId = instance.getAttributeValue("", "id");
-		System.out.println("======================================= " + instanceId + " =======================================");
 		
 		for (int i = 0; i < instance.getChildCount(); i++) {
 			if (instance.getType(i) == Node.ELEMENT) {
@@ -1550,7 +1549,7 @@ public class XFormParser {
 		loadInstanceData(e, root, _f);
 		
 		checkDependencyCycles();
-		_f.setMainInstance(instanceModel);
+		FormDef.setMainInstance(instanceModel, _f);
 		_f.finalizeTriggerables();		
 		
 		//print unused attribute warning message for parent element
@@ -2100,7 +2099,7 @@ public class XFormParser {
 			FormInstance fi = null;
 			if(itemset.labelRef.getInstanceName()!= null)
 			{
-				fi = _f.getInstance(itemset.labelRef.getInstanceName());
+				fi = FormDef.getNonMainInstance(itemset.labelRef.getInstanceName());
 				if(fi == null)
 				{
 					throw new XFormParseException("Instance: "+ itemset.labelRef.getInstanceName() + " Does not exists");
@@ -2109,7 +2108,7 @@ public class XFormParser {
 			}
 			else
 			{
-				fi = _f.getInstance(itemset.labelRef.getInstanceName());
+				fi = FormDef.getMainInstance();
 			}
 
 			

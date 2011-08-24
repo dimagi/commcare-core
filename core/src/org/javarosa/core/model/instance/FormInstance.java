@@ -36,6 +36,7 @@ import org.javarosa.core.model.utils.IInstanceVisitor;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -73,9 +74,6 @@ public class FormInstance implements Persistable, Restorable {
 	
 	private Hashtable namespaces = new Hashtable();
 	
-	private static  Vector<FormInstance> nonMainInstances = new Vector<FormInstance>();
-	private static Vector<String> nonMainInstancesNamesToIndex = new Vector<String>();
-	private static FormInstance mainInstance = null;
 
 	public FormInstance() {
 		
@@ -93,55 +91,6 @@ public class FormInstance implements Persistable, Restorable {
 		setRoot(root);	
 	}
 	
-	
-	/**
-	 * Getters and setters for the vectors tha
-	 */
-	public static void addNonMainInstance(FormInstance instance)
-	{
-		nonMainInstancesNamesToIndex.add(instance.getName());
-		nonMainInstances.add(instance);
-	}
-	
-	public static FormInstance getNonMainInstance(int i)
-	{
-		return nonMainInstances.get(i);
-	}
-	
-	public static FormInstance getNonMainInstance(String name)
-	{
-		int i = nonMainInstancesNamesToIndex.indexOf(name);
-		if(i == -1)
-		{
-			return null;
-		}
-		try
-		{
-			return nonMainInstances.get(i);
-		}
-		catch(ArrayIndexOutOfBoundsException e)
-		{
-			return null;
-		}
-	}
-	
-	/**
-	 * Set the main instance
-	 * @param fi
-	 */
-	public static void setMainInstance(FormInstance fi)
-	{
-		mainInstance = fi;
-	}
-	
-	/**
-	 * Get the main instance
-	 * @return
-	 */
-	public static FormInstance getMainInstance()
-	{
-		return mainInstance;
-	}
 	
 	
 
@@ -350,7 +299,7 @@ public class FormInstance implements Persistable, Restorable {
 	// matches sourceRef, templateRef is added to refs
 	private void expandReference(TreeReference sourceRef, TreeElement node, Vector<TreeReference> refs, boolean includeTemplates) {
 		int depth = node.getDepth();
-		XPathExpression[] predicates = null;
+		Vector<XPathExpression> predicates = null;
 		if (depth == sourceRef.size()) {
 			refs.addElement(node.getRef());
 		} else {
@@ -559,6 +508,7 @@ public class FormInstance implements Persistable, Restorable {
 		
 		namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
 		setRoot((TreeElement) ExtUtil.read(in, TreeElement.class, pf));
+
 	}
 
 	/*
@@ -575,7 +525,7 @@ public class FormInstance implements Persistable, Restorable {
 		ExtUtil.write(out, new ExtWrapNullable(schema));
 		ExtUtil.write(out, new ExtWrapNullable(dateSaved));
 		ExtUtil.write(out, new ExtWrapMap(namespaces));
-		ExtUtil.write(out, getRoot());
+		ExtUtil.write(out, getRoot());	
 	}
 
 	public String getName() {

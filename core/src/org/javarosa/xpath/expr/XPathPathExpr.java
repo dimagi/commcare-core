@@ -155,7 +155,12 @@ public class XPathPathExpr extends XPathExpression {
 			
 			if(step.predicates.length > 0) {
 				int refLevel = ref.getRefLevel();
-				ref.addPredicate(i, step.predicates);		
+				Vector<XPathExpression> v = new Vector<XPathExpression>();
+				for(int j = 0; j < step.predicates.length; j++)
+				{
+					v.add(step.predicates[j]);
+				}
+				ref.addPredicate(i, v);		
 			}
 		}		
 		return ref;
@@ -166,7 +171,7 @@ public class XPathPathExpr extends XPathExpression {
 		//check if this nodeset refers to a non-main instance
 		if(genericRef.getInstanceName() != null && genericRef.isAbsolute())
 		{
-			FormInstance nonMain = FormInstance.getNonMainInstance(genericRef.getInstanceName());
+			FormInstance nonMain = FormDef.getNonMainInstance(genericRef.getInstanceName());
 			if(nonMain != null)
 			{
 				m = nonMain;
@@ -179,7 +184,7 @@ public class XPathPathExpr extends XPathExpression {
 		//check if it implicitly refers to the main instance
 		else if(genericRef.getInstanceName() == null && genericRef.isAbsolute())
 		{
-			m = FormInstance.getMainInstance();
+			m = FormDef.getMainInstance();
 		}
 		if (genericRef.isAbsolute() && m.getTemplatePath(genericRef) == null) {
 			throw new XPathTypeMismatchException("Node " + genericRef.toString() + " does not exist!");
