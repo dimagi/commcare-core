@@ -3,13 +3,15 @@
  */
 package org.commcare.applogic;
 
+import java.util.Vector;
+
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareInitializer;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareUtil;
 import org.commcare.util.InitializationListener;
 import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
@@ -48,6 +50,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				while(!staged) {
 					try {
 						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade);
+						interaction.updateProgess(20);
 						staged = true;
 					} catch (StorageFullException e) {
 						Logger.die("Upgrade", e);
@@ -77,7 +80,61 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				}
 				
 				setMessage("Updating Installation...");
+				
+				TableStateListener upgradeListener = new TableStateListener() {
+
+					public final static int INSTALL_SCORE = 5;
+					public void resourceStateUpdated(ResourceTable table) {
+						int score = 0;
+						int max = 0;
+						Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+						max = resources.size() * INSTALL_SCORE;
+						
+						if(max <= INSTALL_SCORE*2) {
+							//We'll have at least two resources when we jump in, so dont' bother updating
+							//until we have more
+							return;
+						}
+						
+						for(Resource r : resources) {
+							switch(r.getStatus()) {
+							case Resource.RESOURCE_STATUS_UPGRADE:
+								score += INSTALL_SCORE;
+								break;
+							case Resource.RESOURCE_STATUS_INSTALLED:
+								score += INSTALL_SCORE;
+								break;
+							default:
+								score += 1;
+								break;
+							}
+						}
+						interaction.updateProgess(20 + (int)Math.ceil(65 * (score * 1.0 / max)));
+					}
+
+
+					public void incrementProgress(int complete, int total) {
+						
+					}
+					
+				};
+				
+				TableStateListener globalListener = new TableStateListener() {
+
+					public void resourceStateUpdated(ResourceTable table) {
+						
+					}
+
+					public void incrementProgress(int complete, int total) {
+						
+					}
+					
+				};
+				
+				upgrade.setStateListener(upgradeListener);
+				global.setStateListener(globalListener);
 				CommCareContext._().getManager().upgrade(global, upgrade);
+				interaction.updateProgess(95);
 				
 				blockForResponse("CommCare Updated!", false);
 				return true;
