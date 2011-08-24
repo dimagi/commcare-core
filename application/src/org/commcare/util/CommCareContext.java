@@ -20,6 +20,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.services.AutomatedSenderService;
+import org.commcare.util.time.AutoUpdateEvent;
 import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
@@ -323,6 +324,7 @@ public class CommCareContext {
 				if(CommCareSense.isAutoSendEnabled()) {
 					AutomatedSenderService.InitializeAndSpawnSenderService();
 				}
+				
 				return true;
 			}
 
@@ -469,6 +471,8 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty(CommCareProperties.LOGIN_IMAGE, "jr://resource/icon.png");
 		
 		PropertyUtils.initializeProperty(CommCareProperties.USER_REG_TYPE, CommCareProperties.USER_REG_REQUIRED);
+		
+		PropertyUtils.initializeProperty(CommCareProperties.AUTO_UPDATE_FREQUENCY, CommCareProperties.FREQUENCY_NEVER);
 	}
 	
 	public static void init(MIDlet m, InitializationListener listener) {
@@ -505,7 +509,7 @@ public class CommCareContext {
 	}
 	
 	public PeriodicEvent[] getEventDescriptors() {
-		return new PeriodicEvent[] {new TimeMessageEvent(), new PermissionsEvent()};
+		return new PeriodicEvent[] {new TimeMessageEvent(), new PermissionsEvent(), new AutoUpdateEvent()};
 	}
 	
 	

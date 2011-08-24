@@ -56,6 +56,9 @@ public abstract class PeriodicEvent implements State {
 	/** Event will specify its own period */
 	public static final int TYPE_CUSTOM = 4;
 	
+	/** Event will specify its own period */
+	public static final int TYPE_DISABLED = 8;
+	
 	//NOTE: If a new event period is added, the PeriodicWrapperState's shouldRun
 	//method needs to be updated to modify behavior around edge cases 
 	
@@ -114,12 +117,12 @@ public abstract class PeriodicEvent implements State {
 	 * @return The date at which the next triggering should occur
 	 */
 	private Date next(PeriodicEventRecord record, Date from) {
-		if(record.getLastOccurance().getTime() == 0) { 
+		if(from.getTime() == 0) { 
 			return new Date();
 		}
 		
 		//Strip off scheduled flag
-		switch(this.getEventPeriod() ^ TYPE_FLAG_SCHEDULED) {
+		switch(this.getEventPeriod() & ~TYPE_FLAG_SCHEDULED) {
 			case TYPE_CUSTOM:
 				return customScheduleNextTrigger(record, from);
 			case TYPE_WEEKLY:
@@ -128,6 +131,8 @@ public abstract class PeriodicEvent implements State {
 				return DateUtils.dateAdd(from, 1);
 			case TYPE_LOGIN:
 				return new Date();
+			case TYPE_DISABLED:
+				return new Date(0);
 		}
 		return new Date(0);
 	}
@@ -179,7 +184,11 @@ public abstract class PeriodicEvent implements State {
 		//Never scheduled, create a new event with the right scheduling
 		if(record == null) {
 			//Next firing period should be immediate in this case.
-			record = new PeriodicEventRecord(event.getEventKey(), new Date());
+			if(event.getEventPeriod() == PeriodicEvent.TYPE_DISABLED) {
+				record = new PeriodicEventRecord(event.getEventKey(), new Date(0));
+			} else {
+				record = new PeriodicEventRecord(event.getEventKey(), new Date());
+			}
 			try {
 				storage.write(record);
 			} catch (StorageFullException e) {

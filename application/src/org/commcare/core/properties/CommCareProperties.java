@@ -5,6 +5,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.model.PeriodicEvent;
+import org.commcare.util.time.AutoUpdateEvent;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
@@ -95,6 +97,11 @@ public class CommCareProperties implements IPropertyRules {
     public final static String LOGGED_IN_USER = "cc-u-logged-in";
     
     public final static String CONTENT_VALIDATED = "cc-content-valid";
+    
+    public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
+    public final static String FREQUENCY_NEVER = "freq-never";
+    public final static String FREQUENCY_DAILY = "freq-daily";
+    public final static String FREQUENCY_WEEKLY = "freq-weekly";
     
 	/**
 	 * Creates the JavaRosa set of property rules
@@ -195,6 +202,14 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(LOGIN_MODE, userSettings);
         
         rules.put(CONTENT_VALIDATED, yesNo);
+        
+        Vector updateFreq = new Vector();
+        updateFreq.addElement(FREQUENCY_NEVER);
+        updateFreq.addElement(FREQUENCY_DAILY);
+        updateFreq.addElement(FREQUENCY_WEEKLY);
+        
+        rules.put(AUTO_UPDATE_FREQUENCY, updateFreq);
+        
 
         readOnlyProperties.addElement(CONTENT_VALIDATED);
         readOnlyProperties.addElement(ENTRY_MODE);
@@ -303,6 +318,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "Demo Mode Enabled";
         } else if (LOGIN_MODE.equals(propertyName)) {
         	return "User Login Mode";
+        } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
+        	return "Auto-Update Frequency";
         }
     	return propertyName;
 	}
@@ -330,14 +347,24 @@ public class CommCareProperties implements IPropertyRules {
         	} else if(LOGIN_MODE_AUTO.equals(value)) {
         		return "Automatic Login";
         	}
+        } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
+        	if(FREQUENCY_NEVER.equals(value)) {
+        		return "Never";
+        	} else if(FREQUENCY_DAILY.equals(value)) {
+        		return "Daily";
+        	} else if(FREQUENCY_WEEKLY.equals(value)) {
+        		return "Weekly";
+        	}
         }
 
         return value;
 	}
 
 	public void handlePropertyChanges(String propertyName) {
-		// nothing.  
-		// what's this method for?
+		if(AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
+			//It might need to reschedule.
+			PeriodicEvent.schedule(new AutoUpdateEvent());
+		}
 	}	
 	
 	//0 == always purge

@@ -220,84 +220,11 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 
 	public void upgrade() {
-		final CommCareStartupInteraction interaction  = new CommCareStartupInteraction("Checking for updates....");
-		J2MEDisplay.setView(interaction);
-		
-		CommCareInitializer upgradeInitializer = new CommCareInitializer() {
-
-			protected boolean runWrapper() throws UnfullfilledRequirementsException {
-				
-				ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable("UPGRADGE");
-				ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
-				
-				boolean staged = false;
-				
-				while(!staged) {
-					try {
-						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade);
-						staged = true;
-					} catch (StorageFullException e) {
-						Logger.die("Upgrade", e);
-					} catch (UnresolvedResourceException e) {
-						if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
-							//loop here
-						} else {
-							return false;
-						}
-					}
-				}
-				
-				Resource updateProfile = upgrade.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-				
-				Resource currentProfile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-				
-				if(!(updateProfile.getVersion() > currentProfile.getVersion())){
-					blockForResponse("CommCare is up to date!", false);
-					return true;
-				}
-				if(!blockForResponse("Upgrade is Available! Do you want to start the update?")) {
-					return true;
-				}
-				
-				setMessage("Updating Installation...");
-				CommCareContext._().getManager().upgrade(global, upgrade);
-				
-				blockForResponse("CommCare Updated!", false);
-				return true;
-			}
-
-			protected void setMessage(String message) {
-				interaction.setMessage(message,true);
-			}
-
-			protected void askForResponse(String message, YesNoListener listener, boolean yesNo) {
-				interaction.setMessage(message,false);
-				if(yesNo) {
-					interaction.AskYesNo(message, listener);
-				} else { 
-					interaction.PromptResponse(message, listener);
-				}
-			}
-			
-			protected void fail(Exception e) {
-				Logger.exception(e);
-				blockForResponse("An error occured during the upgrade!", false);
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareUpgradeState(true) {
+			public void done() {
 				CommCareUtil.launchHomeState();
 			}
-		};
-		
-		upgradeInitializer.initialize(new InitializationListener() {
-
-			public void onSuccess() {
-				CommCareUtil.launchHomeState();
-			}
-
-			public void onFailure() {
-				CommCareUtil.launchHomeState();
-			}
-			
 		});
-		//J2MEDisplay.showError(null,Localization.get("commcare.noupgrade.version"));
 	}
 	
 	public void rmsdump () {
