@@ -203,6 +203,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	{
 		return mainInstance;
 	}
+	
+	public static FormInstance getInstance()
+	{
+		return getMainInstance();
+	}
 
 	
 	// ---------- child elements
