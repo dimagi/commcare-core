@@ -82,7 +82,7 @@
 					<attribute name="Skip-Validation" value="${skip.validation}"/>
 					
 					<attribute name="MIDlet-Permissions" if="sign.locally"
-					 value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.io.Connector.https, javax.microedition.io.Connector.ssl, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm"
+					 value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.io.Connector.https, javax.microedition.io.Connector.ssl, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm, javax.microedition.io.Connector.sms, javax.wireless.messaging.sms.send"
 					/>
 				</jad>
 				

@@ -90,6 +90,8 @@ public class CommCareHomeController implements HandledCommandListener {
 			transitions.adminLogin();
 		} else if (c == view.admForceSend) {
 			transitions.forceSend();
+		} else if (c == view.admPermTest) {
+			transitions.permissionsTest();
 		}
 	}
 }

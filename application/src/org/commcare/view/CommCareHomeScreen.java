@@ -53,6 +53,7 @@ public class CommCareHomeScreen extends CommCareListView {
 	public Command admGPRSTest = new Command("Network Test", Command.ITEM, 1);
 	public Command adminLogin = new Command(Localization.get("home.change.user"), Command.ITEM, 1);
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
+	public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"));
@@ -76,6 +77,7 @@ public class CommCareHomeScreen extends CommCareListView {
 			addCommand(admRMSDump);
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
+			addCommand(admPermTest);
 		}
 		if (CommCareSense.isAutoLoginEnabled() && !isAdmin) {
 			addCommand(adminLogin);

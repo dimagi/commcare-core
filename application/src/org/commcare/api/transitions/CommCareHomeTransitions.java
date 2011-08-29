@@ -30,4 +30,5 @@ public interface CommCareHomeTransitions  extends MenuTransitions {
 	void rmsdump ();
 	void viewLogs ();
 	void gprsTest ();
+	void permissionsTest();
 }

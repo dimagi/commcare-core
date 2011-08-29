@@ -6,23 +6,14 @@ package org.commcare.applogic;
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.RecentFormEntity;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
-import org.commcare.util.CommCareInitializer;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
-import org.commcare.util.InitializationListener;
-import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareHomeController;
-import org.commcare.view.CommCareStartupInteraction;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
@@ -33,7 +24,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
@@ -44,6 +34,7 @@ import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.j2me.log.viewer.LogViewerState;
 import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.util.GPRSTestState;
+import org.javarosa.j2me.util.PermissionsTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
@@ -274,5 +265,13 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 
 		//assumes this will cause queued forms to be sent imminently
 		//AutomatedSenderService.NotifyPending();
+	}
+
+	public void permissionsTest() {
+		new PermissionsTestState () {
+			public void done () {
+				new CommCareHomeState().start();
+			}
+		}.start();
 	}
 }
