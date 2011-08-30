@@ -361,9 +361,9 @@ public class CommCareContext {
 				return new J2meFileRoot(root) {
 					protected Reference factory(String terminal, String URI) {
 						return new J2meFileReference(localRoot,  terminal) {
-							protected FileConnection connector() throws IOException {
+							protected FileConnection connector(String URI) throws IOException {
 								try {
-									return super.connector();
+									return super.connector(URI);
 								} catch(SecurityException se) {
 									PeriodicEvent.schedule(new PermissionsEvent());
 									//Should get swallowed
