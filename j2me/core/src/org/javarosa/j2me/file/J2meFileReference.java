@@ -6,14 +6,14 @@ package org.javarosa.j2me.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.Logger;
-import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * A J2ME File reference is a reference type which refers to a 
@@ -105,8 +105,10 @@ public class J2meFileReference implements Reference
 	}
 	
 	protected FileConnection connector() throws IOException {
-		String uri = getLocalURI();
-		
+		return connector(getLocalURI());
+	}
+	
+	protected FileConnection connector(String uri) throws IOException {
 		synchronized (connections) {
 
 			// We only want to allow one connection to a file at a time.
@@ -155,5 +157,40 @@ public class J2meFileReference implements Reference
 	 */
 	public String getLocalURI() {
 		return "file:///" + localPart + referencePart;
+	}
+	
+	public Reference[] probeAlternativeReferences() {
+		//showtime
+		String local = this.getLocalURI();
+		String folder = local.substring(0,local.lastIndexOf('/') + 1);
+		
+		String folderPart = folder.substring(("file:///" + localPart).length(),folder.length());
+		
+		int finalIndex = local.length();
+		if(local.lastIndexOf('.') != -1 && local.lastIndexOf('/') < local.lastIndexOf('.')) {
+			finalIndex = local.lastIndexOf('.');
+		}
+		String fileNoExt = local.substring(local.lastIndexOf('/') + 1, finalIndex);
+		
+		try {
+			Vector<Reference> results = new Vector<Reference>();
+			for(Enumeration en = connector(folder).list(fileNoExt + ".*", true) ; en.hasMoreElements() ; ) {
+				String file = (String)en.nextElement();
+				String referencePart = folderPart + file;
+				if(!referencePart.equals(this.referencePart)) {
+					results.addElement(new J2meFileReference(localPart, referencePart));
+				}
+			}
+			
+			Reference[] refs = new Reference[results.size()];
+			for(int i = 0 ; i < refs.length ; ++i) {
+				refs[i] = results.elementAt(i);
+			}
+			
+			return refs;
+		} catch (IOException e) {
+			return new Reference[0];
+		}
+		
 	}
 }
