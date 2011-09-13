@@ -298,14 +298,17 @@ menu {
 		end-color: #2222;
 		orientation: top-right;
 	}
-	padding: 0;
 	background-color: menubarColor;
 	font-style: bold; 
 	font-face: proportional; 
 	font-size: medium; 
 	font-color: black;
 	menubar-color: menubottombarColor;
-	margin: 0;
+	padding-top: 3;
+	padding-bottom: 3;
+	padding-right: 1;
+	padding-left: 1;
+	
 }
 /**
   * The menuItem style is a predefined style
@@ -319,6 +322,14 @@ menuItem {
 		size: medium;
 		style: bold;
 	}
+
+	background-color: menubarColor;
+	
+	padding-left: 3;
+	padding-right: 7;
+	margin-right: 3;
+	
+	focused-style: menuItem:hover;
 	layout: left;
 	//#if ${ exists( arrowRight.png ) }
 		command-child-indicator: url(arrowRight.png);
@@ -330,18 +341,29 @@ menuItem {
 }
 
 .menuItem:hover {
-	border {
-		type: simple;
-		width: 1;
-		color: black;
-		orientation: all;
-	}	
 	font {
 		style: bold;
 		size: medium;
 		color: black;
 	}
-	layout: left | horizontal-expand;
+	layout: left | expand;
+	
+	background {
+		type: round-rect;
+		color: selectedBg;
+	}
+	
+	padding-left: 1;
+	padding-right: 5;
+	margin-right: 1;
+	
+	border {
+		type:round-rect;
+		arc-width:6;
+		arc-height:6;
+		width:2;
+		color:dimagiBlue;
+	}	
 }
 
 .container {
