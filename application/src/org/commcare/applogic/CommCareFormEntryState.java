@@ -267,7 +267,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 					} 
 				}
 				public void postProcessing() {
-					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message, CommCareSense.isAutoSendEnabled() || cacheable) {
+					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message, CommCareSense.isAutoSendEnabled() || !cacheable) {
 						public void goHome() {
 							//If we're autosending, make sure to expire old deadlines
 							if(CommCareSense.isAutoSendEnabled()) {

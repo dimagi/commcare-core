@@ -51,6 +51,7 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
@@ -74,6 +75,9 @@ import org.javarosa.resources.locale.LanguageUtils;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportManagerModule;
 import org.javarosa.services.transport.TransportMessage;
+import org.javarosa.services.transport.TransportService;
+import org.javarosa.services.transport.impl.TransportMessageSerializationWrapper;
+import org.javarosa.services.transport.impl.TransportMessageStore;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.user.activity.UserModule;
 import org.javarosa.user.model.User;
@@ -554,6 +558,10 @@ public class CommCareContext {
 		StorageManager.registerStorage(key, "DEMO_" + key, type);
 	}
 	
+	private void registerWrappedDemoStorage(String key, SerializationWrapper wrapper) {
+		StorageManager.registerWrappedStorage(key, "DEMO_" + key, wrapper);
+	}
+	
 	public void toggleDemoMode(boolean demoOn) {
 		if (demoOn != inDemoMode) {
 			inDemoMode = demoOn;
@@ -561,12 +569,18 @@ public class CommCareContext {
 				registerDemoStorage(Case.STORAGE_KEY, Case.class);
 				registerDemoStorage(PatientReferral.STORAGE_KEY, PatientReferral.class);
 				registerDemoStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-				//TODO: Use new transport message queue
+				
+				
+				registerWrappedDemoStorage(TransportMessageStore.Q_STORENAME, new TransportMessageSerializationWrapper());
+				registerWrappedDemoStorage(TransportMessageStore.RECENTLY_SENT_STORENAME, new TransportMessageSerializationWrapper());
+				TransportService.reinit();
 			} else {
 				StorageManager.registerStorage(Case.STORAGE_KEY, Case.class);
 				StorageManager.registerStorage(PatientReferral.STORAGE_KEY, PatientReferral.class);
 				StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-				//TODO: Use new transport message queue
+				StorageManager.registerWrappedStorage(TransportMessageStore.Q_STORENAME, TransportMessageStore.Q_STORENAME, new TransportMessageSerializationWrapper());
+				StorageManager.registerWrappedStorage(TransportMessageStore.RECENTLY_SENT_STORENAME, TransportMessageStore.RECENTLY_SENT_STORENAME, new TransportMessageSerializationWrapper());
+				TransportService.reinit();
 			}
 		}
 	}
@@ -578,7 +592,8 @@ public class CommCareContext {
 		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
 		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
 		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
-		//TODO: Use new transport message queue
+		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
+		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
 	}
 
 	public void purgeScheduler () {
