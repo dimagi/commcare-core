@@ -37,6 +37,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.instance.FormInstance;
@@ -328,9 +329,10 @@ public class XFormParser {
 		{
 			for(int i = 1; i < instanceNodes.size(); i++)
 			{
-				Element e = instanceNodes.get(i);
+				Element e = instanceNodes.elementAt(i);
 				FormInstance fi = parseInstance(e, false);
-				FormDef.addNonMainInstance(fi);
+				loadInstanceData(e, fi.getRoot(), _f);
+				_f.addNonMainInstance(fi);
 
 			}
 		}
@@ -340,7 +342,7 @@ public class XFormParser {
 			addMainInstanceToFormDef(mainInstanceNode, fi);
 			
 			//set the main instance
-			FormDef.setMainInstance(fi,_f);
+			_f.setInstance(fi);
 		}
 		
 	}
@@ -556,8 +558,8 @@ public class XFormParser {
 			mainInstanceNode = instanceNode;
 		}
 		
-		instanceNodes.add(instanceNode);
-		instanceNodeIdStrs.add(instanceId);
+		instanceNodes.addElement(instanceNode);
+		instanceNodeIdStrs.addElement(instanceId);
 		
 			
 		
@@ -1545,11 +1547,11 @@ public class XFormParser {
 		
 	//e is the top-level _data_ node of the instance (immediate (and only) child of <instance>)
 	private void addMainInstanceToFormDef(Element e, FormInstance instanceModel) {
-		TreeElement root = buildInstanceStructure(e, null);
-		loadInstanceData(e, root, _f);
+		//TreeElement root = buildInstanceStructure(e, null);
+		loadInstanceData(e, instanceModel.getRoot(), _f);
 		
 		checkDependencyCycles();
-		FormDef.setMainInstance(instanceModel, _f);
+		_f.setInstance(instanceModel);
 		_f.finalizeTriggerables();		
 		
 		//print unused attribute warning message for parent element
@@ -1559,7 +1561,9 @@ public class XFormParser {
 	}
 	
 	private FormInstance parseInstance (Element e, boolean isMainInstance) {
-		TreeElement root = buildInstanceStructure(e, null);
+		String name = instanceNodeIdStrs.elementAt(instanceNodes.indexOf(e));
+		
+		TreeElement root = buildInstanceStructure(e, null, !isMainInstance ? name : null);
 		FormInstance instanceModel = new FormInstance(root);
 		if(isMainInstance)
 		{
@@ -1567,7 +1571,7 @@ public class XFormParser {
 		}
 		else
 		{
-			instanceModel.setName(instanceNodeIdStrs.get(instanceNodes.indexOf(e)));
+			instanceModel.setName(name);
 		}
 		
 		Vector usedAtts = new Vector();
@@ -1611,8 +1615,12 @@ public class XFormParser {
 		return prefixes;
 	}
 	
-	//parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags
 	public static TreeElement buildInstanceStructure (Element node, TreeElement parent) {
+		return buildInstanceStructure(node, parent, null);
+	}
+	
+	//parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags
+	public static TreeElement buildInstanceStructure (Element node, TreeElement parent, String instanceName) {
 		TreeElement element = null;
 
 		//catch when text content is mixed with children
@@ -1650,6 +1658,7 @@ public class XFormParser {
 		//create node; handle children
 		if(modelType == null) {
 			element = new TreeElement(name, multiplicity);
+			element.setInstanceName(instanceName);
 		} else {
             if( typeMappings.get(modelType) == null ){
                 throw new XFormParseException("ModelType " + modelType + " is not recognized.",node);                
@@ -1667,7 +1676,7 @@ public class XFormParser {
 		if (hasElements) {
 			for (int i = 0; i < numChildren; i++) {
 				if (node.getType(i) == Node.ELEMENT) {
-					element.addChild(buildInstanceStructure(node.getElement(i), element));
+					element.addChild(buildInstanceStructure(node.getElement(i), element, instanceName));
 				}
 			}
 		}
@@ -1744,7 +1753,7 @@ public class XFormParser {
 		Vector<TreeReference> refs = getRepeatableRefs();
 		for (int i = 0; i < refs.size(); i++) {
 			TreeReference ref = refs.elementAt(i);
-			Vector<TreeReference> nodes = instance.expandReference(ref, true);
+			Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 			for (int j = 0; j < nodes.size(); j++) {
 				TreeReference nref = nodes.elementAt(j);
 				TreeElement node = instance.resolveReference(nref);
@@ -1878,7 +1887,7 @@ public class XFormParser {
 			for (int j = 0; j < ref.size(); j++) {
 				ref.setMultiplicity(j, TreeReference.INDEX_UNBOUND);
 			}
-			Vector<TreeReference> nodes = instance.expandReference(ref);
+			Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref);
 			if (nodes.size() == 0) {
 				//binding error; not a single node matches the repeat binding; will be reported later
 				continue;
@@ -1930,7 +1939,7 @@ public class XFormParser {
 		for (int i = 0; i < refs.size(); i++) {
 			TreeReference ref = refs.elementAt(i);
 			TreeElement template = null;
-			Vector<TreeReference> nodes = instance.expandReference(ref);
+			Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref);
 			for (int j = 0; j < nodes.size(); j++) {
 				TreeReference nref = nodes.elementAt(j);
 				TreeElement node = instance.resolveReference(nref); 
@@ -1958,7 +1967,7 @@ public class XFormParser {
 				bindings.removeElementAt(i);
 				i--;
 			} else {
-				Vector<TreeReference> nodes = instance.expandReference(ref, true);
+				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 				if (nodes.size() == 0) {
 					System.out.println("WARNING: Bind [" + ref.toString() + "] matches no nodes; ignoring bind...");
 				}
@@ -2016,7 +2025,7 @@ public class XFormParser {
 			if (child instanceof QuestionDef && tref.size() == 0) {
 				System.out.println("Warning! Cannot bind control to '/'"); //group can bind to '/'; repeat can't, but that's checked above
 			} else {
-				Vector<TreeReference> nodes = instance.expandReference(tref, true);
+				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(tref, true);
 				if (nodes.size() == 0) {
 				    String error = "ERROR: " + type + " binding [" + tref.toString() + "] matches no nodes";
 					System.err.println(error);
@@ -2099,7 +2108,7 @@ public class XFormParser {
 			FormInstance fi = null;
 			if(itemset.labelRef.getInstanceName()!= null)
 			{
-				fi = FormDef.getNonMainInstance(itemset.labelRef.getInstanceName());
+				fi = _f.getNonMainInstance(itemset.labelRef.getInstanceName());
 				if(fi == null)
 				{
 					throw new XFormParseException("Instance: "+ itemset.labelRef.getInstanceName() + " Does not exists");
@@ -2108,11 +2117,11 @@ public class XFormParser {
 			}
 			else
 			{
-				fi = FormDef.getMainInstance();
+				fi = instance;
 			}
 
 			
-			if(fi.getTemplate(itemset.labelRef) == null)
+			if(fi.getTemplatePath(itemset.labelRef) == null)
 			{
 				throw new XFormParseException("<label> node for itemset doesn't exist! [" + itemset.labelRef + "]");
 			}
@@ -2162,7 +2171,7 @@ public class XFormParser {
 		for (int i = 0; i < bindings.size(); i++) {
 			DataBinding bind = bindings.elementAt(i);
 			TreeReference ref = FormInstance.unpackReference(bind.getReference());
-			Vector<TreeReference> nodes = instance.expandReference(ref, true);
+			Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 			
 			if (nodes.size() > 0) {
 				attachBindGeneral(bind);
@@ -2223,7 +2232,7 @@ public class XFormParser {
 
 			for (int i = 0; i < selectRefs.size(); i++) {
 				TreeReference ref = selectRefs.elementAt(i);
-				Vector<TreeReference> nodes = instance.expandReference(ref, true);
+				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 				for (int j = 0; j < nodes.size(); j++) {
 					TreeElement node = instance.resolveReference(nodes.elementAt(j));
 					if (node.dataType == Constants.DATATYPE_CHOICE || node.dataType == Constants.DATATYPE_CHOICE_LIST) {
@@ -2246,8 +2255,10 @@ public class XFormParser {
 		int numChildren = node.getChildCount();		
 		boolean hasElements = false;
 		for (int i = 0; i < numChildren; i++) {
-			if (node.getType(i) == Node.ELEMENT)
+			if (node.getType(i) == Node.ELEMENT) {
 				hasElements = true;
+				break;
+			}
 		}
 
 		if (hasElements) {

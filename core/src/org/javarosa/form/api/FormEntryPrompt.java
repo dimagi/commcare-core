@@ -99,10 +99,10 @@ public class FormEntryPrompt extends FormEntryCaption {
 	    		//determine which selections are already present in the answer
 	    		if (itemset.copyMode) {
 	    			TreeReference destRef = itemset.getDestRef().contextualize(mTreeElement.getRef());
-	    			Vector<TreeReference> subNodes = form.getMainInstance().expandReference(destRef);
+	    			Vector<TreeReference> subNodes = form.getEvaluationContext().expandReference(destRef);
 	    			for (int i = 0; i < subNodes.size(); i++) {
 	    				TreeElement node = form.getMainInstance().resolveReference(subNodes.elementAt(i));
-    					String value = itemset.getRelativeValue().evalReadable(form.getMainInstance(), new EvaluationContext(form.exprEvalContext, node.getRef()));
+    					String value = itemset.getRelativeValue().evalReadable(form.getMainInstance(), new EvaluationContext(form.getEvaluationContext(), node.getRef()));
     					preselectedValues.addElement(value);
 	    			}
 	    		} else {

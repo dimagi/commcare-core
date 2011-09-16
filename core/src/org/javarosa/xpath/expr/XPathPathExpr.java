@@ -111,7 +111,13 @@ public class XPathPathExpr extends XPathExpression {
 					XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
 					//we've got a non-standard instance in play, watch out
 					ref.setInstanceName(strLit.s);
-				}				
+				} else {
+					//We only support expression root contexts for instance refs, everything else is an illegal filter
+					throw new XPathUnsupportedException("filter expression");
+				}
+			} else {
+				//We only support expression root contexts for instance refs, everything else is an illegal filter
+				throw new XPathUnsupportedException("filter expression");
 			}
 			
 			parentsAllowed = false;
@@ -158,7 +164,7 @@ public class XPathPathExpr extends XPathExpression {
 				Vector<XPathExpression> v = new Vector<XPathExpression>();
 				for(int j = 0; j < step.predicates.length; j++)
 				{
-					v.add(step.predicates[j]);
+					v.addElement(step.predicates[j]);
 				}
 				ref.addPredicate(i, v);		
 			}
@@ -166,12 +172,18 @@ public class XPathPathExpr extends XPathExpression {
 		return ref;
 	}
 
-	public XPathNodeset eval (FormInstance m, EvaluationContext evalContext) {		
+	public XPathNodeset eval (FormInstance m, EvaluationContext ec) {		
 		TreeReference genericRef = getReference();
+
+		TreeReference ref = genericRef.contextualize(ec.getContextRef());
+		
+		//We don't necessarily know the model we want to be working with until we've contextualized the 
+		//node
+		
 		//check if this nodeset refers to a non-main instance
-		if(genericRef.getInstanceName() != null && genericRef.isAbsolute())
+		if(ref.getInstanceName() != null && ref.isAbsolute())
 		{
-			FormInstance nonMain = FormDef.getNonMainInstance(genericRef.getInstanceName());
+			FormInstance nonMain = ec.getInstance(ref.getInstanceName());
 			if(nonMain != null)
 			{
 				m = nonMain;
@@ -181,17 +193,13 @@ public class XPathPathExpr extends XPathExpression {
 				throw new XPathTypeMismatchException("Instance referenced by " + genericRef + " does not exists");
 			}
 		}
-		//check if it implicitly refers to the main instance
-		else if(genericRef.getInstanceName() == null && genericRef.isAbsolute())
-		{
-			m = FormDef.getMainInstance();
-		}
-		if (genericRef.isAbsolute() && m.getTemplatePath(genericRef) == null) {
+		//Otherwise we'll leave 'm' as set to the main instance 
+		
+		if (ref.isAbsolute() && m.getTemplatePath(ref) == null) {
 			throw new XPathTypeMismatchException("Node " + genericRef.toString() + " does not exist!");
 		}
-
-		TreeReference ref = genericRef.contextualize(evalContext.getContextRef());
-		Vector<TreeReference> nodesetRefs = m.expandReference(ref);
+		
+		Vector<TreeReference> nodesetRefs = ec.expandReference(ref);
 		
 		//to fix conditions based on non-relevant data, filter the nodeset by relevancy
 		for (int i = 0; i < nodesetRefs.size(); i++) {
@@ -201,7 +209,7 @@ public class XPathPathExpr extends XPathExpression {
 			}
 		}
 		
-		return new XPathNodeset(nodesetRefs, m, evalContext);
+		return new XPathNodeset(nodesetRefs, m, ec);
 	}
 
 //	

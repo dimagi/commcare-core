@@ -19,6 +19,7 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -119,12 +120,12 @@ public class TreeReference implements Externalizable {
 	
 	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
-		predicates.put(key, xpe);
+		predicates.put(new Integer(key), xpe);
 	}
 	
 	public Vector<XPathExpression> getPredicate(int key)
 	{
-		return predicates.get(key);
+		return predicates.get(new Integer(key));
 	}
 	
 	public int getRefLevel () {
@@ -165,9 +166,10 @@ public class TreeReference implements Externalizable {
 			newRef.add(this.getName(i), this.getMultiplicity(i));
 		}
 		//copy predicates
-		for(int i : predicates.keySet())
+		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
 		{
-			newRef.addPredicate(i, predicates.get(i));
+			Integer i = ((Integer)en.nextElement());
+			newRef.addPredicate(i.intValue(), predicates.get(i));
 		}
 		//copy instances
 		if(instanceName != null)
@@ -220,7 +222,7 @@ public class TreeReference implements Externalizable {
 			return this;
 		} else {
 			TreeReference newRef = parentRef.clone();
-
+			
 			if (refLevel > 0) {
 				if (!parentRef.isAbsolute() && parentRef.size() == 0) {
 					parentRef.refLevel += refLevel;
@@ -261,9 +263,10 @@ public class TreeReference implements Externalizable {
 					newRef.add(this.getName(i), this.getMultiplicity(i));
 				}
 				//copy predicates
-				for(int i : predicates.keySet())
+				for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
 				{
-					newRef.addPredicate(i, predicates.get(i));
+					Integer i = ((Integer)en.nextElement());
+					newRef.addPredicate(i.intValue(), predicates.get(i));
 				}
 				return newRef;
 			}
@@ -273,9 +276,9 @@ public class TreeReference implements Externalizable {
 	//TODO: merge anchor() and parent()
 		
 	public TreeReference contextualize (TreeReference contextRef) {
-		if (!contextRef.isAbsolute())
+		if (!contextRef.isAbsolute()){
 			return null;
-		
+		}
 		TreeReference newRef = anchor(contextRef);
 		
 		for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
@@ -474,14 +477,16 @@ public class TreeReference implements Externalizable {
 		//put them back together again
 		Vector<Integer> vi = new Vector<Integer>();
 		//first the keys of the hash table
-		for(Integer i : predicates.keySet())
+		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
 		{
-			vi.add(i);
+			Integer in = ((Integer)en.nextElement());
+			vi.addElement(in);
 		}
 		ExtUtil.write(out, new ExtWrapListPoly(vi));
 		//next the data of the hash table
-		for(Integer i : predicates.keySet())
+		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
 		{
+			Integer i = ((Integer)en.nextElement());
 			ExtUtil.write(out, new ExtWrapListPoly(predicates.get(i)));
 		}
 	}

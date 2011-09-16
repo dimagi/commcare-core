@@ -105,10 +105,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
 	private Hashtable<String,SubmissionProfile> submissionProfiles;
 
-	/** For keeping track of the instances as now, there can be more than one**/
-	private static  Vector<FormInstance> nonMainInstances = new Vector<FormInstance>();
-	private static Vector<String> nonMainInstancesNamesToIndex = new Vector<String>();
-	private static FormInstance mainInstance = null;
+	private Hashtable<String, FormInstance> formInstances;
+	private FormInstance mainInstance = null;
 
 
 	/**
@@ -120,9 +118,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		triggerables = new Vector();
 		triggerablesInOrder = true;
 		triggerIndex = new Hashtable();
-		setEvaluationContext(new EvaluationContext());
+		//This is kind of a wreck...
+		setEvaluationContext(new EvaluationContext(null));
 		outputFragments = new Vector();
 		submissionProfiles = new Hashtable<String, SubmissionProfile>();
+		formInstances = new Hashtable<String, FormInstance>();
 	}
 	
 	
@@ -132,20 +132,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	/**
 	 * Getters and setters for the vectors tha
 	 */
-	public static void addNonMainInstance(FormInstance instance)
+	public void addNonMainInstance(FormInstance instance)
 	{
-		nonMainInstancesNamesToIndex.add(instance.getName());
-		nonMainInstances.add(instance);
-	}
-	
-	/**
-	 * Get an instnace based on it's position in the vector
-	 * @param i index
-	 * @return
-	 */
-	public static FormInstance getNonMainInstance(int i)
-	{
-		return nonMainInstances.get(i);
+		formInstances.put(instance.getName(), instance);
+		this.setEvaluationContext(new EvaluationContext(null));
 	}
 	
 	/**
@@ -153,58 +143,45 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * @param name string name
 	 * @return
 	 */
-	public static FormInstance getNonMainInstance(String name)
+	public FormInstance getNonMainInstance(String name)
 	{
-		int i = nonMainInstancesNamesToIndex.indexOf(name);
-		if(i == -1)
-		{
+		if(!formInstances.containsKey(name)) {
 			return null;
 		}
-		try
-		{
-			return nonMainInstances.get(i);
-		}
-		catch(ArrayIndexOutOfBoundsException e)
-		{
-			return null;
-		}
+		return formInstances.get(name);
 	}
 	
 	/**
 	 * Get the non main instances
 	 * @return
 	 */
-	public static Vector<FormInstance> getNonMainInstances()
+	public Enumeration getNonMainInstances()
 	{
-		return nonMainInstances;
+		return formInstances.elements();
 	}
 	
 	/**
 	 * Set the main instance
 	 * @param fi
 	 */
-	public static void setMainInstance(FormInstance fi, FormDef fd)
+	public void setInstance(FormInstance fi)
 	{
-		if (fi.getFormId() != -1 && fd.getID() != fi.getFormId()) {
-			System.err.println("Warning: assigning incompatible instance (type " + fi.getFormId() + ") to a formdef (type " + fd.getID() + ")");
-		}
 		mainInstance = fi;
-		fi.setFormId(fd.getID());
-		fd.attachControlsToInstanceData();
-	
-		
+		fi.setFormId(getID());
+		this.setEvaluationContext(new EvaluationContext(null));
+		attachControlsToInstanceData();
 	}
 	
 	/**
 	 * Get the main instance
 	 * @return
 	 */
-	public static FormInstance getMainInstance()
+	public FormInstance getMainInstance()
 	{
 		return mainInstance;
 	}
 	
-	public static FormInstance getInstance()
+	public FormInstance getInstance()
 	{
 		return getMainInstance();
 	}
@@ -469,7 +446,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					
 		//delete existing dest nodes that are not in the answer selection
 		Hashtable<String, TreeElement> existingValues = new Hashtable<String, TreeElement>();
-		Vector<TreeReference> existingNodes = getMainInstance().expandReference(destRef);
+		Vector<TreeReference> existingNodes = exprEvalContext.expandReference(destRef);
 		for (int i = 0; i < existingNodes.size(); i++) {
 			TreeElement node = getMainInstance().resolveReference(existingNodes.elementAt(i));
 			
@@ -706,7 +683,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
 	private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
 		TreeReference contextRef = t.contextRef.contextualize(anchorRef);
-		Vector v = mainInstance.expandReference(contextRef);
+		Vector v = exprEvalContext.expandReference(contextRef);
 		for (int i = 0; i < v.size(); i++) {
 			EvaluationContext ec = new EvaluationContext(exprEvalContext, (TreeReference)v.elementAt(i));
 			t.apply(mainInstance, ec, this);
@@ -714,14 +691,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	}
 
 	public boolean evaluateConstraint(TreeReference ref, IAnswerData data) {
-		if (data == null)
+		if (data == null){
 			return true;
-
+		}
 		TreeElement node = mainInstance.resolveReference(ref);
 		Constraint c = node.getConstraint();
-		if (c == null)
+		if (c == null) {
 			return true;
-
+		}
 		EvaluationContext ec = new EvaluationContext(exprEvalContext, ref);
 		ec.isConstraint = true;
 		ec.candidateValue = data;
@@ -734,8 +711,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 *            The new Evaluation Context
 	 */
 	public void setEvaluationContext(EvaluationContext ec) {
+		ec = new EvaluationContext(mainInstance, formInstances, ec);
 		initEvalContext(ec);
 		this.exprEvalContext = ec;
+	}
+	
+	public EvaluationContext getEvaluationContext() {
+		return this.exprEvalContext;
 	}
 
 	private void initEvalContext(EvaluationContext ec) {
@@ -909,7 +891,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		FormInstance fi = null;
 		if(itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
 		{
-			fi = FormDef.getNonMainInstance(itemset.nodesetRef.getInstanceName());
+			fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
 			if(fi == null)
 			{
 				System.out.println("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
@@ -1072,7 +1054,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
 		setTitle((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 		setChildren((Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf));
-		FormDef.setMainInstance((FormInstance) ExtUtil.read(dis, FormInstance.class, pf), this);
+		setInstance((FormInstance) ExtUtil.read(dis, FormInstance.class, pf));
 
 		setLocalizer((Localizer) ExtUtil.read(dis, new ExtWrapNullable(Localizer.class), pf));
 
@@ -1088,12 +1070,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class));
 		
-		Vector<FormInstance> nonMainInstances = (Vector)ExtUtil.read(dis, new ExtWrapList(FormInstance.class),pf);
-		for(int i = 0; i < nonMainInstances.size(); i++)
-		{
-			FormDef.addNonMainInstance(nonMainInstances.get(i));
-		}
+		formInstances = (Hashtable<String, FormInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, FormInstance.class));
 		
+		setEvaluationContext(new EvaluationContext(null));
 	}
 
 	/**
@@ -1128,7 +1107,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
 		ExtUtil.write(dos, new ExtWrapNullable(getTitle()));
 		ExtUtil.write(dos, new ExtWrapListPoly(getChildren()));
-		ExtUtil.write(dos, FormDef.getMainInstance());
+		ExtUtil.write(dos, getMainInstance());
 		ExtUtil.write(dos, new ExtWrapNullable(localizer));
 
 		Vector conditions = new Vector();
@@ -1149,7 +1128,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		//for support of multi-instance forms		
 		
-		ExtUtil.write(dos, new ExtWrapList(FormDef.getNonMainInstances()));
+		ExtUtil.write(dos, new ExtWrapMap(formInstances));
 	}
 
 	public void collapseIndex(FormIndex index, Vector indexes, Vector multiplicities, Vector elements) {
@@ -1349,7 +1328,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * to xml
 	 */
 	public void attachControlsToInstanceData () {
-		attachControlsToInstanceData(FormDef.getMainInstance().getRoot());
+		attachControlsToInstanceData(getMainInstance().getRoot());
 	}
 	
 	private void attachControlsToInstanceData (TreeElement node) {
