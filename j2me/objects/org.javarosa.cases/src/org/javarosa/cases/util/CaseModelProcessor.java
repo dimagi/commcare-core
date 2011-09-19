@@ -14,6 +14,7 @@ import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -288,7 +289,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			TreeElement element = (TreeElement)children.pop();
 			for(int i =0; i < element.getNumChildren(); ++i) {
 				TreeElement caseElement = element.getChildAt(i);
-				if(!caseElement.isRelevant()) {
+				if(!caseElement.isRelevant() || caseElement.getMult() == TreeReference.INDEX_TEMPLATE) {
 					continue;
 				}
 				if(caseElement.getName().equals("case")) {
