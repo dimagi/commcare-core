@@ -39,6 +39,8 @@ public class CommCareSession {
 	
 	protected Vector<String[]> steps = new Vector<String[]>();
 	
+	protected String[] popped;
+	
 	/** CommCare needs a Command (an entry, view, etc) to proceed. Generally sitting on a menu screen. */
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
     /** CommCare needs the ID of a Case to proceed **/
@@ -199,10 +201,14 @@ public class CommCareSession {
 	}
 	
 	public void stepBack() {
+		String[] recentPop = null;
 		if(steps.size() > 0) {
+			recentPop = steps.elementAt(steps.size() -1);
 			steps.removeElementAt(steps.size() - 1);
+			
 		}
 		syncState();
+		popped = recentPop; 
 	}
 
 	
@@ -240,6 +246,7 @@ public class CommCareSession {
 		this.currentRef = null;
 		this.currentRefType = null;
 		this.currentXmlns = null;
+		this.popped = null;
 		
 		for(String[] step : steps) {
 			if(STATE_CASE_ID.equals(step[0])) {
@@ -257,6 +264,10 @@ public class CommCareSession {
 	
 	public String getCaseId() {
 		return this.currentCase;
+	}
+	
+	public String[] getPoppedStep() {
+		return popped;
 	}
 	
 	public String getForm() {
