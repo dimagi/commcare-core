@@ -55,6 +55,8 @@ colors {
 	
 	popupFontColor: black;
 	
+	demoTitleColor: #7AB847;
+	
 	selectedBg: #D5D8DD;
 	selectedBgSense: #00FFEE;
 	borderSense: #2685FF;
@@ -124,10 +126,28 @@ title{
 		type: round-rect;
 		color: lighterBlue;
 		arc-width: 10;
-		arc-height: 10;
-	}	
+		arc-height: 10;		
+	}
 }
 
+.normaltitle {
+   	background {
+		type: round-rect;
+		color: lighterBlue;
+		arc-width: 10;
+		arc-height: 10;		
+	}
+}
+
+
+.demotitle {
+   	background {
+		type: round-rect;
+		color: black;
+		arc-width: 10;
+		arc-height: 10;		
+	}
+}
 
 .modeList{
 	background: #FFC;
@@ -525,6 +545,7 @@ alertcontent {
 	background-color: white;
 	padding: 0;
 }
+
 
 .ReviewSplit extends .split {
  	background-color: white;

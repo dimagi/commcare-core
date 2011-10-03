@@ -562,8 +562,9 @@ public class CommCareContext {
 		StorageManager.registerWrappedStorage(key, "DEMO_" + key, wrapper);
 	}
 	
-	public void toggleDemoMode(boolean demoOn) {
+	public void toggleDemoMode(boolean demoOn) {		
 		if (demoOn != inDemoMode) {
+			CommCareUtil.cycleDemoStyles(demoOn);
 			inDemoMode = demoOn;
 			if (demoOn) {
 				registerDemoStorage(Case.STORAGE_KEY, Case.class);

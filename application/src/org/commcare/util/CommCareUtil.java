@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.lcdui.StringItem;
+
 import org.commcare.applogic.CommCareAlertState;
 import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareHomeState;
@@ -34,15 +36,17 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.entity.model.Entity;
-import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
-import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
+
+import de.enough.polish.ui.Style;
+import de.enough.polish.ui.StyleSheet;
+import de.enough.polish.ui.UiAccess;
 
 /**
  * @author ctsims
@@ -340,6 +344,31 @@ public class CommCareUtil {
 			return credentialProvider;
 		} else {
 			return new CommCareUserCredentialProvider(credentialProvider, domain);
+		}
+	}
+	
+	public static void cycleDemoStyles(boolean demo) {
+		try{
+		//Below exists to make the style pop into code if it exists.
+		//#style demotitle?
+		UiAccess.setStyle(new StringItem("test","test"));
+		//#style normaltitle?
+		UiAccess.setStyle(new StringItem("test","test"));
+		
+		Style title = StyleSheet.getStyle("title");
+		Style demotitle = StyleSheet.getStyle("demotitle");
+		Style normaltitle = StyleSheet.getStyle("normaltitle");
+		if(title == null || demotitle == null || normaltitle ==null) {
+			return;
+		} 
+		if(demo) {
+			title.background = demotitle.background;
+		} else {
+			title.background = normaltitle.background;
+		}
+		} catch (Exception e) {
+			//Don't worry about this, this is all gravy anyway
+			e.printStackTrace();
 		}
 	}
 }
