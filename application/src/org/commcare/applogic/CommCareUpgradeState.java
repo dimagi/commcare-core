@@ -172,5 +172,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 			
 		});
 	}
+	
+	public abstract void done();
 
 }
