@@ -5,15 +5,15 @@ package org.commcare.view;
 
 import java.util.Vector;
 
-import javax.microedition.lcdui.Command;
-
 import org.commcare.util.CommCareSense;
 import org.commcare.util.MultimediaListener;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.formmanager.view.CustomChoiceGroup;
 import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.ChoiceGroup;
+import de.enough.polish.ui.Command;
+import de.enough.polish.ui.CommandListener;
+import de.enough.polish.ui.Displayable;
 import de.enough.polish.ui.List;
 
 /**
@@ -46,5 +46,21 @@ public class CommCareListView extends List implements MultimediaListener {
 			audioLocations.setSize(index+1);
 		}
 		audioLocations.setElementAt(audioURI, index);
+	}
+	
+	protected CommandListener wrapped;
+	public void setCommandListener(CommandListener cl) {
+		wrapped = cl;
+		super.setCommandListener(new CommandListener(){
+			public void commandAction(Command c, Displayable d) {
+				if(d == CommCareListView.this && c.equals(CommCareListView.this.SELECT_COMMAND)) {
+					if(!((CustomChoiceGroup)CommCareListView.this.choiceGroup).isFireable()) {
+						return;
+					}
+				}
+				//otherwise
+				wrapped.commandAction(c, d);
+			} 
+		});
 	}
 }

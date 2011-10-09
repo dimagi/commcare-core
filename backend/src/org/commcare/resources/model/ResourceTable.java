@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -426,11 +427,22 @@ public class ResourceTable {
 	}
 	
 	public void initializeResources(CommCareInstance instance) throws ResourceInitializationException {
+		//HHaaaacckkk. (Some properties cannot be handled until after others
+		//TODO: Replace this with some sort of sorted priority queue.
+		Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
+		
 		for(Resource r : this.GetResources()) {
 			ResourceInstaller i = r.getInstaller();
 			if(i.requiresRuntimeInitialization()) {
-				i.initialize(instance);
+				if(i instanceof ProfileInstaller) {
+					lateInit.addElement(i);
+				} else {
+					i.initialize(instance);
+				}
 			}
+		}
+		for(ResourceInstaller i : lateInit) {
+			i.initialize(instance);
 		}
 	}
 
