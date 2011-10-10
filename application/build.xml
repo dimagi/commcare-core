@@ -117,6 +117,7 @@
 				<!-- Build variables -->
 				<variables includeAntProperties="true">
 					<variable file="configuration/configuration.properties" />
+					<variable file="polish.keyboardhacks.properties" if="polish.customkeys"/>
 					<variable name="polish.TextField.useDirectInput" value="true" unless="polish.international"/>
 					<variable name="polish.FullScreen" value="false" if="${ isOS( Windows ) }" />
 					<variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) } or polish.noobfuscate" /> 

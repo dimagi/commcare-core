@@ -53,6 +53,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		if(!detailed) {
 			text = shortDetail.getHeaders();
 		} else{
+			if(longDetail == null) { return null;}
 			text = longDetail.getHeaders();
 		}
 		
@@ -94,6 +95,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 * @see org.javarosa.entity.model.Entity#getForms(boolean)
 	 */
 	public String[] getLongForms(boolean header) {
+		if(longDetail == null) { return null;}
 		return header ? longDetail.getHeaderForms() : longDetail.getTemplateForms();
 	}
 
@@ -101,6 +103,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	 * @see org.javarosa.entity.model.Entity#getLongFields(org.javarosa.core.services.storage.Persistable)
 	 */
 	public String[] getLongFields(E e) {
+		if(longDetail == null) { return null;}
 		loader.prepare(e);
 		FormInstance specificInstance = loader.loadInstance(longDetail.getInstance());
 		Text[] text = longDetail.getTemplates();
