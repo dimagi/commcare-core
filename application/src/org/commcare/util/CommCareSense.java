@@ -4,6 +4,7 @@
 package org.commcare.util;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 
@@ -40,6 +41,7 @@ public class CommCareSense {
 	}
 	
 	public static boolean isAutoLoginEnabled() {
+		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_USERS)) { return false;}
 		String loginMode = PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_MODE);
 		if(loginMode == null) { return sense();}
 		else { return CommCareProperties.LOGIN_MODE_AUTO.equals(loginMode);}

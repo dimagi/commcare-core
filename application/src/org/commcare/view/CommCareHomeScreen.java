@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
@@ -67,7 +68,7 @@ public class CommCareHomeScreen extends CommCareListView {
 		isAdmin = (loggedInUser == null) ? true : loggedInUser.isAdminUser();
 		if (isAdmin) {
 			addCommand(admSettings);
-			if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
+			if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_USERS)) {
 				addCommand(admNewUser);
 				addCommand(admEditUsers);
 				addCommand(admDownload);
@@ -126,7 +127,11 @@ public class CommCareHomeScreen extends CommCareListView {
 		//If we're in sense mode, we want to change the title of this screen to reflect the logged in
 		//user and # of unsent forms.
 		if(CommCareSense.sense()) {
-			setTitle(loggedInUser.getUsername() + (unsent > 0 ?  ": " + numunsent : ""));
+			String name = loggedInUser.getUsername();
+			if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_USERS)) {
+				name = Localization.get("homescreen.title");
+			}
+			setTitle(name + (unsent > 0 ?  ": " + numunsent : ""));
 		}
 	}
 		

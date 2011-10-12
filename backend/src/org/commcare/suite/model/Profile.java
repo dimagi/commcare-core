@@ -34,6 +34,8 @@ public class Profile implements Persistable {
 	public static final String STORAGE_KEY = "PROFILE";
 	
 	public static final String FEATURE_REVIEW = "checkoff";
+
+	public static final String FEATURE_USERS = "users";
 	
 	int recordId = -1;
 	int version;
