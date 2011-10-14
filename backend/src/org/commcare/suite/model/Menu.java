@@ -28,6 +28,8 @@ public class Menu implements Externalizable {
 	Vector<String> commandIds;
 	String id;
 	String root;
+	String imageReference;
+	String audioReference;
 	
 	/**
 	 * Serialization only!!!
@@ -37,11 +39,13 @@ public class Menu implements Externalizable {
 	}
 	
 	
-	public Menu(String id, String root, Text name, Vector<String> commandIds) {
+	public Menu(String id, String root, Text name, Vector<String> commandIds, String imageReference, String audioReference) {
 		this.id = id;
 		this.root = root;
 		this.name = name;
 		this.commandIds = commandIds;
+		this.imageReference = imageReference;
+		this.audioReference = audioReference;
 	}
 	
 	/**
@@ -87,6 +91,9 @@ public class Menu implements Externalizable {
 		root = ExtUtil.readString(in);
 		name = (Text)ExtUtil.read(in, Text.class);
 		commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
+		imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		
 	}
 
 	/* (non-Javadoc)
@@ -97,6 +104,18 @@ public class Menu implements Externalizable {
 		ExtUtil.writeString(out,root);
 		ExtUtil.write(out,name);
 		ExtUtil.write(out, new ExtWrapList(commandIds));
+		ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));
+		ExtUtil.writeString(out,ExtUtil.emptyIfNull(audioReference));
+	}
+
+
+	public String getImageURI() {
+		return imageReference;
+	}
+	
+	public String getAudioURI() {
+		// TODO Auto-generated method stub
+		return audioReference;
 	}
 
 }

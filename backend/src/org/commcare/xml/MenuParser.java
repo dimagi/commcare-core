@@ -34,8 +34,28 @@ public class MenuParser extends ElementParser<Menu> {
 		root = root == null? "root" : root;
 		getNextTagInBlock("menu");
 		
+		
+		
 		Text name;
-		name = new TextParser(parser).parse();
+		String imageURI = null;;
+		String audioURI=  null;
+		
+		if(parser.getName().equals("text")){
+			name = new TextParser(parser).parse();
+		}else if(parser.getName().equals("display")){
+			Object[] displayArr = parseDisplayBlock();
+			//check that we have a commandText;
+			if(displayArr[0] == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
+			else name = (Text)displayArr[0];
+			
+			imageURI = (String)displayArr[1];
+			audioURI = (String)displayArr[2];
+		} else {
+			throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
+		}
+
+		
+		//name = new TextParser(parser).parse();
 
 		Vector<String> commandIds = new Vector<String>();
 		while (nextTagInBlock("menu")) {
@@ -43,7 +63,7 @@ public class MenuParser extends ElementParser<Menu> {
 			commandIds.addElement(parser.getAttributeValue(null, "id"));
 		}
 
-		Menu m = new Menu(id, root, name, commandIds);
+		Menu m = new Menu(id, root, name, commandIds, imageURI, audioURI);
 		return m;
 
 	}

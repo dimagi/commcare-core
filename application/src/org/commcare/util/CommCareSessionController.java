@@ -81,7 +81,11 @@ public class CommCareSessionController {
 					}
 				}
 				else if(m.getRoot().equals(menu)) {
-					int location = list.append(m.getName().evaluate(), null);
+					int location = list.append(m.getName().evaluate(),  MediaUtils.getImage(m.getImageURI()));
+					//TODO: All these multiple checks are pretty sloppy
+					if(listener != null && (m.getAudioURI() != null && !"".equals(m.getAudioURI()))) {
+						listener.registerAudioTrigger(location, m.getAudioURI());
+					}
 					suiteTable.put(new Integer(location),suite);
 					menuTable.put(new Integer(location),m);
 				}

@@ -251,4 +251,22 @@ public abstract class ElementParser<T> {
 	        }
 		}
 	}
+	
+	//This is, er, kind of not the best place for this. Should possibly be its own parser?
+	public Object[] parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException{
+		Object[] info = new Object[3];
+		while(nextTagInBlock("display")){
+			if(parser.getName().equals("text")){
+				info[0] = new TextParser(parser).parse();
+			}
+			//check and parse media stuff
+			else if(parser.getName().equals("media")){  
+				info[1] = parser.getAttributeValue(null, "image");
+				info[2] = parser.getAttributeValue(null, "audio");
+				//only ends up grabbing the last entries with 
+				//each attribute, but we can only use one of each anyway.
+			}
+		}
+		return info;
+	}
 }
