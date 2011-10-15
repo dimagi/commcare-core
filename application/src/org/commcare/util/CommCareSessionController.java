@@ -156,6 +156,9 @@ public class CommCareSessionController {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
+				public void abort () {
+					 back();
+				}
 			};
 			J2MEDisplay.startStateWithLoadingScreen(state);
 			return;
