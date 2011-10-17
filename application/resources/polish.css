@@ -840,7 +840,7 @@ alertcontent {
 .View_All_Form {
 	padding: 2;	
 	background-color: white;
-	screen-change-animation: zoomin;
+	/** screen-change-animation: zoomin;**/
 	layout: bottom | horizontal-center;
 	always-include: true	
 }
