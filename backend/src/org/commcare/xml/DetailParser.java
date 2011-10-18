@@ -27,7 +27,7 @@ public class DetailParser extends ElementParser<Detail> {
 	}
 
 	public Detail parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		checkNode("detail");
+			checkNode("detail");
 		
 			String id = parser.getAttributeValue(null,"id");
 			
@@ -57,10 +57,15 @@ public class DetailParser extends ElementParser<Detail> {
 			Vector<Integer> templateHints = new Vector<Integer>();
 			Vector<String> headerForms = new Vector<String>();
 			Vector<String> templateForms = new Vector<String>();
+			int defaultSort = -1;
 			
 			while(nextTagInBlock("detail")) {
 				checkNode("field");
 				//Get the fields
+				String sortDefault = parser.getAttributeValue(null, "sort");
+				if(sortDefault != null && sortDefault.equals("default")) {
+					defaultSort = headerForms.size();
+				}
 				if(nextTagInBlock("field")) {
 					//Header
 					checkNode("header");
@@ -93,7 +98,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms));
+		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort);
 		return d;
 	}
 	

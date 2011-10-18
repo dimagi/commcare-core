@@ -157,11 +157,37 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	public String[] getSortFields () {
 		String[] names = getSortFieldNames();
 		String[] ret = new String[names.length];
-		ret[0] = "DEFAULT";
+		int defaultSort = getSortFieldDefault();
+		
+		if(defaultSort != -1) {
+			ret[0] = String.valueOf(defaultSort);
+			ret[1] = "DEFAULT";
+		}
+		else {
+			ret[0] = "DEFAULT";
+		}
 		for(int i = 1 ; i < ret.length ; ++i ) {
-			ret[i] = String.valueOf(i);
+			if(defaultSort != i) {
+				ret[i] = String.valueOf(i);
+			}
 		}
 		return ret;
+	}
+	
+	private int getSortFieldDefault() {
+		int topIndex = shortDetail.getDefaultSort();
+		if(topIndex == -1) { return -1; }
+		
+		int index = -1;
+		Vector<String> fields = new Vector<String>();
+		fields.addElement(Localization.get("case.id"));
+		String[] headers = getHeaders(false);
+		for(int i = 0 ; i < headers.length ; ++i) {
+			if(i == topIndex) {
+				return fields.size();
+			}
+		}
+		return -1;
 	}
 	
 	/*

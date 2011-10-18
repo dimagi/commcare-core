@@ -48,6 +48,8 @@ public class Detail implements Externalizable {
 	private String[] headerForms;
 	private String[] templateForms;
 	
+	private int defaultSort;
+	
 	/**
 	 * Serialization Only
 	 */
@@ -55,7 +57,7 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter) {
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort) {
 		this.id = id;
 		this.title = title;
 		this.context = context;
@@ -66,16 +68,17 @@ public class Detail implements Externalizable {
 		this.templateHints = initBlank(templates.size());
 		this.headerForms = new String[headers.size()];
 		this.templateForms = new String[templates.size()];
+		this.defaultSort = defaultSort;
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints) {
-		this(id,title,context,headers,templates,filter);
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort) {
+		this(id,title,context,headers,templates,filter, defaultSort);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms) {
-		this(id,title,context,headers,templates,filter,headerHints,templateHints);
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort) {
+		this(id,title,context,headers,templates,filter,headerHints,templateHints, defaultSort);
 		this.headerForms = headerForms;
 		this.templateForms = templateForms;
 	}
@@ -185,7 +188,7 @@ public class Detail implements Externalizable {
 		templateHints = (int[])ExtUtil.readInts(in);
 		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
-		
+		defaultSort = ExtUtil.readInt(in);
 	}
 
 	/*
@@ -203,6 +206,7 @@ public class Detail implements Externalizable {
 		ExtUtil.writeInts(out, templateHints);
 		ExtUtil.write(out, new ExtWrapList(toVector(headerForms)));
 		ExtUtil.write(out, new ExtWrapList(toVector(templateForms)));
+		ExtUtil.writeNumeric(out, defaultSort);
 	}
 	
 	public Vector<String> toVector(String[] array) {
@@ -219,6 +223,11 @@ public class Detail implements Externalizable {
 			a[i] = ExtUtil.nullIfEmpty(v.elementAt(i));
 		}
 		return a;
+	}
+	
+	public int getDefaultSort() {
+		//Sort order keys
+		return defaultSort;
 	}
 	
 }
