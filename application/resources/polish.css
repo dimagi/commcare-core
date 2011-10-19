@@ -602,7 +602,7 @@ alertcontent {
 }
 
 .patselSelectedRow extends patselRow {
-	background-color: focusedBackground;
+	background-color: selectedBg;
 	border {
 		type:round-rect;
 		arc-width:6;
