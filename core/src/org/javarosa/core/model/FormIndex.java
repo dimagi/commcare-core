@@ -16,7 +16,10 @@
 
 package org.javarosa.core.model;
 
+import java.util.Vector;
+
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * A Form Index is an immutable index into a specific question definition that 
@@ -432,4 +435,27 @@ public class FormIndex {
 		return true;
 	}
 	
+	public void assignRefs(FormDef f) {
+		FormIndex cur = this;
+		
+		Vector<Integer> indexes = new Vector<Integer>();
+		Vector<Integer> multiplicities = new Vector<Integer>();
+		Vector<IFormElement> elements = new Vector<IFormElement>();
+		f.collapseIndex(this, indexes, multiplicities, elements);
+
+		Vector<Integer> curMults = new Vector<Integer>();
+		Vector<IFormElement> curElems = new Vector<IFormElement>();
+		
+		int i = 0;
+		while (cur != null) {
+			curMults.add(multiplicities.elementAt(i));
+			curElems.add(elements.elementAt(i));
+			
+			TreeReference ref = f.getChildInstanceRef(curElems, curMults);
+			cur.reference = ref;
+			
+			cur = cur.getNextLevel();
+			i++;
+		}
+	}
 }
