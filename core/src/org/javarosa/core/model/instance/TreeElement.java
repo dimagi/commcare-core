@@ -32,6 +32,7 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.utils.CompactInstanceWrapper;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -60,7 +61,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	private TreeElement parent;
 	public boolean repeatable;
 	public boolean isAttribute;
-
+	public String uuid; //only really relevant for repeatable nodes
+	
 	private IAnswerData value;
 	private Vector children = new Vector();
 
@@ -100,6 +102,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 		this.multiplicity = multiplicity;
 		this.parent = null;
 		attributes = new Vector<TreeElement>(0);
+		this.uuid = PropertyUtils.genGUID(6);
 	}
 	
 	/**
@@ -270,7 +273,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 		newNode.constraint = constraint;
 		newNode.preloadHandler = preloadHandler;
 		newNode.preloadParams = preloadParams;
-
+		
 		newNode.setAttributesFromSingleStringVector(getSingleStringAttributeVector());
 		if (value != null) {
 			newNode.value = value.clone();
