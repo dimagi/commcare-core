@@ -206,10 +206,14 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			} else{
 				String vname = kid.getName();
 				
+				//We skip nodes which aren't relevant above by completely ignoring them. If a node has a null value, that means
+				//that it exists and is simply empty, so we need to set a valid property vlaue for it (empty string), so that 
+				//properties can be overriden.
+				String value = "";
 				if(kid.getValue() != null) {
-					String value = kid.getValue().uncast().getString();
-					c.setProperty(vname, value);
+					value = kid.getValue().uncast().getString();
 				}
+				c.setProperty(vname, value);
 			}
 		}
 		commit(c);
