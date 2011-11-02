@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -395,5 +396,53 @@ public class TreeReference implements Externalizable {
 		ExtUtil.writeNumeric(out, refLevel);
 		ExtUtil.write(out, new ExtWrapList(names));
 		ExtUtil.write(out, new ExtWrapList(multiplicity));
+	}
+
+	/** Intersect this tree reference with another, returning a new tree reference
+	 *  which contains all of the common elements, starting with the root element.
+	 *  
+	 *  Note that relative references by their nature can't share steps, so intersecting
+	 *  any (or by any) relative ref will result in the root ref. Additionally, if the
+	 *  two references don't share any steps, the intersection will consist of the root
+	 *  reference.
+	 *  
+	 * @param b The tree reference to intersect
+	 * @return The tree reference containing the common basis of this ref and b
+	 */
+	public TreeReference intersect(TreeReference b) {
+		if(!this.isAbsolute() || !b.isAbsolute()) {
+			return TreeReference.rootRef();
+		}
+		if(this.equals(b)) { return this;}
+	
+	
+		TreeReference a;
+		//A should always be bigger if one ref is larger than the other
+		if(this.size() < b.size()) { a = b.clone() ; b = this.clone();}
+		else { a= this.clone(); b = b.clone();}
+		
+		//Now, trim the refs to the same length.
+		int diff = a.size() - b.size();
+		for(int i = 0; i < diff; ++i) {
+			a.removeLastLevel();
+		}
+		
+		int aSize = a.size();
+		//easy, but requires a lot of re-evaluation.
+		for(int i = 0 ; i <=  aSize; ++i) {
+			if(a.equals(b)) {
+				return a;
+			} else if(a.size() == 0) {
+				return TreeReference.rootRef();
+			} else {
+				if(!a.removeLastLevel() || !b.removeLastLevel()) {
+					//I don't think it should be possible for us to get here, so flip if we do
+					throw new RuntimeException("Dug too deply into TreeReference during intersection");
+				}
+			}
+		}
+		
+		//The only way to get here is if a's size is -1
+		throw new RuntimeException("Impossible state");
 	}
 }
