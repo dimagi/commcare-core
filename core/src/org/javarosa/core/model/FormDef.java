@@ -498,10 +498,20 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		if (existingIx >= 0) {
 			//one node may control access to many nodes; this means many nodes effectively have the same condition
 			//let's identify when conditions are the same, and store and calculate it only once
+			
+			//nov-2-2011: ctsims - We need to merge the context nodes together whenever we do this (finding the highest
+			//common ground between the two), otherwise we can end up failing to trigger when the ignored context
+			//exists and the used one doesn't
+			
+			Triggerable existingTriggerable = (Triggerable)triggerables.elementAt(existingIx);
+			
+			existingTriggerable.contextRef = existingTriggerable.contextRef.intersect(t.contextRef);
+			
+			return existingTriggerable;
 
 			//note, if the contextRef is unnecessarily deep, the condition will be evaluated more times than needed
 			//perhaps detect when 'identical' condition has a shorter contextRef, and use that one instead?
-			return (Triggerable)triggerables.elementAt(existingIx);
+			
 		} else {
 			triggerables.addElement(t);
 			triggerablesInOrder = false;
