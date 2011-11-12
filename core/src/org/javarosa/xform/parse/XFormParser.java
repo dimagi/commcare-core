@@ -787,6 +787,7 @@ public class XFormParser {
 		Vector usedAtts = new Vector();
 		usedAtts.addElement(REF_ATTR);
 		String hint = getXMLText(e, true);
+		String hintInnerText = getLabel(e);
 		String ref = e.getAttributeValue("", REF_ATTR);
 
 		if (ref != null) {
@@ -799,6 +800,7 @@ public class XFormParser {
 				throw new RuntimeException("malformed ref [" + ref + "] for <hint>");
 			}
 		} else {
+		    q.setHelpInnerText(hintInnerText);
 			q.setHelpText(hint);
 		}
 		
@@ -817,8 +819,7 @@ public class XFormParser {
 		labelUA.addElement(REF_ATTR);
 		valueUA.addElement(FORM_ATTR);
 		
-		
-		String label = null;
+		String labelInnerText = null;
 		String textRef = null;
 		String value = null;
 
@@ -833,7 +834,7 @@ public class XFormParser {
 				if(XFormUtils.showUnusedAttributeWarning(child, labelUA)){
 					System.out.println(XFormUtils.unusedAttWarning(child, labelUA));
 				}
-				label = getXMLText(child, true);
+				labelInnerText = getLabel(child);
 				String ref = child.getAttributeValue("", REF_ATTR);
 
 				if (ref != null) {
@@ -853,25 +854,27 @@ public class XFormParser {
 					System.out.println(XFormUtils.unusedAttWarning(child, valueUA));
 				}
 				
-				if (value.length() > MAX_VALUE_LEN) {
-					System.err.println("WARNING: choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars" + getVagueLocation(child));
-				}
+				if (value != null)  {
+				    if (value.length() > MAX_VALUE_LEN) {
+				        System.err.println("WARNING: choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars" + getVagueLocation(child));
+				    }
 				
-				//validate
-				for (int k = 0; k < value.length(); k++) {
-					char c = value.charAt(k);
-									
-					if (" \n\t\f\r\'\"`".indexOf(c) >= 0) {
-						boolean isMultiSelect = (q.getControlType() == Constants.CONTROL_SELECT_MULTI);
-						System.err.println("XForm Parse WARNING: " + (isMultiSelect ? SELECT : SELECTONE) + " question <value>s [" + value + "] " +
-								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks" + getVagueLocation(child));
-						break;
-					}
+    				//validate
+    				for (int k = 0; k < value.length(); k++) {
+    					char c = value.charAt(k);
+    									
+    					if (" \n\t\f\r\'\"`".indexOf(c) >= 0) {
+    						boolean isMultiSelect = (q.getControlType() == Constants.CONTROL_SELECT_MULTI);
+    						System.err.println("XForm Parse WARNING: " + (isMultiSelect ? SELECT : SELECTONE) + " question <value>s [" + value + "] " +
+    								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks" + getVagueLocation(child));
+    						break;
+    					}
+    				}
 				}
 			}
 		}
 		
-		if (textRef == null && label == null) {
+		if (textRef == null && labelInnerText == null) {
 			throw new XFormParseException("<item> without proper <label>",e);
 		}
 		if (value == null) {
@@ -881,7 +884,7 @@ public class XFormParser {
 		if (textRef != null) {
 			q.addSelectChoice(new SelectChoice(textRef, value));
 		} else {
-			q.addSelectChoice(new SelectChoice(null,label, value, false));
+			q.addSelectChoice(new SelectChoice(null,labelInnerText, value, false));
 		}
 		
 		//print unused attribute warning message for parent element
@@ -1358,11 +1361,8 @@ public class XFormParser {
 		}
 		return false;
 	}
-
-	private void parseBind (Element e) {
-		DataBinding binding  = new DataBinding();
-		
-		Vector usedAtts = new Vector();
+	
+	protected DataBinding processStandardBindAttributes( Vector usedAtts, Element e) {
 		usedAtts.addElement(ID_ATTR);
 		usedAtts.addElement(NODESET_ATTR);
 		usedAtts.addElement("type");
@@ -1374,6 +1374,9 @@ public class XFormParser {
 		usedAtts.addElement("calculate");
 		usedAtts.addElement("preload");
 		usedAtts.addElement("preloadParams");
+
+		DataBinding binding  = new DataBinding();
+		
 		
 		binding.setId(e.getAttributeValue("", ID_ATTR));
 
@@ -1447,7 +1450,15 @@ public class XFormParser {
 
 		binding.setPreload(e.getAttributeValue(NAMESPACE_JAVAROSA, "preload"));
 		binding.setPreloadParams(e.getAttributeValue(NAMESPACE_JAVAROSA, "preloadParams"));
+		
+		return binding;
+	}
 
+	protected void parseBind (Element e) {
+		Vector usedAtts = new Vector();
+
+		DataBinding binding = processStandardBindAttributes( usedAtts, e);
+		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
 			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
@@ -1500,7 +1511,7 @@ public class XFormParser {
 		return r;
 	}
 	
-	private void addBinding (DataBinding binding) {
+	protected void addBinding (DataBinding binding) {
 		bindings.addElement(binding);
 		
 		if (binding.getId() != null) {
@@ -2190,7 +2201,7 @@ public class XFormParser {
 				}
 			}	
 		} else {
-			String text = getXMLText(node, false);
+			String text = getXMLText(node, true);
 			if (text != null && text.trim().length() > 0) { //ignore text that is only whitespace
 				//TODO: custom data types? modelPrototypes?
 				
