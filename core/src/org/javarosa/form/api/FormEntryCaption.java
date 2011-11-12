@@ -382,7 +382,7 @@ public class FormEntryCaption implements FormElementStateListener {
 		return index;
 	}
 	
-	protected Localizer localizer() {
+	public Localizer localizer() {
 		return this.form.getLocalizer();
 	}
 
