@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -42,7 +43,7 @@ public class XPathFilterExpr extends XPathExpression {
 		this.predicates = predicates;
 	}
 	
-	public Object eval(FormInstance model, EvaluationContext evalContext) {
+	public Object eval(DataInstance model, EvaluationContext evalContext) {
 		throw new XPathUnsupportedException("filter expression");
 	}
 		

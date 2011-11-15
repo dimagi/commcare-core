@@ -190,7 +190,7 @@ public class RestoreUtils {
 		Vector v = new EvaluationContext(dm).expandReference(ref);
 		for (int i = 0; i < v.size(); i++) {
 			TreeElement e = dm.resolveReference((TreeReference)v.elementAt(i));
-			e.dataType = dataType;
+			e.setDataType(dataType);
 		}
 	}
 	

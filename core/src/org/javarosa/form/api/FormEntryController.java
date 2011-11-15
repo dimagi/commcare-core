@@ -84,7 +84,7 @@ public class FormEntryController {
         boolean complexQuestion = q.isComplex();
         
         boolean hasConstraints = false;
-        if (element.required && data == null) {
+        if (element.isRequired() && data == null) {
             return ANSWER_REQUIRED_BUT_EMPTY;
         } else if (!complexQuestion && !model.getForm().evaluateConstraint(index.getReference(), data)) {
             return ANSWER_CONSTRAINT_VIOLATED;

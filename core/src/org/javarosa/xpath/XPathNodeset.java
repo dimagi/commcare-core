@@ -3,17 +3,17 @@ package org.javarosa.xpath;
 import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 public class XPathNodeset {
 
 	Vector<TreeReference> nodes;
-	FormInstance instance;
+	DataInstance instance;
 	EvaluationContext ec;
 	
-	public XPathNodeset (Vector<TreeReference> nodes, FormInstance instance, EvaluationContext ec) {
+	public XPathNodeset (Vector<TreeReference> nodes, DataInstance instance, EvaluationContext ec) {
 		this.nodes = nodes;
 		this.instance = instance;
 		this.ec = ec;

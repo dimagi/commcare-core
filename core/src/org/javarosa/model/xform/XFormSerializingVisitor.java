@@ -179,7 +179,7 @@ import org.kxml2.kdom.Node;
 				return null;
 				
 			if (instanceNode.getValue() != null) {
-				Object serializedAnswer = serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.dataType); 
+				Object serializedAnswer = serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType()); 
 
 				if (serializedAnswer instanceof Element) {
 					e = (Element)serializedAnswer;

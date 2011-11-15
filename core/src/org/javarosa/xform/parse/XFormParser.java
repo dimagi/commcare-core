@@ -40,6 +40,8 @@ import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
@@ -330,9 +332,17 @@ public class XFormParser {
 			for(int i = 1; i < instanceNodes.size(); i++)
 			{
 				Element e = instanceNodes.elementAt(i);
-				FormInstance fi = parseInstance(e, false);
-				loadInstanceData(e, fi.getRoot(), _f);
-				_f.addNonMainInstance(fi);
+				String srcLocation = e.getAttributeValue(null, "src");
+				
+				DataInstance di;
+				if(e.getChildCount() == 0 && srcLocation != null) {
+					di = new ExternalDataInstance(srcLocation, instanceNodeIdStrs.elementAt(i));
+				} else {
+					FormInstance fi = parseInstance(e, false);
+					loadInstanceData(e, fi.getRoot(), _f);
+					di = fi;
+				}
+				_f.addNonMainInstance(di);
 
 			}
 		}
@@ -553,6 +563,10 @@ public class XFormParser {
 			}
 		}
 		
+		if(instanceNode == null) {
+			//no kids
+			instanceNode = instance;
+		}
 		
 		if (mainInstanceNode == null) {
 			mainInstanceNode = instanceNode;
@@ -1564,7 +1578,7 @@ public class XFormParser {
 		String name = instanceNodeIdStrs.elementAt(instanceNodes.indexOf(e));
 		
 		TreeElement root = buildInstanceStructure(e, null, !isMainInstance ? name : null);
-		FormInstance instanceModel = new FormInstance(root);
+		FormInstance instanceModel = new FormInstance(root, !isMainInstance ? name : null);
 		if(isMainInstance)
 		{
 			instanceModel.setName(_f.getTitle());
@@ -1718,6 +1732,14 @@ public class XFormParser {
 						nonstatic = false;
 					}
 				}
+				
+				//CTS: we're also going to go ahead and assume that all external 
+				//instance are static (we can't modify them TODO: This may only be 
+				//the case if the instances are of specific types (non Tree-Element 
+				//style). Revisit if needed.
+				if(srcRef.getInstanceName() != null) {
+					nonstatic = false;
+				}
 				if(nonstatic) {
 					refs.addElement(srcRef);
 				}
@@ -1758,7 +1780,7 @@ public class XFormParser {
 				TreeReference nref = nodes.elementAt(j);
 				TreeElement node = instance.resolveReference(nref);
 				if (node != null) { // catch '/'
-					node.repeatable = true;
+					node.setRepeatable(true);
 				}
 			}
 		}		
@@ -1804,7 +1826,7 @@ public class XFormParser {
 				
 				cur = child;
 			}
-			cur.repeatable = true;
+			cur.setRepeatable(true);
 		}
 		
 		if (root.getNumChildren() == 0)
@@ -1822,10 +1844,10 @@ public class XFormParser {
 	//helper function for checkRepeatsForTemplate
 	private static void checkRepeatsForTemplate (TreeElement repeatTreeNode, TreeReference ref, FormInstance instance, Vector<TreeReference> missing) {
 		String name = repeatTreeNode.getName();
-		int mult = (repeatTreeNode.repeatable ? TreeReference.INDEX_TEMPLATE : 0);
+		int mult = (repeatTreeNode.isRepeatable() ? TreeReference.INDEX_TEMPLATE : 0);
 		ref = ref.extendRef(name, mult);
 		
-		if (repeatTreeNode.repeatable) {
+		if (repeatTreeNode.isRepeatable()) {
 			TreeElement template = instance.resolveReference(ref);
 			if (template == null) {
 				missing.addElement(ref);
@@ -1847,7 +1869,7 @@ public class XFormParser {
 	//helper function for removeInvalidTemplates
 	private static boolean removeInvalidTemplates (TreeElement instanceNode, TreeElement repeatTreeNode, boolean templateAllowed) {
 		int mult = instanceNode.getMult();
-		boolean repeatable = (repeatTreeNode == null ? false : repeatTreeNode.repeatable);
+		boolean repeatable = (repeatTreeNode == null ? false : repeatTreeNode.isRepeatable());
 		
 		if (mult == TreeReference.INDEX_TEMPLATE) {
 			if (!templateAllowed) {
@@ -1910,7 +1932,7 @@ public class XFormParser {
 	private static void trimRepeatChildren (TreeElement node) {
 		for (int i = 0; i < node.getNumChildren(); i++) {
 			TreeElement child = node.getChildAt(i);
-			if (child.repeatable) {
+			if (child.isRepeatable()) {
 				node.removeChildAt(i);
 				i--;
 			} else {
@@ -1922,7 +1944,7 @@ public class XFormParser {
 	private static void checkDuplicateNodesAreRepeatable (TreeElement node) {
 		int mult = node.getMult();
 		if (mult > 0) { //repeated node
-			if (!node.repeatable) {
+			if (!node.isRepeatable()) {
 				System.out.println("Warning: repeated nodes [" + node.getName() + "] detected that have no repeat binding in the form; DO NOT bind questions to these nodes or their children!");
 				//we could do a more comprehensive safety check in the future
 			}
@@ -2078,7 +2100,7 @@ public class XFormParser {
 			//check that no nodes between the parent repeat and the target are repeatable
 			for (int k = repeatBind.size(); k < childBind.size(); k++) {
 				TreeElement rChild = (k < repeatAncestry.size() ? repeatAncestry.elementAt(k) : null);
-				boolean repeatable = (rChild == null ? false : rChild.repeatable);
+				boolean repeatable = (rChild == null ? false : rChild.isRepeatable());
 				if (repeatable && !(k == childBind.size() - 1 && isRepeat)) {
 					//catch <repeat nodeset="/a/b"><input ref="/a/b/c/d" /></repeat>...<repeat nodeset="/a/b/c">...</repeat>:
 					//  question's/group's/repeat's most immediate repeat parent in the instance is not its most immediate repeat parent in the form def
@@ -2105,7 +2127,7 @@ public class XFormParser {
 
 			//make sure the labelref is tested against the right instance
 			//check if it's not the main instance
-			FormInstance fi = null;
+			DataInstance fi = null;
 			if(itemset.labelRef.getInstanceName()!= null)
 			{
 				fi = _f.getNonMainInstance(itemset.labelRef.getInstanceName());
@@ -2113,13 +2135,17 @@ public class XFormParser {
 				{
 					throw new XFormParseException("Instance: "+ itemset.labelRef.getInstanceName() + " Does not exists");
 				}
-				itemset.labelRef.setInstance(fi);
 			}
 			else
 			{
 				fi = instance;
 			}
 
+			//If the data instance's structure isn't available until the form is entered, we can't really proceed further 
+			//with consistency/sanity checks, so just bail.
+			if(fi.isRuntimeEvaluated()) {
+				return;
+			}
 			
 			if(fi.getTemplatePath(itemset.labelRef) == null)
 			{
@@ -2203,7 +2229,7 @@ public class XFormParser {
 	}
 	
 	private static void attachBind(TreeElement node, DataBinding bind) {
-		node.dataType = bind.getDataType();
+		node.setDataType(bind.getDataType());
 			
 		if (bind.relevancyCondition == null) {
 			node.setRelevant(bind.relevantAbsolute);
@@ -2235,10 +2261,10 @@ public class XFormParser {
 				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 				for (int j = 0; j < nodes.size(); j++) {
 					TreeElement node = instance.resolveReference(nodes.elementAt(j));
-					if (node.dataType == Constants.DATATYPE_CHOICE || node.dataType == Constants.DATATYPE_CHOICE_LIST) {
+					if (node.getDataType() == Constants.DATATYPE_CHOICE || node.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
 						//do nothing
-					} else if (node.dataType == Constants.DATATYPE_NULL || node.dataType == Constants.DATATYPE_TEXT) {
-						node.dataType = type;
+					} else if (node.getDataType() == Constants.DATATYPE_NULL || node.getDataType() == Constants.DATATYPE_TEXT) {
+						node.setDataType(type);
 					} else {
 						System.out.println("Warning! Type incompatible with select question node [" + ref.toString() + "] detected!");
 					}
@@ -2288,7 +2314,7 @@ public class XFormParser {
 			if (text != null && text.trim().length() > 0) { //ignore text that is only whitespace
 				//TODO: custom data types? modelPrototypes?
 				
-				cur.setValue(XFormAnswerDataParser.getAnswerData(text, cur.dataType, ghettoGetQuestionDef(cur.dataType, f, cur.getRef())));
+				cur.setValue(XFormAnswerDataParser.getAnswerData(text, cur.getDataType(), ghettoGetQuestionDef(cur.getDataType(), f, cur.getRef())));
 			}
 		}		
 	}

@@ -36,7 +36,10 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -54,7 +57,6 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XPathReference;
 
 /**
@@ -105,7 +107,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
 	private Hashtable<String,SubmissionProfile> submissionProfiles;
 
-	private Hashtable<String, FormInstance> formInstances;
+	private Hashtable<String, DataInstance> formInstances;
 	private FormInstance mainInstance = null;
 
 
@@ -122,7 +124,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		setEvaluationContext(new EvaluationContext(null));
 		outputFragments = new Vector();
 		submissionProfiles = new Hashtable<String, SubmissionProfile>();
-		formInstances = new Hashtable<String, FormInstance>();
+		formInstances = new Hashtable<String, DataInstance>();
 	}
 	
 	
@@ -132,9 +134,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	/**
 	 * Getters and setters for the vectors tha
 	 */
-	public void addNonMainInstance(FormInstance instance)
+	public void addNonMainInstance(DataInstance instance)
 	{
-		formInstances.put(instance.getName(), instance);
+		formInstances.put(instance.getInstanceId(), instance);
 		this.setEvaluationContext(new EvaluationContext(null));
 	}
 	
@@ -143,7 +145,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * @param name string name
 	 * @return
 	 */
-	public FormInstance getNonMainInstance(String name)
+	public DataInstance getNonMainInstance(String name)
 	{
 		if(!formInstances.containsKey(name)) {
 			return null;
@@ -406,8 +408,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			if(repeat.getCountReference() != null) {
 				int currentMultiplicity = repeatIndex.getElementMultiplicity();
 				
+				AbstractTreeElement countNode = this.getMainInstance().resolveReference(repeat.getCountReference());
+				if(countNode == null) {
+					throw new RuntimeException("Could not locate the repeat count value expected at " + repeat.getCountReference().getReference().toString());
+				}
 				//get the total multiplicity possible
-				long fullcount = ((Integer)this.getMainInstance().getDataValue(repeat.getCountReference()).getValue()).intValue();
+				long fullcount = ((Integer)countNode.getValue().getValue()).intValue();
 				
 				if(fullcount <= currentMultiplicity) {
 					return false;
@@ -696,7 +702,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		Vector v = exprEvalContext.expandReference(contextRef);
 		for (int i = 0; i < v.size(); i++) {
 			EvaluationContext ec = new EvaluationContext(exprEvalContext, (TreeReference)v.elementAt(i));
-			t.apply(mainInstance, ec, this);
+			try {
+				t.apply(mainInstance, ec, this);
+			}catch(RuntimeException e) {
+				throw e;
+			}
 		}
 	}
 
@@ -906,7 +916,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(this.getMainInstance(),
 				new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 		
-		FormInstance fi = null;
+		DataInstance fi = null;
 		if(itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
 		{
 			fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
@@ -1088,7 +1098,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class));
 		
-		formInstances = (Hashtable<String, FormInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, FormInstance.class));
+		
+		formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()));
 		
 		setEvaluationContext(new EvaluationContext(null));
 	}
@@ -1100,7 +1111,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 *            true if the form is to be used for a new entry interaction,
 	 *            false if it is using an existing IDataModel
 	 */
-	public void initialize(boolean newInstance) {
+	public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+		for(Enumeration en = formInstances.keys(); en.hasMoreElements();) {
+			String instanceId = (String)en.nextElement();
+			DataInstance instance = formInstances.get(instanceId);
+			instance.initialize(factory, instanceId);
+		}
 		if (newInstance) {// only preload new forms (we may have to revisit
 			// this)
 			preloadInstance(mainInstance.getRoot());
@@ -1146,7 +1162,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		//for support of multi-instance forms		
 		
-		ExtUtil.write(dos, new ExtWrapMap(formInstances));
+		ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
 	}
 
 	public void collapseIndex(FormIndex index, Vector indexes, Vector multiplicities, Vector elements) {

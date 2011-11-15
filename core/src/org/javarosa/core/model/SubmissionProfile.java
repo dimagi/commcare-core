@@ -35,6 +35,10 @@ public class SubmissionProfile implements Externalizable {
 		
 	}
 	
+	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
+		this(ref, method, action, mediatype, new Hashtable<String, String>());
+	}
+	
 	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String,String> attributeMap) {
 		this.method = method;
 		this.ref = ref;
@@ -63,7 +67,6 @@ public class SubmissionProfile implements Externalizable {
 	    return attributeMap.get(name);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
 		method = ExtUtil.readString(in);

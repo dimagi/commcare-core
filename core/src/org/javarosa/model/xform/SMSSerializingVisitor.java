@@ -170,7 +170,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
 		if (instanceNode.getValue() != null) {
 			Object serializedAnswer = serializer.serializeAnswerData(
-					instanceNode.getValue(), instanceNode.dataType);
+					instanceNode.getValue(), instanceNode.getDataType());
 
 			if (serializedAnswer instanceof Element) {
 				// DON"T handle this.

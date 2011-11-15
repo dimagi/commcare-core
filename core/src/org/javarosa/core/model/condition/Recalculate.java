@@ -51,7 +51,7 @@ public class Recalculate extends Triggerable {
 	}
 	
 	public void apply (TreeReference ref, Object result, FormInstance model, FormDef f) {
-		int dataType = f.getMainInstance().resolveReference(ref).dataType;
+		int dataType = f.getMainInstance().resolveReference(ref).getDataType();
 		f.setAnswer(wrapData(result, dataType), ref);
 	}
 		

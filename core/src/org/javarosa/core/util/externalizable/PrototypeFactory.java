@@ -138,6 +138,10 @@ public class PrototypeFactory {
 		
 		for (int i = 0; i < hash.length; i++)
 			hash[i] = md5[i];
+		byte[] badHash = new byte[] {0,4,78,97};
+		if(PrototypeFactory.compareHash(badHash, hash)) {
+			System.out.println("BAD CLASS: " + type.getName());
+		}
 		
 		return hash;
 	}

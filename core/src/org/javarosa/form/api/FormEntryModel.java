@@ -450,7 +450,7 @@ public class FormEntryModel {
             if (e instanceof GroupDef) {
                 GroupDef g = (GroupDef) e;
                 if (g.getRepeat() && g.getCountReference() != null) {
-                    IAnswerData count = getForm().getMainInstance().getDataValue(g.getCountReference());
+                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getCountReference()).getValue();
                     if (count != null) {
                         long fullcount = ((Integer) count.getValue()).intValue();
                         TreeReference ref = getForm().getChildInstanceRef(index);
@@ -727,7 +727,7 @@ public class FormEntryModel {
 		// find out if node is repeatable
 		TreeReference nodeRef = form.getChildInstanceRef(elements, multiplicities);
 		TreeElement node = form.getMainInstance().resolveReference(nodeRef);
-		if (node == null || node.repeatable) { // node == null if there are no
+		if (node == null || node.isRepeatable()) { // node == null if there are no
 			// instances of the repeat
 			int mult;
 			if (node == null) {

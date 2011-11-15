@@ -50,7 +50,7 @@ public class TreeReference implements Externalizable {
 	private Vector multiplicity; //Vector<Integer>
 	//private Vector<XPathExpression> predicates; //Vector<XPathExpression>
 	private Hashtable<Integer, Vector<XPathExpression>> predicates;
-	private FormInstance instance = null;
+	private DataInstance instance = null;
 	private String instanceName = null;
 	
 
@@ -70,7 +70,6 @@ public class TreeReference implements Externalizable {
 		names = new Vector(0);
 		multiplicity = new Vector(0);		
 		predicates = new Hashtable<Integer, Vector<XPathExpression>>();
-		instance = null; //null means the default instance
 		instanceName = null; //dido
 	}
 	
@@ -80,14 +79,6 @@ public class TreeReference implements Externalizable {
 
 	public void setInstanceName(String instanceName) {
 		this.instanceName = instanceName;
-	}
-
-	public FormInstance getInstance() {
-		return instance;
-	}
-
-	public void setInstance(FormInstance instance) {
-		this.instance = instance;
 	}
 	
 	public int getMultiplicity(int index) {
@@ -176,10 +167,6 @@ public class TreeReference implements Externalizable {
 		if(instanceName != null)
 		{
 			newRef.setInstanceName(instanceName);
-		}
-		if(instance != null)
-		{
-			newRef.setInstance(instance);
 		}
 		return newRef;
 	}
@@ -456,7 +443,6 @@ public class TreeReference implements Externalizable {
 		names = (Vector)ExtUtil.read(in, new ExtWrapList(String.class), pf);
 		multiplicity = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class), pf);
 		instanceName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class),pf);
-		instance = (FormInstance)ExtUtil.read(in, new ExtWrapNullable(FormInstance.class),pf);
 		
 		//now since predicates are made up of 2 composite data types we have to carefully put it all back to gether again
 		Vector<Integer> vi = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
@@ -473,7 +459,6 @@ public class TreeReference implements Externalizable {
 		ExtUtil.write(out, new ExtWrapList(names));
 		ExtUtil.write(out, new ExtWrapList(multiplicity));
 		ExtUtil.write(out, new ExtWrapNullable(instanceName));
-		ExtUtil.write(out, new ExtWrapNullable(instance));
 		//predicates are complicated because they're a complex data structure, so we have to split them up and then
 		//put them back together again
 		Vector<Integer> vi = new Vector<Integer>();

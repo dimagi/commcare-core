@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryModel;
@@ -15,7 +16,7 @@ import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.RMSRetreivalMethod;
-import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
+import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 
 public class JRFormTestState extends FormEntryState {
@@ -25,12 +26,12 @@ public class JRFormTestState extends FormEntryState {
 		int formID = 1;
 		
 		Vector<IPreloadHandler> preloaders = JRFormTestUtil.getPreloaders();
-		FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null);
+		FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null, new InstanceInitializationFactory());
 		FormDef form = fetcher.getFormDef();
 
 		JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_LINEAR));
-		controller.setView(new SingleQuestionView(controller));
-		//controller.setView(new Chatterbox("Chatterbox", controller));
+		//controller.setView(new SingleQuestionView(controller));
+		controller.setView(new Chatterbox("Chatterbox", controller));
 		return controller;
 	}
 

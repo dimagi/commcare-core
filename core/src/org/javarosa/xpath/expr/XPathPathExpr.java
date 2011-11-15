@@ -21,7 +21,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.BooleanData;
@@ -35,8 +34,9 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -172,7 +172,7 @@ public class XPathPathExpr extends XPathExpression {
 		return ref;
 	}
 
-	public XPathNodeset eval (FormInstance m, EvaluationContext ec) {		
+	public XPathNodeset eval (DataInstance m, EvaluationContext ec) {		
 		TreeReference genericRef = getReference();
 
 		TreeReference ref = genericRef.contextualize(ec.getContextRef());
@@ -183,14 +183,14 @@ public class XPathPathExpr extends XPathExpression {
 		//check if this nodeset refers to a non-main instance
 		if(ref.getInstanceName() != null && ref.isAbsolute())
 		{
-			FormInstance nonMain = ec.getInstance(ref.getInstanceName());
+			DataInstance nonMain = ec.getInstance(ref.getInstanceName());
 			if(nonMain != null)
 			{
 				m = nonMain;
 			}
 			else
 			{
-				throw new XPathTypeMismatchException("Instance referenced by " + genericRef + " does not exists");
+				throw new XPathTypeMismatchException("Instance referenced by " + ref.toString(true) + " does not exist");
 			}
 		}
 		//Otherwise we'll leave 'm' as set to the main instance 
@@ -229,12 +229,12 @@ public class XPathPathExpr extends XPathExpression {
 //		}
 //	}
 
-	public static Object getRefValue (FormInstance model, EvaluationContext ec, TreeReference ref) {
+	public static Object getRefValue (DataInstance model, EvaluationContext ec, TreeReference ref) {
 		if (ec.isConstraint && ref.equals(ec.getContextRef())) {
 			//ITEMSET TODO: need to update this; for itemset/copy constraints, need to simulate a whole xml sub-tree here
 			return unpackValue(ec.candidateValue);
 		} else {
-			TreeElement node = model.resolveReference(ref);
+			AbstractTreeElement node = model.resolveReference(ref);
 			if (node == null) {
 				//shouldn't happen -- only existent nodes should be in nodeset
 				throw new XPathTypeMismatchException("Node " + ref.toString() + " does not exist!");

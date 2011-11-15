@@ -48,8 +48,9 @@ public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStor
 	private void buildIndex () {
 		metaDataIndex = new Hashtable();
 		
-		if (!hasMetaData)
+		if (!hasMetaData) {
 			return;
+		}
 		
 		String[] fields = proto.getMetaDataFields();
 		for (int k = 0; k < fields.length; k++) {
@@ -108,15 +109,17 @@ public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStor
 		IMetaData old = null;
 		if (hasMetaData) {
 			checkIndex();
-			if (exists(p.getID()))
+			if (exists(p.getID())) {
 				old = (IMetaData)read(p.getID());
+			}
 		}
 		
 		super.write(p);
 		
 		if (hasMetaData) {
-			if (old != null)
+			if (old != null) {
 				removeMetaData(p.getID(), (IMetaData)old);
+			}
 			indexMetaData(p.getID(), (IMetaData)p);
 		}
 	}

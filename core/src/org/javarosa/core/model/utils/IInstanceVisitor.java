@@ -31,5 +31,5 @@ public interface IInstanceVisitor {
 	 * visiting any of the Model's potential children.
 	 * @param dataModel
 	 */
-	void visit(FormInstance instance);
+	void visit(FormInstance dataInstance);
 }

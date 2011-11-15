@@ -29,8 +29,8 @@ import me.regexp.RE;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
@@ -125,7 +125,7 @@ public class XPathFuncExpr extends XPathExpression {
 	 * the supplied arguments must match one of the function prototypes defined by the handler.
 	 * 
 	 */
-	public Object eval (FormInstance model, EvaluationContext evalContext) {
+	public Object eval (DataInstance model, EvaluationContext evalContext) {
 		String name = id.toString();
 		Object[] argVals = new Object[args.length];
 		

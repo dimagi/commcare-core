@@ -77,7 +77,7 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
 
     public int getDataType() {
-        return mTreeElement.dataType;
+        return mTreeElement.getDataType();
     }
 
     // attributes available in the bind, instance and body
@@ -243,7 +243,7 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     
     public boolean isRequired() {
-        return mTreeElement.required;
+        return mTreeElement.isRequired();
     }
 
     public boolean isReadOnly() {

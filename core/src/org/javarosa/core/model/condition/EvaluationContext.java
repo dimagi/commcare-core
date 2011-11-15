@@ -22,6 +22,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -43,7 +45,7 @@ public class EvaluationContext {
 	
 	private String outputTextForm = null; //Responsible for informing itext what form is requested if relevant
 	
-	private Hashtable<String, FormInstance> formInstances;
+	private Hashtable<String, DataInstance> formInstances;
 	
 	FormInstance instance;
 	
@@ -69,17 +71,17 @@ public class EvaluationContext {
 		this.contextNode = context;
 	}
 	
-	public EvaluationContext (FormInstance instance, Hashtable<String, FormInstance> formInstances, EvaluationContext base) {
+	public EvaluationContext (FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
 		this(base);
 		this.formInstances = formInstances;
 		this.instance = instance;
 	}
 
 	public EvaluationContext (FormInstance instance) {
-		this(instance, new Hashtable<String, FormInstance>());
+		this(instance, new Hashtable<String, DataInstance>());
 	}
 	
-	public EvaluationContext (FormInstance instance, Hashtable<String, FormInstance> formInstances) {
+	public EvaluationContext (FormInstance instance, Hashtable<String, DataInstance> formInstances) {
 		this.formInstances = formInstances; 
 		this.instance = instance;
 		this.contextNode = TreeReference.rootRef();
@@ -87,7 +89,7 @@ public class EvaluationContext {
 		variables = new Hashtable();
 	}
 	
-	public FormInstance getInstance(String id) {
+	public DataInstance getInstance(String id) {
 		return formInstances.containsKey(id) ? formInstances.get(id) : null;
 	}
 	
@@ -173,7 +175,7 @@ public class EvaluationContext {
 			return null;
 		}
 		
-		TreeElement base = instance.getBase();
+		AbstractTreeElement base = instance.getBase();
 		if(ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
 			base = formInstances.get(ref.getInstanceName()).getBase();
 		}
@@ -189,7 +191,7 @@ public class EvaluationContext {
 	// templateRef: explicit path that refers to the current node
 	// refs: Vector to collect matching paths; if 'node' is a target node that
 	// matches sourceRef, templateRef is added to refs
-	private void expandReference(TreeReference sourceRef, TreeElement node, Vector<TreeReference> refs, boolean includeTemplates) {
+	private void expandReference(TreeReference sourceRef, AbstractTreeElement node, Vector<TreeReference> refs, boolean includeTemplates) {
 		int depth = node.getDepth();
 		Vector<XPathExpression> predicates = null;
 		if (depth == sourceRef.size()) {
@@ -199,13 +201,13 @@ public class EvaluationContext {
 			predicates = sourceRef.getPredicate(depth);
 			//ETHERTON: Is this where we should test for predicates?
 			int mult = sourceRef.getMultiplicity(depth);
-			Vector<TreeElement> set = new Vector<TreeElement>();
+			Vector<AbstractTreeElement> set = new Vector<AbstractTreeElement>();
 			
 			if (node.getNumChildren() > 0) {
 				if (mult == TreeReference.INDEX_UNBOUND) {
 					int count = node.getChildMultiplicity(name);
 					for (int i = 0; i < count; i++) {
-						TreeElement child = node.getChild(name, i);
+						AbstractTreeElement child = node.getChild(name, i);
 						if (child != null) {
 							set.addElement(child);
 						} else {
@@ -214,7 +216,7 @@ public class EvaluationContext {
 						}
 					}
 					if (includeTemplates) {
-						TreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+						AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
 						if (template != null) {
 							set.addElement(template);
 						}
@@ -223,7 +225,7 @@ public class EvaluationContext {
 					//TODO: Make this test mult >= 0?
 					//If the multiplicity is a simple integer, just get
 					//the appropriate child
-					TreeElement child = node.getChild(name, mult);
+					AbstractTreeElement child = node.getChild(name, mult);
 					if (child != null) {
 						set.addElement(child);
 					}
@@ -231,13 +233,13 @@ public class EvaluationContext {
 			}
 			
 			if(mult == TreeReference.INDEX_ATTRIBUTE) {
-				TreeElement attribute = node.getAttribute(null, name);
+				AbstractTreeElement attribute = node.getAttribute(null, name);
 				set.addElement(attribute);
 			}
 	
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
 				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
-				TreeElement treeElement = (TreeElement)e.nextElement();				
+				AbstractTreeElement treeElement = (AbstractTreeElement)e.nextElement();				
 				if(predicates != null)
 				{
 					TreeReference treeRef = treeElement.getRef();
@@ -268,5 +270,9 @@ public class EvaluationContext {
 				}
 			}
 		}
+	}
+
+	public DataInstance getMainInstance() {
+		return instance;
 	}
 }
