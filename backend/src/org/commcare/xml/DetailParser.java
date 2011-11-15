@@ -4,6 +4,7 @@
 package org.commcare.xml;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -11,6 +12,8 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.kxml2.io.KXmlParser;
@@ -49,6 +52,13 @@ public class DetailParser extends ElementParser<Detail> {
 			
 			//Now the model
 			FormInstance model = parseModel();
+			
+			Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
+			if("instance".equals(parser.getName())) {
+				String instanceId = parser.getAttributeValue(null, "id");
+				String location = parser.getAttributeValue(null,"src");
+				instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+			}
 			
 			//Now get the headers and templates.
 			Vector<Text> headers = new Vector<Text>();
@@ -98,7 +108,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort);
+		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, instances);
 		return d;
 	}
 	

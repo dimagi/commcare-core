@@ -7,6 +7,7 @@ import java.util.Hashtable;
 
 import org.commcare.suite.model.Filter;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
@@ -36,7 +37,7 @@ public class InstanceEntityFilter<E extends Persistable> extends EntityFilter<E>
 			loader.prepare(e);
 				
 			try {
-				return "t".equals(Text.XPathText("if(" + filter.getRaw() + ",'t','f')",new Hashtable<String, Text>()).evaluate(loader.loadInstance(template), null));
+				return "t".equals(Text.XPathText("if(" + filter.getRaw() + ",'t','f')",new Hashtable<String, Text>()).evaluate(new EvaluationContext(loader.loadInstance(template))));
 			} catch (XPathSyntaxException ex) {
 				ex.printStackTrace();
 				return true;

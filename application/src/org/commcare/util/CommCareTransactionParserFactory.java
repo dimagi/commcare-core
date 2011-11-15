@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.javarosa.core.services.Logger;
 import org.kxml2.io.KXmlParser;
@@ -72,6 +73,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 					return restoreId;
 				}
 			};
+		} else if(name.toLowerCase().equals("fixture")) {
+			return new FixtureXmlParser(parser);
 		}
 		return null;
 	}

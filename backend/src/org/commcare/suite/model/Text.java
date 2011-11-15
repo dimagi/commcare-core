@@ -14,7 +14,6 @@ import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -165,7 +164,7 @@ public class Text implements Externalizable {
 	 * (like an XPath text), this will likely fail.
 	 */
 	public String evaluate() {
-		return evaluate(null, null);
+		return evaluate(null);
 	}
 	
 	/**
@@ -173,14 +172,14 @@ public class Text implements Externalizable {
 	 * xpath functions in the underlying Text
 	 * @return The evaluated string value for this Text object.
 	 */
-	public String evaluate(FormInstance context, EvaluationContext parent) {
+	public String evaluate(EvaluationContext context) {
 		switch(type) {
 		case TEXT_TYPE_FLAT:
 			return argument;
 		case TEXT_TYPE_LOCALE:
 			String id = argument;
 			if(argument.equals("")) {
-				id = arguments.get("id").evaluate(context,parent);
+				id = arguments.get("id").evaluate(context);
 			}
 			return Localization.get(id);
 		case TEXT_TYPE_XPATH:
@@ -189,8 +188,7 @@ public class Text implements Externalizable {
 					    //Do an XPath cast to a string as part of the operation.
 						cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
 					}
-					EvaluationContext p =  parent == null ? new EvaluationContext() : parent;
-					EvaluationContext temp = new EvaluationContext(p, context == null ? null : context.getRoot().getRef());
+					EvaluationContext temp = new EvaluationContext(context, context == null ? null : context.getContextRef());
 					
 					temp.addFunctionHandler(new IFunctionHandler() {
 
@@ -259,11 +257,11 @@ public class Text implements Externalizable {
 					
 					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
 						String key = (String)en.nextElement();
-						String value = arguments.get(key).evaluate(context, parent);
+						String value = arguments.get(key).evaluate(context);
 						temp.setVariable(key,value);
 					}
 					
-					return (String)cacheParse.eval(context,temp);
+					return (String)cacheParse.eval(context.getMainInstance(), context);
 				} catch (XPathSyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

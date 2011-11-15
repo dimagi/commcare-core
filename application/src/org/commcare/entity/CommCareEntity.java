@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -109,7 +110,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		Text[] text = longDetail.getTemplates();
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(specificInstance, null);
+			output[i] = text[i].evaluate(new EvaluationContext(specificInstance));
 		}
 		return output;
 	}
@@ -146,7 +147,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		Text[] text = shortDetail.getTemplates();
 		shortText = new String[text.length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = text[i].evaluate(instance, null);
+			shortText[i] = text[i].evaluate(new EvaluationContext(instance,shortDetail.getInstances()));
 		}
 	}
 	

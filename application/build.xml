@@ -146,7 +146,7 @@
 					
 					<!-- Unfortunately, the ${polish.device} identifier isn't available in the regular ANT context, so we can't actually properly 
 					     place these obfuscation maps anywhere yet -->
-					<!--parameter name="printmapping" value="'${dir.dist}/obfuscation_mapping.txt'"/-->
+					<!--parameter name="printmapping" value="'dist/obfuscation_mapping.txt'"/-->
 
           <parameter name="dontskipnonpubliclibraryclasses" value="" />
           <parameter name="dontskipnonpubliclibraryclassmembers" value="" />
@@ -173,8 +173,8 @@
 					<parameter name="keep       ,         allowShrinking" value="class * implements org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper"/>
 					<parameter name="keep          ,         allowShrinking" value="class * implements org.commcare.resources.model.ResourceInstaller"/>
 					<parameter name="keep              " value="class org.javarosa.core.model.SubmissionProfile"/>
-					<parameter name="keep              ,            allowShrinking" value="class org.javarosa.core.model.SubmissionProfile"/>
 					<parameter name="keep                ,              allowShrinking" value="class * extends org.javarosa.core.model.SubmissionProfile"/>
+					<parameter name="keep                  ,                allowShrinking" value="!abstract class * extends org.javarosa.core.model.instance.DataInstance"/>
 				</obfuscator>
 
 				<!-- log settings: only use debug setting when the test-property is true -->

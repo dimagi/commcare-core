@@ -424,6 +424,7 @@ public class CommCareContext {
 	
 	protected void registerAddtlStorage () {
 		//do nothing
+		StorageManager.registerStorage("fixture", FormInstance.class);
 	}
 	
 	protected void initReferences() {

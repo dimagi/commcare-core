@@ -20,6 +20,7 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
@@ -171,7 +172,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 				final String title = prototype.getTypeName(instance.schema);
 				J2MEDisplay.startStateWithLoadingScreen(new FormEntryState () {
 					protected JrFormEntryController getController() {
-						FormDefFetcher fetcher = new FormDefFetcher(new ModelRmsRetrievalMethod(instanceID), instanceID, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers());
+						FormDefFetcher fetcher = new FormDefFetcher(new ModelRmsRetrievalMethod(instanceID), instanceID, CommCareContext._().getPreloaders(), CommCareContext._().getFuncHandlers(), new InstanceInitializationFactory());
 						JrFormEntryController controller = CommCareUtil.createFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), true));
 						controller.setView(new Chatterbox(title, controller));
 						return controller;

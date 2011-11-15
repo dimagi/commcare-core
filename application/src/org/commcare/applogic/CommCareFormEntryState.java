@@ -11,17 +11,24 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.FormTransportWorkflow;
+import org.javarosa.cases.instance.CaseInstanceTreeElement;
+import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
@@ -60,7 +67,24 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	}
 	
 	protected JrFormEntryController getController() {
-		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers);
+		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers, new InstanceInitializationFactory(){ 
+			public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+				String ref = instance.getReference();
+				if(ref.indexOf("case") != -1) {
+					return new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
+				}
+				if(instance.getReference().indexOf("fixture") != -1) {
+					String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
+					IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+					FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
+					TreeElement root = fixture.getRoot();
+					root.setParent(instance.getBase());
+					return root;
+				}
+				return null;
+			}
+		}
+		);
 		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher);
 		controller.setView(loadView(title,controller));
 		return controller;

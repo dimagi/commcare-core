@@ -269,4 +269,12 @@ public abstract class ElementParser<T> {
 		}
 		return info;
 	}
+	
+	protected int nextNonWhitespace() throws XmlPullParserException, IOException {
+		int ret = parser.next();
+		if(ret == KXmlParser.TEXT && parser.isWhitespace()) {
+			ret = parser.next();
+		}
+		return ret;
+	}
 }

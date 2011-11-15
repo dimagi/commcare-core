@@ -6,12 +6,16 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -36,6 +40,7 @@ public class Detail implements Externalizable {
 	private Text title;
 	
 	private FormInstance context;
+	private Hashtable<String, DataInstance> instances;
 	
 	private Filter filter;
 	
@@ -57,7 +62,7 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort) {
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort, Hashtable<String, DataInstance> instances) {
 		this.id = id;
 		this.title = title;
 		this.context = context;
@@ -69,16 +74,17 @@ public class Detail implements Externalizable {
 		this.headerForms = new String[headers.size()];
 		this.templateForms = new String[templates.size()];
 		this.defaultSort = defaultSort;
+		this.instances = instances; 
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort) {
-		this(id,title,context,headers,templates,filter, defaultSort);
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort,Hashtable<String, DataInstance> instances) {
+		this(id,title,context,headers,templates,filter, defaultSort, instances);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort) {
-		this(id,title,context,headers,templates,filter,headerHints,templateHints, defaultSort);
+	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, DataInstance> instances) {
+		this(id,title,context,headers,templates,filter,headerHints,templateHints, defaultSort, instances);
 		this.headerForms = headerForms;
 		this.templateForms = templateForms;
 	}
@@ -172,6 +178,10 @@ public class Detail implements Externalizable {
 	public Filter getFilter() {
 		return filter;
 	}
+	
+	public Hashtable<String, DataInstance> getInstances() {
+		return instances;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -189,6 +199,7 @@ public class Detail implements Externalizable {
 		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		defaultSort = ExtUtil.readInt(in);
+		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
 	}
 
 	/*
@@ -207,6 +218,7 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, new ExtWrapList(toVector(headerForms)));
 		ExtUtil.write(out, new ExtWrapList(toVector(templateForms)));
 		ExtUtil.writeNumeric(out, defaultSort);
+		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
 	}
 	
 	public Vector<String> toVector(String[] array) {

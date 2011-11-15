@@ -116,9 +116,10 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 				//information yet, which we probably should soon).
 				String uri = ref.getURI();
 				int lastslash = uri.lastIndexOf('/');
+				
 				//Now we have a local part reference
 				uri = uri.substring(lastslash == -1 ? 0 : lastslash + 1);
-				int copy = 0; 
+				int copy = 0;
 				
 				try {
 					Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
