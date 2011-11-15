@@ -82,6 +82,8 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		return false;
 	}
 	
+	private static final String valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException {
 		//If we have local resource authority, and the file exists, things are golden. We can just use that file.
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
@@ -118,6 +120,22 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 				int lastslash = uri.lastIndexOf('/');
 				//Now we have a local part reference
 				uri = uri.substring(lastslash == -1 ? 0 : lastslash + 1);
+				
+				String cleanUri = "";
+				//clean the uri ending. NOTE: This should be replaced with a link to a more
+				//robust uri cleaning subroutine
+				for(int i = 0 ; i < uri.length(); ++i) {
+					char c = uri.charAt(i);
+					if(valid.indexOf(c) ==-1 ) {
+						cleanUri += "_";
+					} else{
+						cleanUri += c;
+					}
+				}
+				
+				uri = cleanUri;
+				
+				
 				int copy = 0; 
 				
 				try {
@@ -130,7 +148,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					}
 					
 					if(destination.isReadOnly()) {
-						return cache(incoming, r, table);	
+						return cache(incoming, r, table);
 					}
 					//destination is now a valid local reference, so we can store the file there.
 					
@@ -240,5 +258,4 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		}
 		return null;
 	}
-
 }
