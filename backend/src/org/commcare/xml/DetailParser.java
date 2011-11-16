@@ -53,13 +53,6 @@ public class DetailParser extends ElementParser<Detail> {
 			//Now the model
 			FormInstance model = parseModel();
 			
-			Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
-			if("instance".equals(parser.getName())) {
-				String instanceId = parser.getAttributeValue(null, "id");
-				String location = parser.getAttributeValue(null,"src");
-				instances.put(instanceId, new ExternalDataInstance(location, instanceId));
-			}
-			
 			//Now get the headers and templates.
 			Vector<Text> headers = new Vector<Text>();
 			Vector<Text> templates = new Vector<Text>();
@@ -67,9 +60,17 @@ public class DetailParser extends ElementParser<Detail> {
 			Vector<Integer> templateHints = new Vector<Integer>();
 			Vector<String> headerForms = new Vector<String>();
 			Vector<String> templateForms = new Vector<String>();
+			Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
 			int defaultSort = -1;
 			
 			while(nextTagInBlock("detail")) {
+				if("instance".equals(parser.getName().toLowerCase())) {
+					String instanceId = parser.getAttributeValue(null, "id");
+					String location = parser.getAttributeValue(null,"src");
+					instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+					continue;
+				}
+				
 				checkNode("field");
 				//Get the fields
 				String sortDefault = parser.getAttributeValue(null, "sort");

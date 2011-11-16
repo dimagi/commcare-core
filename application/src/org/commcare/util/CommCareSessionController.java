@@ -15,6 +15,7 @@ import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.FormDefInstanceLoader;
 import org.commcare.entity.ReferralInstanceLoader;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
@@ -22,11 +23,11 @@ import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.List;
@@ -152,7 +153,7 @@ public class CommCareSessionController {
 			} else {
 				title = Localizer.clearArguments(entry.getText().evaluate());
 			}
-			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers()) {
+			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
@@ -194,9 +195,16 @@ public class CommCareSessionController {
 		//The rest of the selections all depend on the suite being available for checkin'
 		Suite suite = session.getCurrentSuite();
 		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
+
+		InstanceInitializationFactory iif = getIif();
+		Detail shortDetail = suite.getDetail(entry.getShortDetailId());
+		for(Enumeration en = shortDetail.getInstances().keys(); en.hasMoreElements(); ) {
+			String key = (String)en.nextElement(); 
+			shortDetail.getInstances().get(key).initialize(iif, key);
+		}
 		
 		if(next.equals(CommCareSession.STATE_REFERRAL_ID)) {
-			Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(entry.getReferences()));
+			Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(shortDetail, suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(entry.getReferences()));
 			CommCareSelectState<PatientReferral> select = new CommCareSelectState<PatientReferral>(entity,PatientReferral.STORAGE_KEY) {
 				
 				public void cancel() {
@@ -217,7 +225,7 @@ public class CommCareSessionController {
 		}
 
 		if(next.equals(CommCareSession.STATE_CASE_ID)) {
-			Entity<Case> entity = new CommCareEntity<Case>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(entry.getReferences()));
+			Entity<Case> entity = new CommCareEntity<Case>(shortDetail, suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(entry.getReferences()));
 			CommCareSelectState<Case> select = new CommCareSelectState<Case>(entity,Case.STORAGE_KEY) {
 				
 				public void cancel() {
@@ -236,7 +244,7 @@ public class CommCareSessionController {
 		}
 				
 		if(next.equals(CommCareSession.STATE_FORM_XMLNS)) {
-			Entity<FormDef> entity = new CommCareEntity<FormDef>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new FormDefInstanceLoader(entry.getReferences()));
+			Entity<FormDef> entity = new CommCareEntity<FormDef>(shortDetail, suite.getDetail(entry.getLongDetailId()), new FormDefInstanceLoader(entry.getReferences()));
 			CommCareSelectState<FormDef> select = new CommCareSelectState<FormDef>(entity,FormDef.STORAGE_KEY) {
 				
 				public void cancel() {
@@ -253,6 +261,10 @@ public class CommCareSessionController {
 			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
 			return;
 		}
+	}
+	
+	private InstanceInitializationFactory getIif() {
+		return new CommCareInstanceInitializer();
 	}
 
 	private Vector<IPreloadHandler> getPreloaders() {

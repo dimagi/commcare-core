@@ -3,12 +3,14 @@
  */
 package org.commcare.entity;
 
+import java.util.Enumeration;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
@@ -25,6 +27,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	Detail longDetail;
 	FormInstanceLoader<E> loader;
 	String[] shortText;
+	InstanceInitializationFactory iif;
 	
 	public CommCareEntity(Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
 		this.shortDetail = shortDetail;

@@ -56,35 +56,20 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	private String formName;
 	private Vector<IPreloadHandler> preloaders;
 	private Vector<IFunctionHandler> funcHandlers;
+	private InstanceInitializationFactory iif;
 	String title;
 		
 	public CommCareFormEntryState (String title,String formName,
-			Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers) {
+			Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers, InstanceInitializationFactory iif) {
 		this.title = title;
 		this.formName = formName;
 		this.preloaders = preloaders;
 		this.funcHandlers = funcHandlers;
+		this.iif = iif;
 	}
 	
 	protected JrFormEntryController getController() {
-		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers, new InstanceInitializationFactory(){ 
-			public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
-				String ref = instance.getReference();
-				if(ref.indexOf("case") != -1) {
-					return new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
-				}
-				if(instance.getReference().indexOf("fixture") != -1) {
-					String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-					IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
-					FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
-					TreeElement root = fixture.getRoot();
-					root.setParent(instance.getBase());
-					return root;
-				}
-				return null;
-			}
-		}
-		);
+		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers,iif);
 		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher);
 		controller.setView(loadView(title,controller));
 		return controller;

@@ -17,7 +17,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.cases"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.chsreferral"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.log"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.patient"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.polish.activity"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.user"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-shared-resources"/>
