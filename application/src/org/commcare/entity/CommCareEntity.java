@@ -27,7 +27,6 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	Detail longDetail;
 	FormInstanceLoader<E> loader;
 	String[] shortText;
-	InstanceInitializationFactory iif;
 	
 	public CommCareEntity(Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
 		this.shortDetail = shortDetail;
@@ -113,7 +112,7 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 		Text[] text = longDetail.getTemplates();
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(new EvaluationContext(specificInstance));
+			output[i] = text[i].evaluate(new EvaluationContext(specificInstance, longDetail.getInstances()));
 		}
 		return output;
 	}

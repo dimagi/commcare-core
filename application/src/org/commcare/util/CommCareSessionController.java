@@ -203,6 +203,12 @@ public class CommCareSessionController {
 			shortDetail.getInstances().get(key).initialize(iif, key);
 		}
 		
+		Detail longDetail = suite.getDetail(entry.getLongDetailId());
+		for(Enumeration en = longDetail.getInstances().keys(); en.hasMoreElements(); ) {
+			String key = (String)en.nextElement(); 
+			longDetail.getInstances().get(key).initialize(iif, key);
+		}
+		
 		if(next.equals(CommCareSession.STATE_REFERRAL_ID)) {
 			Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(shortDetail, suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(entry.getReferences()));
 			CommCareSelectState<PatientReferral> select = new CommCareSelectState<PatientReferral>(entity,PatientReferral.STORAGE_KEY) {
