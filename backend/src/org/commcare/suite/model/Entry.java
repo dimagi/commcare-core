@@ -7,9 +7,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -27,9 +29,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class Entry implements Externalizable{
 	
 	private String xFormNamespace;
-	private Hashtable<String, String> references;
-	private String shortDetailId;
-	private String longDetailId;
+	Vector<SessionDatum> data;
 	private Text commandText;
 	private String commandId;
 	private String imageResource;
@@ -42,14 +42,11 @@ public class Entry implements Externalizable{
 		
 	}
 	
-	public Entry(String commandId, Text commandText, String longDetailId,
-			String shortDetailId, Hashtable<String, String> references,
+	public Entry(String commandId, Text commandText, Vector<SessionDatum> data,
 			String formNamespace, String imageResource, String audioResource) {
-		this.commandId = commandId  == null ? "" : commandId;;
+		this.commandId = commandId  == null ? "" : commandId;
 		this.commandText = commandText;
-		this.longDetailId = longDetailId == null ? "" : longDetailId;
-		this.shortDetailId = shortDetailId  == null ? "" : shortDetailId;
-		this.references = references;
+		this.data = data;
 		xFormNamespace = formNamespace;
 		this.imageResource = imageResource == null ? "" : imageResource;
 		this.audioResource = audioResource == null ? "" : audioResource;
@@ -69,34 +66,6 @@ public class Entry implements Externalizable{
 	 */
 	public Text getText() {
 		return commandText;
-	}
-	
-	/**
-	 * @return A Key/Value set of references <refname, reftype> where
-	 * reftype is one of <ul><li>case</li><li>reference</li></ul> defining
-	 * a data type and refname is a string defining the name of that type
-	 * in a data model. This set of references defines the data which needs
-	 * to be available for the form entry action to begin.
-	 */
-	public Hashtable<String, String> getReferences() {
-		return references;
-	}
-	
-	/**
-	 * @return The ID of a detail definition which should be used to 
-	 * describe the data needed by the references to a user so that 
-	 * they can select the appropriate datum to fulfil those references. 
-	 */
-	public String getShortDetailId() {
-		return shortDetailId;
-	}
-	
-	/**
-	 * @return @return The ID of a detail definition which should be used to 
-	 * describe an individual data object to a user.
-	 */
-	public String getLongDetailId() {
-		return longDetailId;
 	}
 	
 	/**
@@ -122,6 +91,10 @@ public class Entry implements Externalizable{
 	public String getAudioURI(){
 		return audioResource;
 	}
+	
+	public Vector<SessionDatum> getSessionDataReqs() {
+		return data;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -130,14 +103,13 @@ public class Entry implements Externalizable{
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
 		this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		this.shortDetailId = ExtUtil.readString(in);
-		this.longDetailId = ExtUtil.readString(in);
 		this.commandId = ExtUtil.readString(in);
 		this.commandText = (Text)ExtUtil.read(in, Text.class, pf);
 		this.imageResource = ExtUtil.readString(in);
 		this.audioResource = ExtUtil.readString(in);
 		
-		references = (Hashtable<String,String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+		data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
+		
 	}
 	
 	/*
@@ -146,13 +118,10 @@ public class Entry implements Externalizable{
 	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace));
-		ExtUtil.writeString(out,shortDetailId);
-		ExtUtil.writeString(out,longDetailId);
 		ExtUtil.writeString(out,commandId);
 		ExtUtil.write(out,commandText);
 		ExtUtil.write(out, imageResource);
 		ExtUtil.write(out, audioResource);
-		
-		ExtUtil.write(out, new ExtWrapMap(references));
+		ExtUtil.write(out, new ExtWrapList(data));
 	}
 }

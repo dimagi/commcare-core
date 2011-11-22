@@ -5,9 +5,11 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -37,9 +39,7 @@ public class ViewParser extends ElementParser<Entry> {
 		checkNode("view");
 		
 		String xFormNamespace = null;
-		Hashtable<String, String> references = new Hashtable<String,String>();
-		String shortDetailId = null;
-		String longDetailId = null;
+		Vector<SessionDatum> data = new Vector<SessionDatum>();
 		String commandId = "";
 		Text commandText = null;
 			
@@ -52,37 +52,15 @@ public class ViewParser extends ElementParser<Entry> {
 					
 				}
 			}
-			else if(parser.getName().equals("entity")) {
-				this.nextTagInBlock("type");
-				String type = parser.nextText();
-				
-				String reference = type;
-				if(this.nextTagInBlock("entity")) {
-					reference = parser.nextText();
-				}
-				references.put(reference,type);
-			}
-			else if(parser.getName().equals("details")) {
-				if(this.nextTagInBlock("details")) {
-					//short
-					if(parser.getName().toLowerCase().equals("short")) {
-						shortDetailId = parser.getAttributeValue(null,"id");
-					}
-					else {
-						throw new InvalidStructureException("Expected at least one short as the first element of detail, found " + parser.getName(),parser);
-					}
-				}
-				if(this.nextTagInBlock("details")) {
-					//long
-					if(parser.getName().toLowerCase().equals("long")) {
-						longDetailId = parser.getAttributeValue(null,"id");
-					} else {
-						throw new InvalidStructureException("Expected only a long as the second element of a detail, found " + parser.getName(), parser);
-					}
+			else if(parser.getName().equals("session")) {
+				this.nextTagInBlock();
+				while(parser.getName().equals("datum")) {
+					SessionDatumParser parser = new SessionDatumParser(this.parser);
+					data.addElement(parser.parse());
 				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, longDetailId, shortDetailId, references, xFormNamespace, null, null);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, null, null);
 		return e;
 	}
 }

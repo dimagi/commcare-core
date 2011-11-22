@@ -18,6 +18,7 @@ import org.commcare.entity.ReferralInstanceLoader;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.javarosa.cases.model.Case;
 import org.javarosa.chsreferral.model.PatientReferral;
@@ -197,76 +198,40 @@ public class CommCareSessionController {
 		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
 
 		InstanceInitializationFactory iif = getIif();
-		Detail shortDetail = suite.getDetail(entry.getShortDetailId());
+		
+		SessionDatum datum = entry.getSessionDataReqs().elementAt(session.getData().size());
+		
+		
+		Detail shortDetail = suite.getDetail(datum.getShortDetail());
 		for(Enumeration en = shortDetail.getInstances().keys(); en.hasMoreElements(); ) {
 			String key = (String)en.nextElement(); 
 			shortDetail.getInstances().get(key).initialize(iif, key);
 		}
 		
-		Detail longDetail = suite.getDetail(entry.getLongDetailId());
+		Detail longDetail = suite.getDetail(datum.getLongDetail());
 		for(Enumeration en = longDetail.getInstances().keys(); en.hasMoreElements(); ) {
 			String key = (String)en.nextElement(); 
 			longDetail.getInstances().get(key).initialize(iif, key);
 		}
 		
-		if(next.equals(CommCareSession.STATE_REFERRAL_ID)) {
-			Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(shortDetail, suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(entry.getReferences()));
-			CommCareSelectState<PatientReferral> select = new CommCareSelectState<PatientReferral>(entity,PatientReferral.STORAGE_KEY) {
-				
-				public void cancel() {
-					CommCareSessionController.this.back();
-				}
-				
-				public void entitySelected(int id) {
-					PatientReferral r = CommCareUtil.getReferral(id);
-					Case c = CommCareUtil.getCase(r.getLinkedId());
-					CommCareSessionController.this.session.setReferral(r.getReferralId(), r.getType());
-					CommCareSessionController.this.session.setCaseId(c.getCaseId());
-					CommCareSessionController.this.next();
+		Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(shortDetail, longDetail, new ReferralInstanceLoader(entry.getReferences()));
+		CommCareSelectState<PatientReferral> select = new CommCareSelectState<PatientReferral>(entity,PatientReferral.STORAGE_KEY) {
+			
+			public void cancel() {
+				CommCareSessionController.this.back();
+			}
+			
+			public void entitySelected(int id) {
+				PatientReferral r = CommCareUtil.getReferral(id);
+				Case c = CommCareUtil.getCase(r.getLinkedId());
+				CommCareSessionController.this.session.setReferral(r.getReferralId(), r.getType());
+				CommCareSessionController.this.session.setCaseId(c.getCaseId());
+				CommCareSessionController.this.next();
 
-				}
-			};
-			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
-			return;
-		}
-
-		if(next.equals(CommCareSession.STATE_CASE_ID)) {
-			Entity<Case> entity = new CommCareEntity<Case>(shortDetail, suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(entry.getReferences()));
-			CommCareSelectState<Case> select = new CommCareSelectState<Case>(entity,Case.STORAGE_KEY) {
-				
-				public void cancel() {
-					CommCareSessionController.this.back();
-				}
-				
-				public void entitySelected(int id) {
-					Case c = CommCareUtil.getCase(id);
-					CommCareSessionController.this.session.setCaseId(c.getCaseId());
-					CommCareSessionController.this.next();
-
-				}
-			};
-			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
-			return;
-		}
-				
-		if(next.equals(CommCareSession.STATE_FORM_XMLNS)) {
-			Entity<FormDef> entity = new CommCareEntity<FormDef>(shortDetail, suite.getDetail(entry.getLongDetailId()), new FormDefInstanceLoader(entry.getReferences()));
-			CommCareSelectState<FormDef> select = new CommCareSelectState<FormDef>(entity,FormDef.STORAGE_KEY) {
-				
-				public void cancel() {
-					CommCareSessionController.this.back();
-				}
-				
-				public void entitySelected(int id) {
-					FormDef r = CommCareUtil.getForm(id);
-					CommCareSessionController.this.session.setXmlns(r.getInstance().schema);
-					CommCareSessionController.this.next();
-
-				}
-			};
-			J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
-			return;
-		}
+			}
+		};
+		J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
+		return;
 	}
 	
 	private InstanceInitializationFactory getIif() {

@@ -9,7 +9,9 @@ import java.util.Vector;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.javarosa.core.util.OrderedHashtable;
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -32,9 +34,7 @@ public class CommCareSession {
 	CommCarePlatform platform;
 	
 	protected String currentCmd;
-	protected String currentCase;
-	protected String currentRef;
-	protected String currentRefType;
+	protected OrderedHashtable data;
 	protected String currentXmlns;
 	
 	protected Vector<String[]> steps = new Vector<String[]>();
@@ -44,17 +44,19 @@ public class CommCareSession {
 	/** CommCare needs a Command (an entry, view, etc) to proceed. Generally sitting on a menu screen. */
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
     /** CommCare needs the ID of a Case to proceed **/
-    public static final String STATE_CASE_ID = "CASE_ID";
-    /** CommCare needs the ID of a Referral to proceed **/
-    public static final String STATE_REFERRAL_ID = "REFERRAL_ID";
+    public static final String STATE_DATUM_VAL = "CASE_ID";
     /** CommCare needs the XMLNS of the form to be entered to proceed **/
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 	
 	public CommCareSession(CommCarePlatform platform) {
 		this.platform = platform;
+		data = new OrderedHashtable();
 	}
-	
+
 	public Vector<Entry> getEntriesForCommand(String commandId) {
+		return this.getEntriesForCommand(commandId, new OrderedHashtable());
+	}
+	public Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
 		Hashtable<String,Entry> map = platform.getMenuMap();
 		Menu menu = null;
 		Entry entry = null;
@@ -84,10 +86,25 @@ public class CommCareSession {
 			//need to be fulfilled
 			for(String cmd : menu.getCommandIds()) {
 				Entry e = map.get(cmd);
-				entries.addElement(e);
+				boolean valid = true;
+				Vector<SessionDatum> requirements = e.getSessionDataReqs();
+				if(requirements.size() >= data.size()) {
+					for(int i = 0 ; i < data.size() ; ++i ) {
+						if(!requirements.elementAt(i).getDataId().equals(data.keyAt(i)))  {
+							valid = false;
+						}
+					}
+				}
+				if(valid) {
+					entries.addElement(e);
+				}
 			}
 		}
 		return entries;
+	}
+	
+	protected OrderedHashtable getData() {
+		return data;
 	}
 	
 	public String getNeededData() {
@@ -95,62 +112,32 @@ public class CommCareSession {
 			return STATE_COMMAND_ID;
 		}
 		
-		Vector<Entry> entries = getEntriesForCommand(this.getCommand());
+		Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
 		
-		//We might need to select for a form if the selected entries don't specify one
-		//but rather specify the need to choose one.
-		if(currentXmlns == null && 
-				!(entries.size() == 1 && entries.elementAt(0).getXFormNamespace() != null)) {
-			boolean needXmlns = false;
-			for(Entry e : entries) {
-				if(!e.getReferences().containsKey("form")){
-					// We can't grab a referral yet, since 
-					// there is an entry which doesn't use one
-					needXmlns = false;
-					break;
+		//Get data. Checking first to see if the relevant key is needed by all entries
+		
+		boolean needDatum = false;
+		String nextKey = null;
+		for(Entry e : entries) {
+			if(e.getSessionDataReqs().size() > this.getData().size()) {
+				String needed = e.getSessionDataReqs().elementAt(this.getData().size()).getDataId();
+				if(nextKey == null) {
+					nextKey = needed;
 				} else {
-					needXmlns = true;
+					//TODO: Detail screen matchup seems relevant? Maybe?
+					if(nextKey.equals(needed)) {
+						continue;
+					}
 				}
 			}
-			if(needXmlns) {
-				return STATE_FORM_XMLNS;
-			}
+			
+			//If we made it here, we either don't need more data or don't need
+			//consistent data for the remaining options
+			needDatum = false;
+			break;
 		}
-		
-		//Referrals require cases as well, and if a referral is chosen a case
-		//will be too, so we'll check for it first.
-		if(currentRef == null) {
-			boolean needRef = false;
-			for(Entry e : entries) {
-				if(!e.getReferences().containsKey("referral")){
-					// We can't grab a referral yet, since 
-					// there is an entry which doesn't use one
-					needRef = false;
-					break;
-				} else {
-					needRef = true;
-				}
-			}
-			if(needRef) {
-				return STATE_REFERRAL_ID;
-			}
-		}
-		
-		if(currentCase == null) {
-			boolean needCase = false;
-			for(Entry e : entries) {
-				if(!e.getReferences().containsKey("case")){
-					// We can't grab a case yet, since 
-					// there is an entry which doesn't use one
-					needCase = false;
-					break;
-				} else {
-					needCase = true;
-				}
-			}
-			if(needCase) {
-				return STATE_CASE_ID;
-			}
+		if(needDatum) {
+			return STATE_DATUM_VAL;
 		}
 		
 		//the only other thing we can need is a form command. If there's still
@@ -161,7 +148,7 @@ public class CommCareSession {
 			return null;
 		}
 	}
-	
+
 	public Detail getDetail(String id) {
 		for(Suite s : platform.getInstalledSuites()) {
 			Detail d = s.getDetail(id);
@@ -211,9 +198,8 @@ public class CommCareSession {
 		popped = recentPop; 
 	}
 
-	
-	public void setCaseId(String caseId) {
-		steps.addElement(new String[] {STATE_CASE_ID, caseId});
+	public void setDatum(String keyId, String value) {
+		this.steps.addElement(new String[] {STATE_DATUM_VAL, keyId, value});
 		syncState();
 	}
 	
@@ -222,48 +208,23 @@ public class CommCareSession {
 		syncState();
 	}
 	
-	public void setReferral(String referralId, String refType) {
-		this.steps.addElement(new String[] {STATE_REFERRAL_ID, referralId, refType});
-		syncState();
-	}
-	
-	public void setXmlns(String xmlns) {
-		this.steps.addElement(new String[] {STATE_FORM_XMLNS, xmlns});
-		syncState();
-	}
-	
-	public String getReferralId() {
-		return this.currentRef;
-	}
-	
-	public String getReferralType() {
-		return this.currentRefType;
-	}
-	
 	private void syncState() {
-		this.currentCase = null;
+		this.data.clear();
 		this.currentCmd = null;
-		this.currentRef = null;
-		this.currentRefType = null;
 		this.currentXmlns = null;
 		this.popped = null;
 		
 		for(String[] step : steps) {
-			if(STATE_CASE_ID.equals(step[0])) {
-				this.currentCase = step[1];
+			if(STATE_DATUM_VAL.equals(step[0])) {
+				String key = step[1];
+				String value = step[2];
+				data.put(key, value);
 			} else if(STATE_COMMAND_ID.equals(step[0])) {
 				this.currentCmd = step[1];
-			} else if(STATE_REFERRAL_ID.equals(step[0])) {
-				this.currentRef = step[1];
-				this.currentRefType = step[2];
 			}  else if(STATE_FORM_XMLNS.equals(step[0])) {
 				this.currentXmlns = step[1];
 			}
 		}
-	}
-	
-	public String getCaseId() {
-		return this.currentCase;
 	}
 	
 	public String[] getPoppedStep() {

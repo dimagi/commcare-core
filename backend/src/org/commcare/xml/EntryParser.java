@@ -4,10 +4,10 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.Vector;
 
-import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -30,9 +30,8 @@ public class EntryParser extends ElementParser<Entry> {
 		this.checkNode("entry");
 		
 		String xFormNamespace = "";
-		Hashtable<String, String> references = new Hashtable<String,String>();
-		String shortDetailId = null;
-		String longDetailId = null;
+		Vector<SessionDatum> data = new Vector<SessionDatum>();
+		
 		String commandId = "";
 		Text commandText = null;
 		String imageURI = null;
@@ -59,37 +58,15 @@ public class EntryParser extends ElementParser<Entry> {
 					audioURI = (String)displayArr[2];
 				}
 			}
-			else if(parser.getName().equals("entity")) {
-				this.nextTagInBlock("type");
-				String type = parser.nextText();
-				
-				String reference = type;
-				if(this.nextTagInBlock("entity")) {
-					reference = parser.nextText();
-				}
-				references.put(reference,type);
-			}
-			else if(parser.getName().equals("details")) {
-				if(this.nextTagInBlock("details")) {
-					//short
-					if(parser.getName().toLowerCase().equals("short")) {
-						shortDetailId = parser.getAttributeValue(null,"id");
-					}
-					else {
-						throw new InvalidStructureException("Expected at least one short as the first element of detail, found " + parser.getName(),parser);
-					}
-				}
-				if(this.nextTagInBlock("details")) {
-					//long
-					if(parser.getName().toLowerCase().equals("long")) {
-						longDetailId = parser.getAttributeValue(null,"id");
-					} else {
-						throw new InvalidStructureException("Expected only a long as the second element of a detail, found " + parser.getName(), parser);
-					}
+			else if(parser.getName().equals("session")) {
+				this.nextTagInBlock();
+				while(parser.getName().equals("datum")) {
+					SessionDatumParser parser = new SessionDatumParser(this.parser);
+					data.addElement(parser.parse());
 				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, longDetailId, shortDetailId, references, xFormNamespace, imageURI, audioURI);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI);
 		return e;
 	}
 }
