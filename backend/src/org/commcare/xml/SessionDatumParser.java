@@ -25,11 +25,14 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
 		
 		String id = parser.getAttributeValue(null, "id");
 		String nodeset = parser.getAttributeValue(null, "nodeset");
-		String shortDetail = parser.getAttributeValue(null, "select");
-		String longDetail = parser.getAttributeValue(null, "confirm");
+		String shortDetail = parser.getAttributeValue(null, "detail-select");
+		String longDetail = parser.getAttributeValue(null, "detail-confirm");
 		String value = parser.getAttributeValue(null, "value");
 		
 		SessionDatum datum = new SessionDatum(id, nodeset, shortDetail, longDetail, value);
+		
+		while(parser.next() == KXmlParser.TEXT);
+		
 		return datum;
 	}
 

@@ -123,6 +123,8 @@ public class CommCareSession {
 				String needed = e.getSessionDataReqs().elementAt(this.getData().size()).getDataId();
 				if(nextKey == null) {
 					nextKey = needed;
+					needDatum = true;
+					continue;
 				} else {
 					//TODO: Detail screen matchup seems relevant? Maybe?
 					if(nextKey.equals(needed)) {

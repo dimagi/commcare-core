@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -22,8 +23,13 @@ public class SessionDatum implements Externalizable {
 	private String shortDetail; 
 	private String longDetail; 
 	private String value;
+	
+	public SessionDatum() {
+		
+	}
 
 	public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String value) {
+		//TODO: Nodeset should be an xpathpath expression, probably?
 		this.id = id;
 		this.nodeset = nodeset;
 		this.shortDetail = shortDetail;
@@ -64,12 +70,22 @@ public class SessionDatum implements Externalizable {
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
 	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		id = ExtUtil.readString(in);
+		nodeset = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		shortDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		longDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
 	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeString(out, id);
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(nodeset));
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(shortDetail));
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(longDetail));
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
 	}
 
 }

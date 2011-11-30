@@ -6,6 +6,7 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -18,6 +19,9 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * <p>A Detail model defines the structure in which
@@ -39,7 +43,6 @@ public class Detail implements Externalizable {
 	
 	private Text title;
 	
-	private FormInstance context;
 	private Hashtable<String, DataInstance> instances;
 	
 	private Filter filter;
@@ -55,6 +58,9 @@ public class Detail implements Externalizable {
 	
 	private int defaultSort;
 	
+	Hashtable<String, String> variables;
+	Hashtable<String, XPathExpression> variablesCompiled;
+	
 	/**
 	 * Serialization Only
 	 */
@@ -62,10 +68,9 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort, Hashtable<String, DataInstance> instances) {
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort, Hashtable<String, DataInstance> instances, Hashtable<String, String> variables) {
 		this.id = id;
 		this.title = title;
-		this.context = context;
 		this.headers = headers;
 		this.templates = templates;
 		this.filter = filter;
@@ -75,16 +80,17 @@ public class Detail implements Externalizable {
 		this.templateForms = new String[templates.size()];
 		this.defaultSort = defaultSort;
 		this.instances = instances; 
+		this.variables = variables;
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort,Hashtable<String, DataInstance> instances) {
-		this(id,title,context,headers,templates,filter, defaultSort, instances);
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort,Hashtable<String, DataInstance> instances, Hashtable<String, String> variables) {
+		this(id,title,headers,templates,filter, defaultSort, instances, variables);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
 	}
 	
-	public Detail(String id, Text title, FormInstance context, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, DataInstance> instances) {
-		this(id,title,context,headers,templates,filter,headerHints,templateHints, defaultSort, instances);
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, DataInstance> instances, Hashtable<String, String> variables) {
+		this(id,title,headers,templates,filter,headerHints,templateHints, defaultSort, instances, variables);
 		this.headerForms = headerForms;
 		this.templateForms = templateForms;
 	}
@@ -162,16 +168,6 @@ public class Detail implements Externalizable {
 	}
 	
 	/**
-	 * @return A data model which describes the format of data which
-	 * is expected by the templates in this detail definition. This
-	 * model should be filled by the application and then passed to
-	 * the templated text items to display data.
-	 */
-	public FormInstance getInstance() {
-		return context;
-	}
-	
-	/**
 	 * @return a Filter object which can be used to determine what 
 	 * data elements this detail definition can describe.
 	 */
@@ -191,7 +187,6 @@ public class Detail implements Externalizable {
 		id = ExtUtil.readString(in);
 		title = (Text)ExtUtil.read(in, Text.class, pf);
 		filter = (Filter)ExtUtil.read(in, Filter.class, pf);
-		context = (FormInstance)ExtUtil.read(in, FormInstance.class, pf);
 		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		headerHints = (int[])ExtUtil.readInts(in);
@@ -200,6 +195,7 @@ public class Detail implements Externalizable {
 		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		defaultSort = ExtUtil.readInt(in);
 		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
+		variables = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
 	}
 
 	/*
@@ -210,7 +206,6 @@ public class Detail implements Externalizable {
 		ExtUtil.writeString(out,id);
 		ExtUtil.write(out, title);
 		ExtUtil.write(out, filter);
-		ExtUtil.write(out, context);
 		ExtUtil.write(out, new ExtWrapList(headers));
 		ExtUtil.write(out, new ExtWrapList(templates));
 		ExtUtil.writeInts(out, headerHints);
@@ -219,6 +214,24 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, new ExtWrapList(toVector(templateForms)));
 		ExtUtil.writeNumeric(out, defaultSort);
 		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
+		ExtUtil.write(out, new ExtWrapMap(variables));
+	}
+	
+	public Hashtable<String, XPathExpression> getVariableDeclarations() {
+		if(variablesCompiled == null) {
+			variablesCompiled = new Hashtable<String, XPathExpression>();
+			for(Enumeration en = variables.keys(); en.hasMoreElements() ; ) {
+				String key = (String)en.nextElement();
+				//TODO: This is stupid, parse this stuff at XML Parse time.
+				try {
+					variablesCompiled.put(key, XPathParseTool.parseXPath(variables.get(key)));
+				} catch (XPathSyntaxException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e.getMessage());
+				}
+			}
+		}
+		return variablesCompiled;
 	}
 	
 	public Vector<String> toVector(String[] array) {

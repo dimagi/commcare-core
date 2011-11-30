@@ -41,18 +41,8 @@ public class DetailParser extends ElementParser<Detail> {
 			getNextTagInBlock("title");
 			Text title = new TextParser(parser).parse();
 			
-			getNextTagInBlock("detail");
-			
 			Filter filter = Filter.EmptyFilter();
-			
-			if(parser.getName().toLowerCase().equals("filter")) {
-				filter = new FilterParser(parser).parse();
-				getNextTagInBlock("detail");
-			}
-			
-			//Now the model
-			FormInstance model = parseModel();
-			
+
 			//Now get the headers and templates.
 			Vector<Text> headers = new Vector<Text>();
 			Vector<Text> templates = new Vector<Text>();
@@ -61,9 +51,17 @@ public class DetailParser extends ElementParser<Detail> {
 			Vector<String> headerForms = new Vector<String>();
 			Vector<String> templateForms = new Vector<String>();
 			Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
+			Hashtable<String, String> variables = new Hashtable<String, String>();
 			int defaultSort = -1;
 			
 			while(nextTagInBlock("detail")) {
+				if("variables".equals(parser.getName().toLowerCase())) {
+					while(nextTagInBlock("variables")) {
+						variables.put(parser.getName(), parser.getAttributeValue(null, "function"));
+					}
+					continue;
+				}
+				
 				if("instance".equals(parser.getName().toLowerCase())) {
 					String instanceId = parser.getAttributeValue(null, "id");
 					String location = parser.getAttributeValue(null,"src");
@@ -109,7 +107,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, model, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, instances);
+		Detail d = new Detail(id, title, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, instances, variables);
 		return d;
 	}
 	
@@ -142,46 +140,6 @@ public class DetailParser extends ElementParser<Detail> {
 			}
 		}
 		return ret;
-	}
-	
-	private FormInstance parseModel() throws InvalidStructureException, IOException, XmlPullParserException {
-		checkNode("model");
-		int startingDepth = parser.getDepth();
-		int currentDepth = 1;
-		Stack<TreeElement> parents = new Stack<TreeElement>();
-		
-		//Navigate to the first element
-		nextTagInBlock("model");
-		TreeElement root = new TreeElement(parser.getName());
-		for(int i = 0 ; i < parser.getAttributeCount(); ++i) {
-			root.setAttribute(null, parser.getAttributeName(i), parser.getAttributeValue(i));
-		}
-		parents.push(root);
-		
-		//Get each child;
-		while(nextTagInBlock("model")) {
-			
-			int relativeDepth = parser.getDepth() - startingDepth - 1;
-			
-			TreeElement element = new TreeElement(parser.getName());
-			for(int i = 0 ; i < parser.getAttributeCount(); ++i) {
-				element.setAttribute(null, parser.getAttributeName(i), parser.getAttributeValue(i));
-			}
-
-			if(currentDepth == relativeDepth) {
-				parents.peek().addChild(element);
-			} else if(currentDepth < relativeDepth) {
-				parents.peek().addChild(element);
-				parents.push(element);
-				currentDepth++;
-			} else if(currentDepth > relativeDepth) {
-				parents.pop();
-				parents.peek().addChild(element);
-				currentDepth--;
-			}
-		}
-		FormInstance instance = new FormInstance(root);
-		return instance;
 	}
 
 }

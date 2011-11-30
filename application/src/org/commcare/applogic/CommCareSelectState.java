@@ -6,21 +6,24 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.api.EntitySelectController;
 import org.javarosa.entity.api.EntitySelectState;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.entity.model.EntitySet;
+import org.javarosa.entity.model.StorageEntitySet;
 import org.javarosa.entity.model.view.EntitySelectView;
 import org.javarosa.j2me.view.ProgressIndicator;
 
-public abstract class CommCareSelectState<E extends Persistable> extends EntitySelectState<E> {
+public abstract class CommCareSelectState<E> extends EntitySelectState<E> {
 
 	Entity<E> entity;
-	String storageKey;
 	EntitySelectController<E> controller;
 	
 	public CommCareSelectState (Entity<E> entity, String storageKey) {
+		this(entity, new StorageEntitySet(StorageManager.getStorage(storageKey)));
+	}
+	
+	public CommCareSelectState (Entity<E> entity, EntitySet<E> set) {
 		this.entity = entity;
-		this.storageKey = storageKey;
 		
-		controller = new CommCareEntitySelectController<E>(entity.entityType(),
-				   StorageManager.getStorage(storageKey), entity,
+		controller = new CommCareEntitySelectController<E>(entity.entityType(), set, entity,
 				   EntitySelectView.NEW_DISALLOWED, true, false);
 	}
 	

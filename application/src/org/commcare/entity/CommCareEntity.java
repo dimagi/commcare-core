@@ -4,34 +4,39 @@
 package org.commcare.entity;
 
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.model.Entity;
-import org.javarosa.entity.util.StackedEntityFilter;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /**
  * @author ctsims
  *
  */
-public class CommCareEntity<E extends Persistable> extends Entity<E> {
+public class CommCareEntity extends Entity<TreeReference> {
 
 	Detail shortDetail;
 	Detail longDetail;
-	FormInstanceLoader<E> loader;
 	String[] shortText;
+	EvaluationContext context;
+	NodeEntitySet set;
 	
-	public CommCareEntity(Detail shortDetail, Detail longDetail, FormInstanceLoader<E> loader) {
+	public CommCareEntity(Detail shortDetail, Detail longDetail, EvaluationContext context, NodeEntitySet set) {
 		this.shortDetail = shortDetail;
 		this.longDetail = longDetail;
-		this.loader = loader;
+		this.context = context;
+		this.set = set;
+	}
+	
+	protected int readEntityId(TreeReference element) {
+		return set.getId(element);
 	}
 
 	/* (non-Javadoc)
@@ -44,8 +49,8 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	/* (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#factory()
 	 */
-	public Entity<E> factory() {
-		return new CommCareEntity<E>(shortDetail,longDetail, loader);
+	public Entity<TreeReference> factory() {
+		return new CommCareEntity(shortDetail,longDetail, context, set);
 	}
 
 	/* (non-Javadoc)
@@ -105,14 +110,14 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	/* (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getLongFields(org.javarosa.core.services.storage.Persistable)
 	 */
-	public String[] getLongFields(E e) {
+	public String[] getLongFields(TreeReference element) {
 		if(longDetail == null) { return null;}
-		loader.prepare(e);
-		FormInstance specificInstance = loader.loadInstance(longDetail.getInstance());
+		EvaluationContext ec = new EvaluationContext(context, element);
+		loadVars(ec, longDetail);
 		Text[] text = longDetail.getTemplates();
 		String[] output = new String[text.length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(new EvaluationContext(specificInstance, longDetail.getInstances()));
+			output[i] = text[i].evaluate(ec);
 		}
 		return output;
 	}
@@ -135,21 +140,26 @@ public class CommCareEntity<E extends Persistable> extends Entity<E> {
 	/* (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#loadEntity(org.javarosa.core.services.storage.Persistable)
 	 */
-	protected void loadEntity(E entity) {
-		loader.prepare(entity);
-		FormInstance instance = loader.loadInstance(shortDetail.getInstance());
-		loadShortText(instance);
+	protected void loadEntity(TreeReference element) {
+		EvaluationContext ec = new EvaluationContext(context, element);
+		loadVars(ec, shortDetail);
+		loadShortText(ec);
 	}
 	
-	public EntityFilter<? super E> getFilter () {
-		return new StackedEntityFilter<E>(loader.resolveFilter(shortDetail.getFilter(), shortDetail.getInstance()), new InstanceEntityFilter<E>(loader, shortDetail.getFilter(), shortDetail.getInstance()));
+	private void loadVars(EvaluationContext ec, Detail detail) {
+		Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
+		for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
+			String key = (String)en.nextElement();
+			
+			ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec.getMainInstance(), ec)));
+		}
 	}
 	
-	private void loadShortText(FormInstance instance) {
+	private void loadShortText(EvaluationContext context) {
 		Text[] text = shortDetail.getTemplates();
 		shortText = new String[text.length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = text[i].evaluate(new EvaluationContext(instance,shortDetail.getInstances()));
+			shortText[i] = text[i].evaluate(context);
 		}
 	}
 	

@@ -189,45 +189,46 @@ public class CommCareUtil {
 		
 	public static int countEntities(Entry entry, Suite suite) {
 		final Entry e = entry;
+		return 0;
 		
-		Hashtable<String, String> references = entry.getReferences();
-		if(references.size() == 0) {
-			throw new RuntimeException("Attempt to count entities for an entry with no references!");
-		}
-		else {
-			//this will be revisited and rewritten 
-			boolean referral = false;
-			int count = 0;
-			// Need to do some reference gathering... 
-			for(Enumeration en = references.keys() ; en.hasMoreElements() ; ) {
-				String key = (String)en.nextElement();
-				String refType = references.get(key);
-				if(refType.toLowerCase().equals("referral")) {
-					referral = true;
-				}
-			}
-			if(referral) {
-				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
-				EntityFilter<? super PatientReferral> filter = entity.getFilter();
-				for(IStorageIterator i = StorageManager.getStorage(PatientReferral.STORAGE_KEY).iterate(); i.hasMore() ;) {
-					if(filter.matches((PatientReferral)i.nextRecord())) {
-						count++;
-					}
-				}
-				
-				return count;
-			} else {
-				Entity<Case> entity = new CommCareEntity<Case>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
-				EntityFilter<? super Case> filter = entity.getFilter();
-				for(IStorageIterator i = StorageManager.getStorage(Case.STORAGE_KEY).iterate(); i.hasMore() ;) {
-					if(filter.matches((Case)i.nextRecord())) {
-						count++;
-					}
-				}
-				
-				return count;
-			}
-		}
+//		Hashtable<String, String> references = entry.getReferences();
+//		if(references.size() == 0) {
+//			throw new RuntimeException("Attempt to count entities for an entry with no references!");
+//		}
+//		else {
+//			//this will be revisited and rewritten 
+//			boolean referral = false;
+//			int count = 0;
+//			// Need to do some reference gathering... 
+//			for(Enumeration en = references.keys() ; en.hasMoreElements() ; ) {
+//				String key = (String)en.nextElement();
+//				String refType = references.get(key);
+//				if(refType.toLowerCase().equals("referral")) {
+//					referral = true;
+//				}
+//			}
+//			if(referral) {
+//				Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new ReferralInstanceLoader(e.getReferences()));
+//				EntityFilter<? super PatientReferral> filter = entity.getFilter();
+//				for(IStorageIterator i = StorageManager.getStorage(PatientReferral.STORAGE_KEY).iterate(); i.hasMore() ;) {
+//					if(filter.matches((PatientReferral)i.nextRecord())) {
+//						count++;
+//					}
+//				}
+//				
+//				return count;
+//			} else {
+//				Entity<Case> entity = new CommCareEntity<Case>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
+//				EntityFilter<? super Case> filter = entity.getFilter();
+//				for(IStorageIterator i = StorageManager.getStorage(Case.STORAGE_KEY).iterate(); i.hasMore() ;) {
+//					if(filter.matches((Case)i.nextRecord())) {
+//						count++;
+//					}
+//				}
+//				
+//				return count;
+//			}
+//		}
 	}
 	
 	private static int[] getVersions() {

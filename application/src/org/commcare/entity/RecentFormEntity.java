@@ -110,4 +110,8 @@ public class RecentFormEntity extends Entity<FormInstance> {
 	public String getStyleKey () {
 		return "model";
 	}
+
+	protected int readEntityId(FormInstance e) {
+		return e.getID();
+	}
 }

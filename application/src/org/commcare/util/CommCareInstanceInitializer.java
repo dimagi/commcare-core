@@ -18,19 +18,33 @@ import org.javarosa.core.services.storage.StorageManager;
  *
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
-		public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
-			String ref = instance.getReference();
-			if(ref.indexOf("case") != -1) {
-				return new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
-			}
-			if(instance.getReference().indexOf("fixture") != -1) {
-				String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-				IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
-				FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
-				TreeElement root = fixture.getRoot();
-				root.setParent(instance.getBase());
-				return root;
-			}
-			return null;
+	CommCareSessionController session;
+	
+	public CommCareInstanceInitializer(){ 
+		this(null);
+	}
+	public CommCareInstanceInitializer(CommCareSessionController session) {
+		this.session = session;
+	}
+	
+	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+		String ref = instance.getReference();
+		if(ref.indexOf("case") != -1) {
+			return new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
 		}
+		if(instance.getReference().indexOf("fixture") != -1) {
+			String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
+			IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+			FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
+			TreeElement root = fixture.getRoot();
+			root.setParent(instance.getBase());
+			return root;
+		}
+		if(instance.getReference().indexOf("session") != -1) {
+			TreeElement root = session.getSessionInstance().getRoot();
+			root.setParent(instance.getBase());
+			return root;
+		}
+		return null;
+	}
 }

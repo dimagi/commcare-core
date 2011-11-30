@@ -20,6 +20,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -261,8 +262,8 @@ public class CommCareConfigEngine {
 			emptyhead += "   ";
 		}
 		print.println(head + "Entry: " + e.getText().evaluate());
-		if(e.getReferences().size() > 0) {
-			Detail d = s.getDetail(e.getShortDetailId());
+		for(SessionDatum datum : e.getSessionDataReqs()) {
+			Detail d = s.getDetail(datum.getShortDetail());
 			print.println(emptyhead + "|Select: " + d.getTitle().evaluate());
 			print.print(emptyhead + "| ");
 			for(Text t : d.getHeaders()) {

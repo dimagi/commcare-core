@@ -6,10 +6,10 @@ package org.commcare.util;
 import javax.microedition.io.ConnectionNotFoundException;
 
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.api.EntitySelectController;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.entity.model.EntitySet;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
@@ -18,20 +18,20 @@ import org.javarosa.j2me.view.J2MEDisplay;
  * @author ctsims
  *
  */
-public class CommCareEntitySelectController<E extends Persistable> extends EntitySelectController<E> {
+public class CommCareEntitySelectController<E> extends EntitySelectController<E> {
 	
-	public CommCareEntitySelectController (String title, IStorageUtility entityStorage, Entity<E> entityPrototype) {
-		super(title, entityStorage,entityPrototype);
+	public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype) {
+		super(title, set,entityPrototype);
 	}
 	
-	public CommCareEntitySelectController (String title, IStorageUtility entityStorage, Entity<E> entityPrototype, int newMode, boolean immediatelySelectNewlyCreated) {
-		super(title, entityStorage, entityPrototype, newMode, immediatelySelectNewlyCreated);
+	public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype, int newMode, boolean immediatelySelectNewlyCreated) {
+		super(title, set, entityPrototype, newMode, immediatelySelectNewlyCreated);
 	}
 
 	
-	public CommCareEntitySelectController (String title, IStorageUtility entityStorage, Entity<E> entityPrototype,
+	public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype,
 			int newMode, boolean immediatelySelectNewlyCreated, boolean bailOnEmpty) {
-		super(title, entityStorage, entityPrototype, newMode, immediatelySelectNewlyCreated, bailOnEmpty);
+		super(title, set, entityPrototype, newMode, immediatelySelectNewlyCreated, bailOnEmpty);
 	}
 	
 	public void attemptCallout(String number) {

@@ -59,8 +59,7 @@ public class EntryParser extends ElementParser<Entry> {
 				}
 			}
 			else if(parser.getName().equals("session")) {
-				this.nextTagInBlock();
-				while(parser.getName().equals("datum")) {
+				while(nextTagInBlock("session")) {
 					SessionDatumParser parser = new SessionDatumParser(this.parser);
 					data.addElement(parser.parse());
 				}

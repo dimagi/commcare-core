@@ -11,24 +11,28 @@ import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
-import org.commcare.entity.CaseInstanceLoader;
 import org.commcare.entity.CommCareEntity;
-import org.commcare.entity.FormDefInstanceLoader;
-import org.commcare.entity.ReferralInstanceLoader;
+import org.commcare.entity.NodeEntitySet;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
-import org.javarosa.cases.model.Case;
-import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
-import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.utilities.media.MediaUtils;
 
 import de.enough.polish.ui.List;
@@ -196,57 +200,93 @@ public class CommCareSessionController {
 		//The rest of the selections all depend on the suite being available for checkin'
 		Suite suite = session.getCurrentSuite();
 		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
-
-		InstanceInitializationFactory iif = getIif();
 		
-		SessionDatum datum = entry.getSessionDataReqs().elementAt(session.getData().size());
+		final SessionDatum datum = entry.getSessionDataReqs().elementAt(session.getData().size());
 		
 		
 		Detail shortDetail = suite.getDetail(datum.getShortDetail());
-		for(Enumeration en = shortDetail.getInstances().keys(); en.hasMoreElements(); ) {
-			String key = (String)en.nextElement(); 
-			shortDetail.getInstances().get(key).initialize(iif, key);
+		Detail longDetail = null;
+		if(datum.getLongDetail() != null) {
+			longDetail = suite.getDetail(datum.getLongDetail());
 		}
 		
-		Detail longDetail = suite.getDetail(datum.getLongDetail());
-		for(Enumeration en = longDetail.getInstances().keys(); en.hasMoreElements(); ) {
-			String key = (String)en.nextElement(); 
-			longDetail.getInstances().get(key).initialize(iif, key);
-		}
+		final EvaluationContext context = getEvaluationContext(shortDetail.getInstances());
+		final NodeEntitySet nes = new NodeEntitySet(datum.getNodeset(), context);
+		Entity<TreeReference> entity = new CommCareEntity(shortDetail, longDetail, context, nes);
 		
-		Entity<PatientReferral> entity = new CommCareEntity<PatientReferral>(shortDetail, longDetail, new ReferralInstanceLoader(entry.getReferences()));
-		CommCareSelectState<PatientReferral> select = new CommCareSelectState<PatientReferral>(entity,PatientReferral.STORAGE_KEY) {
-			
+		CommCareSelectState<TreeReference> select = new CommCareSelectState<TreeReference>(entity, nes) {
 			public void cancel() {
 				CommCareSessionController.this.back();
 			}
 			
 			public void entitySelected(int id) {
-				PatientReferral r = CommCareUtil.getReferral(id);
-				Case c = CommCareUtil.getCase(r.getLinkedId());
-				CommCareSessionController.this.session.setReferral(r.getReferralId(), r.getType());
-				CommCareSessionController.this.session.setCaseId(c.getCaseId());
+				TreeReference selected = nes.get(id);
+				TreeReference outcome = XPathReference.getPathExpr(datum.getValue()).getReference().contextualize(selected);
+				AbstractTreeElement element = context.resolveReference(outcome);
+				if(element == null) {
+					throw new RuntimeException("No reference resolved for: " + outcome.toString());
+				}
+				CommCareSessionController.this.session.setDatum(datum.getDataId(), element.getValue().uncast().getString());
 				CommCareSessionController.this.next();
-
 			}
 		};
+		
 		J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
 		return;
 	}
 	
 	private InstanceInitializationFactory getIif() {
-		return new CommCareInstanceInitializer();
+		return new CommCareInstanceInitializer(this);
 	}
 
 	private Vector<IPreloadHandler> getPreloaders() {
-		String caseId = session.getCaseId();
-		String referralId = session.getReferralId();
-		String type = session.getReferralType();
-		return CommCareContext._().getPreloaders(caseId == null ? null : CommCareUtil.getCase(caseId), referralId == null ? null : CommCareUtil.getReferral(referralId, type));
+//		String caseId = session.getCaseId();
+//		String referralId = session.getReferralId();
+//		String type = session.getReferralType();
+//		return CommCareContext._().getPreloaders(caseId == null ? null : CommCareUtil.getCase(caseId), referralId == null ? null : CommCareUtil.getReferral(referralId, type));
+		return CommCareContext._().getPreloaders();
 	}
 
 	protected void back() {
 		session.stepBack();
 		next();
+	}
+	
+	protected FormInstance getSessionInstance() {
+		TreeElement sessionRoot = new TreeElement("session",0);
+		for(String[] step : session.steps) {
+			if(step[0] == CommCareSession.STATE_DATUM_VAL) {
+				TreeElement datum = new TreeElement(step[1]);
+				datum.setValue(new UncastData(step[2]));
+				sessionRoot.addChild(datum);
+			}
+		}
+		
+		return new FormInstance(sessionRoot, "session");
+	}
+	
+	public EvaluationContext getEvaluationContext(Hashtable<String, DataInstance> instances) {
+		
+		FormInstance session = getSessionInstance();
+		
+		if(!instances.containsKey("casedb")) {
+			instances.put("casedb", new ExternalDataInstance("jr://instance/casedb", "casedb"));
+		}
+		if(!instances.containsKey("session")) {
+			instances.put("session", new ExternalDataInstance("jr://instance/session","session"));
+		}
+//		if(!instances.containsKey("ages")) {
+//			instances.put("ages", new ExternalDataInstance("jr://instance/fixture/ages","ages"));
+//		}
+		
+		InstanceInitializationFactory iif = getIif();
+
+		for(Enumeration en = instances.keys(); en.hasMoreElements(); ) {
+			String key = (String)en.nextElement(); 
+			instances.get(key).initialize(iif, key);
+		}
+
+		
+		return new EvaluationContext(new EvaluationContext(session), instances, session.getRoot().getRef());
 	}
 }
