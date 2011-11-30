@@ -277,7 +277,12 @@ public class TreeReference implements Externalizable {
 			}
 			
 			if (contextRef.getName(i).equals(newRef.getName(i))) {
-				newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
+				//We can't actually merge nodes if the newRef has predicates or filters
+				//on this expression, since those reset any existing resolutions which
+				//may have been done.
+				if(newRef.getPredicate(i) == null) {
+					newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
+				}
 			} else {
 				break;
 			}

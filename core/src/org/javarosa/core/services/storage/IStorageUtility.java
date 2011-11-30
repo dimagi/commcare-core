@@ -22,7 +22,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
  * These two schemes should not be mixed within the same StorageUtility.
  * 
  */
-public interface IStorageUtility {
+public interface IStorageUtility<E extends Externalizable> {
 	
 	/**
 	 * Read and return the record corresponding to 'id'.
@@ -30,7 +30,7 @@ public interface IStorageUtility {
 	 * @param id id of the object
 	 * @return object for 'id'. null if no object is stored under that ID
 	 */
-	Externalizable read (int id);
+	E read (int id);
 
 	/**
 	 * Read and return the raw bytes for the record corresponding to 'id'.
@@ -58,7 +58,7 @@ public interface IStorageUtility {
 	 * @return record ID for newly added object
 	 * @throws StorageFullException if not enough space available
 	 */
-	int add (Externalizable e) throws StorageFullException;
+	int add (E e) throws StorageFullException;
 	
 	/**
 	 * Update a record in the store. The record must have previously been added to the store using add(). If this
@@ -69,7 +69,7 @@ public interface IStorageUtility {
 	 * @throws StorageFullException if not enough space available to update
 	 * @throws IllegalArgumentException if no record exists for ID
 	 */
-	void update (int id, Externalizable e) throws StorageFullException;
+	void update (int id, E e) throws StorageFullException;
 	
 	/**
 	 * Remove record with the given ID from the store.
@@ -134,7 +134,7 @@ public interface IStorageUtility {
 	 * 
 	 * @return record iterator
 	 */
-	IStorageIterator iterate ();
+	IStorageIterator<E> iterate ();
 	
 	/**
 	 * Close all resources associated with this StorageUtility. Any attempt to use this StorageUtility after this call will result

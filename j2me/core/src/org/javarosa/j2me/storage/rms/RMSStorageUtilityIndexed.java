@@ -17,7 +17,7 @@ import org.javarosa.j2me.storage.rms.raw.RMSFactory;
 
 /* TEMPORARY / EXPERIMENTAL */
 
-public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStorageUtilityIndexed {
+public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStorageUtility<E> implements IStorageUtilityIndexed<E> {
 
 	Hashtable metaDataIndex = null;
 	boolean hasMetaData;
@@ -124,7 +124,7 @@ public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStor
 		}
 	}
 	
-	public int add (Externalizable e) throws StorageFullException {
+	public int add (E e) throws StorageFullException {
 		if (hasMetaData)
 			checkIndex();
 
@@ -136,7 +136,7 @@ public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStor
 		return id;
 	}
 	
-	public void update (int id, Externalizable e) throws StorageFullException {
+	public void update (int id, E e) throws StorageFullException {
 		Externalizable old;
 		if (hasMetaData) {
 			old = read(id);
@@ -176,7 +176,7 @@ public class RMSStorageUtilityIndexed extends RMSStorageUtility implements IStor
 		return (IDs == null ? new Vector(): IDs);
 	}
 	
-	public Externalizable getRecordForValue (String fieldName, Object value) throws NoSuchElementException {
+	public E getRecordForValue (String fieldName, Object value) throws NoSuchElementException {
 		Vector IDs = getIDsForValue(fieldName, value);
 		if (IDs.size() == 1) {
 			return read(((Integer)IDs.elementAt(0)).intValue());

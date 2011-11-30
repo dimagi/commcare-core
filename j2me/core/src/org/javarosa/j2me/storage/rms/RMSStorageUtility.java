@@ -60,7 +60,7 @@ import org.xmlpull.v1.XmlSerializer;
  * These two schemes should not be mixed within the same StorageUtility.
  * 
  */
-public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
+public class RMSStorageUtility<E extends Externalizable> implements IStorageUtility<E>, XmlStatusProvider {
 	private static final int MAX_RMS_NAME_LENGTH = 32;		//maximum length of an RMS name
 	private static final int SUFFIX_LENGTH = 3;				//how much of RMS name that we need to reserve for our own purposes
 	private static final int MAX_DATA_STORES = 100;			//max number of data RMSes
@@ -140,7 +140,7 @@ public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
 		return type;
 	}
 	
-	protected Externalizable read(int id, Hashtable index) {
+	protected E read(int id, Hashtable index) {
 		synchronized (getAccessLock()) {
 
 			checkNotCorrupt();
@@ -148,7 +148,7 @@ public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
 			Hashtable idIndex = index;
 			if (idIndex.containsKey(new Integer(id))) {
 				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
-				return (Externalizable)getDataStore(loc.rmsID).readRecord(loc.recID, type);
+				return (E)getDataStore(loc.rmsID).readRecord(loc.recID, type);
 			} else {
 				return null;
 			}
@@ -162,7 +162,7 @@ public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
 	 * @param id id of the object
 	 * @return object for 'id'. null if no object is stored under that ID
 	 */
-	public Externalizable read (int id) {
+	public E read (int id) {
 		Hashtable index;
 		synchronized (getAccessLock()) {
 			index = getIDIndexRecord();
@@ -275,7 +275,7 @@ public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
 	 * @return record ID for newly added object
 	 * @throws StorageFullException if not enough space available
 	 */
-	public int add (Externalizable e) throws StorageFullException {
+	public int add (E e) throws StorageFullException {
 		typeCheck(e);
 		
 		byte[] data = ExtUtil.serialize(e);
@@ -327,7 +327,7 @@ public class RMSStorageUtility implements IStorageUtility, XmlStatusProvider {
 	 * @throws StorageFullException if not enough space available to update
 	 * @throws IllegalArgumentException if no record exists for ID
 	 */
-	public void update (int id, Externalizable e) throws StorageFullException {
+	public void update (int id, E e) throws StorageFullException {
 		typeCheck(e);
 		
 		byte[] data = ExtUtil.serialize(e);

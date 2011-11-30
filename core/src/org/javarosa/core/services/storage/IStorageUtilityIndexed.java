@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 
 /* TEMPORARY / EXPERIMENTAL */
 
-public interface IStorageUtilityIndexed extends IStorageUtility {
+public interface IStorageUtilityIndexed<E extends Externalizable> extends IStorageUtility<E> {
 
 	/**
 	* Retrieves a Vector of IDs of Externalizable objects in storage for which the field
@@ -36,6 +36,6 @@ public interface IStorageUtilityIndexed extends IStorageUtility {
  	* @throws InvalidIndexException If the field used is an invalid index, because more than one field in the Storage 
  	* contains the value of the index requested.
  	*/
- 	Externalizable getRecordForValue (String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
+ 	E getRecordForValue (String fieldName, Object value) throws NoSuchElementException, InvalidIndexException;
 	
 }

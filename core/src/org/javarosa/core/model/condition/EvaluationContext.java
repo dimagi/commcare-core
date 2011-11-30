@@ -71,6 +71,12 @@ public class EvaluationContext {
 		this.contextNode = context;
 	}
 	
+	public EvaluationContext (EvaluationContext base, Hashtable<String, DataInstance> formInstances, TreeReference context) {
+		this(base);
+		this.formInstances = formInstances;
+		this.contextNode = context;
+	}
+	
 	public EvaluationContext (FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
 		this(base);
 		this.formInstances = formInstances;
@@ -274,5 +280,13 @@ public class EvaluationContext {
 
 	public DataInstance getMainInstance() {
 		return instance;
+	}
+	
+	public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
+		DataInstance instance = this.getMainInstance();
+		if(qualifiedRef.getInstanceName() != null) {
+			instance = this.getInstance(qualifiedRef.getInstanceName());
+		}
+		return instance.resolveReference(qualifiedRef);
 	}
 }
