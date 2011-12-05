@@ -47,7 +47,9 @@ public class CoreModelModule implements IModule {
 				"org.javarosa.core.model.data.StringData",
 				"org.javarosa.core.model.data.TimeData",
 				"org.javarosa.core.model.data.UncastData",
-				"org.javarosa.core.model.data.helper.BasicDataPointer"
+				"org.javarosa.core.model.data.helper.BasicDataPointer",
+				"org.javarosa.core.model.Action",
+				"org.javarosa.core.model.actions.SetValueAction"
 		};		
 		PrototypeManager.registerPrototypes(classes);
 	}

@@ -19,6 +19,7 @@ package org.javarosa.form.api;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
@@ -768,5 +769,4 @@ public class FormEntryModel {
     	}
     	return false;
 	}
-
 }

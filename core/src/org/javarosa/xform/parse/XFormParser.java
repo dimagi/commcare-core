@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.model.Action;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -35,6 +36,7 @@ import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.SubmissionProfile;
+import org.javarosa.core.model.actions.SetValueAction;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -59,6 +61,7 @@ import org.javarosa.xform.util.XFormAnswerDataParser;
 import org.javarosa.xform.util.XFormSerializer;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathConditional;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
@@ -124,6 +127,9 @@ public class XFormParser {
 	private Vector<String> instanceNodeIdStrs;
 	private String defaultNamespace;
 	private Vector<String> itextKnownForms;
+	private Vector<String> namedActions;
+	private Hashtable<String, IElementHandler> structuredActions;
+	
 	
 	private FormInstance repeatTree; //pseudo-data model tree that describes the repeat structure of the instance;
 									 //useful during instance processing and validation
@@ -243,6 +249,20 @@ public class XFormParser {
 		itextKnownForms.addElement("short");
 		itextKnownForms.addElement("image");
 		itextKnownForms.addElement("audio");
+		
+		namedActions = new Vector<String>();
+		namedActions.addElement("rebuild");
+		namedActions.addElement("recalculate");
+		namedActions.addElement("revalidate");
+		namedActions.addElement("refresh");
+		namedActions.addElement("setfocus");
+		namedActions.addElement("reset");
+		
+		
+		structuredActions = new Hashtable<String, IElementHandler>();
+		structuredActions.put("setvalue", new IElementHandler() {
+				public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
+		});
 	}
 
 	public XFormParser(Reader reader) {
@@ -440,7 +460,7 @@ public class XFormParser {
 	//for ease of parsing, we assume a model comes before the controls, which isn't necessarily mandated by the xforms spec
 	private void parseModel (Element e) {
 		Vector<String> usedAtts = new Vector<String>(); //no attributes parsed in title.
-		Vector<Element> submissionBlocks = new Vector<Element>();
+		Vector<Element> delayedParseElements = new Vector<Element>();
 		
 		
 		if (modelFound) {
@@ -470,7 +490,9 @@ public class XFormParser {
 			} else if (BIND_ATTR.equals(childName)) { //<instance> must come before <bind>s
 				parseBind(child);
 			} else if("submission".equals(childName)) {
-				submissionBlocks.addElement(child);
+				delayedParseElements.addElement(child);
+			} else if(namedActions.contains(childName) || (childName != null && structuredActions.containsKey(childName))) {
+				delayedParseElements.addElement(child);
 			} else { //invalid model content
 				if (type == Node.ELEMENT) {
 					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
@@ -491,10 +513,72 @@ public class XFormParser {
 			}
 		}
 		
-		//Now parse out the submission blocks (we needed the binds to all be set before we could)
-		for(Element child : submissionBlocks) {
-			parseSubmission(child);
+		//Now parse out the submission/action blocks (we needed the binds to all be set before we could)
+		for(Element child : delayedParseElements) {
+			String name = child.getName();
+			if(name.equals("submission")) {
+				parseSubmission(child);
+			} else {
+				//For now, anything that isn't a submission is an action
+				if(namedActions.contains(name)) {
+					parseNamedAction(child);
+				} else {
+					structuredActions.get(name).handle(this, child, _f);
+				}
+			}
 		}
+	}
+	
+	private void parseNamedAction(Element action) {
+		//TODO: Anything useful
+	}
+	
+	private void parseSetValueAction(FormDef form, Element e) {
+		String ref = e.getAttributeValue(null, REF_ATTR);
+		String bind = e.getAttributeValue(null, BIND_ATTR);
+		
+		String event = e.getAttributeValue(null, "event");
+		
+		IDataReference dataRef = null;
+		boolean refFromBind = false;
+		
+		
+		//TODO: There is a _lot_ of duplication of this code, fix that!
+		if (bind != null) {
+			DataBinding binding = bindingsByID.get(bind);
+			if (binding == null) {
+				throw new XFormParseException("XForm Parse: invalid binding ID in submit'" + bind + "'", e);
+			}
+			dataRef = binding.getReference();
+			refFromBind = true;
+		} else if (ref != null) {
+			dataRef = new XPathReference(ref);
+		} else {
+			throw new XFormParseException("setvalue action with no target!", e);
+		}
+		
+		if (dataRef != null) {
+			if (!refFromBind) {
+				dataRef = getAbsRef(dataRef, TreeReference.rootRef());
+			}
+		}
+		
+		String valueRef = e.getAttributeValue(null, "value");
+		Action action;
+		TreeReference treeref = FormInstance.unpackReference(dataRef);
+		if(valueRef == null) {
+			//Set expression
+			action = new SetValueAction(treeref, e.getText(0));
+		} else {
+			try {
+				action = new SetValueAction(treeref, XPathParseTool.parseXPath(valueRef));
+			} catch (XPathSyntaxException e1) {
+				e1.printStackTrace();
+				throw new XFormParseException("Invalid XPath in value set action declaration: '" + valueRef + "'", e);
+			}
+		}
+		form.registerEventListener(event, action);
+		
 	}
 	
 	private void parseSubmission(Element submission) {

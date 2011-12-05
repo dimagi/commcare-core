@@ -55,14 +55,27 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 	private void processCase(TreeElement caseElement) throws MalformedCaseModelException {
 		Vector caseIdKids = caseElement.getChildrenWithName("case_id");
 		if(caseIdKids.size() < 1) {
-			throw new MalformedCaseModelException("Invalid <case> model. Required element (case_id) is missing.","<case>");
+			throw new MalformedCaseModelException("Invalid <case> model. Required element (case_id) is missing at :" + caseElement.getRef().toString(true),"<case>");
 		}
-		String caseId = ((TreeElement)caseIdKids.elementAt(0)).getValue().uncast().getString();
+		
+		IAnswerData data = ((TreeElement)caseIdKids.elementAt(0)).getValue();
+		if(data == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. <case_id> element contains no value at " + caseElement.getRef().toString(true), "<case_id>");
+		}
+		
+		String caseId = data.uncast().getString();
 		Vector dateModified = caseElement.getChildrenWithName("date_modified");
 		if(dateModified.size() < 1) {
-			throw new MalformedCaseModelException("Invalid <case> model. Required element (date_modified) is missing.","<case>");
+			throw new MalformedCaseModelException("Invalid <case> model. Required element (date_modified) is missing at: "  + caseElement.getRef().toString(true),"<case>");
 		}
-		Date date = (Date)((TreeElement)dateModified.elementAt(0)).getValue().getValue();
+		
+		IAnswerData dateData = ((TreeElement)dateModified.elementAt(0)).getValue();
+		if(dateData == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. <date_modified> element contains no value at " + caseElement.getRef().toString(true), "<date_modified>");
+		}
+		
+		//TODO: type cast here?
+		Date date = (Date)(dateData.getValue());
 		
 		for(int i=0; i < caseElement.getNumChildren(); ++i ){
 			TreeElement kid = caseElement.getChildAt(i);

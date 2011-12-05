@@ -110,6 +110,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	private Hashtable<String, DataInstance> formInstances;
 	private FormInstance mainInstance = null;
 
+	Hashtable<String, Vector<Action>> eventListeners;
+
 
 	/**
 	 * 
@@ -125,6 +127,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		outputFragments = new Vector();
 		submissionProfiles = new Hashtable<String, SubmissionProfile>();
 		formInstances = new Hashtable<String, DataInstance>();
+		eventListeners = new Hashtable<String, Vector<Action>>();
 	}
 	
 	
@@ -186,6 +189,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	public FormInstance getInstance()
 	{
 		return getMainInstance();
+	}
+	
+	public void fireEvent() {
+		
 	}
 
 	
@@ -1027,6 +1034,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	}
 
 	public boolean postProcessInstance() {
+		dispatchFormEvent(Action.EVENT_XFORMS_REVALIDATE);
 		return postProcessInstance(mainInstance.getRoot());
 	}
 
@@ -1098,8 +1106,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class));
 		
-		
 		formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()));
+		
+		eventListeners = (Hashtable<String, Vector<Action>>)ExtUtil.read(dis,  new ExtWrapMap(String.class, new ExtWrapListPoly()));
 		
 		setEvaluationContext(new EvaluationContext(null));
 	}
@@ -1127,6 +1136,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 
 		initializeTriggerables();
+		
+		dispatchFormEvent(Action.EVENT_XFORMS_READY);
 	}
 
 	/**
@@ -1163,6 +1174,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		//for support of multi-instance forms		
 		
 		ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
+		ExtUtil.write(dos, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
 	}
 
 	public void collapseIndex(FormIndex index, Vector indexes, Vector multiplicities, Vector elements) {
@@ -1473,4 +1485,29 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
 	}
+	
+	public Vector<Action> getEventListeners(String event) {
+		if(this.eventListeners.containsKey(event)) {
+			return eventListeners.get(event);
+		}
+		return new Vector<Action>();
+	}
+	
+	public void registerEventListener(String event, Action action) {
+		Vector<Action> actions; 
+	
+		if(this.eventListeners.containsKey(event)) {
+			actions = eventListeners.get(event);
+		} else {
+			actions = new Vector<Action>();
+		}
+		actions.addElement(action);
+		this.eventListeners.put(event, actions);
+	}
+	
+    public void dispatchFormEvent(String event) {
+    	for(Action action : getEventListeners(event)) {
+    		action.processAction(this);
+    	}
+    }
 }
