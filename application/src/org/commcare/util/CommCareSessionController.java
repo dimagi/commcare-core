@@ -11,6 +11,7 @@ import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.NodeEntitySet;
 import org.commcare.suite.model.Detail;
@@ -29,7 +30,9 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IPreloadHandler;
+import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.XPathReference;
@@ -254,15 +257,35 @@ public class CommCareSessionController {
 	
 	protected FormInstance getSessionInstance() {
 		TreeElement sessionRoot = new TreeElement("session",0);
+		
+		TreeElement sessionData = new TreeElement("data",0);
+		
+		sessionRoot.addChild(sessionData);
+		
 		for(String[] step : session.steps) {
 			if(step[0] == CommCareSession.STATE_DATUM_VAL) {
 				TreeElement datum = new TreeElement(step[1]);
 				datum.setValue(new UncastData(step[2]));
-				sessionRoot.addChild(datum);
+				sessionData.addChild(datum);
 			}
 		}
 		
+		TreeElement sessionMeta = new TreeElement("context",0);
+
+		addData(sessionMeta, "deviceid", PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY));
+		addData(sessionMeta, "appversion", PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION));
+		addData(sessionMeta, "username", CommCareContext._().getUser().getUsername());
+		addData(sessionMeta, "userid", CommCareContext._().getUser().getUniqueId());
+
+		sessionRoot.addChild(sessionMeta);
+		
 		return new FormInstance(sessionRoot, "session");
+	}
+	
+	private static void addData(TreeElement root, String name, String data) {
+		TreeElement datum = new TreeElement(name);
+		datum.setValue(new UncastData(data));
+		root.addChild(datum);
 	}
 	
 	public EvaluationContext getEvaluationContext(Hashtable<String, DataInstance> instances) {
