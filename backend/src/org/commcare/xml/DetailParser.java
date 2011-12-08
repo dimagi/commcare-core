@@ -50,7 +50,6 @@ public class DetailParser extends ElementParser<Detail> {
 			Vector<Integer> templateHints = new Vector<Integer>();
 			Vector<String> headerForms = new Vector<String>();
 			Vector<String> templateForms = new Vector<String>();
-			Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
 			Hashtable<String, String> variables = new Hashtable<String, String>();
 			int defaultSort = -1;
 			
@@ -59,13 +58,6 @@ public class DetailParser extends ElementParser<Detail> {
 					while(nextTagInBlock("variables")) {
 						variables.put(parser.getName(), parser.getAttributeValue(null, "function"));
 					}
-					continue;
-				}
-				
-				if("instance".equals(parser.getName().toLowerCase())) {
-					String instanceId = parser.getAttributeValue(null, "id");
-					String location = parser.getAttributeValue(null,"src");
-					instances.put(instanceId, new ExternalDataInstance(location, instanceId));
 					continue;
 				}
 				
@@ -107,7 +99,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, instances, variables);
+		Detail d = new Detail(id, title, headers, templates,filter, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, variables);
 		return d;
 	}
 	

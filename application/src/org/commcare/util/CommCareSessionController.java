@@ -213,7 +213,7 @@ public class CommCareSessionController {
 			longDetail = suite.getDetail(datum.getLongDetail());
 		}
 		
-		final EvaluationContext context = getEvaluationContext(shortDetail.getInstances());
+		final EvaluationContext context = getEvaluationContext(entry.getInstances());
 		final NodeEntitySet nes = new NodeEntitySet(datum.getNodeset(), context);
 		Entity<TreeReference> entity = new CommCareEntity(shortDetail, longDetail, context, nes);
 		
@@ -291,16 +291,6 @@ public class CommCareSessionController {
 	public EvaluationContext getEvaluationContext(Hashtable<String, DataInstance> instances) {
 		
 		FormInstance session = getSessionInstance();
-		
-		if(!instances.containsKey("casedb")) {
-			instances.put("casedb", new ExternalDataInstance("jr://instance/casedb", "casedb"));
-		}
-		if(!instances.containsKey("session")) {
-			instances.put("session", new ExternalDataInstance("jr://instance/session","session"));
-		}
-//		if(!instances.containsKey("ages")) {
-//			instances.put("ages", new ExternalDataInstance("jr://instance/fixture/ages","ages"));
-//		}
 		
 		InstanceInitializationFactory iif = getIif();
 

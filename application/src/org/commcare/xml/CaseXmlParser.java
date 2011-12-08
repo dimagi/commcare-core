@@ -51,13 +51,13 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		this.checkNode("case");
 		
-		//parse (with verification) the next tag
-		this.nextTag("case_id");
-		String caseId = parser.nextText().trim();
+		String caseId = parser.getAttributeValue(null, "case_id");
+		if(caseId == null) { throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser); }
 		
-		this.nextTag("date_modified");
-		String dateModified = parser.nextText().trim();
+		String dateModified = parser.getAttributeValue(null, "date_modified");
+		if(dateModified == null) { throw new InvalidStructureException("<case> block with no date_modified attribute.", this.parser); }
 		Date modified = DateUtils.parseDateTime(dateModified);
+
 		
 		boolean create = false;
 		boolean update = false;
@@ -69,27 +69,23 @@ public class CaseXmlParser extends TransactionParser<Case> {
 			String action = parser.getName().toLowerCase();
 			
 			if(action.equals("create")) {
-				String[] data = new String[4];
+				String[] data = new String[3];
 				//Collect all data
 				while(this.nextTagInBlock("create")) {
-					if(parser.getName().equals("case_type_id")) {
+					if(parser.getName().equals("case_type")) {
 						data[0] = parser.nextText().trim();
-					} else if(parser.getName().equals("external_id")) {
+					} else if(parser.getName().equals("owner_id")) {
 						data[1] = parser.nextText().trim();
-					} else if(parser.getName().equals("user_id")) {
-						data[2] = parser.nextText().trim();
 					} else if(parser.getName().equals("case_name")) {
-						data[3] = parser.nextText().trim();
+						data[2] = parser.nextText().trim();
 					} else {
-						throw new InvalidStructureException("Expected one of [case_type_id, external_id, user_id, case_name], found " + parser.getName(), parser);
+						throw new InvalidStructureException("Expected one of [case_type, owner_id, case_name], found " + parser.getName(), parser);
 					}
 				}
 				
 				//Verify that we got all the pieces
-				for(String s : data) {
-					if(s == null) {
-						throw new InvalidStructureException("One of [case_type_id, external_id, user_id, case_name] is missing for case <create> with ID: " + caseId, parser);
-					}
+				if(data[0] == null || data[2] == null) {
+					throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
 				}
 				
 				Case c = null;
@@ -101,7 +97,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					
 					//If we found one, override the existing data
 					if(c != null) {
-						c.setName(data[3]);
+						c.setName(data[2]);
 						c.setTypeId(data[0]);
 						overriden = true;
 					}
@@ -109,12 +105,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				
 				if(c == null) {
 					//The case is either not present on the phone, or we're on strict tolerance
-					c = new Case(data[3], data[0]);
+					c = new Case(data[2], data[0]);
 					c.setCaseId(caseId);
 				}
 				
-				c.setUserId(data[2]);
-				c.setExternalId(data[1]);
+				c.setUserId(data[1]);
 				commit(c);
 				if(!overriden) {
 					create = true;
@@ -130,7 +125,17 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				while(this.nextTagInBlock("update")) {
 					String key = parser.getName();
 					String value = parser.nextText().trim();
-					c.setProperty(key,value);
+					if(key.equals("case_type")) {
+						c.setTypeId(value);
+					} else if(key.equals("case_name")) {
+						c.setName(value);
+					} else if(key.equals("date_opened")) {
+						c.setDateOpened(DateUtils.parseDate(value));
+					} else if(key.equals("owner_id")) {
+						c.setUserId(value);
+					} else{
+						c.setProperty(key,value);
+					}
 				}
 				commit(c);
 				update = true;
@@ -143,8 +148,15 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				commit(c);
 				Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
 				close = true;
-			} else if(action.equals("referral")) {
-				new ReferralXmlParser(parser,caseId,modified,acceptCreateOverwrites).parse();
+			} else if(action.equals("index")) {
+				Case c = retrieve(caseId);
+				while(this.nextTagInBlock("index")) {
+					String indexName = parser.getName();
+					String value = parser.nextText().trim();
+					
+					c.setIndex(indexName, value);
+				}
+				commit(c);
 			}
 		}
 		
@@ -157,7 +169,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		}
 		
 		return null;
-	}
+	}		
 
 	public void commit(Case parsed) throws IOException {
 		try {

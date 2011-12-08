@@ -9,10 +9,12 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -34,6 +36,7 @@ public class Entry implements Externalizable{
 	private String commandId;
 	private String imageResource;
 	private String audioResource;
+	Hashtable<String, DataInstance> instances;
 	
 	/**
 	 * Serialization only!
@@ -43,13 +46,14 @@ public class Entry implements Externalizable{
 	}
 	
 	public Entry(String commandId, Text commandText, Vector<SessionDatum> data,
-			String formNamespace, String imageResource, String audioResource) {
+			String formNamespace, String imageResource, String audioResource, Hashtable<String, DataInstance> instances) {
 		this.commandId = commandId  == null ? "" : commandId;
 		this.commandText = commandText;
 		this.data = data;
 		xFormNamespace = formNamespace;
 		this.imageResource = imageResource == null ? "" : imageResource;
 		this.audioResource = audioResource == null ? "" : audioResource;
+		this.instances = instances;
 	}
 	
 	/**
@@ -96,6 +100,10 @@ public class Entry implements Externalizable{
 		return data;
 	}
 
+	public Hashtable<String, DataInstance> getInstances() {
+		return instances;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -109,7 +117,7 @@ public class Entry implements Externalizable{
 		this.audioResource = ExtUtil.readString(in);
 		
 		data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
-		
+		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
 	}
 	
 	/*
@@ -123,5 +131,6 @@ public class Entry implements Externalizable{
 		ExtUtil.write(out, imageResource);
 		ExtUtil.write(out, audioResource);
 		ExtUtil.write(out, new ExtWrapList(data));
+		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
 	}
 }

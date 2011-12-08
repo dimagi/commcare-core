@@ -4,17 +4,17 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
+import java.util.Vector;
 
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.cases.model.Case;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -51,11 +51,37 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 			throw new InvalidStructureException("fixture is lacking id attribute", parser);
 		}
 		
+		String userId = parser.getAttributeValue(null, "user_id");
+		
 		//Get to the data root
 		parser.nextTag();
 		
+		//TODO: We need to overwrite any matching records here.
 		TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
 		FormInstance instance = new FormInstance(root, fixtureId);
+		
+		//This is a terrible hack and clayton should feeel terrible about it
+		if(userId != null) { 
+			instance.schema = userId;
+		}
+		
+		int recordId = -1;
+		Vector<Integer> matchingFixtures = storage().getIDsForValue(FormInstance.META_ID, fixtureId);
+		if(matchingFixtures.size() > 0) {
+			//find all fixtures with the same user
+			Vector<Integer> matchingUsers = storage().getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
+			for(Integer i : matchingFixtures) {
+				if(matchingUsers.indexOf(i) != -1) {
+					recordId = i.intValue();
+				}
+			}
+					
+		}
+		
+		if(recordId != -1) {
+			instance.setID(recordId);
+		}
+		
 		try {
 			storage().write(instance);
 		} catch (StorageFullException e) {

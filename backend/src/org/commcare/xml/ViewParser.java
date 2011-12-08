@@ -12,6 +12,8 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -40,6 +42,7 @@ public class ViewParser extends ElementParser<Entry> {
 		
 		String xFormNamespace = null;
 		Vector<SessionDatum> data = new Vector<SessionDatum>();
+		Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
 		String commandId = "";
 		Text commandText = null;
 			
@@ -52,6 +55,12 @@ public class ViewParser extends ElementParser<Entry> {
 					
 				}
 			}
+			else if("instance".equals(parser.getName().toLowerCase())) {
+				String instanceId = parser.getAttributeValue(null, "id");
+				String location = parser.getAttributeValue(null,"src");
+				instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+				continue;
+			}
 			else if(parser.getName().equals("session")) {
 				this.nextTagInBlock();
 				while(parser.getName().equals("datum")) {
@@ -60,7 +69,7 @@ public class ViewParser extends ElementParser<Entry> {
 				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, data, xFormNamespace, null, null);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, null, null, instances);
 		return e;
 	}
 }

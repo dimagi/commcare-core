@@ -4,12 +4,15 @@
 package org.commcare.xml;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -31,6 +34,8 @@ public class EntryParser extends ElementParser<Entry> {
 		
 		String xFormNamespace = "";
 		Vector<SessionDatum> data = new Vector<SessionDatum>();
+		Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
+
 		
 		String commandId = "";
 		Text commandText = null;
@@ -58,6 +63,12 @@ public class EntryParser extends ElementParser<Entry> {
 					audioURI = (String)displayArr[2];
 				}
 			}
+			else if("instance".equals(parser.getName().toLowerCase())) {
+				String instanceId = parser.getAttributeValue(null, "id");
+				String location = parser.getAttributeValue(null,"src");
+				instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+				continue;
+			}
 			else if(parser.getName().equals("session")) {
 				while(nextTagInBlock("session")) {
 					SessionDatumParser parser = new SessionDatumParser(this.parser);
@@ -65,7 +76,7 @@ public class EntryParser extends ElementParser<Entry> {
 				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances);
 		return e;
 	}
 }
