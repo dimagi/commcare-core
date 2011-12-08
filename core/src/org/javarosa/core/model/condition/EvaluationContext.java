@@ -240,7 +240,9 @@ public class EvaluationContext {
 			
 			if(mult == TreeReference.INDEX_ATTRIBUTE) {
 				AbstractTreeElement attribute = node.getAttribute(null, name);
-				set.addElement(attribute);
+				if (attribute != null) {
+					set.addElement(attribute);
+				}
 			}
 	
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {

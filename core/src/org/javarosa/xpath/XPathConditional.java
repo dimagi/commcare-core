@@ -94,8 +94,18 @@ public class XPathConditional implements IConditionExpr {
 	private static void getTriggers (XPathExpression x, Vector v) {
 		if (x instanceof XPathPathExpr) {
 			TreeReference ref = ((XPathPathExpr)x).getReference();
-			if (!v.contains(ref))
+			if (!v.contains(ref)) { 
 				v.addElement(ref);
+			} 
+			for(int i = 0; i < ref.size() ; i++) {
+				Vector<XPathExpression> predicates = ref.getPredicate(i);
+				if(predicates == null) {
+					continue;
+				}
+				for(XPathExpression predicate : predicates) {
+					getTriggers(predicate, v);
+				}
+			}
 		} else if (x instanceof XPathBinaryOpExpr) {
 			getTriggers(((XPathBinaryOpExpr)x).a, v);
 			getTriggers(((XPathBinaryOpExpr)x).b, v);			

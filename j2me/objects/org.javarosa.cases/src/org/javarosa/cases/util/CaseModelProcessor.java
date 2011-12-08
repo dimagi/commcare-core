@@ -4,18 +4,16 @@
 package org.javarosa.cases.util;
 
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
 
 import org.javarosa.cases.model.Case;
-import org.javarosa.chsreferral.model.PatientReferral;
+import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -53,29 +51,25 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 	}
 	
 	private void processCase(TreeElement caseElement) throws MalformedCaseModelException {
-		Vector caseIdKids = caseElement.getChildrenWithName("case_id");
-		if(caseIdKids.size() < 1) {
-			throw new MalformedCaseModelException("Invalid <case> model. Required element (case_id) is missing at :" + caseElement.getRef().toString(true),"<case>");
+		TreeElement caseIdAttribute = caseElement.getAttribute(null, "case_id");
+		if(caseIdAttribute == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. <case> element requires case_id attribute at :" + caseElement.getRef().toString(true),"<case>");
 		}
-		
-		IAnswerData data = ((TreeElement)caseIdKids.elementAt(0)).getValue();
-		if(data == null) {
-			throw new MalformedCaseModelException("Invalid <case> model. <case_id> element contains no value at " + caseElement.getRef().toString(true), "<case_id>");
+		if(caseIdAttribute.getValue() == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. case_id attribute contains no value at " + caseElement.getRef().toString(true), "<case>");
 		}
+		String caseId = caseIdAttribute.getValue().uncast().getString();
+
 		
-		String caseId = data.uncast().getString();
-		Vector dateModified = caseElement.getChildrenWithName("date_modified");
-		if(dateModified.size() < 1) {
-			throw new MalformedCaseModelException("Invalid <case> model. Required element (date_modified) is missing at: "  + caseElement.getRef().toString(true),"<case>");
+		TreeElement dateModified = caseElement.getAttribute(null, "date_modified");
+		if(dateModified == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. <case> element requires date_modified attribute at :" + caseElement.getRef().toString(true),"<case>");
 		}
-		
-		IAnswerData dateData = ((TreeElement)dateModified.elementAt(0)).getValue();
-		if(dateData == null) {
-			throw new MalformedCaseModelException("Invalid <case> model. <date_modified> element contains no value at " + caseElement.getRef().toString(true), "<date_modified>");
+		if(dateModified.getValue() == null) {
+			throw new MalformedCaseModelException("Invalid <case> model. date_modified attribute contains no value at " + caseElement.getRef().toString(true), "<case>");
 		}
-		
-		//TODO: type cast here?
-		Date date = (Date)(dateData.getValue());
+		//TODO: Do we need to cast here?
+		Date date = (Date)(new DateTimeData().cast(dateModified.getValue().uncast())).getValue();
 		
 		for(int i=0; i < caseElement.getNumChildren(); ++i ){
 			TreeElement kid = caseElement.getChildAt(i);
@@ -100,12 +94,12 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 				if(kid.isRelevant()) {
 					processCaseClose(kid,c,date);
 				}
-			} else if(kid.getName().equals("referral")) {
+			} else if(kid.getName().equals("index")) {
 				if(c == null) {
 					c = getCase(caseId);
 				}
 				if(kid.isRelevant()) {
-					processCaseReferral(kid,c,date);
+					processCaseIndex(kid,c);
 				}
 			}
 		}
@@ -128,19 +122,6 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 	}
 	
-	private PatientReferral getReferral(String refId, String refType) {
-		IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage(PatientReferral.STORAGE_KEY);
-		Vector IDs = storage.getIDsForValue("referral-id", refId);
-		for(Enumeration en = IDs.elements(); en.hasMoreElements(); ) {
-			int id = ((Integer)en.nextElement()).intValue();
-			PatientReferral r = (PatientReferral)storage.read(id);
-			if(r.getType().equals(refType)) {
-				return r; 
-			}
-		}
-		throw new RuntimeException("Referral for ID:" + refId + " doesn't exist");
-	}
-	
 	private void commit(Case c) {
 		IStorageUtility utility = StorageManager.getStorage(Case.STORAGE_KEY);
 		try {
@@ -148,16 +129,6 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		} catch (StorageFullException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Uh oh! Case Storage Full!");
-		}
-	}
-	
-	private void commit(PatientReferral r) {
-		IStorageUtility utility = StorageManager.getStorage(PatientReferral.STORAGE_KEY);
-		try {
-			utility.write(r);
-		} catch (StorageFullException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Uh oh! Referral Storage Full!");
 		}
 	}
 	
@@ -172,17 +143,21 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			if(!kid.isRelevant()) {
 				continue;
 			}
-			if(kid.getName().equals("case_type_id")) {
-				caseTypeId = (String)serializer.serializeAnswerData(kid.getValue());
-			}
-			if(kid.getName().equals("external_id")) {
-				extId = (String)serializer.serializeAnswerData(kid.getValue());
-			}
-			if(kid.getName().equals("user_id")) {
-				userId = kid.getValue().uncast().getString();
-			}
-			if(kid.getName().equals("case_name")) {
-				caseName = (String)serializer.serializeAnswerData(kid.getValue());
+			try {
+				if(kid.getName().equals("case_type")) {
+					caseTypeId = kid.getValue().uncast().getString();;
+					continue;
+				}
+				if(kid.getName().equals("owner_id")) {
+					userId = kid.getValue().uncast().getString();
+					continue;
+				}
+				if(kid.getName().equals("case_name")) {
+					caseName = kid.getValue().uncast().getString();;
+					continue;
+				}
+			} catch(NullPointerException npe) { 
+				throw new MalformedCaseModelException("Invalid <create> model, null value for included element: " + kid.getRef().toString(true),"<create>");
 			}
 			
 		}
@@ -208,26 +183,37 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			if(!kid.isRelevant()) {
 				continue;
 			}
-			if(kid.getName().equals("case_type_id")) {
-				c.setTypeId((String)serializer.serializeAnswerData(kid.getValue()));
-			}
-			else if(kid.getName().equals("case_name")) {
-				c.setName((String)serializer.serializeAnswerData(kid.getValue()));
-			}
-			else if(kid.getName().equals("date_opened")) {
-				c.setDateOpened((Date)(kid.getValue().getValue()));
-			} else{
-				String vname = kid.getName();
-				
-				//We skip nodes which aren't relevant above by completely ignoring them. If a node has a null value, that means
-				//that it exists and is simply empty, so we need to set a valid property vlaue for it (empty string), so that 
-				//properties can be overriden.
-				String value = "";
-				if(kid.getValue() != null) {
-					value = kid.getValue().uncast().getString();
+			try {
+				if(kid.getName().equals("case_type")) {
+					c.setTypeId(kid.getValue().uncast().getString());
+					continue;
 				}
-				c.setProperty(vname, value);
+				else if(kid.getName().equals("case_name")) {
+					c.setName(kid.getValue().uncast().toString());
+					continue;
+				}
+				else if(kid.getName().equals("date_opened")) {
+					c.setDateOpened((Date)(kid.getValue().getValue()));
+					continue;
+				} else if(kid.getName().equals("owner_id")) {
+					c.setName(kid.getValue().uncast().getString());
+					continue;
+				} 
+			} catch(NullPointerException npe)  {
+				//kind of a crude catchall here
+				throw new MalformedCaseModelException("Invalid update element attempting to set required data to null at " + kid.getRef().toString(true), "<update>");
 			}
+			//Otherwise...
+			String vname = kid.getName();
+			
+			//We skip nodes which aren't relevant above by completely ignoring them. If a node has a null value, that means
+			//that it exists and is simply empty, so we need to set a valid property vlaue for it (empty string), so that 
+			//properties can be overriden.
+			String value = "";
+			if(kid.getValue() != null) {
+				value = kid.getValue().uncast().getString();
+			}
+			c.setProperty(vname, value);
 		}
 		commit(c);
 	}
@@ -238,64 +224,24 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
 	}
 	
-	private void processCaseReferral(TreeElement referral, Case c, Date date) throws MalformedCaseModelException {
-		
-		Vector referralIds = referral.getChildrenWithName("referral_id");
-		if(referralIds.size() < 1) {
-			throw new MalformedCaseModelException("Invalid <referral> model. Required element (referral_id) is missing.","<referral>");
+	private void processCaseIndex(TreeElement index, Case c) throws MalformedCaseModelException {
+		boolean modified = false;
+		for(int i = 0; i < index.getNumChildren(); ++i) {
+			TreeElement child = index.getChildAt(i);
+			if(!child.isRelevant()) { continue; }
+			String indexName = child.getName();
+			IAnswerData data = child.getValue();
+			if(data == null) {
+				throw new MalformedCaseModelException("Invalid <index> child, supplied index doesn't have a value. at " + child.getRef().toString(true),"<create>");
+			}
+			c.setIndex(indexName, data.uncast().getString());
+			modified = true;
 		}
-		String referralId = (String)serializer.serializeAnswerData(((TreeElement)referralIds.elementAt(0)).getValue());
-		
-		//Use some smart default for followup dates here. Generally from case type.
-		Date followup = DateUtils.dateAdd(date,3);
-		Vector followupDates = referral.getChildrenWithName("followup_date");
-		if(followupDates.size() >= 1 && ((TreeElement)followupDates.elementAt(0)).isRelevant()) {
-			IAnswerData followupDate = (((TreeElement)followupDates.elementAt(0))).getValue();
-			if(followupDate == null) {
-				throw new MalformedCaseModelException("Invalid <referral> model. followup_date is present, but empty!","<followup_date>");
-			}
-			followup = (Date)followupDate.getValue();
-		}
-		
-		for(int i=0; i < referral.getNumChildren(); ++i ){
-			TreeElement kid = referral.getChildAt(i);
-			if(!kid.isRelevant()) {
-				continue;
-			}
-			if(kid.getName().equals("open")) {
-				Vector types = kid.getChildrenWithName("referral_types");
-				if(types.size() < 1) {
-					throw new MalformedCaseModelException("Invalid <open> model. Required element (referral_types) is missing.","<referral>");
-				}
-				String typeString = (String)serializer.serializeAnswerData(((TreeElement)types.elementAt(0)).getValue());
-				Vector referralTypeList = DateUtils.split(typeString, " ", true);
-				for(int ir = 0; ir < referralTypeList.size(); ++ir) {
-					String referralType = (String)referralTypeList.elementAt(ir);
-					PatientReferral r = new PatientReferral(referralType, date, referralId, c.getCaseId(), followup);
-					commit(r);
-					Logger.log("referral-open", r.getID() + ";" + PropertyUtils.trim(r.getReferralId(), 12) + ";" + r.getType());
-				}
-			}
-			else if(kid.getName().equals("update")) {
-				Vector types = kid.getChildrenWithName("referral_type");
-				if(types.size() < 1) {
-					throw new MalformedCaseModelException("Invalid <update> model. Required element (referral_type) is missing.","<referral>");
-				}
-				String refType = (String)serializer.serializeAnswerData((((TreeElement)types.elementAt(0)).getValue()));
-				PatientReferral r = getReferral(referralId,refType);
-				r.setDateDue(followup);
-				Vector dateCloseds = kid.getChildrenWithName("date_closed");
-				boolean closing = (dateCloseds.size() > 0 && ((TreeElement)dateCloseds.elementAt(0)).isRelevant());
-				if(closing) {
-					r.close();
-				}
-				commit(r);
-				if (closing) {
-					Logger.log("referral-resolve", PropertyUtils.trim(r.getReferralId(), 12) + ";" + r.getType()); //type currently needed to uniquely identify referral
-				}
-			}
+		if(modified) {
+			commit(c);
 		}
 	}
+	
 	
 	private Vector scrapeForCaseElements(FormInstance tree) {
 		Vector caseElements = new Vector();

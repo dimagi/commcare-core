@@ -16,6 +16,8 @@
 
 package org.javarosa.core.util;
 
+import java.util.Vector;
+
 /**
  * 
  * @author Clayton Sims
@@ -33,5 +35,24 @@ public class ArrayUtilities {
 			}
 		}
 		return retVal;
+	}
+	
+	/**
+	 * Find a single intersecting element common to two lists, or null if none
+	 * exists. Note that no unique condition will be reported if there are multiple
+	 * elements which intersect, so this should likely only be used if the possible
+	 * size of intersection is 0 or 1 
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static <E> E intersectSingle(Vector<E> a, Vector<E> b) {
+		for(E e : a) {
+			if(b.indexOf(e) != -1) {
+				return e;
+			}
+		}
+		return null;
 	}
 }

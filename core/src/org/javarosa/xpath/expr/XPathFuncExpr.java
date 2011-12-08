@@ -86,7 +86,8 @@ public class XPathFuncExpr extends XPathExpression {
 			XPathFuncExpr x = (XPathFuncExpr)o;
 			
 			//Shortcuts for very easily comprable values
-			if(!id.equals(x.id) || args.length != x.args.length) {
+			//Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
+			if(!id.equals(x.id) || args.length != x.args.length || id.toString().equals("uuid")) {
 				return false;
 			}
 			
