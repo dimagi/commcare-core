@@ -62,6 +62,10 @@ public class CommCareFirstStartState implements State, FirstStartupTransitions{
 				PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_NO);
 				J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
 			}
+
+			public void commitSyncToken(String restoreID) {
+				//Will be set on any created users if relevant.
+			}
 			
 		});
 	}

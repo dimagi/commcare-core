@@ -7,11 +7,15 @@ import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.UserCredentialProvider;
 import org.javarosa.core.api.State;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
+import org.javarosa.user.model.User;
 
 public abstract class ServerSyncState implements State {
 
@@ -46,13 +50,31 @@ public abstract class ServerSyncState implements State {
 				}
 			}
 		};
+		
+		String syncToken = null;
+		User u = CommCareContext._().getUser();
+		if(u != null) {
+			syncToken = u.getLastSyncToken();
+		}
 					
 		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(currentUserCredentials));
-		pull = new CommCareOTARestoreState (true, auth) {
+		pull = new CommCareOTARestoreState (syncToken, auth) {
 			public void cancel() {
 				//when your credentials have changed, the ota restore credentials screen will pop up, so we
 				//do need to support canceling here.
 				ServerSyncState.this.onError("Restore Cancelled");
+			}
+			
+			public void commitSyncToken(String token) {
+				if(token != null) {
+					User u = CommCareContext._().getUser();
+					u.setLastSyncToken(token);
+					try {
+						StorageManager.getStorage(User.STORAGE_KEY).write(u);
+					} catch (StorageFullException e) {
+						Logger.die("sync", e);
+					}
+				}
 			}
 			
 			public void done(boolean errorsOccurred) {

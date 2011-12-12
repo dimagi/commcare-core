@@ -20,14 +20,20 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 
 	private boolean isSync;
 	private boolean partial;
+	private String syncToken;
 	private HttpAuthenticator authenticator;
 	
 	public CommCareOTARestoreState() {
-		this(false, null);
+		this(null, null);
+		isSync = false;
 	}
 	
-	public CommCareOTARestoreState(boolean isSync, HttpAuthenticator authenticator) {
-		this.isSync = isSync;
+	/*
+	 * For a sync state
+	 */
+	public CommCareOTARestoreState(String syncToken, HttpAuthenticator authenticator) {
+		this.isSync = true;
+		this.syncToken = syncToken;
 		this.authenticator = authenticator;
 		this.partial = getPartialRestoreSetting();
 		
@@ -47,7 +53,8 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 			CommCareContext._().getOTAURL(),
 			authenticator,
 			isSync,
-			!partial
+			!partial,
+			syncToken
 		);
 	}
 	

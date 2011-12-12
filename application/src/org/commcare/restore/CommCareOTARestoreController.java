@@ -67,27 +67,29 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	HttpAuthenticator authenticator;
 	boolean errorsOccurred;
+	String syncToken;
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
 		this(transitions, restoreURI, null);
 	}
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
-		this(transitions, restoreURI, authenticator, false, false);
+		this(transitions, restoreURI, authenticator, false, false, null);
 	}
 				
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
-			HttpAuthenticator authenticator, boolean isSync, boolean noPartial) {
+			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken) {
 		if (isSync && !noPartial) {
 			System.err.println("WARNING: no-partial mode is strongly recommended when syncing");
 		}
+		this.syncToken = syncToken;
 		
 		this.restoreURI = restoreURI;
 		this.authenticator = authenticator;
 			
 		this.isSync = isSync;
 		if (isSync) {
-			setLastSyncToken();
+			setLastSyncToken(syncToken);
 		}
 		this.noPartial = noPartial;
 		
@@ -229,11 +231,10 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	}
 	
-	private void setLastSyncToken () {
+	private void setLastSyncToken (String lastSync) {
 		//get property
-		String lastSyncToken = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SUCCESSFUL_SYNC);
-		if (lastSyncToken != null) {
-			this.restoreURI += "?since=" + lastSyncToken;
+		if (lastSync != null) {
+			this.restoreURI += "?since=" + lastSync;
 		}
 	}
 	
@@ -265,8 +266,9 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			success = parser.parse();
 			restoreID = factory.getRestoreId();
 			caseTallies = factory.getCaseTallies();
+			//TODO: Is success here too strict?
 			if (success) {
-				PropertyManager._().setProperty(CommCareProperties.LAST_SUCCESSFUL_SYNC, restoreID);
+				transitions.commitSyncToken(restoreID);
 				PropertyManager._().setProperty(CommCareProperties.LAST_SYNC_AT, DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
 			}
 			parseErrors = parser.getParseErrors();

@@ -152,9 +152,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				Case c = retrieve(caseId);
 				while(this.nextTagInBlock("index")) {
 					String indexName = parser.getName();
+					String caseType = parser.getAttributeValue(null, "case_type");
 					String value = parser.nextText().trim();
 					
-					c.setIndex(indexName, value);
+					c.setIndex(indexName, caseType, value);
 				}
 				commit(c);
 			}

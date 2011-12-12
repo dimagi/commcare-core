@@ -17,9 +17,15 @@ import org.xmlpull.v1.XmlPullParserException;
 public class UserXmlParser extends TransactionParser<User> {
 
 	IStorageUtilityIndexed storage;
+	String syncToken;
 	
 	public UserXmlParser(KXmlParser parser) {
+		this(parser, null);
+	}
+	
+	public UserXmlParser(KXmlParser parser, String syncToken) {
 		super(parser, "registration", null);
+		this.syncToken = syncToken;
 	}
 
 	public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -74,6 +80,10 @@ public class UserXmlParser extends TransactionParser<User> {
 			}
 		}
 		
+		//If this user's being restored as part of a sync action, we want the phone to know what the root of that action was! 
+		if(syncToken != null) {
+			u.setLastSyncToken(syncToken);
+		}
 		commit(u);
 		return u;
 	}

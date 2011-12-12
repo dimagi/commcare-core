@@ -114,6 +114,11 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			public void done(boolean errorsOccured) {
 				new CommCareHomeState().start();
 			}
+
+			public void commitSyncToken(String restoreID) {
+				//Since we're restoring users with no specific start point, they should be assigned
+				//the sync token when their user model is created.
+			}
 			
 		});
 	}

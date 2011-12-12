@@ -55,7 +55,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 		if(name.toLowerCase().equals("case")) {
 			return new CaseXmlParser(parser, caseTallies, tolerant);
 		} else if(name.toLowerCase().equals("registration")) {
-			return new UserXmlParser(parser);
+			//TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the 
+			//restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
+			return new UserXmlParser(parser, restoreId);
 		} else if(name.toLowerCase().equals("message")) {
 			message = parser.getText();
 		} else if (name.equalsIgnoreCase("restore_id")) {
