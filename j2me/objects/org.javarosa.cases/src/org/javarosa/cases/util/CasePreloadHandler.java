@@ -55,9 +55,7 @@ public class CasePreloadHandler implements IPreloadHandler {
 	public IAnswerData handlePreload(String preloadParams) {
 		 if("name".equals(preloadParams)) {
 			return new StringData(c.getName());
-		 } else if("external-id".equals(preloadParams)) {
-			return new StringData(c.getExternalId());
-	 	 } else if("status".equals(preloadParams)) {
+		 }else if("status".equals(preloadParams)) {
 		 	if(c.isClosed()) {
 				return new StringData("closed");
 			} else {

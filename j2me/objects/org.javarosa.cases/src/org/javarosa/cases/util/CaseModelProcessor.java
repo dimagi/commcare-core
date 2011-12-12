@@ -167,7 +167,6 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 		Case c = new Case(caseName, caseTypeId);
 		c.setCaseId(caseId);
-		c.setExternalId(extId);
 		c.setDateOpened(date);
 		if(userId != null) {
 			c.setUserId(userId);
@@ -230,11 +229,12 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			TreeElement child = index.getChildAt(i);
 			if(!child.isRelevant()) { continue; }
 			String indexName = child.getName();
+			String indexType = child.getAttributeValue(null, "case_type");
 			IAnswerData data = child.getValue();
 			if(data == null) {
 				throw new MalformedCaseModelException("Invalid <index> child, supplied index doesn't have a value. at " + child.getRef().toString(true),"<create>");
 			}
-			c.setIndex(indexName, data.uncast().getString());
+			c.setIndex(indexName, indexType, data.uncast().getString());
 			modified = true;
 		}
 		if(modified) {
