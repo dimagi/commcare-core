@@ -205,6 +205,11 @@ public class CommCareSession {
 		syncState();
 	}
 	
+	public void setXmlns(String xmlns) {
+		this.steps.addElement(new String[] {STATE_FORM_XMLNS, xmlns});
+		syncState();
+	}
+	
 	public void setCommand(String commandId) {
 		this.steps.addElement(new String[] {STATE_COMMAND_ID, commandId});
 		syncState();

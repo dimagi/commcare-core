@@ -23,6 +23,7 @@ import org.javarosa.user.model.User;
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSessionController session;
+	CaseInstanceTreeElement casebase;
 	
 	public CommCareInstanceInitializer(){ 
 		this(null);
@@ -34,7 +35,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		String ref = instance.getReference();
 		if(ref.indexOf("case") != -1) {
-			return new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
+			if(casebase == null) {
+				casebase =  new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
+			} else {
+				casebase.rebase(instance.getBase());
+			}
+			return casebase;
 		}
 		if(instance.getReference().indexOf("fixture") != -1) {
 			String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());

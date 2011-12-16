@@ -21,15 +21,28 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
 	}
 
 	public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode("datum");
+		if((!"datum".equals(this.parser.getName())) && !("form".equals(this.parser.getName()))) {
+			throw new InvalidStructureException("Expected <datum> or <form> data in <session> block, instead found " + this.parser.getName() + ">", this.parser);
+		}
 		
 		String id = parser.getAttributeValue(null, "id");
-		String nodeset = parser.getAttributeValue(null, "nodeset");
-		String shortDetail = parser.getAttributeValue(null, "detail-select");
-		String longDetail = parser.getAttributeValue(null, "detail-confirm");
-		String value = parser.getAttributeValue(null, "value");
 		
-		SessionDatum datum = new SessionDatum(id, nodeset, shortDetail, longDetail, value);
+		String calculate = parser.getAttributeValue(null, "function");
+		
+		SessionDatum datum;
+		if(calculate == null) {
+			String nodeset = parser.getAttributeValue(null, "nodeset");
+			String shortDetail = parser.getAttributeValue(null, "detail-select");
+			String longDetail = parser.getAttributeValue(null, "detail-confirm");
+			String value = parser.getAttributeValue(null, "value");
+			datum = new SessionDatum(id, nodeset, shortDetail, longDetail, value);
+		} else {
+			if("form".equals(this.parser.getName())) {
+				datum = SessionDatum.FormIdDatum(calculate);
+			} else {
+				datum = new SessionDatum(id,null, null, null, calculate);
+			}
+		}
 		
 		while(parser.next() == KXmlParser.TEXT);
 		

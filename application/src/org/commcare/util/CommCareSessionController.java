@@ -24,7 +24,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -37,6 +36,10 @@ import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.utilities.media.MediaUtils;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import de.enough.polish.ui.List;
 
@@ -161,6 +164,10 @@ public class CommCareSessionController {
 			} else {
 				title = Localizer.clearArguments(entry.getText().evaluate());
 			}
+			
+			//Start form entry and clear anything we've been using from memory
+			initializer = null;
+			
 			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
 				protected void goHome() {
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
@@ -205,6 +212,28 @@ public class CommCareSessionController {
 		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
 		
 		final SessionDatum datum = entry.getSessionDataReqs().elementAt(session.getData().size());
+		final EvaluationContext context = getEvaluationContext(entry.getInstances());
+
+		
+		if(datum.getNodeset() == null) {
+			//TODO: Generally this call makes a state happen, so this is going to fuck up going back.
+			XPathExpression form;
+			try {
+				form = XPathParseTool.parseXPath(datum.getValue());
+			} catch (XPathSyntaxException e) {
+				//TODO: What.
+				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
+			}
+			if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+				CommCareSessionController.this.session.setXmlns(XPathFuncExpr.toString(form.eval(context.getMainInstance(), context)));
+				CommCareSessionController.this.session.setDatum("", "awful");
+			} else {
+				CommCareSessionController.this.session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(context.getMainInstance(), context)));
+			}
+			next();
+			return;
+		}
 		
 		
 		Detail shortDetail = suite.getDetail(datum.getShortDetail());
@@ -213,7 +242,6 @@ public class CommCareSessionController {
 			longDetail = suite.getDetail(datum.getLongDetail());
 		}
 		
-		final EvaluationContext context = getEvaluationContext(entry.getInstances());
 		final NodeEntitySet nes = new NodeEntitySet(datum.getNodeset(), context);
 		Entity<TreeReference> entity = new CommCareEntity(shortDetail, longDetail, context, nes);
 		
@@ -229,7 +257,8 @@ public class CommCareSessionController {
 				if(element == null) {
 					throw new RuntimeException("No reference resolved for: " + outcome.toString());
 				}
-				CommCareSessionController.this.session.setDatum(datum.getDataId(), element.getValue().uncast().getString());
+				String outputData = element.getValue().uncast().getString();
+				CommCareSessionController.this.session.setDatum(datum.getDataId(), outputData);
 				CommCareSessionController.this.next();
 			}
 		};
@@ -238,8 +267,13 @@ public class CommCareSessionController {
 		return;
 	}
 	
+	CommCareInstanceInitializer initializer = null;
+	
 	private InstanceInitializationFactory getIif() {
-		return new CommCareInstanceInitializer(this);
+		if(initializer == null) {
+			initializer = new CommCareInstanceInitializer(this);
+		}
+		return initializer;
 	}
 
 	private Vector<IPreloadHandler> getPreloaders() {

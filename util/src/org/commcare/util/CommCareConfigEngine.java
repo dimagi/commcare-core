@@ -263,13 +263,17 @@ public class CommCareConfigEngine {
 		}
 		print.println(head + "Entry: " + e.getText().evaluate());
 		for(SessionDatum datum : e.getSessionDataReqs()) {
-			Detail d = s.getDetail(datum.getShortDetail());
-			print.println(emptyhead + "|Select: " + d.getTitle().evaluate());
-			print.print(emptyhead + "| ");
-			for(Text t : d.getHeaders()) {
-				print.print(t.evaluate() + " | ");
+			if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+				print.println(emptyhead + "Form: " + datum.getValue());
+			} else {
+				Detail d = s.getDetail(datum.getShortDetail());
+				print.println(emptyhead + "|Select: " + d.getTitle().evaluate());
+				print.print(emptyhead + "| ");
+				for(Text t : d.getHeaders()) {
+					print.print(t.evaluate() + " | ");
+				}
+				print.print("\n");
 			}
-			print.print("\n");
 		}
 	}
 }
