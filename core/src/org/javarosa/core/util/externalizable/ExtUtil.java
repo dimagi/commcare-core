@@ -52,6 +52,12 @@ public class ExtUtil {
 			throw new DeserializationException("Unexpectedly reached end of stream when deserializing");			
 		} catch (IOException e) {
 			throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
+		} finally {
+			try {
+				bais.close();
+			} catch (IOException e) {
+				//already closed. Don't sweat it
+			}
 		}
 	}
 	
@@ -65,6 +71,12 @@ public class ExtUtil {
 			throw new DeserializationException("Unexpectedly reached end of stream when deserializing");			
 		} catch (IOException e) {
 			throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
+		} finally {
+			try {
+				bais.close();
+			} catch (IOException e) {
+				//already closed. Don't sweat it
+			}
 		}
 	}
 	
