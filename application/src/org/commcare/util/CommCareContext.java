@@ -674,14 +674,16 @@ public class CommCareContext {
 	
 	private void purgeRMS (String key, EntityFilter filt, Hashtable<String, Hashtable<Integer, String>> deletedLog) {
 		RMSStorageUtility rms = (RMSStorageUtility)StorageManager.getStorage(key);
-		Hashtable<Integer, RMSRecordLoc> index = rms.getIDIndexRecord();
+		//TODO: Reimplement the printout here. 
+		//Hashtable<Integer, RMSRecordLoc> index = rms.getIDIndexRecord();
 		
 		Vector<Integer> deletedIDs = rms.removeAll(filt);
 		
 		Hashtable<Integer, String> deletedDetail = new Hashtable<Integer, String>();
 		for (int i = 0; i < deletedIDs.size(); i++) {
 			int id = deletedIDs.elementAt(i).intValue();
-			RMSRecordLoc detail = index.get(new Integer(id));
+			//RMSRecordLoc detail = index.get(new Integer(id));
+			RMSRecordLoc detail = null;
 			deletedDetail.put(new Integer(id), detail != null ? "(" + detail.rmsID + "," + detail.recID + ")" : "?");
 		}
 		deletedLog.put(key, deletedDetail);

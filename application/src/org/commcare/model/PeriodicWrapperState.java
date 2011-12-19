@@ -14,6 +14,7 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
@@ -53,7 +54,7 @@ public abstract class PeriodicWrapperState implements State {
 		storage = StorageManager.getStorage(PeriodicEventRecord.STORAGE_KEY);
 		toCheck = new Stack<Integer>();
 		for(IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-			toCheck.addElement(new Integer(i.nextID()));
+			toCheck.addElement(DataUtil.integer(i.nextID()));
 		}
 	}
 

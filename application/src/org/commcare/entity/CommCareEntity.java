@@ -12,6 +12,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -229,7 +230,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 */
 	public Object getSortKey (String fieldKey) {
 		if (fieldKey.equals("DEFAULT")) {
-			return new Integer(this.getRecordID());
+			return DataUtil.integer(this.getRecordID());
 		} else {
 			try{
 				return getShortFields()[Integer.valueOf(fieldKey).intValue() - 1];
