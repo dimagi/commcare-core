@@ -68,7 +68,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	/* hard-coded ID numbers of specific records in the indexing RMS */
 	private static final int TX_FLAG_REC_ID = 1;			//status flag
 	private static final int STORAGE_INFO_REC_ID = 2;		//general info (# records, # data stores, etc.)
-	private static final int ID_INDEX_REC_ID = 3;			//record ID -> record location index
+	protected static final int ID_INDEX_REC_ID = 3;			//record ID -> record location index
 	private static final int RESERVE_BUFFER_REC_ID = 4;		//safety buffer
 	
 	/* amount of safety buffer we want to keep for unexpected size increases to our indexing structures. this is important as
@@ -96,8 +96,9 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	
 	private RMSFactory rmsFactory;             //Factory for creating storage links
 	
-	private RMS indexstore;			//RMS wrapper for the indexing RMS
 	private RMS[] datastores;		//RMS wrappers for 1..n data RMSes (are loaded as needed, so entries may be null)
+	
+	IdIndex index;
 	
 	public static final String[] TX_EXCL = {
 		RMSTransaction.CACHE_RMS,
@@ -140,14 +141,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		return type;
 	}
 	
-	protected E read(int id, Hashtable index) {
+	protected E read(int id, IdIndex index) {
 		synchronized (getAccessLock()) {
 
 			checkNotCorrupt();
 			
-			Hashtable idIndex = index;
-			if (idIndex.containsKey(new Integer(id))) {
-				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+			RMSRecordLoc loc = index.getRecordLoc(id);
+			if (loc != null) {
 				return (E)getDataStore(loc.rmsID).readRecord(loc.recID, type);
 			} else {
 				return null;
@@ -163,10 +163,6 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @return object for 'id'. null if no object is stored under that ID
 	 */
 	public E read (int id) {
-		Hashtable index;
-		synchronized (getAccessLock()) {
-			index = getIDIndexRecord();
-		}
 		return read(id, index);
 	}
 
@@ -187,9 +183,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				checkNotCorrupt();
 			}
 				
-			Hashtable idIndex = getIDIndexRecord();
-			if (idIndex.containsKey(new Integer(id))) {
-				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+			RMSRecordLoc loc = index.getRecordLoc(id);
+			if (loc != null) {
 				return getDataStore(loc.rmsID).readRecord(loc.recID);
 			} else {
 				return null;
@@ -226,21 +221,19 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 						
 			byte[] data = ExtUtil.serialize(p);
 			
-			Hashtable idIndex = getIDIndexRecord();
-			boolean recordExists = idIndex.containsKey(new Integer(id));
+			RMSRecordLoc loc = index.getRecordLoc(id);
 
 			setDirty();
 						
 			//reserve space for updating index/metadata
-			int bytesNeededEstimate = (recordExists ? 20 : 40);
+			int bytesNeededEstimate = (loc == null ? 20 : 40);
 			if (!setReserveBuffer(bytesNeededEstimate)) {
 				setClean();
 				//can't reserve needed space to update index
 				throw new StorageFullException();
 			}
 			
-			if (recordExists) {
-				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+			if (loc != null) {
 				txRecord(id, "update");
 				newLoc = updateRecord(loc, data, info);
 			} else {
@@ -259,8 +252,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				throw new StorageFullException();
 			}
 			
-			idIndex.put(new Integer(id), newLoc);	
-			commitIndex(info, idIndex);
+			index.beginChangeCommit(id, newLoc);
+			commitIndex(info, index);
 			setClean();
 			storageModified();			
 		}
@@ -306,11 +299,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				throw new StorageFullException();
 			}
 			
-			Hashtable idIndex = getIDIndexRecord();
-			idIndex.put(new Integer(id), loc);
+			index.beginChangeCommit(id, loc);;
 			info.numRecords++;
 			
-			commitIndex(info, idIndex);
+			commitIndex(info, index);
 			setClean();
 			storageModified();
 			
@@ -334,8 +326,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		
 		synchronized (getAccessLock()) {
 			RMSStorageInfo info = getInfoRecord();
-			Hashtable idIndex = getIDIndexRecord();
-			if (!idIndex.containsKey(new Integer(id))) {
+			RMSRecordLoc loc = index.getRecordLoc(id);
+			if (loc == null) {
 				throw new IllegalArgumentException("Record ID [" + id + "] not found");
 			}
 	
@@ -349,7 +341,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				throw new StorageFullException();
 			}
 			
-			RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+			//Move a lot of this logic into the index object
 			txRecord(id, "update");
 			loc = updateRecord(loc, data, info);
 	
@@ -361,8 +353,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				throw new StorageFullException();
 			}
 			
-			idIndex.put(new Integer(id), loc);
-			commitIndex(info, idIndex);
+			index.beginChangeCommit(id, loc);
+			commitIndex(info, index);
 			setClean();
 			storageModified();
 		}
@@ -426,7 +418,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			
 			
 			RMSStorageInfo info = getInfoRecord();
-			Hashtable idIndex = getIDIndexRecord();
+			Hashtable idIndex = index.getIndexTable();
 				
 			deleteActionCache = new Object[] {info, idIndex};
 			this.transactionKey = transactionKey;
@@ -455,7 +447,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			RMSStorageInfo info = (RMSStorageInfo)deleteActionCache[0];
 			Hashtable idIndex = (Hashtable)deleteActionCache[1];
 			
-			commitIndex(info, idIndex);
+			index.beginChangeCommit(idIndex);
+			commitIndex(info, index);
 			
 			this.deleteActionCache = null;
 			this.transactionKey = null;
@@ -559,9 +552,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
 			checkNotCorrupt();
 			
-			Hashtable idIndex = getIDIndexRecord();
-			return idIndex.containsKey(new Integer(id));
-			
+			return index.containsRecordLoc(id);
 		}
 	}
 	
@@ -580,7 +571,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			RMSStorageInfo info = getInfoRecord();
 			
 			try {
-				size += getIndexStore().rms.getSize();
+				size += index.getIndexStoreSize();
 				for (int i = 0; i < info.numDataStores; i++) {
 					size += getDataStore(i).rms.getSize();
 				}
@@ -604,9 +595,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
 			checkNotCorrupt();
 			
-			Hashtable idIndex = getIDIndexRecord();
-			if (idIndex.containsKey(new Integer(id))) {			
-				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+			RMSRecordLoc loc = index.getRecordLoc(id);
+			if (loc != null) {			
 				try {
 					return getDataStore(loc.rmsID).rms.getRecordSize(loc.recID);
 				} catch (RecordStoreException e) {
@@ -667,7 +657,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				log("rms-repair", "buf[" + getReserveBufferSize() + "]");
 			
 				RMSStorageInfo info = getInfoRecord();
-				Hashtable idIndex = getIDIndexRecord();
+				Hashtable idIndex = index.getIndexTable();
 
 				//check index for entries where record does not exist in rms
 				Vector invalidIDs = new Vector();
@@ -717,7 +707,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				info.numDataStores = max_datastore + 1;
 				info.nextRecordID = info.numRecords + 1;
 				
-				commitIndex(info, idIndex);
+				index.beginChangeCommit(idIndex);
+				commitIndex(info, index);
 				setReserveBuffer(0);
 				setClean();
 				storageModified();	
@@ -746,13 +737,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @param info general StorageUtility info record
 	 * @param idIndex ID -> record location mapping
 	 */
-	private void commitIndex (RMSStorageInfo info, Hashtable idIndex) {
+	private void commitIndex (RMSStorageInfo info, IdIndex index) {
 		boolean failed = false;
 
-		if (!failed)
-			failed = !writeIDIndexRecord(idIndex);
-		if (!failed)
+		if (!failed) {
+			//TODO: More efficiently?
+			failed = !index.commitChange();
+		} if (!failed) {
 			failed = !writeInfoRecord(info);
+		}
 
 		if (failed) {
 			System.err.println("We weren't able to commit the updated index and meta-data, even though we thought we had enough space! The utility is now corrupt!!");
@@ -771,8 +764,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 */
 	public void close () {
 		synchronized (getAccessLock()) {
-			indexstore.close();
-			indexstore = null;
+			index.release();
+			index = null;
 
 			for (int i = 0; i < datastores.length; i++) {
 				if (datastores[i] != null) {
@@ -793,8 +786,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			
 			checkNotCorrupt();
 
-			return newIterator(getIDIndexRecord());
-			
+			return newIterator(index);
 		}
 	}
 	
@@ -822,7 +814,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			}
 			
 			if (ix != null) {
-				this.indexstore = ix;
+				this.index = new IdIndex(ix);
 			} else {
 				initIndexStore();
 			}
@@ -872,7 +864,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			throw new RuntimeException("Error building meta RMS: record not assigned to expected ID");
 		}
 		
-		this.indexstore = ix;
+		this.index = new IdIndex(ix);
 		
 		setClean();
 	}
@@ -952,16 +944,6 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		}
 	}
 	
-	/**
-	 * Return a reference to the indexing/meta-data RMS. Should always access it through this function, as it will re-open
-	 * the RMS if it was closed by another thread.
-	 * 
-	 * @return reference to index/meta-data RMS
-	 */
-	private RMS getIndexStore () {
-		indexstore.ensureOpen();
-		return indexstore;
-	}
 	
 	/**
 	 * Return a reference to one of the data RMSes. Data RMSes are loaded lazily, so will load it if it has not been
@@ -1138,7 +1120,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @return info record
 	 */
 	private RMSStorageInfo getInfoRecord () {
-		RMSStorageInfo info = (RMSStorageInfo)getIndexStore().readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
+		//TODO: All of this logic needs to move to the IdIndex!
+		RMSStorageInfo info = (RMSStorageInfo)index.getIndexStore().readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
 		
 		if (info.numDataStores != datastores.length) {
 			resizeDatastoreArray(info);
@@ -1154,7 +1137,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @return true if record committed successfully; false if full
 	 */
 	private boolean writeInfoRecord (RMSStorageInfo info) {
-		return getIndexStore().updateRecord(STORAGE_INFO_REC_ID, ExtUtil.serialize(info), true);
+		return index.getIndexStore().updateRecord(STORAGE_INFO_REC_ID, ExtUtil.serialize(info), true);
 	}
 	
 	/**
@@ -1168,29 +1151,29 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		System.arraycopy(old, 0, datastores, 0, Math.min(old.length, datastores.length));
 	}
 	
-	/**
-	 * Load the ID index from the indexing/meta-data RMS
-	 * 
-	 * @return index hashtable, which maps integer record ID -> record locator
-	 */
-	public Hashtable getIDIndexRecord () {
-		//If we're in the middle of a transaction, we get this index from that
-		//transaction (so we don't have to keep reading/writing it)
-		if(this.transactionKey != null) {
-			return (Hashtable)this.deleteActionCache[1];
-		}
-		return (Hashtable)getIndexStore().readRecord(ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));		
-	}
+//	/**
+//	 * Load the ID index from the indexing/meta-data RMS
+//	 * 
+//	 * @return index hashtable, which maps integer record ID -> record locator
+//	 */
+//	public Hashtable getIDIndexRecord () {
+//		//If we're in the middle of a transaction, we get this index from that
+//		//transaction (so we don't have to keep reading/writing it)
+//		if(this.transactionKey != null) {
+//			return (Hashtable)this.deleteActionCache[1];
+//		}
+//		return (Hashtable)getIndexStore().readRecord(ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));		
+//	}
 	
-	/**
-	 * Commit the record ID index back to RMS
-	 * 
-	 * @param idIndex record ID index
-	 * @return true if record committed successfully; false if full
-	 */
-	private boolean writeIDIndexRecord (Hashtable idIndex) {
-		return getIndexStore().updateRecord(ID_INDEX_REC_ID, ExtUtil.serialize(new ExtWrapMap(idIndex)), true);
-	}
+//	/**
+//	 * Commit the record ID index back to RMS
+//	 * 
+//	 * @param idIndex record ID index
+//	 * @return true if record committed successfully; false if full
+//	 */
+//	private boolean writeIDIndexRecord (Hashtable idIndex) {
+//		return getIndexStore().updateRecord(ID_INDEX_REC_ID, ExtUtil.serialize(new ExtWrapMap(idIndex)), true);
+//	}
 	
 	/**
 	 * Reserve bytes for later usage. If 'size' is greater than zero, that amount of bytes plus a fixed 'safety margin'
@@ -1201,13 +1184,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @return true if bytes were allocated successfully; false if full
 	 */
 	private boolean setReserveBuffer (int size) {
+		//TODO: MOVE TO THE IdIndex!
 		int bufsize = (size <= 0 ? 1 : size + RESERVE_BUFFER_SIZE);
-		return getIndexStore().updateRecord(RESERVE_BUFFER_REC_ID, new byte[bufsize], true);
+		return index.getIndexStore().updateRecord(RESERVE_BUFFER_REC_ID, new byte[bufsize], true);
 	}
 	
 	private int getReserveBufferSize () {
 		try {
-			return getIndexStore().rms.getRecordSize(RESERVE_BUFFER_REC_ID);
+			return index.getIndexStore().rms.getRecordSize(RESERVE_BUFFER_REC_ID);
 		} catch (Exception e) {
 			return -1;
 		}
@@ -1265,7 +1249,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	private int getStatus () {
 		Integer statusObj = null;
 		try {
-			statusObj = (Integer)getIndexStore().readRecord(TX_FLAG_REC_ID, Integer.class);
+			statusObj = (Integer)index.getIndexStore().readRecord(TX_FLAG_REC_ID, Integer.class);
 		} catch (RuntimeException re) {
 			//do nothing
 			System.err.println("RuntimeException while trying to read StorageUtility status flag; could be transient or could be a serious problem with RMS; " + re.getMessage());
@@ -1279,14 +1263,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 */
 	private void setDirty () {
 		checkNotCorrupt();
-		getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_DIRTY)), true);			
+		index.getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_DIRTY)), true);			
 	}
 	
 	/**
 	 * Set the status to CLEAN, indicating any transaction is now complete, and the StorageUtility is in a consistent state.
 	 */
 	private void setClean () {
-		getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_CLEAN)), true);
+		index.getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_CLEAN)), true);
 	}
 	
 	
@@ -1320,7 +1304,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @param index list of record IDs to iterate over
 	 * @return record iterator
 	 */
-	private RMSStorageIterator newIterator (Hashtable index) {
+	private RMSStorageIterator newIterator (IdIndex index) {
 		RMSStorageIterator iter = new RMSStorageIterator(this, index);
 		
 		synchronized (storageStaticInfo) {
@@ -1403,7 +1387,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		sb.append("=================\n");
 		
 		RMSStorageInfo info = getInfoRecord();
-		Hashtable ix = getIDIndexRecord();
+		Hashtable ix = index.getIndexTable();
 		
 		sb.append(basename + "(" + type.getName() + ") -- " + getStatus() + "\n");
 		sb.append(info.numRecords + ":" + info.numDataStores + ":" + info.nextRecordID + "\n");
@@ -1415,7 +1399,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			sb.append("  " + id + " => (" + loc.rmsID + ", " + loc.recID + ")\n");
 		}
 		
-		sb.append(printRMSInfo(getIndexStore().rms));
+		sb.append(printRMSInfo(index.getIndexStore().rms));
 		for (int i = 0; i < info.numDataStores; i++) {
 			sb.append(printRMSInfo(getDataStore(i).rms));
 		}
@@ -1497,6 +1481,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		if (!basename.startsWith(LogEntry.STORAGE_KEY)) {
 			Logger.log(type, basename + ": " + message);
 		}
+	}
+
+	public void setReadOnly() {
+		index.enterReadOnly();
 	}
 }
 

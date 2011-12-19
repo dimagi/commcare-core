@@ -14,13 +14,13 @@ public class RMSStorageIterator implements IStorageIterator {
 	private Vector IDs;
 	private int pos;
 	private boolean valid;
-	private Hashtable index;
+	private IdIndex index;
 	
-	public RMSStorageIterator (RMSStorageUtility store, Hashtable index) {
+	public RMSStorageIterator (RMSStorageUtility store, IdIndex index) {
 		
 		SortedIntSet IDs = new SortedIntSet();
 
-		for (Enumeration e = index.keys(); e.hasMoreElements(); ) {
+		for (Enumeration e = index.getIndexTable().keys(); e.hasMoreElements(); ) {
 			IDs.add(((Integer)e.nextElement()).intValue());
 		}
 		this.index = index;

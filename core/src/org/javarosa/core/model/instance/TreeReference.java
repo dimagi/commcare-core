@@ -23,12 +23,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.model.condition.Triggerable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
-import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -69,7 +68,7 @@ public class TreeReference implements Externalizable {
 	public TreeReference () {
 		names = new Vector(0);
 		multiplicity = new Vector(0);		
-		predicates = new Hashtable<Integer, Vector<XPathExpression>>();
+		predicates = new Hashtable<Integer, Vector<XPathExpression>>(0);
 		instanceName = null; //dido
 	}
 	
@@ -98,7 +97,7 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public void setMultiplicity (int i, int mult) {
-		multiplicity.setElementAt(new Integer(mult), i);
+		multiplicity.setElementAt(DataUtil.integer(mult), i);
 	}
 	
 	public int size () {
@@ -107,17 +106,17 @@ public class TreeReference implements Externalizable {
 	
 	public void add (String name, int index) {
 		names.addElement(name);
-		multiplicity.addElement(new Integer(index));
+		multiplicity.addElement(DataUtil.integer(index));
 	}
 	
 	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
-		predicates.put(new Integer(key), xpe);
+		predicates.put(DataUtil.integer(key), xpe);
 	}
 	
 	public Vector<XPathExpression> getPredicate(int key)
 	{
-		return predicates.get(new Integer(key));
+		return predicates.get(DataUtil.integer(key));
 	}
 	
 	public int getRefLevel () {
@@ -389,9 +388,9 @@ public class TreeReference implements Externalizable {
 			//is just returning the int value, I think, so
 			//this should potentially just be replaced by
 			//an int.
-			Integer mult = new Integer(getMultiplicity(i));
+			Integer mult = DataUtil.integer(getMultiplicity(i));
 			if (i == 0 && mult.intValue() == INDEX_UNBOUND)
-				mult = new Integer(0);
+				mult = DataUtil.integer(0);
 			
 			hash ^= getName(i).hashCode();
 			hash ^= mult.hashCode();

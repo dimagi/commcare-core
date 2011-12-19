@@ -53,6 +53,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactoryDeprecated;
@@ -202,32 +203,32 @@ public class XFormParser {
 
 	private static void initTypeMappings () {
 		typeMappings = new Hashtable<String, Integer>();
-		typeMappings.put("string", new Integer(Constants.DATATYPE_TEXT));               //xsd:
-		typeMappings.put("integer", new Integer(Constants.DATATYPE_INTEGER));           //xsd:
-		typeMappings.put("long", new Integer(Constants.DATATYPE_LONG));                 //xsd:
-		typeMappings.put("int", new Integer(Constants.DATATYPE_INTEGER));               //xsd:
-		typeMappings.put("decimal", new Integer(Constants.DATATYPE_DECIMAL));           //xsd:
-		typeMappings.put("double", new Integer(Constants.DATATYPE_DECIMAL));            //xsd:
-		typeMappings.put("float", new Integer(Constants.DATATYPE_DECIMAL));             //xsd:
-		typeMappings.put("dateTime", new Integer(Constants.DATATYPE_DATE_TIME));        //xsd:
-		typeMappings.put("date", new Integer(Constants.DATATYPE_DATE));                 //xsd:
-		typeMappings.put("time", new Integer(Constants.DATATYPE_TIME));                 //xsd:
-		typeMappings.put("gYear", new Integer(Constants.DATATYPE_UNSUPPORTED));         //xsd:
-		typeMappings.put("gMonth", new Integer(Constants.DATATYPE_UNSUPPORTED));        //xsd:
-		typeMappings.put("gDay", new Integer(Constants.DATATYPE_UNSUPPORTED));          //xsd:
-		typeMappings.put("gYearMonth", new Integer(Constants.DATATYPE_UNSUPPORTED));    //xsd:
-		typeMappings.put("gMonthDay", new Integer(Constants.DATATYPE_UNSUPPORTED));     //xsd:
-		typeMappings.put("boolean", new Integer(Constants.DATATYPE_BOOLEAN));           //xsd:
-		typeMappings.put("base64Binary", new Integer(Constants.DATATYPE_UNSUPPORTED));  //xsd:
-		typeMappings.put("hexBinary", new Integer(Constants.DATATYPE_UNSUPPORTED));     //xsd:
-		typeMappings.put("anyURI", new Integer(Constants.DATATYPE_UNSUPPORTED));        //xsd:
-		typeMappings.put("listItem", new Integer(Constants.DATATYPE_CHOICE));           //xforms:
-		typeMappings.put("listItems", new Integer(Constants.DATATYPE_CHOICE_LIST));	    //xforms:	
-		typeMappings.put(SELECTONE, new Integer(Constants.DATATYPE_CHOICE));	        //non-standard	
-		typeMappings.put(SELECT, new Integer(Constants.DATATYPE_CHOICE_LIST));        //non-standard
-		typeMappings.put("geopoint", new Integer(Constants.DATATYPE_GEOPOINT));         //non-standard
-		typeMappings.put("barcode", new Integer(Constants.DATATYPE_BARCODE));           //non-standard
-        typeMappings.put("binary", new Integer(Constants.DATATYPE_BINARY));             //non-standard
+		typeMappings.put("string", DataUtil.integer(Constants.DATATYPE_TEXT));               //xsd:
+		typeMappings.put("integer", DataUtil.integer(Constants.DATATYPE_INTEGER));           //xsd:
+		typeMappings.put("long", DataUtil.integer(Constants.DATATYPE_LONG));                 //xsd:
+		typeMappings.put("int", DataUtil.integer(Constants.DATATYPE_INTEGER));               //xsd:
+		typeMappings.put("decimal", DataUtil.integer(Constants.DATATYPE_DECIMAL));           //xsd:
+		typeMappings.put("double", DataUtil.integer(Constants.DATATYPE_DECIMAL));            //xsd:
+		typeMappings.put("float", DataUtil.integer(Constants.DATATYPE_DECIMAL));             //xsd:
+		typeMappings.put("dateTime", DataUtil.integer(Constants.DATATYPE_DATE_TIME));        //xsd:
+		typeMappings.put("date", DataUtil.integer(Constants.DATATYPE_DATE));                 //xsd:
+		typeMappings.put("time", DataUtil.integer(Constants.DATATYPE_TIME));                 //xsd:
+		typeMappings.put("gYear", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));         //xsd:
+		typeMappings.put("gMonth", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));        //xsd:
+		typeMappings.put("gDay", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));          //xsd:
+		typeMappings.put("gYearMonth", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));    //xsd:
+		typeMappings.put("gMonthDay", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));     //xsd:
+		typeMappings.put("boolean", DataUtil.integer(Constants.DATATYPE_BOOLEAN));           //xsd:
+		typeMappings.put("base64Binary", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));  //xsd:
+		typeMappings.put("hexBinary", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));     //xsd:
+		typeMappings.put("anyURI", DataUtil.integer(Constants.DATATYPE_UNSUPPORTED));        //xsd:
+		typeMappings.put("listItem", DataUtil.integer(Constants.DATATYPE_CHOICE));           //xforms:
+		typeMappings.put("listItems", DataUtil.integer(Constants.DATATYPE_CHOICE_LIST));	    //xforms:	
+		typeMappings.put(SELECTONE, DataUtil.integer(Constants.DATATYPE_CHOICE));	        //non-standard	
+		typeMappings.put(SELECT, DataUtil.integer(Constants.DATATYPE_CHOICE_LIST));        //non-standard
+		typeMappings.put("geopoint", DataUtil.integer(Constants.DATATYPE_GEOPOINT));         //non-standard
+		typeMappings.put("barcode", DataUtil.integer(Constants.DATATYPE_BARCODE));           //non-standard
+        typeMappings.put("binary", DataUtil.integer(Constants.DATATYPE_BINARY));             //non-standard
 	}
 	
 	private void initState () {
@@ -2387,7 +2388,7 @@ public class XFormParser {
 						//update multiplicity counter
 						Integer mult = multiplicities.get(name);
 						index = (mult == null ? 0 : mult.intValue() + 1);
-						multiplicities.put(name, new Integer(index));
+						multiplicities.put(name, DataUtil.integer(index));
 					}
 					
 					loadInstanceData(child, cur.getChild(name, index), f);
@@ -2547,7 +2548,7 @@ public class XFormParser {
 	}
 
 	public static void addDataType (String type, int dataType) {
-		typeMappings.put(type, new Integer(dataType));
+		typeMappings.put(type, DataUtil.integer(dataType));
 	}
 		
 	public static void registerControlType(String type, final int typeId) {

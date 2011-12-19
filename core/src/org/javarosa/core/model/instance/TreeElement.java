@@ -211,6 +211,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	public int getNumChildren() {
 		return this.children.size();
 	}
+	
+	public boolean hasChildren() {
+		if(getNumChildren() > 0) {
+			return true;
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)

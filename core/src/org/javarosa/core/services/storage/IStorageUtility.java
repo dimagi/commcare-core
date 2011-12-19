@@ -167,5 +167,6 @@ public interface IStorageUtility<E extends Externalizable> {
 	 */
 	Object getAccessLock ();
 	
+	void setReadOnly();
 }
 

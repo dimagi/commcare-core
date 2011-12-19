@@ -38,6 +38,13 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 	public String getInstanceName() {
 		return instanceName;
 	}
+	
+	public boolean hasChildren() {
+		if(getNumChildren() > 0) {
+			return true;
+		}
+		return false;
+	}
 
 	public AbstractTreeElement getChild(String name, int multiplicity) {
 		if(name.equals(child.getName()) && multiplicity == 0) {

@@ -209,7 +209,7 @@ public class EvaluationContext {
 			int mult = sourceRef.getMultiplicity(depth);
 			Vector<AbstractTreeElement> set = new Vector<AbstractTreeElement>();
 			
-			if (node.getNumChildren() > 0) {
+			if (node.hasChildren()) {
 				if (mult == TreeReference.INDEX_UNBOUND) {
 					int count = node.getChildMultiplicity(name);
 					for (int i = 0; i < count; i++) {

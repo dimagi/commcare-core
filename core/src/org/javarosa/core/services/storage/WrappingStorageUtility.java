@@ -207,4 +207,8 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 		return (IStorageUtilityIndexed)storage;
 	}
 
+	public void setReadOnly() {
+		storage.setReadOnly();
+	}
+
 }

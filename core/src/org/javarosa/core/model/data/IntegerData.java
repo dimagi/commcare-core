@@ -20,6 +20,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -63,7 +64,7 @@ public class IntegerData implements IAnswerData {
 	 * @see org.javarosa.core.model.data.IAnswerData#getValue()
 	 */
 	public Object getValue() {
-		return new Integer(n); 
+		return DataUtil.integer(n); 
 	}
 	
 	public void setValue(Object o) {
@@ -88,7 +89,7 @@ public class IntegerData implements IAnswerData {
 	}
 
 	public UncastData uncast() {
-		return new UncastData(new Integer(n).toString());
+		return new UncastData(DataUtil.integer(n).toString());
 	}
 	
 	public IntegerData cast(UncastData data) throws IllegalArgumentException {

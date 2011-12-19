@@ -23,6 +23,8 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 	 * @return
 	 */
 	public abstract Vector<T> getChildrenWithName(String name);
+	
+	public abstract boolean hasChildren();
 
 	public abstract int getNumChildren();
 

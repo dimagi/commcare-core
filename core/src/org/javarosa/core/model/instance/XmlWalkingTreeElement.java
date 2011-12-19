@@ -61,6 +61,12 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
 		// TODO Auto-generated method stub
 		return false;
 	}
+	public boolean hasChildren() {
+		if(getNumChildren() > 0) {
+			return true;
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
