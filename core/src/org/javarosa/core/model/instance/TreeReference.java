@@ -33,6 +33,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 
+
+//TODO: This class needs to be immutable
 public class TreeReference implements Externalizable {
 	public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
 	public static final int INDEX_UNBOUND = -1;//multiplicity
@@ -45,13 +47,9 @@ public class TreeReference implements Externalizable {
 	public static final String NAME_WILDCARD = "*";
 	
 	private int refLevel; //0 = context node, 1 = parent, 2 = grandparent ...
-	private Vector names; //Vector<String>
-	private Vector multiplicity; //Vector<Integer>
-	//private Vector<XPathExpression> predicates; //Vector<XPathExpression>
-	private Hashtable<Integer, Vector<XPathExpression>> predicates;
 	private DataInstance instance = null;
 	private String instanceName = null;
-	
+	private Vector<TreeReferenceLevel> data = null;
 
 	public static TreeReference rootRef () {
 		TreeReference root = new TreeReference();
@@ -66,10 +64,8 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public TreeReference () {
-		names = new Vector(0);
-		multiplicity = new Vector(0);		
-		predicates = new Hashtable<Integer, Vector<XPathExpression>>(0);
 		instanceName = null; //dido
+		data = new Vector<TreeReferenceLevel>();
 	}
 	
 	public String getInstanceName() {
@@ -81,42 +77,45 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public int getMultiplicity(int index) {
-		return ((Integer)multiplicity.elementAt(index)).intValue();
+		return data.elementAt(index).getMultiplicity();
 	}
 	
 	public String getName(int index) {
-		return (String)names.elementAt(index);
+		return data.elementAt(index).getName();
 	}
 
 	public int getMultLast () {
-		return ((Integer)multiplicity.lastElement()).intValue();
+		return data.lastElement().getMultiplicity();
 	}
 	
 	public String getNameLast () {
-		return (String)names.lastElement();
+		return data.lastElement().getName();
 	}
 	
 	public void setMultiplicity (int i, int mult) {
-		multiplicity.setElementAt(DataUtil.integer(mult), i);
+		data.elementAt(i).setMultiplicity(mult);
 	}
 	
 	public int size () {
-		return names.size();
+		return data.size();
 	}
 	
-	public void add (String name, int index) {
-		names.addElement(name);
-		multiplicity.addElement(DataUtil.integer(index));
+	private void add (TreeReferenceLevel level) {
+		data.addElement(level);
+	}
+	
+	public void add (String name, int mult) {
+		add(new TreeReferenceLevel(name, mult));
 	}
 	
 	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
-		predicates.put(DataUtil.integer(key), xpe);
+		data.elementAt(key).setPredicates(xpe);
 	}
 	
 	public Vector<XPathExpression> getPredicate(int key)
 	{
-		return predicates.get(DataUtil.integer(key));
+		return data.elementAt(key).getPredicates();
 	}
 	
 	public int getRefLevel () {
@@ -153,15 +152,11 @@ public class TreeReference implements Externalizable {
 	public TreeReference clone () {
 		TreeReference newRef = new TreeReference();
 		newRef.setRefLevel(this.refLevel);
-		for (int i = 0; i < this.size(); i++) {
-			newRef.add(this.getName(i), this.getMultiplicity(i));
+		
+		for(TreeReferenceLevel l : data) {
+			newRef.add(l.shallowCopy());
 		}
-		//copy predicates
-		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
-		{
-			Integer i = ((Integer)en.nextElement());
-			newRef.addPredicate(i.intValue(), predicates.get(i));
-		}
+
 		//copy instances
 		if(instanceName != null)
 		{
@@ -184,8 +179,7 @@ public class TreeReference implements Externalizable {
 				return true;
 			}
 		} else {
-			names.removeElementAt(size - 1);
-			multiplicity.removeElementAt(size - 1);
+			data.removeElementAt(size -1);
 			return true;
 		}
 	}
@@ -218,8 +212,8 @@ public class TreeReference implements Externalizable {
 				}
 			}
 			
-			for (int i = 0; i < names.size(); i++) {
-				newRef.add(this.getName(i), this.getMultiplicity(i));
+			for(TreeReferenceLevel l : data) {
+				newRef.add(l.shallowCopy());
 			}
 
 			return newRef;			
@@ -247,13 +241,7 @@ public class TreeReference implements Externalizable {
 					newRef.removeLastLevel();
 				}
 				for (int i = 0; i < size(); i++) {
-					newRef.add(this.getName(i), this.getMultiplicity(i));
-				}
-				//copy predicates
-				for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
-				{
-					Integer i = ((Integer)en.nextElement());
-					newRef.addPredicate(i.intValue(), predicates.get(i));
+					newRef.add(data.elementAt(i).shallowCopy());
 				}
 				return newRef;
 			}
@@ -272,7 +260,7 @@ public class TreeReference implements Externalizable {
 			
 			//If the the contextRef can provide a definition for a wildcard, do so
 			if(TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) && !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
-				newRef.names.setElementAt(contextRef.getName(i), i);
+				data.elementAt(i).setName(contextRef.getName(i));
 			}
 			
 			if (contextRef.getName(i).equals(newRef.getName(i))) {
@@ -444,40 +432,20 @@ public class TreeReference implements Externalizable {
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
 		refLevel = ExtUtil.readInt(in);
-		names = (Vector)ExtUtil.read(in, new ExtWrapList(String.class), pf);
-		multiplicity = (Vector)ExtUtil.read(in, new ExtWrapList(Integer.class), pf);
 		instanceName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class),pf);
-		
-		//now since predicates are made up of 2 composite data types we have to carefully put it all back to gether again
-		Vector<Integer> vi = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
-		for(Integer i : vi)
-		{
-			Vector<XPathExpression> vx = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
-			predicates.put(i, vx);
+		int size = ExtUtil.readInt(in);
+		for(int i = 0 ; i < size; ++i) {
+			TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class);
+			this.add(level);
 		}
-
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, refLevel);
-		ExtUtil.write(out, new ExtWrapList(names));
-		ExtUtil.write(out, new ExtWrapList(multiplicity));
 		ExtUtil.write(out, new ExtWrapNullable(instanceName));
-		//predicates are complicated because they're a complex data structure, so we have to split them up and then
-		//put them back together again
-		Vector<Integer> vi = new Vector<Integer>();
-		//first the keys of the hash table
-		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
-		{
-			Integer in = ((Integer)en.nextElement());
-			vi.addElement(in);
-		}
-		ExtUtil.write(out, new ExtWrapListPoly(vi));
-		//next the data of the hash table
-		for(Enumeration en = predicates.keys(); en.hasMoreElements(); )
-		{
-			Integer i = ((Integer)en.nextElement());
-			ExtUtil.write(out, new ExtWrapListPoly(predicates.get(i)));
+		ExtUtil.writeNumeric(out, size());
+		for(TreeReferenceLevel l : data) {
+			ExtUtil.write(out, l);
 		}
 	}
 

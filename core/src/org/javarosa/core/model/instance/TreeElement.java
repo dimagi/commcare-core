@@ -990,8 +990,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
 	 */
+	TreeReference refCache;
 	public TreeReference getRef () {
-		return TreeElement.BuildRef(this);
+		//TODO: Expire cache somehow;
+		if(refCache == null) {
+			refCache = TreeElement.BuildRef(this);
+		}
+		return refCache;
 	}
 	
 	public static TreeReference BuildRef(AbstractTreeElement elem) {
