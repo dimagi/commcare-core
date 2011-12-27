@@ -773,6 +773,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 				Constraint.class), pf);
 		preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 
 		Vector attStrings = ExtUtil.nullIfEmpty((Vector) ExtUtil.read(in,
 				new ExtWrapList(String.class), pf));
@@ -842,6 +843,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 		ExtUtil.write(out, new ExtWrapNullable(constraint)); // TODO: inefficient for repeats
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadHandler));
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadParams));
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
 
 		Vector attStrings = getSingleStringAttributeVector();
 		ExtUtil.write(out, new ExtWrapList(ExtUtil.emptyIfNull(attStrings)));
@@ -1177,6 +1179,14 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	
 	public void clearCaches() {
 		
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
 	}
 
 }

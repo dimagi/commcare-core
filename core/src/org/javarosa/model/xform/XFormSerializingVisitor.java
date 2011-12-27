@@ -175,8 +175,9 @@ import org.kxml2.kdom.Node;
 			Element e = new Element(); //don't set anything on this element yet, as it might get overwritten
 
 			//don't serialize template nodes or non-relevant nodes
-			if (!instanceNode.isRelevant() || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE)
-				return null;
+			if (!instanceNode.isRelevant() || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
+				return null;	
+			}
 				
 			if (instanceNode.getValue() != null) {
 				Object serializedAnswer = serializer.serializeAnswerData(instanceNode.getValue(), instanceNode.getDataType()); 
@@ -226,6 +227,9 @@ import org.kxml2.kdom.Node;
 				String name		 = instanceNode.getAttributeName(i);
 				String val		 = instanceNode.getAttributeValue(i);
 				e.setAttribute(namespace, name, val);
+			}
+			if(instanceNode.getNamespace() != null) {
+				e.setNamespace(instanceNode.getNamespace());
 			}
 
 			return e;

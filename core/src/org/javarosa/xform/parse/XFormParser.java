@@ -1662,7 +1662,7 @@ public class XFormParser {
 	private FormInstance parseInstance (Element e, boolean isMainInstance) {
 		String name = instanceNodeIdStrs.elementAt(instanceNodes.indexOf(e));
 		
-		TreeElement root = buildInstanceStructure(e, null, !isMainInstance ? name : null);
+		TreeElement root = buildInstanceStructure(e, null, !isMainInstance ? name : null, e.getNamespace());
 		FormInstance instanceModel = new FormInstance(root, !isMainInstance ? name : null);
 		if(isMainInstance)
 		{
@@ -1715,11 +1715,11 @@ public class XFormParser {
 	}
 	
 	public static TreeElement buildInstanceStructure (Element node, TreeElement parent) {
-		return buildInstanceStructure(node, parent, null);
+		return buildInstanceStructure(node, parent, null, node.getNamespace());
 	}
 	
 	//parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags
-	public static TreeElement buildInstanceStructure (Element node, TreeElement parent, String instanceName) {
+	public static TreeElement buildInstanceStructure (Element node, TreeElement parent, String instanceName, String docnamespace) {
 		TreeElement element = null;
 
 		//catch when text content is mixed with children
@@ -1771,11 +1771,17 @@ public class XFormParser {
 				element.setMult(multiplicity);
 			}
 		}
+		if(node.getNamespace() != null) {
+			if(!node.getNamespace().equals(docnamespace)) {
+				element.setNamespace(node.getNamespace());
+			}
+		}
+
 
 		if (hasElements) {
 			for (int i = 0; i < numChildren; i++) {
 				if (node.getType(i) == Node.ELEMENT) {
-					element.addChild(buildInstanceStructure(node.getElement(i), element, instanceName));
+					element.addChild(buildInstanceStructure(node.getElement(i), element, instanceName, docnamespace));
 				}
 			}
 		}
@@ -1785,10 +1791,12 @@ public class XFormParser {
 			for (int i = 0; i < node.getAttributeCount(); i++) {
 				String attrNamespace = node.getAttributeNamespace(i);
 				String attrName = node.getAttributeName(i);
-				if (attrNamespace.equals(NAMESPACE_JAVAROSA) && attrName.equals("template"))
+				if (attrNamespace.equals(NAMESPACE_JAVAROSA) && attrName.equals("template")) {
 					continue;
-				if (attrNamespace.equals(NAMESPACE_JAVAROSA) && attrName.equals("recordset"))
+				}
+				if (attrNamespace.equals(NAMESPACE_JAVAROSA) && attrName.equals("recordset")) {
 					continue;
+				}
 				
 				element.setAttribute(attrNamespace, attrName, node.getAttributeValue(i));
 			}
