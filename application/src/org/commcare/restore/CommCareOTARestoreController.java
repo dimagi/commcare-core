@@ -234,7 +234,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	private void setLastSyncToken (String lastSync) {
 		//get property
 		if (lastSync != null) {
-			this.restoreURI += "?since=" + lastSync;
+			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync;
 		}
 	}
 	

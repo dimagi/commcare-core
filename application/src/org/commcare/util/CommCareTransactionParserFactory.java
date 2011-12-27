@@ -10,6 +10,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.UserXmlParser;
+import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.services.Logger;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -60,19 +61,24 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			return new UserXmlParser(parser, restoreId);
 		} else if(name.toLowerCase().equals("message")) {
 			message = parser.getText();
-		} else if (name.equalsIgnoreCase("restore_id")) {
-			return new TransactionParser<String> (parser, "restore_id", null) {
+		} else if (name.equalsIgnoreCase("Sync")) {
+			return new TransactionParser<String> (parser, "Sync", null) {
 				public void commit(String parsed) throws IOException {
 					//do nothing
 				}
 				
-				public String parse() throws XmlPullParserException, IOException {
-					String newId = parser.nextText().trim();
-					if(restoreId != null) {
-						Logger.log("TRANSACTION","Warning: Multiple restore ID's seen:" + restoreId + "," + newId);
+				public String parse() throws XmlPullParserException, IOException, InvalidStructureException {
+					if(this.nextTagInBlock("Sync")){
+						this.checkNode("restore_id");
+						String newId = parser.nextText().trim();
+						if(restoreId != null) {
+							Logger.log("TRANSACTION","Warning: Multiple restore ID's seen:" + restoreId + "," + newId);
+						}
+						restoreId = newId;
+						return restoreId;
+					} else {
+						throw new InvalidStructureException("<Sync> block missing <restore_id>", this.parser);
 					}
-					restoreId = newId;
-					return restoreId;
 				}
 			};
 		} else if(name.toLowerCase().equals("fixture")) {
