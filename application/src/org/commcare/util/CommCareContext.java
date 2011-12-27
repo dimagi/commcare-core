@@ -116,21 +116,6 @@ public class CommCareContext {
 		return url;
 	}
 	
-	public TransportMessage buildMessage(IDataPayload payload) {
-		//Right now we have to just give the message the stream, rather than the payload,
-		//since the transport layer won't take payloads. This should be fixed _as soon 
-		//as possible_ so that we don't either (A) blow up the memory or (B) lose the ability
-		//to send payloads > than the phones' heap.
-		
-		String url = getSubmitURL();
-		try {
-			return new SimpleHttpTransportMessage(payload.getPayloadStream(), url);
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Error Serializing Data to be transported");
-		}
-	}
-	
 	public MIDlet getMidlet() {
 		return midlet;
 	}

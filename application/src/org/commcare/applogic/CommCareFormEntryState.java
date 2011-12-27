@@ -11,24 +11,18 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.FormTransportWorkflow;
-import org.javarosa.cases.instance.CaseInstanceTreeElement;
-import org.javarosa.cases.model.Case;
 import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
@@ -46,6 +40,7 @@ import org.javarosa.services.transport.SubmissionTransportHelper;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
+import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.xpath.XPathParseTool;
 
 //can't support editing saved forms; for new forms only
@@ -252,6 +247,12 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 					try {
 						cacheable = profile.getMethod().equals(METHOD_POST);
 						message = SubmissionTransportHelper.createMessage(instance, profile, cacheable);
+						//Maaaaan this is ugly
+						if(message instanceof SimpleHttpTransportMessage) {
+							if(CommCareContext._().getUser() != null && CommCareContext._().getUser().getLastSyncToken() != null) {
+								((SimpleHttpTransportMessage)message).setHeader("X-CommCareHQ-LastSyncToken", CommCareContext._().getUser().getLastSyncToken());
+							}
+						}
 						
 						if(cacheable) {
 							//cache it
