@@ -27,6 +27,7 @@ import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
+import org.javarosa.cases.model.CaseIndex;
 import org.javarosa.cases.util.CasePreloadHandler;
 import org.javarosa.chsreferral.PatientReferralModule;
 import org.javarosa.chsreferral.model.PatientReferral;
@@ -47,12 +48,12 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
-import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.FormManagerModule;
@@ -74,11 +75,9 @@ import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.resources.locale.LanguageUtils;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportManagerModule;
-import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportMessageSerializationWrapper;
 import org.javarosa.services.transport.impl.TransportMessageStore;
-import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.user.activity.UserModule;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserPreloadHandler;
@@ -575,6 +574,7 @@ public class CommCareContext {
 	public void resetDemoData() {
 		//#debug debug
 		System.out.println("Resetting demo data");
+		
 	
 		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
 		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
@@ -621,30 +621,27 @@ public class CommCareContext {
 					return !antiFilter.matches(sf);
 				}
 			}, deletedLog);
+		 
 		
-		//3) referrals (keep only pending referrals)
-		final Vector<String> casesWithActiveReferrals = new Vector<String>();
-		purgeRMS(PatientReferral.STORAGE_KEY,
-			new EntityFilter<PatientReferral> () {
-				public boolean matches(PatientReferral r) {
-					if (r.isPending()) {
-						String caseID = r.getLinkedId();
-						if (!casesWithActiveReferrals.contains(caseID)) {
-							casesWithActiveReferrals.addElement(caseID);
-						}
-						return false;
-					} else {
-						return true;
-					}
-				}
-			}, deletedLog);
+		//3) cases (delete cases that are closed AND have no open cases which index them)
 		
-		//4) cases (delete cases that are closed AND have no open referrals pointing to them
-		//          AND have no unrecorded forms)		
+		//Build a set of open, indexed cases
+			
+		final Hashtable<String, String> casesWithOpenIndexes = new Hashtable<String, String>(); 
+		
+		RMSStorageUtility<Case> cases = (RMSStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY);
+		for(IStorageIterator<Case> i = cases.iterate() ; i.hasMore() ; ) {
+			Case c = i.nextRecord();
+			if(c.isClosed()) { continue; }
+			for(CaseIndex index : c.getIndices()) {
+				casesWithOpenIndexes.put(index.getTarget(), "");
+			}
+		}
+		
 		purgeRMS(Case.STORAGE_KEY,
 			new EntityFilter<Case> () {
 				public boolean matches(Case c) {
-					return c.isClosed() && !casesWithActiveReferrals.contains(c.getCaseId());
+					return c.isClosed() && !casesWithOpenIndexes.containsKey(c.getCaseId());
 				}
 			}, deletedLog);
 
