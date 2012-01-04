@@ -47,7 +47,7 @@ public class EvaluationContext {
 	
 	private Hashtable<String, DataInstance> formInstances;
 	
-	FormInstance instance;
+	DataInstance instance;
 	
 	/** Copy Constructor **/
 	private EvaluationContext (EvaluationContext base) {
@@ -83,11 +83,11 @@ public class EvaluationContext {
 		this.instance = instance;
 	}
 
-	public EvaluationContext (FormInstance instance) {
+	public EvaluationContext (DataInstance instance) {
 		this(instance, new Hashtable<String, DataInstance>());
 	}
 	
-	public EvaluationContext (FormInstance instance, Hashtable<String, DataInstance> formInstances) {
+	public EvaluationContext (DataInstance instance, Hashtable<String, DataInstance> formInstances) {
 		this.formInstances = formInstances; 
 		this.instance = instance;
 		this.contextNode = TreeReference.rootRef();
@@ -286,7 +286,7 @@ public class EvaluationContext {
 	
 	public AbstractTreeElement resolveReference(TreeReference qualifiedRef) {
 		DataInstance instance = this.getMainInstance();
-		if(qualifiedRef.getInstanceName() != null) {
+		if(qualifiedRef.getInstanceName() != null && (instance == null || instance.getInstanceId() != qualifiedRef.getInstanceName())) {
 			instance = this.getInstance(qualifiedRef.getInstanceName());
 		}
 		return instance.resolveReference(qualifiedRef);

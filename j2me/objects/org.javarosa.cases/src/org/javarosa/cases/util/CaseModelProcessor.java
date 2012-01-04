@@ -195,7 +195,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 					c.setDateOpened((Date)(kid.getValue().getValue()));
 					continue;
 				} else if(kid.getName().equals("owner_id")) {
-					c.setName(kid.getValue().uncast().getString());
+					c.setUserId(kid.getValue().uncast().getString());
 					continue;
 				} 
 			} catch(NullPointerException npe)  {
