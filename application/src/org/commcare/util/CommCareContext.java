@@ -27,8 +27,8 @@ import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.cases.CaseManagementModule;
 import org.javarosa.cases.model.Case;
-import org.javarosa.cases.model.CaseIndex;
 import org.javarosa.cases.util.CasePreloadHandler;
+import org.javarosa.cases.util.CasePurgeFilter;
 import org.javarosa.chsreferral.PatientReferralModule;
 import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.chsreferral.util.PatientReferralPreloader;
@@ -36,7 +36,10 @@ import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -65,12 +68,14 @@ import org.javarosa.j2me.file.J2meFileRoot;
 import org.javarosa.j2me.file.J2meFileSystemProperties;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
+import org.javarosa.j2me.storage.rms.RMSStorageUtilityIndexed;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.log.LogManagementModule;
 import org.javarosa.log.util.LogReportUtils;
 import org.javarosa.model.xform.XFormsModule;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.resources.locale.LanguageUtils;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
@@ -573,16 +578,18 @@ public class CommCareContext {
 	
 	public void resetDemoData() {
 		//#debug debug
-		System.out.println("Resetting demo data");
+//		System.out.println("Resetting demo data");
+//		
+//	
+//		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
+//		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
+//		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
+//		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
+//		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
 		
-	
-		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
-		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
-		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
-		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
-		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
+		autoPurge();
 	}
-
+	
 	public void purgeScheduler () {
 		int purgeFreq = CommCareProperties.parsePurgeFreq(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_FREQ));
 		Date purgeLast = CommCareProperties.parseLastPurge(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_LAST));
@@ -624,26 +631,7 @@ public class CommCareContext {
 		 
 		
 		//3) cases (delete cases that are closed AND have no open cases which index them)
-		
-		//Build a set of open, indexed cases
-			
-		final Hashtable<String, String> casesWithOpenIndexes = new Hashtable<String, String>(); 
-		
-		RMSStorageUtility<Case> cases = (RMSStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY);
-		for(IStorageIterator<Case> i = cases.iterate() ; i.hasMore() ; ) {
-			Case c = i.nextRecord();
-			if(c.isClosed()) { continue; }
-			for(CaseIndex index : c.getIndices()) {
-				casesWithOpenIndexes.put(index.getTarget(), "");
-			}
-		}
-		
-		purgeRMS(Case.STORAGE_KEY,
-			new EntityFilter<Case> () {
-				public boolean matches(Case c) {
-					return c.isClosed() && !casesWithOpenIndexes.containsKey(c.getCaseId());
-				}
-			}, deletedLog);
+		purgeRMS(Case.STORAGE_KEY, caseFilter(), deletedLog);
 
 		//5) reclog will never grow that large in size
 		//do nothing
@@ -652,6 +640,37 @@ public class CommCareContext {
 		//do nothing
 		
 		return deletedLog;
+	}
+	
+	private EntityFilter<Case> caseFilter() {
+		//We need to determine if we're using ownership for purging. For right now, only in sync mode
+		Vector<String> owners = null;
+		if(CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
+			owners = new Vector<String>();
+			Vector<String> users = new Vector<String>(); 
+			for(IStorageIterator<User> userIterator = StorageManager.getStorage(User.STORAGE_KEY).iterate(); userIterator.hasMore();) {
+				String id = userIterator.nextRecord().getUniqueId();
+				owners.addElement(id);
+				users.addElement(id);
+			}
+			
+			//Now add all of the relevant groups
+			//TODO: Wow. This is.... kind of megasketch
+			for(String userId : users) {
+				DataInstance instance = CommCareUtil.loadFixtureForUser("user-groups", userId);
+				EvaluationContext ec = new EvaluationContext(instance);
+				for(TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
+					AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
+					if(idelement.getValue() != null) {
+						owners.addElement(idelement.getValue().uncast().getString());
+					}
+				}
+			}
+		}
+		
+		
+		return new CasePurgeFilter((RMSStorageUtilityIndexed<Case>)StorageManager.getStorage(Case.STORAGE_KEY), owners);
+
 	}
 	
 	private void purgeRMS (String key, EntityFilter filt, Hashtable<String, Hashtable<Integer, String>> deletedLog) {

@@ -14,14 +14,12 @@ import javax.microedition.lcdui.Displayable;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
-import org.commcare.xml.CaseXmlParser;
-import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.cases.model.Case;
+import org.javarosa.cases.util.CaseDBUtils;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -31,6 +29,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.core.util.StreamsUtil;
@@ -45,7 +44,6 @@ import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 import org.javarosa.user.model.User;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -89,7 +87,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			
 		this.isSync = isSync;
 		if (isSync) {
-			setLastSyncToken(syncToken);
+			setLastSyncToken(syncToken, CaseDBUtils.computeHash((IStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY)));
 		}
 		this.noPartial = noPartial;
 		
@@ -127,7 +125,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	private void getCredentials() {
 		J2MEDisplay.setView(entry);
 	}
-	
+		
 	private void tryDownload(AuthenticatedHttpTransportMessage message) {
 		view.addToMessage(Localization.get("restore.message.startdownload"));
 		Logger.log("restore", "start");
@@ -231,10 +229,11 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	}
 	
-	private void setLastSyncToken (String lastSync) {
+	private void setLastSyncToken (String lastSync, String stateHash) {
 		//get property
 		if (lastSync != null) {
-			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync;
+			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=" + stateHash;
+			System.out.println("RestoreURI: "+ restoreURI);
 		}
 	}
 	

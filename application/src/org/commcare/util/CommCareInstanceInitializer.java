@@ -43,45 +43,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 			return casebase;
 		}
 		if(instance.getReference().indexOf("fixture") != -1) {
-			String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-			IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
-			
-			FormInstance fixture = null;
-			Vector<Integer> relevantFixtures = storage.getIDsForValue(FormInstance.META_ID, refId);
-			
-			///... Nooooot so clean.
-			if(relevantFixtures.size() == 1) {
-				//easy case, one fixture, use it
-				fixture = (FormInstance)storage.read(relevantFixtures.elementAt(0).intValue());
-				//TODO: Userid check anyway?
-			} else if(relevantFixtures.size() > 1){
-				//intersect userid and fixtureid set.
-				//TODO: Replace context call here with something from the session, need to stop relying on that coupling
-				String userId = "";
-				User u = CommCareContext._().getUser();
-				if(u != null) {
-					userId = u.getUniqueId();
-				}
-				Vector<Integer> relevantUserFixtures = storage.getIDsForValue(FormInstance.META_XMLNS, userId);
-				
-				if(relevantUserFixtures.size() != 0) {
-					Integer userFixture = ArrayUtilities.intersectSingle(relevantFixtures, relevantUserFixtures);
-					if(userFixture != null) {
-						fixture = (FormInstance)storage.read(userFixture.intValue());
-					}
-				}
-				if(fixture == null) {
-					//Oooookay, so there aren't any fixtures for this user, see if there's a global fixture.				
-					Integer globalFixture = ArrayUtilities.intersectSingle(storage.getIDsForValue(FormInstance.META_XMLNS, ""), relevantFixtures);
-					if(globalFixture == null) {
-						//No fixtures?! What is this. Fail somehow. This method should really have an exception contract.
-						throw new RuntimeException("Could not find an appropriate filter for src: " + instance.getReference());
-					}
-					fixture = (FormInstance)storage.read(globalFixture.intValue());
-				}
-			} else {
-				//No fixtures?! What is this. Fail somehow. This method should really have an exception contract.
-				throw new RuntimeException("Could not find an appropriate filter for src: " + instance.getReference());
+			String userId = "";
+			User u = CommCareContext._().getUser();
+			if(u != null) {
+				userId = u.getUniqueId();
+			}
+			FormInstance fixture = CommCareUtil.loadFixtureForUser(ref.substring(ref.lastIndexOf('/') + 1, ref.length()), userId);
+			if(fixture == null) {
+				throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
 			}
 			
 			//FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
