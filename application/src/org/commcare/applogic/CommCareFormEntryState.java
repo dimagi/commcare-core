@@ -65,7 +65,15 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	
 	protected JrFormEntryController getController() {
 		FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers,iif);
-		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher);
+
+		boolean supportsNewRepeats = false;
+		String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);		
+		
+		if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
+			supportsNewRepeats = true;	
+		}
+		
+		JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher, supportsNewRepeats);
 		controller.setView(loadView(title,controller));
 		return controller;
 	}
@@ -75,10 +83,8 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		
 		if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
 			return new Chatterbox(title, controller);
-			
 		} else if (FormManagerProperties.VIEW_SINGLEQUESTIONSCREEN.equals(viewType)) {
 			return new SingleQuestionView(controller, title);
-			
 		} else {
 			return new Chatterbox(title, controller);
 		}
