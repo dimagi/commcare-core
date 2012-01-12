@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
+import org.commcare.cases.util.CaseModelProcessor;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.services.AutomatedSenderService;
 import org.commcare.suite.model.Profile;
@@ -11,7 +12,6 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.FormTransportWorkflow;
-import org.javarosa.cases.util.CaseModelProcessor;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.condition.EvaluationContext;

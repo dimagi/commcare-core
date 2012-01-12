@@ -89,6 +89,10 @@ public abstract class ServerSyncState implements State {
 	}
 	
 	public void start() {
+		//This involves the global context, and thus should really be occurring in the constructor, but
+		//also takes a long time, and thus is more important to not occur until starting. 
+		CommCareContext._().purgeScheduler(true);
+		
 		send.start();
 	}
 	

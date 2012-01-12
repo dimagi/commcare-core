@@ -7,14 +7,13 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
-import org.javarosa.cases.model.Case;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,6 +32,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	IStorageUtilityIndexed storage;
 	int[] tallies;
 	boolean acceptCreateOverwrites;
+
+	
+	public CaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
+		this(parser, new int[3], true, storage);
+	}
 	
 	/**
 	 * Creates a Parser for case blocks in the XML stream provided. 
@@ -42,10 +46,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	 * @param acceptCreateOverwrites Whether an Exception should be thrown if the transaction
 	 * contains create actions for cases which already exist.
 	 */
-	public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites) {
+	public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites, IStorageUtilityIndexed storage) {
 		super(parser, "case", null);
 		this.tallies = tallies;
 		this.acceptCreateOverwrites = acceptCreateOverwrites;
+		this.storage = storage;
 	}
 
 	public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -182,18 +187,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
 	}
 
 	public Case retrieve(String entityId) {
-		IStorageUtilityIndexed storage = storage();
 		try{
-			return (Case)storage.getRecordForValue("case-id", entityId);
+			return (Case)storage().getRecordForValue("case-id", entityId);
 		} catch(NoSuchElementException nsee) {
 			return null;
 		}
 	}
 	
 	public IStorageUtilityIndexed storage() {
-		if(storage == null) {
-			storage = (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY);
-		} 
 		return storage;
 	}
 

@@ -3,9 +3,6 @@
  */
 package org.commcare.util;
 
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.microedition.lcdui.StringItem;
@@ -14,15 +11,10 @@ import org.commcare.applogic.CommCareAlertState;
 import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareLoginState;
+import org.commcare.cases.model.Case;
 import org.commcare.core.properties.CommCareProperties;
-import org.commcare.entity.CaseInstanceLoader;
-import org.commcare.entity.CommCareEntity;
-import org.commcare.entity.ReferralInstanceLoader;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
-import org.javarosa.cases.model.Case;
-import org.javarosa.chsreferral.model.PatientReferral;
-import org.javarosa.chsreferral.util.IPatientReferralFilter;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
@@ -30,14 +22,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.entity.model.Entity;
 import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
@@ -128,17 +117,6 @@ public class CommCareUtil {
 		}
 	}
 		
-	public static IPatientReferralFilter overdueFilter(final String caseType) {
-		return new IPatientReferralFilter() {
-			public boolean inFilter(PatientReferral ref) {
-				Date due = ref.getDateDue();		
-				String caseTypeId = getCase(ref.getLinkedId()).getTypeId();
-				return (due != null && DateUtils.dateDiff(due, DateUtils.today()) >= 0 &&
-						(caseType == null || caseTypeId.equals(caseType)));
-			}
-		};
-	}
-	
 	public static Case getCase (int recordId) {
 		IStorageUtility cases = StorageManager.getStorage(Case.STORAGE_KEY);
 		return (Case)cases.read(recordId);
@@ -149,23 +127,6 @@ public class CommCareUtil {
 		return (Case)cases.getRecordForValue("case-id", caseId);
 	}
 	 
-	public static PatientReferral getReferral (int id) {
-		IStorageUtility referrals = StorageManager.getStorage(PatientReferral.STORAGE_KEY);
-		return (PatientReferral)referrals.read(id);
-	}
-	
-	public static PatientReferral getReferral (String referralId, String type) {
-		IStorageUtilityIndexed referrals = (IStorageUtilityIndexed)StorageManager.getStorage(PatientReferral.STORAGE_KEY);
-		for(Integer id : (Vector<Integer>)referrals.getIDsForValue("referral-id", referralId)) {
-			PatientReferral ref = (PatientReferral)referrals.read(id.intValue());
-			if(ref.getType().equals(type)) {
-				return ref;
-			}
-		}
-		return null;
-	}
-	 
-	
 	public static FormDef getForm (int id) {
 		IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
 		return (FormDef)forms.read(id);

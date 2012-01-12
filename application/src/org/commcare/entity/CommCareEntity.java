@@ -152,7 +152,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 		for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
 			String key = (String)en.nextElement();
 			
-			ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec.getMainInstance(), ec)));
+			ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec)));
 		}
 	}
 	

@@ -43,8 +43,6 @@ public class Detail implements Externalizable {
 	
 	private Text title;
 	
-	private Filter filter;
-	
 	private Vector<Text> headers;
 	private Vector<Text> templates;
 	
@@ -66,12 +64,11 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int defaultSort, Hashtable<String, String> variables) {
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int defaultSort, Hashtable<String, String> variables) {
 		this.id = id;
 		this.title = title;
 		this.headers = headers;
 		this.templates = templates;
-		this.filter = filter;
 		this.headerHints = initBlank(headers.size());
 		this.templateHints = initBlank(templates.size());
 		this.headerForms = new String[headers.size()];
@@ -80,14 +77,14 @@ public class Detail implements Externalizable {
 		this.variables = variables;
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, int defaultSort, Hashtable<String, String> variables) {
-		this(id,title,headers,templates,filter, defaultSort, variables);
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, int defaultSort, Hashtable<String, String> variables) {
+		this(id,title,headers,templates, defaultSort, variables);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, Filter filter, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, String> variables) {
-		this(id,title,headers,templates,filter,headerHints,templateHints, defaultSort, variables);
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, String> variables) {
+		this(id,title,headers,templates,headerHints,templateHints, defaultSort, variables);
 		this.headerForms = headerForms;
 		this.templateForms = templateForms;
 	}
@@ -164,14 +161,6 @@ public class Detail implements Externalizable {
 		return templateForms;
 	}
 	
-	/**
-	 * @return a Filter object which can be used to determine what 
-	 * data elements this detail definition can describe.
-	 */
-	public Filter getFilter() {
-		return filter;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -179,7 +168,6 @@ public class Detail implements Externalizable {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		id = ExtUtil.readString(in);
 		title = (Text)ExtUtil.read(in, Text.class, pf);
-		filter = (Filter)ExtUtil.read(in, Filter.class, pf);
 		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
 		headerHints = (int[])ExtUtil.readInts(in);
@@ -197,7 +185,6 @@ public class Detail implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out,id);
 		ExtUtil.write(out, title);
-		ExtUtil.write(out, filter);
 		ExtUtil.write(out, new ExtWrapList(headers));
 		ExtUtil.write(out, new ExtWrapList(templates));
 		ExtUtil.writeInts(out, headerHints);

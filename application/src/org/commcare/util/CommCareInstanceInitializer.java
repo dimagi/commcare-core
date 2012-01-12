@@ -5,8 +5,8 @@ package org.commcare.util;
 
 import java.util.Vector;
 
-import org.javarosa.cases.instance.CaseInstanceTreeElement;
-import org.javarosa.cases.model.Case;
+import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.cases.model.Case;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;

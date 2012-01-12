@@ -21,12 +21,9 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.PropertyManager;
@@ -208,13 +205,13 @@ public class CommCareSessionController {
 		}
 		
 		//The rest of the selections all depend on the suite being available for checkin'
-		Suite suite = session.getCurrentSuite();
-		Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);		
+		Suite suite = session.getCurrentSuite();		
 		
-		final SessionDatum datum = entry.getSessionDataReqs().elementAt(session.getData().size());
-		final EvaluationContext context = getEvaluationContext(entry.getInstances());
+		final SessionDatum datum = session.getNeededDatum();
+		final EvaluationContext context = session.getEvaluationContext(getIif());
 
 		
+		//TODO: This should be part of the next/back protocol in the session, not here.
 		if(datum.getNodeset() == null) {
 			//TODO: Generally this call makes a state happen, so this is going to fuck up going back.
 			XPathExpression form;
@@ -277,10 +274,6 @@ public class CommCareSessionController {
 	}
 
 	private Vector<IPreloadHandler> getPreloaders() {
-//		String caseId = session.getCaseId();
-//		String referralId = session.getReferralId();
-//		String type = session.getReferralType();
-//		return CommCareContext._().getPreloaders(caseId == null ? null : CommCareUtil.getCase(caseId), referralId == null ? null : CommCareUtil.getReferral(referralId, type));
 		return CommCareContext._().getPreloaders();
 	}
 
@@ -288,52 +281,11 @@ public class CommCareSessionController {
 		session.stepBack();
 		next();
 	}
-	
-	protected FormInstance getSessionInstance() {
-		TreeElement sessionRoot = new TreeElement("session",0);
-		
-		TreeElement sessionData = new TreeElement("data",0);
-		
-		sessionRoot.addChild(sessionData);
-		
-		for(String[] step : session.steps) {
-			if(step[0] == CommCareSession.STATE_DATUM_VAL) {
-				TreeElement datum = new TreeElement(step[1]);
-				datum.setValue(new UncastData(step[2]));
-				sessionData.addChild(datum);
-			}
-		}
-		
-		TreeElement sessionMeta = new TreeElement("context",0);
 
-		addData(sessionMeta, "deviceid", PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY));
-		addData(sessionMeta, "appversion", PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION));
-		addData(sessionMeta, "username", CommCareContext._().getUser().getUsername());
-		addData(sessionMeta, "userid", CommCareContext._().getUser().getUniqueId());
-
-		sessionRoot.addChild(sessionMeta);
-		
-		return new FormInstance(sessionRoot, "session");
-	}
-	
-	private static void addData(TreeElement root, String name, String data) {
-		TreeElement datum = new TreeElement(name);
-		datum.setValue(new UncastData(data));
-		root.addChild(datum);
-	}
-	
-	public EvaluationContext getEvaluationContext(Hashtable<String, DataInstance> instances) {
-		
-		FormInstance session = getSessionInstance();
-		
-		InstanceInitializationFactory iif = getIif();
-
-		for(Enumeration en = instances.keys(); en.hasMoreElements(); ) {
-			String key = (String)en.nextElement(); 
-			instances.get(key).initialize(iif, key);
-		}
-
-		
-		return new EvaluationContext(new EvaluationContext(session), instances, session.getRoot().getRef());
+	public FormInstance getSessionInstance() {
+		return session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY), 
+                PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
+                CommCareContext._().getUser().getUsername(),
+                CommCareContext._().getUser().getUniqueId());
 	}
 }

@@ -12,3 +12,4 @@ application/tools
 backend/dist/*
 key.properties
 glob:application/custom-devices.xml
+cases/bin/

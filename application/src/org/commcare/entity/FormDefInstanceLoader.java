@@ -5,7 +5,6 @@ package org.commcare.entity;
 
 import java.util.Hashtable;
 
-import org.commcare.suite.model.Filter;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -34,7 +33,7 @@ public class FormDefInstanceLoader extends FormInstanceLoader<FormDef> {
 		}
 	}
 	
-	protected EntityFilter<FormDef> resolveFilter(final Filter filter, final FormInstance template) {
+	protected EntityFilter<FormDef> resolveFilter(final FormInstance template) {
 		
 		return new EntityFilter<FormDef> () {
 			

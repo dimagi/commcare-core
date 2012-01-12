@@ -3,6 +3,7 @@
  */
 package org.commcare.util;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -11,6 +12,12 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.util.OrderedHashtable;
 
 /**
@@ -45,6 +52,8 @@ public class CommCareSession {
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
     /** CommCare needs the ID of a Case to proceed **/
     public static final String STATE_DATUM_VAL = "CASE_ID";
+    /** Computed Value **/
+    public static final String STATE_DATUM_COMPUTED = "COMPTUED_DATUM";
     /** CommCare needs the XMLNS of the form to be entered to proceed **/
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 	
@@ -116,14 +125,19 @@ public class CommCareSession {
 		
 		//Get data. Checking first to see if the relevant key is needed by all entries
 		
-		boolean needDatum = false;
+		String needDatum = null;
 		String nextKey = null;
 		for(Entry e : entries) {
 			if(e.getSessionDataReqs().size() > this.getData().size()) {
-				String needed = e.getSessionDataReqs().elementAt(this.getData().size()).getDataId();
+				SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
+				String needed = datum.getDataId();
 				if(nextKey == null) {
 					nextKey = needed;
-					needDatum = true;
+					if(datum.getNodeset() != null) {
+						needDatum = STATE_DATUM_VAL;
+					} else {
+						needDatum = STATE_DATUM_COMPUTED;
+					}
 					continue;
 				} else {
 					//TODO: Detail screen matchup seems relevant? Maybe?
@@ -135,11 +149,11 @@ public class CommCareSession {
 			
 			//If we made it here, we either don't need more data or don't need
 			//consistent data for the remaining options
-			needDatum = false;
+			needDatum = null;
 			break;
 		}
-		if(needDatum) {
-			return STATE_DATUM_VAL;
+		if(needDatum != null) {
+			return needDatum;
 		}
 		
 		//the only other thing we can need is a form command. If there's still
@@ -149,6 +163,16 @@ public class CommCareSession {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public SessionDatum getNeededDatum() {
+		Entry entry = getEntriesForCommand(getCommand()).elementAt(0);		
+		SessionDatum datum = entry.getSessionDataReqs().elementAt(getData().size());
+		return datum;
 	}
 
 	public Detail getDetail(String id) {
@@ -194,10 +218,14 @@ public class CommCareSession {
 		if(steps.size() > 0) {
 			recentPop = steps.elementAt(steps.size() -1);
 			steps.removeElementAt(steps.size() - 1);
-			
 		}
 		syncState();
-		popped = recentPop; 
+		popped = recentPop;
+		//If we've stepped back into a computed value, we actually want to go back again, since evaluating that
+		//element will just result in moving forward again.
+		if(this.getNeededData() == STATE_DATUM_COMPUTED) {
+			stepBack();
+		}
 	}
 
 	public void setDatum(String keyId, String value) {
@@ -257,4 +285,54 @@ public class CommCareSession {
 		steps.removeAllElements();
 		syncState();
 	}
+	
+	public FormInstance getSessionInstance(String deviceId, String appversion, String username, String userId) {
+		TreeElement sessionRoot = new TreeElement("session",0);
+		
+		TreeElement sessionData = new TreeElement("data",0);
+		
+		sessionRoot.addChild(sessionData);
+		
+		for(String[] step : steps) {
+			if(step[0] == CommCareSession.STATE_DATUM_VAL) {
+				TreeElement datum = new TreeElement(step[1]);
+				datum.setValue(new UncastData(step[2]));
+				sessionData.addChild(datum);
+			}
+		}
+		
+		TreeElement sessionMeta = new TreeElement("context",0);
+
+		addData(sessionMeta, "deviceid", deviceId);
+		addData(sessionMeta, "appversion", appversion);
+		addData(sessionMeta, "username", username);
+		addData(sessionMeta, "userid",userId );
+
+		sessionRoot.addChild(sessionMeta);
+		
+		return new FormInstance(sessionRoot, "session");
+	}
+	
+	private static void addData(TreeElement root, String name, String data) {
+		TreeElement datum = new TreeElement(name);
+		datum.setValue(new UncastData(data));
+		root.addChild(datum);
+	}
+	
+	
+	public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
+		
+		Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
+		
+		Hashtable<String, DataInstance> instances = entry.getInstances();
+
+		for(Enumeration en = instances.keys(); en.hasMoreElements(); ) {
+			String key = (String)en.nextElement(); 
+			instances.get(key).initialize(iif, key);
+		}
+
+		
+		return new EvaluationContext(null, instances);
+	}
+
 }

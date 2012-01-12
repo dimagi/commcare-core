@@ -5,6 +5,7 @@ package org.commcare.util;
 
 import java.io.IOException;
 
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
@@ -12,6 +13,8 @@ import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -54,7 +57,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	 */
 	public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 		if(name.toLowerCase().equals("case")) {
-			return new CaseXmlParser(parser, caseTallies, tolerant);
+			return new CaseXmlParser(parser, caseTallies, tolerant, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
 		} else if(name.toLowerCase().equals("registration")) {
 			//TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the 
 			//restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.

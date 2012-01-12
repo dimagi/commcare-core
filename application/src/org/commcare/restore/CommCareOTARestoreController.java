@@ -12,14 +12,14 @@ import java.util.Hashtable;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 
+import org.commcare.cases.model.Case;
+import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.cases.model.Case;
-import org.javarosa.cases.util.CaseDBUtils;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;

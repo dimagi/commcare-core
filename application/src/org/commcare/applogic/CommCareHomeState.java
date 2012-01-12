@@ -4,6 +4,7 @@
 package org.commcare.applogic;
 
 import org.commcare.api.transitions.CommCareHomeTransitions;
+import org.commcare.cases.model.Case;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.RecentFormEntity;
 import org.commcare.suite.model.Entry;
@@ -14,8 +15,6 @@ import org.commcare.util.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;
-import org.javarosa.cases.model.Case;
-import org.javarosa.chsreferral.model.PatientReferral;
 import org.javarosa.core.api.State;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
@@ -37,6 +36,7 @@ import org.javarosa.j2me.util.DumpRMS;
 import org.javarosa.j2me.util.GPRSTestState;
 import org.javarosa.j2me.util.PermissionsTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserEntity;
@@ -93,6 +93,20 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			public void onError (String detail) {
 				J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Failed to update", detail));
 			}	
+		}, new ProgressIndicator() {
+
+			public double getProgress() {
+				return -1;
+			}
+
+			public String getCurrentLoadingStatus() {
+				return "Purging local data...";
+			}
+
+			public int getIndicatorsProvided() {
+				return ProgressIndicator.INDICATOR_STATUS;
+			}
+			
 		});
 	}
 	
@@ -133,7 +147,6 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			
 		});
 		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
-		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
 	}
 
 	public void newUser() {

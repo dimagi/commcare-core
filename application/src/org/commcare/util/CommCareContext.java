@@ -12,6 +12,9 @@ import java.util.Vector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.midlet.MIDlet;
 
+import org.commcare.cases.CaseManagementModule;
+import org.commcare.cases.model.Case;
+import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
@@ -25,13 +28,6 @@ import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.cases.CaseManagementModule;
-import org.javarosa.cases.model.Case;
-import org.javarosa.cases.util.CasePreloadHandler;
-import org.javarosa.cases.util.CasePurgeFilter;
-import org.javarosa.chsreferral.PatientReferralModule;
-import org.javarosa.chsreferral.model.PatientReferral;
-import org.javarosa.chsreferral.util.PatientReferralPreloader;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -295,7 +291,7 @@ public class CommCareContext {
 				Localization.setLocale("default");
 				manager.initialize(RetrieveGlobalResourceTable());
 				
-				purgeScheduler();
+				purgeScheduler(false);
 				
 				//Now that the profile has had a chance to set properties (without them requiring
 				//override) set the fallback defaults.
@@ -426,7 +422,6 @@ public class CommCareContext {
 		new JavaRosaCoreModule().registerModule();
 		new UserModule().registerModule();
 		new LanguagePackModule().registerModule();
-		new PatientReferralModule().registerModule();
 		new CoreModelModule().registerModule();
 		new XFormsModule().registerModule();
 		new CaseManagementModule().registerModule();
@@ -516,28 +511,8 @@ public class CommCareContext {
 	
 	/// Probably put this stuff into app specific ones.
 	public Vector<IPreloadHandler> getPreloaders() {
-		return getPreloaders(null, null);
-	}
-	
-	public Vector<IPreloadHandler> getPreloaders(PatientReferral r) {
-		Case c = CommCareUtil.getCase(r.getLinkedId());
-		return getPreloaders(c, r);
-	}
-	
-	public Vector<IPreloadHandler> getPreloaders(Case c) {
-		return getPreloaders(c, null);
-	}
-	
-	public Vector<IPreloadHandler> getPreloaders(Case c, PatientReferral r) {
 		Vector<IPreloadHandler> handlers = new Vector<IPreloadHandler>();
-		if(c != null) {
-			CasePreloadHandler p = new CasePreloadHandler(c);
-			handlers.addElement(p);
-		}
-		if(r != null) {
-			PatientReferralPreloader rp = new PatientReferralPreloader(r);
-			handlers.addElement(rp);
-		}
+
 		MetaPreloadHandler meta = new MetaPreloadHandler(this.getUser());
 		handlers.addElement(meta);
 		handlers.addElement(new UserPreloadHandler(this.getUser()));
@@ -558,7 +533,6 @@ public class CommCareContext {
 			inDemoMode = demoOn;
 			if (demoOn) {
 				registerDemoStorage(Case.STORAGE_KEY, Case.class);
-				registerDemoStorage(PatientReferral.STORAGE_KEY, PatientReferral.class);
 				registerDemoStorage(FormInstance.STORAGE_KEY, FormInstance.class);
 				
 				
@@ -567,7 +541,6 @@ public class CommCareContext {
 				TransportService.reinit();
 			} else {
 				StorageManager.registerStorage(Case.STORAGE_KEY, Case.class);
-				StorageManager.registerStorage(PatientReferral.STORAGE_KEY, PatientReferral.class);
 				StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
 				StorageManager.registerWrappedStorage(TransportMessageStore.Q_STORENAME, TransportMessageStore.Q_STORENAME, new TransportMessageSerializationWrapper());
 				StorageManager.registerWrappedStorage(TransportMessageStore.RECENTLY_SENT_STORENAME, TransportMessageStore.RECENTLY_SENT_STORENAME, new TransportMessageSerializationWrapper());
@@ -578,23 +551,20 @@ public class CommCareContext {
 	
 	public void resetDemoData() {
 		//#debug debug
-//		System.out.println("Resetting demo data");
-//		
-//	
-//		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
-//		StorageManager.getStorage(PatientReferral.STORAGE_KEY).removeAll();
-//		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
-//		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
-//		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
+		System.out.println("Resetting demo data");
 		
-		autoPurge();
+	
+		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
+		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
+		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
+		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
 	}
 	
-	public void purgeScheduler () {
+	public void purgeScheduler (boolean force) {
 		int purgeFreq = CommCareProperties.parsePurgeFreq(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_FREQ));
 		Date purgeLast = CommCareProperties.parseLastPurge(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_LAST));
 		
-		if (purgeFreq <= 0 || purgeLast == null || ((new Date().getTime() - purgeLast.getTime()) / 86400000l) >= purgeFreq) {
+		if (force || purgeFreq <= 0 || purgeLast == null || ((new Date().getTime() - purgeLast.getTime()) / 86400000l) >= purgeFreq) {
 			String logMsg = purgeMsg(autoPurge());
 			PropertyManager._().setProperty(CommCareProperties.PURGE_LAST, DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
 			Logger.log("record-purge", logMsg);
@@ -658,6 +628,7 @@ public class CommCareContext {
 			//TODO: Wow. This is.... kind of megasketch
 			for(String userId : users) {
 				DataInstance instance = CommCareUtil.loadFixtureForUser("user-groups", userId);
+				if(instance == null) { continue; }
 				EvaluationContext ec = new EvaluationContext(instance);
 				for(TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
 					AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);

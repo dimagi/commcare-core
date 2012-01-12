@@ -2,7 +2,7 @@ package org.commcare.util;
 
 import java.util.Vector;
 
-import org.javarosa.cases.model.Case;
+import org.commcare.cases.model.Case;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.services.storage.IStorageIterator;

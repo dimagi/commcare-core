@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="/org.commcare.app/lib/j2meunit-javarosa.jar"/>
 	<classpathentry kind="lib" path="/org.commcare.app/lib/kxml2-2.3.0.jar" sourcepath="C:/Users/adewinter/Downloads/kxml2-src-2.3.0.zip"/>
 	<classpathentry kind="lib" path="/org.commcare.app/lib/regexp-me.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.cases"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

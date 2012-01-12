@@ -14,13 +14,13 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-form-entry"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-media"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-properties"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.cases"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.chsreferral"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare.cases"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.log"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.polish.activity"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.javarosa.user"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-shared-resources"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.commcare"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/j2me-crypto"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
