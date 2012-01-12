@@ -18,19 +18,28 @@ public class LoadingScreen extends Form {
 	
 	private Gauge gauge;
 	
-	public LoadingScreen(boolean interactive) {
+	public LoadingScreen(ProgressIndicator indicator) {
 		super(Localization.get("loading.screen.title"));
-		if(interactive) {
-			gauge = new Gauge(Localization.get("loading.screen.message"), true, RESOLUTION, 0);
+		String message = Localization.get("loading.screen.message");
+		if(indicator != null && (indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
+			message = indicator.getCurrentLoadingStatus();
+		}
+		
+		if(indicator != null && (indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_PROGRESS) != 0) {
+			gauge = new Gauge(message, true, RESOLUTION, 0);
 		} else{
 			//#style loadingGauge?
-			gauge = new Gauge(Localization.get("loading.screen.message"), false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
+			gauge = new Gauge(message, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
 		}
 		this.append(gauge);
 	}
 
 	public void updateProgress(double progress) {
 		gauge.setValue((int)Math.floor(RESOLUTION*progress));
+	}
+	
+	public void updateMessage(String message) {
+		gauge.setLabel(message);
 	}
 
 }

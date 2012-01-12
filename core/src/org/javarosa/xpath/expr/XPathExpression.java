@@ -26,6 +26,10 @@ import org.javarosa.core.util.externalizable.Externalizable;
 
 public abstract class XPathExpression implements Externalizable {
 	
+	public Object eval (EvaluationContext evalContext) {
+		return this.eval(evalContext.getMainInstance(), evalContext);
+	}
+	
 	public abstract Object eval (DataInstance model, EvaluationContext evalContext);
 	
 	public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {

@@ -34,7 +34,7 @@ public class LoadingScreenThread extends HandledTimerTask {
 	
 	public void startLoading(ProgressIndicator indicator) {
 		timer = new Timer();
-		screen = new LoadingScreen(indicator != null);
+		screen = new LoadingScreen(indicator);
 		displayed = false;
 		this.indicator = indicator;
 		timer.schedule(this, START_THRESHOLD, POLL_PERIOD);
@@ -49,7 +49,11 @@ public class LoadingScreenThread extends HandledTimerTask {
 					displayed = true;
 				}	
 				if(indicator != null) {
-					screen.updateProgress(indicator.getProgress());
+					if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_PROGRESS) != 0) {
+						screen.updateProgress(indicator.getProgress());
+					} else if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
+						screen.updateMessage(indicator.getCurrentLoadingStatus());
+					}
 				}
 			}
 		}

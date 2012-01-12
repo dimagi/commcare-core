@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.javarosa.j2me.storage.rms;
+package org.javarosa.core.services.storage;
 
 /**
  * 

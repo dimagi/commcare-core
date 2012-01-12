@@ -181,9 +181,13 @@ public class EvaluationContext {
 			return null;
 		}
 		
-		AbstractTreeElement base = instance.getBase();
+		AbstractTreeElement base;
 		if(ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
 			base = formInstances.get(ref.getInstanceName()).getBase();
+		} else if(instance != null) {
+			base = instance.getBase();
+		} else {
+			throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
 		}
 
 		Vector<TreeReference> v = new Vector<TreeReference>();
