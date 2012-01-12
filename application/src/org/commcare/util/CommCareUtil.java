@@ -36,6 +36,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
@@ -288,8 +289,8 @@ public class CommCareUtil {
 		}
 	}
 
-	public static JrFormEntryController createFormEntryController(FormDefFetcher fetcher) {
-		return createFormEntryController(new JrFormEntryModel(fetcher.getFormDef()));
+	public static JrFormEntryController createFormEntryController(FormDefFetcher fetcher, boolean supportsNewRepeats) {
+		return createFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), false, supportsNewRepeats? FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR : FormEntryModel.REPEAT_STRUCTURE_LINEAR));
 	}	
 	
 	public static JrFormEntryController createFormEntryController(JrFormEntryModel model) {
