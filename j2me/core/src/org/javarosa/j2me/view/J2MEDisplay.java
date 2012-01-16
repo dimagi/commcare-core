@@ -16,11 +16,12 @@
 
 package org.javarosa.j2me.view;
 
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.Screen;
 import javax.microedition.midlet.MIDlet;
 
 import org.javarosa.core.api.State;
@@ -28,7 +29,7 @@ import org.javarosa.j2me.log.HandledThread;
 
 import de.enough.polish.ui.Alert;
 import de.enough.polish.ui.AlertType;
-import de.enough.polish.util.OAHashMap;
+import de.enough.polish.ui.UiAccess;
 
 public class J2MEDisplay {
 	private static Display display;
@@ -69,7 +70,21 @@ public class J2MEDisplay {
 	
 	public static void setView (Displayable d) {
 		loading.cancelLoading();
+		Displayable old = display.getCurrent();
 		display.setCurrent(d);
+		if(old instanceof Screen) {
+			//cts: Polish crashes on resource release unless you've
+			//initialized a menubar. NOTE: This probably won't
+			//catch full context switches with a loading screen
+			//in between. See if that's necessary
+			try{
+				old.addCommand(new Command("init menu bar",2,2));
+				UiAccess.releaseResources((Screen)old);
+			} catch(Exception e) {
+				//Don't know if there are any landmines in these hacks for the future
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public static void showError (String title, String message) {
