@@ -68,6 +68,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 					try{
 						transaction.parse();
 					} catch(Exception e) {
+						e.printStackTrace();
 						deal(e, depth, name);
 					}
 				}

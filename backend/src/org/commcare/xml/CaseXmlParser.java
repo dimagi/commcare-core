@@ -110,7 +110,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				
 				if(c == null) {
 					//The case is either not present on the phone, or we're on strict tolerance
-					c = new Case(data[2], data[0]);
+					c = CreateCase(data[2], data[0]);
 					c.setCaseId(caseId);
 				}
 				
@@ -177,6 +177,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		return null;
 	}		
 
+	protected Case CreateCase(String name, String typeId) {
+		return new Case(name, typeId);
+	}
+
 	public void commit(Case parsed) throws IOException {
 		try {
 			storage().write(parsed);
@@ -188,7 +192,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
 	public Case retrieve(String entityId) {
 		try{
-			return (Case)storage().getRecordForValue("case-id", entityId);
+			return (Case)storage().getRecordForValue(Case.INDEX_CASE_ID, entityId);
 		} catch(NoSuchElementException nsee) {
 			return null;
 		}
