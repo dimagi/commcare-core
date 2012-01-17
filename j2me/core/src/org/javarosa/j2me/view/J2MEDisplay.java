@@ -69,20 +69,40 @@ public class J2MEDisplay {
 	}
 	
 	public static void setView (Displayable d) {
+		setView(d, false);
+	}
+	
+	/**
+	 * Sets the current displayable with the option to either clear or not
+	 * clear the heavy resources from the current view 
+	 * 
+	 * @param d The new displayable to be viewed
+	 * @param savePreviousView false if resources should freed from the
+	 * current screen. True if those resources should be maintained. NOTE:
+	 * if the current screen has major resources and True is set, those
+	 * resources might need to be freed manually if any hanging references
+	 * depend on them.
+	 * 
+	 */
+	public static void setView (Displayable d, boolean savePreviousView) {
 		loading.cancelLoading();
 		Displayable old = display.getCurrent();
 		display.setCurrent(d);
-		if(old instanceof Screen) {
-			//cts: Polish crashes on resource release unless you've
-			//initialized a menubar. NOTE: This probably won't
-			//catch full context switches with a loading screen
-			//in between. See if that's necessary
-			try{
-				old.addCommand(new Command("init menu bar",2,2));
-				UiAccess.releaseResources((Screen)old);
-			} catch(Exception e) {
-				//Don't know if there are any landmines in these hacks for the future
-				e.printStackTrace();
+		if(!savePreviousView) {
+			if(old instanceof Screen) {
+				//cts: Polish crashes on resource release unless you've
+				//initialized a menubar. NOTE: This probably won't
+				//catch full context switches with a loading screen
+				//in between. See if that's necessary
+				try{
+					Command placeholder = new Command("init menu bar",2,2);
+					old.addCommand(placeholder);
+					UiAccess.releaseResources((Screen)old);
+					old.removeCommand(placeholder);
+				} catch(Exception e) {
+					//Don't know if there are any landmines in these hacks for the future
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -131,7 +151,7 @@ public class J2MEDisplay {
 		}
 		
 		if (next == null) {
-			setView(alert);
+			setView(alert, true);
 		} else {
 			loading.cancelLoading();
 			//#if !polish.LibraryBuild
