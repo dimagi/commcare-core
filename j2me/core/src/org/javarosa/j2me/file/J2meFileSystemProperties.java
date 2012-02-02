@@ -61,6 +61,9 @@ public class J2meFileSystemProperties implements IPropertyRules {
 					fileroots = null;
 					return new Vector<String>();
 				}
+			} catch(NullPointerException npe) {
+				//This exists simply to catch an error in some (MicroEmu's) implementations of listroots
+				return new Vector<String>();
 			}
 		}
 		return fileroots;
