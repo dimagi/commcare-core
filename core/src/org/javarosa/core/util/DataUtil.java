@@ -3,6 +3,8 @@
  */
 package org.javarosa.core.util;
 
+import java.util.Vector;
+
 /**
  * @author ctsims
  *
@@ -22,5 +24,17 @@ public class DataUtil {
 			}
 		}
 		return ivalue < high && ivalue >= low ? iarray[ivalue + offset] : new Integer(ivalue);
+	}
+
+
+	public static Vector<Integer> union(Vector<Integer> a, Vector<Integer> b) {
+		Vector<Integer> u = new Vector<Integer>();
+		//Efficiency?
+		for(Integer i : a) {
+			if(b.contains(i)) {
+				u.addElement(i);
+			}
+		}
+		return u;
 	}
 }

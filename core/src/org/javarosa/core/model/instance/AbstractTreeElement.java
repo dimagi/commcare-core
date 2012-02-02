@@ -2,8 +2,10 @@ package org.javarosa.core.model.instance;
 
 import java.util.Vector;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.xpath.expr.XPathExpression;
 
 public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
@@ -112,4 +114,16 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 	public abstract void clearCaches();
 
 	public abstract boolean isRelevant();
+	
+	/**
+	 * TODO: Worst method name ever. Don't use this unless you know what's up.
+	 * 
+	 * @param name
+	 * @param mult 
+	 * @param predicates possibly list of predicates to be evaluated. predicates will be removed from list if they are 
+	 * able to be evaluated
+	 * @param evalContext
+	 * @return
+	 */
+	public abstract Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext);
 }

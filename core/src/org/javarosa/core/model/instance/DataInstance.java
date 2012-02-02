@@ -3,17 +3,17 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Hashtable;
+import java.util.Enumeration;
 import java.util.Vector;
 
 import org.javarosa.core.model.IDataReference;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * A data instance represents a tree structure of abstract tree

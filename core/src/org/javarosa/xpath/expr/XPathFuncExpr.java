@@ -114,7 +114,7 @@ public class XPathFuncExpr extends XPathExpression {
 		ExtUtil.write(out, id);
 		ExtUtil.write(out, new ExtWrapListPoly(v));
 	}
-
+	
 	/**
 	 * Evaluate the function call.
 	 * 
@@ -131,6 +131,13 @@ public class XPathFuncExpr extends XPathExpression {
 		Object[] argVals = new Object[args.length];
 		
 		Hashtable funcHandlers = evalContext.getFunctionHandlers();
+		
+		
+		//TODO: Func handlers should be able to declare the desire for short circuiting as well
+		if(name.equals("if") && args.length == 3) {
+			return ifThenElse(model, evalContext, args, argVals);	
+
+		}
 		
 		for (int i = 0; i < args.length; i++) {
 			argVals[i] = args[i].eval(model, evalContext);
@@ -157,8 +164,6 @@ public class XPathFuncExpr extends XPathExpression {
 			return boolStr(argVals[0]);
 		} else if (name.equals("format-date") && args.length == 2) {
 			return dateStr(argVals[0], argVals[1]);
-		} else if (name.equals("if") && args.length == 3) { //non-standard
-			return ifThenElse(argVals[0], argVals[1], argVals[2]);	
 		} else if ((name.equals("selected") || name.equals("is-selected")) && args.length == 2) { //non-standard
 			return multiSelected(argVals[0], argVals[1]);
 		} else if (name.equals("count-selected") && args.length == 1) { //non-standard
@@ -570,9 +575,10 @@ public class XPathFuncExpr extends XPathExpression {
 		}
 	}
 	
-	public static Object ifThenElse (Object o1, Object o2, Object o3) {
-		boolean b = toBoolean(o1).booleanValue();
-		return (b ? o2 : o3);
+	public static Object ifThenElse (DataInstance model, EvaluationContext ec, XPathExpression[] args, Object[] argVals) {
+		argVals[0] = args[0].eval(model, ec);
+		boolean b = toBoolean(argVals[0]).booleanValue();
+		return (b ? args[1].eval(model, ec) : args[2].eval(model, ec));
 	}
 	
 	/**

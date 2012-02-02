@@ -182,79 +182,103 @@ public class EvaluationContext {
 		}
 		
 		AbstractTreeElement base;
+		DataInstance baseInstance;
 		if(ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
-			base = formInstances.get(ref.getInstanceName()).getBase();
+			baseInstance = formInstances.get(ref.getInstanceName());
 		} else if(instance != null) {
-			base = instance.getBase();
+			baseInstance = instance;
 		} else {
 			throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
 		}
 
 		Vector<TreeReference> v = new Vector<TreeReference>();
-		expandReference(ref, base, v, includeTemplates);
+		expandReference(ref,baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
 		return v;
 	}
 
 	// recursive helper function for expandReference
 	// sourceRef: original path we're matching against
 	// node: current node that has matched the sourceRef thus far
-	// templateRef: explicit path that refers to the current node
+	// workingRef: explicit path that refers to the current node
 	// refs: Vector to collect matching paths; if 'node' is a target node that
 	// matches sourceRef, templateRef is added to refs
-	private void expandReference(TreeReference sourceRef, AbstractTreeElement node, Vector<TreeReference> refs, boolean includeTemplates) {
-		int depth = node.getDepth();
+	private void expandReference(TreeReference sourceRef, DataInstance instance, TreeReference workingRef, Vector<TreeReference> refs, boolean includeTemplates) {
+		int depth = workingRef.size();
 		Vector<XPathExpression> predicates = null;
+		
+		//check to see if we've matched fully
 		if (depth == sourceRef.size()) {
-			refs.addElement(node.getRef());
+			//TODO: Do we need to clone these references?
+			refs.addElement(workingRef);
 		} else {
+			//Otherwise, need to get the next set of matching references
+			
 			String name = sourceRef.getName(depth);
 			predicates = sourceRef.getPredicate(depth);
-			//ETHERTON: Is this where we should test for predicates?
+			
+			//Copy predicates for batch fetch
+			if(predicates != null) {
+				Vector<XPathExpression> predCopy = new Vector<XPathExpression>();
+				for(XPathExpression xpe : predicates) {
+					predCopy.addElement(xpe);
+				}
+				predicates = predCopy;
+			}
+			
 			int mult = sourceRef.getMultiplicity(depth);
-			Vector<AbstractTreeElement> set = new Vector<AbstractTreeElement>();
+			Vector<TreeReference> set = new Vector<TreeReference>();
 			
-			if (node.hasChildren()) {
-				if (mult == TreeReference.INDEX_UNBOUND) {
-					int count = node.getChildMultiplicity(name);
-					for (int i = 0; i < count; i++) {
-						AbstractTreeElement child = node.getChild(name, i);
+			AbstractTreeElement node = instance.resolveReference(workingRef);
+			Vector<TreeReference> passingSet = new Vector<TreeReference>();
+			
+			Vector<TreeReference> children = node.tryBatchChildFetch(name, mult, predicates, this);
+			
+			if(children != null) {
+				set = children;
+			} else {
+			
+				if (node.hasChildren()) {
+					if (mult == TreeReference.INDEX_UNBOUND) {
+						int count = node.getChildMultiplicity(name);
+						for (int i = 0; i < count; i++) {
+							AbstractTreeElement child = node.getChild(name, i);
+							if (child != null) {
+								set.addElement(child.getRef());
+							} else {
+								throw new IllegalStateException(); // missing/non-sequential
+								// nodes
+							}
+						}
+						if (includeTemplates) {
+							AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+							if (template != null) {
+								set.addElement(template.getRef());
+							}
+						}
+					} else if(mult != TreeReference.INDEX_ATTRIBUTE){
+						//TODO: Make this test mult >= 0?
+						//If the multiplicity is a simple integer, just get
+						//the appropriate child
+						AbstractTreeElement child = node.getChild(name, mult);
 						if (child != null) {
-							set.addElement(child);
-						} else {
-							throw new IllegalStateException(); // missing/non-sequential
-							// nodes
+							set.addElement(child.getRef());
 						}
 					}
-					if (includeTemplates) {
-						AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
-						if (template != null) {
-							set.addElement(template);
-						}
-					}
-				} else if(mult != TreeReference.INDEX_ATTRIBUTE){
-					//TODO: Make this test mult >= 0?
-					//If the multiplicity is a simple integer, just get
-					//the appropriate child
-					AbstractTreeElement child = node.getChild(name, mult);
-					if (child != null) {
-						set.addElement(child);
+				}
+				
+				if(mult == TreeReference.INDEX_ATTRIBUTE) {
+					AbstractTreeElement attribute = node.getAttribute(null, name);
+					if (attribute != null) {
+						set.addElement(attribute.getRef());
 					}
 				}
 			}
-			
-			if(mult == TreeReference.INDEX_ATTRIBUTE) {
-				AbstractTreeElement attribute = node.getAttribute(null, name);
-				if (attribute != null) {
-					set.addElement(attribute);
-				}
-			}
-	
+
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
 				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
-				AbstractTreeElement treeElement = (AbstractTreeElement)e.nextElement();				
+				TreeReference treeRef = (TreeReference)e.nextElement();				
 				if(predicates != null)
 				{
-					TreeReference treeRef = treeElement.getRef();
 					boolean passedAll = true;
 					for(XPathExpression xpe : predicates)
 					{
@@ -273,12 +297,12 @@ public class EvaluationContext {
 					}
 					if(passedAll)
 					{
-						expandReference(sourceRef, treeElement, refs, includeTemplates);
+						expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
 					}
 				}
 				else
 				{
-					expandReference(sourceRef, treeElement, refs, includeTemplates);
+					expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
 				}
 			}
 		}

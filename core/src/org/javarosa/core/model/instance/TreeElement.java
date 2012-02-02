@@ -25,6 +25,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.condition.Constraint;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -39,6 +40,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * An element of a FormInstance.
@@ -97,7 +99,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 	}
 
 	public TreeElement(String name, int multiplicity) {
-		this.name = name;
+		this.name = name == null ? null : name.intern();
 		this.multiplicity = multiplicity;
 		this.parent = null;
 		attributes = new Vector<TreeElement>(0);
@@ -1187,6 +1189,11 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
+	}
+
+	public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
+			Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+		return null;
 	}
 
 }

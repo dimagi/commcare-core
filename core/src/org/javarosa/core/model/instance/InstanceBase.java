@@ -5,8 +5,10 @@ package org.javarosa.core.model.instance;
 
 import java.util.Vector;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
@@ -160,6 +162,11 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
 	public boolean isRelevant() {
 		return true;
+	}
+
+	public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
+			Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+		return null;
 	}
 	
 }

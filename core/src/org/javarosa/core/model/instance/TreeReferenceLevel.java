@@ -26,7 +26,6 @@ public class TreeReferenceLevel implements Externalizable {
 	private String name;
 	private int multiplicity = MULT_UNINIT;
 	private Vector<XPathExpression> predicates;
-	private TreeReferenceLevel next;
 	
 	public TreeReferenceLevel() {
 		
@@ -34,7 +33,7 @@ public class TreeReferenceLevel implements Externalizable {
 	
 	
 	public TreeReferenceLevel(String name, int multiplicity, Vector<XPathExpression> predicates) {
-		this.name = name;
+		this.name = name.intern();
 		this.multiplicity = multiplicity;
 		this.predicates = predicates;
 	}
@@ -52,24 +51,16 @@ public class TreeReferenceLevel implements Externalizable {
 		return name;
 	}
 
-	public void setMultiplicity(int mult) {
-		multiplicity = mult;
+	public TreeReferenceLevel setMultiplicity(int mult) {
+		return new TreeReferenceLevel(name, mult, predicates);
 	}
 
-	public void setNext(TreeReferenceLevel next) {
-		this.next = next;
-	}
-
-	public void setPredicates(Vector<XPathExpression> xpe) {
-		this.predicates = xpe;
+	public TreeReferenceLevel setPredicates(Vector<XPathExpression> xpe) {
+		return new TreeReferenceLevel(name, multiplicity, xpe);
 	}
 
 	public Vector<XPathExpression> getPredicates() {
 		return this.predicates;
-	}
-
-	public TreeReferenceLevel getNext() {
-		return next;
 	}
 	
 	public TreeReferenceLevel shallowCopy() {
@@ -77,14 +68,8 @@ public class TreeReferenceLevel implements Externalizable {
 	}
 
 
-	public TreeReferenceLevel trim() {
-		this.next = null;
-		return this;
-	}
-
-
-	public void setName(String name) {
-		this.name = name;
+	public TreeReferenceLevel setName(String name) {
+		return new TreeReferenceLevel(name, multiplicity, predicates);
 	}
 
 

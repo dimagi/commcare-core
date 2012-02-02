@@ -93,7 +93,7 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public void setMultiplicity (int i, int mult) {
-		data.elementAt(i).setMultiplicity(mult);
+		data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
 	}
 	
 	public int size () {
@@ -110,7 +110,7 @@ public class TreeReference implements Externalizable {
 	
 	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
-		data.elementAt(key).setPredicates(xpe);
+		data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
 	}
 	
 	public Vector<XPathExpression> getPredicate(int key)
@@ -260,7 +260,7 @@ public class TreeReference implements Externalizable {
 			
 			//If the the contextRef can provide a definition for a wildcard, do so
 			if(TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) && !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
-				data.elementAt(i).setName(contextRef.getName(i));
+				data.setElementAt(data.elementAt(i).setName(contextRef.getName(i)), i);
 			}
 			
 			if (contextRef.getName(i).equals(newRef.getName(i))) {
