@@ -192,6 +192,10 @@ public class XPathPathExpr extends XPathExpression {
 			{
 				throw new XPathTypeMismatchException("Instance referenced by " + ref.toString(true) + " does not exist");
 			}
+		} else {
+			//TODO: We should really stop passing 'm' around and start just getting the right instance from ec
+			//at a more central level
+			m = ec.getMainInstance();
 		}
 		//Otherwise we'll leave 'm' as set to the main instance 
 		

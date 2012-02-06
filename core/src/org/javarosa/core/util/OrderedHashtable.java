@@ -20,17 +20,17 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-public class OrderedHashtable extends Hashtable {
-    private Vector orderedKeys;
+public class OrderedHashtable<K,V> extends Hashtable<K,V> {
+    private Vector<K> orderedKeys;
 
     public OrderedHashtable() {
     	super();
-    	orderedKeys = new Vector();
+    	orderedKeys = new Vector<K>();
     }
 
     public OrderedHashtable(int initialCapacity) {
     	super(initialCapacity);
-    	orderedKeys = new Vector(initialCapacity);
+    	orderedKeys = new Vector<K>(initialCapacity);
     }
 
     public void clear() {
@@ -50,7 +50,7 @@ public class OrderedHashtable extends Hashtable {
         return elements.elements();
     }
     
-    public int indexOfKey (Object key) {
+    public int indexOfKey (K key) {
         return orderedKeys.indexOf(key);
     }
     
@@ -62,7 +62,7 @@ public class OrderedHashtable extends Hashtable {
         return orderedKeys.elements();
     }
     
-    public Object put(Object key, Object value) {
+    public V put(K key, V value) {
     	if (key == null) {
     		throw new NullPointerException();
     	}
@@ -76,8 +76,8 @@ public class OrderedHashtable extends Hashtable {
         return super.put(key, value);
     }
 
-    public Object remove(Object key) {
-        orderedKeys.removeElement(key);
+    public V remove(Object key) {
+        orderedKeys.removeElement((K)key);
         return super.remove(key);
     }
     

@@ -52,6 +52,9 @@ import org.javarosa.xpath.expr.XPathExpression;
  * TreeElements can also represent attributes. Attributes are unique from normal elements in that they are
  * not "children" of their parent, and are always leaf nodes: IE cannot have children.
  * 
+ * TODO: Split out the bind-able session data from this class and leave only the mandatory values to speed up
+ * new DOM-like models
+ * 
  * @author Clayton Sims
  * 
  */

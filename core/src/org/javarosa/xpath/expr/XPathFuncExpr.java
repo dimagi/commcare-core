@@ -136,8 +136,15 @@ public class XPathFuncExpr extends XPathExpression {
 		//TODO: Func handlers should be able to declare the desire for short circuiting as well
 		if(name.equals("if") && args.length == 3) {
 			return ifThenElse(model, evalContext, args, argVals);	
-
-		}
+		} else if (name.equals("coalesce") && args.length == 2) {
+			//Not sure if unpacking here is quiiite right, but it seems right
+			argVals[0] = XPathFuncExpr.unpack(args[0].eval(model, evalContext));
+			if(!isNull(argVals[0])) { return argVals[0]; }
+			else {
+				argVals[1] = args[1].eval(model, evalContext);
+				return argVals[1];
+			}
+		} 
 		
 		for (int i = 0; i < args.length; i++) {
 			argVals[i] = args[i].eval(model, evalContext);
@@ -168,8 +175,6 @@ public class XPathFuncExpr extends XPathExpression {
 			return multiSelected(argVals[0], argVals[1]);
 		} else if (name.equals("count-selected") && args.length == 1) { //non-standard
 			return countSelected(argVals[0]);		
-		} else if (name.equals("coalesce") && args.length == 2) {
-			return (!isNull(argVals[0]) ? argVals[0] : argVals[1]);
 		} else if (name.equals("count") && args.length == 1) {
 			return count(argVals[0]);
 		} else if (name.equals("sum") && args.length == 1) {
@@ -177,6 +182,12 @@ public class XPathFuncExpr extends XPathExpression {
 				return sum(((XPathNodeset)argVals[0]).toArgList());
 			} else {
 				throw new XPathTypeMismatchException("not a nodeset");				
+			}
+		} else if (name.equals("max")) {
+			if (argVals[0] instanceof XPathNodeset) {
+				return max(((XPathNodeset)argVals[0]).toArgList());
+			} else {
+				return max(argVals);				
 			}
 		} else if (name.equals("today") && args.length == 0) {
 			return DateUtils.roundDate(new Date());
@@ -240,7 +251,7 @@ public class XPathFuncExpr extends XPathExpression {
 			}
 		}
 	}
-	
+
 	/**
 	 * Given a handler registered to handle the function, try to coerce the function arguments into
 	 * one of the prototypes defined by the handler. If no suitable prototype found, throw an eval
@@ -432,7 +443,7 @@ public class XPathFuncExpr extends XPathExpression {
 		if (val != null) {
 			return val;
 		} else {
-			throw new XPathTypeMismatchException("converting to numeric");
+			throw new XPathTypeMismatchException("converting '" + (o == null ? "null" : o.toString()) + "' to numeric");
 		}
 	}
 
@@ -634,6 +645,20 @@ public class XPathFuncExpr extends XPathExpression {
 			sum += toNumeric(argVals[i]).doubleValue();
 		}
 		return new Double(sum);
+	}
+	
+	/**
+	 * Identify the largest value from the list of provided values.
+	 * 
+	 * @param argVals
+	 * @return
+	 */
+	private static Object max(Object[] argVals) {
+		double max = Double.MIN_VALUE;
+		for (int i = 0; i < argVals.length; i++) {
+			max = Math.max(max, toNumeric(argVals[i]).doubleValue());
+		}
+		return new Double(max);
 	}
 
 	/**
