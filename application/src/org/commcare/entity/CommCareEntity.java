@@ -13,7 +13,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -151,8 +153,12 @@ public class CommCareEntity extends Entity<TreeReference> {
 		Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
 		for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
 			String key = (String)en.nextElement();
-			
-			ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec)));
+			try {
+				ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec)));
+			} catch(XPathException xpe) {
+				xpe.printStackTrace();
+				throw new RuntimeException("XPathException while parsing varible " + key+ " for entity. " +  xpe.getMessage());
+			}
 		}
 	}
 	

@@ -199,7 +199,7 @@
 
 			<!-- execution of emulator(s) -->
 			<!-- Target one: Run emulator and profiling tools if debugging is enabled -->
-			<emulator wait="true" securityDomain="trusted" enableProfiler="true" enableMemoryMonitor="false" enableNetworkMonitor="false" if="debug">
+			<emulator wait="true" securityDomain="trusted" enableProfiler="false" enableMemoryMonitor="true" enableNetworkMonitor="false" if="debug">
 				<!-- Enable the following line to test memory constraints on the device -->
 				<!--parameter name="-Xheapsize" value="850000"/-->
 				<parameter name="-Xheapsize" value="2850000"/>
@@ -291,7 +291,7 @@
 	<target name="BuildCleanRunEmulator" description="allows a clean build, and then launches the emulator" depends="Clean, enableEmulator, disableObfuscator, BuildPolish" />
 
 	<!-- Main Target: Runs the build with all debug properties enabled -->
-	<target name="LaunchEmulatorAndProfilers" description="debugs the project" depends="enableDebug, enableEmulator, BuildPolish" />
+	<target name="LaunchEmulatorAndProfilers" description="debugs the project" depends="Clean, enableDebug, enableEmulator, BuildPolish" />
 	
 	<!-- Main Target: Builds project and runs j2mepolish Unit Tests on constructed jars -->
 	<target name="RunJ2MEUnitTests" depends="disableObfuscator, BuildPolish" description="Runs j2mepolish Unit Tests on constructed jars">

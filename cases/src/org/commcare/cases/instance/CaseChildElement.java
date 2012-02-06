@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -18,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
@@ -306,28 +308,28 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 				recordId = ids.elementAt(0).intValue();
 			}
 			
-			TreeElement cacheBuilder = new TreeElement("case"); 
+			TreeElement cacheBuilder = new TreeElement("case".intern()); 
 			Case c = (Case)storage.read(recordId);
 			caseId = c.getCaseId();
-			cacheBuilder = new TreeElement("case");
+			cacheBuilder = new TreeElement("case".intern());
 			cacheBuilder.setMult(this.mult);
 			
-			cacheBuilder.setAttribute(null, "case_id", c.getCaseId());
-			cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
-			cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
+			cacheBuilder.setAttribute(null, "case_id".intern(), c.getCaseId());
+			cacheBuilder.setAttribute(null, "case_type".intern(), c.getTypeId());
+			cacheBuilder.setAttribute(null, "status".intern(), c.isClosed() ? "closed".intern() : "open".intern());
 			
-			TreeElement scratch = new TreeElement("case_name");
+			TreeElement scratch = new TreeElement("case_name".intern());
 			scratch.setAnswer(new StringData(c.getName()));
 			cacheBuilder.addChild(scratch);
 			
 			
-			scratch = new TreeElement("date_opened");
+			scratch = new TreeElement("date_opened".intern());
 			scratch.setAnswer(new DateData(c.getDateOpened()));
 			cacheBuilder.addChild(scratch);
 			
 			for(Enumeration en = c.getProperties().keys();en.hasMoreElements();) {
 				String key = (String)en.nextElement();
-				scratch = new TreeElement(key);
+				scratch = new TreeElement(key.intern());
 				Object temp = c.getProperty(key);
 				if(temp instanceof String) {
 					scratch.setValue(new UncastData((String)temp));
@@ -338,9 +340,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			}
 			final boolean[] done = new boolean[] {false}; 
 			//TODO: Extract this pattern
-			TreeElement index = new TreeElement("index") {
+			TreeElement index = new TreeElement("index".intern()) {
 				public TreeElement getChild(String name, int multiplicity) {
-					TreeElement child = super.getChild(name, multiplicity);
+					TreeElement child = super.getChild(name.intern(), multiplicity);
 					
 					//TODO: Skeeeetchy, this is not a good way to do this,
 					//should extract pattern instead.
@@ -351,7 +353,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 						return child;
 					}
 					if(multiplicity >= 0 && child == null) {
-						TreeElement emptyNode = new TreeElement(name);
+						TreeElement emptyNode = new TreeElement(name.intern());
 						this.addChild(emptyNode);
 						emptyNode.setParent(this);
 						return emptyNode;
@@ -363,7 +365,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			Vector<CaseIndex> indices = c.getIndices();
 			for(CaseIndex i : indices) {
 				scratch = new TreeElement(i.getName());
-				scratch.setAttribute(null, "case_type", i.getTargetType());
+				scratch.setAttribute(null, "case_type".intern(), i.getTargetType().intern());
 				scratch.setValue(new UncastData(i.getTarget()));
 				index.addChild(scratch);
 			}
@@ -385,6 +387,11 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	public static CaseChildElement TemplateElement(AbstractTreeElement<CaseChildElement> parent) {
 		CaseChildElement template = new CaseChildElement(parent);
 		return template;
+	}
+
+	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+		//TODO: We should be able to catch the index case here?
+		return null;
 	}
 
 }

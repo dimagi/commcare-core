@@ -10,13 +10,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -54,8 +52,8 @@ public class Detail implements Externalizable {
 	
 	private int defaultSort;
 	
-	Hashtable<String, String> variables;
-	Hashtable<String, XPathExpression> variablesCompiled;
+	OrderedHashtable<String, String> variables;
+	OrderedHashtable<String, XPathExpression> variablesCompiled;
 	
 	/**
 	 * Serialization Only
@@ -64,7 +62,7 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int defaultSort, Hashtable<String, String> variables) {
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int defaultSort, OrderedHashtable<String, String> variables) {
 		this.id = id;
 		this.title = title;
 		this.headers = headers;
@@ -77,13 +75,13 @@ public class Detail implements Externalizable {
 		this.variables = variables;
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, int defaultSort, Hashtable<String, String> variables) {
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, int defaultSort, OrderedHashtable<String, String> variables) {
 		this(id,title,headers,templates, defaultSort, variables);
 		this.headerHints = headerHints;
 		this.templateHints = templateHints;
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, Hashtable<String, String> variables) {
+	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, OrderedHashtable<String, String> variables) {
 		this(id,title,headers,templates,headerHints,templateHints, defaultSort, variables);
 		this.headerForms = headerForms;
 		this.templateForms = templateForms;
@@ -175,7 +173,7 @@ public class Detail implements Externalizable {
 		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		defaultSort = ExtUtil.readInt(in);
-		variables = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+		variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, true));
 	}
 
 	/*
@@ -195,9 +193,9 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, new ExtWrapMap(variables));
 	}
 	
-	public Hashtable<String, XPathExpression> getVariableDeclarations() {
+	public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
 		if(variablesCompiled == null) {
-			variablesCompiled = new Hashtable<String, XPathExpression>();
+			variablesCompiled = new OrderedHashtable<String, XPathExpression>();
 			for(Enumeration en = variables.keys(); en.hasMoreElements() ; ) {
 				String key = (String)en.nextElement();
 				//TODO: This is stupid, parse this stuff at XML Parse time.
