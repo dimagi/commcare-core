@@ -112,6 +112,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					//The case is either not present on the phone, or we're on strict tolerance
 					c = CreateCase(data[2], data[0]);
 					c.setCaseId(caseId);
+					c.setDateOpened(modified);
 				}
 				
 				c.setUserId(data[1]);
