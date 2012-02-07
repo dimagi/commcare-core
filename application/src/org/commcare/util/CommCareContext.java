@@ -553,11 +553,17 @@ public class CommCareContext {
 		//#debug debug
 		System.out.println("Resetting demo data");
 		
+		boolean curmode = inDemoMode;
+		if(!inDemoMode) {
+			toggleDemoMode(true);
+		}
 	
 		StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
 		StorageManager.getStorage(FormInstance.STORAGE_KEY).removeAll();
 		StorageManager.getStorage(TransportMessageStore.Q_STORENAME).removeAll();
 		StorageManager.getStorage(TransportMessageStore.RECENTLY_SENT_STORENAME).removeAll();
+		
+		toggleDemoMode(curmode);
 	}
 	
 	public void purgeScheduler (boolean force) {
