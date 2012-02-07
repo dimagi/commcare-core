@@ -186,9 +186,11 @@ public class CommCareEntity extends Entity<TreeReference> {
 		else {
 			ret[0] = "DEFAULT";
 		}
-		for(int i = 1 ; i < ret.length ; ++i ) {
+		int position = defaultSort == -1 ? 1 : 2;
+		for(int i = 1; i < ret.length ; ++i ) {
 			if(defaultSort != i) {
-				ret[i] = String.valueOf(i);
+				ret[position] = String.valueOf(i);
+				position++;
 			}
 		}
 		return ret;
@@ -203,8 +205,9 @@ public class CommCareEntity extends Entity<TreeReference> {
 		fields.addElement(Localization.get("case.id"));
 		String[] headers = getHeaders(false);
 		for(int i = 0 ; i < headers.length ; ++i) {
+			fields.addElement(headers[i]);
 			if(i == topIndex) {
-				return fields.size();
+				return fields.size() - 1;
 			}
 		}
 		return -1;
@@ -216,8 +219,19 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 */
 	public String[] getSortFieldNames () {
 		Vector<String> fields = new Vector<String>();
-		fields.addElement(Localization.get("case.id"));
-		for(String s : getHeaders(false)) {
+		int sortField = this.getSortFieldDefault() - 1;
+		String[] headers = getHeaders(false);
+		
+		if(sortField == -1) {
+			fields.addElement(Localization.get("case.id"));
+		} else {
+			fields.addElement(headers[sortField]);
+			fields.addElement(Localization.get("case.id"));
+		}
+		
+		for(int i = 0; i < headers.length; ++i) {
+			if(i == sortField) { continue; }
+			String s = headers[i];
 			if(s == null || "".equals(s)) {
 				continue;
 			}
