@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.javarosa.core.model.Action;
@@ -58,6 +59,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactoryDeprecated;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xform.util.InterningKXmlParser;
 import org.javarosa.xform.util.XFormAnswerDataParser;
 import org.javarosa.xform.util.XFormSerializer;
 import org.javarosa.xform.util.XFormUtils;
@@ -308,7 +310,7 @@ public class XFormParser {
 		Document doc = new Document();
 
 		try{
-			KXmlParser parser = new KXmlParser();
+			KXmlParser parser = new InterningKXmlParser();
 			parser.setInput(reader);
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
 			doc.parse(parser);
@@ -331,6 +333,47 @@ public class XFormParser {
 		} catch (IOException e) {
 			System.out.println("Error closing reader");
 			e.printStackTrace();
+		}
+		
+		//For escaped unicode strings we end up with a looooot of cruft,
+		//so we really want to go through and convert the kxml parsed
+		//text (which have lots of characters each as their own string)
+		//into one single string
+		Stack<Element> q = new Stack<Element>();
+		
+		q.push(doc.getRootElement());
+		while(!q.isEmpty()) {
+			Element e = q.pop();
+			boolean[] toRemove = new boolean[e.getChildCount()*2];
+			String accumulate = "";
+			for(int i = 0 ; i < e.getChildCount(); ++i ){
+				int type = e.getType(i);
+				if(type == Element.TEXT) {
+					String text = e.getText(i);
+					accumulate += text;
+					toRemove[i] = true;
+				} else {
+					if(type ==Element.ELEMENT) {
+						q.addElement(e.getElement(i));
+					}
+					String accstr = accumulate.trim();
+					if(accstr.length() != 0) {
+						e.addChild(i, Element.TEXT, accumulate.intern());
+						accumulate = "";
+						++i;
+					} else {
+						accumulate = "";
+					}
+				}
+			}
+			if(accumulate.trim().length() != 0) {
+				e.addChild(Element.TEXT, accumulate.intern());
+			}
+			for(int i = e.getChildCount() - 1; i >= 0 ; i-- ){
+				if(toRemove[i]) {
+					e.removeChild(i);
+				}
+			}
 		}
 		
 		return doc;
