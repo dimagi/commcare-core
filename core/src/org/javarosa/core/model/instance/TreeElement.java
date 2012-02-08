@@ -63,28 +63,41 @@ import org.javarosa.xpath.expr.XPathExpression;
 	protected String name; // can be null only for hidden root node
 	protected int multiplicity = -1; // see TreeReference for special values
 	protected AbstractTreeElement parent;
-	protected boolean repeatable;
-	protected boolean isAttribute;
+
 
 	protected IAnswerData value;
-	protected Vector children = new Vector();
+
+	//I made all of these null again because there are so many treeelements that they
+	//take up a huuuge amount of space together.
+	private Vector observers = null;
+	protected Vector<TreeElement> attributes = null;
+	protected Vector children = null;
 
 	/* model properties */
 	protected int dataType = Constants.DATATYPE_NULL; //TODO
-	private boolean required = false;// TODO
+
 	private Constraint constraint = null;
 	private String preloadHandler = null;
 	private String preloadParams = null;
 
-	private boolean relevant = true;
-	private boolean enabled = true;
+	//private boolean required = false;// TODO
+	//protected boolean repeatable;
+	//protected boolean isAttribute;
+	//private boolean relevant = true;
+	//private boolean enabled = true;
 	// inherited properties 
-	private boolean relevantInherited = true;
-	private boolean enabledInherited = true;
-
-	private Vector observers;
-
-	protected Vector<TreeElement> attributes;
+	//private boolean relevantInherited = true;
+	//private boolean enabledInherited = true;
+	
+	private static final int MASK_REQUIRED = 0x01;
+	private static final int MASK_REPEATABLE = 0x02;
+	private static final int MASK_ATTRIBUTE = 0x04;
+	private static final int MASK_RELEVANT = 0x08;
+	private static final int MASK_ENABLED = 0x10;
+	private static final int MASK_RELEVANT_INH = 0x20;
+	private static final int MASK_ENABLED_INH = 0x40;
+	
+	private int flags = MASK_RELEVANT | MASK_ENABLED | MASK_RELEVANT_INH | MASK_ENABLED_INH;
 	
 	protected String namespace;
 	
@@ -105,7 +118,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 		this.name = name == null ? null : name.intern();
 		this.multiplicity = multiplicity;
 		this.parent = null;
-		attributes = new Vector<TreeElement>(0);
 	}
 	
 	/**
@@ -118,17 +130,21 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 */
 	public static TreeElement constructAttributeElement(String namespace, String name) {
 		TreeElement element = new TreeElement(name);
-		element.isAttribute = true;
+		element.setIsAttribute(true);
 		element.namespace = namespace;
 		element.multiplicity = TreeReference.INDEX_ATTRIBUTE;
 		return element;
+	}
+	
+	private void setIsAttribute(boolean attribute) {
+		setMaskVar(MASK_ATTRIBUTE, attribute);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
 	 */
 	public boolean isLeaf() {
-		return (children.size() == 0);
+		return (children == null || children.size() == 0);
 	}
 
 	/* (non-Javadoc)
@@ -173,6 +189,8 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
 	 */
 	public TreeElement getChild(String name, int multiplicity) {
+		if(this.children == null) { return null; }
+		
 		if (name.equals(TreeReference.NAME_WILDCARD)) {
 			if(multiplicity == TreeReference.INDEX_TEMPLATE || this.children.size() < multiplicity + 1) {
 				return null;
@@ -199,6 +217,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 	private Vector<TreeElement> getChildrenWithName(String name, boolean includeTemplate) {
 		Vector<TreeElement> v = new Vector<TreeElement>();
+		if(children == null) { return v;}
 
 		for (int i = 0; i < this.children.size(); i++) {
 			TreeElement child = (TreeElement) this.children.elementAt(i);
@@ -214,7 +233,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
 	 */
 	public int getNumChildren() {
-		return this.children.size();
+		return children == null ? 0 : this.children.size();
 	}
 	
 	public boolean hasChildren() {
@@ -235,14 +254,14 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
 	 */
 	public boolean isRepeatable() {
-		return repeatable;
+		return getMaskVar(MASK_REPEATABLE);
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
 	 */
 	public boolean isAttribute() {
-		return isAttribute;
+		return getMaskVar(MASK_ATTRIBUTE);
 	}
 	
 	/* (non-Javadoc)
@@ -274,6 +293,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 				throw new RuntimeException("Attempted to add duplicate child!");
 			}
 		}
+		if(children == null) { children = new Vector();}
 
 		// try to keep things in order
 		int i = children.size();
@@ -299,6 +319,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(org.javarosa.core.model.instance.TreeElement)
 	 */
 	public void removeChild(TreeElement child) {
+		if(children == null) { return;}
 		children.removeElement(child);
 	}
 
@@ -350,15 +371,19 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public TreeElement shallowCopy() {
 		TreeElement newNode = new TreeElement(name, multiplicity);
 		newNode.parent = parent;
-		newNode.repeatable = repeatable;
+		newNode.setRepeatable(this.isRepeatable());
 		newNode.dataType = dataType;
-		newNode.relevant = relevant;
-		newNode.required = required;
-		newNode.enabled = enabled;
+		
+		// Just set the flag? side effects?
+		newNode.setMaskVar(MASK_RELEVANT, this.getMaskVar(MASK_RELEVANT));
+		newNode.setMaskVar(MASK_REQUIRED, this.getMaskVar(MASK_REQUIRED));
+		newNode.setMaskVar(MASK_ENABLED, this.getMaskVar(MASK_ENABLED));
+		
 		newNode.constraint = constraint;
 		newNode.preloadHandler = preloadHandler;
 		newNode.preloadParams = preloadParams;
 		newNode.instanceName = instanceName;
+		newNode.namespace = namespace;
 
 		newNode.setAttributesFromSingleStringVector(getSingleStringAttributeVector());
 		if (value != null) {
@@ -375,11 +400,13 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public TreeElement deepCopy(boolean includeTemplates) {
 		TreeElement newNode = shallowCopy();
 
-		newNode.children = new Vector();
-		for (int i = 0; i < children.size(); i++) {
-			TreeElement child = (TreeElement) children.elementAt(i);
-			if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
-				newNode.addChild(child.deepCopy(includeTemplates));
+		if(children != null) {
+			newNode.children = new Vector();
+			for (int i = 0; i < children.size(); i++) {
+				TreeElement child = (TreeElement) children.elementAt(i);
+				if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
+					newNode.addChild(child.deepCopy(includeTemplates));
+				}
 			}
 		}
 
@@ -393,7 +420,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isRelevant()
 	 */
 	public boolean isRelevant() {
-		return relevantInherited && relevant;
+		return getMaskVar(MASK_RELEVANT_INH) && getMaskVar(MASK_RELEVANT);
 	}
 
 	// factoring in inheritance rules
@@ -401,7 +428,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isEnabled()
 	 */
 	public boolean isEnabled() {
-		return enabledInherited && enabled;
+		return getMaskVar(MASK_ENABLED_INH) && getMaskVar(MASK_ENABLED);
 	}
 
 	/* ==== SPECIAL SETTERS (SETTERS WITH SIDE-EFFECTS) ==== */
@@ -423,9 +450,21 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setRequired(boolean)
 	 */
 	public void setRequired(boolean required) {
-		if (this.required != required) {
-			this.required = required;
+		if (getMaskVar(MASK_REQUIRED) != required) {
+			setMaskVar(MASK_REQUIRED, required);
 			alertStateObservers(FormElementStateListener.CHANGE_REQUIRED);
+		}
+	}
+	
+	private boolean getMaskVar(int mask) {
+		return (flags & mask) == mask;
+	}
+	
+	private void setMaskVar(int mask, boolean value) {
+		if(value){
+			flags = flags | mask;
+		} else {
+			flags = flags & (Integer.MAX_VALUE - mask);
 		}
 	}
 
@@ -439,19 +478,22 @@ import org.javarosa.xpath.expr.XPathExpression;
 	private void setRelevant(boolean relevant, boolean inherited) {
 		boolean oldRelevancy = isRelevant();
 		if (inherited) {
-			this.relevantInherited = relevant;
+			setMaskVar(MASK_RELEVANT_INH, relevant);
 		} else {
-			this.relevant = relevant;
+			setMaskVar(MASK_RELEVANT, relevant);
 		}
 
 		if (isRelevant() != oldRelevancy) {
-			for (int i = 0; i < children.size(); i++) {
-				((TreeElement) children.elementAt(i)).setRelevant(isRelevant(),
-						true);
+			if(children != null) {
+				for (int i = 0; i < children.size(); i++) {
+					((TreeElement) children.elementAt(i)).setRelevant(isRelevant(),true);
+				}
 			}
 			
-			for(int i = 0 ; i < attributes.size(); ++i ) {
-				attributes.elementAt(i).setRelevant(isRelevant(), true);
+			if(attributes != null) {
+				for(int i = 0 ; i < attributes.size(); ++i ) {
+					attributes.elementAt(i).setRelevant(isRelevant(), true);
+				}
 			}
 			alertStateObservers(FormElementStateListener.CHANGE_RELEVANT);
 		}
@@ -470,15 +512,17 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public void setEnabled(boolean enabled, boolean inherited) {
 		boolean oldEnabled = isEnabled();
 		if (inherited) {
-			this.enabledInherited = enabled;
+			setMaskVar(MASK_ENABLED_INH, enabled);
 		} else {
-			this.enabled = enabled;
+			setMaskVar(MASK_ENABLED, enabled);
 		}
 
 		if (isEnabled() != oldEnabled) {
-			for (int i = 0; i < children.size(); i++) {
-				((TreeElement) children.elementAt(i)).setEnabled(isEnabled(),
-						true);
+			if(children != null) {
+				for (int i = 0; i < children.size(); i++) {
+					((TreeElement) children.elementAt(i)).setEnabled(isEnabled(),
+							true);
+				}
 			}
 			alertStateObservers(FormElementStateListener.CHANGE_ENABLED);
 		}
@@ -535,6 +579,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public void accept(ITreeVisitor visitor) {
 		visitor.visit(this);
 
+		if(children == null) { return;}
 		Enumeration en = children.elements();
 		while (en.hasMoreElements()) {
 			((TreeElement) en.nextElement()).accept(visitor);
@@ -548,7 +593,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
 	 */
 	public int getAttributeCount() {
-		return attributes.size();
+		return attributes == null ? 0 : attributes.size();
 	}
 
 	/* (non-Javadoc)
@@ -591,6 +636,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
 	 */
 	public TreeElement getAttribute(String namespace, String name) {
+		if(attributes == null) { return null; }
 		for (TreeElement attribute : attributes) {
 			if(attribute.getName().equals(name) && (namespace == null || namespace.equals(attribute.namespace))) {
 				return attribute;
@@ -611,7 +657,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setAttribute(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public void setAttribute(String namespace, String name, String value) {
-
+		if(attributes == null) {this.attributes = new Vector<TreeElement>();}
 		for (int i = attributes.size() - 1; i >= 0; i--) {
 			TreeElement attribut =  attributes.elementAt(i);
 			if (attribut.name.equals(name) && (namespace == null || namespace.equals(attribut.namespace))) {
@@ -638,7 +684,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 */
 	public Vector getSingleStringAttributeVector() {
 		Vector strings = new Vector();
-		if (attributes.size() == 0)
+		if (attributes == null || attributes.size() == 0)
 			return null;
 		else {
 			for (int i = 0; i < this.attributes.size(); i++) {
@@ -658,8 +704,8 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setAttributesFromSingleStringVector(java.util.Vector)
 	 */
 	public void setAttributesFromSingleStringVector(Vector attStrings) {
-		this.attributes = new Vector(0);
 		if (attStrings != null) {
+			this.attributes = new Vector(0);
 			for (int i = 0; i < attStrings.size(); i++) {
 				addSingleAttribute(i, attStrings);
 			}
@@ -723,7 +769,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		multiplicity = ExtUtil.readInt(in);
-		repeatable = ExtUtil.readBool(in);
+		flags = ExtUtil.readInt(in);
 		value = (IAnswerData) ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
 
 		// children = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(in, new
@@ -768,12 +814,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 		// end Jan 22, 2009
 
 		dataType = ExtUtil.readInt(in);
-		relevant = ExtUtil.readBool(in);
-		required = ExtUtil.readBool(in);
-		enabled = ExtUtil.readBool(in);
 		instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		relevantInherited = ExtUtil.readBool(in);
-		enabledInherited = ExtUtil.readBool(in);
 		constraint = (Constraint) ExtUtil.read(in, new ExtWrapNullable(
 				Constraint.class), pf);
 		preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -798,7 +839,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(name));
 		ExtUtil.writeNumeric(out, multiplicity);
-		ExtUtil.writeBool(out, repeatable);
+		ExtUtil.writeNumeric(out, flags);
 		ExtUtil.write(out, new ExtWrapNullable(value == null ? null : new ExtWrapTagged(value)));
 
 		// Jan 22, 2009 - csims@dimagi.com
@@ -839,12 +880,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 		// end Jan 22, 2009
 
 		ExtUtil.writeNumeric(out, dataType);
-		ExtUtil.writeBool(out, relevant);
-		ExtUtil.writeBool(out, required);
-		ExtUtil.writeBool(out, enabled);
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceName));
-		ExtUtil.writeBool(out, relevantInherited);
-		ExtUtil.writeBool(out, enabledInherited);
 		ExtUtil.write(out, new ExtWrapNullable(constraint)); // TODO: inefficient for repeats
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadHandler));
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadParams));
@@ -887,7 +923,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 			// remove all default repetitions from skeleton data model (_preserving_ templates, though)
 			for (int i = 0; i < this.getNumChildren(); i++) {
 				TreeElement child = this.getChildAt(i);
-				if (child.repeatable && child.getMult() != TreeReference.INDEX_TEMPLATE) {
+				if (child.getMaskVar(MASK_REPEATABLE) && child.getMult() != TreeReference.INDEX_TEMPLATE) {
 					this.removeChildAt(i);
 					i--;
 				}
@@ -917,6 +953,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 					}
 
 					this.removeChildAt(j);
+					if(children == null) { children = new Vector(); }
 					this.children.insertElementAt(child2, i);
 				}
 			}
@@ -926,10 +963,11 @@ import org.javarosa.xpath.expr.XPathExpression;
 				TreeElement child = this.getChildAt(i);
 				Vector newChildren = incoming.getChildrenWithName(child.getName());
 
-				if (child.repeatable) {
+				if (child.getMaskVar(MASK_REPEATABLE)) {
 				    for (int k = 0; k < newChildren.size(); k++) {
 				        TreeElement newChild = child.deepCopy(true);
 				        newChild.setMult(k);
+				        if(children == null) { children = new Vector(); }
 				        this.children.insertElementAt(newChild, i + k + 1);
 				        newChild.populate((TreeElement)newChildren.elementAt(k), f);
 				    }
@@ -977,11 +1015,12 @@ import org.javarosa.xpath.expr.XPathExpression;
 				TreeElement child = this.getChildAt(i);
 				Vector newChildren = incoming.getChildrenWithName(child.getName());
 
-				if (child.repeatable) {
+				if (child.getMaskVar(MASK_REPEATABLE)) {
 				    for (int k = 0; k < newChildren.size(); k++) {
 				    	TreeElement template = f.getMainInstance().getTemplate(child.getRef());
 				        TreeElement newChild = template.deepCopy(false);
 				        newChild.setMult(k);
+				        if(children == null) { children = new Vector(); }
 				        this.children.insertElementAt(newChild, i + k + 1);
 				        newChild.populateTemplate((TreeElement)newChildren.elementAt(k), f);
 				    }
@@ -1168,14 +1207,14 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isRequired()
 	 */
 	public boolean isRequired() {
-		return required;
+		return getMaskVar(MASK_REQUIRED);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setRepeatable(boolean)
 	 */
 	public void setRepeatable(boolean repeatable) {
-		this.repeatable = repeatable;
+		setMaskVar(MASK_REPEATABLE, repeatable);
 	}
 
 	public int getMultiplicity() {
