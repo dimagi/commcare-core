@@ -317,6 +317,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			cacheBuilder.setAttribute(null, "case_id".intern(), c.getCaseId());
 			cacheBuilder.setAttribute(null, "case_type".intern(), c.getTypeId());
 			cacheBuilder.setAttribute(null, "status".intern(), c.isClosed() ? "closed".intern() : "open".intern());
+			cacheBuilder.setAttribute(null, "owner_id".intern(), c.getUserId());
 			
 			TreeElement scratch = new TreeElement("case_name".intern());
 			scratch.setAnswer(new StringData(c.getName()));

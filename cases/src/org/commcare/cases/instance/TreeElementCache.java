@@ -31,6 +31,7 @@ public class TreeElementCache {
 		random = new Random();
 		cacheList = new Vector<Integer>();
 		//Free Memory available from the start
+		Runtime.getRuntime().gc();
 		totalMem = Runtime.getRuntime().freeMemory();
 	}
 
@@ -66,7 +67,7 @@ public class TreeElementCache {
 				//If we've got plenty of memory, and we're at our current capacity,
 				//throw some more memory at this problem and give back 50% of the reduced
 				//capacity
-				currentCapacity += (capacityDesired - currentCapacity) *.3;
+				currentCapacity ++;
 				System.out.println("Cache Size Adjustment! New Size: " + currentCapacity);
 			} else {
 				for(int i = 0; i < 3; ++i ) {
