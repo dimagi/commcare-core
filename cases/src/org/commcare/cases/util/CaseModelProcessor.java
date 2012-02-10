@@ -51,6 +51,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 	}
 	
 	private void processCase(TreeElement caseElement) throws MalformedCaseModelException {
+		c = null;
 		TreeElement caseIdAttribute = caseElement.getAttribute(null, "case_id");
 		if(caseIdAttribute == null) {
 			throw new MalformedCaseModelException("Invalid <case> model. <case> element requires case_id attribute at :" + caseElement.getRef().toString(true),"<case>");
