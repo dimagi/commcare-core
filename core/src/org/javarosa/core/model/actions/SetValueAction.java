@@ -45,6 +45,8 @@ public class SetValueAction extends Action {
 	}
 	
 	public void processAction(FormDef model) {
+		//TODO: either the target or the value's node might not exist here, catch and throw
+		//reasoanbly
 		EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), target);
 		
 		Object result;

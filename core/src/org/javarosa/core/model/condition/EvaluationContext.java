@@ -47,6 +47,8 @@ public class EvaluationContext {
 	
 	private Hashtable<String, DataInstance> formInstances;
 	
+	private TreeReference original;
+	
 	DataInstance instance;
 	
 	/** Copy Constructor **/
@@ -64,6 +66,7 @@ public class EvaluationContext {
 		this.isCheckAddChild = base.isCheckAddChild;
 		
 		this.outputTextForm = base.outputTextForm;
+		this.original = base.original;
 	}
 	
 	public EvaluationContext (EvaluationContext base, TreeReference context) {
@@ -72,9 +75,8 @@ public class EvaluationContext {
 	}
 	
 	public EvaluationContext (EvaluationContext base, Hashtable<String, DataInstance> formInstances, TreeReference context) {
-		this(base);
+		this(base, context);
 		this.formInstances = formInstances;
-		this.contextNode = context;
 	}
 	
 	public EvaluationContext (FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
@@ -101,6 +103,14 @@ public class EvaluationContext {
 	
 	public TreeReference getContextRef () {
 		return contextNode;
+	}
+	
+	public void setOriginalContext(TreeReference ref) {
+		this.original = ref;
+	}
+	
+	public TreeReference getOriginalContext() {
+		return this.original;
 	}
 	
 	public void addFunctionHandler (IFunctionHandler fh) {

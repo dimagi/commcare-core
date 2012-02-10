@@ -30,6 +30,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
@@ -174,7 +175,16 @@ public class XPathFuncExpr extends XPathExpression {
 			return multiSelected(argVals[0], argVals[1]);
 		} else if (name.equals("count-selected") && args.length == 1) { //non-standard
 			return countSelected(argVals[0]);		
-		} else if (name.equals("count") && args.length == 1) {
+		} else if (name.equals("selected-at") && args.length == 2) { //non-standard
+			return selectedAt(argVals[0], argVals[1]);		
+		} else if (name.equals("position") && (args.length == 0 || args.length == 1)) {
+			//TODO: Technically, only the 0 length argument is valid here.
+			if(args.length == 1) {
+				return position(((XPathNodeset)argVals[0]).getRefAt(0));
+			} else {
+				return position(evalContext.getContextRef());
+			}
+		}  else if (name.equals("count") && args.length == 1) {
 			return count(argVals[0]);
 		} else if (name.equals("sum") && args.length == 1) {
 			if (argVals[0] instanceof XPathNodeset) {
@@ -585,6 +595,11 @@ public class XPathFuncExpr extends XPathExpression {
 		}
 	}
 	
+
+	private Double position(TreeReference refAt) {
+		return new Double(refAt.getMultLast());
+	}
+	
 	public static Object ifThenElse (DataInstance model, EvaluationContext ec, XPathExpression[] args, Object[] argVals) {
 		argVals[0] = args[0].eval(model, ec);
 		boolean b = toBoolean(argVals[0]).booleanValue();
@@ -615,6 +630,20 @@ public class XPathFuncExpr extends XPathExpression {
 		String s = (String)unpack(o);
 
 		return new Double(DateUtils.split(s, " ", true).size());
+	}
+	
+	/**
+	 * Get the Nth item in a selected list
+	 * 
+	 * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
+	 * @param o2 the integer index into the list to return
+	 * @return
+	 */
+	public static String selectedAt (Object o1, Object o2) {
+		String selection = (String)unpack(o1);
+		int index = toInt(o2).intValue();
+		
+		return DateUtils.split(selection, " ", true).elementAt(index);
 	}
 	
 	/**

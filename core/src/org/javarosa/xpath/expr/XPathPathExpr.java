@@ -93,12 +93,13 @@ public class XPathPathExpr extends XPathExpression {
 			parentsAllowed = true;
 			break;
 		case XPathPathExpr.INIT_CONTEXT_EXPR:
-			ref.setRefLevel(TreeReference.REF_ABSOLUTE); //i assume when refering the non main instance you have to be absolute
 			if (this.filtExpr.x != null && this.filtExpr.x instanceof XPathFuncExpr)
 			{
 				XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
 				if(func.id.toString().equals("instance"))
 				{
+					ref.setRefLevel(TreeReference.REF_ABSOLUTE); //i assume when refering the non main instance you have to be absolute
+					parentsAllowed = false;
 					if(func.args.length != 1)
 					{
 						throw new XPathUnsupportedException("instance() function used with "+func.args.length+ " arguements. Expecting 1 arguement");
@@ -110,6 +111,9 @@ public class XPathPathExpr extends XPathExpression {
 					XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
 					//we've got a non-standard instance in play, watch out
 					ref.setInstanceName(strLit.s);
+				} else if(func.id.toString().equals("current")){
+					parentsAllowed = true;
+					ref.setContext(TreeReference.CONTEXT_ORIGINAL);
 				} else {
 					//We only support expression root contexts for instance refs, everything else is an illegal filter
 					throw new XPathUnsupportedException("filter expression");
@@ -119,7 +123,6 @@ public class XPathPathExpr extends XPathExpression {
 				throw new XPathUnsupportedException("filter expression");
 			}
 			
-			parentsAllowed = false;
 			break;
 		default: throw new XPathUnsupportedException("filter expression");
 		}
@@ -173,8 +176,13 @@ public class XPathPathExpr extends XPathExpression {
 
 	public XPathNodeset eval (DataInstance m, EvaluationContext ec) {		
 		TreeReference genericRef = getReference();
-
-		TreeReference ref = genericRef.contextualize(ec.getContextRef());
+		
+		TreeReference ref;
+		if(genericRef.getContext() == TreeReference.CONTEXT_ORIGINAL) {
+			ref = genericRef.contextualize(ec.getOriginalContext());
+		} else {
+			ref = genericRef.contextualize(ec.getContextRef());
+		}
 		
 		//We don't necessarily know the model we want to be working with until we've contextualized the 
 		//node

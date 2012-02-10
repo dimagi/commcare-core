@@ -889,6 +889,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
 					IConditionExpr expr = (IConditionExpr) outputFragments.elementAt(ix);
 					EvaluationContext ec = new EvaluationContext(exprEvalContext, contextRef);
+					ec.setOriginalContext(contextRef);
 					ec.setVariables(variables);
 					String value = expr.evalReadable(this.getMainInstance(), ec);
 					args.put(argName, value);

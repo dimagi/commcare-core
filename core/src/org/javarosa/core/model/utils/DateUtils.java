@@ -676,8 +676,8 @@ public class DateUtils {
 	 * @return An array of strings contained in original which were
 	 * seperated by the delimeter
 	 */
-    public static Vector split (String str, String delimiter, boolean combineMultipleDelimiters) {
-    	Vector pieces = new Vector();
+    public static Vector<String> split (String str, String delimiter, boolean combineMultipleDelimiters) {
+    	Vector<String> pieces = new Vector<String>();
     	
     	int index = str.indexOf(delimiter);
         while (index >= 0) {

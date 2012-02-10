@@ -42,24 +42,34 @@ public class TreeReference implements Externalizable {
 	public static final int INDEX_ATTRIBUTE = -4;//multiplicity flag for an attribute
 	public static final int INDEX_REPEAT_JUNCTURE = -10;
 	
+	//TODO: Roll these into RefLevel? Or more likely, take absolute
+	//ref out of refLevel
+	public static final int CONTEXT_ABSOLUTE = 0;
+	public static final int CONTEXT_INHERITED = 1;
+	public static final int CONTEXT_ORIGINAL = 2;
+	public static final int CONTEXT_INSTANCE = 4;
+	
+	
 	public static final int REF_ABSOLUTE = -1;
 	
 	public static final String NAME_WILDCARD = "*";
 	
 	private int refLevel; //0 = context node, 1 = parent, 2 = grandparent ...
-	private DataInstance instance = null;
+	private int contextType;
 	private String instanceName = null;
 	private Vector<TreeReferenceLevel> data = null;
 
 	public static TreeReference rootRef () {
 		TreeReference root = new TreeReference();
 		root.refLevel = REF_ABSOLUTE;
+		root.contextType = CONTEXT_ABSOLUTE;
 		return root;
 	}
 	
 	public static TreeReference selfRef () {
 		TreeReference self = new TreeReference();
 		self.refLevel = 0;
+		self.contextType = CONTEXT_INHERITED;
 		return self;
 	}
 	
@@ -72,7 +82,17 @@ public class TreeReference implements Externalizable {
 		return instanceName;
 	}
 
+	//TODO: This should be constructed I think
 	public void setInstanceName(String instanceName) {
+		if(instanceName == null) {
+			if(this.refLevel == REF_ABSOLUTE) {
+				this.contextType = CONTEXT_ABSOLUTE;
+			} else {
+				this.contextType = CONTEXT_INHERITED;
+			}
+		} else{
+			this.contextType = CONTEXT_INSTANCE;
+		}
 		this.instanceName = instanceName;
 	}
 	
@@ -157,11 +177,13 @@ public class TreeReference implements Externalizable {
 			newRef.add(l.shallowCopy());
 		}
 
+		//TODO: No more == null checks here, use context type
 		//copy instances
 		if(instanceName != null)
 		{
 			newRef.setInstanceName(instanceName);
 		}
+		newRef.contextType = this.contextType;
 		return newRef;
 	}
 	
@@ -227,6 +249,9 @@ public class TreeReference implements Externalizable {
 	//NOTE: this function still works even when contextRef contains INDEX_UNBOUND multiplicites... conditions depend on this behavior,
 	//  even though it's slightly icky
 	public TreeReference anchor (TreeReference contextRef) {
+		//TODO: Technically we should possibly be modifying context stuff here
+		//instead of in the xpath stuff;
+		
 		if (isAbsolute()) {
 			return this.clone();
 		} else if (!contextRef.isAbsolute()) {
@@ -251,10 +276,13 @@ public class TreeReference implements Externalizable {
 	//TODO: merge anchor() and parent()
 		
 	public TreeReference contextualize (TreeReference contextRef) {
+		//TODO: Technically we should possibly be modifying context stuff here
+		//instead of in the xpath stuff;
 		if (!contextRef.isAbsolute()){
 			return null;
 		}
 		TreeReference newRef = anchor(contextRef);
+		newRef.setContext(contextRef.getContext());
 		
 		for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
 			
@@ -302,6 +330,7 @@ public class TreeReference implements Externalizable {
 	//returns true if 'this' is parent of 'child'
 	//return true if 'this' equals 'child' only if properParent is false
 	public boolean isParentOf (TreeReference child, boolean properParent) {
+		//Instances and context types;
 		if (refLevel != child.refLevel)
 			return false;
 		if (child.size() < size() + (properParent ? 1 : 0))
@@ -395,6 +424,8 @@ public class TreeReference implements Externalizable {
 		if(instanceName != null)
 		{
 			sb.append("instance("+instanceName+")");
+		} else if(contextType == CONTEXT_ORIGINAL) {
+			sb.append("current()");
 		}
 		if (isAbsolute()) {
 			sb.append("/");
@@ -433,6 +464,7 @@ public class TreeReference implements Externalizable {
 			throws IOException, DeserializationException {
 		refLevel = ExtUtil.readInt(in);
 		instanceName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class),pf);
+		contextType = ExtUtil.readInt(in);
 		int size = ExtUtil.readInt(in);
 		for(int i = 0 ; i < size; ++i) {
 			TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class);
@@ -443,6 +475,7 @@ public class TreeReference implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeNumeric(out, refLevel);
 		ExtUtil.write(out, new ExtWrapNullable(instanceName));
+		ExtUtil.writeNumeric(out, contextType);
 		ExtUtil.writeNumeric(out, size());
 		for(TreeReferenceLevel l : data) {
 			ExtUtil.write(out, l);
@@ -495,5 +528,14 @@ public class TreeReference implements Externalizable {
 		
 		//The only way to get here is if a's size is -1
 		throw new RuntimeException("Impossible state");
+	}
+
+	//TODO: This should be in construction
+	public void setContext(int context) {
+		this.contextType = context;
+	}
+
+	public int getContext() {
+		return this.contextType;
 	}
 }
