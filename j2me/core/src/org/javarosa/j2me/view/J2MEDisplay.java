@@ -88,7 +88,7 @@ public class J2MEDisplay {
 		loading.cancelLoading();
 		Displayable old = display.getCurrent();
 		display.setCurrent(d);
-		if(!savePreviousView) {
+		if(!savePreviousView && old != d) {
 			if(old instanceof Screen) {
 				//cts: Polish crashes on resource release unless you've
 				//initialized a menubar. NOTE: This probably won't
