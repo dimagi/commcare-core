@@ -28,10 +28,10 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public abstract class CommCareUpgradeState implements State, TrivialTransitions {
 	
-	boolean interactiveIfNoUpdate = false;
+	boolean interactive = false;
 	
-	public CommCareUpgradeState(boolean interactiveIfNoUpdate) {
-		this.interactiveIfNoUpdate = interactiveIfNoUpdate;
+	public CommCareUpgradeState(boolean interactive) {
+		this.interactive = interactive;
 	}
 
 	public void start() {
@@ -68,15 +68,17 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				Resource currentProfile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 				
 				if(!(updateProfile.getVersion() > currentProfile.getVersion())){
-					if(interactiveIfNoUpdate) {
+					if(interactive) {
 						blockForResponse("CommCare is up to date!", false);
 						return false;
 					} else {
 						return true;
 					}
 				}
-				if(!blockForResponse("Upgrade is Available! Do you want to start the update?")) {
-					return true;
+				if(interactive) {
+					if(!blockForResponse("Upgrade is Available! Do you want to start the update?")) {
+						return true;
+					}
 				}
 				
 				setMessage("Updating Installation...");

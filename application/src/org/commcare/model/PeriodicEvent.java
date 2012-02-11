@@ -214,4 +214,27 @@ public abstract class PeriodicEvent implements State {
 
 		return;
 	}
+	
+	public static void markTriggered(PeriodicEvent event) {
+		//For events which can be triggered manually (outside of the framework), and want to have their occurances updated.
+		PeriodicEventRecord record = null;
+		IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage(PeriodicEventRecord.STORAGE_KEY);
+		
+		try {
+			record = (PeriodicEventRecord)storage.getRecordForValue(PeriodicEventRecord.META_EVENT_KEY, event.getEventKey());
+		} catch(NoSuchElementException nsee) {
+			//No record. Any scheduled events would have one, so don't sweat it and just get outta here.
+			System.out.println("No initialized records of type: " + event.getEventKey() + ". Skipping scheduling");
+			return;
+		}
+		
+		PeriodicEventRecord nextTrigger = event.scheduleNextTrigger(record);
+		try {
+			storage.write(nextTrigger);
+			System.out.println("Event[" + event.getEventKey() + "] manually triggered. Next Execution due at " + DateUtils.formatDate(nextTrigger.getNextTrigger(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+		} catch (StorageFullException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Failed to update periodic event record storage");
+		}
+	}
 }

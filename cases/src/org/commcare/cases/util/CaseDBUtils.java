@@ -20,7 +20,7 @@ public class CaseDBUtils {
 		}
 		for(IStorageIterator<Case> i = storage.iterate() ; i.hasMore() ; ) {
 			Case c = i.nextRecord();
-			String record = c.getCaseId() + ":" + (c.isClosed() ? "c" : "o");
+			String record = c.getCaseId();
 			byte[] current = MD5.hash(record.getBytes());
 			data = xordata(data, current);
 		}

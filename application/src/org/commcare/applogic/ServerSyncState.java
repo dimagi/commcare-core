@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
-import org.commcare.util.UserCredentialProvider;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
@@ -27,7 +26,7 @@ public abstract class ServerSyncState implements State {
 	CommCareOTARestoreState pull;
 	
 	public ServerSyncState () {
-		this(new UserCredentialProvider(CommCareContext._().getUser()));
+		this(CommCareContext._().getCurrentUserCredentials());
 	}
 	
 	public ServerSyncState (HttpCredentialProvider currentUserCredentials) {

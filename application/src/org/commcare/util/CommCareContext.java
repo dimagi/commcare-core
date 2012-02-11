@@ -23,6 +23,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.services.AutomatedSenderService;
+import org.commcare.util.time.AutoSyncEvent;
 import org.commcare.util.time.AutoUpdateEvent;
 import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
@@ -498,7 +499,7 @@ public class CommCareContext {
 	}
 	
 	public PeriodicEvent[] getEventDescriptors() {
-		return new PeriodicEvent[] {new TimeMessageEvent(), new PermissionsEvent(), new AutoUpdateEvent()};
+		return new PeriodicEvent[] {new TimeMessageEvent(), new PermissionsEvent(), new AutoUpdateEvent(), new AutoSyncEvent()};
 	}
 	
 	

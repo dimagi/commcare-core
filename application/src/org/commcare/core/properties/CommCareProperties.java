@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.model.PeriodicEvent;
+import org.commcare.util.time.AutoSyncEvent;
 import org.commcare.util.time.AutoUpdateEvent;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
@@ -102,6 +103,7 @@ public class CommCareProperties implements IPropertyRules {
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
+	public static final String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     
 	/**
 	 * Creates the JavaRosa set of property rules
@@ -209,6 +211,7 @@ public class CommCareProperties implements IPropertyRules {
         updateFreq.addElement(FREQUENCY_WEEKLY);
         
         rules.put(AUTO_UPDATE_FREQUENCY, updateFreq);
+        rules.put(AUTO_SYNC_FREQUENCY, updateFreq);
         
 
         readOnlyProperties.addElement(CONTENT_VALIDATED);
@@ -364,6 +367,10 @@ public class CommCareProperties implements IPropertyRules {
 		if(AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
 			//It might need to reschedule.
 			PeriodicEvent.schedule(new AutoUpdateEvent());
+		}
+		if(AUTO_SYNC_FREQUENCY.equals(propertyName)) {
+			//It might need to reschedule.
+			PeriodicEvent.schedule(new AutoSyncEvent());
 		}
 	}	
 	

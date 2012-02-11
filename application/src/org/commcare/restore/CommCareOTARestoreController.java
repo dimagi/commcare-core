@@ -16,8 +16,10 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.model.PeriodicEvent;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
+import org.commcare.util.time.AutoSyncEvent;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.log.WrappedException;
@@ -232,7 +234,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	private void setLastSyncToken (String lastSync, String stateHash) {
 		//get property
 		if (lastSync != null) {
-			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=" + stateHash;
+			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
 			System.out.println("RestoreURI: "+ restoreURI);
 		}
 	}
@@ -382,6 +384,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
 			transitions.cancel();
 		} else if(c.equals(view.FINISHED)) {
+			PeriodicEvent.markTriggered(new AutoSyncEvent());
 			transitions.done(errorsOccurred);
 		}
 	}
