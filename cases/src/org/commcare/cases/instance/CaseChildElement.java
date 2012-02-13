@@ -39,8 +39,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	TreeElement empty;
 	
 	int numChildren = -1;
+	private boolean reportMode;
 	
-	public CaseChildElement(AbstractTreeElement<CaseChildElement> parent, int recordId, String caseId, int mult, IStorageUtilityIndexed storage, TreeElementCache cache) {
+	public CaseChildElement(AbstractTreeElement<CaseChildElement> parent, int recordId, String caseId, int mult, IStorageUtilityIndexed storage, TreeElementCache cache, boolean reportMode) {
 		if(recordId == -1 && caseId == null) { throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");}
 		this.parent = parent;
 		this.recordId = recordId;
@@ -48,6 +49,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		this.mult = mult;
 		this.storage = storage;
 		this.cache = cache;
+		this.reportMode = reportMode;
 	}
 	
 	/*
@@ -183,14 +185,14 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
 	 */
 	public String getAttributeNamespace(int index) {
-		return cache().getAttributeValue(index);
+		return cache().getAttributeNamespace(index);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
 	 */
 	public String getAttributeName(int index) {
-		return cache().getAttributeValue(index);
+		return cache().getAttributeName(index);
 
 	}
 
@@ -318,59 +320,64 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			cacheBuilder.setAttribute(null, "case_type".intern(), c.getTypeId());
 			cacheBuilder.setAttribute(null, "status".intern(), c.isClosed() ? "closed".intern() : "open".intern());
 			cacheBuilder.setAttribute(null, "owner_id".intern(), c.getUserId());
-			
-			TreeElement scratch = new TreeElement("case_name".intern());
-			scratch.setAnswer(new StringData(c.getName()));
-			cacheBuilder.addChild(scratch);
-			
-			
-			scratch = new TreeElement("date_opened".intern());
-			scratch.setAnswer(new DateData(c.getDateOpened()));
-			cacheBuilder.addChild(scratch);
-			
-			for(Enumeration en = c.getProperties().keys();en.hasMoreElements();) {
-				String key = (String)en.nextElement();
-				scratch = new TreeElement(key.intern());
-				Object temp = c.getProperty(key);
-				if(temp instanceof String) {
-					scratch.setValue(new UncastData((String)temp));
-				} else {
-					scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
-				}
-				cacheBuilder.addChild(scratch);
-			}
+
 			final boolean[] done = new boolean[] {false}; 
-			//TODO: Extract this pattern
-			TreeElement index = new TreeElement("index".intern()) {
-				public TreeElement getChild(String name, int multiplicity) {
-					TreeElement child = super.getChild(name.intern(), multiplicity);
-					
-					//TODO: Skeeeetchy, this is not a good way to do this,
-					//should extract pattern instead.
-					
-					//If we haven't finished caching yet, we can safely not return
-					//something useful here, so we can construct as normal.
-					if(done[0] == false) {
+
+			//If we're not in report node, fill in all of this data
+			if(!reportMode) {
+			
+				TreeElement scratch = new TreeElement("case_name".intern());
+				scratch.setAnswer(new StringData(c.getName()));
+				cacheBuilder.addChild(scratch);
+				
+				
+				scratch = new TreeElement("date_opened".intern());
+				scratch.setAnswer(new DateData(c.getDateOpened()));
+				cacheBuilder.addChild(scratch);
+				
+				for(Enumeration en = c.getProperties().keys();en.hasMoreElements();) {
+					String key = (String)en.nextElement();
+					scratch = new TreeElement(key.intern());
+					Object temp = c.getProperty(key);
+					if(temp instanceof String) {
+						scratch.setValue(new UncastData((String)temp));
+					} else {
+						scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
+					}
+					cacheBuilder.addChild(scratch);
+				}
+				//TODO: Extract this pattern
+				TreeElement index = new TreeElement("index".intern()) {
+					public TreeElement getChild(String name, int multiplicity) {
+						TreeElement child = super.getChild(name.intern(), multiplicity);
+						
+						//TODO: Skeeeetchy, this is not a good way to do this,
+						//should extract pattern instead.
+						
+						//If we haven't finished caching yet, we can safely not return
+						//something useful here, so we can construct as normal.
+						if(done[0] == false) {
+							return child;
+						}
+						if(multiplicity >= 0 && child == null) {
+							TreeElement emptyNode = new TreeElement(name.intern());
+							this.addChild(emptyNode);
+							emptyNode.setParent(this);
+							return emptyNode;
+						}
 						return child;
 					}
-					if(multiplicity >= 0 && child == null) {
-						TreeElement emptyNode = new TreeElement(name.intern());
-						this.addChild(emptyNode);
-						emptyNode.setParent(this);
-						return emptyNode;
-					}
-					return child;
+				}; 
+				
+				Vector<CaseIndex> indices = c.getIndices();
+				for(CaseIndex i : indices) {
+					scratch = new TreeElement(i.getName());
+					scratch.setAttribute(null, "case_type".intern(), i.getTargetType().intern());
+					scratch.setValue(new UncastData(i.getTarget()));
+					index.addChild(scratch);
 				}
-			}; 
-			
-			Vector<CaseIndex> indices = c.getIndices();
-			for(CaseIndex i : indices) {
-				scratch = new TreeElement(i.getName());
-				scratch.setAttribute(null, "case_type".intern(), i.getTargetType().intern());
-				scratch.setValue(new UncastData(i.getTarget()));
-				index.addChild(scratch);
+				cacheBuilder.addChild(index);
 			}
-			cacheBuilder.addChild(index);
 			
 			cacheBuilder.setParent(this.parent);
 			done[0] = true;
@@ -392,6 +399,10 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
 	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
 		//TODO: We should be able to catch the index case here?
+		return null;
+	}
+
+	public String getNamespace() {
 		return null;
 	}
 

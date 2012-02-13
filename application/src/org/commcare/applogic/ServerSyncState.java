@@ -8,6 +8,7 @@ import org.commcare.util.CommCareUtil;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -19,8 +20,7 @@ import org.javarosa.user.model.User;
 public abstract class ServerSyncState implements State {
 
 	//TODO: localize me
-	String sendFailMsg = "We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.";
-	String pullFailMsg = "There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.";
+	
 	
 	SendAllUnsentState send;
 	CommCareOTARestoreState pull;
@@ -42,7 +42,7 @@ public abstract class ServerSyncState implements State {
 			public void done(boolean errorsOccurred) {
 				if (errorsOccurred) {
 					System.out.println("debug: server sync: errors occurred during send-all-unsent");
-					onError(sendFailMsg);
+					onError(Localization.get("sync.send.fail"));
 				} else {
 					System.out.println("debug: server sync: send-all-unsent successful");
 					launchPull();
@@ -79,9 +79,9 @@ public abstract class ServerSyncState implements State {
 			public void done(boolean errorsOccurred) {
 				if (errorsOccurred) {
 					System.out.println("debug: server sync: errors occurred during pull-down");
-					onError(pullFailMsg);
+					onError(Localization.get("sync.pull.fail"));
 				} else {
-					onSuccess("Update successful! " + restoreDetailMsg(controller.getCaseTallies()));
+					onSuccess(restoreDetailMsg(controller.getCaseTallies()));
 				}
 			}						
 		};
@@ -109,17 +109,17 @@ public abstract class ServerSyncState implements State {
 		int closed = tallies.get("close").intValue();
 		
 		if (created + updated + closed == 0) {
-			return "No new updates.";
+			return Localization.get("sync.done.noupdate");
 		} else {
-			String msg = "";
+			String msg = Localization.get("sync.done.updates");
 			if (created > 0) {
-				msg += (msg.length() > 0 ? "; " : "") + created + " new follow-ups";
+				msg += (msg.length() > 0 ? "; " : "") + Localization.get("sync.done.new",new String[] {String.valueOf(created)});
 			}
 			if (closed > 0) {
-				msg += (msg.length() > 0 ? "; " : "") + closed + " follow-ups closed by clinic";
+				msg += (msg.length() > 0 ? "; " : "") + Localization.get("sync.done.closed",new String[] {String.valueOf(closed)});
 			}
 			if (updated > 0) {
-				msg += (msg.length() > 0 ? "; " : "") + updated + " open follow-ups updated";
+				msg += (msg.length() > 0 ? "; " : "") + Localization.get("sync.done.updated",new String[] {String.valueOf(updated)});
 			}
 			return msg + ".";
 		}

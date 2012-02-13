@@ -17,12 +17,14 @@ import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.model.PeriodicEvent;
+import org.commcare.util.CommCareInstanceInitializer;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.time.AutoSyncEvent;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -40,15 +42,21 @@ import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.log.HandledThread;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
+import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
+import org.javarosa.services.transport.impl.simplehttp.StreamingHTTPMessage;
 import org.javarosa.user.model.User;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
+ * 
+ * TODO: This class is a huge quagmire of interlinking completely coupled method stacks. Rewrite to have clear
+ * workflow v. functional chunks
  * @author ctsims
  *
  */
@@ -68,28 +76,36 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	HttpAuthenticator authenticator;
 	boolean errorsOccurred;
 	String syncToken;
+	private boolean recoveryMode = false;
+	String originalRestoreURI;
+	String logSubmitURI;
+	String stateHash;
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
 		this(transitions, restoreURI, null);
 	}
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
-		this(transitions, restoreURI, authenticator, false, false, null);
+		this(transitions, restoreURI, authenticator, false, false, null, null);
 	}
 				
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
-			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken) {
+			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI) {
 		if (isSync && !noPartial) {
 			System.err.println("WARNING: no-partial mode is strongly recommended when syncing");
 		}
 		this.syncToken = syncToken;
 		
-		this.restoreURI = restoreURI;
+		this.originalRestoreURI = restoreURI;
 		this.authenticator = authenticator;
+		this.logSubmitURI = logSubmitURI;
 			
 		this.isSync = isSync;
 		if (isSync) {
-			setLastSyncToken(syncToken, CaseDBUtils.computeHash((IStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY)));
+			this.stateHash = CaseDBUtils.computeHash((IStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY));
+			initURI(syncToken, stateHash);
+		} else {
+			initURI(null,null);
 		}
 		this.noPartial = noPartial;
 		
@@ -167,6 +183,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					entry.sendMessage(Localization.get("restore.badserver"));
 					doneFail("404");
 					return;
+				} else if(sent.getResponseCode() == 412) {
+					//Our local copy of the case database has gotten out of sync. We need to start a recovery
+					//process.
+					entry.sendMessage(Localization.get("restore.bad.db"));
+					view.setMessage(Localization.get("restore.bad.db"));
+					startRecovery();
+					return;
 				} else if(sent.getResponseCode() == 503) {
 					view.addToMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
 					entry.sendMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
@@ -184,6 +207,46 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		}
 	}
 	
+	/** 
+	 * The recovery process comes in three phases. First, reporting to the server all of the cases that
+	 * currently live on the phone (so the server can compare to its current state).
+	 * 
+	 * Next, the full restore data is retrieved from the server and stored locally to ensure that the db
+	 * can be recovered. Then local storage is cleared of data, and  
+	 */
+	private void startRecovery() {
+		//Make a streaming message (the db is likely be too big to store in memory) 
+		TransportMessage message = new StreamingHTTPMessage(this.getSubmitUrl()) {
+			public void _writeBody(OutputStream os) throws IOException {
+				//TODO: This is just the casedb, we actually want 
+				DataModelSerializer s = new DataModelSerializer(os, new CommCareInstanceInitializer());
+				s.serialize(new ExternalDataInstance("jr://instance/casedb/report" + "/" + syncToken + "/" + stateHash,"casedb"), null);
+			}
+		};
+		
+		view.addToMessage(Localization.get("restore.recover.send"));
+		try {
+			message = TransportService.sendBlocking(message);
+		} catch (TransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(message.isSuccess()) {
+			//The server is now informed of our current state, time for the tricky part,
+			this.recoveryMode  = true;
+			initURI(null, null);
+			//TODO: Set a flag somewhere (sync token perhaps) that we're in recovery mode
+			this.startOtaProcess();
+		} else {
+			this.doneFail(Localization.get("restore.recover.fail"));
+		}
+	}
+
+	private String getSubmitUrl() {
+		return logSubmitURI;
+	}
+
 	/**
 	 * 
 	 * @param stream
@@ -203,7 +266,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 				OutputStream output;
 				
 				//We want to treat any problems dealing with the inability to 
-				//download as seperate from a _failed_ download, which is 
+				//download as separate from a _failed_ download, which is 
 				//what this try-catch is all about.
 				try {
 					if(ref.doesBinaryExist()) {
@@ -212,8 +275,14 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 					output = ref.getOutputStream();
 				}
 			    catch (Exception e) {
-			    	noCache(stream);
-			    	return;
+			    	if(recoveryMode) {
+			    		//In recovery mode we can't really afford to not cache this, so report that, and try again.
+			    		view.setMessage(Localization.get("restore.needcache"));
+			    		return;
+			    	} else {
+			    		noCache(stream);
+			    		return;
+			    	}
 				}
 			    
 			    //Now any further IOExceptions will get handled as "download failed", 
@@ -231,10 +300,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 
 	}
 	
-	private void setLastSyncToken (String lastSync, String stateHash) {
+	private void initURI (String lastSync, String stateHash) {
 		//get property
 		if (lastSync != null) {
-			this.restoreURI += (this.restoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
+			this.restoreURI = this.originalRestoreURI + (this.originalRestoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
+			System.out.println("RestoreURI: "+ restoreURI);
+		} else {
+			this.restoreURI = this.originalRestoreURI;
 			System.out.println("RestoreURI: "+ restoreURI);
 		}
 	}
@@ -251,7 +323,15 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	
 	public boolean startRestore(InputStream input) {
 		J2MEDisplay.setView(view);
-		view.addToMessage(Localization.get("restore.starting")); 
+		view.addToMessage(Localization.get("restore.starting"));
+		
+		if(recoveryMode) {
+			view.addToMessage(Localization.get("restore.recovery.wipe"));
+			//We've downloaded our file and can now recovery state fully for this user, so we need to wipe 
+			//out existing cases. Ideally we'd do this by renaming the RMS (so we could recover if needed), 
+			//but for now, just go for it.
+			StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
+		}
 		
 		errorsOccurred = false;
 		

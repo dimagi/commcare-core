@@ -3,18 +3,23 @@
  */
 package org.commcare.util;
 
+
+
+import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.ConcreteTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.user.model.User;
 
 /**
@@ -34,9 +39,40 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		String ref = instance.getReference();
-		if(ref.indexOf("case") != -1) {
+		
+		//TODO: Clayton should feel bad about all of this. Man is it terrible
+		if(ref.indexOf("casedb") != -1) {
+			Vector<String> data = DateUtils.split(ref, "/", true);
+			if(ref.indexOf("report") != -1) {
+				ConcreteTreeElement base = new ConcreteTreeElement("device_report");
+				base.setNamespace("http://code.javarosa.org/devicereport");
+				ConcreteTreeElement logsr = new ConcreteTreeElement("log_subreport");
+				
+				ConcreteTreeElement log = new ConcreteTreeElement("log");
+				log.setAttribute(null, "date", DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601));
+				
+				ConcreteTreeElement type = new ConcreteTreeElement("type");
+				type.setValue(new StringData("casedb_dump"));
+				
+				ConcreteTreeElement msg = new ConcreteTreeElement("msg");
+				
+				
+				CaseInstanceTreeElement reportBase = new CaseInstanceTreeElement(msg, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY), true);
+				
+				//jr: | instance | casedb | report | (sync | state)?
+				if(data.size() == 6) {
+					reportBase.setState(data.elementAt(4), data.elementAt(5));
+				}
+				msg.addChild(reportBase);
+				log.addChild(type);
+				log.addChild(msg);
+				logsr.addChild(log);
+				base.addChild(logsr);
+				
+				return base;
+			}
 			if(casebase == null) {
-				casebase =  new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
+				casebase =  new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY), false);
 			} else {
 				casebase.rebase(instance.getBase());
 			}

@@ -18,11 +18,18 @@ public class CaseDBUtils {
 		for(int i = 0 ; i < data.length; ++i) {
 			data[i] = 0;
 		}
+		boolean casesExist = false;
 		for(IStorageIterator<Case> i = storage.iterate() ; i.hasMore() ; ) {
 			Case c = i.nextRecord();
 			String record = c.getCaseId();
 			byte[] current = MD5.hash(record.getBytes());
 			data = xordata(data, current);
+			casesExist = true;
+		}
+		
+		//In the base case (with no cases), the case hash is empty
+		if(!casesExist) {
+			return "";
 		}
 		String ret =  MD5.toHex(data);
 		return ret;

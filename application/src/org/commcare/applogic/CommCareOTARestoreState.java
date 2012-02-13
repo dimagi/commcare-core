@@ -54,7 +54,8 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 			authenticator,
 			isSync,
 			!partial,
-			syncToken
+			syncToken,
+			CommCareContext._().getSubmitURL()
 		);
 	}
 	

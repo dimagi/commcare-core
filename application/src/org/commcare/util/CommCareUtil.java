@@ -3,6 +3,8 @@
  */
 package org.commcare.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 import javax.microedition.lcdui.StringItem;
@@ -16,6 +18,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -32,6 +35,7 @@ import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
@@ -373,5 +377,18 @@ public class CommCareUtil {
 			return null;
 		}
 		return fixture;
+	}
+	
+	public static void printInstance(String instanceRef) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer());
+			
+			s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+			System.out.println(new String(bos.toByteArray()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

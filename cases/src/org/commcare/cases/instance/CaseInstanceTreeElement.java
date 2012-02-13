@@ -44,14 +44,23 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	
 	private Hashtable<Integer, Integer> caseIdMapping;
 	
+	String syncToken;
+	String stateHash;
+	
+	/** In report mode, casedb is not the root of a document, and we only build the top
+	 *	level case node (not the whole thing) 
+	 */
+	private boolean reportMode;
+	
 	public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
-		this(instanceRoot, storage);
+		this(instanceRoot, storage, false);
 		this.caseRecords = caseIDs;
 	}
 	
-	public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
+	public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
 		this.instanceRoot= instanceRoot;
 		this.storage = storage;
+		this.reportMode = reportMode;
 		storage.setReadOnly();
 	}
 	
@@ -156,19 +165,24 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		if(caseRecords != null) {
 			int i = 0;
 			for(String id : caseRecords) {
-				cases.addElement(new CaseChildElement(this, -1, id, i, storage, cache));
+				cases.addElement(new CaseChildElement(this, -1, id, i, storage, cache, reportMode));
 				++i;
 			}
 		} else {
 			int mult = 0;
 			for(IStorageIterator i = storage.iterate(); i.hasMore();) {
 				int id = i.nextID();
-				cases.addElement(new CaseChildElement(this, id, null, mult, storage, cache));
+				cases.addElement(new CaseChildElement(this, id, null, mult, storage, cache, reportMode));
 				caseIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 				mult++;
 			}
 			
 		}
+	}
+	
+	public void setState(String syncToken, String stateHash) {
+		this.syncToken = syncToken;
+		this.stateHash = stateHash;
 	}
 
 	/* (non-Javadoc)
@@ -218,7 +232,8 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
 	 */
 	public int getAttributeCount() {
-		return 0;
+		if(syncToken == null) { return 0; }
+		return 2;
 	}
 
 	/* (non-Javadoc)
@@ -232,20 +247,33 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
 	 */
 	public String getAttributeName(int index) {
-		return null;
+		if(index == 0) {
+			return "syncToken".intern();
+		} else if(index == 1) {
+			return "stateHash".intern();
+		} else { 
+			return null;
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
 	 */
 	public String getAttributeValue(int index) {
-		return null;
+		if(index == 0) {
+			return syncToken;
+		} else if(index == 1) {
+			return stateHash;
+		} else { 
+			return null;
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
 	 */
 	public CaseChildElement getAttribute(String namespace, String name) {
+		//Oooooof, this is super janky;
 		return null;
 	}
 
@@ -253,7 +281,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
 	 */
 	public String getAttributeValue(String namespace, String name) {
-		return null;
+		return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1: -1);
 	}
 	
 	/* (non-Javadoc)
@@ -321,6 +349,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
 		indices.put(XPathReference.getPathExpr("@case_id"), Case.INDEX_CASE_ID);
 		indices.put(XPathReference.getPathExpr("@case_type"), Case.INDEX_CASE_TYPE);
+		indices.put(XPathReference.getPathExpr("@status"), Case.INDEX_CASE_STATUS);
 		for(int i = 0 ; i < predicates.size() ; ++i) {
 			XPathExpression xpe = predicates.elementAt(i);
 			//what we want here is a static evaluation of the expression to see if it consists of evaluating 
@@ -384,6 +413,10 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		}
 		
 		return filtered;
+	}
+
+	public String getNamespace() {
+		return null;
 	}
 
 }

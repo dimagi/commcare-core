@@ -23,6 +23,20 @@ restore.baddownload=Download failed, please try again.
 restore.noserveruri=No Restore Server Configured!
 restore.key.continue=Press any key to continue...
 restore.user.exists=Cannot restore a user that is already on the phone!
+restore.bad.db=Local Database is out of sync with the server. Recovery is necessary.
+restore.recover.send=Sending current database state to server
+restore.recover.needcache=Can't recover state safely without a recovery file. Please allow file system access and try again.
+restore.recovery.wipe=Wiping old invalid casedb
+
+
+sync.done.noupdate=No new updates
+sync.done.updates=Update successful!
+sync.done.new=${0} new cases
+sync.done.closed=${0} cases closed
+sync.done.updated=${0} cases updated
+
+sync.send.fail=We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.
+sync.pull.fail=There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.
 
 polish.date.select=Select Date
 

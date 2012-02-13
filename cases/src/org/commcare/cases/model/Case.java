@@ -50,6 +50,7 @@ public class Case implements Persistable, IMetaData, Secure {
 	
 	public static String INDEX_CASE_ID = "case-id";
 	public static String INDEX_CASE_TYPE = "case-type";
+	public static String INDEX_CASE_STATUS = "case-status";
 	
 	private String typeId;
 	private String id;
@@ -230,13 +231,15 @@ public class Case implements Persistable, IMetaData, Secure {
 			return id;
 		} else if (fieldName.equals("case-type")) {
 			return typeId;
+		} else if (fieldName.equals(INDEX_CASE_STATUS)) {
+			return closed ? "closed".intern() : "open".intern();
 		} else {
 			throw new IllegalArgumentException("No metadata field " + fieldName  + " in the case storage system");
 		}
 	}
 
 	public String[] getMetaDataFields() {
-		return new String[] {INDEX_CASE_ID, INDEX_CASE_TYPE};
+		return new String[] {INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
 	}
 
 	public void setIndex(String indexName, String caseType, String indexValue) {
