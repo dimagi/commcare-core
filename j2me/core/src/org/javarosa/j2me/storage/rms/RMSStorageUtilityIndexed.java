@@ -10,6 +10,7 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -72,10 +73,10 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			Object val = vals.get(field);
 			
 			Vector IDs = getIDList(field, val);
-			if (IDs.contains(new Integer(id))) {
+			if (IDs.contains(DataUtil.integer(id))) {
 				System.out.println("warning: don't think this should happen [add] [" + id + ":" + field + ":" + val.toString() + "]");
 			}
-			IDs.addElement(new Integer(id));
+			IDs.addElement(DataUtil.integer(id));
 		}
 	}
 	

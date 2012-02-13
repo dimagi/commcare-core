@@ -168,5 +168,10 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 			Vector<XPathExpression> predicates, EvaluationContext evalContext) {
 		return null;
 	}
+
+	public String getNamespace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

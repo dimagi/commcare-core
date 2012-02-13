@@ -115,6 +115,8 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
 	public abstract boolean isRelevant();
 	
+	public abstract String getNamespace();
+	
 	/**
 	 * TODO: Worst method name ever. Don't use this unless you know what's up.
 	 * 

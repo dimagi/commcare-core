@@ -247,4 +247,9 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
 		return null;
 	}
 
+	public String getNamespace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
