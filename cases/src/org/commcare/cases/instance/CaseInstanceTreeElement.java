@@ -40,7 +40,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	
 	private Vector<CaseChildElement> cases;
 	
-	TreeElementCache cache = new TreeElementCache(200);
+	TreeElementCache cache = new TreeElementCache();
 	
 	private Hashtable<Integer, Integer> caseIdMapping;
 	

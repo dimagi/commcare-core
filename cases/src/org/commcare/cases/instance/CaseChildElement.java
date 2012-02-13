@@ -210,7 +210,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		if(name.equals("case_id")) {
 			//if we're already cached, don't bother with this nonsense
 			synchronized(cache){
-				if(cache.hasEntry(recordId)) {
+				TreeElement element = cache.retrieve(recordId);
+				if(element != null) {
 					return cache().getAttribute(namespace, name);
 				}
 			}
@@ -301,8 +302,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	//TODO: THIS IS NOT THREAD SAFE
 	private TreeElement cache() {
 		synchronized(cache){
-			if(cache.hasEntry(recordId)) {
-				return cache.retrieve(recordId);
+			TreeElement element = cache.retrieve(recordId);
+			if(element != null) {
+				return element;
 			}
 			//For now this seems impossible
 			if(recordId == -1) {
