@@ -4,9 +4,9 @@
 package org.commcare.cases.instance;
 
 import java.lang.ref.WeakReference;
-import java.util.Hashtable;
 
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 
 /**
@@ -16,10 +16,10 @@ import org.javarosa.core.util.DataUtil;
  *
  */
 public class TreeElementCache {
-	private Hashtable<Integer, WeakReference> cache;
+	private CacheTable<Integer> cache;
 	
 	public TreeElementCache() {
-		cache = new Hashtable<Integer,WeakReference>();
+		cache = new CacheTable<Integer>();
 	}
 
 	public TreeElement retrieve(int recordId) {

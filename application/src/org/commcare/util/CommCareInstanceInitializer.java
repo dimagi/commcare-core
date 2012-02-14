@@ -5,6 +5,7 @@ package org.commcare.util;
 
 
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -18,9 +19,12 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.user.model.User;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
  * @author ctsims
@@ -46,6 +50,24 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 			if(ref.indexOf("report") != -1) {
 				ConcreteTreeElement base = new ConcreteTreeElement("device_report");
 				base.setNamespace("http://code.javarosa.org/devicereport");
+				
+				
+				String deviceId = PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY);
+				String reportDate = DateUtils.formatDate(new Date(), DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+				String appVersion = PropertyManager._().getSingularProperty("app-version");
+					
+				ConcreteTreeElement did = new ConcreteTreeElement("device_id");
+				did.setValue(new StringData(deviceId));
+				base.addChild(did);
+				
+				ConcreteTreeElement rd = new ConcreteTreeElement("report_date");
+				rd.setValue(new StringData(reportDate));
+				base.addChild(rd);
+				
+				ConcreteTreeElement ap = new ConcreteTreeElement("app_version");
+				ap.setValue(new StringData(appVersion));
+				base.addChild(ap);
+				
 				ConcreteTreeElement logsr = new ConcreteTreeElement("log_subreport");
 				
 				ConcreteTreeElement log = new ConcreteTreeElement("log");
