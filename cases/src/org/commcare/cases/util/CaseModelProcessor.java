@@ -61,6 +61,9 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 		String caseId = caseIdAttribute.getValue().uncast().getString();
 
+		if(caseId == null || caseId == "") {
+			throw new MalformedCaseModelException("Invalid <case> model. <case> element case_id is ''! at:" + caseElement.getRef().toString(true),"<case>");
+		}
 		
 		TreeElement dateModified = caseElement.getAttribute(null, "date_modified");
 		if(dateModified == null) {
