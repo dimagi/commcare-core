@@ -189,7 +189,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 					continue;
 				}
 				else if(kid.getName().equals("case_name")) {
-					c.setName(kid.getValue().uncast().toString());
+					c.setName(kid.getValue().uncast().getString());
 					continue;
 				}
 				else if(kid.getName().equals("date_opened")) {
