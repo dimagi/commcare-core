@@ -1135,10 +1135,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		if (getLocalizer() != null && getLocalizer().getLocale() == null) {
 			getLocalizer().setToDefault();
 		}
-
-		initializeTriggerables();
 		
 		dispatchFormEvent(Action.EVENT_XFORMS_READY);
+
+		initializeTriggerables();
 	}
 
 	/**

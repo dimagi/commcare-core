@@ -751,7 +751,12 @@ public class XFormParser {
 			dataRef = binding.getReference();
 			refFromBind = true;
 		} else if (ref != null) {
-			dataRef = new XPathReference(ref);
+			try {
+				dataRef = new XPathReference(ref);
+			} catch(RuntimeException el) {
+				System.out.println(this.getVagueLocation(e));
+				throw el;
+			}
 		} else {
 			if (controlType == Constants.CONTROL_TRIGGER) {
 				//TODO: special handling for triggers? also, not all triggers created equal
