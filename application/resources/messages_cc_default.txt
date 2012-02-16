@@ -35,6 +35,8 @@ sync.done.new=${0} new cases
 sync.done.closed=${0} cases closed
 sync.done.updated=${0} cases updated
 
+sync.cancelled=Sync Cancelled!
+
 sync.send.fail=We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.
 sync.pull.fail=There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.
 

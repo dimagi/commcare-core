@@ -15,6 +15,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
+import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
 
 public abstract class ServerSyncState implements State {
@@ -32,7 +33,7 @@ public abstract class ServerSyncState implements State {
 	public ServerSyncState (HttpCredentialProvider currentUserCredentials) {
 		send = new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), false, true);
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), true, true);
 			}
 
 			public void done () {
@@ -43,12 +44,16 @@ public abstract class ServerSyncState implements State {
 				if (errorsOccurred) {
 					System.out.println("debug: server sync: errors occurred during send-all-unsent");
 					onError(Localization.get("sync.send.fail"));
+				} else if(TransportService.getCachedMessagesSize() != 0) {
+					//cancelled
+					onError(Localization.get("sync.cancelled"));
 				} else {
 					System.out.println("debug: server sync: send-all-unsent successful");
 					launchPull();
 				}
 			}
 		};
+
 		
 		String syncToken = null;
 		User u = CommCareContext._().getUser();
@@ -61,7 +66,7 @@ public abstract class ServerSyncState implements State {
 			public void cancel() {
 				//when your credentials have changed, the ota restore credentials screen will pop up, so we
 				//do need to support canceling here.
-				ServerSyncState.this.onError("Restore Cancelled");
+				ServerSyncState.this.onError(Localization.get("sync.cancelled"));
 			}
 			
 			public void commitSyncToken(String token) {
