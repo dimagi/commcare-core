@@ -110,7 +110,8 @@ public class EvaluationContext {
 	}
 	
 	public TreeReference getOriginalContext() {
-		return this.original;
+		if(this.original == null) { return this.contextNode;}
+		else { return this.original; }
 	}
 	
 	public void addFunctionHandler (IFunctionHandler fh) {
@@ -293,7 +294,8 @@ public class EvaluationContext {
 					for(XPathExpression xpe : predicates)
 					{
 						//test the predicate on the treeElement
-						EvaluationContext evalContext = new EvaluationContext(this, treeRef);
+						//EvaluationContext evalContext = new EvaluationContext(this, treeRef);
+						EvaluationContext evalContext = rescope(treeRef);
 						Object o = xpe.eval(instance, evalContext);
 						if(o instanceof Boolean)
 						{
@@ -316,6 +318,13 @@ public class EvaluationContext {
 				}
 			}
 		}
+	}
+
+	private EvaluationContext rescope(TreeReference treeRef) {
+		TreeReference orRef = this.getOriginalContext();
+		EvaluationContext ec = new EvaluationContext(this, treeRef);
+		ec.setOriginalContext(orRef);
+		return ec;
 	}
 
 	public DataInstance getMainInstance() {
