@@ -40,6 +40,13 @@ sync.cancelled=Sync Cancelled!
 sync.send.fail=We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.
 sync.pull.fail=There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.
 
+menu.sync=Sync with Server
+menu.sync.prompt=please update ASAP
+menu.sync.last=updated ${0} days ago
+menu.sync.unsent.one=One item to send
+menu.sync.unsent.mult=${0} items to send
+
+
 polish.date.select=Select Date
 
 commcare.review=Review Recent Forms
@@ -85,7 +92,6 @@ menu.send.all=Send All Unsent
 menu.send.all.val=Send All Unsent (${0})
 
 sending.status.problem.datasafe=Successfully Submitted. Your data is safe, but we made a small mistake. We're working on it.
-menu.sync=Sync with Server
 sending.status.didnotunderstand=Did not understand the response from the server [${0}]
 home.change.user=Login as Admin
 id=ID

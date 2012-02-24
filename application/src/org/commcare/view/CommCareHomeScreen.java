@@ -146,24 +146,31 @@ public class CommCareHomeScreen extends CommCareListView {
 			Date lastSync = DateUtils.parseDateTime(sLastSync);
 			int secs_ago = (int)((new Date().getTime() - lastSync.getTime()) / 1000);
 			if (secs_ago < 0) {
-				message = "please update ASAP";
+				message = Localization.get("menu.sync.prompt");
 				bad = true;
 			} else {
 				int days_ago = secs_ago / 86400;
 				if (days_ago >= 2) {
-					message = "updated " + days_ago + " days ago";
+					message = Localization.get("menu.sync.last",new String[] {String.valueOf(days_ago)} );
 				}
 				if(days_ago > 5) {
 					bad = true;
 				}
 			}
 		} else {
-			message = "please update ASAP";
+			message = Localization.get("menu.sync.prompt");
 			bad = true;
 		}
 			
 		int numUnsent = CommCareUtil.getNumberUnsent();
-		String sUnsent = (numUnsent > 0 ? numUnsent + " item" + (numUnsent > 1 ? "s" : "") + " to send" : null);
+		
+		String sUnsent = null;
+		
+		if(numUnsent == 1) {
+			sUnsent = Localization.get("menu.sync.unsent.one");
+		} else if(numUnsent > 1) {
+			sUnsent = Localization.get("menu.sync.unsent.mult", new String[]{String.valueOf(numUnsent)});
+		}
 		
 		if (message == null) {
 			message = sUnsent;
