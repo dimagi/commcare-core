@@ -12,9 +12,11 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.OrderedHashtable;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,6 +41,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	private String restoreId;
 	private boolean tolerant;
 	private String message;
+	private OrderedHashtable<String, String> messages = new OrderedHashtable<String,String>();
 	
 	/**
 	 * Creates a new factory for processing incoming XML.
@@ -63,7 +66,26 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			//restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
 			return new UserXmlParser(parser, restoreId);
 		} else if(name.toLowerCase().equals("message")) {
-			message = parser.getText();
+			return new TransactionParser<String> (parser, "message", null) {
+
+			String nature = parser.getAttributeValue(null, "nature");
+
+			public void commit(String parsed) throws IOException {
+				
+			}
+
+			public String parse() throws InvalidStructureException,IOException, XmlPullParserException, UnfullfilledRequirementsException {
+				
+					message = parser.nextText();
+					if(nature != null) {
+						if(message != null) {
+							messages.put(nature, message);
+						}
+					}
+					return message;
+				}
+			};
+			
 		} else if (name.equalsIgnoreCase("Sync")) {
 			return new TransactionParser<String> (parser, "Sync", null) {
 				public void commit(String parsed) throws IOException {
@@ -116,5 +138,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 	 */
 	public String getResponseMessage() {
 		return message;
+	}
+
+	public OrderedHashtable<String,String> getResponseMessageMap() {
+		return messages;
 	}
 }

@@ -55,9 +55,13 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 					} catch (StorageFullException e) {
 						Logger.die("Upgrade", e);
 					} catch (UnresolvedResourceException e) {
-						if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
-							//loop here
-						} else {
+						if(interactive) {
+							if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
+								//loop here
+							} else {
+								return false;
+							}
+						} else{
 							return false;
 						}
 					}

@@ -24,6 +24,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class CommCareHQResponder implements TransportResponseProcessor {
 	
 	String apiLevelGuess;
+	OpenRosaApiResponseProcessor orHandler;
 	
 	/**
 	 * A processor for responses from CommCare HQ. Currently handles responses
@@ -34,6 +35,8 @@ public class CommCareHQResponder implements TransportResponseProcessor {
 	 */
 	public CommCareHQResponder(String apiLevelGuess) {
 		this.apiLevelGuess = apiLevelGuess;
+		//One central processor (for handling multiple payloads)
+		this.orHandler = new OpenRosaApiResponseProcessor();
 	}
 	
 	//TODO: Replace all response semantics with a single unified response system
@@ -52,10 +55,7 @@ public class CommCareHQResponder implements TransportResponseProcessor {
     		
     		//Check for date inconsistencies
     		dateInconsistencyHelper(msg.getResponseProperties().getGMTDate());
-    		
-    		//Check the API response processor for well-formed, expected results.
-    		OpenRosaApiResponseProcessor orHandler = new OpenRosaApiResponseProcessor();
-    		
+    		    		
     		//If the server didn't tell us what OR API version to use, but we have a guess, use
     		//that.
     		if(msg.getResponseProperties().getORApiVersion() == null && apiLevelGuess != null) {
@@ -182,6 +182,22 @@ public class CommCareHQResponder implements TransportResponseProcessor {
 			//This is purely helper code. Don't want it to ever crash the system
 			Logger.exception("While checking dates", e);
 		}
+	}
+
+	public boolean hasSummativeResponse() {
+		if(orHandler.getCompiledResponses().length > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public String getSummativeReseponse() {
+		String summative = "";
+		String[] responses = orHandler.getCompiledResponses();
+		for(int i = 0 ; i < responses.length; ++i) {
+			summative += responses[i] + "\n";
+		}
+		return summative;
 	}
     
 }

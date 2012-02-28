@@ -9,6 +9,7 @@ import java.io.IOException;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -24,6 +25,8 @@ import org.xmlpull.v1.XmlPullParserException;
 public class OpenRosaApiResponseProcessor {
 	
 	public static final String ONE_OH = "1.0"; 
+	
+	CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(true);
 	
 	/**
 	 * Whether the processor knows that it is capable of processing the response to
@@ -61,9 +64,6 @@ public class OpenRosaApiResponseProcessor {
 			//TODO: Eliminate byte arrays, and replace with an active stream of the response
 			byte[] response = message.getResponseBody();    			
 			
-			//Use standard transactions
-			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(true);
-			
 			DataModelPullParser parser = new DataModelPullParser(new ByteArrayInputStream(response), factory);
 			
 			boolean success = parser.parse();
@@ -76,5 +76,14 @@ public class OpenRosaApiResponseProcessor {
 		}
 		//throw some exception
 		throw new UnfullfilledRequirementsException("Unrecognized response type", UnfullfilledRequirementsException.SEVERITY_ENVIRONMENT);
+	}
+	
+	public String[] getCompiledResponses() {
+		OrderedHashtable<String,String> messageMap = factory.getResponseMessageMap();
+		String[] response = new String[messageMap.size()];
+		for(int i = 0 ; i < messageMap.size(); ++i ) {
+			response[i] = (String)messageMap.elementAt(i);
+		}
+		return response;
 	}
 }
