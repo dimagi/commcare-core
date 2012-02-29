@@ -538,4 +538,29 @@ public class TreeReference implements Externalizable {
 	public int getContext() {
 		return this.contextType;
 	}
+	
+	/**
+	 * Returns the subreference of this reference up to the level specified.
+	 * 
+	 * Used to identify the reference context for a predicate at the same level
+	 * 
+	 * Must be an absolute reference, otherwise will throw IllegalArgumentException
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public TreeReference getSubReference(int level) {
+		if(!this.isAbsolute()) { throw new IllegalArgumentException("Cannot subreference a non-absolute ref"); }
+		
+		//Copy construct
+		TreeReference ret = new TreeReference();
+		ret.refLevel = this.refLevel;
+		ret.contextType = this.contextType;
+		ret.instanceName = this.instanceName;
+		ret.data = new Vector<TreeReferenceLevel>();
+		for(int i = 0 ; i <= level ; ++i) {
+			ret.data.addElement(this.data.elementAt(i));
+		}
+		return ret;
+	}
 }

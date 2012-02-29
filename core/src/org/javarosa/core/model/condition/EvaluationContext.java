@@ -48,6 +48,7 @@ public class EvaluationContext {
 	private Hashtable<String, DataInstance> formInstances;
 	
 	private TreeReference original;
+	private int currentContextPosition = -1;
 	
 	DataInstance instance;
 	
@@ -67,6 +68,11 @@ public class EvaluationContext {
 		
 		this.outputTextForm = base.outputTextForm;
 		this.original = base.original;
+		
+		//Hrm....... not sure about this one. this only happens after a rescoping,
+		//and is fixed on the context. Anything that changes the context should
+		//invalidate this
+		this.currentContextPosition = base.currentContextPosition;
 	}
 	
 	public EvaluationContext (EvaluationContext base, TreeReference context) {
@@ -285,6 +291,7 @@ public class EvaluationContext {
 				}
 			}
 
+			int numQualifyingElements = 0;
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
 				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
 				TreeReference treeRef = (TreeReference)e.nextElement();				
@@ -295,7 +302,7 @@ public class EvaluationContext {
 					{
 						//test the predicate on the treeElement
 						//EvaluationContext evalContext = new EvaluationContext(this, treeRef);
-						EvaluationContext evalContext = rescope(treeRef);
+						EvaluationContext evalContext = rescope(treeRef, numQualifyingElements);
 						Object o = xpe.eval(instance, evalContext);
 						if(o instanceof Boolean)
 						{
@@ -309,6 +316,7 @@ public class EvaluationContext {
 					}
 					if(passedAll)
 					{
+						numQualifyingElements++;
 						expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
 					}
 				}
@@ -320,9 +328,10 @@ public class EvaluationContext {
 		}
 	}
 
-	private EvaluationContext rescope(TreeReference treeRef) {
+	private EvaluationContext rescope(TreeReference treeRef, int currentContextPosition) {
 		TreeReference orRef = this.getOriginalContext();
 		EvaluationContext ec = new EvaluationContext(this, treeRef);
+		ec.currentContextPosition = currentContextPosition;
 		ec.setOriginalContext(orRef);
 		return ec;
 	}
@@ -337,5 +346,9 @@ public class EvaluationContext {
 			instance = this.getInstance(qualifiedRef.getInstanceName());
 		}
 		return instance.resolveReference(qualifiedRef);
+	}
+	
+	public int getContextPosition() {
+		return currentContextPosition;
 	}
 }
