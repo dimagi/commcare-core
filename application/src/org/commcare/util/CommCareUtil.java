@@ -274,7 +274,7 @@ public class CommCareUtil {
 	 * @param entry
 	 * @return
 	 */
-	public static String getEntryText(Entry entry, Suite suite) {
+	public static String getEntryText(Entry entry, Suite suite, int location) {
 		String text = entry.getText().evaluate();
 		if(Localizer.getArgs(text).size() == 0) {
 			return text;
@@ -285,9 +285,7 @@ public class CommCareUtil {
 		} else {
 			//Sweet spot! This argument should be the count of all entities
 			//which are possible inside of its selection.
-			String wrapper = Localization.get("commcare.numwrapper"); 
-			String wrapped = Localizer.processArguments(wrapper, new String[] { String.valueOf(CommCareUtil.countEntities(entry, suite)) });
-			return Localizer.processArguments(text, new String[] {wrapped} );
+			return Localizer.processArguments(text, new String[] {String.valueOf(location + 1)} );
 		}
 	}
 

@@ -88,7 +88,8 @@ public class CommCareSessionController {
 							}
 						}
 						Entry e = suite.getEntries().get(id);
-						int location = list.append(CommCareUtil.getEntryText(e,suite), MediaUtils.getImage(e.getImageURI()));
+						int location = list.size();
+						list.append(CommCareUtil.getEntryText(e,suite,location), MediaUtils.getImage(e.getImageURI()));
 						//TODO: All these multiple checks are pretty sloppy
 						if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
 							listener.registerAudioTrigger(location, e.getAudioURI());
