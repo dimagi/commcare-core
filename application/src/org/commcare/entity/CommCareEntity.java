@@ -219,7 +219,10 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 */
 	public String[] getSortFieldNames () {
 		Vector<String> fields = new Vector<String>();
-		int sortField = this.getSortFieldDefault() - 1;
+		int sortField = this.getSortFieldDefault();
+		if(sortField != -1) {
+			sortField --;
+		}
 		String[] headers = getHeaders(false);
 		
 		if(sortField == -1) {
