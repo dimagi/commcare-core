@@ -6,10 +6,12 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -58,12 +60,27 @@ public class MenuParser extends ElementParser<Menu> {
 		//name = new TextParser(parser).parse();
 
 		Vector<String> commandIds = new Vector<String>();
+		Vector<XPathExpression> relevantExprs = new Vector<XPathExpression>();
 		while (nextTagInBlock("menu")) {
 			checkNode("command");
 			commandIds.addElement(parser.getAttributeValue(null, "id"));
+			String relevantExpr = parser.getAttributeValue(null, "relevant");
+			if(relevantExpr == null) {
+				relevantExprs.addElement(null);
+			} else {
+				try {
+					relevantExprs.addElement(XPathParseTool.parseXPath(relevantExpr));
+				} catch (XPathSyntaxException e) {
+					e.printStackTrace();
+					throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
+				}
+			}
 		}
+		
+		XPathExpression[] expressions = new XPathExpression[relevantExprs.size()];
+		relevantExprs.copyInto(expressions);
 
-		Menu m = new Menu(id, root, name, commandIds, imageURI, audioURI);
+		Menu m = new Menu(id, root, name, commandIds, expressions, imageURI, audioURI);
 		return m;
 
 	}

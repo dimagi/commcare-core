@@ -78,7 +78,15 @@ public class CommCareSessionController {
 			Suite suite = (Suite)en.nextElement();
 			for(Menu m : suite.getMenus()) {
 				if(menu.equals(m.getId())){
-					for(String id : m.getCommandIds()) {
+					for(int i = 0; i < m.getCommandIds().size(); ++i) {
+						String id = m.getCommandIds().elementAt(i);
+						XPathExpression relevant = m.getRelevantCondition(i);
+						if(relevant != null) {
+							EvaluationContext ec  = session.getEvaluationContext(getIif());
+							if(XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
+								continue;
+							}
+						}
 						Entry e = suite.getEntries().get(id);
 						int location = list.append(CommCareUtil.getEntryText(e,suite), MediaUtils.getImage(e.getImageURI()));
 						//TODO: All these multiple checks are pretty sloppy

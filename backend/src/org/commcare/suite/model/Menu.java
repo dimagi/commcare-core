@@ -11,8 +11,12 @@ import java.util.Vector;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * <p>A Menu definition describes the structure of how
@@ -26,6 +30,7 @@ public class Menu implements Externalizable {
 	
 	Text name;
 	Vector<String> commandIds;
+	XPathExpression[] commandExprs;
 	String id;
 	String root;
 	String imageReference;
@@ -39,11 +44,12 @@ public class Menu implements Externalizable {
 	}
 	
 	
-	public Menu(String id, String root, Text name, Vector<String> commandIds, String imageReference, String audioReference) {
+	public Menu(String id, String root, Text name, Vector<String> commandIds, XPathExpression[] commandExprs, String imageReference, String audioReference) {
 		this.id = id;
 		this.root = root;
 		this.name = name;
 		this.commandIds = commandIds;
+		this.commandExprs = commandExprs;
 		this.imageReference = imageReference;
 		this.audioReference = audioReference;
 	}
@@ -81,6 +87,10 @@ public class Menu implements Externalizable {
 		//UNSAFE! UNSAFE!
 		return commandIds;
 	}
+	
+	public XPathExpression getRelevantCondition(int index) {
+		return commandExprs[index];
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -91,6 +101,12 @@ public class Menu implements Externalizable {
 		root = ExtUtil.readString(in);
 		name = (Text)ExtUtil.read(in, Text.class);
 		commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
+		commandExprs = new XPathExpression[ExtUtil.readInt(in)];
+		for(int i = 0 ; i < commandExprs.length; ++i) {
+			if(ExtUtil.readBool(in)) {
+				commandExprs[i] = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged());
+			}
+		}
 		imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		
@@ -104,6 +120,15 @@ public class Menu implements Externalizable {
 		ExtUtil.writeString(out,root);
 		ExtUtil.write(out,name);
 		ExtUtil.write(out, new ExtWrapList(commandIds));
+		ExtUtil.writeNumeric(out, commandExprs.length);
+		for(int i = 0 ; i < commandExprs.length ; ++i) {
+			if(commandExprs[i] == null) {
+				ExtUtil.writeBool(out, false);
+			} else{
+				ExtUtil.writeBool(out, true);
+				ExtUtil.write(out, new ExtWrapTagged(commandExprs[i]));
+			}
+		}
 		ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));
 		ExtUtil.writeString(out,ExtUtil.emptyIfNull(audioReference));
 	}
