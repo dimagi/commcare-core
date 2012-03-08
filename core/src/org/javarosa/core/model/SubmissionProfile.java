@@ -35,7 +35,7 @@ public class SubmissionProfile implements Externalizable {
 		
 	}
 	
-	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String,String> attributeMap) {
+	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
 		this(ref, method, action, mediatype, new Hashtable<String, String>());
 	}
 	
