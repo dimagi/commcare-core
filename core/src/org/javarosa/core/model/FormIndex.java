@@ -448,8 +448,8 @@ public class FormIndex {
 		
 		int i = 0;
 		while (cur != null) {
-			curMults.add(multiplicities.elementAt(i));
-			curElems.add(elements.elementAt(i));
+			curMults.addElement(multiplicities.elementAt(i));
+			curElems.addElement(elements.elementAt(i));
 			
 			TreeReference ref = f.getChildInstanceRef(curElems, curMults);
 			cur.reference = ref;
