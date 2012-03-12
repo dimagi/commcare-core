@@ -19,6 +19,7 @@ package org.javarosa.core.util;
 import java.util.Random;
 import java.util.Vector;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 
 public class PropertyUtils {
@@ -37,6 +38,42 @@ public class PropertyUtils {
 			return defaultValue;
 		}
 		return (String) propVal.elementAt(0);
+	}
+	
+	public static void initalizeDeviceID() {
+		String[] possibleIMEIrequests = { "phone.imei" ,"com.nokia.mid.imei", "com.nokia.IMEI" ,"com.sonyericsson.imei","IMEI" ,"com.motorola.IMEI" ,"com.samsung.imei" ,"com.siemens.imei" };
+		
+		String nativeValue = null;
+		for(String possible : possibleIMEIrequests) {
+			try{
+				String value = System.getProperty(possible);
+				
+				//no good way to identify if there are Error or Magical strings here.
+				if(value != null && value != "") {
+					nativeValue = value;
+					//TODO: Do we want to sort between different IMEI's here?		
+					break;
+				}
+			} catch(Exception e) {
+				//Nothing
+			}
+		}
+		
+		String currentValue = PropertyManager._().getSingularProperty("DeviceID");
+		
+		if(currentValue != null) {
+			if(nativeValue != null && !nativeValue.equals(currentValue)) {
+				//There was a deviceID on this device, but somehow it doesn't match the current device.
+				//This can happen if an app is moved between memory cards. We want to update it and log	the change
+				PropertyManager._().setProperty("DeviceID", nativeValue);
+				Logger.log("device", "Inconsistent DeviceID persisted. Current ID: [" + currentValue + "] - New ID: [" + nativeValue +"].");
+			}
+		} else {
+			//No ID on the phone currently, initialize one
+			String newId = nativeValue == null ? PropertyUtils.genGUID(25) : nativeValue;
+			PropertyManager._().setProperty("DeviceID", newId);
+			Logger.log("device", "DeviceID set: [" + newId + "]");
+		}
 	}
 	
 	
