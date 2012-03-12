@@ -67,7 +67,6 @@ public class SubmissionProfile implements Externalizable {
 	    return attributeMap.get(name);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
 		method = ExtUtil.readString(in);
