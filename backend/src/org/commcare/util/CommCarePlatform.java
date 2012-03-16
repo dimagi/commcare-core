@@ -112,22 +112,18 @@ public class CommCarePlatform implements CommCareInstance {
 
 	}
 	
-	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException {
+	public void upgrade(ResourceTable global, ResourceTable temporary) throws UnfullfilledRequirementsException, UnresolvedResourceException {
 
 		if (!global.isReady()) {
 			throw new RuntimeException("The Global Resource Table was not properly made ready");
 		}
 		
-		try {
-			temporary.prepareResources(global, this);
-			global.upgradeTable(temporary);
+		temporary.prepareResources(global, this);
+		global.upgradeTable(temporary);
+		
+		//Not implemented yet!
+		temporary.destroy();
 			
-			//Not implemented yet!
-			temporary.destroy();
-		} catch (UnresolvedResourceException e) {
-			Logger.exception(e);
-			throw new RuntimeException("A Resource couldn't be found while trying to upgrade!");
-		}
 		profile = -1;
 		suites.removeAllElements();
 		//Is it really possible to verify that we've un-registered everything here? Locale files are 

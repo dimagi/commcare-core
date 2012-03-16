@@ -139,7 +139,11 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				upgrade.setStateListener(upgradeListener);
 				global.setStateListener(globalListener);
-				CommCareContext._().getManager().upgrade(global, upgrade);
+				try {
+					CommCareContext._().getManager().upgrade(global, upgrade);
+				} catch (UnresolvedResourceException e) {
+					this.fail(e);
+				}
 				interaction.updateProgess(95);
 				
 				blockForResponse("CommCare Updated!", false);
