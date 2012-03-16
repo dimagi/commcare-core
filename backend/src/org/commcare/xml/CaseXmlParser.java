@@ -115,7 +115,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					c.setDateOpened(modified);
 				}
 				
-				c.setUserId(data[1]);
+				if(data[1] != null) {
+					c.setUserId(data[1]);
+				}
 				commit(c);
 				if(!overriden) {
 					create = true;

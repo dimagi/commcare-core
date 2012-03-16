@@ -321,7 +321,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			cacheBuilder.setAttribute(null, "case_id".intern(), c.getCaseId());
 			cacheBuilder.setAttribute(null, "case_type".intern(), c.getTypeId());
 			cacheBuilder.setAttribute(null, "status".intern(), c.isClosed() ? "closed".intern() : "open".intern());
-			cacheBuilder.setAttribute(null, "owner_id".intern(), c.getUserId());
+			
+			//Don't set anything to null
+			cacheBuilder.setAttribute(null, "owner_id".intern(), c.getUserId() == null ? "" : c.getUserId());
 
 			final boolean[] done = new boolean[] {false}; 
 
