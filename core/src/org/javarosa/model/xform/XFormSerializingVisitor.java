@@ -226,6 +226,10 @@ import org.kxml2.kdom.Node;
 				String namespace = instanceNode.getAttributeNamespace(i);
 				String name		 = instanceNode.getAttributeName(i);
 				String val		 = instanceNode.getAttributeValue(i);
+				// is it legal for getAttributeValue() to return null? playing it safe for now and assuming yes
+				if (val == null) {
+					val = "";
+				}
 				e.setAttribute(namespace, name, val);
 			}
 			if(instanceNode.getNamespace() != null) {
