@@ -521,7 +521,11 @@ public class XPathFuncExpr extends XPathExpression {
 		if (val != null) {
 			return val;
 		} else {
-			throw new XPathTypeMismatchException("converting to string");
+			if(o == null) { 
+				throw new XPathTypeMismatchException("attempt to cast null value to string");
+			} else {
+				throw new XPathTypeMismatchException("converting object of type " + o.getClass().toString() + " to string");
+			}
 		}
 	}
 
