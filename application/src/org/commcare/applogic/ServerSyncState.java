@@ -33,7 +33,7 @@ public abstract class ServerSyncState implements State {
 	public ServerSyncState (HttpCredentialProvider currentUserCredentials) {
 		send = new SendAllUnsentState () {
 			protected SendAllUnsentController getController () {
-				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), true, true);
+				return new SendAllUnsentController(new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)), true, true, Localization.get("sync.unsent.cancel"));
 			}
 
 			public void done () {

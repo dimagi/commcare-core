@@ -35,11 +35,11 @@ public class SendAllUnsentController implements HandledCommandListener {
 	}
 	
  	public SendAllUnsentController(TransportResponseProcessor responder) {
- 		this(responder, true, false);
+ 		this(responder, true, false, null);
  	}
  		
- 	public SendAllUnsentController(TransportResponseProcessor responder, boolean silenceable, boolean shortcircuit) {
- 		screen = new MultiSubmitStatusScreen(this, responder, silenceable);
+ 	public SendAllUnsentController(TransportResponseProcessor responder, boolean silenceable, boolean shortcircuit, String cancelText) {
+ 		screen = new MultiSubmitStatusScreen(this, responder, silenceable, cancelText);
  		this.shortcircuit = shortcircuit;
  	}
 	

@@ -28,7 +28,7 @@ restore.recover.send=Sending current database state to server
 restore.recover.needcache=Can't recover state safely without a recovery file. Please allow file system access and try again.
 restore.recovery.wipe=Wiping old invalid casedb
 
-
+sync.unsent.cancel=Cancel Sync
 sync.done.noupdate=No new updates
 sync.done.updates=Update successful!
 sync.done.new=${0} new cases
