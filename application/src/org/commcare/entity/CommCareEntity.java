@@ -205,6 +205,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 		fields.addElement(Localization.get("case.id"));
 		String[] headers = getHeaders(false);
 		for(int i = 0 ; i < headers.length ; ++i) {
+			if(headers[i] == null  || headers[i].equals("")) { continue;}
 			fields.addElement(headers[i]);
 			if(i == topIndex) {
 				return fields.size() - 1;

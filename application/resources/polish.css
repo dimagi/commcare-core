@@ -635,6 +635,10 @@ alertcontent {
     text-wrap: false
 }
 
+.patselImageCell {
+	layout: vertical-center | horizontal-center| vertical-shrink;;
+}
+
 .patselTitleRowContainer extends patselRow {
 
 	background-color: lighterBlue;
