@@ -330,8 +330,7 @@ public class ResourceTable {
 				}
 				if(peer.getVersion() < r.getVersion()) {
 					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
-						//TODO: This should be an exception
-						return false;
+						throw new UnresolvedResourceException(peer, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
 					} else {
 						//If we don't remove the resource, they're duplicates
 						this.removeResource(peer);
