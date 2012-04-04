@@ -14,6 +14,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -43,7 +44,7 @@ public class SuiteInstaller extends CacheInstaller {
 		return Suite.STORAGE_KEY;
 	}
 	
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException{
+	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
 			//If it's in the cache, we should just get it from there
 			return false;

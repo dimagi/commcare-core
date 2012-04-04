@@ -30,17 +30,15 @@ import org.xmlpull.v1.XmlPullParserException;
 public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
 	IStorageUtilityIndexed storage;
+	boolean overwrite = true;
 	
-	/**
-	 * Creates a Parser for case blocks in the XML stream provided. 
-	 * 
-	 * @param parser The parser for incoming XML.
-	 * @param tallies an int[3] array to place information about the parser's actions.
-	 * @param acceptCreateOverwrites Whether an Exception should be thrown if the transaction
-	 * contains create actions for cases which already exist.
-	 */
 	public FixtureXmlParser(KXmlParser parser) {
+		this(parser, true);
+	}
+	
+	public FixtureXmlParser(KXmlParser parser, boolean overwrite) {
 		super(parser, "fixture", null);
+		this.overwrite = overwrite;
 	}
 
 	public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
@@ -79,6 +77,10 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 		}
 		
 		if(recordId != -1) {
+			if(!overwrite) {
+				//parse it out, but don't write anything to memory if one already exists
+				return instance;
+			}
 			instance.setID(recordId);
 		}
 		

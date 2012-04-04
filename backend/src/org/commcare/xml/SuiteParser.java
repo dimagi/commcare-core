@@ -15,6 +15,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.InvalidStructureException;
+import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -41,7 +42,7 @@ public class SuiteParser extends ElementParser<Suite>  {
 		this.resourceGuid = resourceGuid;
 	}
 	
-	public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		checkNode("suite");
     	
 		String sVersion = parser.getAttributeValue(null, "version");
@@ -90,7 +91,10 @@ public class SuiteParser extends ElementParser<Suite>  {
                 } else if(parser.getName().toLowerCase().equals("menu")) {
                 	Menu m = new MenuParser(parser).parse();
                 	menus.addElement(m);
-                } else {
+                } else if(parser.getName().toLowerCase().equals("fixture")) {
+                	//this one automatically commits the fixture to the global memory
+                	new FixtureXmlParser(parser, false).parse();
+                }  else {
                 	System.out.println("Unrecognized Tag: " + parser.getName());
                 }
             } else if(eventType == KXmlParser.END_TAG) {

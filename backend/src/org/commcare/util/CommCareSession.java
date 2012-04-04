@@ -95,6 +95,7 @@ public class CommCareSession {
 			//need to be fulfilled
 			for(String cmd : menu.getCommandIds()) {
 				Entry e = map.get(cmd);
+				if(e == null) { throw new RuntimeException("No entry found for menu command [" + cmd + "]"); }
 				boolean valid = true;
 				Vector<SessionDatum> requirements = e.getSessionDataReqs();
 				if(requirements.size() >= data.size()) {
