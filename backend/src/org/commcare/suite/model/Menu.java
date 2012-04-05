@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -16,7 +17,9 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * <p>A Menu definition describes the structure of how
@@ -30,7 +33,8 @@ public class Menu implements Externalizable {
 	
 	Text name;
 	Vector<String> commandIds;
-	XPathExpression[] commandExprs;
+	String[] commandExprsRaw;
+	XPathExpression[] commandExprsCompiled;
 	String id;
 	String root;
 	String imageReference;
@@ -44,12 +48,12 @@ public class Menu implements Externalizable {
 	}
 	
 	
-	public Menu(String id, String root, Text name, Vector<String> commandIds, XPathExpression[] commandExprs, String imageReference, String audioReference) {
+	public Menu(String id, String root, Text name, Vector<String> commandIds, String[] commandExprs, String imageReference, String audioReference) {
 		this.id = id;
 		this.root = root;
 		this.name = name;
 		this.commandIds = commandIds;
-		this.commandExprs = commandExprs;
+		this.commandExprsRaw = commandExprs;
 		this.imageReference = imageReference;
 		this.audioReference = audioReference;
 	}
@@ -89,7 +93,14 @@ public class Menu implements Externalizable {
 	}
 	
 	public XPathExpression getRelevantCondition(int index) {
-		return commandExprs[index];
+		//Don't cache this for now at all
+		try {
+			return commandExprsRaw[index] == null ? null : XPathParseTool.parseXPath(commandExprsRaw[index]);
+		} catch (XPathSyntaxException e) {
+			//this shouldn't be possible since we parsed this at compile time 
+			e.printStackTrace();
+			throw new RuntimeException("Invalid XPath while parsing relevancy (again): " + e.getMessage());
+		}
 	}
 
 	/* (non-Javadoc)
@@ -101,10 +112,10 @@ public class Menu implements Externalizable {
 		root = ExtUtil.readString(in);
 		name = (Text)ExtUtil.read(in, Text.class);
 		commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
-		commandExprs = new XPathExpression[ExtUtil.readInt(in)];
-		for(int i = 0 ; i < commandExprs.length; ++i) {
+		commandExprsRaw =  new String[ExtUtil.readInt(in)];
+		for(int i = 0 ; i < commandExprsRaw.length; ++i) {
 			if(ExtUtil.readBool(in)) {
-				commandExprs[i] = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged());
+				commandExprsRaw[i] = ExtUtil.readString(in);
 			}
 		}
 		imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -120,13 +131,13 @@ public class Menu implements Externalizable {
 		ExtUtil.writeString(out,root);
 		ExtUtil.write(out,name);
 		ExtUtil.write(out, new ExtWrapList(commandIds));
-		ExtUtil.writeNumeric(out, commandExprs.length);
-		for(int i = 0 ; i < commandExprs.length ; ++i) {
-			if(commandExprs[i] == null) {
+		ExtUtil.writeNumeric(out, commandExprsRaw.length);
+		for(int i = 0 ; i < commandExprsRaw.length ; ++i) {
+			if(commandExprsRaw[i] == null) {
 				ExtUtil.writeBool(out, false);
 			} else{
 				ExtUtil.writeBool(out, true);
-				ExtUtil.write(out, new ExtWrapTagged(commandExprs[i]));
+				ExtUtil.writeString(out, commandExprsRaw[i]);
 			}
 		}
 		ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));

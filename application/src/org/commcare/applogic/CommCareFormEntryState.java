@@ -133,14 +133,13 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		        }
 		        postSaveProcess(instanceData);
 			}
-			
 			// 3) Actually manage what to do after the data is processed locally
 			workflow.postProcessing();
 		} else {
 			abort();
 		}
 	}
-	
+
 	protected static SubmissionProfile getSubmissionProfile(FormDef form, FormInstance instanceData) {
 		
 		// See if the form wants to force a specific submission type
@@ -282,18 +281,9 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 						return;
 					} 
 				}
+				
 				public void postProcessing() {
-					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message, CommCareSense.isAutoSendEnabled() || !cacheable) {
-						public void goHome() {
-							//If we're autosending, make sure to expire old deadlines
-							if(CommCareSense.isAutoSendEnabled()) {
-								//Notify the service that old deadlines have expired.
-								AutomatedSenderService.NotifyPending();
-							}
-							CommCareFormEntryState.this.goHome();
-						}
-					};
-					
+					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message.getCacheIdentifier(), CommCareSense.isAutoSendEnabled() || !cacheable);
 					
 					J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
 				}

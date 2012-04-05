@@ -495,7 +495,7 @@ rightcommand {
 	margin: 10;
 	padding: -1;
 	layout: horizontal-center | vertical-center | horizontal-shrink;
-	repaint-previous-screen: true;
+	repaint-previous-screen: false;
 	border-width: 1;
 	border-color: black;
 	background-color: white;

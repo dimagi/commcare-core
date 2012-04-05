@@ -53,8 +53,6 @@ public class CommCareSessionController {
 	
 	protected CommCareSession session;
 	
-	protected State currentState;
-	
 	//I hate this...
 	private Hashtable<Integer, Suite> suiteTable = new Hashtable<Integer,Suite>();
 	private Hashtable<Integer, Entry> entryTable = new Hashtable<Integer,Entry>();
@@ -62,7 +60,6 @@ public class CommCareSessionController {
 
 	public CommCareSessionController(CommCareSession session, State currentState) {
 		this.session = session;
-		this.currentState = currentState;
 	}
 	
 	public void populateMenu(List list, String menu) {
@@ -214,10 +211,10 @@ public class CommCareSessionController {
 		}
 		
 		//The rest of the selections all depend on the suite being available for checkin'
-		Suite suite = session.getCurrentSuite();		
+		Suite suite = session.getCurrentSuite();
 		
-		final SessionDatum datum = session.getNeededDatum();
-		final EvaluationContext context = session.getEvaluationContext(getIif());
+		SessionDatum datum = session.getNeededDatum();
+		EvaluationContext context = session.getEvaluationContext(getIif());
 
 		
 		//TODO: This should be part of the next/back protocol in the session, not here.
@@ -252,6 +249,14 @@ public class CommCareSessionController {
 		Entity<TreeReference> entity = new CommCareEntity(shortDetail, longDetail, context, nes);
 		
 		CommCareSelectState<TreeReference> select = new CommCareSelectState<TreeReference>(entity, nes) {
+			SessionDatum datum;
+			EvaluationContext context;
+
+			{
+				 datum = session.getNeededDatum();
+				 context = session.getEvaluationContext(getIif());
+			}
+			
 			public void cancel() {
 				CommCareSessionController.this.back();
 			}

@@ -60,7 +60,7 @@ public class MenuParser extends ElementParser<Menu> {
 		//name = new TextParser(parser).parse();
 
 		Vector<String> commandIds = new Vector<String>();
-		Vector<XPathExpression> relevantExprs = new Vector<XPathExpression>();
+		Vector<String> relevantExprs = new Vector<String>();
 		while (nextTagInBlock("menu")) {
 			checkNode("command");
 			commandIds.addElement(parser.getAttributeValue(null, "id"));
@@ -69,7 +69,9 @@ public class MenuParser extends ElementParser<Menu> {
 				relevantExprs.addElement(null);
 			} else {
 				try {
-					relevantExprs.addElement(XPathParseTool.parseXPath(relevantExpr));
+					//Safety checking
+					XPathParseTool.parseXPath(relevantExpr);
+					relevantExprs.addElement(relevantExpr);
 				} catch (XPathSyntaxException e) {
 					e.printStackTrace();
 					throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
@@ -77,7 +79,7 @@ public class MenuParser extends ElementParser<Menu> {
 			}
 		}
 		
-		XPathExpression[] expressions = new XPathExpression[relevantExprs.size()];
+		String[] expressions = new String[relevantExprs.size()];
 		relevantExprs.copyInto(expressions);
 
 		Menu m = new Menu(id, root, name, commandIds, expressions, imageURI, audioURI);
