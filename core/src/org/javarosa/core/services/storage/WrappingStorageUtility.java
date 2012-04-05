@@ -60,6 +60,8 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 		 * @return
 		 */
 		Class baseType ();
+		
+		void clean();
 	}
 	
 	/**
@@ -86,6 +88,7 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 			} else {
 				storage.write(new FauxIndexedPersistable(p, wrapper));
 			}
+			wrapper.clean();
 		}
 	}
 			 	
@@ -93,7 +96,9 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 	public int add(Externalizable e) throws StorageFullException {
 		synchronized(wrapper) {
 			wrapper.setData(e);
-			return storage.add(wrapper);
+			int result = storage.add(wrapper);
+			wrapper.clean();
+			return result;
 		}
 	}
 	
@@ -101,12 +106,13 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 		synchronized(wrapper) {
 			wrapper.setData(e);
 			storage.update(id, wrapper);
+			wrapper.clean();
 		}
 	}
 	
 	public IStorageIterator iterate() {
-		final IStorageIterator baseIterator = storage.iterate();
 		return new IStorageIterator () {
+			IStorageIterator baseIterator = storage.iterate();
 			public boolean hasMore() {
 				return baseIterator.hasMore();
 			}
