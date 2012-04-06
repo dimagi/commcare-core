@@ -331,7 +331,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			if(!reportMode) {
 			
 				TreeElement scratch = new TreeElement("case_name".intern());
-				scratch.setAnswer(new StringData(c.getName()));
+				String name = c.getName();
+				//This shouldn't be possible
+				scratch.setAnswer(new StringData(name == null? "" : name));
 				cacheBuilder.addChild(scratch);
 				
 				
