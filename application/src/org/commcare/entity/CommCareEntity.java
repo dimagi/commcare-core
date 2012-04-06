@@ -221,9 +221,6 @@ public class CommCareEntity extends Entity<TreeReference> {
 	public String[] getSortFieldNames () {
 		Vector<String> fields = new Vector<String>();
 		int sortField = this.getSortFieldDefault();
-		if(sortField != -1) {
-			sortField --;
-		}
 		String[] headers = getHeaders(false);
 		
 		if(sortField == -1) {
@@ -257,7 +254,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 			return DataUtil.integer(this.getRecordID());
 		} else {
 			try{
-				return getShortFields()[Integer.valueOf(fieldKey).intValue() - 1];
+				return getShortFields()[Integer.valueOf(fieldKey).intValue()];
 			} catch(NumberFormatException nfe) {
 				nfe.printStackTrace();
 				throw new RuntimeException("Invalid sort key in CommCare Entity: " + fieldKey);
