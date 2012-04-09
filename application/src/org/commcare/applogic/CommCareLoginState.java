@@ -121,6 +121,14 @@ public class CommCareLoginState extends LoginState {
 			}
 
 			public void done() {
+				
+				if(CommCareContext._().inDemoMode()) {
+					//The periodic events really aren't relevant for demo data, so just skip straight to the 
+					//actual home.
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+					return;
+				}
+				
 				// Go to the home state if we're done or if we skip it.
 				J2MEDisplay.startStateWithLoadingScreen(new PeriodicWrapperState(CommCareContext._().getEventDescriptors()){
 

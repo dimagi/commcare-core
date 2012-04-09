@@ -96,6 +96,8 @@ public class DetailParser extends ElementParser<Detail> {
 					checkNode("text");
 					Text template = new TextParser(parser).parse();
 					templates.addElement(template);
+				} else {
+					throw new InvalidStructureException("detail <field> with no <template>!", parser);
 				}
 			}
 		

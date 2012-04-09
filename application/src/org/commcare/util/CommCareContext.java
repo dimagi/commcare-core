@@ -567,6 +567,10 @@ public class CommCareContext {
 		toggleDemoMode(curmode);
 	}
 	
+	public boolean inDemoMode() {
+		return inDemoMode;
+	}
+	
 	public void purgeScheduler (boolean force) {
 		int purgeFreq = CommCareProperties.parsePurgeFreq(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_FREQ));
 		Date purgeLast = CommCareProperties.parseLastPurge(PropertyManager._().getSingularProperty(CommCareProperties.PURGE_LAST));
