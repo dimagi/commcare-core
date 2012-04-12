@@ -336,4 +336,8 @@ public class CommCareSession {
 		return new EvaluationContext(null, instances);
 	}
 
+	public Vector<String[]> getSteps() {
+		//TODO: Type safe copy
+		return steps;
+	}
 }

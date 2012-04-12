@@ -9,7 +9,6 @@ import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.formmanager.api.CompletedFormOptionsController;
 import org.javarosa.formmanager.api.CompletedFormOptionsState;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.services.transport.TransportMessage;
 
 public class CommCarePostFormEntryState extends CompletedFormOptionsState {
 	
@@ -64,5 +63,4 @@ public class CommCarePostFormEntryState extends CompletedFormOptionsState {
 		}
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
-
 }
