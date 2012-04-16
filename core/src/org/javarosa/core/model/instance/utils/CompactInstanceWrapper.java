@@ -473,5 +473,10 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 		default: return null;
 		}
 	}
+
+	public void clean() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

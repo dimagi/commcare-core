@@ -58,4 +58,8 @@ public class TaggedSerializationWrapper implements SerializationWrapper {
 		ExtUtil.write(out, new ExtWrapTagged(e));
 	}
 
+	public void clean() {
+		e = null;
+	}
+
 }

@@ -282,7 +282,9 @@ public class XPathPathExpr extends XPathExpression {
 			return g[0] + " " + g[1];
 		} else {
 			System.out.println("warning: unrecognized data type in xpath expr: " + val.getClass().getName());
-			return val.getValue(); //is this a good idea?
+			
+			//TODO: Does this mess up any of our other plans?
+			return val.uncast().getString();
 		}
 	}
 	

@@ -57,6 +57,7 @@ public class J2MEDisplay {
 	}
 	
 	public static void startStateWithLoadingScreen(State state, ProgressIndicator indicator) {
+		System.out.println("Starting new state: " + state.getClass().getName());
 		final State s = state;
 		loading.cancelLoading();
 		loading = new LoadingScreenThread(display);
@@ -90,6 +91,8 @@ public class J2MEDisplay {
 		display.setCurrent(d);
 		if(!savePreviousView && old != d) {
 			if(old instanceof Screen) {
+				System.out.println("Manually releasing resources for previous screen");
+				
 				//cts: Polish crashes on resource release unless you've
 				//initialized a menubar. NOTE: This probably won't
 				//catch full context switches with a loading screen

@@ -33,10 +33,9 @@ public class UncastData implements IAnswerData {
 	}
 	
 	public UncastData(String value) {
-		// this is apparently not safe to enforce yet
-//		if (value == null) {
-//			throw new NullPointerException("Attempt to set an IAnswerData class to null.");
-//		}
+		if(value == null) {
+			throw new NullPointerException("Attempt to set Uncast Data value to null! IAnswerData objects should never have null values");
+		}
 		this.value = value;
 	}
 	
