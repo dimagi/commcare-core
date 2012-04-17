@@ -201,6 +201,12 @@ public class XPathFuncExpr extends XPathExpression {
 			} else {
 				return max(argVals);				
 			}
+		}  else if (name.equals("min")) {
+			if (argVals[0] instanceof XPathNodeset) {
+				return min(((XPathNodeset)argVals[0]).toArgList());
+			} else {
+				return min(argVals);				
+			}
 		} else if (name.equals("today") && args.length == 0) {
 			return DateUtils.roundDate(new Date());
 		} else if (name.equals("now") && args.length == 0) {
@@ -694,6 +700,14 @@ public class XPathFuncExpr extends XPathExpression {
 			max = Math.max(max, toNumeric(argVals[i]).doubleValue());
 		}
 		return new Double(max);
+	}
+	
+	private static Object min(Object[] argVals) {
+		double min = Double.MAX_VALUE;
+		for (int i = 0; i < argVals.length; i++) {
+			min = Math.min(min, toNumeric(argVals[i]).doubleValue());
+		}
+		return new Double(min);
 	}
 
 	/**
