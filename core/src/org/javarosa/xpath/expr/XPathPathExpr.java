@@ -26,6 +26,7 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.BooleanData;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DecimalData;
+import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.LongData;
@@ -276,6 +277,9 @@ public class XPathPathExpr extends XPathExpression {
 			return val.getValue();
 		} else if (val instanceof BooleanData) {
 			return val.getValue();
+		} else if (val instanceof GeoPointData) {
+			double[] g = (double[])val.getValue();
+			return g[0] + " " + g[1];
 		} else {
 			System.out.println("warning: unrecognized data type in xpath expr: " + val.getClass().getName());
 			
