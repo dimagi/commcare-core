@@ -533,7 +533,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			for (int i = 0; i < triggers.size(); i++) {
 				TreeReference trigger = (TreeReference) triggers.elementAt(i);
 				if (!triggerIndex.containsKey(trigger)) {
-					triggerIndex.put(trigger, new Vector());
+					triggerIndex.put(trigger.clone(), new Vector());
 				}
 				Vector triggered = (Vector) triggerIndex.get(trigger);
 				if (!triggered.contains(t)) {
@@ -666,12 +666,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
 		// get conditions triggered by this node
 		Vector triggered = (Vector)triggerIndex.get(genericRef);
-		if (triggered == null)
+		if (triggered == null) {
 			return;
+		}
 
 		Vector triggeredCopy = new Vector();
-		for (int i = 0; i < triggered.size(); i++)
+		for (int i = 0; i < triggered.size(); i++) { 
 			triggeredCopy.addElement(triggered.elementAt(i));
+		}
 		evaluateTriggerables(triggeredCopy, ref);
 	}
 
@@ -706,11 +708,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
 	private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
 		TreeReference contextRef = t.contextRef.contextualize(anchorRef);
-		Vector v = exprEvalContext.expandReference(contextRef);
+		
+		//These are all of the different concrete nodes against which the 
+		//triggerable will need to be evaluated
+		Vector<TreeReference> v = exprEvalContext.expandReference(contextRef);
+		
 		for (int i = 0; i < v.size(); i++) {
-			EvaluationContext ec = new EvaluationContext(exprEvalContext, (TreeReference)v.elementAt(i));
 			try {
-				t.apply(mainInstance, ec, this);
+				t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
 			}catch(RuntimeException e) {
 				throw e;
 			}
@@ -1096,11 +1101,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		setLocalizer((Localizer) ExtUtil.read(dis, new ExtWrapNullable(Localizer.class), pf));
 
 		Vector vcond = (Vector) ExtUtil.read(dis, new ExtWrapList(Condition.class), pf);
-		for (Enumeration e = vcond.elements(); e.hasMoreElements(); )
+		for (Enumeration e = vcond.elements(); e.hasMoreElements(); ) {
 			addTriggerable((Condition) e.nextElement());
+		}
 		Vector vcalc = (Vector) ExtUtil.read(dis, new ExtWrapList(Recalculate.class), pf);
-		for (Enumeration e = vcalc.elements(); e.hasMoreElements();)
+		for (Enumeration e = vcalc.elements(); e.hasMoreElements();) {
 			addTriggerable((Recalculate) e.nextElement());
+		}
 		finalizeTriggerables();
 		
 		outputFragments = (Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf);

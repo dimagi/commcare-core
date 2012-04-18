@@ -20,14 +20,15 @@ import java.util.Vector;
 
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 public interface IConditionExpr extends Externalizable {
 	boolean eval (DataInstance model, EvaluationContext evalContext);
 	Object evalRaw (DataInstance model, EvaluationContext evalContext);
 	String evalReadable (DataInstance model, EvaluationContext evalContext);
-	Vector evalNodeset (DataInstance model, EvaluationContext evalContext);
-	Vector getTriggers (); /* vector of TreeReference */
+	Vector<TreeReference> evalNodeset (DataInstance model, EvaluationContext evalContext);
+	Vector<TreeReference> getTriggers (); /* vector of TreeReference */
 	
 	Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException;
 }
