@@ -11,6 +11,7 @@ import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -44,10 +45,14 @@ public class SetValueAction extends Action {
 		this.explicitValue = explicitValue;
 	}
 	
-	public void processAction(FormDef model) {
+	public void processAction(FormDef model, TreeReference contextRef) {
+		
+		//Qualify the reference if necessary
+		TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
+		
 		//TODO: either the target or the value's node might not exist here, catch and throw
-		//reasoanbly
-		EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), target);
+		//reasonably
+		EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), qualifiedReference);
 		
 		Object result;
 		
@@ -56,9 +61,12 @@ public class SetValueAction extends Action {
 		} else {
 			result = XPathFuncExpr.unpack(value.eval(model.getMainInstance(), context));
 		}
-		int dataType = context.resolveReference(target).getDataType();
 		
-		model.setValue(Recalculate.wrapData(result, dataType), target);
+		AbstractTreeElement node = context.resolveReference(qualifiedReference);
+		if(node == null) { throw new NullPointerException("Target of TreeReference " + qualifiedReference.toString(true) +" could not be resolved!"); }
+		int dataType = node.getDataType();
+		
+		model.setValue(Recalculate.wrapData(result, dataType), qualifiedReference);
 	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

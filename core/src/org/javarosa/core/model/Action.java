@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -22,6 +23,7 @@ public class Action implements Externalizable {
 
 	public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
 	
+	public static final String EVENT_JR_INSERT = "jr-insert";
 	private String name;
 	
 	public Action() {
@@ -32,7 +34,7 @@ public class Action implements Externalizable {
 		this.name = name;
 	}
 	
-	public void processAction(FormDef target) {
+	public void processAction(FormDef model, TreeReference context) {
 		//TODO: Big block of handlers for basic named action types
 	}
 

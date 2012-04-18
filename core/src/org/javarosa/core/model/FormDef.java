@@ -384,6 +384,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		preloadInstance(mainInstance.resolveReference(destRef));
 		triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
 		initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
+		
+		//Grab any actions listening to this event
+		Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
+		for(Action a : listeners) {
+			a.processAction(this, destRef);
+		}
 	}
 	
 	public boolean isRepeatRelevant (TreeReference repeatRef) {
@@ -1515,7 +1521,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	
     public void dispatchFormEvent(String event) {
     	for(Action action : getEventListeners(event)) {
-    		action.processAction(this);
+    		action.processAction(this, null);
     	}
     }
 }
