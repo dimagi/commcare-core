@@ -25,6 +25,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.locale.Localization;
@@ -93,7 +94,7 @@ public class CommCareConfigEngine {
 		StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
 		StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
 		StorageManager.registerStorage(FormDef.STORAGE_KEY, Suite.class);
-		//StorageManager.registerStorage(FormInstance.STORAGE_KEY, Suite.class);
+		StorageManager.registerStorage("fixture", FormInstance.class);
 		//StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
 	}
 	

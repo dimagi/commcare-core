@@ -45,6 +45,7 @@ public class XFormInstaller extends CacheInstaller {
 			if(input == null) {
 				return false;
 			}
+			System.out.println("Parsing form: " + ref.getLocalURI());
 			FormDef formDef = new XFormParser(new InputStreamReader(input, "UTF-8")).parse();
 			if(formDef == null) {
 				//Bad Form!
@@ -68,7 +69,6 @@ public class XFormInstaller extends CacheInstaller {
 			return true;
 		}
 		} catch (StorageFullException e) {
-			
 			//Couldn't install, no room left in storage.
 			e.printStackTrace();
 			return false;
