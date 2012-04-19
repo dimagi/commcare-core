@@ -1035,17 +1035,29 @@ import org.javarosa.xpath.expr.XPathExpression;
 		}
 	}
 	
+	//TODO: This is probably silly because this object is likely already 
+	//not thread safe in any way. Also, we should be wrapping all of the 
+	//setters.
+	TreeReference[] refCache = new TreeReference[1];
+	
+	private void expireReferenceCache() {
+		synchronized(refCache) {
+			refCache[0] = null;
+		}
+	}
+	
 	//return the tree reference that corresponds to this tree element
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
 	 */
-	TreeReference refCache;
 	public TreeReference getRef () {
 		//TODO: Expire cache somehow;
-		if(refCache == null) {
-			refCache = TreeElement.BuildRef(this);
+		synchronized(refCache) {
+			if(refCache[0] == null) {
+				refCache[0] = TreeElement.BuildRef(this);
+			}
+			return refCache[0];
 		}
-		return refCache;
 	}
 	
 	public static TreeReference BuildRef(AbstractTreeElement elem) {
@@ -1141,6 +1153,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setName(java.lang.String)
 	 */
 	public void setName(String name) {
+		expireReferenceCache();
 		this.name = name;
 	}
 
@@ -1155,6 +1168,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setMult(int)
 	 */
 	public void setMult(int multiplicity) {
+		expireReferenceCache();
 		this.multiplicity = multiplicity;
 	}
 
@@ -1162,6 +1176,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#setParent(org.javarosa.core.model.instance.TreeElement)
 	 */
 	public void setParent (AbstractTreeElement parent) {
+		expireReferenceCache();
 		this.parent = parent;
 	}
 	
