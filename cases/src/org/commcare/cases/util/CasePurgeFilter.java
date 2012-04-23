@@ -20,8 +20,12 @@ import org.javarosa.core.util.DataUtil;
  *
  */
 public class CasePurgeFilter extends EntityFilter<Case> {
+	
+	/** Open and owned by someone on the phone */
 	private static final String STATUS_LIVE = "L";
+	/** Purgable **/
 	private static final String STATUS_DEAD = "D";
+	/** Closed or not owned**/
 	private static final String STATUS_CLOSED = "C";
 	
 	Vector<Integer> idsToRemove = new Vector<Integer>();
@@ -43,14 +47,21 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 	 * 
 	 */
 	public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
+		
+		//Create a DAG. The Index will be the case GUID. The Nodes will be a string array containing
+		//[CASE_STATUS, string(storageid)]
+		//CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_CLOSED, STATUS_DEAD 
 		DAG<String, String[]> g = new DAG<String,String[]>();
 		
+		//Create a DAG which contains all of the cases on the phone as nodes, and has a directed
+		//edge for each index (from the 'child' case pointing to the 'parent' case)
 		for(IStorageIterator<Case> i = caseStorage.iterate() ; i.hasMore() ; ) {
 			Case c = i.nextRecord();
 			boolean owned = true;
 			if(owners != null) {
 				owned = owners.contains(c.getUserId());
 			}
+			 
 			g.addNode(c.getCaseId(), new String[] {c.isClosed() ? STATUS_CLOSED : (owned ? STATUS_LIVE : STATUS_CLOSED), String.valueOf(c.getID())});
 			for(CaseIndex index : c.getIndices()) {
 				g.setEdge(c.getCaseId(), index.getTarget());
