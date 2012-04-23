@@ -20,6 +20,7 @@ import org.javarosa.j2me.storage.rms.raw.RMSFactory;
 
 public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStorageUtility<E> implements IStorageUtilityIndexed<E> {
 
+	private Object metadataAccessLock = new Object();
 	Hashtable metaDataIndex = null;
 	boolean hasMetaData;
 	IMetaData proto;
@@ -36,33 +37,38 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 
 	private void init (Class type) {
 		hasMetaData = IMetaData.class.isAssignableFrom(type);
-		if (hasMetaData)
+		if (hasMetaData) {
 			proto = (IMetaData)PrototypeFactory.getInstance(type);
+		}
 	}	
 	
 	private void checkIndex () {
-		if (metaDataIndex == null) {
-			buildIndex();
+		synchronized(metadataAccessLock) {
+			if (metaDataIndex == null) {
+				buildIndex();
+			}
 		}
 	}
 	
 	private void buildIndex () {
-		metaDataIndex = new Hashtable();
-		
-		if (!hasMetaData) {
-			return;
-		}
-		
-		String[] fields = proto.getMetaDataFields();
-		for (int k = 0; k < fields.length; k++) {
-			metaDataIndex.put(fields[k], new Hashtable());
-		}
-		
-		IStorageIterator i = iterate();
-		while (i.hasMore()) {
-			int id = i.nextID();
-			IMetaData obj = (IMetaData)read(id);
-			indexMetaData(id, obj);
+		synchronized(metadataAccessLock) {
+			metaDataIndex = new Hashtable();
+			
+			if (!hasMetaData) {
+				return;
+			}
+			
+			String[] fields = proto.getMetaDataFields();
+			for (int k = 0; k < fields.length; k++) {
+				metaDataIndex.put(fields[k], new Hashtable());
+			}
+			
+			IStorageIterator i = iterate();
+			while (i.hasMore()) {
+				int id = i.nextID();
+				IMetaData obj = (IMetaData)read(id);
+				indexMetaData(id, obj);
+			}
 		}
 	}
 	
@@ -98,93 +104,119 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	}
 	
 	private Vector getIDList (String field, Object value) {
-		Vector IDs = (Vector)((Hashtable)(metaDataIndex.get(field))).get(value);
-		if (IDs == null) {
-			IDs = new Vector();
-			((Hashtable)(metaDataIndex.get(field))).put(value, IDs);
+		Vector IDs;
+		synchronized(metadataAccessLock) {
+			IDs = (Vector)((Hashtable)(metaDataIndex.get(field))).get(value);
+			if (IDs == null) {
+				IDs = new Vector();
+				((Hashtable)(metaDataIndex.get(field))).put(value, IDs);
+			}
 		}
 		return IDs;
 	}
 	
 	public void write (Persistable p) throws StorageFullException {
 		IMetaData old = null;
-		if (hasMetaData) {
-			checkIndex();
-			if (exists(p.getID())) {
-				old = (IMetaData)read(p.getID());
+		synchronized(metadataAccessLock) {
+			if (hasMetaData) {
+				checkIndex();
+				if (exists(p.getID())) {
+					old = (IMetaData)read(p.getID());
+				}
 			}
-		}
-		
-		super.write(p);
-		
-		if (hasMetaData) {
-			if (old != null) {
-				removeMetaData(p.getID(), (IMetaData)old);
+			
+			super.write(p);
+			
+			if (hasMetaData) {
+				if (old != null) {
+					removeMetaData(p.getID(), (IMetaData)old);
+				}
+				indexMetaData(p.getID(), (IMetaData)p);
 			}
-			indexMetaData(p.getID(), (IMetaData)p);
 		}
 	}
 	
 	public int add (E e) throws StorageFullException {
-		if (hasMetaData)
-			checkIndex();
-
-		int id = super.add(e);
-		
-		if (hasMetaData)
-			indexMetaData(id, (IMetaData)e);
-		
-		return id;
+		synchronized(metadataAccessLock) {
+			if (hasMetaData) {
+				checkIndex();
+			}
+	
+			int id = super.add(e);
+			
+			if (hasMetaData) {
+				indexMetaData(id, (IMetaData)e);
+			}
+			return id;
+		}
 	}
 	
 	public void update (int id, E e) throws StorageFullException {
-		Externalizable old;
-		if (hasMetaData) {
-			old = read(id);
-			checkIndex();
-			removeMetaData(id, (IMetaData)old);
+		synchronized(metadataAccessLock) {
+
+			Externalizable old;
+			if (hasMetaData) {
+				old = read(id);
+				checkIndex();
+				removeMetaData(id, (IMetaData)old);
+			}
+			
+			super.update(id, e);
+			
+			if (hasMetaData) {
+				indexMetaData(id, (IMetaData)e);
+			}
 		}
-		
-		super.update(id, e);
-		
-		if (hasMetaData)
-			indexMetaData(id, (IMetaData)e);
 	}
 	
 	public void remove (int id) {
-		Externalizable old = null;
-		if (hasMetaData) {
-			old = read(id);
-			checkIndex();
-		}
+		synchronized(metadataAccessLock) {
+			Externalizable old = null;
+			if (hasMetaData) {
+				old = read(id);
+				checkIndex();
+			}
+				
+			super.remove(id);
 			
-		super.remove(id);
-		
-		if (hasMetaData) {
-			removeMetaData(id, (IMetaData)old);
+			if (hasMetaData) {
+				removeMetaData(id, (IMetaData)old);
+			}
 		}
 	}
 	
 	public Vector getIDsForValue (String fieldName, Object value) {
-		checkIndex();
-
-		Hashtable index = (Hashtable)metaDataIndex.get(fieldName);
-		if (index == null) {
-			throw new RuntimeException("field [" + fieldName + "] not recognized");
+		synchronized(metadataAccessLock) {
+			checkIndex();
+	
+			Hashtable index = (Hashtable)metaDataIndex.get(fieldName);
+			if (index == null) {
+				throw new RuntimeException("field [" + fieldName + "] not recognized");
+			}
+			
+			Vector IDs = (Vector)index.get(value);
+			return (IDs == null ? new Vector(): IDs);
 		}
-		
-		Vector IDs = (Vector)index.get(value);
-		return (IDs == null ? new Vector(): IDs);
 	}
 	
 	public E getRecordForValue (String fieldName, Object value) throws NoSuchElementException {
-		Vector IDs = getIDsForValue(fieldName, value);
-		if (IDs.size() == 1) {
-			return read(((Integer)IDs.elementAt(0)).intValue());
-		} else if (IDs.size() == 0){
-			throw new NoSuchElementException("Storage utility " + getName() +  " does not contain any records with the index " + fieldName + " equal to " + value.toString());
-		} else {
-			throw new InvalidIndexException(fieldName + " is not a valid unique index. More than one record was found with value [" + value.toString() + "] in field [" + fieldName + "]",fieldName);
+		synchronized(metadataAccessLock) {
+			Vector IDs = getIDsForValue(fieldName, value);
+			if (IDs.size() == 1) {
+				return read(((Integer)IDs.elementAt(0)).intValue());
+			} else if (IDs.size() == 0){
+				throw new NoSuchElementException("Storage utility " + getName() +  " does not contain any records with the index " + fieldName + " equal to " + value.toString());
+			} else {
+				throw new InvalidIndexException(fieldName + " is not a valid unique index. More than one record was found with value [" + value.toString() + "] in field [" + fieldName + "]",fieldName);
+			}
+		}
+	}
+	
+	public void clearIndexCache() {
+		synchronized(metadataAccessLock) {
+			if(metaDataIndex != null) {
+				metaDataIndex = null;
+			}
 		}
 	}
 }

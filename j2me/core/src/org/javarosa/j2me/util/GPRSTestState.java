@@ -24,7 +24,7 @@ import org.javarosa.j2me.view.J2MEDisplay;
 
 public abstract class GPRSTestState implements State, TrivialTransitions, HandledCommandListener {
 
-	static final String DEFAULT_URL = "http://www.google.com";
+	static final String DEFAULT_URL = "https://www.google.com";
 	
 	String url;
 	

@@ -35,6 +35,12 @@ public class RMSStorageIterator implements IStorageIterator {
 	}
 	
 	public synchronized boolean hasMore () {
+		if(numRecords() == 0) {
+			//Otherwise we wouldn't clear the iterator
+			if(this.IDs.size() == 0) {
+				store.iteratorComplete(this);
+			}
+		}
 		return pos < numRecords();
 	}
 	

@@ -9,11 +9,15 @@ import java.util.Stack;
 import java.util.Vector;
 
 /**
+ * Directed A-cyclic (NOT ENFORCED) graph datatype.
+ * 
+ * Genericized with two types: An unique index value (representing the node) and a generic
+ * set of data to associate with that node
+ * 
  * @author ctsims
  *
  */
 public class DAG<I,N> {
-	
 	//TODO: This is a really unsafe datatype. Needs an absurd amount of updating for representation
 	//invariance, synchronicity, cycle detection, etc.
 	
