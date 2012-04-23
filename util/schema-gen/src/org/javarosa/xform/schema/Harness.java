@@ -19,12 +19,10 @@ package org.javarosa.xform.schema;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
@@ -117,7 +115,22 @@ public class Harness {
 			}
 			System.exit(0);
 		}
-		FormDef f = XFormUtils.getFormFromInputStream(System.in);
+		
+		InputStream inputStream = System.in;
+		if(args.length > 1) {
+			String formPath = args[1];
+		
+			FileInputStream formInput = null;
+		
+			try {
+				inputStream = new FileInputStream(formPath);
+			} catch (FileNotFoundException e) {
+				System.out.println("Couldn't find file at: " + formPath);
+				System.exit(1);
+			}
+		}
+		
+		FormDef f = XFormUtils.getFormFromInputStream(inputStream);
 		System.setOut(sysOut);
 		
 		if (mode == MODE_SCHEMA) {			
@@ -135,5 +148,6 @@ public class Harness {
 		} else if (mode == MODE_CSV_DUMP) {
 			System.out.println(FormTranslationFormatter.dumpTranslationsIntoCSV(f));
 		}
+		System.exit(0);
 	}
 }
