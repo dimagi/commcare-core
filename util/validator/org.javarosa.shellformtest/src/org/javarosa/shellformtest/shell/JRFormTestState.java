@@ -29,7 +29,7 @@ public class JRFormTestState extends FormEntryState {
 		FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null, new InstanceInitializationFactory());
 		FormDef form = fetcher.getFormDef();
 
-		JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_LINEAR));
+		JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR));
 		//controller.setView(new SingleQuestionView(controller));
 		controller.setView(new Chatterbox("Chatterbox", controller));
 		return controller;

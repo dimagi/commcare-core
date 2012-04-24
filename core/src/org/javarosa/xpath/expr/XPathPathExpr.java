@@ -278,8 +278,7 @@ public class XPathPathExpr extends XPathExpression {
 		} else if (val instanceof BooleanData) {
 			return val.getValue();
 		} else if (val instanceof GeoPointData) {
-			double[] g = (double[])val.getValue();
-			return g[0] + " " + g[1];
+			return val.uncast().getString();
 		} else {
 			System.out.println("warning: unrecognized data type in xpath expr: " + val.getClass().getName());
 			

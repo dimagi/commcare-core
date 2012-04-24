@@ -24,6 +24,7 @@ import java.util.Vector;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.BooleanData;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DateTimeData;
@@ -300,7 +301,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 			if (flag == 0x00) {
 				val = null;
 			} else {
-				Class answerType = classForDataType(dataType);
+				Class answerType = AnswerDataFactory.templateByDataType(dataType).getClass();
 
 				if (answerType == null) {
 					//custom data types
@@ -341,7 +342,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 					serEntity = (IAnswerData)val;
 					
 					//flag when data type differs from the default data type in the <bind> (can happen with 'calculate's)
-					if (val.getClass() != classForDataType(dataType)) {
+					if (val.getClass() != AnswerDataFactory.templateByDataType(dataType).getClass()) {
 						if (val instanceof StringData) {
 							prefix = 0x40;
 						} else if (val instanceof IntegerData) {
@@ -448,29 +449,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 			return new Selection(((Integer)o).intValue());
 		} else {
 			throw new RuntimeException();
-		}
-	}
-	
-	/**
-	 * map xforms data types to the Class that represents that data in a FormInstance
-	 * @param dataType
-	 * @return
-	 */
-	public static Class classForDataType (int dataType) {
-		switch (dataType) {
-		case Constants.DATATYPE_NULL: return StringData.class;
-		case Constants.DATATYPE_TEXT: return StringData.class;
-		case Constants.DATATYPE_INTEGER: return IntegerData.class;
-		case Constants.DATATYPE_LONG: return LongData.class;
-		case Constants.DATATYPE_DECIMAL: return DecimalData.class;
-		case Constants.DATATYPE_BOOLEAN: return BooleanData.class;
-		case Constants.DATATYPE_DATE: return DateData.class;
-		case Constants.DATATYPE_TIME: return TimeData.class;
-		case Constants.DATATYPE_DATE_TIME: return DateTimeData.class;
-		case Constants.DATATYPE_CHOICE: return SelectOneData.class;
-		case Constants.DATATYPE_CHOICE_LIST: return SelectMultiData.class;
-		case Constants.DATATYPE_GEOPOINT: return GeoPointData.class;
-		default: return null;
 		}
 	}
 

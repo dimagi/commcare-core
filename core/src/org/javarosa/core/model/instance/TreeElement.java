@@ -26,6 +26,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -906,13 +907,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 			IAnswerData value = incoming.getValue();
 			if (value == null) {
 				this.setValue(null);
-			} else if (this.dataType == Constants.DATATYPE_TEXT
-					|| this.dataType == Constants.DATATYPE_NULL) {
-				this.setValue(value); // value is a StringData
-			} else {
-				String textVal = (String) value.getValue();
-				IAnswerData typedVal = RestoreUtils.xfFact.parseData(textVal, this.dataType, this.getRef(), f);
-				this.setValue(typedVal);
+			} 
+			
+			else {
+				this.setValue(AnswerDataFactory.templateByDataType(this.dataType).cast(value.uncast()));
 			}
 		} else {
 			Vector names = new Vector();
@@ -1000,18 +998,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 			if (value == null) {
 				this.setValue(null);
 			} else {
-				Class classType = CompactInstanceWrapper.classForDataType(this.dataType);
-				
-				if (classType == null) {
-					throw new RuntimeException("data type [" + value.getClass().getName() + "] not supported inside itemset");
-				} else if (classType.isAssignableFrom(value.getClass()) &&
-							!(value instanceof SelectOneData || value instanceof SelectMultiData)) {
-					this.setValue(value);
-				} else {
-					String textVal = RestoreUtils.xfFact.serializeData(value);
-					IAnswerData typedVal = RestoreUtils.xfFact.parseData(textVal, this.dataType, this.getRef(), f);
-					this.setValue(typedVal);
-				}
+				this.setValue(AnswerDataFactory.templateByDataType(dataType).cast(value.uncast()));
 			}
 		} else {
 			for (int i = 0; i < this.getNumChildren(); i++) {
