@@ -56,6 +56,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
@@ -157,12 +158,14 @@ public class CommCareContext {
 			
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating installation..."));
-				Vector<UnresolvedResourceException> problems = global.verifyInstallation();
+				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					String message = CommCareStartupInteraction.failSafeText("install.bad","There's a problem with CommCare's installation, do you want to retry validation?");
 					
 					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
-					for(UnresolvedResourceException ure : problems) {
+					for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
+						UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
 						String res = ure.getResource().getResourceId();
 						Vector<String> list;
 						if(problemList.containsKey(res)) {
@@ -183,6 +186,10 @@ public class CommCareContext {
 							message += "\n" + s;
 						}
 					}
+					if(problems.getAdditional() > 0) {
+						message += "\n\n..." + problems.getAdditional() + " more";
+					}
+					
 					return message;
 				}
 				return null;
@@ -351,9 +358,9 @@ public class CommCareContext {
 				return new J2meFileRoot(root) {
 					protected Reference factory(String terminal, String URI) {
 						return new J2meFileReference(localRoot,  terminal) {
-							protected FileConnection connector(String URI) throws IOException {
+							protected FileConnection connector(String URI, boolean cache) throws IOException {
 								try {
-									return super.connector(URI);
+									return super.connector(URI, cache);
 								} catch(SecurityException se) {
 									PeriodicEvent.schedule(new PermissionsEvent());
 									//Should get swallowed

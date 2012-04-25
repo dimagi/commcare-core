@@ -13,6 +13,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.SizeBoundVector;
 
 /**
  * <p>A Resource Table maintains a set of Resource Records,
@@ -538,22 +539,15 @@ public class ResourceTable {
 		return ret;
 	}
 	
-	public Vector<UnresolvedResourceException> verifyInstallation() {
-		Vector<UnresolvedResourceException> problems = new Vector<UnresolvedResourceException>();
+	public void verifyInstallation(SizeBoundVector<UnresolvedResourceException> problems) {
 		Vector<Resource> resources = GetResources();
 		int total = resources.size();
 		int count = 0;
 		for(Resource r : resources) {
-			Vector<UnresolvedResourceException> resIssues = r.getInstaller().verifyInstallation(r);
-			if(resIssues != null) {
-				for(UnresolvedResourceException e : resIssues) {
-					problems.addElement(e);
-				}
-			}
+			r.getInstaller().verifyInstallation(r, problems);
 			count++;
 			if(stateListener != null) {stateListener.incrementProgress(count, total);}
 		}
-		return problems;
 	}
 	
 	TableStateListener stateListener = null;

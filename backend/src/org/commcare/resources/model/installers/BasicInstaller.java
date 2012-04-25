@@ -99,8 +99,8 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 		
 	}
 
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
 		//Work by default
-		return null;
+		return true;
 	}
 }

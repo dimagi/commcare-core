@@ -82,5 +82,5 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
 	
 	public void cleanup();
 	
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r);
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problemList);
 }

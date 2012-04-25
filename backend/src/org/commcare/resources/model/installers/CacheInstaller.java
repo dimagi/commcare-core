@@ -115,9 +115,8 @@ public abstract class CacheInstaller implements ResourceInstaller<CommCareInstan
 	}
 	
 	
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
-		//We can't actually check here, since this doesn't necessarily know the final location.
-		return null;
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> resources) {
+		return false;
 	}
 
 }

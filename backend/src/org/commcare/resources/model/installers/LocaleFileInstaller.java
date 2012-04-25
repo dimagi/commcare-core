@@ -237,9 +237,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		ExtUtil.write(out, new ExtWrapMap(ExtUtil.emptyIfNull(cache)));
 	}
 
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r)  {
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems)  {
 		try {
-		if(locale == null) { throw new UnresolvedResourceException(r, "Bad metadata, no locale");}
+		if(locale == null) { problems.addElement(new UnresolvedResourceException(r, "Bad metadata, no locale")); return true;}
 		if(cache != null) {
 			//If we've gotten the cache into memory, we're fine
 		} else {
@@ -253,10 +253,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 				throw new UnresolvedResourceException(r, "Locale reference is invalid: " + localReference);
 			}
 		}} catch(UnresolvedResourceException ure) {
-			Vector<UnresolvedResourceException> v = new Vector<UnresolvedResourceException>();
-			v.addElement(ure);
-			return v;
+			problems.addElement(ure);
+			return true;
 		}
-		return null;
+		return false;
 	}
 }

@@ -91,23 +91,24 @@ public class XFormInstaller extends CacheInstaller {
 		return true;
 	}
 	
-	public Vector<UnresolvedResourceException> verifyInstallation(Resource r) {
-		Vector<UnresolvedResourceException> ret = new Vector<UnresolvedResourceException>();
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
 		
 		//Check to see whether the formDef exists and reads correctly
 		FormDef formDef;
 		try {
 			formDef = (FormDef)storage().read(cacheLocation);
 		} catch(Exception e) {
-			ret.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
-			return ret;
+			problems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			return true;
 		}
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
 		//available
 		Localizer localizer = formDef.getLocalizer();
+		//get this out of the memory ASAP!
+		formDef = null;
 		if(localizer == null) {
-			//Can't check if there ain't no localizer!
-			return null;
+			//things are fine
+			return false;
 		}
 		for(String locale : localizer.getAvailableLocales()) {
 			OrderedHashtable localeData = localizer.getLocaleData(locale);
@@ -125,10 +126,10 @@ public class XFormInstaller extends CacheInstaller {
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									ret.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
+									problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
 								}
 							} catch (IOException e) {
-								ret.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+								problems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
 							}
 						} catch (InvalidReferenceException e) {
 							//So the problem is that this might be a valid entry that depends on context
@@ -138,7 +139,7 @@ public class XFormInstaller extends CacheInstaller {
 				}
 			}
 		}
-		if(ret.size() == 0 ) { return null;}
-		return ret;
+		if(problems.size() == 0 ) { return false;}
+		return true;
 	}
 }
