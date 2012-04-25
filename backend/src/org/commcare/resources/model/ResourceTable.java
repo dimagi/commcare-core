@@ -539,7 +539,7 @@ public class ResourceTable {
 		return ret;
 	}
 	
-	public void verifyInstallation(SizeBoundVector<UnresolvedResourceException> problems) {
+	public void verifyInstallation(Vector<UnresolvedResourceException> problems) {
 		Vector<Resource> resources = GetResources();
 		int total = resources.size();
 		int count = 0;
