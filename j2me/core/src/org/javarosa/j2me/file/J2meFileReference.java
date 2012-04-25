@@ -27,6 +27,9 @@ import org.javarosa.core.reference.Reference;
  * and this object cannot guarantee (yet) thread safety
  * on access to a single connection.
  * 
+ * TODO: This still needs to be rewritten in a way that is consistent
+ * as to how we'll be accessing all of this data
+ * 
  * @author ctsims
  *
  */
@@ -67,7 +70,11 @@ public class J2meFileReference implements Reference
 	public boolean doesBinaryExist() throws IOException {
 		//We do this a lot for many different things, 
 		//no need to cache purely based on this
-		return connector(false).exists();
+		FileConnection connect = connector(false);
+		boolean exists = connect.exists();
+		connect.close();
+		return exists;
+		
 	}
 
 	/*
@@ -75,7 +82,9 @@ public class J2meFileReference implements Reference
 	 * @see org.javarosa.core.reference.Reference#getStream()
 	 */
 	public InputStream getStream() throws IOException {
-		return connector().openInputStream();
+		InputStream stream = connector().openInputStream();
+		clearReferenceConnection(this.getLocalURI());
+		return stream;
 	}
 
 	/*
@@ -91,7 +100,13 @@ public class J2meFileReference implements Reference
 	 * @see org.javarosa.core.reference.Reference#isReadOnly()
 	 */
 	public boolean isReadOnly() {
-		return false;
+		try {
+			return connector().canWrite();
+		} catch (IOException e) {
+			//Hmmmmm... not sure what to do about this exactly
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 
@@ -109,7 +124,9 @@ public class J2meFileReference implements Reference
 		} else {
 			//TODO: Delete exist file, maybe? Probably....
 		}
-		return connector.openOutputStream();
+		OutputStream os = connector.openOutputStream();
+		clearReferenceConnection(getLocalURI());
+		return os;
 	}
 	
 	protected FileConnection connector() throws IOException {
@@ -128,7 +145,7 @@ public class J2meFileReference implements Reference
 				return connections.get(uri);
 			} else {
 				FileConnection connection = (FileConnection) Connector.open(uri);
-				
+					
 				if(cache) {
 					//These connections aren't cheap, we can't afford to keep all that many around
 					if(connectionList.size() == MAX_CONNECTIONS) {
@@ -149,6 +166,11 @@ public class J2meFileReference implements Reference
 	
 	private void clearReferenceConnection(String ref) {
 		synchronized(connectionList) {
+			try {
+				connections.get(ref).close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			connectionList.removeElement(ref);
 			connections.remove(ref);
 		}

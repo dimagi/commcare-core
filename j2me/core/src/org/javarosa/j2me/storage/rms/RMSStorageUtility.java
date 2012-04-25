@@ -373,25 +373,31 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			final String transactionKey = "remove";
 			beginDeleteAction(transactionKey);
 			
-			//Get the current transaction state
-			RMSStorageInfo info = (RMSStorageInfo)deleteActionCache[0];
-			Hashtable idIndex = (Hashtable)deleteActionCache[1];
-			
-			if (!idIndex.containsKey(new Integer(id))) {
-				throw new IllegalArgumentException("Record ID [" + id + "] not found");
+			try{
+				
+				//Get the current transaction state
+				RMSStorageInfo info = (RMSStorageInfo)deleteActionCache[0];
+				Hashtable idIndex = (Hashtable)deleteActionCache[1];
+				
+				if (!idIndex.containsKey(new Integer(id))) {
+					throw new IllegalArgumentException("Record ID [" + id + "] not found");
+				}
+				
+				//Perform the actual deletion
+				RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
+				txRecord(id, "delete");
+				getDataStore(loc.rmsID).removeRecord(loc.recID);
+				
+				//clean up metadata
+				info.numRecords--;
+				idIndex.remove(new Integer(id));
+				
+			} catch(RuntimeException e) {
+				throw e;
+			} finally {
+				//commit transaction (if we opened it)
+				completeDeleteAction(transactionKey);
 			}
-			
-			//Perform the actual deletion
-			RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
-			txRecord(id, "delete");
-			getDataStore(loc.rmsID).removeRecord(loc.recID);
-			
-			//clean up metadata
-			info.numRecords--;
-			idIndex.remove(new Integer(id));
-			
-			//commit transaction (if we opened it)
-			completeDeleteAction(transactionKey);
 		}
 	}
 	
@@ -504,14 +510,18 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			//Begin an atomic delete action, and capture/cache state variables
 			beginDeleteAction(transactionKey);
 			
-			//Delete the records
-			for (int i = 0; i < IDs.size(); i++) {
-				int id = ((Integer)IDs.elementAt(i)).intValue();
-				remove(id);
+			try {
+				//Delete the records
+				for (int i = 0; i < IDs.size(); i++) {
+					int id = ((Integer)IDs.elementAt(i)).intValue();
+					remove(id);
+				}
+			} catch(RuntimeException e) {
+				throw e;
+			} finally {
+				//Complete the action, and commit the cached variables.
+				completeDeleteAction(transactionKey);	
 			}
-			
-			//Complete the action, and commit the cached variables.
-			completeDeleteAction(transactionKey);
 			
 			return IDs;
 		}
