@@ -196,7 +196,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 	}
 
 	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
-		//If we're not using files, just deal with the cache (this is even likely unecessary).
+		//If we're not using files, just deal with the cache (this is even likely unnecessary).
 		if(cache != null) {
 			cache.clear();
 			cache = null;

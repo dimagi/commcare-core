@@ -365,7 +365,15 @@ public class ResourceTable {
 		while(pendingDelete.size() > 0) {
 			for(Resource r : pendingDelete) {
 				//Delete pending resource, possibly marking further resources for deletion
-				r.getInstaller().uninstall(r, this, incoming);
+				
+				if(!r.getInstaller().uninstall(r, this, incoming)) {
+					//Do we need to throw this? 
+					throw new UnresolvedResourceException(r, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
+				} else {
+					//If we don't remove the resource, they're duplicates
+					this.removeResource(r);
+				}
+
 			}
 			pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
 		}
