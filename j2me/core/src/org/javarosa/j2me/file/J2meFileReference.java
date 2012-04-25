@@ -32,7 +32,13 @@ import org.javarosa.core.reference.Reference;
  */
 public class J2meFileReference implements Reference
 {
-	private static Hashtable<String, FileConnection> connections = new Hashtable<String, FileConnection>(); 
+	//We really shouldn't need a lot of these
+	private static final int MAX_CONNECTIONS = 5;
+	
+	private static Hashtable<String, FileConnection> connections = new Hashtable<String, FileConnection>();
+	
+	//Queue for existing connections to allow for good caching
+	private static Vector<String> connectionList = new Vector<String>();
 	
 	String localPart;
 	String referencePart;
@@ -59,7 +65,9 @@ public class J2meFileReference implements Reference
 	 * @see org.javarosa.core.reference.Reference#getStream()
 	 */
 	public boolean doesBinaryExist() throws IOException {
-		return connector().exists();
+		//We do this a lot for many different things, 
+		//no need to cache purely based on this
+		return connector(false).exists();
 	}
 
 	/*
@@ -105,22 +113,44 @@ public class J2meFileReference implements Reference
 	}
 	
 	protected FileConnection connector() throws IOException {
-		return connector(getLocalURI());
+		return connector(true);
 	}
 	
-	protected FileConnection connector(String uri) throws IOException {
+	protected FileConnection connector(boolean cache) throws IOException {
+		return connector(getLocalURI(), cache);
+	}
+	
+	protected FileConnection connector(String uri, boolean cache) throws IOException {
 		synchronized (connections) {
-
 			// We only want to allow one connection to a file at a time.
 			// Otherwise we can get into trouble when we want to remove it.
 			if (connections.containsKey(uri)) {
 				return connections.get(uri);
 			} else {
 				FileConnection connection = (FileConnection) Connector.open(uri);
-				// Store the newly opened connection for reuse.
-				connections.put(uri, connection);
+				
+				if(cache) {
+					//These connections aren't cheap, we can't afford to keep all that many around
+					if(connectionList.size() == MAX_CONNECTIONS) {
+						//FIFO, make room for one more
+						clearReferenceConnection(connectionList.elementAt(0));
+					}
+					
+					// Store the newly opened connection for reuse.
+					connections.put(uri, connection);
+					
+					//Add it to the end of the queue for management
+					connectionList.addElement(uri);
+				}
 				return connection;
 			}
+		}
+	}
+	
+	private void clearReferenceConnection(String ref) {
+		synchronized(connectionList) {
+			connectionList.removeElement(ref);
+			connections.remove(ref);
 		}
 	}
 
@@ -147,7 +177,7 @@ public class J2meFileReference implements Reference
 		synchronized(connections) {
 			//Remove the local connection now that it's 
 			//closed.
-			connections.remove(getLocalURI());
+			clearReferenceConnection(getLocalURI());
 		}
 	}
 
@@ -174,7 +204,7 @@ public class J2meFileReference implements Reference
 		
 		try {
 			Vector<Reference> results = new Vector<Reference>();
-			for(Enumeration en = connector(folder).list(fileNoExt + ".*", true) ; en.hasMoreElements() ; ) {
+			for(Enumeration en = connector(folder, false).list(fileNoExt + ".*", true) ; en.hasMoreElements() ; ) {
 				String file = (String)en.nextElement();
 				String referencePart = folderPart + file;
 				if(!referencePart.equals(this.referencePart)) {
@@ -191,6 +221,15 @@ public class J2meFileReference implements Reference
 		} catch (IOException e) {
 			return new Reference[0];
 		}
-		
+	}
+	
+	/**
+	 * Cleanup task in case it becomes necessary. Not sure yet if it will
+	 */
+	public static void clearConnectionCache() {
+		synchronized(connections) {
+			connections.clear();
+			connectionList.removeAllElements();
+		}
 	}
 }
