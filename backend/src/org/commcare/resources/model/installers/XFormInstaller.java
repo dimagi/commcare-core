@@ -21,6 +21,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParser;
 
@@ -111,7 +112,7 @@ public class XFormInstaller extends CacheInstaller {
 			return false;
 		}
 		for(String locale : localizer.getAvailableLocales()) {
-			OrderedHashtable localeData = localizer.getLocaleData(locale);
+			OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
 			for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
 				String key = (String)en.nextElement();
 				if(key.indexOf(";") != -1) {
@@ -121,7 +122,7 @@ public class XFormInstaller extends CacheInstaller {
 					   form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
 					   form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
 						try {
-							String externalMedia = (String)localeData.get(key);
+							String externalMedia = localeData.get(key).render();
 							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
 							String localName = ref.getLocalURI();
 							try {
