@@ -17,6 +17,8 @@
 package org.javarosa.xform.parse;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -1420,6 +1422,7 @@ public class XFormParser {
 		
 		TableLocaleSource source = new TableLocaleSource();
 
+		source.startEditing();
 		for (int j = 0; j < trans.getChildCount(); j++) {
 			Element text = trans.getElement(j);
 			if (text == null || !text.getName().equals("text")) {
@@ -1442,6 +1445,7 @@ public class XFormParser {
 			System.out.println(XFormUtils.unusedAttWarning(trans, usedAtts));
 		}
 		
+		source.stopEditing();
 		l.registerLocaleResource(lang, source);
 	}
 

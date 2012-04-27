@@ -21,9 +21,17 @@ import java.util.Vector;
 
 public class PrefixTree {
 	private PrefixTreeNode root;
+	
+	int minimumPrefixLength;
+	boolean finalized = false;
 
 	public PrefixTree () {
+		this(0);
+	}
+
+	public PrefixTree (int minimumPrefixLength) {
 		root = new PrefixTreeNode("");
+		this.minimumPrefixLength = minimumPrefixLength;
 	}
 	
 	public static int sharedPrefixLength (String a, String b) {
@@ -37,40 +45,45 @@ public class PrefixTree {
 		return len;
 	}
 	
-	public void addString (String s) {
+	public PrefixTreeNode addString (String s) {
+		if(finalized) { 
+			throw new RuntimeException("Can't manipulate a finalized Prefix Tree");
+		}
 		PrefixTreeNode current = root;
 
 		while (s.length() > 0) {
-			int len = 0;
-			PrefixTreeNode node = null;
 			
-			if (current.children != null) {
-				for (Enumeration e = current.children.elements(); e.hasMoreElements(); ) {
+			//The length of the string we've incorporated into the tree
+			int len = 0;
+			
+			//The (potential) next node in the tree which prefixes the rest of the string
+			PrefixTreeNode node = null;
+
+			if (current.getChildren() != null) {
+				for (Enumeration e = current.getChildren().elements(); e.hasMoreElements(); ) {
 					node = (PrefixTreeNode)e.nextElement();
-					len = sharedPrefixLength(s, node.prefix);
-					if (len > 0)
-						break;
+					len = sharedPrefixLength(s, node.getPrefix());
+					if (len > minimumPrefixLength)
+						break; {
+					}
 					node = null;
 				}
 			}
 				
+			//If we didn't find anything that shared any common roots
 			if (node == null) {
+				//Create a placeholder for the rest of the string
 				node = new PrefixTreeNode(s);
+				
+				//Note that we're accounting for the remainder
 				len = s.length();
-				
-				if (current.children == null)
-					current.children = new Vector();
-				current.children.addElement(node);
-			} else if (len < node.prefix.length()) {
+								
+				//Add this to the highest level prefix we've found
+				current.addChild(node);
+			} else if (len < node.getPrefix().length()) {
 				String prefix = s.substring(0, len);
-				PrefixTreeNode interimNode = new PrefixTreeNode(prefix);
 				
-				current.children.removeElement(node);
-				node.prefix = node.prefix.substring(len);
-				
-				current.children.addElement(interimNode);
-				interimNode.children = new Vector();
-				interimNode.children.addElement(node);
+				PrefixTreeNode interimNode = current.budChild(node, prefix, len);
 				
 				node = interimNode;
 			}
@@ -79,16 +92,30 @@ public class PrefixTree {
 			s = s.substring(len);
 		}
 		
-		current.terminal = true;
+		current.setTerminal();
+		return current;
 	}
 	
-	public Vector getStrings () {
-		Vector v = new Vector();
+	public Vector<String> getStrings () {
+		if(finalized) { 
+			throw new RuntimeException("Can't get the strings from a finalized Prefix Tree");
+		}
+		Vector<String> v = new Vector<String>();
 		root.decompose(v, "");
 		return v;
 	}
 	
 	public String toString() {
 		return root.toString();
+	}
+	public void seal() {
+		System.out.println(toString());
+		root.seal();
+		finalized = true;
+	}
+	
+	public void clear() {
+		finalized = false;
+		root = new PrefixTreeNode("");
 	}
 }
