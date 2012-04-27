@@ -105,7 +105,10 @@ public class J2meFileReference implements Reference
 		} catch (IOException e) {
 			//Hmmmmm... not sure what to do about this exactly
 			e.printStackTrace();
-			return false;
+			return true;
+		} catch (SecurityException se) {
+			//Definitely can't write in this case.
+			return true;
 		}
 	}
 	
