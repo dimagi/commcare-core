@@ -2,6 +2,7 @@ package org.commcare.resources.model;
 
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.commcare.resources.model.installers.ProfileInstaller;
@@ -13,7 +14,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.SizeBoundVector;
 
 /**
  * <p>A Resource Table maintains a set of Resource Records,
@@ -151,15 +151,15 @@ public class ResourceTable {
 		return v;
 	}
 
-	private Vector<Resource> GetUnreadyResources() {
-		Vector<Resource> v = new Vector<Resource>();
+	private Stack<Resource> GetUnreadyResources() {
+		Stack<Resource> v = new Stack<Resource>();
 		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
 			Resource r = (Resource)it.nextRecord();
 			//If the resource is installed, it doesn't need anything
 			//If the resource is marked as ready for upgrade, it's ready
 			//If the resource is marked as pending, it isn't capable of installation yet
 			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED && r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE && r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
-				v.addElement(r);
+				v.push(r);
 			}
 		}
 		return v;
@@ -225,12 +225,19 @@ public class ResourceTable {
 	 * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
 	 */
 	public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize) throws UnresolvedResourceException, UnfullfilledRequirementsException {
-		Vector<Resource> v = GetUnreadyResources();
+		Stack<Resource> v = GetUnreadyResources();
 		int round = -1;
-		while (v.size() > 0 && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
+		while (!v.isEmpty() && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
 			round++;
 			System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
-			for (Resource r : v) {
+			while(!v.isEmpty()) {
+				Resource r = v.pop();
+//				try {
+//					Thread.sleep(10000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				boolean upgrade = false;
 				//Make a reference set for all invalid references (this will get filled in for us)
 				Vector<Reference> invalid = new Vector<Reference>();

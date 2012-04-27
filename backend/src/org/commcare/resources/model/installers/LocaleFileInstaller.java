@@ -167,6 +167,8 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					
 				} catch (InvalidReferenceException e) {
 					return cache(incoming, r, table);
+				} catch(IOException e) {
+					return cache(incoming, r, table);
 				}
 			} catch (IOException e) {
 				Logger.exception(e);
