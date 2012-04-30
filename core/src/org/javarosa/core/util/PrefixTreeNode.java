@@ -76,7 +76,7 @@ public class PrefixTreeNode {
 		if(this.parent != null) {
 			ret = parent.render() + ret;
 		}
-		return ret;
+		return ret.intern();
 	}
 	
 	public void seal() {
@@ -86,6 +86,7 @@ public class PrefixTreeNode {
 			}
 		}		
 		this.children = null;
+		this.prefix = prefix.intern();
 	}
 
 	public void addChild(PrefixTreeNode node) {

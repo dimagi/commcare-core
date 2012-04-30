@@ -23,6 +23,12 @@ public class PrefixTree {
 	private PrefixTreeNode root;
 	
 	int minimumPrefixLength;
+	int minimumHeuristicLength;
+	
+	//Common delimeters which we'd prefer as prefix breaks rather than
+	//maximum string space
+	private static final char[] delimiters = {'\\', '/', '.'};
+	private static final int delSacrifice = 3;
 	boolean finalized = false;
 
 	public PrefixTree () {
@@ -31,7 +37,8 @@ public class PrefixTree {
 
 	public PrefixTree (int minimumPrefixLength) {
 		root = new PrefixTreeNode("");
-		this.minimumPrefixLength = minimumPrefixLength;
+		this.minimumPrefixLength = Math.max(minimumPrefixLength++, 0);
+		this.minimumHeuristicLength = Math.max((int)(minimumPrefixLength / 2), 3);
 	}
 	
 	public static int sharedPrefixLength (String a, String b) {
@@ -62,9 +69,24 @@ public class PrefixTree {
 			if (current.getChildren() != null) {
 				for (Enumeration e = current.getChildren().elements(); e.hasMoreElements(); ) {
 					node = (PrefixTreeNode)e.nextElement();
-					len = sharedPrefixLength(s, node.getPrefix());
-					if (len > minimumPrefixLength)
-						break; {
+					
+					String prefix = node.getPrefix();
+					if(prefix.equals(s)) {
+						return node;
+					}
+					
+					len = sharedPrefixLength(s, prefix);
+					if (len > minimumPrefixLength) {
+						//See if we have any breaks which might make more heuristic sense than simply grabbing the biggest
+						//difference
+						for(char c : delimiters) {
+							int sepLen = prefix.lastIndexOf(c, len - 1) + 1;
+							if(sepLen != -1 && len - sepLen < delSacrifice && sepLen > minimumHeuristicLength) {
+								len = sepLen;
+							}
+						}
+						
+						break; 
 					}
 					node = null;
 				}
@@ -109,7 +131,7 @@ public class PrefixTree {
 		return root.toString();
 	}
 	public void seal() {
-		System.out.println(toString());
+		//System.out.println(toString());
 		root.seal();
 		finalized = true;
 	}

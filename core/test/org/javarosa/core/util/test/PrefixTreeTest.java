@@ -23,6 +23,7 @@ import j2meunit.framework.TestSuite;
 
 import java.util.Vector;
 
+import org.javarosa.core.model.test.QuestionDefTest;
 import org.javarosa.core.util.PrefixTree;
 
 public class PrefixTreeTest extends TestCase  {
@@ -40,13 +41,29 @@ public class PrefixTreeTest extends TestCase  {
 
 	public Test suite() {
 		TestSuite aSuite = new TestSuite();
-		aSuite.addTest((new PrefixTreeTest("Prefix Tree Test Suite", new TestMethod() {
-			public void run(TestCase tc) {
-				((PrefixTreeTest)tc).doTests();
-			}
-		})));
+		System.out.println("Running PrefixTreeTests...");
+		for (int i = 1; i <= NUM_TESTS; i++) {
+			final int testID = i;
+			aSuite.addTest(new PrefixTreeTest("PrefixTree Test " + i, new TestMethod() {
+				public void run (TestCase tc) {
+					((PrefixTreeTest)tc).doTest(testID);
+				}
+			}));
+		}
+			
 		return aSuite;
 	}
+	
+
+	
+	public final static int NUM_TESTS = 2;
+	public void doTest (int i) {
+		switch (i) {
+		case 1: testBasic(); break;
+		case 2: testHeuristic(); break;
+		}
+	}
+
 
 	public void add (PrefixTree t, String s) {
 		t.addString(s);
@@ -58,7 +75,7 @@ public class PrefixTreeTest extends TestCase  {
 		}
 	}
 	
-	public void doTests() {
+	public void testBasic() {
 		
 		PrefixTree t = new PrefixTree();	
 		System.out.println(t.toString());
@@ -72,5 +89,17 @@ public class PrefixTreeTest extends TestCase  {
 		add(t, "abcdexyz");
 		add(t, "abcppppp");
 		
+	}
+	
+	public void testHeuristic() {
+		PrefixTree t = new PrefixTree(11);	
+
+		add(t, "jr://file/images/something/abcd.png");
+		add(t, "jr://file/audio/something/abcd.mp3");
+		add(t, "jr://file/audio/something/adfd.mp3");
+		add(t, "jr://file/images/something/dsf.png");
+		add(t, "jr://file/images/sooth/abcd.png");
+		add(t, "jr://file/audio/something/bsadf.mp3");
+		add(t, "jr://file/audio/something/fsde.mp3");
 	}
 }

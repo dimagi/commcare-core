@@ -165,6 +165,7 @@ public class TableLocaleSource implements LocaleDataSource {
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		data = ExtUtil.readBytes(in);
+		//System.out.println(data.length + " bytes cached into memory");
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
