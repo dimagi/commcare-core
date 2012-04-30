@@ -681,7 +681,7 @@ public class Localizer implements Externalizable {
 	public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
 		fallbackDefaultLocale = ExtUtil.readBool(dis);
 		fallbackDefaultForm = ExtUtil.readBool(dis);
-		localeResources = (OrderedHashtable)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapListPoly(), true),	pf);;
+		localeResources = (OrderedHashtable)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapListPoly(), ExtWrapMap.TYPE_ORDERED),	pf);
 		locales = (Vector)ExtUtil.read(dis, new ExtWrapList(String.class));
 		setDefaultLocale((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 		String currentLocale = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);

@@ -22,13 +22,20 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
 
 //map of objects where key and data are all of single (non-polymorphic) type (key and value can be of separate types)
 public class ExtWrapMap extends ExternalizableWrapper {
+	
+	public static final int TYPE_NORMAL = 0;
+	public static final int TYPE_ORDERED = 1;
+	public static final int TYPE_SLOW_COMPACT = 2;
+	public static final int TYPE_SLOW_READ_ONLY = 4;
+	
 	public ExternalizableWrapper keyType;
 	public ExternalizableWrapper dataType;
-	public boolean ordered;
+	public int type;
 	
 	/* serialization */
 	
@@ -48,7 +55,14 @@ public class ExtWrapMap extends ExternalizableWrapper {
 		this.val = val;
 		this.keyType = keyType;
 		this.dataType = dataType;
-		this.ordered = (val instanceof OrderedHashtable);
+		if(val instanceof Map) {
+			//TODO: check for sealed
+			type = TYPE_SLOW_READ_ONLY;
+		} else if (val instanceof OrderedHashtable) {
+			type = TYPE_ORDERED;
+		} else {
+			type = TYPE_NORMAL;
+		}
 	}
 
 	/* deserialization */
@@ -58,33 +72,33 @@ public class ExtWrapMap extends ExternalizableWrapper {
 	}
 
 	public ExtWrapMap (Class keyType, Class dataType) {
-		this(keyType, dataType, false);
+		this(keyType, dataType, TYPE_NORMAL);
 	}
 
 	public ExtWrapMap (Class keyType, ExternalizableWrapper dataType) {
-		this(keyType, dataType, false);
+		this(keyType, dataType, TYPE_NORMAL);
 	}
 	
 	public ExtWrapMap (ExternalizableWrapper keyType, ExternalizableWrapper dataType) {
-		this(keyType, dataType, false);
+		this(keyType, dataType, TYPE_NORMAL);
 	}
 	
-	public ExtWrapMap (Class keyType, Class dataType, boolean ordered) {
-		this(new ExtWrapBase(keyType), new ExtWrapBase(dataType), ordered);
+	public ExtWrapMap (Class keyType, Class dataType, int type) {
+		this(new ExtWrapBase(keyType), new ExtWrapBase(dataType), type);
 	}
 
-	public ExtWrapMap (Class keyType, ExternalizableWrapper dataType, boolean ordered) {
-		this(new ExtWrapBase(keyType), dataType, ordered);
+	public ExtWrapMap (Class keyType, ExternalizableWrapper dataType, int type) {
+		this(new ExtWrapBase(keyType), dataType, type);
 	}
 	
-	public ExtWrapMap (ExternalizableWrapper keyType, ExternalizableWrapper dataType, boolean ordered) {
+	public ExtWrapMap (ExternalizableWrapper keyType, ExternalizableWrapper dataType, int type) {
 		if (keyType == null || dataType == null) {
 			throw new NullPointerException();
 		}
 		
 		this.keyType = keyType;
 		this.dataType = dataType;
-		this.ordered = ordered;
+		this.type = type;
 	}
 	
 	public ExternalizableWrapper clone (Object val) {
@@ -92,16 +106,39 @@ public class ExtWrapMap extends ExternalizableWrapper {
 	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		Hashtable h = ordered ? new OrderedHashtable() : new Hashtable();
-
-		long size = ExtUtil.readNumeric(in);
-		for (int i = 0; i < size; i++) {
-			Object key = ExtUtil.read(in, keyType, pf);
-			Object elem = ExtUtil.read(in, dataType, pf);
-			h.put(key, elem);
+		if(type != TYPE_SLOW_READ_ONLY) {
+			Hashtable h;
+			switch(type) {
+			case(TYPE_NORMAL):
+				h = new Hashtable();
+				break;
+			case(TYPE_ORDERED):
+				h = new OrderedHashtable();
+				break;
+			case(TYPE_SLOW_COMPACT):
+				h = new Map();
+				break;
+			default:
+				h = new Hashtable();
+			}
+	
+			long size = ExtUtil.readNumeric(in);
+			for (int i = 0; i < size; i++) {
+				Object key = ExtUtil.read(in, keyType, pf);
+				Object elem = ExtUtil.read(in, dataType, pf);
+				h.put(key, elem);
+			}
+			val = h;
+		} else {
+			int size = ExtUtil.readInt(in);
+			Object[] k = new Object[size];
+			Object[] v = new Object[size];
+			for (int i = 0; i < size; i++) {
+				k[i] = ExtUtil.read(in, keyType, pf);
+				v[i] = ExtUtil.read(in, dataType, pf);
+			}
+			val = new Map(k, v);
 		}
-		
-		val = h;
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
@@ -118,7 +155,7 @@ public class ExtWrapMap extends ExternalizableWrapper {
 	}
 
 	public void metaReadExternal (DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		ordered = ExtUtil.readBool(in);
+		type = ExtUtil.readInt(in);
 		keyType = ExtWrapTagged.readTag(in, pf);
 		dataType = ExtWrapTagged.readTag(in, pf);
 	}
@@ -130,7 +167,7 @@ public class ExtWrapMap extends ExternalizableWrapper {
 		keyTagObj = (keyType == null ? (h.size() == 0 ? new Object() : h.keys().nextElement()) : keyType);
 		elemTagObj = (dataType == null ? (h.size() == 0 ? new Object() : h.elements().nextElement()) : dataType);
 		
-		ExtUtil.writeBool(out, ordered);
+		ExtUtil.writeNumeric(out, type);
 		ExtWrapTagged.writeTag(out, keyTagObj);
 		ExtWrapTagged.writeTag(out, elemTagObj);
 	}

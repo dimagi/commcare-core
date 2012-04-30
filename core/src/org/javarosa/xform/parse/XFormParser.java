@@ -1422,7 +1422,7 @@ public class XFormParser {
 		
 		TableLocaleSource source = new TableLocaleSource();
 
-		source.startEditing();
+		//source.startEditing();
 		for (int j = 0; j < trans.getChildCount(); j++) {
 			Element text = trans.getElement(j);
 			if (text == null || !text.getName().equals("text")) {
@@ -1445,7 +1445,7 @@ public class XFormParser {
 			System.out.println(XFormUtils.unusedAttWarning(trans, usedAtts));
 		}
 		
-		source.stopEditing();
+		//source.stopEditing();
 		l.registerLocaleResource(lang, source);
 	}
 

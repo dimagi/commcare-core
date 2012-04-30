@@ -266,14 +266,14 @@ public class ExternalizableTest extends TestCase {
 		
 		//hashtables
 		OrderedHashtable oh = new OrderedHashtable();
-		testExternalizable(new ExtWrapMap(oh), new ExtWrapMap(String.class, Integer.class, true));
+		testExternalizable(new ExtWrapMap(oh), new ExtWrapMap(String.class, Integer.class, ExtWrapMap.TYPE_ORDERED));
 		testExternalizable(new ExtWrapMapPoly(oh), new ExtWrapMapPoly(Date.class, true));
 		testExternalizable(new ExtWrapTagged(new ExtWrapMap(oh)), new ExtWrapTagged());
 		testExternalizable(new ExtWrapTagged(new ExtWrapMapPoly(oh)), new ExtWrapTagged());
 		oh.put("key1", new SampleExtz("a", "b"));
 		oh.put("key2", new SampleExtz("c", "d"));
 		oh.put("key3", new SampleExtz("e", "f"));
-		testExternalizable(new ExtWrapMap(oh), new ExtWrapMap(String.class, SampleExtz.class, true), pf);		
+		testExternalizable(new ExtWrapMap(oh), new ExtWrapMap(String.class, SampleExtz.class, ExtWrapMap.TYPE_ORDERED), pf);		
 		testExternalizable(new ExtWrapTagged(new ExtWrapMap(oh)), new ExtWrapTagged(), pf);		
 		
 		Hashtable h = new Hashtable();

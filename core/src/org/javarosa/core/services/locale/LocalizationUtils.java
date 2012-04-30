@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
 
 /**
@@ -20,9 +21,9 @@ public class LocalizationUtils {
 	 * @return a dictionary of key/value locale pairs from a file in the resource directory 
 	 * @throws IOException 
 	 */
-	public static OrderedHashtable parseLocaleInput(InputStream is) throws IOException {
+	public static Map<String,String> parseLocaleInput(InputStream is) throws IOException {
 			// TODO: This might very well fail. Best way to handle?
-			OrderedHashtable locale = new OrderedHashtable();
+			Map<String,String> locale = new Map<String, String>();
 			int chunk = 100;
 			InputStreamReader isr;
 			isr = new InputStreamReader(is,"UTF-8");

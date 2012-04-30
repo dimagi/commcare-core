@@ -19,13 +19,11 @@
  */
 package org.javarosa.core.services.locale;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
+import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -39,32 +37,17 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class TableLocaleSource implements LocaleDataSource {
-	private WeakReference dataCache; /*{ String -> String } */
-	private byte[] data;
-	private OrderedHashtable<String, String> editing;
-	boolean currentlyEditing = false;
+	private OrderedHashtable<String,String> localeData; /*{ String -> String } */
 	
 	public TableLocaleSource() {
+		localeData = new Map<String, String>();
 	}
 	
 	public TableLocaleSource(OrderedHashtable<String, String> localeData) {
-		this.data = this.toArray(localeData);
-		if(this.data == null) {
-			throw new RuntimeException("Huge problem when attempting to init locale data source!");
-		}
+		this.localeData = localeData;
 	}
 	
-	public void startEditing() {
-		if(data == null) {
-			editing = new OrderedHashtable<String, String>();
-			dataCache = new WeakReference(editing);
-		} else {
-			editing = getLocalizedText();
-		}
-		currentlyEditing = true;
-		//clear our store
-		data = null;
-	}
+	
 	/**
 	 * Set a text mapping for a single text handle for a given locale.
 	 * 
@@ -74,26 +57,15 @@ public class TableLocaleSource implements LocaleDataSource {
 	 * @throws UnregisteredLocaleException If locale is not defined or null.
 	 * @throws NullPointerException if textID is null
 	 */
-	public synchronized void setLocaleMapping (String textID, String text) {
-		if(!currentlyEditing) {
-			throw new RuntimeException("attempt to modify locale table source without entering edit mode!");
-		}
+	public void setLocaleMapping (String textID, String text) {
 		if(textID == null) {
 			throw new NullPointerException("Null textID when attempting to register " + text + " in locale table");
 		}
 		if (text == null) {
-			editing.remove(textID);
+			localeData.remove(textID);			
 		} else {
-			editing.put(textID, text);
-			
+			localeData.put(textID, text);
 		}
-	}
-	
-	public synchronized void stopEditing() {
-		data = toArray(editing);
-		dataCache = new WeakReference(editing);
-		editing = null;
-		currentlyEditing = false;
 	}
 	
 	/**
@@ -104,74 +76,31 @@ public class TableLocaleSource implements LocaleDataSource {
 	 * @return True if a mapping exists for the text handle in the given locale.
 	 * @throws UnregisteredLocaleException If locale is not defined.
 	 */
-	public synchronized boolean hasMapping (String textID) {
-		return (textID == null ? false : getLocalizedText().get(textID) != null);
+	public boolean hasMapping (String textID) {
+		return (textID == null ? false : localeData.get(textID) != null);
 	}
 	
 	
-	public synchronized boolean equals(Object o) {
+	public boolean equals(Object o) {
 		if(!(o instanceof TableLocaleSource)) {
 			return false;
 		}
 		TableLocaleSource l = (TableLocaleSource)o;
-		return ExtUtil.equals(getLocalizedText(), l.getLocalizedText());
+		return ExtUtil.equals(localeData, l.localeData);
 	}
 
-	public synchronized OrderedHashtable<String, String> getLocalizedText() {
-		OrderedHashtable<String, String> retData = dataCache == null ? null : (OrderedHashtable<String, String>)dataCache.get();
-		if(retData == null) {
-			DataInputStream dis = null;
-			try {
-				dis = new DataInputStream(new ByteArrayInputStream(data));
-				retData =(OrderedHashtable)ExtUtil.read(dis, new ExtWrapMap(String.class, String.class, true), ExtUtil.defaultPrototypes());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DeserializationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally { 
-				if(dis != null) {
-					try {
-						dis.close();
-					} catch(IOException e) {
-						//stupid
-					}
-				}
-			}
-		}
-		dataCache = new WeakReference(retData);
-		return retData;
-	}
-	
-	private byte[] toArray(OrderedHashtable<String, String> data) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try {
-			ExtUtil.write(new DataOutputStream(bos), new ExtWrapMap(getLocalizedText()));
-			return bos.toByteArray();
-		} catch (IOException e) {
-			//hmm....
-			return null;
-		} finally { 
-			if(bos != null) {
-				try {
-					bos.close();
-				} catch(IOException e) {
-					//stupid
-				}
-			}
-		}
+	public OrderedHashtable getLocalizedText() {
+		return localeData;
 	}
 
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		data = ExtUtil.readBytes(in);
-		//System.out.println(data.length + " bytes cached into memory");
+	public void readExternal(DataInputStream in, PrototypeFactory pf)
+			throws IOException, DeserializationException {
+		localeData = (OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY), pf);
+		//localeData.readExternal(in, pf);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
-		if(currentlyEditing) {
-			throw new IllegalStateException("table locale source was never finalized before serialization!");
-		}
-		ExtUtil.writeBytes(out, data);
+		ExtUtil.write(out, new ExtWrapMap(localeData));
+		//localeData.writeExternal(out);
 	}
 }

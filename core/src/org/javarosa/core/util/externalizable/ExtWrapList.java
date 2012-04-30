@@ -25,6 +25,7 @@ import java.util.Vector;
 //list of objects of single (non-polymorphic) type
 public class ExtWrapList extends ExternalizableWrapper {
 	public ExternalizableWrapper type;
+	private boolean sealed;
 	
 	/* serialization */
 	
@@ -48,7 +49,12 @@ public class ExtWrapList extends ExternalizableWrapper {
 	}
 	
 	public ExtWrapList (Class type) {
+		this(type, false);
+	}
+	
+	public ExtWrapList (Class type, boolean sealed) {
 		this.type = new ExtWrapBase(type);
+		this.sealed = sealed;
 	}
 
 	public ExtWrapList (ExternalizableWrapper type) {
@@ -64,14 +70,22 @@ public class ExtWrapList extends ExternalizableWrapper {
 	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		Vector v = new Vector(0);
-
-		long size = ExtUtil.readNumeric(in);
-		for (int i = 0; i < size; i++) {
-			v.addElement(ExtUtil.read(in, type, pf));
+		if(!sealed) {
+			Vector v = new Vector(0);
+	
+			long size = ExtUtil.readNumeric(in);
+			for (int i = 0; i < size; i++) {
+				v.addElement(ExtUtil.read(in, type, pf));
+			}
+			val = v;
+		} else {
+			int size = (int)ExtUtil.readNumeric(in);
+			Object[] theval = new Object[size];
+			for (int i = 0; i < size; i++) {
+				theval[i] = ExtUtil.read(in, type, pf);
+			}
+			val = theval;
 		}
-		
-		val = v;
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
