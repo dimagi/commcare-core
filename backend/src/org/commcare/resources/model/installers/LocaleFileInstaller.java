@@ -24,6 +24,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
+import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -40,7 +41,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 	String locale;
 	String localReference;
 	
-	OrderedHashtable cache;
+	OrderedHashtable<String, String> cache;
 	
 	/**
 	 * Serialization only!
@@ -230,7 +231,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 			throws IOException, DeserializationException {
 		locale = ExtUtil.readString(in);
 		localReference = ExtUtil.readString(in);
-		cache = (OrderedHashtable)ExtUtil.nullIfEmpty((OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, true), pf));
+		cache = (OrderedHashtable)ExtUtil.nullIfEmpty((OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY), pf));
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {

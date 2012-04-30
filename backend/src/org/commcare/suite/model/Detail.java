@@ -173,7 +173,7 @@ public class Detail implements Externalizable {
 		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
 		defaultSort = ExtUtil.readInt(in);
-		variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, true));
+		variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
 	}
 
 	/*
