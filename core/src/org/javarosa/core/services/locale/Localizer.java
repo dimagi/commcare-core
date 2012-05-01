@@ -537,7 +537,8 @@ public class Localizer implements Externalizable {
 			throw new UnregisteredLocaleException("Null locale when attempting to fetch text id: " + textID);
 		}
 		if(locale.equals(currentLocale)) {
-			return currentLocaleData.get(textID).render();
+			PrefixTreeNode data = currentLocaleData.get(textID);
+			return data == null ? null : data.render();
 		} else {
 			return (String)getLocaleMap(locale).get(textID);
 		}
