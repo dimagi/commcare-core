@@ -186,14 +186,19 @@ public class Localizer implements Externalizable {
 	 * @throws UnregisteredLocaleException If locale is null or not defined.
 	 */
 	public void setLocale (String currentLocale) {
-		if (!hasLocale(currentLocale))
+		if (!hasLocale(currentLocale)) {
 			throw new UnregisteredLocaleException("Attempted to set to a locale that is not defined. Attempted Locale: " + currentLocale);
+		}
 		
+		boolean alert = false;
 		if (!currentLocale.equals(this.currentLocale)) {
 			this.currentLocale = currentLocale;
+			alert = true;
 		}
 		loadCurrentLocaleResources();
-		alertLocalizables();
+		if(alert) {
+			alertLocalizables();
+		}
 	}
 	
 	/**
@@ -366,8 +371,8 @@ public class Localizer implements Externalizable {
 	 * @return Text mappings for locale.
 	 * @throws UnregisteredLocaleException If locale is not defined or null.
 	 */
-	public OrderedHashtable getLocaleMap (String locale) {
-		OrderedHashtable mapping = getLocaleData(locale);
+	public OrderedHashtable<String, PrefixTreeNode> getLocaleMap (String locale) {
+		OrderedHashtable<String, PrefixTreeNode> mapping = getLocaleData(locale);
 		if (mapping == null)
 			throw new UnregisteredLocaleException("Attempted to access an undefined locale.");
 		return mapping;
@@ -540,7 +545,8 @@ public class Localizer implements Externalizable {
 			PrefixTreeNode data = currentLocaleData.get(textID);
 			return data == null ? null : data.render();
 		} else {
-			return (String)getLocaleMap(locale).get(textID);
+			PrefixTreeNode data = getLocaleMap(locale).get(textID);
+			return data == null ? null : data.render();
 		}
 	}
 	
