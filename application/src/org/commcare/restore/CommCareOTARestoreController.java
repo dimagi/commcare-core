@@ -277,7 +277,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			    catch (Exception e) {
 			    	if(recoveryMode) {
 			    		//In recovery mode we can't really afford to not cache this, so report that, and try again.
-			    		view.setMessage(Localization.get("restore.needcache"));
+			    		view.setMessage(Localization.get("restore.recover.needcache"));
 			    		return;
 			    	} else {
 			    		noCache(stream);
