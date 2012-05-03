@@ -301,12 +301,18 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 	}
 	
 	private void initURI (String lastSync, String stateHash) {
+		
+		String baseURI = this.originalRestoreURI;
+		if(baseURI.indexOf("verson=2.0") == -1) {
+			baseURI = baseURI + (baseURI.indexOf("?") == -1 ? "?" : "&") + "version=2.0";
+		}
+		
 		//get property
 		if (lastSync != null) {
-			this.restoreURI = this.originalRestoreURI + (this.originalRestoreURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
+			this.restoreURI = baseURI + (baseURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
 			System.out.println("RestoreURI: "+ restoreURI);
 		} else {
-			this.restoreURI = this.originalRestoreURI;
+			this.restoreURI = baseURI;
 			System.out.println("RestoreURI: "+ restoreURI);
 		}
 	}
