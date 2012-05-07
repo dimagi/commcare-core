@@ -261,7 +261,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			ref = ReferenceManager._().DeriveReference(getCacheRef());
 			if(ref.isReadOnly()) {
 				view.addToMessage(Localization.get("restore.nocache"));
-				//TODO: ^ That.
+				noCache(stream);
 			} else {
 				OutputStream output;
 				
