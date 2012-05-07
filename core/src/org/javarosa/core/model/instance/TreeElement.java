@@ -488,15 +488,14 @@ import org.javarosa.xpath.expr.XPathExpression;
 		}
 
 		if (isRelevant() != oldRelevancy) {
-			if(children != null) {
-				for (int i = 0; i < children.size(); i++) {
-					((TreeElement) children.elementAt(i)).setRelevant(isRelevant(),true);
-				}
-			}
-			
 			if(attributes != null) {
 				for(int i = 0 ; i < attributes.size(); ++i ) {
 					attributes.elementAt(i).setRelevant(isRelevant(), true);
+				}
+			}
+			if(children != null) {
+				for (int i = 0; i < children.size(); i++) {
+					((TreeElement) children.elementAt(i)).setRelevant(isRelevant(),true);
 				}
 			}
 			alertStateObservers(FormElementStateListener.CHANGE_RELEVANT);
