@@ -19,10 +19,6 @@ import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
 
 public abstract class ServerSyncState implements State {
-
-	//TODO: localize me
-	
-	
 	SendAllUnsentState send;
 	CommCareOTARestoreState pull;
 	

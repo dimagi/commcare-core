@@ -36,14 +36,13 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
 		this.syncToken = syncToken;
 		this.authenticator = authenticator;
 		this.partial = getPartialRestoreSetting();
-		
-		controller = getController();
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.api.State#start()
 	 */
 	public void start() {
+		controller = getController();
 		controller.start();
 	}
 	
