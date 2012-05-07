@@ -72,7 +72,13 @@ public class J2meFileReference implements Reference
 		//no need to cache purely based on this
 		FileConnection connect = connector(false);
 		boolean exists = connect.exists();
-		connect.close();
+		synchronized (connections) {
+    		//If this isn't cached (we didn't request that it should be),
+			//close the connection, otherwise leave it be
+			if(!isCached()) {
+				connect.close();
+			}
+		}
 		return exists;
 		
 	}
@@ -101,7 +107,7 @@ public class J2meFileReference implements Reference
 	 */
 	public boolean isReadOnly() {
 		try {
-			return connector().canWrite();
+			return !connector().canWrite();
 		} catch (IOException e) {
 			//Hmmmmm... not sure what to do about this exactly
 			e.printStackTrace();
@@ -164,6 +170,12 @@ public class J2meFileReference implements Reference
 				}
 				return connection;
 			}
+		}
+	}
+	
+	private boolean isCached() {
+		synchronized (connections) {
+			return connections.containsKey(getLocalURI());
 		}
 	}
 	
