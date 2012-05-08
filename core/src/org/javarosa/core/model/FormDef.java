@@ -1225,8 +1225,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			int ix = ((Integer) indexes.elementAt(i)).intValue();
 			int mult = ((Integer) multiplicities.elementAt(i)).intValue();
 
-			//TODO: ... No words. Just fix it.
-			TreeReference ref = (TreeReference)((XPathReference)((IFormElement)elements.elementAt(i)).getBind()).getReference();
 			if (!(elements.elementAt(i) instanceof GroupDef && ((GroupDef) elements.elementAt(i)).getRepeat())) {
 				mult = -1;
 			}
