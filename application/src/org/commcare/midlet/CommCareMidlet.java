@@ -23,7 +23,7 @@ public class CommCareMidlet extends MIDlet {
 	 * @see javax.microedition.midlet.MIDlet#destroyApp(boolean)
 	 */
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
-		System.out.println("Halting all resources.");
+		Logger.log("shutdown", "Shutting down");
 		//We really want to close all of our RMS's to shield them from harm.
 		TransportService.halt();
 		StorageManager.halt();

@@ -148,6 +148,7 @@ public class CommCareContext {
 		Localization.registerLanguageReference("default","jr://resource/messages_cc_default.txt");
 		Localization.registerLanguageReference("sw","jr://resource/messages_cc_sw.txt");
 		
+		
 		final CommCareStartupInteraction interaction = new CommCareStartupInteraction(CommCareStartupInteraction.failSafeText("commcare.init", "CommCare is Starting..."));
 		Display.getDisplay(m).setCurrent(interaction);
 		
@@ -197,6 +198,10 @@ public class CommCareContext {
 			
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {
 				updateProgress(10);
+				
+				//TODO: Make this update progress, takes forever
+				//Real quick, go trigger an index build to sure we do this when we have the most memory possible
+				((IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY)).getIDsForValue("XMLNS", "");
 				
 				manager = new CommCarePlatform(CommCareUtil.getMajorVersion(), CommCareUtil.getMinorVersion());
 				
