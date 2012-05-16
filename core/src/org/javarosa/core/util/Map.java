@@ -41,8 +41,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class Map<K, V> extends OrderedHashtable<K,V> {
 
-	Vector<K> keys = new Vector<K>();
-	Vector<V> elements = new Vector<V>();
+	Vector<K> keys;
+	Vector<V> elements;
 	
 	boolean sealed = false;
 	
@@ -50,7 +50,13 @@ public class Map<K, V> extends OrderedHashtable<K,V> {
 	V[] elementsSealed;
 	
 	public Map() {
-		
+		keys = new Vector<K>();
+		elements = new Vector<V>();
+	}
+	
+	public Map(int sizeHint) {
+		keys = new Vector<K>(sizeHint);
+		elements = new Vector<V>(sizeHint);
 	}
 	
 	public Map(K[] keysSealed, V[] elementsSealed) {

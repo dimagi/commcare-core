@@ -108,21 +108,21 @@ public class ExtWrapMap extends ExternalizableWrapper {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		if(type != TYPE_SLOW_READ_ONLY) {
 			Hashtable h;
+			long size = ExtUtil.readNumeric(in);
 			switch(type) {
 			case(TYPE_NORMAL):
-				h = new Hashtable();
+				h = new Hashtable((int)size);
 				break;
 			case(TYPE_ORDERED):
-				h = new OrderedHashtable();
+				h = new OrderedHashtable((int)size);
 				break;
 			case(TYPE_SLOW_COMPACT):
-				h = new Map();
+				h = new Map((int)size);
 				break;
 			default:
-				h = new Hashtable();
+				h = new Hashtable((int)size);
 			}
 	
-			long size = ExtUtil.readNumeric(in);
 			for (int i = 0; i < size; i++) {
 				Object key = ExtUtil.read(in, keyType, pf);
 				Object elem = ExtUtil.read(in, dataType, pf);

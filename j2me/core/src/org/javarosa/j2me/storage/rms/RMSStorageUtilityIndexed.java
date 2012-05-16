@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import org.javarosa.core.model.instance.TreeReferenceLevel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -12,6 +13,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.j2me.storage.rms.raw.RMSFactory;
@@ -52,6 +54,12 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	
 	private void buildIndex () {
 		synchronized(metadataAccessLock) {
+			//Temporarily stop doing any interning since we don't want to increase memory fragmentation
+			//for objects we're just going to throw out anyway
+			boolean oldterning = ExtUtil.interning;
+			boolean otrt = TreeReferenceLevel.treeRefLevelInterningEnabled;
+			ExtUtil.interning = false;
+			TreeReferenceLevel.treeRefLevelInterningEnabled = false;
 			metaDataIndex = new Hashtable();
 			
 			if (!hasMetaData) {
@@ -64,16 +72,47 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			}
 			
 			IStorageIterator i = iterate();
-			while (i.hasMore()) {
-				int id = i.nextID();
-				IMetaData obj = (IMetaData)read(id);
-				indexMetaData(id, obj);
+			int records = this.getNumRecords();
+			Hashtable[] metadata = new Hashtable[records];
+			int[] recordIds = new int[records];
+			for(int j = 0 ; j < records ; ++j) {
+				metadata[j] = new Hashtable(fields.length); 
+				for(String field : fields) {
+					metadata[j].put(field, "");
+				}
 			}
+			int count = 0;
+			IMetaData obj;
+			System.gc();
+			while (i.hasMore()) {
+				recordIds[count] = i.nextID();
+				count++;
+			}
+			
+			for(int index = 0 ; index < recordIds.length; ++ index) {
+				obj = (IMetaData)read(recordIds[index]);
+				
+				copyHT(metadata[index], obj.getMetaData(), fields);
+				
+				obj = null;
+				System.gc();
+			}
+			for(int index = 0; index < recordIds.length; ++index) {
+				indexMetaData(recordIds[index], metadata[index]);
+			}
+			ExtUtil.interning = oldterning;
+			TreeReferenceLevel.treeRefLevelInterningEnabled = otrt;
 		}
 	}
 	
-	private void indexMetaData (int id, IMetaData obj) {
-		Hashtable vals = obj.getMetaData();
+	private int i = 0;
+	private void copyHT(Hashtable into, Hashtable source, String[] fields) {
+		for(i = 0; i < fields.length ; ++i) {
+			into.put(fields[i], source.get(fields[i]));
+		}
+	}
+	
+	private void indexMetaData (int id, Hashtable vals) {
 		for (Enumeration e = vals.keys(); e.hasMoreElements(); ) {
 			String field = (String)e.nextElement();
 			Object val = vals.get(field);
@@ -131,7 +170,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				if (old != null) {
 					removeMetaData(p.getID(), (IMetaData)old);
 				}
-				indexMetaData(p.getID(), (IMetaData)p);
+				indexMetaData(p.getID(), ((IMetaData)p).getMetaData());
 			}
 		}
 	}
@@ -145,7 +184,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			int id = super.add(e);
 			
 			if (hasMetaData) {
-				indexMetaData(id, (IMetaData)e);
+				indexMetaData(id, ((IMetaData)e).getMetaData());
 			}
 			return id;
 		}
@@ -164,7 +203,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			super.update(id, e);
 			
 			if (hasMetaData) {
-				indexMetaData(id, (IMetaData)e);
+				indexMetaData(id, ((IMetaData)e).getMetaData());
 			}
 		}
 	}

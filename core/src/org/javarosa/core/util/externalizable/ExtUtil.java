@@ -32,6 +32,7 @@ import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.util.OrderedHashtable;
 
 public class ExtUtil {
+	public static boolean interning = true;
 	public static byte[] serialize (Object o) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
@@ -244,7 +245,8 @@ public class ExtUtil {
 	}
 	
 	public static String readString (DataInputStream in) throws IOException {
-		return in.readUTF().intern();
+		String s = in.readUTF();
+		return interning ? s.intern() : s;
 	}
 	
 	public static Date readDate (DataInputStream in) throws	IOException {

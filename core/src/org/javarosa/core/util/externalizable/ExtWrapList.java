@@ -71,9 +71,9 @@ public class ExtWrapList extends ExternalizableWrapper {
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		if(!sealed) {
-			Vector v = new Vector(0);
 	
-			long size = ExtUtil.readNumeric(in);
+			int size = (int)ExtUtil.readNumeric(in);
+			Vector v = new Vector(size);
 			for (int i = 0; i < size; i++) {
 				v.addElement(ExtUtil.read(in, type, pf));
 			}

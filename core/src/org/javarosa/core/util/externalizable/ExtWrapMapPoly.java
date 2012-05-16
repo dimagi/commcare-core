@@ -78,9 +78,8 @@ public class ExtWrapMapPoly extends ExternalizableWrapper {
 	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		Hashtable h = ordered ? new OrderedHashtable() : new Hashtable();
-
 		long size = ExtUtil.readNumeric(in);
+		Hashtable h = ordered ? new OrderedHashtable((int)size) : new Hashtable((int)size);
 		for (int i = 0; i < size; i++) {
 			Object key = ExtUtil.read(in, keyType, pf);
 			Object elem = ExtUtil.read(in, new ExtWrapTagged(), pf);

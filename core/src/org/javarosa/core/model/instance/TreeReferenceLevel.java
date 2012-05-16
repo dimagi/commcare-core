@@ -119,15 +119,20 @@ public class TreeReferenceLevel implements Externalizable {
 		return true;
 	}
 	
+	public static boolean treeRefLevelInterningEnabled = true;
 	public TreeReferenceLevel intern() {
-		Integer hashCode = DataUtil.integer(this.hashCode());
-		if(refs.containsKey(hashCode)) {
-			TreeReferenceLevel l = (TreeReferenceLevel)refs.get(hashCode).get();
-			if(l == null) { refs.put(hashCode, new WeakReference(this)); return this;};
-			if(l.equals(this)) { return l;}
+		if(!treeRefLevelInterningEnabled) {
 			return this;
-		} 
-		refs.put(hashCode, new WeakReference(this));
-		return this;
+		} else{
+			Integer hashCode = DataUtil.integer(this.hashCode());
+			if(refs.containsKey(hashCode)) {
+				TreeReferenceLevel l = (TreeReferenceLevel)refs.get(hashCode).get();
+				if(l == null) { refs.put(hashCode, new WeakReference(this)); return this;};
+				if(l.equals(this)) { return l;}
+				return this;
+			} 
+			refs.put(hashCode, new WeakReference(this));
+			return this;
+		}
 	}
 }
