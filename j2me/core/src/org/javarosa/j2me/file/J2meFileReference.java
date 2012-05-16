@@ -107,7 +107,36 @@ public class J2meFileReference implements Reference
 	 */
 	public boolean isReadOnly() {
 		try {
-			return !connector().canWrite();
+			FileConnection c = connector();
+			if(c.exists()) {
+				return c.canWrite();
+			} else {
+				try{
+				//Ok... check to see if we can get the parent file?
+				String local = this.getLocalURI();
+				if(local.indexOf("/") == -1) {
+					//whatever, just try
+					return false;
+				} else {
+					String parent = local.substring(0, local.lastIndexOf('/'));
+					FileConnection parentConnector = this.connector(parent, false);
+					
+					if(parentConnector.exists() && parentConnector.isDirectory()) {
+						boolean result = parentConnector.canWrite();
+						parentConnector.close();
+						return result;
+					}
+				
+					//Can't figure out what's up. Just write it
+					return false;
+				}
+						
+				}catch(Exception e) {	
+					//Whatever, we can't figure out what's up with this ref,
+					//just give it a shot
+					return false;
+				}
+			}
 		} catch (IOException e) {
 			//Hmmmmm... not sure what to do about this exactly
 			e.printStackTrace();
