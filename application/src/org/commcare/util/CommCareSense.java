@@ -23,8 +23,16 @@ public class CommCareSense {
 	}
 	
 	public static boolean isAutoSendEnabled() {
-		if(sense()) { return true; }
-		return CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE));
+		if(sense()) { 
+			if(CommCareProperties.SEND_UNSENT_MANUAL.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE))){
+				return false;
+			}
+			//Default: Send in background
+			return true;
+		} else {
+			//Default: Manual
+			return CommCareProperties.SEND_UNSENT_AUTOMATIC.equals(PropertyManager._().getSingularProperty(CommCareProperties.SEND_UNSENT_STYLE));	
+		}
 	}
 	
 	public static String formEntryExtraKey() {
