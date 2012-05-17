@@ -152,8 +152,14 @@ public class InstanceSchema {
 				//Figure out the choices involved if they are complex
 				ItemsetBinding itemset = q.getDynamicChoices();
 		    	if (itemset != null) {
-		    		form.populateDynamicChoices(itemset, ref);
-		    		choices = itemset.getChoices();
+		    		if(itemset.nodesetRef.getInstanceName() != null)  {
+			    		//CTS: We can't really do this right for external instance references right now.
+			    		choices = new Vector();
+		    		} else {
+		    			form.populateDynamicChoices(itemset, ref);
+		    			choices = itemset.getChoices();
+		    		}
+
 		    	} else { //static choices
 		    		choices = q.getChoices();
 		    	}
