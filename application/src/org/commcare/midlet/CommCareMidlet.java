@@ -7,6 +7,7 @@ import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareStatic;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.InitializationListener;
 import org.javarosa.core.services.Logger;
@@ -24,6 +25,7 @@ public class CommCareMidlet extends MIDlet {
 	 */
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
 		Logger.log("shutdown", "Shutting down");
+		CommCareStatic.cleanup();
 		//We really want to close all of our RMS's to shield them from harm.
 		TransportService.halt();
 		StorageManager.halt();
@@ -42,6 +44,7 @@ public class CommCareMidlet extends MIDlet {
 	 * @see javax.microedition.midlet.MIDlet#startApp()
 	 */
 	protected void startApp() throws MIDletStateChangeException {
+		CommCareStatic.init();
 		CommCareContext.init(this, new InitializationListener() {
 
 			public void onFailure() {
