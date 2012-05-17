@@ -30,7 +30,11 @@ public class TreeReferenceLevel implements Externalizable {
 	private int multiplicity = MULT_UNINIT;
 	private Vector<XPathExpression> predicates;
 	
-	private static CacheTable<Integer> refs = new CacheTable<Integer>(); 
+	private static CacheTable<Integer> refs;
+	
+	public static void attachCacheTable(CacheTable<Integer> refs) {
+		TreeReferenceLevel.refs = refs; 
+	}
 
 	public TreeReferenceLevel() {
 	}
@@ -121,7 +125,7 @@ public class TreeReferenceLevel implements Externalizable {
 	
 	public static boolean treeRefLevelInterningEnabled = true;
 	public TreeReferenceLevel intern() {
-		if(!treeRefLevelInterningEnabled) {
+		if(!treeRefLevelInterningEnabled || refs == null) {
 			return this;
 		} else{
 			Integer hashCode = DataUtil.integer(this.hashCode());

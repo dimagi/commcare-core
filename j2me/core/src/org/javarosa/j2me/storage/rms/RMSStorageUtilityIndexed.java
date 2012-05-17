@@ -83,12 +83,10 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			}
 			int count = 0;
 			IMetaData obj;
-			System.gc();
 			while (i.hasMore()) {
 				recordIds[count] = i.nextID();
 				count++;
 			}
-			
 			for(int index = 0 ; index < recordIds.length; ++ index) {
 				obj = (IMetaData)read(recordIds[index]);
 				
