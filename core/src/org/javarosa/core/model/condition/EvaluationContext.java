@@ -329,10 +329,15 @@ public class EvaluationContext {
 	}
 
 	private EvaluationContext rescope(TreeReference treeRef, int currentContextPosition) {
-		TreeReference orRef = this.getOriginalContext();
 		EvaluationContext ec = new EvaluationContext(this, treeRef);
 		ec.currentContextPosition = currentContextPosition;
-		ec.setOriginalContext(orRef);
+		//If there was no original context position, we'll want to set the next original
+		//context to be this rescoping (which would be the backup original one).
+		if(this.original != null) {
+			ec.setOriginalContext(this.getOriginalContext());
+		} else {
+			ec.setOriginalContext(treeRef);
+		}
 		return ec;
 	}
 
