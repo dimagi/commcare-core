@@ -259,6 +259,12 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		Reference ref;
 		try {
 			ref = ReferenceManager._().DeriveReference(getCacheRef());
+
+			//Wipe out the file if it exists (and we can)
+			if(ref.doesBinaryExist()) {
+				ref.remove();
+			}
+			
 			if(ref.isReadOnly()) {
 				view.addToMessage(Localization.get("restore.nocache"));
 				noCache(stream);
@@ -269,9 +275,6 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 				//download as separate from a _failed_ download, which is 
 				//what this try-catch is all about.
 				try {
-					if(ref.doesBinaryExist()) {
-						ref.remove();
-					}
 					output = ref.getOutputStream();
 				}
 			    catch (Exception e) {
@@ -280,6 +283,7 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 			    		view.setMessage(Localization.get("restore.recover.needcache"));
 			    		return;
 			    	} else {
+			    		e.printStackTrace();
 			    		noCache(stream);
 			    		return;
 			    	}
@@ -543,11 +547,9 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 						try {
 							//Success! Try to wipe the local file and then let the UI handle the rest.
 							restoreStream.close();
-							if(!bypass.isReadOnly()) {
-								view.addToMessage(Localization.get("restore.bypass.clean"));
-								bypass.remove();
-								view.addToMessage(Localization.get("restore.bypass.clean.success"));
-							}
+							view.addToMessage(Localization.get("restore.bypass.clean"));
+							bypass.remove();
+							view.addToMessage(Localization.get("restore.bypass.clean.success"));
 						} catch (IOException e) {
 							//Even if we fail to delete the local file, it's mostly fine. Jut let the user know
 							e.printStackTrace();
