@@ -336,7 +336,7 @@ public class EvaluationContext {
 		if(this.original != null) {
 			ec.setOriginalContext(this.getOriginalContext());
 		} else {
-			ec.setOriginalContext(treeRef);
+			ec.setOriginalContext(this.getContextRef());
 		}
 		return ec;
 	}
