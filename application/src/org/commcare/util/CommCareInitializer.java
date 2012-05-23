@@ -45,7 +45,9 @@ public abstract class CommCareInitializer implements Runnable {
 	}
 	
 	protected void fail(Exception e) {
-		setMessage(CommCareStartupInteraction.failSafeText("commcare.fail", "There was an error, and CommCare could not be started."));
+		if(blockForResponse(CommCareStartupInteraction.failSafeText("commcare.fail", "There was an error, and CommCare could not be started. Do you want to see the debug information?"))) {
+			blockForResponse(e.getMessage(), false);
+		}
 		listener.onFailure();
 	}
 	
