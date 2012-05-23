@@ -14,6 +14,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.Logger;
 
 /**
  * A J2ME File reference is a reference type which refers to a 
@@ -109,7 +110,7 @@ public class J2meFileReference implements Reference
 		try {
 			FileConnection c = connector();
 			if(c.exists()) {
-				return c.canWrite();
+				return !c.canWrite();
 			} else {
 				try{
 				//Ok... check to see if we can get the parent file?
@@ -124,7 +125,7 @@ public class J2meFileReference implements Reference
 					if(parentConnector.exists() && parentConnector.isDirectory()) {
 						boolean result = parentConnector.canWrite();
 						parentConnector.close();
-						return result;
+						return !result;
 					}
 				
 					//Can't figure out what's up. Just write it
