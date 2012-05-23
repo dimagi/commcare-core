@@ -336,7 +336,16 @@ public class EvaluationContext {
 		if(this.original != null) {
 			ec.setOriginalContext(this.getOriginalContext());
 		} else {
-			ec.setOriginalContext(this.getContextRef());
+			//Check to see if we have a context, if not, the treeRef is the original declared
+			//nodeset.
+			if(TreeReference.rootRef().equals(this.getContextRef())) 
+			{ 
+				ec.setOriginalContext(treeRef);
+			} else {
+				//If we do have a legit context, use it!
+				ec.setOriginalContext(this.getContextRef());
+			}
+			
 		}
 		return ec;
 	}
