@@ -349,6 +349,8 @@
 		<py-run script="${dir.postjad}/utilities/submit_build.py" />
 	</target>
 	
+	<property name="dir.postjad.new" value="./postjadnew" />
+	
 	<target name="PostJad10" description="Post a jad file to commcare hq">
 		<dirname property="build.zip.dir" file="${build.zip}"/>
 		<mkdir dir="${build.zip.dir}"/>
@@ -357,7 +359,7 @@
 			<zipfileset file="${device.list}" prefix="${distname}"/>
 		</zip>
 		<taskdef name="py-run" onerror="report" classname="org.pyant.tasks.PythonRunTask" classpath="${dir.tools}/pyAntTasks-1.3.jar"/>
-		<py-run script="${dir.postjad}/utilities/submit_build.py"/>
+		<py-run script="${dir.postjad.new}/utilities/submit_build.py"/>
 		<delete dir="${build.zip.dir}"/>
 	</target>
 
