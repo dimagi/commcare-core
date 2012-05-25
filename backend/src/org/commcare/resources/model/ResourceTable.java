@@ -130,7 +130,7 @@ public class ResourceTable {
 			return null;
 		}
 	}
-
+	
 	private Vector<Resource> GetResources() {
 		Vector<Resource> v = new Vector<Resource>();
 		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
@@ -150,6 +150,27 @@ public class ResourceTable {
 		}
 		return v;
 	}
+	
+	private Stack<Resource> GetResourceStack() {
+		Stack<Resource> v = new Stack<Resource>();
+		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+			Resource r = (Resource)it.nextRecord();
+			v.push(r);
+		}
+		return v;
+	}
+	
+	private Stack<Resource> GetResourceStack(int status) {
+		Stack<Resource> v = new Stack<Resource>();
+		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+			Resource r = (Resource)it.nextRecord();
+			if(r.getStatus() == status) {
+				v.push(r);
+			}
+		}
+		return v;
+	}
+
 
 	private Stack<Resource> GetUnreadyResources() {
 		Stack<Resource> v = new Stack<Resource>();
@@ -324,7 +345,10 @@ public class ResourceTable {
 		}
 		//Everything incoming should be marked either ready or upgrade
 		
-		for(Resource r : incoming.GetResources()) {
+		
+		Stack<Resource> resources = incoming.GetResourceStack();
+		while(!resources.isEmpty()) {
+			Resource r = resources.pop();
 			try {
 			Resource peer = this.getResourceWithId(r.getResourceId());
 			if(peer == null) {
@@ -356,7 +380,44 @@ public class ResourceTable {
 				sfe.printStackTrace();
 				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
 			}
+			r = null;
 		}
+
+		
+//		
+//		for(Resource r : incoming.GetResources()) {
+//			try {
+//			Resource peer = this.getResourceWithId(r.getResourceId());
+//			if(peer == null) {
+//				this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
+//			} else {
+//				if(peer.getVersion() == r.getVersion()) {
+//					//Same resource. Don't do anything with it, it has no
+//					//children, so ID's don't need to change.
+//					//Technically resource locations could change, worth thinking
+//					//about for the future.
+//				}
+//				if(peer.getVersion() < r.getVersion()) {
+//					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
+//						throw new UnresolvedResourceException(peer, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
+//					} else {
+//						//If we don't remove the resource, they're duplicates
+//						this.removeResource(peer);
+//					}
+//					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
+//						this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
+//					} else if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+//						if(r.getInstaller().upgrade(r,this)) {
+//							this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
+//						}
+//					}
+//				}
+//			}
+//			} catch(StorageFullException sfe) {
+//				sfe.printStackTrace();
+//				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
+//			}
+//		}
 		
 		//System.out.println(this);
 		
@@ -368,9 +429,10 @@ public class ResourceTable {
 		// may not know whether their children are relevant. As such, the installation
 		// cannot really be marked completed (and the incoming table deleted) until
 		// all deletions are made. 
-		Vector<Resource> pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
-		while(pendingDelete.size() > 0) {
-			for(Resource r : pendingDelete) {
+		Stack<Resource> pendingDelete = GetResourceStack(Resource.RESOURCE_STATUS_DELETE);
+		while(!pendingDelete.isEmpty()) {
+			while(!pendingDelete.isEmpty()) {
+				Resource r = pendingDelete.pop();
 				//Delete pending resource, possibly marking further resources for deletion
 				
 				if(!r.getInstaller().uninstall(r, this, incoming)) {
@@ -382,7 +444,7 @@ public class ResourceTable {
 				}
 
 			}
-			pendingDelete = GetResources(Resource.RESOURCE_STATUS_DELETE);
+			pendingDelete = GetResourceStack(Resource.RESOURCE_STATUS_DELETE);
 		}
 		
 		incoming.cleanup();
