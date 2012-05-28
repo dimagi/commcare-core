@@ -12,6 +12,7 @@ import java.util.Vector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.midlet.MIDlet;
 
+import org.commcare.applogic.CommCareUpgradeState;
 import org.commcare.cases.CaseManagementModule;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CasePurgeFilter;
@@ -203,6 +204,10 @@ public class CommCareContext {
 				//Real quick, go trigger an index build to sure we do this when we have the most memory possible
 				((IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY)).getIDsForValue("XMLNS", "");
 				
+				//Clear out any resources from any botched installations
+				CommCareContext.ClearUpdateTable();
+				
+				
 				manager = new CommCarePlatform(CommCareUtil.getMajorVersion(), CommCareUtil.getMinorVersion());
 				
 				//Try to initialize and install the application resources...
@@ -351,7 +356,6 @@ public class CommCareContext {
 		initializer.initialize(listener);
 	}
 
-	
 	private void failsafeInit (MIDlet m) {
 		DumpRMS.RMSRecoveryHook(m);
 		
@@ -749,6 +753,16 @@ public class CommCareContext {
 		System.out.println("Temporary Resource Table");
 		System.out.println(table);
 		return table;
+	}
+	
+	/**
+	 * Clear out anything which may have been left around in the temporary update table
+	 * 
+	 * @return
+	 */
+	protected static void ClearUpdateTable() {
+		//TODO: This is a lot of terrible coupling with the above...
+		CreateTemporaryResourceTable(CommCareUpgradeState.UPGRADE_TABLE_NAME).clear();
 	}
 	
 	public void exitApp() {

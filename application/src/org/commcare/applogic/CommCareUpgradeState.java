@@ -28,6 +28,7 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public abstract class CommCareUpgradeState implements State, TrivialTransitions {
 	
+	public static final String UPGRADE_TABLE_NAME = "UPGRADGE";
 	boolean interactive = false;
 	
 	public CommCareUpgradeState(boolean interactive) {
@@ -39,10 +40,10 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 		J2MEDisplay.setView(interaction);
 		
 		CommCareInitializer upgradeInitializer = new CommCareInitializer() {
+			ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable(UPGRADE_TABLE_NAME);
 
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {
 				
-				ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable("UPGRADGE");
 				ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
 				
 				boolean staged = false;
@@ -164,6 +165,11 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 			}
 			
 			protected void fail(Exception e) {
+				//Botched! For any number of reasons. However, let's be sure to roll back
+				//any changes, if they happened.
+				upgrade.clear();
+				
+				//Now note why this failed.
 				Logger.exception(e);
 				blockForResponse("An error occured during the upgrade!", false);
 				CommCareUpgradeState.this.done();

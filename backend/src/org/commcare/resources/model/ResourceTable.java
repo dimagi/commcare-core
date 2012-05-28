@@ -11,6 +11,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -487,13 +488,38 @@ public class ResourceTable {
 		}
 	}
 	
+	/**
+	 * Destroy this table, but leave any of the files which are installed untouched.
+	 * This is useful after an upgrade if this is the temp table.
+	 */
 	public void destroy() {
-		clear();
-		//storage.destroy();
+		cleanup();
+		storage.removeAll();
 	}
 	
+	/**
+	 * Destroy this table, and also try very hard to remove any files installed by it. This
+	 * is important for rolling back botched upgrades without leaving their files around.
+	 */
 	public void clear() {
 		cleanup();
+		Stack<Resource> s = this.GetResourceStack();
+		int count = 0;
+		while(!s.isEmpty()) {
+			Resource r = s.pop();
+			if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+				try {
+					r.getInstaller().uninstall(r, null, null);
+					count++;
+				} catch (UnresolvedResourceException e) {
+					//already gone!
+				}
+			}
+		}
+		if(count > 0) {
+			Logger.log("Resource", "Cleaned up " + count + " records from table");
+		}
+
 		storage.removeAll();
 	}
 	

@@ -60,7 +60,7 @@ public class SuiteInstaller extends CacheInstaller {
 				
 				table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
 				
-				//Add s to the RMS
+				//TODOD:
 				//Add a resource location for r for its cache location
 				//so it can be uninstalled appropriately.
 				return true;

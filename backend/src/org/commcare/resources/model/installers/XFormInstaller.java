@@ -23,6 +23,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 
 /**
@@ -76,6 +77,9 @@ public class XFormInstaller extends CacheInstaller {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false; 
+		} catch(XFormParseException xpe ) {
+			xpe.printStackTrace();
+			return false;
 		}
 	}
 	

@@ -80,16 +80,18 @@ public abstract class CacheInstaller implements ResourceInstaller<CommCareInstan
 			//Already gone! Shouldn't need to fail.
 		}
 		
-		//Mark children for deletion
-		Vector<Resource> records = table.getResourcesForParent(r.getRecordGuid());
-		for(Resource child : records) {
-			Resource peer = incoming.getResourceWithId(child.getResourceId());
-			if(peer != null && peer.getVersion() == child.getVersion()) {
-				//Do nothing. Happy duplicates.
-			} else {
-				//Mark kid for deletion, it's no longer useful.
-				table.commit(child, Resource.RESOURCE_STATUS_DELETE);
-				//TODO: Write child back to table
+		if(table != null && incoming != null) {
+			//Mark children for deletion
+			Vector<Resource> records = table.getResourcesForParent(r.getRecordGuid());
+			for(Resource child : records) {
+				Resource peer = incoming.getResourceWithId(child.getResourceId());
+				if(peer != null && peer.getVersion() == child.getVersion()) {
+					//Do nothing. Happy duplicates.
+				} else {
+					//Mark kid for deletion, it's no longer useful.
+					table.commit(child, Resource.RESOURCE_STATUS_DELETE);
+					//TODO: Write child back to table
+				}
 			}
 		}
 		
