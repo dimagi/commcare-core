@@ -5,15 +5,15 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.javarosa.core.model.instance.TreeReferenceLevel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.MetaDataWrapper;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
-import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.MemoryUtils;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.j2me.storage.rms.raw.RMSFactory;
@@ -23,7 +23,7 @@ import org.javarosa.j2me.storage.rms.raw.RMSFactory;
 public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStorageUtility<E> implements IStorageUtilityIndexed<E> {
 
 	private Object metadataAccessLock = new Object();
-	Hashtable metaDataIndex = null;
+	Hashtable<String, Hashtable<Object, Vector<Integer>>> metaDataIndex = null;
 	boolean hasMetaData;
 	IMetaData proto;
 	
@@ -56,10 +56,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 		synchronized(metadataAccessLock) {
 			//Temporarily stop doing any interning since we don't want to increase memory fragmentation
 			//for objects we're just going to throw out anyway
-			boolean oldterning = ExtUtil.interning;
-			boolean otrt = TreeReferenceLevel.treeRefLevelInterningEnabled;
-			ExtUtil.interning = false;
-			TreeReferenceLevel.treeRefLevelInterningEnabled = false;
+			MemoryUtils.stopTerning();
 			metaDataIndex = new Hashtable();
 			
 			if (!hasMetaData) {
@@ -98,8 +95,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			for(int index = 0; index < recordIds.length; ++index) {
 				indexMetaData(recordIds[index], metadata[index]);
 			}
-			ExtUtil.interning = oldterning;
-			TreeReferenceLevel.treeRefLevelInterningEnabled = otrt;
+			MemoryUtils.revertTerning();
 		}
 	}
 	
@@ -158,7 +154,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			if (hasMetaData) {
 				checkIndex();
 				if (exists(p.getID())) {
-					old = (IMetaData)read(p.getID());
+					old = getMetaDataForRecord(p.getID());
 				}
 			}
 			
@@ -166,11 +162,35 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			
 			if (hasMetaData) {
 				if (old != null) {
-					removeMetaData(p.getID(), (IMetaData)old);
+					removeMetaData(p.getID(), old);
 				}
 				indexMetaData(p.getID(), ((IMetaData)p).getMetaData());
 			}
 		}
+	}
+	
+	private IMetaData getMetaDataForRecord(int record) {
+		Hashtable<String, Object> data = null;
+		synchronized(metadataAccessLock) {
+			if (hasMetaData) {
+				if (exists(record)) {
+					data = new Hashtable<String, Object>();
+					Integer recordId = DataUtil.integer(record);
+					for(String s : proto.getMetaDataFields()) {
+						Hashtable<Object, Vector<Integer>> values = metaDataIndex.get(s);
+						for(Enumeration en = values.keys() ; en.hasMoreElements();) {
+							Object o = en.nextElement();
+							Vector<Integer> ids = values.get(o);
+							if(ids.contains(recordId)){
+								data.put(s, o);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return new MetaDataWrapper(data);
 	}
 	
 	public int add (E e) throws StorageFullException {
@@ -208,16 +228,16 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	
 	public void remove (int id) {
 		synchronized(metadataAccessLock) {
-			Externalizable old = null;
+			IMetaData old = null;
 			if (hasMetaData) {
-				old = read(id);
 				checkIndex();
+				old = getMetaDataForRecord(id);
 			}
 				
 			super.remove(id);
 			
 			if (hasMetaData) {
-				removeMetaData(id, (IMetaData)old);
+				removeMetaData(id, old);
 			}
 		}
 	}

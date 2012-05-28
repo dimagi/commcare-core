@@ -136,7 +136,7 @@ public class RMS {
 					+ e.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Return the byte data for a record.
 	 * 
@@ -146,7 +146,8 @@ public class RMS {
 	 */
 	public byte[] readRecord(int id) {
 		try {
-			return rms.getRecord(id);
+			byte[] record = rms.getRecord(id);
+			return record;
 		} catch (InvalidRecordIDException iride) {
 			return null;
 		} catch (RecordStoreException rse) {
