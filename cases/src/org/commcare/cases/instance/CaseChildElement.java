@@ -367,12 +367,14 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 						}
 						if(multiplicity >= 0 && child == null) {
 							TreeElement emptyNode = new TreeElement(name.intern());
+							emptyNode.setAttribute(null, "case_type", "");
 							this.addChild(emptyNode);
 							emptyNode.setParent(this);
 							return emptyNode;
 						}
 						return child;
 					}
+					
 				}; 
 				
 				Vector<CaseIndex> indices = c.getIndices();
