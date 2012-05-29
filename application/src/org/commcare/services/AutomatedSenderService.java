@@ -9,6 +9,7 @@ import java.util.Timer;
 
 import org.javarosa.core.services.Logger;
 import org.javarosa.j2me.log.HandledTimerTask;
+import org.javarosa.services.transport.TransportListener;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 
@@ -163,6 +164,20 @@ public class AutomatedSenderService {
 	public static void StopSenderService() {
 		serviceTimer.cancel();
 		TransportService.halt();
+	}
+	
+	/**
+	 * Used to get the 
+	 * 
+	 * @return
+	 */
+	public static AutomatedTransportListener RetrieveActiveTransportListener() {
+		//If we aren't using the automatic sender service, bail.
+		if(service == null) {
+			return null;
+		} else {
+			return service.listener;
+		}
 	}
 	
 	private static SignalLevelProvider EstablishProvider() {
