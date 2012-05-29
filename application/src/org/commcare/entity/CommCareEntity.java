@@ -53,7 +53,8 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * @see org.javarosa.entity.model.Entity#factory()
 	 */
 	public Entity<TreeReference> factory() {
-		return new CommCareEntity(shortDetail,longDetail, context, set);
+		CommCareEntity entity = new CommCareEntity(shortDetail,longDetail, context, set);
+		return entity;
 	}
 
 	/* (non-Javadoc)
@@ -175,43 +176,26 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * @see org.javarosa.entity.model.Entity#getSortFields()
 	 */
 	public String[] getSortFields () {
-		String[] names = getSortFieldNames();
-		String[] ret = new String[names.length];
-		int defaultSort = getSortFieldDefault();
-		
-		if(defaultSort != -1) {
-			ret[0] = String.valueOf(defaultSort);
-			ret[1] = "DEFAULT";
-		}
-		else {
-			ret[0] = "DEFAULT";
-		}
-		int position = defaultSort == -1 ? 1 : 2;
-		for(int i = 1; i < ret.length ; ++i ) {
-			if(defaultSort != i) {
-				ret[position] = String.valueOf(i);
-				position++;
-			}
-		}
-		return ret;
-	}
-	
-	private int getSortFieldDefault() {
 		int topIndex = shortDetail.getDefaultSort();
-		if(topIndex == -1) { return -1; }
-		
-		int index = -1;
 		Vector<String> fields = new Vector<String>();
-		fields.addElement(Localization.get("case.id"));
+		if(topIndex != -1) {
+			fields.addElement(String.valueOf(topIndex));
+		}
+		fields.addElement("DEFAULT");
 		String[] headers = getHeaders(false);
 		for(int i = 0 ; i < headers.length ; ++i) {
 			if(headers[i] == null  || headers[i].equals("")) { continue;}
-			fields.addElement(headers[i]);
 			if(i == topIndex) {
-				return fields.size() - 1;
+				//nothing
+			} else {
+				fields.addElement(String.valueOf(i));
 			}
 		}
-		return -1;
+		String[] ret = new String[fields.size()];
+		for(int i = 0; i < fields.size() ; ++i) {
+			ret[i] = fields.elementAt(i);
+		}
+		return ret;
 	}
 	
 	/*
@@ -219,28 +203,22 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * @see org.javarosa.entity.model.Entity#getSortFieldNames()
 	 */
 	public String[] getSortFieldNames () {
-		Vector<String> fields = new Vector<String>();
-		int sortField = this.getSortFieldDefault();
 		String[] headers = getHeaders(false);
+		String[] sortKeys = getSortFields();
+		String[] ret = new String[sortKeys.length];
 		
-		if(sortField == -1) {
-			fields.addElement(Localization.get("case.id"));
-		} else {
-			fields.addElement(headers[sortField]);
-			fields.addElement(Localization.get("case.id"));
-		}
-		
-		for(int i = 0; i < headers.length; ++i) {
-			if(i == sortField) { continue; }
-			String s = headers[i];
-			if(s == null || "".equals(s)) {
-				continue;
-			}
-			fields.addElement(s);
-		}
-		String[] ret = new String[fields.size()];
 		for(int i = 0 ; i < ret.length ; ++i) {
-			ret[i] = fields.elementAt(i);
+			if(sortKeys[i].equals("DEFAULT")) {
+				ret[i] = Localization.get("case.id");
+			} else {
+				try{
+					ret[i] = headers[Integer.valueOf(sortKeys[i]).intValue()];
+				} catch(NumberFormatException nfe) {
+					nfe.printStackTrace();
+					throw new RuntimeException("Invalid sort key in CommCare Entity: " + sortKeys[i]);
+				}
+			}
+			
 		}
 		return ret;
 	}
