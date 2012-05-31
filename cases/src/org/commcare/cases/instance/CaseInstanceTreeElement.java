@@ -343,6 +343,8 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		//Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
 		if(!name.equals("case") || mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
 		
+		XPathPathExpr caseIndexRef = XPathReference.getPathExpr("index/*");
+		
 		Vector<Integer> toRemove = new Vector<Integer>();
 		Vector<Integer> selectedCases = null;
 		
@@ -350,6 +352,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		indices.put(XPathReference.getPathExpr("@case_id"), Case.INDEX_CASE_ID);
 		indices.put(XPathReference.getPathExpr("@case_type"), Case.INDEX_CASE_TYPE);
 		indices.put(XPathReference.getPathExpr("@status"), Case.INDEX_CASE_STATUS);
+		indices.put(caseIndexRef, Case.INDEX_CASE_INDEX_PRE);
+		
+		predicate:
 		for(int i = 0 ; i < predicates.size() ; ++i) {
 			XPathExpression xpe = predicates.elementAt(i);
 			//what we want here is a static evaluation of the expression to see if it consists of evaluating 
@@ -362,13 +367,26 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 						if(expr.equals(left)) {
 							String filterIndex = indices.get(expr);
 							
+							//If we're matching a case index, we've got some magic to take care of. First,
+							//generate the expected case ID
+							if(expr == caseIndexRef) {
+								filterIndex += ((XPathPathExpr)left).steps[1].name.name;
+							}
+							
 							//TODO: We need a way to determine that this value does not also depend on anything in the current context, not 
 							//sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
 							//to resolve in a certain area?
 							Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
 							
-							//Get all of the cases that meet this criteria
-							Vector<Integer> cases = storage.getIDsForValue(filterIndex, o);
+							Vector<Integer> cases = null;
+							try{
+								//Get all of the cases that meet this criteria
+								cases = storage.getIDsForValue(filterIndex, o);
+							} catch(IllegalArgumentException IAE) {
+								//We can only get this if we have a new index type
+								storage.registerIndex(filterIndex);
+								cases = storage.getIDsForValue(filterIndex, o);
+							}
 							
 							// merge with any other sets of cases
 							if(selectedCases == null) {
@@ -379,7 +397,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 							
 							//Note that this predicate is evaluated and doesn't need to be evaluated in the future.
 							toRemove.addElement(DataUtil.integer(i));
-							continue;
+							continue predicate;
 						}
 					}
 				}
