@@ -217,4 +217,8 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 		storage.setReadOnly();
 	}
 
+	public void registerIndex(String filterIndex) {
+		indexedStorage().registerIndex(filterIndex);
+	}
+
 }

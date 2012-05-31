@@ -63,14 +63,6 @@ public class FauxIndexedPersistable implements Persistable, IMetaData {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
-	 */
-	public Hashtable getMetaData() {
-		if(m != null) {return m.getMetaData();}
-		throw new RuntimeException("Attempt to index unindexible " + p.getClass().getName());
-	}
-
-	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
 	 */
 	public Object getMetaData(String fieldName) {

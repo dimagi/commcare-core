@@ -26,6 +26,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	Hashtable<String, Hashtable<Object, Vector<Integer>>> metaDataIndex = null;
 	boolean hasMetaData;
 	IMetaData proto;
+	Vector<String> dynamicIndices = new Vector<String>();
 	
 	public RMSStorageUtilityIndexed (String basename, Class type) {
 		super(basename, type);
@@ -63,10 +64,11 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				return;
 			}
 			
-			String[] fields = proto.getMetaDataFields();
+			String[] fields = getFields();
 			for (int k = 0; k < fields.length; k++) {
 				metaDataIndex.put(fields[k], new Hashtable());
 			}
+			
 			
 			IStorageIterator i = iterate();
 			int records = this.getNumRecords();
@@ -84,14 +86,17 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				recordIds[count] = i.nextID();
 				count++;
 			}
+			
+			//0 memory allocation zone
 			for(int index = 0 ; index < recordIds.length; ++ index) {
 				obj = (IMetaData)read(recordIds[index]);
 				
-				copyHT(metadata[index], obj.getMetaData(), fields);
+				copyHT(metadata[index], getMetaData(obj, fields), fields);
 				
 				obj = null;
 				System.gc();
 			}
+			//0 memory allocation zone
 			for(int index = 0; index < recordIds.length; ++index) {
 				indexMetaData(recordIds[index], metadata[index]);
 			}
@@ -120,7 +125,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	}
 	
 	private void removeMetaData (int id, IMetaData obj) {
-		Hashtable vals = obj.getMetaData();
+		Hashtable vals = getMetaData(obj);
 		for (Enumeration e = vals.keys(); e.hasMoreElements(); ) {
 			String field = (String)e.nextElement();
 			Object val = vals.get(field);
@@ -164,7 +169,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				if (old != null) {
 					removeMetaData(p.getID(), old);
 				}
-				indexMetaData(p.getID(), ((IMetaData)p).getMetaData());
+				indexMetaData(p.getID(), getMetaData(((IMetaData)p)));
 			}
 		}
 	}
@@ -202,7 +207,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			int id = super.add(e);
 			
 			if (hasMetaData) {
-				indexMetaData(id, ((IMetaData)e).getMetaData());
+				indexMetaData(id, getMetaData(((IMetaData)e)));
 			}
 			return id;
 		}
@@ -221,7 +226,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			super.update(id, e);
 			
 			if (hasMetaData) {
-				indexMetaData(id, ((IMetaData)e).getMetaData());
+				indexMetaData(id, getMetaData((IMetaData)e));
 			}
 		}
 	}
@@ -248,7 +253,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	
 			Hashtable index = (Hashtable)metaDataIndex.get(fieldName);
 			if (index == null) {
-				throw new RuntimeException("field [" + fieldName + "] not recognized");
+				throw new IllegalArgumentException("field [" + fieldName + "] not recognized");
 			}
 			
 			Vector IDs = (Vector)index.get(value);
@@ -275,6 +280,43 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				metaDataIndex = null;
 			}
 		}
+	}
+
+	public void registerIndex(String index) {
+		synchronized(metadataAccessLock) {
+			if(dynamicIndices == null) { dynamicIndices = new Vector<String>(); }
+			dynamicIndices.addElement(index);
+			buildIndex();
+		}
+	}
+	
+	private Hashtable<String, Object> getMetaData(IMetaData m) {
+		return getMetaData(m, getFields());
+	}
+	private Hashtable<String, Object> getMetaData(IMetaData m, String[] index) {
+		Hashtable<String, Object> h = new Hashtable<String, Object>();
+		for(String s : index) {
+			h.put(s, m.getMetaData(s));
+		}
+		return h;
+	}
+	private String[] getFields() {
+		String[] mdfields = proto.getMetaDataFields();
+		String[] fields;
+		if(dynamicIndices != null) {
+			fields = new String[mdfields.length + dynamicIndices.size()];
+			for(int i = 0 ; i < mdfields.length; ++i) {
+				fields[i] = mdfields[i];
+			}
+			int count = mdfields.length;
+			for (int k = 0; k < dynamicIndices.size(); k++) {
+				fields[count] = dynamicIndices.elementAt(k);
+				count++;
+			}
+		} else {
+			fields = mdfields;
+		}
+		return fields;
 	}
 }
 

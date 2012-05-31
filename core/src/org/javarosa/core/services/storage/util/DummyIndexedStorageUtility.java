@@ -280,6 +280,14 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 					if(!meta.containsKey(key)) {
 						meta.put(key, new Hashtable<Object,Vector<Integer>>());
 					}
+				}
+				for(String key : dynamicIndices) {
+					if(!meta.containsKey(key)) {
+						meta.put(key, new Hashtable<Object,Vector<Integer>>());
+					}
+				}
+				for(Enumeration keys = meta.keys() ; en.hasMoreElements();) {
+					String key = (String)keys.nextElement();
 					
 					Object value = m.getMetaData(key);
 					
@@ -300,5 +308,11 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
 	public void setReadOnly() {
 		//TODO: This should have a clear contract.
+	}
+
+
+	Vector<String> dynamicIndices = new Vector<String>();
+	public void registerIndex(String filterIndex) {
+		dynamicIndices.addElement(filterIndex);
 	}
 }
