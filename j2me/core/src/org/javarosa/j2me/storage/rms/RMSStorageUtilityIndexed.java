@@ -181,7 +181,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 				if (exists(record)) {
 					data = new Hashtable<String, Object>();
 					Integer recordId = DataUtil.integer(record);
-					for(String s : proto.getMetaDataFields()) {
+					for(String s : getFields()) {
 						Hashtable<Object, Vector<Integer>> values = metaDataIndex.get(s);
 						for(Enumeration en = values.keys() ; en.hasMoreElements();) {
 							Object o = en.nextElement();
@@ -283,6 +283,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	}
 
 	public void registerIndex(String index) {
+		if(index == null) { throw new NullPointerException("Null index registration attempt!");}
 		synchronized(metadataAccessLock) {
 			if(dynamicIndices == null) { dynamicIndices = new Vector<String>(); }
 			dynamicIndices.addElement(index);
@@ -296,7 +297,11 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	private Hashtable<String, Object> getMetaData(IMetaData m, String[] index) {
 		Hashtable<String, Object> h = new Hashtable<String, Object>();
 		for(String s : index) {
-			h.put(s, m.getMetaData(s));
+			Object o = m.getMetaData(s);
+			if(o == null || s == null) {
+				"sadf".charAt(0);
+			}
+			h.put(s, o);
 		}
 		return h;
 	}

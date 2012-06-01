@@ -286,7 +286,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 						meta.put(key, new Hashtable<Object,Vector<Integer>>());
 					}
 				}
-				for(Enumeration keys = meta.keys() ; en.hasMoreElements();) {
+				for(Enumeration keys = meta.keys() ; keys.hasMoreElements();) {
 					String key = (String)keys.nextElement();
 					
 					Object value = m.getMetaData(key);
