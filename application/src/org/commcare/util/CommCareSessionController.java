@@ -31,6 +31,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.utilities.media.MediaUtils;
 import org.javarosa.xpath.XPathParseTool;
@@ -248,7 +249,7 @@ public class CommCareSessionController {
 		final NodeEntitySet nes = new NodeEntitySet(datum.getNodeset(), context);
 		Entity<TreeReference> entity = new CommCareEntity(shortDetail, longDetail, context, nes);
 		
-		CommCareSelectState<TreeReference> select = new CommCareSelectState<TreeReference>(entity, nes) {
+		final CommCareSelectState<TreeReference> select = new CommCareSelectState<TreeReference>(entity, nes) {
 			SessionDatum datum;
 			EvaluationContext context;
 
@@ -274,7 +275,32 @@ public class CommCareSessionController {
 			}
 		};
 		
-		J2MEDisplay.startStateWithLoadingScreen(select, select.getProgressIndicator());
+		J2MEDisplay.startStateWithLoadingScreen(select, new ProgressIndicator() {
+			public double getProgress() {
+				if(nes.loaded()) {
+					return select.getProgressIndicator().getProgress();
+				} else {
+					return nes.getProgress();
+				}
+			}
+
+			public String getCurrentLoadingStatus() {
+				if(nes.loaded()) {
+					return select.getProgressIndicator().getCurrentLoadingStatus();
+				} else {
+					return nes.getCurrentLoadingStatus();
+				}
+			}
+
+			public int getIndicatorsProvided() {
+				if(nes.loaded()) {
+					return select.getProgressIndicator().getIndicatorsProvided();
+				} else {
+					return nes.getIndicatorsProvided();
+				}
+			}
+			
+		});
 		return;
 	}
 	

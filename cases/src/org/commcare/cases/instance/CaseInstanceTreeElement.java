@@ -411,8 +411,8 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		if(selectedCases == null) { return null; }
 		
 		//otherwise, remove all of the predicates we've already evaluated
-		for(int i = toRemove.size() -1; i > 0 ; i--)  {
-			predicates.removeElementAt(i);
+		for(int i = toRemove.size() - 1; i >= 0 ; i--)  {
+			predicates.removeElementAt(toRemove.elementAt(i).intValue());
 		}
 		
 		TreeReference base = this.getRef();
