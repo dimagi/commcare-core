@@ -51,7 +51,8 @@ public class LoadingScreenThread extends HandledTimerTask {
 				if(indicator != null) {
 					if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_PROGRESS) != 0) {
 						screen.updateProgress(indicator.getProgress());
-					} else if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
+					} 
+					if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
 						screen.updateMessage(indicator.getCurrentLoadingStatus());
 					}
 				}

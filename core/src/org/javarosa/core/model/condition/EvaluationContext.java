@@ -51,6 +51,7 @@ public class EvaluationContext {
 	private int currentContextPosition = -1;
 	
 	DataInstance instance;
+	int[] predicateEvaluationProgress;
 	
 	/** Copy Constructor **/
 	private EvaluationContext (EvaluationContext base) {
@@ -291,6 +292,9 @@ public class EvaluationContext {
 				}
 			}
 
+			if(predicates != null && predicateEvaluationProgress != null) {
+				predicateEvaluationProgress[1] += set.size();
+			}
 			int numQualifyingElements = 0;
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
 				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
@@ -313,6 +317,9 @@ public class EvaluationContext {
 								break;
 							}
 						}
+					}
+					if(predicateEvaluationProgress != null) {
+						predicateEvaluationProgress[0]++;
 					}
 					if(passedAll)
 					{
@@ -364,5 +371,11 @@ public class EvaluationContext {
 	
 	public int getContextPosition() {
 		return currentContextPosition;
+	}
+
+	public void setPredicateProcessSet(int[] loadingDetails) {
+		if(loadingDetails != null && loadingDetails.length == 2) {
+			predicateEvaluationProgress = loadingDetails;
+		}
 	}
 }
