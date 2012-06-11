@@ -57,7 +57,6 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.model.xform.XPathReference;
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -78,6 +77,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	/** The display title of the form. */
 	private String name;
 	
+	private Vector<XFormExtension> extensions;
 	
 	/**
 	 * A unique external name that is used to identify the form between machines
@@ -128,6 +128,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		submissionProfiles = new Hashtable<String, SubmissionProfile>();
 		formInstances = new Hashtable<String, DataInstance>();
 		eventListeners = new Hashtable<String, Vector<Action>>();
+		extensions = new Vector<XFormExtension>();
 	}
 	
 	
@@ -1124,6 +1125,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		eventListeners = (Hashtable<String, Vector<Action>>)ExtUtil.read(dis,  new ExtWrapMap(String.class, new ExtWrapListPoly()));
 		
+		extensions = (Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf);
+		
 		setEvaluationContext(new EvaluationContext(null));
 	}
 
@@ -1189,6 +1192,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
 		ExtUtil.write(dos, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
+		ExtUtil.write(dos, new ExtWrapListPoly(extensions));
 	}
 
 	public void collapseIndex(FormIndex index, Vector indexes, Vector multiplicities, Vector elements) {
@@ -1521,5 +1525,23 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     	for(Action action : getEventListeners(event)) {
     		action.processAction(this, null);
     	}
+    }
+    
+    public <X extends XFormExtension> X getExtension(Class<X> extension) {
+    	for(XFormExtension ex : extensions) {
+    		if(ex.getClass().isAssignableFrom(extension)) {
+    			return (X)ex;
+    		}
+    	}
+    	X newEx;
+		try {
+			newEx = extension.newInstance();
+		} catch (InstantiationException e) {
+			throw new RuntimeException("Illegally Structured XForm Extension " + extension.getName());
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Illegally Structured XForm Extension " + extension.getName());
+		}
+    	extensions.addElement(newEx);
+    	return newEx;
     }
 }

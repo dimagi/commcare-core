@@ -288,7 +288,7 @@ public class TreeReference implements Externalizable {
 			
 			//If the the contextRef can provide a definition for a wildcard, do so
 			if(TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) && !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
-				data.setElementAt(data.elementAt(i).setName(contextRef.getName(i)), i);
+				newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
 			}
 			
 			if (contextRef.getName(i).equals(newRef.getName(i))) {
