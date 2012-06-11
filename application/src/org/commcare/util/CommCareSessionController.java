@@ -326,6 +326,7 @@ public class CommCareSessionController {
 		return session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY), 
                 PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
                 CommCareContext._().getUser().getUsername(),
-                CommCareContext._().getUser().getUniqueId());
+                CommCareContext._().getUser().getUniqueId(),
+                CommCareContext._().getUser().getMetaData());
 	}
 }

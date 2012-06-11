@@ -287,7 +287,7 @@ public class CommCareSession {
 		syncState();
 	}
 	
-	public FormInstance getSessionInstance(String deviceId, String appversion, String username, String userId) {
+	public FormInstance getSessionInstance(String deviceId, String appversion, String username, String userId, Hashtable<String, String> userFields) {
 		TreeElement sessionRoot = new TreeElement("session",0);
 		
 		TreeElement sessionData = new TreeElement("data",0);
@@ -310,6 +310,16 @@ public class CommCareSession {
 		addData(sessionMeta, "userid",userId );
 
 		sessionRoot.addChild(sessionMeta);
+		
+		TreeElement user = new TreeElement("user",0);
+		TreeElement userData = new TreeElement("data",0);
+		user.addChild(userData);
+		for(Enumeration en = userFields.keys() ; en.hasMoreElements();) {
+			String key = (String)en.nextElement();
+			addData(userData, key, userFields.get(key));
+		}
+		
+		sessionRoot.addChild(user);
 		
 		return new FormInstance(sessionRoot, "session");
 	}

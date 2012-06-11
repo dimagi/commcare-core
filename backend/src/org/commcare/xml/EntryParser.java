@@ -74,6 +74,10 @@ public class EntryParser extends ElementParser<Entry> {
 					SessionDatumParser parser = new SessionDatumParser(this.parser);
 					data.addElement(parser.parse());
 				}
+			} 
+			else if(parser.getName().equals("entity") || parser.getName().equals("details")) {
+				throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <entry>. " + 
+						                             parser.getName() + " is not a valid construct in 2.0 CaseXML", parser);
 			}
 		}
 		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances);

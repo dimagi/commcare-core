@@ -67,11 +67,11 @@ public class CommCareConfigEngine {
 			}
 
 			public int getMajorVersion() {
-				return 1;
+				return 2;
 			}
 
 			public int getMinorVersion() {
-				return 1;
+				return 0;
 			}
 		};
 		
