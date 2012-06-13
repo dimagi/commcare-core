@@ -327,6 +327,6 @@ public class CommCareSessionController {
                 PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
                 CommCareContext._().getUser().getUsername(),
                 CommCareContext._().getUser().getUniqueId(),
-                CommCareContext._().getUser().getMetaData());
+                CommCareContext._().getUser().getProperties());
 	}
 }
