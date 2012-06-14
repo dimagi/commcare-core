@@ -28,6 +28,8 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class CaseXmlParser extends TransactionParser<Case> {
+	
+	public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
 	IStorageUtilityIndexed storage;
 	int[] tallies;

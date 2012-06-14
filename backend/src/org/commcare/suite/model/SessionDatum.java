@@ -7,10 +7,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * @author ctsims
@@ -19,7 +21,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class SessionDatum implements Externalizable {
 	
 	private String id;
-	private String nodeset;
+	private TreeReference nodeset;
 	private String shortDetail; 
 	private String longDetail; 
 	private String value;
@@ -35,9 +37,8 @@ public class SessionDatum implements Externalizable {
 
 	public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String value) {
 		type = DATUM_TYPE_NORMAL;
-		//TODO: Nodeset should be an xpathpath expression, probably?
 		this.id = id;
-		this.nodeset = nodeset;
+		this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
 		this.shortDetail = shortDetail;
 		this.longDetail = longDetail;
 		this.value = value;
@@ -55,7 +56,7 @@ public class SessionDatum implements Externalizable {
 		return id;
 	}
 	
-	public String getNodeset() {
+	public TreeReference getNodeset() {
 		return nodeset;
 	}
 
@@ -91,8 +92,11 @@ public class SessionDatum implements Externalizable {
 		id = ExtUtil.readString(in);
 		type = ExtUtil.readInt(in);
 		
-		//TODO: Parse this stuff differently based on type?
-		nodeset = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		if(ExtUtil.readBool(in)) {
+			nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class);
+		} else {
+			nodeset = null;
+		}
 		shortDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		longDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -104,7 +108,11 @@ public class SessionDatum implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, id);
 		ExtUtil.writeNumeric(out, type);
-		ExtUtil.writeString(out, ExtUtil.emptyIfNull(nodeset));
+		
+		ExtUtil.writeBool(out, nodeset != null);
+		if(nodeset != null) {
+			ExtUtil.write(out, nodeset);
+		}
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(shortDetail));
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(longDetail));
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));

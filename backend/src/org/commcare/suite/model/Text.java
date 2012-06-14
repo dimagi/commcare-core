@@ -152,6 +152,7 @@ public class Text implements Externalizable {
 		for(Text txt : text) {
 			//TODO: Probably a more efficient way to do this...
 			t.arguments.put(Integer.toHexString(i), txt);
+			i++;
 		}
 		t.type = TEXT_TYPE_COMPOSITE;
 		return t;
@@ -270,8 +271,9 @@ public class Text implements Externalizable {
 			return argument;
 		case TEXT_TYPE_COMPOSITE:
 			String ret = "";
-			for(Enumeration en = arguments.elements() ; en.hasMoreElements() ;) {
-				ret += ((Text)en.nextElement()).evaluate() +"";
+			for(int i = 0 ; i < arguments.size(); ++i) {
+				Text item = arguments.get(String.valueOf(i));
+				ret += item.evaluate(context) +"";
 			}
 			return ret;
 		default:

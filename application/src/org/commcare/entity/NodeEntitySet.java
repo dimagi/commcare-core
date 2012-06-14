@@ -22,10 +22,10 @@ import org.javarosa.model.xform.XPathReference;
 public class NodeEntitySet implements EntitySet<TreeReference>, ProgressIndicator {
 	
 	private Vector<TreeReference> set = null;
-	private String path;
+	private TreeReference path;
 	private EvaluationContext context;
 	
-	public NodeEntitySet(String path, EvaluationContext context) {
+	public NodeEntitySet(TreeReference path, EvaluationContext context) {
 		this.path = path;
 		this.context = context;
 	}
@@ -74,7 +74,7 @@ public class NodeEntitySet implements EntitySet<TreeReference>, ProgressIndicato
 		if(set == null) {
 			loadingDetails = new int[]{0, 1};
 			context.setPredicateProcessSet(loadingDetails);
-			set = context.expandReference(XPathReference.getPathExpr(path).getReference(true));
+			set = context.expandReference(path);
 			//don't need these anymore
 			path = null;
 			context = null;
