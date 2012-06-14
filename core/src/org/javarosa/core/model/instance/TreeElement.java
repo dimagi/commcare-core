@@ -65,7 +65,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 	protected String name; // can be null only for hidden root node
 	protected int multiplicity = -1; // see TreeReference for special values
 	protected AbstractTreeElement parent;
-	public String uuid; //only really relevant for repeatable nodes
 	
 
 	protected IAnswerData value;
@@ -121,7 +120,6 @@ import org.javarosa.xpath.expr.XPathExpression;
 		this.name = name == null ? null : name.intern();
 		this.multiplicity = multiplicity;
 		this.parent = null;
-		this.uuid = PropertyUtils.genGUID(6);
 	}
 	
 	/**

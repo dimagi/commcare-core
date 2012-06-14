@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Vector;
 
+import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -72,7 +72,7 @@ public class TreeReferenceLevel implements Externalizable {
 	}
 	
 	public TreeReferenceLevel shallowCopy() {
-		return new TreeReferenceLevel(name, multiplicity, predicates).intern();
+		return new TreeReferenceLevel(name, multiplicity, ArrayUtilities.vectorCopy(predicates)).intern();
 	}
 
 

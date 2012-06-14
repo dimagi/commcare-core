@@ -55,4 +55,13 @@ public class ArrayUtilities {
 		}
 		return null;
 	}
+	
+	public static <E> Vector<E> vectorCopy(Vector<E> a) {
+		if(a == null ) { return null; }
+		Vector<E> b = new Vector<E>();
+		for(E e : a) {
+			b.addElement(e);
+		}
+		return b;
+	}
 }
