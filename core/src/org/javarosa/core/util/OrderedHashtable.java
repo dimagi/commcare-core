@@ -67,12 +67,16 @@ public class OrderedHashtable<K,V> extends Hashtable<K,V> {
     		throw new NullPointerException();
     	}
     	
-        int i = orderedKeys.indexOf(key);
-        if (i == -1)  {
-            orderedKeys.addElement(key); 
-        } else {
-            orderedKeys.setElementAt(key, i);
-        }
+    	//Only bother to check for 
+    	if(super.containsKey(key)) {
+	        int i = orderedKeys.indexOf(key);
+	        if(i == -1) {
+	        	throw new IllegalStateException("Ordered Hashtable contains a key that is not in its index: " + key);
+	        }
+	        orderedKeys.setElementAt(key, i);
+    	} else {
+    		orderedKeys.addElement(key); 
+    	}
         return super.put(key, value);
     }
 

@@ -1152,7 +1152,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			getLocalizer().setToDefault();
 		}
 		
-		dispatchFormEvent(Action.EVENT_XFORMS_READY);
+		//TODO: Hm, not 100% sure that this is right. Maybe we should be
+		//using a slightly different event for "First Load" which doesn't 
+		//get fired again, but always fire this one?
+		if(newInstance) {
+			dispatchFormEvent(Action.EVENT_XFORMS_READY);
+		}
 
 		initializeTriggerables();
 	}
