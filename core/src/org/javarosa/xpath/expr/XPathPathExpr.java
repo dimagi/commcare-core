@@ -43,6 +43,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
@@ -204,6 +205,11 @@ public class XPathPathExpr extends XPathExpression {
 			//TODO: We should really stop passing 'm' around and start just getting the right instance from ec
 			//at a more central level
 			m = ec.getMainInstance();
+
+			if(m == null) {
+				String refStr = ref == null ? "" : ref.toString(true);
+				throw new XPathException("Cannot evaluate the reference [" + refStr + "] in the current evaluation context. No default instance has been declared!");
+			}
 		}
 		//Otherwise we'll leave 'm' as set to the main instance 
 		
