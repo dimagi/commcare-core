@@ -63,33 +63,30 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 			instance.schema = userId;
 		}
 		
-		int recordId = -1;
-		Vector<Integer> matchingFixtures = storage().getIDsForValue(FormInstance.META_ID, fixtureId);
-		if(matchingFixtures.size() > 0) {
-			//find all fixtures with the same user
-			Vector<Integer> matchingUsers = storage().getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
-			for(Integer i : matchingFixtures) {
-				if(matchingUsers.indexOf(i) != -1) {
-					recordId = i.intValue();
+		//If we're using storage, deal properly
+		if(storage() != null) {
+			int recordId = -1;
+			Vector<Integer> matchingFixtures = storage().getIDsForValue(FormInstance.META_ID, fixtureId);
+			if(matchingFixtures.size() > 0) {
+				//find all fixtures with the same user
+				Vector<Integer> matchingUsers = storage().getIDsForValue(FormInstance.META_XMLNS, ExtUtil.emptyIfNull(userId));
+				for(Integer i : matchingFixtures) {
+					if(matchingUsers.indexOf(i) != -1) {
+						recordId = i.intValue();
+					}
 				}
 			}
-					
-		}
-		
-		if(recordId != -1) {
-			if(!overwrite) {
-				//parse it out, but don't write anything to memory if one already exists
-				return instance;
+			
+			if(recordId != -1) {
+				if(!overwrite) {
+					//parse it out, but don't write anything to memory if one already exists
+					return instance;
+				}
+				instance.setID(recordId);
 			}
-			instance.setID(recordId);
 		}
 		
-		try {
-			storage().write(instance);
-		} catch (StorageFullException e) {
-			e.printStackTrace();
-			throw new IOException("Storage full while writing fixture!");
-		}
+		commit(instance);
 
 		return instance;
 	}
