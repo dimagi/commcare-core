@@ -349,7 +349,10 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		Vector<Integer> selectedCases = null;
 		
 		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
+		
+		//TODO: Much better matching
 		indices.put(XPathReference.getPathExpr("@case_id"), Case.INDEX_CASE_ID);
+		indices.put(XPathReference.getPathExpr("./@case_id"), Case.INDEX_CASE_ID);
 		indices.put(XPathReference.getPathExpr("@case_type"), Case.INDEX_CASE_TYPE);
 		indices.put(XPathReference.getPathExpr("@status"), Case.INDEX_CASE_STATUS);
 		indices.put(caseIndexRef, Case.INDEX_CASE_INDEX_PRE);
