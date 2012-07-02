@@ -140,7 +140,7 @@ public class Parser {
 			while (i < absNode.content.size()) {
 				int type = absNode.getTokenType(i);
 				if (type == rToken) {
-					throw new XPathSyntaxException(); //unbalanced
+					throw new XPathSyntaxException("Unbalanced brackets or parentheses!"); //unbalanced
 				} else if (type == lToken) {
 					int j = absNode.indexOfBalanced(i, rToken, lToken, rToken);
 					if (j == -1) {

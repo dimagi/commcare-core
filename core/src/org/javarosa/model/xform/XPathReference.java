@@ -63,9 +63,10 @@ public class XPathReference implements IDataReference {
 		} catch (XPathSyntaxException xse) {
 			//make these checked exceptions?
 			if (validNonPathExpr) {
-				throw new RuntimeException("Expected XPath path, got XPath expression: [" + nodeset + "]");
+				throw new RuntimeException("Expected XPath path, got XPath expression: [" + nodeset + "]," + xse.getMessage());
 			} else {
-				throw new RuntimeException("Parse error in XPath path: [" + nodeset + "]");
+				xse.printStackTrace();
+				throw new RuntimeException("Parse error in XPath path: [" + nodeset + "]." + (xse.getMessage() == null ? "" : "\n" + xse.getMessage()));
 			}
 		}
 

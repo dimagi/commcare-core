@@ -21,6 +21,9 @@ import java.util.Vector;
 import org.javarosa.xpath.expr.XPathQName;
 
 public class Lexer {
+	
+	private static final int CONTEXT_LENGTH = 15;
+	
 	public static final int LEX_CONTEXT_VAL = 1;
 	public static final int LEX_CONTEXT_OP = 2;	
 	
@@ -113,7 +116,7 @@ public class Lexer {
 			} else if (c == '$') {
 				int len = matchQName(expr, i + 1);
 				if (len == 0) {
-					throw new XPathSyntaxException();
+					badParse(expr, i, (char)c);
 				} else {
 					token = new Token(Token.VAR, new XPathQName(expr.substring(i + 1, i + len + 1)));
 					skip = len + 1;
@@ -121,7 +124,7 @@ public class Lexer {
 			} else if (c == '\'' || c == '\"') {
 				int end = expr.indexOf(c, i + 1);
 				if (end == -1) {
-					throw new XPathSyntaxException();
+					badParse(expr, i, (char)c);
 				} else {
 					token = new Token(Token.STR, expr.substring(i + 1, end));
 					skip = (end - i) + 1;
@@ -140,9 +143,8 @@ public class Lexer {
 					skip = len;
 				}
 			} else {
-				throw new XPathSyntaxException();
+				badParse(expr, i, (char)c);
 			}
-			
 			if (token != null) {
 				if (token.type == Token.WILDCARD ||
 					token.type == Token.NSWILDCARD ||
@@ -167,6 +169,15 @@ public class Lexer {
 		return tokens;
 	}
 	
+	private static void badParse(String expr, int i, char c) throws XPathSyntaxException {
+		String start = "\u034E" + c;
+		String preContext =  (Math.max(0, i - CONTEXT_LENGTH) != 0 ? "..." : "") + expr.substring(Math.max(0, i - CONTEXT_LENGTH), Math.max(0, i)).trim();
+		String postcontext = i == expr.length() - 1 ? "" : 
+				expr.substring(Math.min(i + 1, expr.length() - 1), Math.min(i + CONTEXT_LENGTH, expr.length())).trim() + (Math.min(i + CONTEXT_LENGTH, expr.length()) != expr.length() ? "..." : "");
+		
+		throw new XPathSyntaxException("Unable to tokenize: " + (preContext + start + postcontext));
+	}
+
 	private static int matchNumeric (String expr, int i) {
 		boolean seenDecimalPoint = false;
 		int start = i;

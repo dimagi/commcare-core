@@ -16,7 +16,7 @@ import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.RMSRetreivalMethod;
-import org.javarosa.formmanager.view.chatterbox.Chatterbox;
+import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 
 public class JRFormTestState extends FormEntryState {
@@ -30,8 +30,8 @@ public class JRFormTestState extends FormEntryState {
 		FormDef form = fetcher.getFormDef();
 
 		JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR));
-		//controller.setView(new SingleQuestionView(controller));
-		controller.setView(new Chatterbox("Chatterbox", controller));
+		controller.setView(new SingleQuestionView(controller));
+		//controller.setView(new Chatterbox("Chatterbox", controller));
 		return controller;
 	}
 

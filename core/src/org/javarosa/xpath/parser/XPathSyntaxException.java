@@ -17,5 +17,12 @@
 package org.javarosa.xpath.parser;
 
 public class XPathSyntaxException extends Exception {
-
+	
+	public XPathSyntaxException() {
+		super();
+	}
+	
+	public XPathSyntaxException(String message) {
+		super(message);
+	}
 }

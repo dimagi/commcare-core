@@ -87,7 +87,7 @@ public class GeoPointData implements IAnswerData {
      * 
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
-    public Object getValue() {
+    public double[] getValue() {
         return gp;
     }
 
