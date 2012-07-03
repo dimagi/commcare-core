@@ -427,7 +427,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					throw new RuntimeException("Could not locate the repeat count value expected at " + repeat.getCountReference().getReference().toString());
 				}
 				//get the total multiplicity possible
-				long fullcount = ((Integer)countNode.getValue().getValue()).intValue();
+				IAnswerData count = countNode.getValue();
+				long fullcount = count == null ? 0 : ((Integer)count.getValue()).intValue();
 				
 				if(fullcount <= currentMultiplicity) {
 					return false;
