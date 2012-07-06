@@ -616,7 +616,7 @@ public class XFormParser {
 		Action action;
 		TreeReference treeref = FormInstance.unpackReference(dataRef);
 		
-		actionTargets.add(treeref);
+		actionTargets.addElement(treeref);
 		if(valueRef == null) {
 			//Set expression
 			action = new SetValueAction(treeref, e.getText(0));
