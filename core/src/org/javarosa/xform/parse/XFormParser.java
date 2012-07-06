@@ -124,6 +124,7 @@ public class XFormParser {
 	private boolean modelFound;
 	private Hashtable<String, DataBinding> bindingsByID;
 	private Vector<DataBinding> bindings;
+	private Vector<TreeReference> actionTargets;
 	private Vector<TreeReference> repeats;
 	private Vector<ItemsetBinding> itemsets;
 	private Vector<TreeReference> selectOnes;
@@ -240,6 +241,7 @@ public class XFormParser {
 		modelFound = false;
 		bindingsByID = new Hashtable<String, DataBinding>();
 		bindings = new Vector<DataBinding>();
+		actionTargets = new Vector<TreeReference>();
 		repeats = new Vector<TreeReference>();
 		itemsets = new Vector<ItemsetBinding>();
 		selectOnes = new Vector<TreeReference>();
@@ -613,6 +615,8 @@ public class XFormParser {
 		String valueRef = e.getAttributeValue(null, "value");
 		Action action;
 		TreeReference treeref = FormInstance.unpackReference(dataRef);
+		
+		actionTargets.add(treeref);
 		if(valueRef == null) {
 			//Set expression
 			action = new SetValueAction(treeref, e.getText(0));
@@ -1753,6 +1757,7 @@ public class XFormParser {
 		{
 			processRepeats(instanceModel);
 			verifyBindings(instanceModel);
+			verifyActions(instanceModel);
 		}
 		applyInstanceProperties(instanceModel);
 		
@@ -2181,6 +2186,17 @@ public class XFormParser {
 		verifyItemsetBindings(instance);
 		
 		verifyItemsetSrcDstCompatibility(instance);
+	}
+	
+	private void verifyActions (FormInstance instance) {
+		//check the target of actions which are manipulating real values
+		for (int i = 0; i < actionTargets.size(); i++) {
+			TreeReference target = actionTargets.elementAt(i);
+			Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(target, true);
+			if (nodes.size() == 0) {
+				throw new XFormParseException("Invalid Action - Targets non-existent node: " + target.toString(true));
+			}
+		}
 	}
 	
 	private static void verifyControlBindings (IFormElement fe, FormInstance instance, Vector<String> errors) { //throws XmlPullParserException {
