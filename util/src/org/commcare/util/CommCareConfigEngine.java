@@ -25,6 +25,7 @@ import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -34,6 +35,7 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.xpath.XPathMissingInstanceException;
 
 /**
  * @author ctsims
@@ -269,7 +271,11 @@ public class CommCareConfigEngine {
 				print.println(emptyhead + "Form: " + datum.getValue());
 			} else {
 				Detail d = s.getDetail(datum.getShortDetail());
-				print.println(emptyhead + "|Select: " + d.getTitle().evaluate());
+				try {
+					print.println(emptyhead + "|Select: " + d.getTitle().evaluate(new EvaluationContext(null)));
+				} catch(XPathMissingInstanceException ex) {
+					print.println(emptyhead + "|Select: " + "(dynamic title)");
+				}
 				print.print(emptyhead + "| ");
 				for(Text t : d.getHeaders()) {
 					print.print(t.evaluate() + " | ");
