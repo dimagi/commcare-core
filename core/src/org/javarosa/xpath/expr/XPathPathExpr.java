@@ -44,6 +44,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
@@ -199,7 +200,7 @@ public class XPathPathExpr extends XPathExpression {
 			}
 			else
 			{
-				throw new XPathTypeMismatchException("Instance referenced by " + ref.toString(true) + " does not exist");
+				throw new XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by " + ref.toString(true) + " does not exist");
 			}
 		} else {
 			//TODO: We should really stop passing 'm' around and start just getting the right instance from ec

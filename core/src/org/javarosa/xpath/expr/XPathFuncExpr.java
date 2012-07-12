@@ -575,14 +575,15 @@ public class XPathFuncExpr extends XPathExpression {
 			
 			Date d = DateUtils.parseDateTime(s);
 			if (d == null) {
-				throw new XPathTypeMismatchException("converting to date");
+				throw new XPathTypeMismatchException("converting string " + s + " to date");
 			} else {
 				return d;
 			}
 		} else if (o instanceof Date) {
 			return DateUtils.roundDate((Date)o);
 		} else {
-			throw new XPathTypeMismatchException("converting to date");
+			String type = o == null ? "null" : o.getClass().getName();
+			throw new XPathTypeMismatchException("converting unexpected type " + type + " to date");
 		}
 	}
 
