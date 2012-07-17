@@ -65,6 +65,7 @@ import org.javarosa.j2me.crypto.util.CryptoSession;
 import org.javarosa.j2me.file.J2meFileReference;
 import org.javarosa.j2me.file.J2meFileRoot;
 import org.javarosa.j2me.file.J2meFileSystemProperties;
+import org.javarosa.j2me.reference.HttpReference.SecurityFailureListener;
 import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 import org.javarosa.j2me.storage.rms.RMSStorageUtilityIndexed;
@@ -373,7 +374,7 @@ public class CommCareContext {
 								} catch(SecurityException se) {
 									PeriodicEvent.schedule(new PermissionsEvent());
 									//Should get swallowed
-									throw new IOException("Couldn't access data at " + this.getLocalURI() + " do to lack of permissions.");
+									throw new IOException("Couldn't access data at " + this.getLocalURI() + " due to lack of permissions.");
 								}
 							}
 						};
@@ -442,7 +443,11 @@ public class CommCareContext {
 		new CoreModelModule().registerModule();
 		new XFormsModule().registerModule();
 		new CaseManagementModule().registerModule();
-		new TransportManagerModule().registerModule();
+		new TransportManagerModule(new SecurityFailureListener(){
+			public void onSecurityException(SecurityException e) {
+				PeriodicEvent.schedule(new PermissionsEvent());
+			}
+		}).registerModule();
 		new CommCareModule().registerModule();
 		new FormManagerModule().registerModule();
 	}
