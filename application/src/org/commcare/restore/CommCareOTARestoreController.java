@@ -21,6 +21,7 @@ import org.commcare.util.CommCareInstanceInitializer;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.time.AutoSyncEvent;
+import org.commcare.util.time.PermissionsEvent;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.log.WrappedException;
@@ -40,6 +41,7 @@ import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.log.HandledThread;
+import org.javarosa.j2me.reference.HttpReference.SecurityFailureListener;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.DataModelSerializer;
@@ -136,7 +138,13 @@ public class CommCareOTARestoreController implements HandledCommandListener {
 		} else {
 			authAttempts = 1;
 			J2MEDisplay.setView(view);
-			tryDownload(AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator));
+			
+			//TODO: this listener is replicated in quite a few places 
+			tryDownload(AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator, new SecurityFailureListener(){
+				public void onSecurityException(SecurityException e) {
+					PeriodicEvent.schedule(new PermissionsEvent());
+				}
+			}));
 		}
 	}
 	
