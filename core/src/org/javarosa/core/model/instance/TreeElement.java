@@ -979,6 +979,13 @@ import org.javarosa.xpath.expr.XPathExpression;
 					}
 				}
 			}
+			for (int i = 0; i < incoming.getAttributeCount(); i++) {
+				String name = incoming.getAttributeName(i);
+				String ns = incoming.getAttributeNamespace(i);
+				String value = incoming.getAttributeValue(i);
+				
+				this.setAttribute(ns, name, value);
+			}
 		}
 	}
 	
