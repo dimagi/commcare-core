@@ -62,20 +62,21 @@ public class ProfileParser extends ElementParser<Profile> {
 			minor = parseInt(sMinor);
 		}
 
-		if (!forceVersion && this.instance != null) {
+		if ((!forceVersion && this.instance != null) && (major != -1) && (minor != -1)){
 			if (this.instance.getMajorVersion() != -1
-					&& this.instance.getMajorVersion() < major) {
+					&& this.instance.getMajorVersion() != major) {	//changed < to !=
+				
 				throw new UnfullfilledRequirementsException(
 						"Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
 						UnfullfilledRequirementsException.SEVERITY_PROMPT,
-						UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION);
+						UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),true);
 			}
 			if (this.instance.getMinorVersion() != -1
 					&& this.instance.getMinorVersion() < minor) {
 				throw new UnfullfilledRequirementsException(
 						"Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
 						UnfullfilledRequirementsException.SEVERITY_PROMPT,
-						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION);
+						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),true);
 			}
 		}
 

@@ -21,6 +21,10 @@ public class UnfullfilledRequirementsException extends Exception {
 	
 	private int severity;
 	private int requirement;
+
+	public String required;
+	public String available;
+	public boolean majorIsProblem = false;
 	
 	public UnfullfilledRequirementsException(String message, int severity) {
 		super(message);
@@ -33,6 +37,21 @@ public class UnfullfilledRequirementsException extends Exception {
 		this.requirement = requirement;
 	}
 	
+	public UnfullfilledRequirementsException(String message, int severity, int maR, int miR, int maA, int miA, boolean majorIsProblem){
+		super(message);
+		this.severity = severity;
+		required=maR+"."+miR;
+		available=maA+"."+miA;
+	}
+	
+	public UnfullfilledRequirementsException(String message, int severity, int requirement, int maR, int miR, int maA, int miA, boolean majorIsProblem){
+		super(message);
+		this.severity = severity;
+		this.requirement = requirement;
+		required=maR+"."+miR;
+		available=maA+"."+miA;
+	}
+	
 	public int getSeverity() {
 		return severity;
 	}
@@ -40,4 +59,5 @@ public class UnfullfilledRequirementsException extends Exception {
 	public int getRequirementCode() {
 		return requirement;
 	}
+	
 }
