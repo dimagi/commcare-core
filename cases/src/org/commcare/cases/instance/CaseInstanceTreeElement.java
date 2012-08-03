@@ -388,7 +388,12 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 							} catch(IllegalArgumentException IAE) {
 								//We can only get this if we have a new index type
 								storage.registerIndex(filterIndex);
-								cases = storage.getIDsForValue(filterIndex, o);
+								try{
+									cases = storage.getIDsForValue(filterIndex, o);
+								} catch(IllegalArgumentException iaeagain) {
+									//Still didn't work, platform can't expand indices
+									break predicate;
+								}
 							}
 							
 							// merge with any other sets of cases
