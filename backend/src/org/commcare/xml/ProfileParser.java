@@ -76,7 +76,7 @@ public class ProfileParser extends ElementParser<Profile> {
 				throw new UnfullfilledRequirementsException(
 						"Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
 						UnfullfilledRequirementsException.SEVERITY_PROMPT,
-						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),true);
+						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),false);
 			}
 		}
 

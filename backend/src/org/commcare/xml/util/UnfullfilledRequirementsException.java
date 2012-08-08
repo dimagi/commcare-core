@@ -42,6 +42,7 @@ public class UnfullfilledRequirementsException extends Exception {
 		this.severity = severity;
 		required=maR+"."+miR;
 		available=maA+"."+miA;
+		this.majorIsProblem=majorIsProblem;
 	}
 	
 	public UnfullfilledRequirementsException(String message, int severity, int requirement, int maR, int miR, int maA, int miA, boolean majorIsProblem){
@@ -50,6 +51,7 @@ public class UnfullfilledRequirementsException extends Exception {
 		this.requirement = requirement;
 		required=maR+"."+miR;
 		available=maA+"."+miA;
+		this.majorIsProblem=majorIsProblem;
 	}
 	
 	public int getSeverity() {
