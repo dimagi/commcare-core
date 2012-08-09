@@ -21,6 +21,7 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.ActionResponse;
 import org.javarosa.engine.models.Command;
+import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
 import org.javarosa.engine.playback.BadPlaybackException;
@@ -48,9 +49,12 @@ public class XFormPlayer {
 	
 	private Step current;
 	
-	public XFormPlayer(InputStream in, PrintStream out) {
+	Mockup mockup;
+	
+	public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
 		this.in = in;
 		this.out = out;
+		this.mockup = mockup;
 	}
 	
 //	public XFormPlayer(Console console, PrintStream out) {
@@ -77,7 +81,7 @@ public class XFormPlayer {
 	}
 	
 	public void start(FormDef form) {
-		this.environment = new XFormEnvironment(form);
+		this.environment = new XFormEnvironment(form, mockup);
 		fec = environment.setup();
 		reader = new BufferedReader(new InputStreamReader(in));
 		processLoop();

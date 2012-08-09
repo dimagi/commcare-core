@@ -8,24 +8,23 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.model.instance.FormInstance;
 
 /**
  * @author ctsims
  *
  */
-public class Mockup {
-	String XMLNS = "http://javarosa.org/mockup";
-	
-	Hashtable<String, DataInstance> instances;
+public class Mockup {	
+	Hashtable<String, FormInstance> instances;
 	Date date;
 	Vector<Session> sessions;
 	
 	public Mockup() {
-		
+		sessions = new Vector<Session>();
+		instances = new Hashtable<String, FormInstance>();
 	}
 	
-	public Hashtable<String, DataInstance> getInstances() {
+	public Hashtable<String, FormInstance> getInstances() {
 		return instances;
 	}
 	
@@ -37,7 +36,30 @@ public class Mockup {
 		return sessions.toArray(new Session[0]);
 	}
 	
-	public void addSession(Session session) {
-		this.sessions.addElement(session);
+	public MockupEditor getEditor() {
+		return new MockupEditor(this);
+	}
+	
+	public class MockupEditor {
+		Mockup m;
+		private MockupEditor(Mockup m) {
+			this.m = m;
+		}
+		
+		public void commit() {
+			
+		}
+
+		public void setDate(Date d) {
+			m.date = d;
+		}
+
+		public void addInstance(FormInstance instance) {
+			m.instances.put(instance.getInstanceId(), instance);
+		}
+
+		public void addSession(Session s) {
+			m.sessions.add(s);
+		}
 	}
 }

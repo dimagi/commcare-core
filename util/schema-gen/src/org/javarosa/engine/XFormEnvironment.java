@@ -11,6 +11,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.engine.models.Action;
+import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
 import org.javarosa.form.api.FormEntryController;
@@ -25,8 +26,6 @@ import org.javarosa.form.api.FormEntryModel;
  */
 public class XFormEnvironment {
 	
-	private Date today = new Date();
-	
 	private FormDef form;
 	
 	private FormEntryModel fem;
@@ -37,6 +36,7 @@ public class XFormEnvironment {
 	private int stepCount = 0;
 	
 	private Session session;
+	private Mockup mockup;
 	boolean recording = true;
 
 	public XFormEnvironment(FormDef form) {
@@ -50,12 +50,14 @@ public class XFormEnvironment {
 	}
 	
 	
-	public void setToday(Date date) {
-		today = date;
+	public XFormEnvironment(FormDef form, Mockup mockup) {
+		this(form);
+		this.mockup = mockup;
 	}
 	
 	public FormEntryController setup() {
 		form.setEvaluationContext(getEC());
+		
 		form.initialize(true, createIIF());
 		
 		if(recording) {
@@ -87,7 +89,7 @@ public class XFormEnvironment {
 	}
 	
 	private InstanceInitializationFactory createIIF() {
-		return null;
+		return new MockupProviderFactory(mockup.getInstances());
 	}
 	
 	private EvaluationContext getEC() {
@@ -124,7 +126,11 @@ public class XFormEnvironment {
 		}
 
 		public Object eval(Object[] args, EvaluationContext ec) {
-			return today;
+			if(mockup != null && mockup.getDate() != null) {
+				return mockup.getDate();
+			} else {
+				return new Date();
+			}
 		}
 		
 	}

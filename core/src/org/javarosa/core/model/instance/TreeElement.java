@@ -1231,7 +1231,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	}
 	
 	public void clearCaches() {
-		
+		expireReferenceCache();
 	}
 
 	public String getNamespace() {
