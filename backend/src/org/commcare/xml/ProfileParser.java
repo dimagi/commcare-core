@@ -62,21 +62,26 @@ public class ProfileParser extends ElementParser<Profile> {
 			minor = parseInt(sMinor);
 		}
 
+		//If version information is available, check valid versions
 		if ((!forceVersion && this.instance != null) && (major != -1) && (minor != -1)){
+			
+			//For the major version, only a matching number is valid, 2.0 cannot be run on either 1.0 or 3.0
 			if (this.instance.getMajorVersion() != -1
 					&& this.instance.getMajorVersion() != major) {	//changed < to !=
 				
 				throw new UnfullfilledRequirementsException(
 						"Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
 						UnfullfilledRequirementsException.SEVERITY_PROMPT,
-						UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),true);
+						UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
 			}
+			
+			//For the minor version, anything greater than the profile's version is valid
 			if (this.instance.getMinorVersion() != -1
 					&& this.instance.getMinorVersion() < minor) {
 				throw new UnfullfilledRequirementsException(
 						"Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
 						UnfullfilledRequirementsException.SEVERITY_PROMPT,
-						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion(),false);
+						UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
 			}
 		}
 
