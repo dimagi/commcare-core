@@ -643,6 +643,11 @@ public class DateUtils {
 		return dateDiff(getDate(1970, 1, 1), date);
 	}
 	
+
+	public static Double fractionalDaysSinceEpoch(Date a) {
+		return new Double((a.getTime() - getDate(1970, 1, 1).getTime()) / (double)DAY_IN_MS);
+	}
+	
 	/**
 	 * add n days to date d
 	 * 
@@ -754,4 +759,5 @@ public class DateUtils {
 			return true;
 		}
 	}
+
 }

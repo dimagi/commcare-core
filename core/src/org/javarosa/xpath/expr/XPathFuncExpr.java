@@ -161,6 +161,8 @@ public class XPathFuncExpr extends XPathExpression {
 			return toNumeric(argVals[0]);
 		} else if (name.equals("int") && args.length == 1) { //non-standard
 			return toInt(argVals[0]);
+		} else if (name.equals("double") && args.length == 1) { //non-standard
+			return toDouble(argVals[0]);
 		} else if (name.equals("string") && args.length == 1) {
 			return toString(argVals[0]);			
 		} else if (name.equals("date") && args.length == 1) { //non-standard
@@ -413,6 +415,14 @@ public class XPathFuncExpr extends XPathExpression {
 			return val;
 		} else {
 			throw new XPathTypeMismatchException("converting to boolean");
+		}
+	}
+	
+	public static Double toDouble(Object o ){
+		if(o instanceof Date) {
+			return DateUtils.fractionalDaysSinceEpoch((Date)o);
+		} else {
+			return toNumeric(o);
 		}
 	}
 	
