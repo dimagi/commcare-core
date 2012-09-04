@@ -62,4 +62,13 @@ public class UnfullfilledRequirementsException extends Exception {
 		return requirement;
 	}
 	
+	public String getAvailableVesionString(){
+		return available;
+	}
+	
+	public String getRequiredVersionString(){
+		return required;
+	}
+	
+	
 }

@@ -104,6 +104,9 @@ public class CommCareProperties implements IPropertyRules {
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
 	public static final String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
+	
+	public static final String UNSENT_FORM_NUMBER_LIMIT = "form-number-limit";
+	public static final String UNSENT_FORM_TIME_LIMIT = "form-time-limit";
     
 	/**
 	 * Creates the JavaRosa set of property rules

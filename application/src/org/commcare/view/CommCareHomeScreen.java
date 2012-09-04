@@ -56,6 +56,12 @@ public class CommCareHomeScreen extends CommCareListView {
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
 	
+	//public final int unsentFormLimit = Integer.parseInt(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT);
+	//public final int unsentTimeLimit = Integer.parseInt(CommCareProperties.UNSENT_FORM_TIME_LIMIT);
+	
+	public final int unsentFormLimit = 2;
+	public final int unsentTimeLimit = 3;
+	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"));
 		this.controller = controller;
@@ -108,13 +114,13 @@ public class CommCareHomeScreen extends CommCareListView {
 	}
 
 	public void setSendUnsent() {
-		String numunsent = "error"; 
+		String numunsent = "error";
 		int unsent = CommCareUtil.getNumberUnsent();
 		numunsent = String.valueOf(unsent);
 		
 		sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
 		
-		if(unsent > 10) {
+		if(unsent > unsentFormLimit) {
 			//#style unsentImportant
 			UiAccess.setStyle(sendAllUnsent);
 		} else {
@@ -134,8 +140,7 @@ public class CommCareHomeScreen extends CommCareListView {
 			setTitle(name + (unsent > 0 ?  ": " + numunsent : ""));
 		}
 	}
-		
-	//TODO: localize me
+
 	public void setSync () {
 		String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
 		
@@ -153,7 +158,7 @@ public class CommCareHomeScreen extends CommCareListView {
 				if (days_ago >= 2) {
 					message = Localization.get("menu.sync.last",new String[] {String.valueOf(days_ago)} );
 				}
-				if(days_ago > 5) {
+				if(days_ago > unsentTimeLimit) {
 					bad = true;
 				}
 			}
@@ -178,7 +183,7 @@ public class CommCareHomeScreen extends CommCareListView {
 			message += "; " + sUnsent;
 		}
 		
-		if(numUnsent > 10) {
+		if(numUnsent > unsentFormLimit) {
 			bad = true;
 		}
 		
