@@ -29,6 +29,7 @@ public class MenuParser extends ElementParser<Menu> {
 	 * @see org.commcare.xml.ElementParser#parse()
 	 */
 	public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		//System.out.println("parsing menu...");
 		checkNode("menu");
 
 		String id = parser.getAttributeValue(null, "id");
@@ -44,12 +45,13 @@ public class MenuParser extends ElementParser<Menu> {
 		
 		if(parser.getName().equals("text")){
 			name = new TextParser(parser).parse();
+			//System.out.println("Hi, my name is 1: " + name.evaluate());
 		}else if(parser.getName().equals("display")){
 			Object[] displayArr = parseDisplayBlock();
 			//check that we have a commandText;
 			if(displayArr[0] == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
 			else name = (Text)displayArr[0];
-			
+			//System.out.println("Hi, my name is 2: " + name.evaluate());
 			imageURI = (String)displayArr[1];
 			audioURI = (String)displayArr[2];
 		} else {

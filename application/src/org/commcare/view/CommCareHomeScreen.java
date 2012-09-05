@@ -56,11 +56,8 @@ public class CommCareHomeScreen extends CommCareListView {
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
 	
-	//public final int unsentFormLimit = Integer.parseInt(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT);
-	//public final int unsentTimeLimit = Integer.parseInt(CommCareProperties.UNSENT_FORM_TIME_LIMIT);
-	
-	public final int unsentFormLimit = 2;
-	public final int unsentTimeLimit = 3;
+	public final int unsentFormNumberLimit = Integer.parseInt(PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT));
+	public final int unsentFormTimeLimit = Integer.parseInt(PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_TIME_LIMIT));
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"));
@@ -114,13 +111,16 @@ public class CommCareHomeScreen extends CommCareListView {
 	}
 
 	public void setSendUnsent() {
+		
+		String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
+		
 		String numunsent = "error";
 		int unsent = CommCareUtil.getNumberUnsent();
 		numunsent = String.valueOf(unsent);
 		
 		sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
 		
-		if(unsent > unsentFormLimit) {
+		if(unsent > unsentFormNumberLimit) {
 			//#style unsentImportant
 			UiAccess.setStyle(sendAllUnsent);
 		} else {
@@ -142,8 +142,9 @@ public class CommCareHomeScreen extends CommCareListView {
 	}
 
 	public void setSync () {
+				
 		String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
-		
+
 		boolean bad = false;
 		
 		String message = null;
@@ -158,7 +159,7 @@ public class CommCareHomeScreen extends CommCareListView {
 				if (days_ago >= 2) {
 					message = Localization.get("menu.sync.last",new String[] {String.valueOf(days_ago)} );
 				}
-				if(days_ago > unsentTimeLimit) {
+				if(days_ago > unsentFormTimeLimit) {
 					bad = true;
 				}
 			}
@@ -183,7 +184,7 @@ public class CommCareHomeScreen extends CommCareListView {
 			message += "; " + sUnsent;
 		}
 		
-		if(numUnsent > unsentFormLimit) {
+		if(numUnsent > unsentFormNumberLimit) {
 			bad = true;
 		}
 		

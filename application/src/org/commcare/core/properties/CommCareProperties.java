@@ -142,8 +142,15 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(OTA_RESTORE_TEST_URL,new Vector());
         rules.put(LAST_SUCCESSFUL_SYNC, new Vector());
         rules.put(LAST_SYNC_AT, new Vector());
+        
+        rules.put(UNSENT_FORM_TIME_LIMIT, new Vector());
+        rules.put(UNSENT_FORM_NUMBER_LIMIT, new Vector());
+        
+        
         readOnlyProperties.addElement(LAST_SUCCESSFUL_SYNC);
         readOnlyProperties.addElement(LAST_SYNC_AT);
+        readOnlyProperties.addElement(UNSENT_FORM_TIME_LIMIT);
+        readOnlyProperties.addElement(UNSENT_FORM_NUMBER_LIMIT);
         
         Vector vTol = new Vector();
         vTol.addElement(REST_TOL_STRICT);
