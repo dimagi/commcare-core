@@ -51,6 +51,10 @@ import org.kxml2.io.KXmlSerializer;
 			serializer.setOutput(stream, "UTF-8");
 			this.factory = factory;
 		}
+		
+		public DataModelSerializer(KXmlSerializer serializer) {
+			this.serializer = serializer;
+		}
 
 		public void serialize(ExternalDataInstance instance, TreeReference base) throws IOException {
 			instance.initialize(factory, instance.getName());
