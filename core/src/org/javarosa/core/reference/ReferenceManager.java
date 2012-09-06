@@ -128,11 +128,12 @@ public class ReferenceManager {
 	 * is not valid in the current environment.
 	 */
 	public Reference DeriveReference(String uri, String context) throws InvalidReferenceException {
-		if(uri == null) { throw new InvalidReferenceException("Null references aren't valid",uri);}
+		if(uri == null) { 
+			throw new InvalidReferenceException("Null references aren't valid",uri);
+		}
 		
 		//Relative URI's need to determine their context first.
 		if(isRelative(uri)) {
-			
 			//Clean up the relative reference to lack any leading separators.
 			if(uri.startsWith("./")) {
 				uri = uri.substring(2);
