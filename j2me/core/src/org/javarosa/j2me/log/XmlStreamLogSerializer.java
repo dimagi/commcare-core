@@ -23,16 +23,24 @@ public class XmlStreamLogSerializer extends StreamLogSerializer {
 	 */
 	protected void serializeLog(LogEntry log) throws IOException {
 		o.startTag(ns, "log");
+		try {
 		o.attribute(null, "date", DateUtils.formatDateTime(log.getTime(), DateUtils.FORMAT_ISO8601));
 		
 		o.startTag(ns, "type");
-		o.text(log.getType());
-		o.endTag(ns, "type");
+		try {
+			o.text(log.getType());
+		} finally {
+			o.endTag(ns, "type");
+		}
 		
 		o.startTag(ns, "msg");
-		o.text(log.getMessage());
-		o.endTag(ns, "msg");
-		
-		o.endTag(ns, "log");
+		try {
+			o.text(log.getMessage());
+		} finally {
+			o.endTag(ns, "msg");
+		}
+		} finally {
+			o.endTag(ns, "log");
+		}
 	}
 }
