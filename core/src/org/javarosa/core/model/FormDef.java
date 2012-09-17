@@ -92,8 +92,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	// tags that serve as parameterized
 	// arguments to captions
 
-	public Hashtable triggerIndex; // <TreeReference, Vector<Triggerable>>
-	private Hashtable conditionRepeatTargetIndex; // <TreeReference, Condition>;
+	public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
+	private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
 	// associates repeatable
 	// nodes with the Condition
 	// that determines their
@@ -667,43 +667,101 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		evaluateTriggerables(applicable, rootRef);
 	}
 	
-	// ref: unambiguous ref of node that just changed
+	/**
+	 * The entry point for the DAG cascade after a value is changed in the model.
+	 * 
+	 * @param ref The full contextualized unambiguous reference of the value that was
+	 * changed.
+	 */
 	public void triggerTriggerables(TreeReference ref) {
-		// turn unambiguous ref into a generic ref
+		
+		//turn unambiguous ref into a generic ref
+		//to identify what nodes should be triggered by this 
+		//reference changing
 		TreeReference genericRef = ref.genericize();
 
-		// get conditions triggered by this node
+		//get triggerables which are activated by the generic reference
 		Vector triggered = (Vector)triggerIndex.get(genericRef);
 		if (triggered == null) {
 			return;
 		}
 
+		//Our vector doesn't have a shallow copy op, so make one 
 		Vector triggeredCopy = new Vector();
 		for (int i = 0; i < triggered.size(); i++) { 
 			triggeredCopy.addElement(triggered.elementAt(i));
 		}
+		
+		//Evaluate all of the triggerables in our new vector
 		evaluateTriggerables(triggeredCopy, ref);
 	}
 
+	/**
+	 * Step 2 in evaluating DAG computation updates from a value being changed in 
+	 * the instance. This step is responsible for taking the root set of directly
+	 * triggered conditions, identifying which conditions should further be triggered
+	 * due to their update, and then dispatching all of the evaluations.
+	 * 
+	 * @param tv A vector of all of the trigerrables directly triggered by the 
+	 * value changed
+	 * @param anchorRef The reference to original value that was updated
+	 */
 	private void evaluateTriggerables(Vector tv, TreeReference anchorRef) {
 		//add all cascaded triggerables to queue
+		
+		//Iterate through all of the currently known triggerables to be triggered
 		for (int i = 0; i < tv.size(); i++) {
 			Triggerable t = (Triggerable)tv.elementAt(i);
+			
+			//If this condition should cause other conditons which reference this node to be triggered
 			if (t.canCascade()) {
+				
+				//Navigate through all of the "targets" of this triggerable (Nodes which will be updated when it
+				//is evaluated), since we'll want to see if they trigger other computations
 				for (int j = 0; j < t.getTargets().size(); j++) {
+					
+					//The target here is basically a value that will be updated by the triggerable 
+					//we're evaluating
 					TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-					Vector triggered = (Vector)triggerIndex.get(target);
-					if (triggered != null) {
-						for (int k = 0; k < triggered.size(); k++) {
-							Triggerable u = (Triggerable)triggered.elementAt(k);
-							if (!tv.contains(u))
-								tv.addElement(u);
+					
+					Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+					updatedNodes.addElement(target);
+					
+					
+					//TODO: This is likely going to add a substantial cost to the processing step. 
+					//Evaluate how much of one and figure out if we need to optimize this before prod.
+					
+					//For certain types of triggerables, the update will affect not only the target, but
+					//also the children of the target. In that case, we want to add all of those nodes 
+					//to the list of updated elements as well.
+					if(t.isCascadingToChildren()) {
+						addChildrenOfReference(target, updatedNodes);
+					}
+					
+					//Now go through each of these updated nodes (generally just 1 for a normal calculation,
+					//multiple nodes if there's a relevance cascade.
+					for(TreeReference ref : updatedNodes) {
+						//Check our index to see if that target is a Trigger for other conditions
+						//IE: if they are an element of a different calculation or relevancy calc
+						Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
+						
+						if (triggered != null) {
+							//If so, walk all of these triggerables that we found
+							for (int k = 0; k < triggered.size(); k++) {
+								Triggerable u = (Triggerable)triggered.elementAt(k);
+								
+								//And add them to the queue if they aren't there already
+								if (!tv.contains(u))
+									tv.addElement(u);
+							}
 						}
 					}
 				}
 			}
 		}
 		
+		//tv should now contain all of the triggerable components which are going to need to be addressed
+		//by this update.
 		//'triggerables' is topologically-ordered by dependencies, so evaluate the triggerables in 'tv'
 		//in the order they appear in 'triggerables'
 		for (int i = 0; i < triggerables.size(); i++) {
@@ -714,19 +772,48 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 	}
 	
+	/**
+	 * Step 3 in DAG cascade. evaluate the individual triggerable expressions against
+	 * the anchor (the value that changed which triggered recomputation)
+	 * 
+	 * @param t The triggerable to be updated
+	 * @param anchorRef The reference to the value which was changed.
+	 */
 	private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
+		
+		//Contextualize the reference used by the triggerable against the anchor
 		TreeReference contextRef = t.contextRef.contextualize(anchorRef);
 		
-		//These are all of the different concrete nodes against which the 
-		//triggerable will need to be evaluated
+		//Now identify all of the fully qualified nodes which this triggerable
+		//updates. (Multiple nodes can be updated by the same trigger)
 		Vector<TreeReference> v = exprEvalContext.expandReference(contextRef);
 		
+		//Go through each one and evaluate the trigger expresion
 		for (int i = 0; i < v.size(); i++) {
 			try {
 				t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
 			}catch(RuntimeException e) {
 				throw e;
 			}
+		}
+	}
+	
+	/**
+	 * This is a utility method to get all of the references of a node. It can be replaced
+	 * when we support dependent XPath Steps (IE: /path/to//)
+	 */
+	private void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
+		for(TreeReference ref : exprEvalContext.expandReference(original)) {
+			addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
+		}
+	}
+	
+	//Recursive step of utility method 
+	private void addChildrenOfElement(AbstractTreeElement el, Vector<TreeReference> toAdd) {
+		for(int i = 0 ; i < el.getNumChildren() ; ++i) {
+			AbstractTreeElement child = el.getChildAt(i);
+			toAdd.addElement(child.getRef().genericize());
+			addChildrenOfElement(child, toAdd);
 		}
 	}
 
