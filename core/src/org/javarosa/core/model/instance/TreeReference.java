@@ -281,9 +281,27 @@ public class TreeReference implements Externalizable {
 		if (!contextRef.isAbsolute()){
 			return null;
 		}
+		
+		//If we're an absolute node, we should already know what our instance is, so
+		//we can't apply any further contextualizaiton unless the instances match
+		if(this.isAbsolute()) {
+			//If this refers to the main instance, but our context ref doesn't
+			if(this.getInstanceName() == null) {
+				if(contextRef.getInstanceName() != null) {
+					return this.clone();
+				}
+			} 
+			//Or if this refers to another instance and the context ref doesn't refer to the 
+			//same instance
+			else if(!this.getInstanceName().equals(contextRef.getInstanceName())) {
+				return this.clone();
+			}
+		}
+		
 		TreeReference newRef = anchor(contextRef);
 		newRef.setContext(contextRef.getContext());
 		
+		//apply multiplicites and fill in wildcards as necessary based on the context ref
 		for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
 			
 			//If the the contextRef can provide a definition for a wildcard, do so

@@ -4,6 +4,7 @@
 package org.javarosa.engine;
 
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
@@ -89,7 +90,7 @@ public class XFormEnvironment {
 	}
 	
 	private InstanceInitializationFactory createIIF() {
-		return new MockupProviderFactory(mockup.getInstances());
+		return new MockupProviderFactory(mockup == null ? new Hashtable() : mockup.getInstances());
 	}
 	
 	private EvaluationContext getEC() {
