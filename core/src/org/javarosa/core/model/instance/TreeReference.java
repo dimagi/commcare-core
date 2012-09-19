@@ -466,7 +466,7 @@ public class TreeReference implements Externalizable {
 				case INDEX_TEMPLATE: sb.append("[@template]"); break;
 				case INDEX_REPEAT_JUNCTURE: sb.append("[@juncture]"); break;
 				default:
-					if (i > 0 || mult != 0)
+					if ((i > 0 || mult != 0) && mult !=-4)
 						sb.append("[" + (mult + 1) + "]");
 					break;
 				}

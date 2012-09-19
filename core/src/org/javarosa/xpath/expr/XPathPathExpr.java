@@ -215,7 +215,9 @@ public class XPathPathExpr extends XPathExpression {
 		//Otherwise we'll leave 'm' as set to the main instance 
 		
 		if (ref.isAbsolute() && m.getTemplatePath(ref) == null) {
-			return XPathNodeset.ConstructInvalidPathNodeset(genericRef.toString());
+			//CTS - 19/9/2012 - Changing this to "ref", but not sure if this is "genericRef" for a specific reason :/
+			//If someone comes back here to change this to "genericRef" again, consider the best way to present both
+			return XPathNodeset.ConstructInvalidPathNodeset(ref.toString());
 		}
 		
 		Vector<TreeReference> nodesetRefs = ec.expandReference(ref);
