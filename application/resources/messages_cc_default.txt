@@ -35,6 +35,8 @@ sync.done.updates=Update successful!
 sync.done.new=${0} new cases
 sync.done.closed=${0} cases closed
 sync.done.updated=${0} cases updated
+sync.pull.admin=Admin user can't sync data. Restore User Data to pull down a User from server
+sync.pull.demo=Demo user can't sync data. Restore User Data to pull down a User from server
 
 sync.cancelled=Sync Cancelled!
 

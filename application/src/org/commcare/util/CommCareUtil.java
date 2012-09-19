@@ -389,4 +389,8 @@ public class CommCareUtil {
 			e.printStackTrace();
 		}
 	}
+
+	public static boolean isMagicAdmin(User u) {
+		return u.isAdminUser() && u.getUsername().equals("admin");
+	}
 }

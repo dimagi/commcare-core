@@ -123,7 +123,7 @@ public class CommCareLoginState extends LoginState {
 			public void done() {
 				
 				//"admin" login criteria (the actual admin user, not a superuser)
-				boolean isAdminUser = u.isAdminUser() && u.getUsername().equals("admin");
+				boolean isAdminUser = CommCareUtil.isMagicAdmin(u);
 				
 				//Don't run period events if you're logging in in either
 				//A) Admin mode (user with username "admin" and superuser permissions)
