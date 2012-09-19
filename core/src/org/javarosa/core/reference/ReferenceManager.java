@@ -190,9 +190,62 @@ public class ReferenceManager {
 			}
 		}
 		
-		throw new InvalidReferenceException("No reference could be created for URI " + uri, uri);
+		throw new InvalidReferenceException(getPrettyPrintException(uri), uri);
 	}
 	
+	private String getPrettyPrintException(String uri) {
+		if(uri == "") { return "Attempt to derive a blank reference";}
+		try {
+			String uriRoot = uri;
+			String jrRefMessagePortion = "reference type";
+			if(uri.indexOf("jr://") != -1) {
+				uriRoot = uri.substring("jr://".length());
+				jrRefMessagePortion ="javarosa jr:// reference root";
+			}
+			//For http:// style uri's
+			int endOfRoot = uriRoot.indexOf("://") + "://".length();
+			if(endOfRoot == "://".length() - 1)  {
+				endOfRoot = uriRoot.indexOf("/");
+			}
+			if(endOfRoot != -1 ){
+				uriRoot = uriRoot.substring(0, endOfRoot);
+			}
+			String message = "The reference \"" + uri + "\" was invalid and couldn't be understood. The " + jrRefMessagePortion + " \"" + uriRoot + 
+					"\" is not available on this system and may have been mis-typed. Some available roots: ";
+			for(RootTranslator root : sessionTranslators) {
+				message += "\n" + root.prefix;
+			}
+			
+			//Now, try any/all roots referenced at runtime.
+			for(RootTranslator root : translators) {
+				message += "\n" + root.prefix;
+			}
+			
+			//Now try all of the raw connectors available 
+			for(ReferenceFactory root : factories) {
+				
+				//TODO: Skeeeeeeeeeeeeetch
+				try { 
+					
+					if(root instanceof PrefixedRootFactory) {
+						for(String rootName : ((PrefixedRootFactory)root).roots) {
+							message += "\n" + rootName;
+						}
+					} else {
+						message += "\n" + root.derive("").getURI();
+					}
+				} catch(Exception e) {
+					
+				}
+			}
+			return message;
+		} catch(Exception e) {
+			return "Couldn't process the reference " + uri + " . It may have been entered incorrectly. " +
+					"Note that this doesn't mean that this doesn't mean the file or location referenced " +
+					"couldn't be found, the reference itself was not understood.";
+		}
+	}
+
 	/**
 	 * @param URI
 	 * @return Whether the provided URI describe a relative reference.
