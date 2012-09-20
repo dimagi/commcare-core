@@ -644,11 +644,12 @@ public class Localizer implements Externalizable {
 		String working = text;
 		int currentArg = 0;
 		while(working.indexOf("${") != -1 && args.length > currentArg) {
-			String value = extractValue(text, args);
-			if(value == null) {
-				value = args[currentArg];
+			int index = extractNextIndex(working, args);
+			if(index == -1) {
+				index = currentArg;
 				currentArg++;
 			}
+			String value = args[index];
 			working = replaceFirstValue(working, value);
 		}
 		return working;
@@ -664,13 +665,23 @@ public class Localizer implements Externalizable {
 		return processArguments(text, empty);
 	}	
 	
-	private static String extractValue(String text, String[] args) {
-		//int start = text.indexOf("${");
-		//int end = text.indexOf("}");
+	private static int extractNextIndex(String text, String[] args) {
+		int start = text.indexOf("${");
+		int end = text.indexOf("}");
 		
-		//String index = text.substring(start + 2, end);
-		//Search for that string in the current locale, updating any arguments.
-		return null;
+		if(start != -1 && end != -1 ) {
+			String val = text.substring(start + "${".length(), end);
+			try { 
+				int index = Integer.parseInt(val);
+				if(index >= 0 && index < args.length) {
+					return index;
+				}
+			} catch(NumberFormatException nfe) {
+				return -1;
+			}
+		}
+		
+		return -1;
 	}
 	
 	private static String replaceFirstValue(String text, String value) {
