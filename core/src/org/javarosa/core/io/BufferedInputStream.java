@@ -46,6 +46,7 @@ public class BufferedInputStream extends InputStream {
 	 * @see java.io.InputStream#available()
 	 */
 	public int available() throws IOException {
+		if(count == -1) { return 0; }
 		//Size of our stream + the number of bytes we haven't yet read.
 		return in.available() + (count - position);
 	}
@@ -196,9 +197,11 @@ public class BufferedInputStream extends InputStream {
 		
 		//either this was true when we got here, or it's true
 		//now. Either way, signal EOF
-		if(count == -1) { return -1; }
+		if(count == -1) { 
+			return -1; 
+		}
 		
 		//Otherwise, bump and return
-		return buffer[position++];
+		return buffer[position++] & 0xFF;
 	}
 }

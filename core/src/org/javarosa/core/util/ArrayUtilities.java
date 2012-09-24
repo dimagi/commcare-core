@@ -37,6 +37,19 @@ public class ArrayUtilities {
 		return retVal;
 	}
 	
+	public static boolean arraysEqual(byte[] array1, byte[] array2) {
+		if(array1.length != array2.length) {
+			return false;
+		}
+		boolean retVal = true;
+		for(int i = 0 ; i < array1.length ; ++i ) {
+			if(array1[i] != array2[i]) {
+				retVal = false;
+			}
+		}
+		return retVal;
+	}
+	
 	/**
 	 * Find a single intersecting element common to two lists, or null if none
 	 * exists. Note that no unique condition will be reported if there are multiple
