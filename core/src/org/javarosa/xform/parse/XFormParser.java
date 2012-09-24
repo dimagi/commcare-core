@@ -291,7 +291,7 @@ public class XFormParser {
 		_instDoc = instance;
 	}
 	
-	public FormDef parse() {
+	public FormDef parse() throws IOException {
 		if (_f == null) {
 			System.out.println("Parsing form...");
 			
@@ -311,7 +311,7 @@ public class XFormParser {
 		return _f;
 	}
 	
-	public static Document getXMLDocument(Reader reader)  {
+	public static Document getXMLDocument(Reader reader) throws IOException  {
 		Document doc = new Document();
 
 		try{
@@ -324,6 +324,9 @@ public class XFormParser {
 			System.err.println(errorMsg);
 			e.printStackTrace();
 			throw new XFormParseException(errorMsg);
+		} catch(IOException e){
+			//CTS - 12/09/2012 - Stop swallowing IO Exceptions
+			throw e;
 		} catch(Exception e){
 			//#if debug.output==verbose || debug.output==exception
 		    String errorMsg = "Unhandled Exception while Parsing XForm";
@@ -2572,7 +2575,7 @@ public class XFormParser {
 		}
 	}
 	
-	public static void loadXmlInstance(FormDef f, Reader xmlReader) {
+	public static void loadXmlInstance(FormDef f, Reader xmlReader) throws IOException {
 		loadXmlInstance(f, getXMLDocument(xmlReader));
 	}
 	
@@ -2681,7 +2684,7 @@ public class XFormParser {
 		return text;
 	}
 	
-	public static FormInstance restoreDataModel (InputStream input, Class restorableType) {
+	public static FormInstance restoreDataModel (InputStream input, Class restorableType) throws IOException {
 		Document doc = getXMLDocument(new InputStreamReader(input));
 		if (doc == null) {
 			throw new RuntimeException("syntax error in XML instance; could not parse");
@@ -2706,7 +2709,12 @@ public class XFormParser {
 	}
 	
 	public static FormInstance restoreDataModel (byte[] data, Class restorableType) {
-		return restoreDataModel(new ByteArrayInputStream(data), restorableType);
+		try {
+			return restoreDataModel(new ByteArrayInputStream(data), restorableType);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new XFormParseException("Bad parsing from byte array " + e.getMessage());
+		}
 	}
 	
 	public static String getVagueLocation(Element e) {

@@ -65,7 +65,6 @@ public class LocalizationUtils {
 						index = nindex + 1;
 					}
 				}
-				is.close();
 			return locale;
 		}
 
