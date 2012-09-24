@@ -15,8 +15,10 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
+import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -104,11 +106,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		} else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
 			//We need to download the resource, and store it locally. Either in the cache
 			//(if no resource location is available) or in a local reference if one exists.
+			InputStream incoming = null;
 			try {
 				if(!ref.doesBinaryExist()) {
 					return false;
 				}
-				InputStream incoming = ref.getStream();
+				incoming = ref.getStream();
 				if(incoming == null) {
 					//if it turns out there isn't actually a remote resource, bail.
 					return false;
@@ -150,12 +153,17 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					}
 					
 					if(destination.isReadOnly()) {
-						return cache(incoming, r, table);
+						return cache(incoming, r, table, upgrade);
 					}
 					//destination is now a valid local reference, so we can store the file there.
 					
 					OutputStream output = destination.getOutputStream();
-					StreamsUtil.writeFromInputToOutput(incoming, output);
+					try {
+						StreamsUtil.writeFromInputToOutput(incoming, output);
+					} catch (IOException e) {
+					    throw new UnreliableSourceException(r, e.getMessage());
+					}
+						 
 					output.close();
 					
 					this.localReference = destination.getURI();
@@ -167,13 +175,14 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					return true;
 					
 				} catch (InvalidReferenceException e) {
-					return cache(incoming, r, table);
+					return cache(incoming, r, table, upgrade);
 				} catch(IOException e) {
-					return cache(incoming, r, table);
+					return cache(incoming, r, table, upgrade);
 				}
 			} catch (IOException e) {
-				Logger.exception(e);
-				return false; 
+				throw new UnreliableSourceException(r, e.getMessage()); 
+			} finally {
+				try { if(incoming != null) { incoming.close(); } } catch (IOException e) {} 
 			}
 			
 			//TODO: Implement local cache code
@@ -181,15 +190,15 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		}
 		return false;
 	}
-	private boolean cache(InputStream incoming, Resource r, ResourceTable table) throws UnresolvedResourceException {
+	private boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
 		try {
 			cache = LocalizationUtils.parseLocaleInput(incoming);
-			table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
+			table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
+			throw new UnreliableSourceException(r, e.getMessage());
+		} finally {
+			try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
 		}
 	}
 	

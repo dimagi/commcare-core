@@ -105,3 +105,11 @@ install.bad=There's a problem with CommCare's installation, do you want to retry
 message.permissions=CommCare has been unable to access certain permissions needed for correct functioning. Please configure the applicaiton's permissions to allow network and file system access.
 
 node.select.filtering=Filtering Cases...
+
+update.header=Updating Installation...
+update.fail.network=CommCare is having trouble reading the update files from the network. Please try again when the connection is better.
+update.fail.network.retry=CommCare is having trouble reading the update files from the network. Do you want to continue trying?
+update.fail.generic=An error occurred during the update!
+update.retrying=Continuing update attempt...
+
+commcare.fail.sendlogs=Attempt to send logs?

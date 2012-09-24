@@ -4,11 +4,13 @@
 package org.commcare.resources.model.installers;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareInstance;
@@ -49,8 +51,11 @@ public class SuiteInstaller extends CacheInstaller {
 			//If it's in the cache, we should just get it from there
 			return false;
 		} else {
+			
+			InputStream incoming = null;
 			try {
-				SuiteParser parser = new SuiteParser(ref.getStream(), table, r.getRecordGuid());
+				incoming = ref.getStream();
+				SuiteParser parser = new SuiteParser(incoming, table, r.getRecordGuid());
 				if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
 					parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
 				}
@@ -73,12 +78,13 @@ public class SuiteInstaller extends CacheInstaller {
 				e.printStackTrace();
 				return false;
 			} catch (IOException e) {
-				e.printStackTrace();
-				return false; 
+				throw new UnreliableSourceException(r, e.getMessage()); 
 			} catch (XmlPullParserException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
+			} finally {
+				try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
 			}
 		}
 	}
