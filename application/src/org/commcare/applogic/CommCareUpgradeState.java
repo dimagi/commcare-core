@@ -166,7 +166,6 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 					
 				};
 				
-				BufferedInputStream.FAIL = true;
 				upgrade.setStateListener(upgradeListener);
 				global.setStateListener(globalListener);
 				

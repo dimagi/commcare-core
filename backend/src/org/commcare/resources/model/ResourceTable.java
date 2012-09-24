@@ -689,7 +689,7 @@ public class ResourceTable {
 		this.stateListener = listener;
 	}
 	
-	int numberOfLossyRetries = 4;
+	int numberOfLossyRetries = 3;
 	/**
 	 * Sets the number of attempts this table will make to install against resources which 
 	 * fail on lossy (IE: Network) channels.
