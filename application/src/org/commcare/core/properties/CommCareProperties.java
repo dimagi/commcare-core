@@ -104,6 +104,8 @@ public class CommCareProperties implements IPropertyRules {
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
 	public static final String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
+	
+	public final static String INSTALL_RETRY_ATTEMPTS = "cc-in-retry-attempts";
     
 	/**
 	 * Creates the JavaRosa set of property rules
@@ -212,6 +214,8 @@ public class CommCareProperties implements IPropertyRules {
         
         rules.put(AUTO_UPDATE_FREQUENCY, updateFreq);
         rules.put(AUTO_SYNC_FREQUENCY, updateFreq);
+        
+        rules.put(INSTALL_RETRY_ATTEMPTS, new Vector());
         
 
         readOnlyProperties.addElement(CONTENT_VALIDATED);

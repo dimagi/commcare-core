@@ -362,7 +362,7 @@ public class ResourceTable {
 				return r.getInstaller().install(r, location, ref, table, instance, upgrade);
 			} catch(UnreliableSourceException use) {
 				aFailure = use;
-				Logger.log("install", "Remaking install attempt # " + (i+1) + " from :" + ref.getURI() + "|" + use.getMessage());
+				Logger.log("install", "Potentially lossy install attempt # " + (i+1) + " of " + (numberOfLossyRetries+1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
 			}
 		}
 		if(aFailure != null) {
@@ -689,7 +689,7 @@ public class ResourceTable {
 		this.stateListener = listener;
 	}
 	
-	int numberOfLossyRetries = 2;
+	int numberOfLossyRetries = 4;
 	/**
 	 * Sets the number of attempts this table will make to install against resources which 
 	 * fail on lossy (IE: Network) channels.
