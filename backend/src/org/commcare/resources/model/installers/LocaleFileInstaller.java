@@ -18,17 +18,15 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
-import org.javarosa.core.io.BufferedInputStream;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.StreamsUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -159,12 +157,15 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					
 					OutputStream output = destination.getOutputStream();
 					try {
-						StreamsUtil.writeFromInputToOutput(incoming, output);
-					} catch (IOException e) {
+						//We're now reading from incoming, so if this fails, we need to ensure that it is closed
+						StreamsUtil.writeFromInputToOutputSpecific(incoming, output);
+					} catch (InputIOException e) {
+						//TODO: This won't necessarily catch issues with the _output)
+						//stream failing. Test for that.
 					    throw new UnreliableSourceException(r, e.getMessage());
+					} finally {
+						output.close();
 					}
-						 
-					output.close();
 					
 					this.localReference = destination.getURI();
 					if(upgrade) {
@@ -175,9 +176,11 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 					return true;
 					
 				} catch (InvalidReferenceException e) {
-					return cache(incoming, r, table, upgrade);
+					//Local location doesn't exist, put this in the cache
+					return cache(ref.getStream(), r, table, upgrade);
 				} catch(IOException e) {
-					return cache(incoming, r, table, upgrade);
+					//This is a catch-all for local references failing in unexpected ways. 
+					return cache(ref.getStream(), r, table, upgrade);
 				}
 			} catch (IOException e) {
 				throw new UnreliableSourceException(r, e.getMessage()); 
@@ -191,6 +194,9 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		return false;
 	}
 	private boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
+		//NOTE: Incoming here needs to be _fresh_. It's extremely important that 
+		//nothing have gotten the stream first
+		
 		try {
 			cache = LocalizationUtils.parseLocaleInput(incoming);
 			table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
