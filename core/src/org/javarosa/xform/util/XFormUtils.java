@@ -27,6 +27,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.IXFormParserFactory;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
@@ -69,7 +70,12 @@ public class XFormUtils {
 		}
 		
 		try {
-			return _factory.getXFormParser(isr).parse();
+			try {
+				return _factory.getXFormParser(isr).parse();
+				//TODO: Keep removing these, shouldn't be swallowing them
+			} catch(IOException e) {
+				throw new XFormParseException("IO Exception during parse! " + e.getMessage());
+			}
 		} finally {
 			try {
 				isr.close();

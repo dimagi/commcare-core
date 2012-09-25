@@ -33,6 +33,7 @@ public class XPathNodeset {
 	DataInstance instance;
 	EvaluationContext ec;
 	private String pathEvaluated;
+	private String originalPath;
 	
 	private XPathNodeset() {
 		
@@ -52,12 +53,13 @@ public class XPathNodeset {
 		this.ec = ec;
 	}
 	
-	public static XPathNodeset ConstructInvalidPathNodeset(String pathEvaluated) {
+	public static XPathNodeset ConstructInvalidPathNodeset(String pathEvaluated, String originalPath) {
 		XPathNodeset nodeset = new XPathNodeset();
 		nodeset.nodes = null;
 		nodeset.instance = null;
 		nodeset.ec = null;
 		nodeset.pathEvaluated = pathEvaluated;
+		nodeset.originalPath = originalPath;
 		return nodeset;
 	}
 	
@@ -69,7 +71,7 @@ public class XPathNodeset {
 	 */
 	public Object unpack () {
 		if(nodes == null) { 
-			throw new XPathTypeMismatchException("Node " + pathEvaluated + " does not exist and cannot be evaluated!");
+			throw getInvalidNodesetException();
 		}
 		
 		if (size() == 0) {
@@ -83,7 +85,7 @@ public class XPathNodeset {
 
 	public Object[] toArgList () {
 		if(nodes == null) { 
-			throw new XPathTypeMismatchException("Node " + pathEvaluated + " does not exist and cannot be evaluated!");
+			throw getInvalidNodesetException();
 		}
 		
 		Object[] args = new Object[size()];
@@ -111,7 +113,7 @@ public class XPathNodeset {
 	
 	public TreeReference getRefAt (int i) {
 		if(nodes == null) { 
-			throw new XPathTypeMismatchException("Node " + pathEvaluated + " does not exist and cannot be evaluated!");
+			throw getInvalidNodesetException();
 		}
 		
 		return nodes.elementAt(i);
@@ -119,6 +121,14 @@ public class XPathNodeset {
 	
 	private Object getValAt (int i) {
 		return XPathPathExpr.getRefValue(instance, ec, getRefAt(i));
+	}
+	
+	private XPathTypeMismatchException getInvalidNodesetException() {
+		if(!pathEvaluated.equals(originalPath)) {
+			throw new XPathTypeMismatchException("The path " + originalPath + " refers to the location " + pathEvaluated + " which was not found");
+		} else {
+			throw new XPathTypeMismatchException("Location " + pathEvaluated + " was not found");
+		}
 	}
 	
 	private String nodeContents () {

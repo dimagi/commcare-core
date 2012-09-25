@@ -75,6 +75,11 @@ public class Condition extends Triggerable {
 		return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
 	}
 	
+	public boolean isCascadingToChildren() {
+		return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
+	}
+
+	
 	private void performAction (TreeElement node, int action) {
 		switch (action) {
 		case ACTION_NULL: break;

@@ -1433,16 +1433,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	}
 
 	public void getStatusReport(XmlSerializer o, String ns) throws StatusReportException, IOException {
+		
 		o.startTag(ns, "storage_utility");
+		try {
 		o.attribute(null, "name", this.getName());
 		
-		o.startTag(ns, "total_records");
-		o.text(String.valueOf(getNumRecords()));
-		o.endTag(ns, "total_records");
+		writeText(o, ns, "total_records", String.valueOf(getNumRecords()));
 		
-		o.startTag(ns, "total_size");
-		o.text(String.valueOf(getTotalSize()));
-		o.endTag(ns, "total_size");
+		writeText(o, ns, "total_size", String.valueOf(String.valueOf(getTotalSize())));
 		
 		String statusText;
 		int statusFlag = getStatus();
@@ -1452,9 +1450,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			case STATUS_UNINITIALIZED: statusText = "UNINITIALIZED"; break;
 			default: statusText = "UNKNOWN: " + statusFlag; break;
 		}
-		o.startTag(ns, "status_flag");
-		o.text(statusText);
-		o.endTag(ns, "status_flag");
+		
+		writeText(o, ns, "status_flag", statusText);
 		
 		RMSStorageInfo info = getInfoRecord();
 
@@ -1462,29 +1459,38 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			RMS rmsStore = getDataStore(i);
 			
 			o.startTag(ns, "rms_store");
-			o.attribute(null, "name", rmsStore.name);
-			o.attribute(null, "index", String.valueOf(i));
-			
 			try {
-				o.startTag(ns, "num_records");
-				o.text(String.valueOf(rmsStore.rms.getNumRecords()));
-				o.endTag(ns, "num_records");
+				o.attribute(null, "name", rmsStore.name);
+				o.attribute(null, "index", String.valueOf(i));
 				
-				o.startTag(ns, "size_used");
-				o.text(String.valueOf(rmsStore.rms.getSize()));
-				o.endTag(ns, "size_used");
-				
-				o.startTag(ns, "size_available");
-				o.text(String.valueOf(rmsStore.rms.getSizeAvailable()));
-				o.endTag(ns, "size_available");				
-			} catch (RecordStoreNotOpenException e) {
-				throw new StatusReportException(e, "storage_utility","Storage: " + this.getName() + " Record Store Not Open");
+				try {
+					writeText(o, ns, "num_records", String.valueOf(rmsStore.rms.getNumRecords()));
+					
+					writeText(o, ns, "size_used", String.valueOf(rmsStore.rms.getSize()));
+					
+					writeText(o, ns, "size_available", String.valueOf(rmsStore.rms.getSizeAvailable()));
+				} catch (RecordStoreNotOpenException e) {
+					throw new StatusReportException(e, "storage_utility","Storage: " + this.getName() + " Record Store Not Open");
+				}
+				rmsStore.close();
+			}finally {				
+				o.endTag(ns, "rms_store");
 			}
-			rmsStore.close();
-			
-			o.endTag(ns, "rms_store");
 		}
-		o.endTag(ns, "storage_utility");
+		} finally {
+			o.endTag(ns, "storage_utility");
+		}
+	}
+	
+	private void writeText(XmlSerializer serializer, String XMLNS, String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+		serializer.startTag(XMLNS,element);
+		try {
+	        serializer.text(text == null ? "" : text);
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			serializer.endTag(XMLNS,element);
+		}
 	}
 	
 	public void log (String type, String message) {

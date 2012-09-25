@@ -1,4 +1,4 @@
-package org.javarosa.core.util;
+package org.javarosa.core.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,18 +21,41 @@ public class StreamsUtil {
 	 * @param out
 	 * @throws IOException
 	 */
-	public static void writeFromInputToOutput(InputStream in, OutputStream out, long[] tally) throws IOException {
-		int val = in.read();
-		while (val != -1) {
-			out.write(val);
-			incr(tally);
-			val = in.read();
+	public static void writeFromInputToOutput(InputStream in, OutputStream out, long[] tally) throws InputIOException, OutputIOException {
+		//TODO: God this is naive
+		int val;
+		try {
+			val= in.read();
+		} catch(IOException e) {
+			throw new StreamsUtil().new InputIOException(e);
 		}
-		in.close();
+		while (val != -1) {
+			try {
+				out.write(val);
+			} catch(IOException e) {
+				throw new StreamsUtil().new OutputIOException(e);
+			}
+			incr(tally);
+			try {
+				val = in.read();
+			} catch(IOException e) {
+				throw new StreamsUtil().new InputIOException(e);
+			}
+		}
+	}
+	
+	public static void writeFromInputToOutputSpecific(InputStream in, OutputStream out) throws InputIOException, OutputIOException {
+		writeFromInputToOutput(in, out, null);
 	}
 	
 	public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
-		writeFromInputToOutput(in, out, null);
+		try {
+			writeFromInputToOutput(in, out, null);
+		} catch (InputIOException e) {
+			throw e.internal;
+		} catch (OutputIOException e) {
+			throw e.internal;
+		}
 	}
 	
 	/**
@@ -109,5 +132,38 @@ public class StreamsUtil {
 
 		return data;
 	}
+	
+	
+	//Unify the functional aspects here
+	
+	private abstract class DirectionalIOException extends IOException{
+		IOException internal;
 
+		public DirectionalIOException(IOException internal) {
+			super(internal.getMessage());
+			this.internal = internal;
+		}
+		
+		public IOException getWrapped() {
+			return internal;
+		}
+		
+		public void printStackTrace()  {
+			internal.printStackTrace();
+		}
+		
+		//TODO: Override all common methodss
+	}
+	
+	public class InputIOException extends DirectionalIOException{
+		public InputIOException(IOException internal) {
+			super(internal);
+		}
+	}
+	
+    public class OutputIOException extends DirectionalIOException{
+		public OutputIOException(IOException internal) {
+			super(internal);
+		}
+	}
 }
