@@ -153,5 +153,9 @@ public class Menu implements Externalizable {
 		// TODO Auto-generated method stub
 		return audioReference;
 	}
+	// unsafe! assumes that xpath expressions evaluate properly...
+	public int indexOfCommand(String cmd){
+		return commandIds.indexOf(cmd);
+	}
 
 }

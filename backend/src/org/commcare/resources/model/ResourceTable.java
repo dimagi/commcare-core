@@ -251,7 +251,6 @@ public class ResourceTable {
 		int round = -1;
 		while (!v.isEmpty() && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
 			round++;
-			System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
 			while(!v.isEmpty()) {
 				Resource r = v.pop();
 //				try {

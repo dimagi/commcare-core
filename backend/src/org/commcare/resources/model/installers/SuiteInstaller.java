@@ -4,19 +4,31 @@
 package org.commcare.resources.model.installers;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.PrefixTreeNode;
+import org.javarosa.form.api.FormEntryCaption;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -81,5 +93,52 @@ public class SuiteInstaller extends CacheInstaller {
 				return false;
 			}
 		}
+	}
+	
+	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+		
+		//Check to see whether the formDef exists and reads correctly
+		Suite mSuite;
+		try {
+			mSuite = (Suite)storage().read(cacheLocation);
+		} catch(Exception e) {
+			problems.addElement(new UnresolvedResourceException(r, "Suite did not properly save into persistent storage"));
+			return true;
+		}
+		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
+		//available
+		try{
+			Hashtable<String,Entry> mHashtable = mSuite.getEntries();
+			for(Enumeration en = mHashtable.keys();en.hasMoreElements() ; ){
+				String key = (String)en.nextElement();
+			}
+			Vector<Menu> menus = mSuite.getMenus();
+			Enumeration e = menus.elements();
+			while(e.hasMoreElements()){
+				Menu mMenu = (Menu)e.nextElement();
+				String aURI = mMenu.getAudioURI();
+				String iURI = mMenu.getImageURI();
+				Reference aRef = ReferenceManager._().DeriveReference(aURI);
+				Reference iRef = ReferenceManager._().DeriveReference(iURI);
+				String aLocalName = aRef.getLocalURI();
+				String iLocalName = iRef.getLocalURI();
+				try {
+					if(!aRef.doesBinaryExist()) {
+						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + aLocalName));
+					}
+					if(!iRef.doesBinaryExist()) {
+						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + iLocalName));
+					}
+				} 
+				catch (IOException exc) {
+					problems.addElement(new UnresolvedResourceException(r,"Problem reading external audio: " + aLocalName + ", image: " + iLocalName));
+				}
+			}
+		}
+		catch(Exception e){
+			System.out.println("fail");
+		}
+		if(problems.size() == 0 ) { return false;}
+		return true;
 	}
 }

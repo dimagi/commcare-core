@@ -213,6 +213,7 @@ public class CommCareContext {
 				
 				//Try to initialize and install the application resources...
 				try {
+					System.out.println("Installing resources in CommCareContext");
 					ResourceTable global = RetrieveGlobalResourceTable();
 					global.setStateListener(new TableStateListener() {
 						

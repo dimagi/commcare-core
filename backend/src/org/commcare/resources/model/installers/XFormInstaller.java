@@ -37,7 +37,6 @@ public class XFormInstaller extends CacheInstaller {
 	}
 
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException {
-		
 		try {
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
 			//If it's in the cache, we should just get it from there
