@@ -6,12 +6,14 @@ package org.commcare.resources.model.installers;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
@@ -78,6 +80,7 @@ public class ProfileInstaller extends CacheInstaller {
 		//Step two is to actually install the resource if it needs to be (whether or not it should will be handled
 		//by the resource table).
 		
+		InputStream incoming = null;
 		//If we've already got the local copy, and the installer is marked as such, install and roll out.
 		try {
 			if(getlocal().containsKey(r.getRecordGuid()) && r.getStatus() == Resource.RESOURCE_STATUS_LOCAL) {
@@ -98,13 +101,19 @@ public class ProfileInstaller extends CacheInstaller {
 			//If it's in the cache, we should just get it from there
 			return false;
 		} else {
-			ProfileParser parser = new ProfileParser(ref.getStream(), instance, table, r.getRecordGuid(), 
+			Profile p;
+			try {
+				incoming = ref.getStream();
+				ProfileParser parser = new ProfileParser(incoming, instance, table, r.getRecordGuid(), 
 					upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
 				if(Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
 					parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
 				}
-				Profile p = parser.parse();
-				
+				p = parser.parse();
+				} catch(IOException e) {
+					throw new UnreliableSourceException(r, e.getMessage());
+				}
+					
 				//If we're upgrading we need to come back and see if the statuses need to change
 				if(upgrade) {
 					getlocal().put(r.getRecordGuid(), p);
@@ -124,13 +133,12 @@ public class ProfileInstaller extends CacheInstaller {
 		} catch (StorageFullException e) {
 			e.printStackTrace();
 			return false;
-		}  catch (IOException e) {
-			e.printStackTrace();
-			return false; 
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
+		} finally {
+			try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
 		}
 	}
 	

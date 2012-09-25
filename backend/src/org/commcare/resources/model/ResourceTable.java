@@ -289,6 +289,7 @@ public class ResourceTable {
 				// master);
 
 				boolean handled = false;
+				UnreliableSourceException theFailure = null;
 				
 				//TODO: Possibly check if resource status is local and proceeding
 				//to skip this huge (although in reality like one step) chunk
@@ -302,7 +303,11 @@ public class ResourceTable {
 							if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
 								System.out.println("Invalid (Stale) local reference attempt for: " + location.getLocation());
 							} else {
-								handled = r.getInstaller().install(r, location, ref, this, instance, upgrade);
+								try {
+									handled = installResource(r, location, ref, this, instance, upgrade);
+								} catch(UnreliableSourceException use) {
+									theFailure = use;
+								}
 								if(handled) {
 									break;
 								}
@@ -310,18 +315,26 @@ public class ResourceTable {
 						}
 					} else {
 						try {
-							handled = r.getInstaller().install(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
+							handled = installResource(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
 							if(handled) {
 								break;
 							}
 						} catch(InvalidReferenceException ire) {
 							ire.printStackTrace();
 							//Continue until no resources can be found.
+						} catch(UnreliableSourceException use) {
+							theFailure = use;
 						}
 					}
 				}
 				if(!handled) {
-					throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId()); 
+					//If there wasn't a particular failure to point our finger at...
+					if(theFailure == null) {
+						throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId());
+					} else {
+						//Otherwise, expose the lossy failure rather than the generic one
+						throw theFailure;
+					}
 				}
 				if(stateListener != null) { stateListener.resourceStateUpdated(this);}
 			}
@@ -337,6 +350,23 @@ public class ResourceTable {
 		for(Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
 			this.removeResource(stillPending);
 		}
+	}
+	
+	/** This just calls the resource's installer directly, but also handles the logic around attempting retries if applicable
+	 * @throws UnfullfilledRequirementsException **/
+	private boolean installResource(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+		UnreliableSourceException aFailure = null;
+		for(int i = 0 ; i < 1 + this.numberOfLossyRetries ; ++i ) {
+			try {
+				return r.getInstaller().install(r, location, ref, table, instance, upgrade);
+			} catch(UnreliableSourceException use) {
+				aFailure = use;
+				Logger.log("install", "Potentially lossy install attempt # " + (i+1) + " of " + (numberOfLossyRetries+1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
+			}
+		}
+		if(aFailure != null) {
+			throw aFailure;
+		} return false;
 	}
 	
 	public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
@@ -468,7 +498,7 @@ public class ResourceTable {
 		return cap + "\n" + output + cap + "\n";
 	}
 	
-	public String getStatus(int status) {
+	public static String getStatus(int status) {
 		switch(status) {
 		case Resource.RESOURCE_STATUS_UNINITIALIZED:
 			return "Uninitialized";
@@ -656,5 +686,17 @@ public class ResourceTable {
 	
 	public void setStateListener(TableStateListener listener) {
 		this.stateListener = listener;
+	}
+	
+	int numberOfLossyRetries = 3;
+	/**
+	 * Sets the number of attempts this table will make to install against resources which 
+	 * fail on lossy (IE: Network) channels.
+	 * 
+	 * @param number The number of attempts to make per resource. Must be at least 0
+	 */
+	public void setNumberOfRetries(int number) {
+		if(number < 0) { throw new IllegalArgumentException("Can't have less than 0 retries"); }
+		this.numberOfLossyRetries = number;
 	}
 }

@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.model.FormDef;
@@ -37,17 +38,18 @@ public class XFormInstaller extends CacheInstaller {
 	}
 
 	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException {
+		InputStream incoming = null;
 		try {
 		if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_CACHE) {
 			//If it's in the cache, we should just get it from there
 			return false;
 		} else {
-			InputStream input = ref.getStream();
-			if(input == null) {
+			incoming = ref.getStream();
+			if(incoming == null) {
 				return false;
 			}
 			System.out.println("Parsing form: " + ref.getLocalURI());
-			FormDef formDef = new XFormParser(new InputStreamReader(input, "UTF-8")).parse();
+			FormDef formDef = new XFormParser(new InputStreamReader(incoming, "UTF-8")).parse();
 			if(formDef == null) {
 				//Bad Form!
 				return false;
@@ -74,11 +76,12 @@ public class XFormInstaller extends CacheInstaller {
 			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
-			e.printStackTrace();
-			return false; 
+			throw new UnreliableSourceException(r, e.getMessage());
 		} catch(XFormParseException xpe ) {
 			xpe.printStackTrace();
 			return false;
+		} finally {
+			try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
 		}
 	}
 	

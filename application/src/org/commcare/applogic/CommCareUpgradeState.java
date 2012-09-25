@@ -5,9 +5,11 @@ package org.commcare.applogic;
 
 import java.util.Vector;
 
+import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
+import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareInitializer;
@@ -17,7 +19,10 @@ import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.api.State;
+import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -30,9 +35,26 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 	
 	public static final String UPGRADE_TABLE_NAME = "UPGRADGE";
 	boolean interactive = false;
+	int networkRetries = -1;
 	
 	public CommCareUpgradeState(boolean interactive) {
+		this(interactive, getRetryAttempts());
+	}
+	
+	private static int getRetryAttempts() {
+		String retryAttempts = PropertyManager._().getSingularProperty(CommCareProperties.INSTALL_RETRY_ATTEMPTS);
+		if(retryAttempts == null ) { return -1; }
+		try {
+			return Integer.parseInt(retryAttempts);
+		} catch(NumberFormatException e) {
+			Logger.log("upgrade", "Bad retry attempt config set: \"" + retryAttempts + "\"");
+			return -1;
+		}
+	}
+
+	public CommCareUpgradeState(boolean interactive, int networkRetries) {
 		this.interactive = interactive;
+		this.networkRetries = networkRetries;
 	}
 
 	public void start() {
@@ -43,6 +65,10 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 			ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable(UPGRADE_TABLE_NAME);
 
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {
+				
+				if(networkRetries != -1) {
+					upgrade.setNumberOfRetries(networkRetries);
+				}
 				
 				ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
 				
@@ -86,7 +112,9 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 					}
 				}
 				
-				setMessage("Updating Installation...");
+				
+				
+				setMessage(Localization.get("update.header"));
 				
 				TableStateListener upgradeListener = new TableStateListener() {
 
@@ -140,15 +168,68 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				upgrade.setStateListener(upgradeListener);
 				global.setStateListener(globalListener);
-				try {
-					CommCareContext._().getManager().upgrade(global, upgrade);
-				} catch (UnresolvedResourceException e) {
-					this.fail(e);
+				
+				//We're gonna optionally allow the user to continue the install from this resource table in
+				//interactive mode
+				boolean upgradeAttemptPending = true;
+				
+				while(upgradeAttemptPending) {
+					//We're trying once, so don't try again unless requested
+					upgradeAttemptPending = false;
+					
+					try {
+						CommCareContext._().getManager().upgrade(global, upgrade);
+					} catch(UnreliableSourceException e) {
+						//We simply can't retrieve all of the resources that we're looking for.
+						
+						//If interactive, give them the option of trying again.
+						if(interactive) {
+							if(blockForResponse(Localization.get("update.fail.network.retry"), true)) {
+								//Give it another shot!
+								setMessage(Localization.get("update.retrying"));
+								//TODO: Crank up the effort on the retries?
+								upgradeAttemptPending = true;
+								continue;
+							}
+						} else {
+							//If it's not interactive, just notify the user of failure
+							blockForResponse(Localization.get("update.fail.network"), false);
+						}
+						
+						logFailure();
+						CommCareUpgradeState.this.done();
+						return false;
+					} catch (UnresolvedResourceException e) {
+						//Generic problem with the upgrade. Inform and return.
+						this.fail(e);
+						return false;
+					}
 				}
+				
+				
+				
 				interaction.updateProgess(95);
 				
 				blockForResponse("CommCare Updated!", false);
 				return true;
+			}
+
+			private void logFailure() {
+				//Can't (or won't) keep trying.
+				String logMsg = "Upgrade attempt unsuccesful. Probably due to network. ";
+				
+				//Count resources
+				Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(upgrade);
+				int downloaded = 0;
+				
+				for(Resource r : resources ){
+					if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE || r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
+						downloaded++; 
+					}
+				}
+				logMsg += downloaded + " of " + resources.size() + " resources were succesfully fetched/installed";
+				
+				Logger.log("upgrade", logMsg);
 			}
 
 			protected void setMessage(String message) {
@@ -169,9 +250,12 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				//any changes, if they happened.
 				upgrade.clear();
 				
-				//Now note why this failed.
+				
+				String message;
+				//Note why it failed, since we don't know what this is
 				Logger.exception(e);
-				blockForResponse("An error occured during the upgrade!", false);
+				message = Localization.get("update.fail.generic");
+				blockForResponse(message, false);
 				CommCareUpgradeState.this.done();
 			}
 		};

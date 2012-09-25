@@ -92,12 +92,12 @@ public class CommCareLoginState extends LoginState {
 	/* (non-Javadoc)
 	 * @see org.javarosa.user.api.transitions.LoginStateTransitions#loggedIn(org.javarosa.user.model.User)
 	 */
-	public void loggedIn(User u, String password) {
+	public void loggedIn(final User u, String password) {
 		CommCareContext._().setUser(u, password == null ? null : new DefaultHttpCredentialProvider(u.getUsername(), password));
 		Logger.log("login", PropertyUtils.trim(u.getUniqueId(), 8) + "-" + u.getUsername());
 		
 		CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
-		
+				
 		if(CommCareSense.isAutoLoginEnabled()) {
 			if(User.STANDARD.equals(u.getUserType() )) {
 				//We only want to autolog non-admin non-demo users
@@ -122,7 +122,14 @@ public class CommCareLoginState extends LoginState {
 
 			public void done() {
 				
-				if(CommCareContext._().inDemoMode()) {
+				//"admin" login criteria (the actual admin user, not a superuser)
+				boolean isAdminUser = CommCareUtil.isMagicAdmin(u);
+				
+				//Don't run period events if you're logging in in either
+				//A) Admin mode (user with username "admin" and superuser permissions)
+				//B) Demo mode
+				//TODO: Some events might still want to trigger in admin mode?
+				if(CommCareContext._().inDemoMode() || isAdminUser) {
 					//The periodic events really aren't relevant for demo data, so just skip straight to the 
 					//actual home.
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());

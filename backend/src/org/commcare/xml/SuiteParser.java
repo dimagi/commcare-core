@@ -113,10 +113,6 @@ public class SuiteParser extends ElementParser<Suite>  {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new InvalidStructureException("Pull Parse Exception, malformed XML.",parser);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new InvalidStructureException("Problem with IO read/write while reading XML document.",parser);
 		} catch (StorageFullException e) {
 			e.printStackTrace();
 			//BUT not really! This should maybe be added to the high level declaration

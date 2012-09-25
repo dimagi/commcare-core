@@ -20,6 +20,7 @@ import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
@@ -37,6 +38,9 @@ import org.javarosa.j2me.util.GPRSTestState;
 import org.javarosa.j2me.util.PermissionsTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
+import org.javarosa.log.activity.DeviceReportState;
+import org.javarosa.log.properties.LogPropertyRules;
+import org.javarosa.log.util.LogReportUtils;
 import org.javarosa.services.properties.api.PropertyUpdateState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserEntity;
@@ -252,6 +256,60 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 			public void done() {
 				new CommCareHomeState().start();
 			}			
+			
+			public boolean submitSupported() {
+				return true;
+			}
+			
+			/**
+			 * happens in its own thread
+			 */
+			public void submit() {
+				this.append("Attempting to submit logs to HQ...", true);
+				DeviceReportState logSubmit = new DeviceReportState(LogReportUtils.REPORT_FORMAT_FULL) {
+					
+					public String getDestURL() {
+						String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
+						if(url == null) {
+							url = CommCareContext._().getSubmitURL();
+						}
+						return url;
+					}
+					
+					public void done() {
+						String localFile = null;
+						//See if we dumped to a file
+						if(fileNameWrittenTo != null) {
+							try {
+								localFile = ReferenceManager._().DeriveReference(fileNameWrittenTo).getLocalURI();
+								append("Dumped logs onto DeviceSD card due to network difficulties. Log is at: " + localFile, false);
+							} catch(Exception e){ 
+								//Guess not...
+							}
+						}
+						
+						if(errors == null || errors.size() != 0) {
+							append("Error while submitting logs!", false);
+							if(errors != null ) {
+								for(int i = 0 ; i < errors.size() ; ++i ){
+									try {
+										append("[" + errors.elementAt(i)[0] + "] - " + errors.elementAt(i)[1], false);
+									} catch(Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						} else {
+							if(localFile == null) {
+								append("Logs submitted", false);
+							}
+						}
+					}
+				};
+				
+				logSubmit.start();
+			}
+
 		});
 	}
 	

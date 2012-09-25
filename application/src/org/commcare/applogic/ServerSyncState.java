@@ -56,7 +56,7 @@ public abstract class ServerSyncState implements State {
 		if(u != null) {
 			syncToken = u.getLastSyncToken();
 		}
-					
+		
 		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(currentUserCredentials));
 		pull = new CommCareOTARestoreState (syncToken, auth) {
 			public void cancel() {
@@ -89,6 +89,19 @@ public abstract class ServerSyncState implements State {
 	}
 	
 	public void start() {
+		User u = CommCareContext._().getUser();
+		
+		//Don't even trigger the sync stuff if we're logged in as a magic user
+		//("admin" or the demo user).
+		if(CommCareUtil.isMagicAdmin(u)) {
+			onSuccess(Localization.get("sync.pull.admin"));
+			return;
+		}
+		
+		else if(User.DEMO_USER.equals(u.getUserType())) {
+			onSuccess(Localization.get("sync.pull.demo"));
+			return;
+		}
 		//This involves the global context, and thus should really be occurring in the constructor, but
 		//also takes a long time, and thus is more important to not occur until starting. 
 		CommCareContext._().purgeScheduler(true);

@@ -482,6 +482,8 @@ public class CommCareContext {
 		PropertyUtils.initializeProperty(CommCareProperties.TETHER_MODE, CommCareProperties.TETHER_PUSH_ONLY);
 		PropertyUtils.initializeProperty(CommCareProperties.LOGIN_IMAGE, "jr://resource/icon.png");
 		
+		PropertyManager._().setProperty(CommCareProperties.COMMCARE_VERSION, CommCareUtil.getVersion());
+		
 		PropertyUtils.initializeProperty(CommCareProperties.USER_REG_TYPE, CommCareProperties.USER_REG_REQUIRED);
 		
 		PropertyUtils.initializeProperty(CommCareProperties.AUTO_UPDATE_FREQUENCY, CommCareProperties.FREQUENCY_NEVER);

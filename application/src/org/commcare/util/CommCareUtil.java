@@ -16,6 +16,7 @@ import org.commcare.applogic.CommCareLoginState;
 import org.commcare.cases.model.Case;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -100,8 +101,15 @@ public class CommCareUtil {
 		String vDevice = getAppProperty(PROP_POLISH_DEVICE, "??");
 		String buildDate = getAppProperty(PROP_BUILD_DATE, "??");
 		String releaseDate = getAppProperty(PROP_RELEASE_DATE, "--");
-		String buildNum = getAppProperty(PROP_BUILD_NUM, "custom");
+		String binaryNum = getAppProperty(PROP_BUILD_NUM, "custom");
 		boolean released = !isTestingMode();
+		
+		String profileVersion = null;
+		
+		Profile p = CommCareContext._().getManager() == null ? null : CommCareContext._().getManager().getCurrentProfile();
+		if(p != null) {
+			profileVersion = " App #" + p.getVersion();
+		}
 		
 		vBuildJR = PropertyUtils.trim(vBuildJR, hashLength);
 		vBuildCC = PropertyUtils.trim(vBuildCC, hashLength);
@@ -113,9 +121,9 @@ public class CommCareUtil {
 		switch (type) {
 		case VERSION_LONG:
 			return vHumanApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vContent + "-" + vPolish + "-" + vDevice +
-				")" + (released ? " #" + buildNum : "") + " b:" + buildDate + " r:" + releaseDate;
+				")" + (released ? " build " + binaryNum : "") + (profileVersion == null ? "" : profileVersion) + " b:" + buildDate + " r:" + releaseDate;
 		case VERSION_MED:
-			return vHumanApp + " " + "#" + buildNum + (released ? " (" + releaseDate + ")" : "<unreleased>");
+			return vHumanApp + " build " + binaryNum + (profileVersion == null ? "" : profileVersion) + (released ? " (" + releaseDate + ")" : "<unreleased>");
 		case VERSION_SHORT:
 			return vHumanApp;
 		default: throw new RuntimeException("unknown version type");
@@ -388,5 +396,9 @@ public class CommCareUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean isMagicAdmin(User u) {
+		return u.isAdminUser() && u.getUsername().equals("admin");
 	}
 }
