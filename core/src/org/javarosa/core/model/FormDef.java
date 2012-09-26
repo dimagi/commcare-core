@@ -818,12 +818,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	}
 
 	public boolean evaluateConstraint(TreeReference ref, IAnswerData data) {
-
-		TreeElement node = mainInstance.resolveReference(ref);
-		Constraint c = node.getConstraint();
 		if (data == null){
 			return true;
 		}
+		
+		TreeElement node = mainInstance.resolveReference(ref);
+		Constraint c = node.getConstraint();
+		
 		if (c == null) {
 			return true;
 		}
