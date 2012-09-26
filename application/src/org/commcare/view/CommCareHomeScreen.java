@@ -56,11 +56,32 @@ public class CommCareHomeScreen extends CommCareListView {
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
 	
-	public final int unsentFormNumberLimit = Integer.parseInt(PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT));
-	public final int unsentFormTimeLimit = Integer.parseInt(PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_TIME_LIMIT));
+	private int unsentFormNumberLimit = 10;
+	private int unsentFormTimeLimit = 3;
 	
 	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"));
+		
+		try {
+			String unsentPropertyString = PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT);
+			if(unsentPropertyString != null) {
+				unsentFormNumberLimit = Integer.parseInt(unsentPropertyString);
+			}
+		} catch(NumberFormatException nfe) {
+			//not a valid integer;
+		}
+		
+		
+		try {
+			String unsentPropertyString = PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_TIME_LIMIT);
+			if(unsentPropertyString != null) {
+				unsentFormTimeLimit = Integer.parseInt(unsentPropertyString);
+			}
+		} catch(NumberFormatException nfe) {
+			//not a valid integer;
+		}
+		
+		
 		this.controller = controller;
 		
 		setCommandListener(controller);

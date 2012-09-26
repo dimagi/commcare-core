@@ -251,14 +251,9 @@ public class ResourceTable {
 		int round = -1;
 		while (!v.isEmpty() && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
 			round++;
+			System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
 			while(!v.isEmpty()) {
 				Resource r = v.pop();
-//				try {
-//					Thread.sleep(10000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				boolean upgrade = false;
 				//Make a reference set for all invalid references (this will get filled in for us)
 				Vector<Reference> invalid = new Vector<Reference>();
