@@ -17,6 +17,8 @@
 package org.javarosa.xform.parse;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,9 +46,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -405,7 +405,7 @@ public class XFormParser {
 			{
 				Element e = instanceNodes.elementAt(i);
 				String srcLocation = e.getAttributeValue(null, "src");
-				System.out.println("iteration " + i + ", srcLocation: "+ srcLocation + " e: " + e.getName());
+				
 				DataInstance di;
 				if(e.getChildCount() == 0 && srcLocation != null) {
 					di = new ExternalDataInstance(srcLocation, instanceNodeIdStrs.elementAt(i));
@@ -452,7 +452,7 @@ public class XFormParser {
 		for (int i = 0; i < suppressWarningArr.length; i++) {
 			suppressWarning.addElement(suppressWarningArr[i]);
 		}
-		System.out.println("parseElement");
+		
 		IElementHandler eh = handlers.get(name);
 		if (eh != null) {
 			eh.handle(this, e, parent);
@@ -1223,7 +1223,6 @@ public class XFormParser {
 			dataRef = binding.getReference();
 			refFromBind = true;
 		} else {
-			//!
 			if (group.getRepeat()) {
 				if (nodeset != null) {
 					dataRef = new XPathReference(nodeset);
@@ -1247,32 +1246,7 @@ public class XFormParser {
 
 			String countRef = e.getAttributeValue(NAMESPACE_JAVAROSA, "count");
 			if (countRef != null) {
-				try{
-					group.count = getAbsRef(new XPathReference(countRef), parent);
-				}
-				catch(Exception exc){
-					if(exc instanceof RuntimeException){
-					System.out.println("Couldn't resolve reference, parent/local mismatch");
-					}
-					else if(exc instanceof  XFormParseException){
-						System.out.println(exc.getMessage());
-					}
-				}
-				
-				
-				AbstractTreeElement countNode = _f.getMainInstance().resolveReference(group.count);
-				if(countNode == null) {
-					throw new RuntimeException("Could not locate the repeat count value expected at " + group.count.getReference().toString());
-				}
-				//get the total multiplicity possible
-				IAnswerData count = countNode.getValue();
-				try{
-					Integer iCount = ((Integer)count.getValue()).intValue();
-				}
-				catch(ClassCastException exc){
-					System.out.println("repeat node did not point to an integer at path: " + group.count);
-				}
-				
+				group.count = getAbsRef(new XPathReference(countRef), parent);
 				group.noAddRemove = true;
 			} else {
 				group.noAddRemove = (e.getAttributeValue(NAMESPACE_JAVAROSA, "noAddRemove") != null);				
