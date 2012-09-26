@@ -26,6 +26,7 @@ import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -453,7 +454,12 @@ public class FormEntryModel {
                 if (g.getRepeat() && g.getCountReference() != null) {
                     IAnswerData count = getForm().getMainInstance().resolveReference(g.getCountReference()).getValue();
                     if (count != null) {
-                        long fullcount = ((Integer) count.getValue()).intValue();
+                    	int fullcount = -1;
+                    	try {
+    						fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
+    					} catch(IllegalArgumentException iae) {
+    						throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getCountReference().toString() + " must be a number!");
+    					}
                         TreeReference ref = getForm().getChildInstanceRef(index);
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
                         if (element == null) {

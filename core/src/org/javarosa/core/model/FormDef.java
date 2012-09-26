@@ -33,6 +33,7 @@ import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
@@ -424,12 +425,21 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 				
 				AbstractTreeElement countNode = this.getMainInstance().resolveReference(repeat.getCountReference());
 				if(countNode == null) {
-					throw new RuntimeException("Could not locate the repeat count value expected at " + repeat.getCountReference().getReference().toString());
+					throw new RuntimeException("Could not find the location " + repeat.getCountReference().getReference().toString() + " where the repeat at " + repeatRef.toString(false) + " is looking for its count");
 				}
 				//get the total multiplicity possible
 				IAnswerData count = countNode.getValue();
-				long fullcount = count == null ? 0 : ((Integer)count.getValue()).intValue();
-				
+				int fullcount = -1;
+				if(count == null) {
+					fullcount = 0;
+				} else {
+					try {
+						fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
+					} catch(IllegalArgumentException iae) {
+						throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + repeat.getCountReference().getReference().toString() + " must be a number!");
+					}
+				}
+						
 				if(fullcount <= currentMultiplicity) {
 					return false;
 				}
