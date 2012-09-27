@@ -119,8 +119,15 @@ public class J2MEDisplay {
 	}
 	
 	public static Alert showError (String title, String message, Image image, Displayable next, CommandListener customListener) {
+		
+		
+		//#if polish.blackberry
+		//# //#style mailAlert
+		//# final Alert alert = new Alert(title, message, image, de.enough.polish.blackberry.ui.AlertType.ERROR) {
+		//#else
 		//#style mailAlert
 		final Alert alert = new Alert(title, message, image, AlertType.ERROR) {
+		//#endif
 			int latches = 0;
 			{
 				getKeyStates();
