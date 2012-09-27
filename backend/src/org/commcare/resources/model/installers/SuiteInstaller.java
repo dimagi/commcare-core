@@ -8,6 +8,7 @@ import java.io.InputStream;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.commcare.resources.model.Resource;
@@ -120,29 +121,31 @@ public class SuiteInstaller extends CacheInstaller {
 				String key = (String)en.nextElement();
 			}
 			Vector<Menu> menus = mSuite.getMenus();
-			Enumeration e = menus.elements();
-			while(e.hasMoreElements()){
-				Menu mMenu = (Menu)e.nextElement();
+			Iterator e = menus.iterator();
+			
+			while(e.hasNext()){
+				Menu mMenu = (Menu)e.next();
+
 				String aURI = mMenu.getAudioURI();
 				String iURI = mMenu.getImageURI();
-				Reference aRef = ReferenceManager._().DeriveReference(aURI);
-				Reference iRef = ReferenceManager._().DeriveReference(iURI);
-				String aLocalName = aRef.getLocalURI();
-				String iLocalName = iRef.getLocalURI();
-				try {
+				
+				if(aURI != null){
+					Reference aRef = ReferenceManager._().DeriveReference(aURI);
+					String aLocalName = aRef.getLocalURI();				
 					if(!aRef.doesBinaryExist()) {
 						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + aLocalName));
 					}
+				}
+				if(iURI != null){
+					Reference iRef = ReferenceManager._().DeriveReference(iURI);
+					String iLocalName = iRef.getLocalURI();					
 					if(!iRef.doesBinaryExist()) {
 						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + iLocalName));
 					}
-				} 
-				catch (IOException exc) {
-					problems.addElement(new UnresolvedResourceException(r,"Problem reading external audio: " + aLocalName + ", image: " + iLocalName));
 				}
 			}
 		}
-		catch(Exception e){
+		catch(Exception exc){
 			System.out.println("fail");
 		}
 		if(problems.size() == 0 ) { return false;}
