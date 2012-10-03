@@ -158,7 +158,7 @@ public class Detail implements Externalizable {
 			int order = fields[i].getSortOrder();
 			if(order < 1) { continue;}
 			for(int j = 0 ; j < indices.size() ; ++j) {
-				if(indices.size() > 0 || order < fields[indices.elementAt(j).intValue()].getSortOrder()) {
+				if(order < fields[indices.elementAt(j).intValue()].getSortOrder()) {
 					indices.insertElementAt(new Integer(i), j);
 					continue outer;
 				}
