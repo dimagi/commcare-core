@@ -83,19 +83,19 @@ public class RecentFormEntity extends Entity<FormInstance> {
 		return Localization.get("review.type.unknown");
 	}
 	
-	public String[] getSortFields () {
-		return new String[] {"DATE"};
+	public int[] getSortFields () {
+		return new int[] {0};
 	}
 	
-	public String[] getSortFieldNames () {
-		return new String[] {Localization.get("review.date")};
+	public String getSortFieldName(int key) {
+		return Localization.get("review.date");
 	}
 	
-	public Object getSortKey (String fieldKey) {
-		if (fieldKey.equals("DATE")) {
+	public Object getSortKey (int key) {
+		if (key == 0) {
 			return new Long(-dateSaved.getTime());
 		} else {
-			throw new RuntimeException("Sort Key [" + fieldKey + "] is not supported by this entity");
+			throw new RuntimeException("Sort Key [" + key + "] is not supported by this entity");
 		}
 	}
 	
