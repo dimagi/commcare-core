@@ -10,6 +10,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -121,6 +122,19 @@ public class DetailParser extends ElementParser<Detail> {
 						//see above comment. Also note that this catches the null case,
 						//which will need to be caught specially otherwise
 					}
+					
+					//See if there's a sort type
+					String type = parser.getAttributeValue(null, "type");
+					if("int".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_INTEGER);
+					} else if("double".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_DECIMAL);
+					} else if("string".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_TEXT);
+					} else {
+						//see above comment
+					}
+
 					
 					//See if this has a text value for the sort
 					if(nextTagInBlock("sort")) {

@@ -10,13 +10,16 @@ import java.util.Vector;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -244,7 +247,32 @@ public class CommCareEntity extends Entity<TreeReference> {
 			return DataUtil.integer(this.getRecordID());
 		} else {
 			try{
-				return sortText[Integer.valueOf(fieldKey).intValue()];
+				//Get the sort value
+				int index = Integer.valueOf(fieldKey).intValue();
+				String text = sortText[index];
+				
+				//Figure out if we need to cast to a type for comparison
+				int sortType = shortDetail.getFields()[index].getSortType();
+				
+				try {
+					if(sortType == Constants.DATATYPE_TEXT) {
+						return text.toLowerCase();
+					} else if(sortType == Constants.DATATYPE_INTEGER) {
+						//Double -> int is comprable
+						return XPathFuncExpr.toInt(text);
+					} else if(sortType == Constants.DATATYPE_DECIMAL) {
+						return XPathFuncExpr.toDouble(text);
+					} else {
+						//Hrmmmm :/ Handle better?
+						return text;
+					} 
+				} catch(XPathTypeMismatchException e) {
+					//So right now this will fail 100% silently, which is bad, but 
+					//I find it very likely that people are going to mess this up
+					//constantly...
+					Logger.log("config", "Entity Select: Couldn't cast "+ text + " to datatype " + sortType + "|" + e.getMessage());
+					return null;
+				}
 			} catch(NumberFormatException nfe) {
 				nfe.printStackTrace();
 				throw new RuntimeException("Invalid sort key in CommCare Entity: " + fieldKey);

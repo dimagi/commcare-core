@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -14,6 +15,10 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * Detail Fields represent the <field> elements of a suite's detail
+ * definitions. The model contains the relevent text templates as well
+ * as any layout or sorting options. 
+ * 
  * @author ctsims
  *
  */
@@ -31,12 +36,13 @@ public class DetailField implements Externalizable {
 	private String templateForm; 
 	private int sortOrder = -1;
 	private int sortDirection = DIRECTION_ASCENDING;
+	private int sortType = Constants.DATATYPE_TEXT;
 	
 	public DetailField() {
 		
 	}
 	
-	public DetailField(Text header, Text template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection) {
+	public DetailField(Text header, Text template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
 		this.header = header;
 		this.template = template;
 		this.sort = sort;
@@ -125,6 +131,10 @@ public class DetailField implements Externalizable {
 	public int getSortDirection() {
 		return sortDirection;
 	}
+	
+	public int getSortType() {
+		return sortType;
+	}
 
 
 
@@ -141,6 +151,7 @@ public class DetailField implements Externalizable {
 		templateForm = ExtUtil.readString(in);
 		sortOrder = ExtUtil.readInt(in);
 		sortDirection = ExtUtil.readInt(in);
+		sortType = ExtUtil.readInt(in);
 	}
 
 	/* (non-Javadoc)
@@ -156,6 +167,7 @@ public class DetailField implements Externalizable {
 		ExtUtil.writeString(out,templateForm);
 		ExtUtil.writeNumeric(out, sortOrder);
 		ExtUtil.writeNumeric(out, sortDirection);
+		ExtUtil.writeNumeric(out, sortType);
 	}
 	
 	public class Builder {
@@ -245,6 +257,12 @@ public class DetailField implements Externalizable {
 		 */
 		public void setSortDirection(int sortDirection) {
 			field.sortDirection = sortDirection;
+		}
+		/**
+		 * @param sortType
+		 */
+		public void setSortType(int sortType) {
+			field.sortType = sortType;
 		}
 	}
 }
