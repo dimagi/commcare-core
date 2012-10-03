@@ -35,6 +35,11 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
 			String shortDetail = parser.getAttributeValue(null, "detail-select");
 			String longDetail = parser.getAttributeValue(null, "detail-confirm");
 			String value = parser.getAttributeValue(null, "value");
+			
+			if(nodeset == null) {
+				throw new InvalidStructureException("Expected @nodeset in " + id +" <datum> definition", this.parser);
+			}
+			
 			datum = new SessionDatum(id, nodeset, shortDetail, longDetail, value);
 		} else {
 			if("form".equals(this.parser.getName())) {

@@ -7,9 +7,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -41,16 +41,7 @@ public class Detail implements Externalizable {
 	
 	private Text title;
 	
-	private Vector<Text> headers;
-	private Vector<Text> templates;
-	
-	private int[] headerHints;
-	private int[] templateHints;
-	
-	private String[] headerForms;
-	private String[] templateForms;
-	
-	private int defaultSort;
+	DetailField[] fields;
 	
 	OrderedHashtable<String, String> variables;
 	OrderedHashtable<String, XPathExpression> variablesCompiled;
@@ -62,29 +53,15 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int defaultSort, OrderedHashtable<String, String> variables) {
+	public Detail(String id, Text title, Vector<DetailField> fields, OrderedHashtable<String, String> variables) {
+		this(id, title, ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), variables);
+	}
+	
+	public Detail(String id, Text title, DetailField[] fields, OrderedHashtable<String, String> variables) {
 		this.id = id;
 		this.title = title;
-		this.headers = headers;
-		this.templates = templates;
-		this.headerHints = initBlank(headers.size());
-		this.templateHints = initBlank(templates.size());
-		this.headerForms = new String[headers.size()];
-		this.templateForms = new String[templates.size()];
-		this.defaultSort = defaultSort;
+		this.fields = fields;
 		this.variables = variables;
-	}
-	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, int defaultSort, OrderedHashtable<String, String> variables) {
-		this(id,title,headers,templates, defaultSort, variables);
-		this.headerHints = headerHints;
-		this.templateHints = templateHints;
-	}
-	
-	public Detail(String id, Text title, Vector<Text> headers, Vector<Text> templates, int[] headerHints, int[] templateHints, String[] headerForms, String[] templateForms, int defaultSort, OrderedHashtable<String, String> variables) {
-		this(id,title,headers,templates,headerHints,templateHints, defaultSort, variables);
-		this.headerForms = headerForms;
-		this.templateForms = templateForms;
 	}
 	
 	private int[] initBlank(int size) {
@@ -109,54 +86,8 @@ public class Detail implements Externalizable {
 	public Text getTitle() {
 		return title;
 	}
-	
-	/**
-	 * @return A set of header text to be displayed for
-	 * each piece of data which is describe by a template.
-	 */
-	public Text[] getHeaders() {
-		Text[] array = new Text[headers.size()];
-		headers.copyInto(array);
-		return array;
-	}
-	
-	/**
-	 * @return A set of Text definitions which provide
-	 * a template for how to display the object in a data
-	 * model.
-	 */
-	public Text[] getTemplates() {
-		Text[] array = new Text[templates.size()];
-		templates.copyInto(array);
-		return array;
-	}
-	
-	/**
-	 * @return An array of integers which are either -1 or
-	 * between 0 and 100 defining a hint for what % of the screen
-	 * should be used to display each header at the appropriate
-	 * index.
-	 */
-	public int[] getHeaderSizeHints() {
-		return headerHints;
-	}
-	
-	/**
-	 * @return An array of integers which are either -1 or
-	 * between 0 and 100 defining a hint for what % of the screen
-	 * should be used to display each piece of templated text at 
-	 * the appropriate index.
-	 */
-	public int[] getTemplateSizeHints() {
-		return templateHints;
-	}
-	
-	public String[] getHeaderForms() {
-		return headerForms;
-	}
-	
-	public String[] getTemplateForms() {
-		return templateForms;
+	public DetailField[] getFields() {
+		return fields;
 	}
 	
 	/*
@@ -166,14 +97,11 @@ public class Detail implements Externalizable {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		id = ExtUtil.readString(in);
 		title = (Text)ExtUtil.read(in, Text.class, pf);
-		headers = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
-		templates = (Vector<Text>)ExtUtil.read(in, new ExtWrapList(Text.class), pf);
-		headerHints = (int[])ExtUtil.readInts(in);
-		templateHints = (int[])ExtUtil.readInts(in);
-		headerForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
-		templateForms = toArray((Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf));
-		defaultSort = ExtUtil.readInt(in);
+		Vector<DetailField> theFields  = (Vector<DetailField>)ExtUtil.read(in, new ExtWrapList(DetailField.class), pf);
+		fields = new DetailField[theFields.size()];
+		ArrayUtilities.copyIntoArray(theFields, fields);
 		variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
+		
 	}
 
 	/*
@@ -183,13 +111,7 @@ public class Detail implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out,id);
 		ExtUtil.write(out, title);
-		ExtUtil.write(out, new ExtWrapList(headers));
-		ExtUtil.write(out, new ExtWrapList(templates));
-		ExtUtil.writeInts(out, headerHints);
-		ExtUtil.writeInts(out, templateHints);
-		ExtUtil.write(out, new ExtWrapList(toVector(headerForms)));
-		ExtUtil.write(out, new ExtWrapList(toVector(templateForms)));
-		ExtUtil.writeNumeric(out, defaultSort);
+		ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
 		ExtUtil.write(out, new ExtWrapMap(variables));
 	}
 	
@@ -226,9 +148,92 @@ public class Detail implements Externalizable {
 		return a;
 	}
 	
-	public int getDefaultSort() {
-		//Sort order keys
-		return defaultSort;
+	/**
+	 * @return The indices of which fields should be used for sorting and their order
+	 */
+	public int[] getSortOrder() {
+		Vector<Integer> indices = new Vector<Integer>();
+		outer:
+		for(int i = 0 ; i < fields.length ; ++i) {
+			int order = fields[i].getSortOrder();
+			if(order < 1) { continue;}
+			for(int j = 0 ; j < indices.size() ; ++j) {
+				if(indices.size() > 0 || order < fields[indices.elementAt(j).intValue()].getSortOrder()) {
+					indices.insertElementAt(new Integer(i), j);
+					continue outer;
+				}
+			}
+			//otherwise it's larger than all of the other fields.
+			indices.addElement(new Integer(i));
+			continue;
+		}
+		if(indices.size() == 0) { return new int[] {};}
+		else {
+			int[] ret = new int[indices.size()];
+			for(int i = 0 ; i < ret.length ; ++i) {
+				ret[i] = indices.elementAt(i).intValue();
+			}
+			return ret;
+		}
 	}
 	
+	//These are just helpers around the old structure. Shouldn't really be
+	//used if avoidable
+	
+	
+	/**
+	 * Obsoleted - Don't use
+	 */
+	public int[] getHeaderSizeHints() {
+		return new Map<int[]>(new int[fields.length]) {
+			protected void map(DetailField f, int[] a, int i) {
+				a[i] = f.getHeaderHint();
+			}
+		}.go();
+	}
+
+	/**
+	 * Obsoleted - Don't use
+	 */
+	public int[] getTemplateSizeHints() {
+		return new Map<int[]>(new int[fields.length]) {
+			protected void map(DetailField f, int[] a, int i) {
+				a[i] = f.getTemplateHint();
+			}
+		}.go();
+	}
+
+	/**
+	 * Obsoleted - Don't use
+	 */
+	public String[] getHeaderForms() {
+		return new Map<String[]>(new String[fields.length]) {
+			protected void map(DetailField f, String[] a, int i) {
+				a[i] = f.getHeaderForm();
+			}
+		}.go();
+	}
+
+	/**
+	 * Obsoleted - Don't use
+	 */
+	public String[] getTemplateForms() {
+		return new Map<String[]>(new String[fields.length]) {
+			protected void map(DetailField f, String[] a, int i) {
+				a[i] = f.getTemplateForm();
+			}
+		}.go();
+	}
+	
+	private abstract class Map<E> {
+		private E a;
+		private Map(E a) { this.a = a; }  
+		protected abstract void map(DetailField f, E a, int i);
+		public E go() {
+			for(int i = 0 ; i < fields.length ; ++i){
+				map(fields[i], a, i);
+			}
+			return a;
+		}
+	}
 }
