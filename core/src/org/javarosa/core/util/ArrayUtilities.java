@@ -77,4 +77,20 @@ public class ArrayUtilities {
 		}
 		return b;
 	}
+	
+	public static <E> E[] copyIntoArray(Vector<E> v, E[] a) {
+		int i = 0;
+		for(E e : v) {
+			a[i++] = e;
+		}
+		return a;
+	}
+	
+	public static <E> Vector<E> toVector(E[] a) {
+		Vector<E> v = new Vector<E>();
+		for(E e : a) {
+			v.addElement(e);
+		}
+		return v;
+	}
 }
