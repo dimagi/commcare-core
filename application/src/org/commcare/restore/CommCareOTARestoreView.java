@@ -16,9 +16,11 @@ import de.enough.polish.ui.UiAccess;
  * @author ctsims
  *
  */
-public class CommCareOTARestoreView extends Form {
+public class CommCareOTARestoreView extends Form{
 
 	public final Command FINISHED = new Command(Localization.get("restore.finished"),Command.SCREEN,1); 
+	
+	
 	
 	StringItem details;
 	String buffer;
@@ -70,5 +72,4 @@ public class CommCareOTARestoreView extends Form {
 			return false;
 		}
 	}
-
 }

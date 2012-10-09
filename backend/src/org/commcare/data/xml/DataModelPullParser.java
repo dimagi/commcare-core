@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
 
+import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.ElementParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.log.WrappedException;
-import org.javarosa.core.services.Logger;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -23,7 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  *
  */
-public class DataModelPullParser extends ElementParser<Boolean> {
+public class DataModelPullParser extends ElementParser<Boolean>{
 	
 	Vector<String> errors;
 	
@@ -34,8 +34,15 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 	
 	InputStream is;
 	
+	CommCareOTARestoreListener rListener;
+	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory) throws InvalidStructureException, IOException {
 		this(is, factory, false);
+	}
+	
+	public DataModelPullParser(InputStream is, TransactionParserFactory factory, CommCareOTARestoreListener rl) throws InvalidStructureException, IOException {
+		this(is, factory, false);
+		this.rListener = rl;
 	}
 	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean deep) throws InvalidStructureException, IOException {
@@ -77,7 +84,12 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 	}
 	
 	private void parseBlock(String root)  throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+		int parsedCounter = 0;
 		while(this.nextTagInBlock(root)) {
+			
+			if(listenerSet()){
+				rListener.onUpdate(parsedCounter);
+			}
 			
 			String name = parser.getName();
 			String namespace = parser.getNamespace();
@@ -121,5 +133,10 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 			errorBuf[i] = errors.elementAt(i);
 		}
 		return errorBuf;
+	}
+	
+	public boolean listenerSet(){
+		if(rListener==null){return false;}
+		return true;
 	}
 }
