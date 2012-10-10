@@ -51,6 +51,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	boolean noPartial;
 	boolean isSync;
 	int[] caseTallies;
+	int totalItemCount = -1;
 	
 	HttpAuthenticator authenticator;
 	boolean errorsOccurred;
@@ -197,8 +198,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 
 	@Override
 	public void onUpdate(int numberCompleted) {
-		// TODO Called when DataModelPullParser finishes a block
-		
+		view.updateProgress(numberCompleted);
 	}
 
 	@Override
@@ -260,6 +260,11 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				entry.sendMessage(Localization.get("restore.message.connection.failed"));
 		}
 		
+	}
+	
+	public void setTotalForms(int totalItemCount){
+		this.totalItemCount = totalItemCount;
+		view.setTotalItems(totalItemCount);
 	}
 
 	public void refreshView(){

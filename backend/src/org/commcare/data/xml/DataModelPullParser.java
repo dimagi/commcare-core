@@ -61,6 +61,16 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 	public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		try {
 			String rootName = parser.getName();
+			
+			String itemString = parser.getAttributeValue(null, "item");
+			if(itemString != null) {
+				try{
+					int itemNumber = Integer.parseInt(itemString);
+				}catch(NumberFormatException e){
+					int itemNumber = 0;
+				}
+				throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser); 
+			}
 			//Here we'll go through in search of CommCare data models and parse
 			//them using the appropriate CommCare Model data parser.
 			
@@ -89,6 +99,7 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 			
 			if(listenerSet()){
 				rListener.onUpdate(parsedCounter);
+				parsedCounter++;
 			}
 			
 			String name = parser.getName();
