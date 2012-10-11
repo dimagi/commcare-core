@@ -96,11 +96,15 @@ public class DataModelPullParser extends ElementParser<Boolean> {
 					this.skipBlock(name);
 				}
 			} else {
-				try{
+				if(!failfast) {
+					try{
+						transaction.parse();
+					} catch(Exception e) {
+						e.printStackTrace();
+						deal(e, depth, name);
+					}
+				} else {
 					transaction.parse();
-				} catch(Exception e) {
-					e.printStackTrace();
-					deal(e, depth, name);
 				}
 			}
 		}
