@@ -70,6 +70,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
 			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI) {
+		System.out.println("Cosntructor 3 for CommCareOTARestoreController");
 
 		view = new CommCareOTARestoreView(Localization.get("intro.restore"));
 		view.setCommandListener(this);
@@ -190,28 +191,31 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 		J2MEDisplay.setView(entry);
 	}
 
-	@Override
 	public void onSuccess() {
 		view.setFinished();
 		view.addToMessage(Localization.get("restore.key.continue"));
 	}
 
-	@Override
 	public void onUpdate(int numberCompleted) {
+		System.out.println("onUpdate in Controller, numCompleted: " + numberCompleted);
 		view.updateProgress(numberCompleted);
 	}
 
-	@Override
 	public void statusUpdate(int statusNumber) {
+		System.out.println("Updating status, statusNumber is: ");
+		System.out.println(statusNumber);
 		switch(statusNumber){
-			case CommCareOTARestoreListener.REGULAR_START:	
+			case CommCareOTARestoreListener.REGULAR_START:
 				entry.sendMessage("");
+				System.out.println("entry message sent");
+				return;
 			case CommCareOTARestoreListener.BYPASS_START:	
 				view.addToMessage(Localization.get("restore.bypass.start", new String [] {mRestorer.getBypassRef().getLocalURI()}));
 			case CommCareOTARestoreListener.BYPASS_CLEAN:	
 				view.addToMessage(Localization.get("restore.bypass.clean"));
 			case CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS:	
 				view.addToMessage(Localization.get("restore.bypass.clean.success"));
+				return;
 			case CommCareOTARestoreListener.BYPASS_CLEANFAIL:	
 				view.addToMessage(Localization.get("restore.bypass.cleanfail", new String[] {mRestorer.getBypassRef().getLocalURI()}));
 			case CommCareOTARestoreListener.BYPASS_FAIL:	
@@ -258,11 +262,14 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				view.addToMessage(Localization.get("restore.success.partial"));// + " " + parseErrors.length); //TODO
 			case CommCareOTARestoreListener.RESTORE_CONNECTION_FAIL_ENTRY:
 				entry.sendMessage(Localization.get("restore.message.connection.failed"));
+			default: System.out.println("default case at status switch");
 		}
+		System.out.println("end of switch");
 		
 	}
 	
 	public void setTotalForms(int totalItemCount){
+		System.out.println("Setting total forms: " + totalItemCount);
 		this.totalItemCount = totalItemCount;
 		view.setTotalItems(totalItemCount);
 	}
@@ -271,7 +278,6 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 		setView();
 	}
 
-	@Override
 	public void onFailure(String failMessage) {
 		doneFail(failMessage);
 	}

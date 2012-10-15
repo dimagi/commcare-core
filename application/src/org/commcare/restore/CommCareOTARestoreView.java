@@ -4,8 +4,8 @@
 package org.commcare.restore;
 
 import javax.microedition.lcdui.Canvas;
-import javax.microedition.lcdui.Gauge;
 import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Gauge;
 
 import org.javarosa.core.services.locale.Localization;
 
@@ -27,6 +27,8 @@ public class CommCareOTARestoreView extends Form{
 	StringItem details;
 	String buffer;
 	
+	int count = 0;
+	
 	boolean finished;
 	boolean gaugeIsInfinite = true;
 	int totalItems;
@@ -43,7 +45,7 @@ public class CommCareOTARestoreView extends Form{
 	}
 	
 	public void addToMessage(String message) {
-		buffer += message + "\n";
+		buffer = message + "\n" + buffer;
 		setMessage(buffer);
 	}
 	
@@ -53,6 +55,7 @@ public class CommCareOTARestoreView extends Form{
 	}
 	
 	public void setTotalItems(int totalItems){
+		System.out.println("settingTotalItems: "+ totalItems);
 		this.totalItems = totalItems;
 		gaugeIsInfinite = false;
 		gauge = new Gauge(getTitle(), true, RESOLUTION, 0);
@@ -61,6 +64,12 @@ public class CommCareOTARestoreView extends Form{
 	public void updateProgress(int finishedItems) {
 		if(!gaugeIsInfinite){
 			gauge.setValue((int)Math.floor(RESOLUTION*(finishedItems/totalItems)));
+		}
+		if(gaugeIsInfinite){
+			addToMessage("Downloaded " + finishedItems + " items.");
+		}
+		else{
+			addToMessage("Downloaded " + finishedItems + " out of " + totalItems + ".");
 		}
 	}
 	
