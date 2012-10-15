@@ -146,4 +146,12 @@ public class CommCareLoginState extends LoginState {
 			}
 		});
 	}
+
+	public void tools() {
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareToolsState() {
+			public void done() {
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState(true));
+			}
+		});
+	}
 }
