@@ -153,7 +153,7 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
 			javax.wireless.messaging.TextMessage sms = (javax.wireless.messaging.TextMessage) mconn.newMessage(javax.wireless.messaging.MessageConnection.TEXT_MESSAGE);
 			sms.setAddress("sms://+15555555555");
 			sms.setPayloadText("dummy text");
-			parent.addLine("PASS: Permission Granted (NOTE: This test doesn't send an actual message, you may still be prompted)");
+			parent.addLine("PASS: Permission Granted (NOTE: This test cannot determine whether the phone will display a permissions prompt)");
 		} catch(SecurityException se) {
 			parent.addLine("FAIL: Permission Not Granted!");
 		} catch (IOException e) {
