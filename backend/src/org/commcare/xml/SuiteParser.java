@@ -65,7 +65,7 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	Entry e = new EntryParser(parser).parse();
                 	entries.put(e.getCommandId(), e);
                 } else if(parser.getName().toLowerCase().equals("view")) {
-                	Entry e = new ViewParser(parser).parse();
+                	Entry e = new EntryParser(parser, false).parse();
                 	entries.put(e.getCommandId(), e);
                 } else if(parser.getName().toLowerCase().equals("locale")) {
                 	String localeKey = parser.getAttributeValue(null, "language");

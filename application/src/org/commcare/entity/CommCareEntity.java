@@ -8,14 +8,17 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -28,6 +31,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 	Detail shortDetail;
 	Detail longDetail;
 	String[] shortText;
+	String[] sortText;
 	EvaluationContext context;
 	NodeEntitySet set;
 	
@@ -61,17 +65,17 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * @see org.javarosa.entity.model.Entity#getHeaders(boolean)
 	 */
 	public String[] getHeaders(boolean detailed) {
-		Text[] text;
+		Detail d;
 		if(!detailed) {
-			text = shortDetail.getHeaders();
+			d = shortDetail;
 		} else{
 			if(longDetail == null) { return null;}
-			text = longDetail.getHeaders();
+			d = longDetail;
 		}
 		
-		String[] output = new String[text.length];
+		String[] output = new String[d.getFields().length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate();
+			output[i] = d.getFields()[i].getHeader().evaluate();
 		}
 		return output;
 	}
@@ -83,8 +87,8 @@ public class CommCareEntity extends Entity<TreeReference> {
 		key = key.toLowerCase();
 		String[] fields = this.getShortFields();
 		for(int i = 0; i < fields.length; ++i) {
-			//Skip sorting by this key if it's not a normal string
-			if("image".equals(shortDetail.getTemplateForms()[i])) {
+			//don't match to images
+			if("image".equals(shortDetail.getFields()[i].getTemplateForm())) {
 				continue;
 			}
 			if(fields[i].toLowerCase().startsWith(key)) {
@@ -118,10 +122,9 @@ public class CommCareEntity extends Entity<TreeReference> {
 		if(longDetail == null) { return null;}
 		EvaluationContext ec = new EvaluationContext(context, element);
 		loadVars(ec, longDetail);
-		Text[] text = longDetail.getTemplates();
-		String[] output = new String[text.length];
+		String[] output = new String[longDetail.getFields().length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = text[i].evaluate(ec);
+			output[i] = longDetail.getFields()[i].getTemplate().evaluate(ec);
 		}
 		return output;
 	}
@@ -147,7 +150,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 	protected void loadEntity(TreeReference element) {
 		EvaluationContext ec = new EvaluationContext(context, element);
 		loadVars(ec, shortDetail);
-		loadShortText(ec);
+		loadTexts(ec);
 	}
 	
 	private void loadVars(EvaluationContext ec, Detail detail) {
@@ -163,37 +166,60 @@ public class CommCareEntity extends Entity<TreeReference> {
 		}
 	}
 	
-	private void loadShortText(EvaluationContext context) {
-		Text[] text = shortDetail.getTemplates();
-		shortText = new String[text.length];
+	private void loadTexts(EvaluationContext context) {
+		shortText = new String[shortDetail.getFields().length];
+		sortText = new String[shortDetail.getFields().length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = text[i].evaluate(context);
+			shortText[i] = shortDetail.getFields()[i].getTemplate().evaluate(context);
+			
+			//see whether or not the field has a special text form just for sorting
+			Text sortKey = shortDetail.getFields()[i].getSort();
+			if(sortKey == null) {
+				//If not, we'll just use the display text
+				sortText[i] = shortText[i];
+			} else {
+				//If so, evaluate it
+				sortText[i] = sortKey.evaluate(context);
+			}
 		}
+	}
+	
+	/**
+	 * Get a list of what the default sort orderings should be for this entity
+	 * @return An array of indices into the getSortFields() array specifying
+	 * the order in which sorting should be applied by default
+	 */
+	public int[] getDefaultSortOrder() {
+		return shortDetail.getSortOrder();
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getSortFields()
 	 */
-	public String[] getSortFields () {
-		int topIndex = shortDetail.getDefaultSort();
-		Vector<String> fields = new Vector<String>();
-		if(topIndex != -1) {
-			fields.addElement(String.valueOf(topIndex));
+	public int[] getSortFields () {
+		int[] sortOrder = getDefaultSortOrder();
+		Vector<Integer> fields = new Vector<Integer>();
+		
+		//Put the default sorted ones in at the top
+		for(int index : sortOrder) {
+			fields.addElement(DataUtil.integer(index));
 		}
-		fields.addElement("DEFAULT");
+		
+		//now loop through the rest and see if they need to get added 
 		String[] headers = getHeaders(false);
 		for(int i = 0 ; i < headers.length ; ++i) {
 			if(headers[i] == null  || headers[i].equals("")) { continue;}
-			if(i == topIndex) {
-				//nothing
+			//if it's already added, don't re-add it
+			if(fields.contains(DataUtil.integer(i))) {
+				//already present
 			} else {
-				fields.addElement(String.valueOf(i));
+				fields.addElement(DataUtil.integer(i));
 			}
 		}
-		String[] ret = new String[fields.size()];
+		int[] ret = new int[fields.size()];
 		for(int i = 0; i < fields.size() ; ++i) {
-			ret[i] = fields.elementAt(i);
+			ret[i] = fields.elementAt(i).intValue();
 		}
 		return ret;
 	}
@@ -202,41 +228,49 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getSortFieldNames()
 	 */
-	public String[] getSortFieldNames () {
-		String[] headers = getHeaders(false);
-		String[] sortKeys = getSortFields();
-		String[] ret = new String[sortKeys.length];
-		
-		for(int i = 0 ; i < ret.length ; ++i) {
-			if(sortKeys[i].equals("DEFAULT")) {
-				ret[i] = Localization.get("case.id");
-			} else {
-				try{
-					ret[i] = headers[Integer.valueOf(sortKeys[i]).intValue()];
-				} catch(NumberFormatException nfe) {
-					nfe.printStackTrace();
-					throw new RuntimeException("Invalid sort key in CommCare Entity: " + sortKeys[i]);
-				}
-			}
-			
-		}
-		return ret;
+	public String getSortFieldName (int index) {
+		return getHeaders(false)[index];
 	}
 	
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.entity.model.Entity#getSortKey(java.lang.String)
 	 */
-	public Object getSortKey (String fieldKey) {
-		if (fieldKey.equals("DEFAULT")) {
-			return DataUtil.integer(this.getRecordID());
-		} else {
-			try{
-				return getShortFields()[Integer.valueOf(fieldKey).intValue()];
-			} catch(NumberFormatException nfe) {
-				nfe.printStackTrace();
-				throw new RuntimeException("Invalid sort key in CommCare Entity: " + fieldKey);
-			}
+	public Object getSortKey (int index) {
+		//Get the sort value
+		String text = sortText[index];
+		
+		//Figure out if we need to cast to a type for comparison
+		int sortType = shortDetail.getFields()[index].getSortType();
+		
+		try {
+			if(sortType == Constants.DATATYPE_TEXT) {
+				return text.toLowerCase();
+			} else if(sortType == Constants.DATATYPE_INTEGER) {
+				//Double -> int is comprable
+				return XPathFuncExpr.toInt(text);
+			} else if(sortType == Constants.DATATYPE_DECIMAL) {
+				return XPathFuncExpr.toDouble(text);
+			} else {
+				//Hrmmmm :/ Handle better?
+				return text;
+			} 
+		} catch(XPathTypeMismatchException e) {
+			//So right now this will fail 100% silently, which is bad, but 
+			//I find it very likely that people are going to mess this up
+			//constantly...
+			Logger.log("config", "Entity Select: Couldn't cast "+ text + " to datatype " + sortType + "|" + e.getMessage());
+			return null;
 		}
+	}
+	
+	/**
+	 * Returns the orientation that the specified field should be sorted in 
+	 * 
+	 * @param fieldKey The key to be sorted
+	 * @return true if the field should be sorted in ascending order. False otherwise
+	 */
+	public boolean isSortAscending(int index) {
+		return !(shortDetail.getFields()[index].getSortDirection() == DetailField.DIRECTION_DESCENDING);
 	}
 }

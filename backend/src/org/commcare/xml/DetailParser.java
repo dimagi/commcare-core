@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -38,14 +40,8 @@ public class DetailParser extends ElementParser<Detail> {
 			Text title = new TextParser(parser).parse();
 			
 			//Now get the headers and templates.
-			Vector<Text> headers = new Vector<Text>();
-			Vector<Text> templates = new Vector<Text>();
-			Vector<Integer> headerHints = new Vector<Integer>();
-			Vector<Integer> templateHints = new Vector<Integer>();
-			Vector<String> headerForms = new Vector<String>();
-			Vector<String> templateForms = new Vector<String>();
+			Vector<DetailField> fields = new Vector<DetailField>();
 			OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
-			int defaultSort = -1;
 			
 			while(nextTagInBlock("detail")) {
 				if("variables".equals(parser.getName().toLowerCase())) {
@@ -62,48 +58,100 @@ public class DetailParser extends ElementParser<Detail> {
 					}
 					continue;
 				}
+				DetailField.Builder builder = new DetailField().new Builder();
 				
 				checkNode("field");
 				//Get the fields
 				String sortDefault = parser.getAttributeValue(null, "sort");
 				if(sortDefault != null && sortDefault.equals("default")) {
-					defaultSort = headerForms.size();
+					builder.setSortOrder(1);
 				}
 				if(nextTagInBlock("field")) {
 					//Header
 					checkNode("header");
 					
-					headerHints.addElement(new Integer(getWidth()));
+					builder.setHeaderHint(getWidth());
 					
 					String form = parser.getAttributeValue(null, "form");
-					headerForms.addElement(form == null ? "" : form);
+					builder.setHeaderForm(form == null ? "" : form);
 					
 					parser.nextTag();
 					checkNode("text");
 					Text header = new TextParser(parser).parse();
-					headers.addElement(header);
+					builder.setHeader(header);
 				}
 				if(nextTagInBlock("field")) {
 					//Template
 					checkNode("template");
 					
-					templateHints.addElement(new Integer(getWidth()));
+					builder.setTemplateHint(getWidth());
 					
 					String form = parser.getAttributeValue(null, "form");
-					templateForms.addElement(form == null ? "" : form);
+					builder.setTemplateForm(form == null ? "" : form);
 					
 					parser.nextTag();
 					checkNode("text");
 					Text template = new TextParser(parser).parse();
-					templates.addElement(template);
+					builder.setTemplate(template);
 				} else {
 					throw new InvalidStructureException("detail <field> with no <template>!", parser);
+				} if(nextTagInBlock("field")) {
+					//sort details
+					checkNode("sort");
+					
+					//So in the past we've been fairly flexible about inputs to attributes and such
+					//in case we want to expand their function in the future. These are limited sets,
+					//and it'd be nice to limit their inputs and fail fast, but that also means
+					//we have to be careful about not changing their input values in-major release
+					//version, so we'll be flexible for now.
+					
+					String order = parser.getAttributeValue(null, "order");
+					if(order != null && order !="") {
+						try {
+							builder.setSortOrder(Integer.parseInt(order));
+						} catch(NumberFormatException nfe) {
+							//see above comment
+						}
+					}
+					String direction = parser.getAttributeValue(null, "direction");
+					if("ascending".equals(direction)) {
+						builder.setSortDirection(DetailField.DIRECTION_ASCENDING);
+					} else if("descending".equals(direction)) {
+						builder.setSortDirection(DetailField.DIRECTION_DESCENDING);
+					} else {
+						//see above comment. Also note that this catches the null case,
+						//which will need to be caught specially otherwise
+					}
+					
+					//See if there's a sort type
+					String type = parser.getAttributeValue(null, "type");
+					if("int".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_INTEGER);
+					} else if("double".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_DECIMAL);
+					} else if("string".equals(type)) {
+						builder.setSortType(Constants.DATATYPE_TEXT);
+					} else {
+						//see above comment
+					}
+
+					
+					//See if this has a text value for the sort
+					if(nextTagInBlock("sort")) {
+						//Make sure the internal element _is_ a text
+						checkNode("text");
+						
+						//Get it if so
+						Text sort = new TextParser(parser).parse();
+						builder.setSort(sort);
+					}
 				}
+				fields.addElement(builder.build());
 			}
 		
 		
 		
-		Detail d = new Detail(id, title, headers, templates, toIntArray(headerHints), toIntArray(templateHints), toStringArray(headerForms), toStringArray(templateForms), defaultSort, variables);
+		Detail d = new Detail(id, title, fields, variables);
 		return d;
 	}
 	

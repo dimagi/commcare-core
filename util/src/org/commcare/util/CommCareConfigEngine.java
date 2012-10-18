@@ -17,6 +17,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
@@ -73,7 +74,7 @@ public class CommCareConfigEngine {
 			}
 
 			public int getMinorVersion() {
-				return 0;
+				return 2;
 			}
 		};
 		
@@ -277,8 +278,8 @@ public class CommCareConfigEngine {
 					print.println(emptyhead + "|Select: " + "(dynamic title)");
 				}
 				print.print(emptyhead + "| ");
-				for(Text t : d.getHeaders()) {
-					print.print(t.evaluate() + " | ");
+				for(DetailField f : d.getFields()) {
+					print.print(f.getHeader().evaluate() + " | ");
 				}
 				print.print("\n");
 			}

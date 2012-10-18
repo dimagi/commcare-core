@@ -113,3 +113,7 @@ update.fail.generic=An error occurred during the update!
 update.retrying=Continuing update attempt...
 
 commcare.fail.sendlogs=Attempt to send logs?
+
+commcare.tools.title=Tools
+commcare.tools.network=Network Test
+commcare.tools.permissions=Permissions Test

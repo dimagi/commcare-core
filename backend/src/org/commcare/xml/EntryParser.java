@@ -21,16 +21,23 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class EntryParser extends ElementParser<Entry> {
+	boolean isEntry = true;
 
 	public EntryParser(KXmlParser parser) {
+		this(parser, true);
+	}
+	
+	public EntryParser(KXmlParser parser, boolean isEntry) {
 		super(parser);
+		this.isEntry = isEntry;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.commcare.xml.ElementParser#parse()
 	 */
 	public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode("entry");
+		String block = isEntry ? "entry" : "view";
+		this.checkNode(block);
 		
 		String xFormNamespace = "";
 		Vector<SessionDatum> data = new Vector<SessionDatum>();
@@ -43,10 +50,10 @@ public class EntryParser extends ElementParser<Entry> {
 		String audioURI = null;
 		Object[] displayArr;  //Should *ALWAYS* be [Text commandText, String imageURI, String audioURI]
 			
-		while(nextTagInBlock("entry")) {
+		while(nextTagInBlock(block)) {
 			if(parser.getName().equals("form")) {
+				if(!isEntry) {throw new InvalidStructureException("<view>'s cannot specify XForms!!", this.parser); }
 				xFormNamespace = parser.nextText();
-//				imageURI = parser.getAttributeValue
 			}
 			else if(parser.getName().equals("command")) {
 				commandId = parser.getAttributeValue(null, "id");
@@ -76,7 +83,7 @@ public class EntryParser extends ElementParser<Entry> {
 				}
 			} 
 			else if(parser.getName().equals("entity") || parser.getName().equals("details")) {
-				throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <entry>. " + 
+				throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + block + ">. " + 
 						                             parser.getName() + " is not a valid construct in 2.0 CaseXML", parser);
 			}
 		}

@@ -333,6 +333,7 @@ public class CommCareSession {
 	
 	public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
 		
+		if(getCommand() == null) { return new EvaluationContext(null); } 
 		Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
 		
 		Hashtable<String, DataInstance> instances = entry.getInstances();
