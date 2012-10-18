@@ -67,6 +67,15 @@ import org.kxml2.kdom.Node;
 		
 		Vector dataPointers;
 		
+		boolean respectRelevance = true;
+		
+		public XFormSerializingVisitor() {
+			this(true);
+		}
+		public XFormSerializingVisitor(boolean respectRelevance) {
+			this.respectRelevance = respectRelevance;
+		}
+		
 		private void init() {
 			theXmlDoc = null;
 			schema = null;
@@ -175,7 +184,7 @@ import org.kxml2.kdom.Node;
 			Element e = new Element(); //don't set anything on this element yet, as it might get overwritten
 
 			//don't serialize template nodes or non-relevant nodes
-			if (!instanceNode.isRelevant() || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
+			if ((respectRelevance && !instanceNode.isRelevant()) || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE) {
 				return null;	
 			}
 				
