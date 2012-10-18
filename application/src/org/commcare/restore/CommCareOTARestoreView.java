@@ -62,13 +62,11 @@ public class CommCareOTARestoreView extends Form{
 	}
 	
 	public void updateProgress(int finishedItems) {
-		if(!gaugeIsInfinite){
-			gauge.setValue((int)Math.floor(RESOLUTION*(finishedItems/totalItems)));
-		}
 		if(gaugeIsInfinite){
 			addToMessage("Downloaded " + finishedItems + " items.");
 		}
 		else{
+			gauge.setValue((int)Math.floor(RESOLUTION*(finishedItems/totalItems)));
 			addToMessage("Downloaded " + finishedItems + " out of " + totalItems + ".");
 		}
 	}

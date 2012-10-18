@@ -158,9 +158,7 @@ public class CommCareRestorer implements Runnable {
 			tryBypass(bypassRef);
 		} else{ 
 			//entry.sendMessage("");
-			System.out.println("listener regular_start");
 			listener.statusUpdate(CommCareOTARestoreListener.REGULAR_START);
-			System.out.println("status update completed");
 			startOtaProcess();
 		}
 	}
@@ -334,7 +332,6 @@ public class CommCareRestorer implements Runnable {
 			beginTransaction();
 			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
 			DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
-			System.out.println("");
 			success = parser.parse();
 			restoreID = factory.getRestoreId();
 			caseTallies = factory.getCaseTallies();
@@ -433,8 +430,11 @@ public class CommCareRestorer implements Runnable {
 				} catch(IOException e) {
 					//Couldn't open a stream to the restore file, we'll need to dump out to
 					//OTA
+					System.out.println("In second bypass catch");
 					e.printStackTrace();
 				}
+				
+				System.out.println("proceeding with bypass");
 				
 				//Something bad about the restore file. 
 				//Skip it and dump back to OTA Restore
