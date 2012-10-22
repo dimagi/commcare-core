@@ -29,6 +29,8 @@ restore.recover.needcache=Can't recover state safely without a recovery file. Pl
 restore.recovery.wipe=Wiping old invalid casedb
 restore.recover.fail=Failed to communicate local case data when recovering! Aborting recovery.
 restore.retry=Retry
+restore.ui.download1=Downloaded ${0} items
+restore.ui.download2=Downloaded ${0} out of ${1} items.
 
 sync.unsent.cancel=Cancel Sync
 sync.done.noupdate=No new updates
