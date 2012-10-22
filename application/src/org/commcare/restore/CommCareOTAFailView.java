@@ -30,7 +30,7 @@ public class CommCareOTAFailView extends Form{
 	String buffer;
 	
 	StringItem failTitle;
-	String failMessage = "Restore failed for reasons below. Retry?";
+	String failMessage = Localization.get("restore.fail.view");
 	
 	int count = 0;
 	
@@ -76,7 +76,6 @@ public class CommCareOTAFailView extends Form{
 				case Canvas.RIGHT:
 					return false;
 				default:
-					System.out.println("entered default case");
 					UiAccess.cast(this.getCommandListener()).commandAction(CANCEL,this);
 					return true;
 				}

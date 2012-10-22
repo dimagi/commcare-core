@@ -248,8 +248,8 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				entry.sendMessage(Localization.get("restore.bad.db"));
 				view.setMessage(Localization.get("restore.bad.db"));
 			case CommCareOTARestoreListener.RESTORE_DB_BUSY:	
-				view.addToMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
-				entry.sendMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
+				view.addToMessage(Localization.get("restore.db.busy"));
+				entry.sendMessage(Localization.get("restore.db.busy"));
 			case CommCareOTARestoreListener.RESTORE_CONNECTION_MADE:	
 				view.addToMessage(Localization.get("restore.message.connectionmade"));
 			case CommCareOTARestoreListener.RESTORE_BAD_DOWNLOAD:

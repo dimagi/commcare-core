@@ -29,8 +29,6 @@ restore.recover.needcache=Can't recover state safely without a recovery file. Pl
 restore.recovery.wipe=Wiping old invalid casedb
 restore.recover.fail=Failed to communicate local case data when recovering! Aborting recovery.
 restore.retry=Retry
-restore.ui.download1=Downloaded ${0} items
-restore.ui.download2=Downloaded ${0} out of ${1} items.
 
 sync.unsent.cancel=Cancel Sync
 sync.done.noupdate=No new updates
@@ -120,3 +118,12 @@ commcare.fail.sendlogs=Attempt to send logs?
 commcare.tools.title=Tools
 commcare.tools.network=Network Test
 commcare.tools.permissions=Permissions Test
+
+restore.ui.download.unbounded=Downloaded ${0} items
+restore.ui.download.bounded=Downloaded ${0} out of ${1} items.
+restore.fail.message=Restore failed for reasons below. Would you like to retry?
+restore.db.busy=We're still busy loading your cases and follow-ups. Please try again in five minutes.
+restore.fail.other=Failed for unknown reason: ${0}
+restore.fail.download=Download failed for reason: ${0}
+restore.fail.credentials =Bad Credentials
+restore.fail.transport=Transport Exception: ${0}

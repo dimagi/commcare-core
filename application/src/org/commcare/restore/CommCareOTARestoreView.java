@@ -66,11 +66,11 @@ public class CommCareOTARestoreView extends Form{
 	
 	public void updateProgress(double finishedItems) {
 		if(gaugeIsInfinite){
-			addToMessage(Localization.get("restore.ui.download1", new String [] {""+finishedItems}));
+			addToMessage(Localization.get("restore.ui.unbounded", new String [] {""+finishedItems}));
 		}
 		else{
 			gauge.setValue((int)Math.floor(RESOLUTION*(finishedItems/totalItems)));
-			addToMessage(Localization.get("restore.ui.download2", new String [] {""+finishedItems,""+totalItems}));
+			addToMessage(Localization.get("restore.ui.bounded", new String [] {""+finishedItems,""+totalItems}));
 		}
 	}
 	
