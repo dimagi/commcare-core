@@ -76,7 +76,7 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
 			conn = (HttpConnection)Connector.open(parent.url);
 			conn.setRequestMethod(HttpConnection.GET);
 
-			parent.addLine("Connection open and configured.");
+			parent.addLine("Attempting download");
 
 			int code = conn.getResponseCode();
 			parent.addLine("Received response code " + code);
@@ -119,7 +119,7 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
             parent.addLine(body);
             
 		} catch (Exception e) {
-			parent.addLine("Failed: " + WrappedException.printException(e));
+			parent.addLine("Network Test Failed (Scroll to Read)\n\n" + WrappedException.printException(e));
         } finally {
         	try {
         		if (is != null)

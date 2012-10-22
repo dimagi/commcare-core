@@ -26,7 +26,8 @@ public class LoadingScreen extends Form {
 		}
 		
 		if(indicator != null && (indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_PROGRESS) != 0) {
-			gauge = new Gauge(message, true, RESOLUTION, 0);
+			//#style focused
+			gauge = new Gauge(message, false, RESOLUTION, 0);
 		} else{
 			//#style loadingGauge?
 			gauge = new Gauge(message, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
