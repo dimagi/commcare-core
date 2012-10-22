@@ -173,17 +173,15 @@ public class CommCareRestorer implements Runnable {
 					downloadRemoteData(sent.getResponse());
 					return;
 				} catch(IOException e) {
-					System.out.println("catching credentials");
 					listener.getCredentials();
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_DOWNLOAD);
-					listener.onFailure("download failure: " + WrappedException.printException(e));
+					listener.onFailure(Localization.get("restore.fail.other", new String[] {WrappedException.printException(e)}));
 					return;
 				}
 			} else {
 				if(sent.getResponseCode() == 401) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS);
 					if(authAttempts > 0) {
-						System.out.println("auth attempts > 0");
 						Logger.log("restore", "bad credentials; " + authAttempts + " attempts remain");
 						authAttempts--;
 						getCredentials();
@@ -203,17 +201,17 @@ public class CommCareRestorer implements Runnable {
 					return;
 				} else if(sent.getResponseCode() == 503) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DB_BUSY);
-					listener.promptRetry("We're still busy loading your cases and follow-ups. Try again in five minutes.");
+					listener.promptRetry(Localization.get("restore.db.busy"));
 					return;
 				} else {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL_OTHER);
-					listener.promptRetry("other: " + sent.getFailureReason());
+					listener.promptRetry(Localization.get("restore.fail.other", new String[] {sent.getFailureReason()}));
 					return;
 				}
 			}
 		} catch (TransportException e) {
 			listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_FAIL_ENTRY);
-			listener.promptRetry("tx exception: " + WrappedException.printException(e));
+			listener.promptRetry(Localization.get("restore.fail.transport", new String[] {WrappedException.printException(e)}));
 		}
 	}
 	
@@ -361,7 +359,6 @@ public class CommCareRestorer implements Runnable {
 		
 		//Something bad about the restore file. 
 		//Skip it and dump back to OTA Restore
-		System.out.println("! Figured out the problem yee!");
 		Logger.log("restore", "bypass restore failed, falling back to OTA");
 		listener.statusUpdate(CommCareOTARestoreListener.BYPASS_FAIL);
 		startOtaProcess();

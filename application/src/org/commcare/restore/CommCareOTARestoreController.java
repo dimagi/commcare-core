@@ -95,6 +95,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	
 	public void start() {
 		entry.setInteractive(false);
+		fView.setInteractive(false);
 		mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 	}
 	
@@ -111,6 +112,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 			}
 			this.authenticator = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword())), false);
 			entry.setInteractive(false);
+			fView.setInteractive(false);
 			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 			//tryDownload(getClientMessage());
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
@@ -121,6 +123,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 		}
 		else if(c.equals(CommCareOTAFailView.DOWNLOAD)){
 			entry.setInteractive(false);
+			fView.setInteractive(false);
 			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 		}
 		else if(c.equals(CommCareOTAFailView.CANCEL)){
@@ -201,6 +204,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	}
 	
 	public void setFailView(){
+		fView.setInteractive(true);
 		J2MEDisplay.setView(fView);
 	}
 	
@@ -315,11 +319,13 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	public void onFailure(String failMessage) {
 		entry.sendMessage(failMessage);
 		entry.setInteractive(true);
+		fView.setInteractive(true);
 		doneFail(failMessage);
 	}
 	
 	public void promptRetry(String msg){
 		entry.setInteractive(true);
+		fView.setInteractive(true);
 		setFailView(msg);
 	}
 

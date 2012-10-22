@@ -83,4 +83,14 @@ public class CommCareOTAFailView extends Form{
 			return false;
 		}
 	}
+	
+	public void setInteractive(boolean isInteractive) {
+		if(isInteractive) {
+			this.addCommand(CANCEL);
+			this.addCommand(DOWNLOAD);
+		} else {
+			this.removeCommand(CANCEL);
+			this.removeCommand(DOWNLOAD);
+		}
+	}
 }
