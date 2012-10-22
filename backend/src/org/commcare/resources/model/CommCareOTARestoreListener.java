@@ -29,18 +29,6 @@ public abstract interface CommCareOTARestoreListener {
 		public final int RESTORE_CONNECTION_FAIL_ENTRY = 24;
 		
 		/**
-		 * Called when the asynchronous restore operation completes successfully
-		 */
-		public abstract void onSuccess();
-		
-		/**
-		 * Called when the restore encounters an error that it wants to terminate
-		 * operation for, without a possibility of retrying
-		 * @param failMessage - the failure message
-		 */
-		public abstract void onFailure(String failMessage);
-		
-		/**
 		 * Called by the parseBlock method every time the restore task successfully
 		 * parses a new block of the restore form
 		 * @param numberCompleted
@@ -67,6 +55,11 @@ public abstract interface CommCareOTARestoreListener {
 		 */
 		public abstract void refreshView();
 		
+
+		
+		//NOTE: the three below are all of the ways that the restorer will exit. You can block
+		//the ui from user input until one is called
+		
 		/**
 		 * Called when the restore task wants to prompt the user for credentials
 		 */
@@ -77,5 +70,17 @@ public abstract interface CommCareOTARestoreListener {
 		 * @param msg: the reason for the failure
 		 */
 		public abstract void promptRetry(String msg);
+		
+		/**
+		 * Called when the asynchronous restore operation completes successfully
+		 */
+		public abstract void onSuccess();
+		
+		/**
+		 * Called when the restore encounters an error that it wants to terminate
+		 * operation for, without a possibility of retrying
+		 * @param failMessage - the failure message
+		 */
+		public abstract void onFailure(String failMessage);
 
 	}

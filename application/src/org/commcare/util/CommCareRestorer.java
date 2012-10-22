@@ -180,7 +180,6 @@ public class CommCareRestorer implements Runnable {
 					return;
 				}
 			} else {
-				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_FAILED);
 				if(sent.getResponseCode() == 401) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS);
 					if(authAttempts > 0) {
@@ -189,7 +188,7 @@ public class CommCareRestorer implements Runnable {
 						authAttempts--;
 						getCredentials();
 					} else {
-						listener.onFailure("bad credentials");
+						listener.onFailure(Localization.get("restore.badcredentials"));
 					}
 					return;
 				} else if(sent.getResponseCode() == 404) {
@@ -336,7 +335,6 @@ public class CommCareRestorer implements Runnable {
 		listener.statusUpdate(CommCareOTARestoreListener.BYPASS_START);
 
 		try {
-			System.out.println("trying bypass");
 			Logger.log("restore", "starting bypass restore attempt with file: " + bypass.getLocalURI());
 			InputStream restoreStream = bypass.getStream();
 			if(startRestore(restoreStream)) {

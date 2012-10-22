@@ -33,7 +33,6 @@ public class CommCareOTACredentialEntry extends Form {
 
 	public CommCareOTACredentialEntry(String title) {
 		super(title);
-		this.addCommand(CANCEL);
 		
 		instructions = new StringItem("",Localization.get("restore.login.instructions"));
 		this.append(instructions);
@@ -57,6 +56,7 @@ public class CommCareOTACredentialEntry extends Form {
 		
 		updates = new StringItem("","");
 		this.append(updates);
+		setInteractive(true);
 	}
 	
 	public String getUsername() {
@@ -69,5 +69,15 @@ public class CommCareOTACredentialEntry extends Form {
 	
 	public void sendMessage(String message) {
 		this.updates.setText(message);
+	}
+	
+	public void setInteractive(boolean isInteractive) {
+		if(isInteractive) {
+			this.addCommand(CANCEL);
+			fetch.setVisible(true);
+		} else {
+			this.removeCommand(CANCEL);
+			fetch.setVisible(false);
+		}
 	}
 }
