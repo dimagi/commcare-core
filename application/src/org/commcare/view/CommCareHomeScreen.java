@@ -94,7 +94,9 @@ public class CommCareHomeScreen extends CommCareListView {
 			addCommand(admSettings);
 			if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_USERS)) {
 				addCommand(admNewUser);
-				addCommand(admEditUsers);
+				if(CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE))) {
+					addCommand(admEditUsers);
+				}
 				addCommand(admDownload);
 				addCommand(admResetDemo);
 			}
