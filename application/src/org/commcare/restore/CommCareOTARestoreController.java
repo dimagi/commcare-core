@@ -104,7 +104,6 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	
 
 	public void _commandAction(Command c, Displayable d) {
-		System.out.println("Command action, c: " + c.getLabel() + ", d: " + d.getTitle());
 		if(c.equals(CommCareOTACredentialEntry.DOWNLOAD)) {
 			if(userExists(entry.getUsername()) && !isSync) {
 				entry.sendMessage(Localization.get("restore.user.exists"));
@@ -125,7 +124,6 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 		}
 		else if(c.equals(CommCareOTAFailView.CANCEL)){
-			System.out.println("entered cancel!");
 			transitions.cancel();
 		}
 	}
