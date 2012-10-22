@@ -83,30 +83,7 @@ public class CommCareRestorer implements Runnable {
 	public void initialize(CommCareOTARestoreListener rListener, CommCareOTARestoreTransitions transitions, String restoreURI,
 			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI){
 		
-		if (isSync && !noPartial) {
-			System.err.println("WARNING: no-partial mode is strongly recommended when syncing");
-		}
-		this.syncToken = syncToken;
-		
-		this.originalRestoreURI = restoreURI;
-		this.authenticator = authenticator;
-		this.logSubmitURI = logSubmitURI;
-			
-		this.isSync = isSync;
-		if (isSync) {
-			this.stateHash = CaseDBUtils.computeHash((IStorageUtility<Case>)StorageManager.getStorage(Case.STORAGE_KEY));
-			initURI(syncToken, stateHash);
-		} else {
-			initURI(null,null);
-		}
-		this.noPartial = noPartial;
-		
-		this.listener = rListener;
-		
-		this.transitions = transitions;
-		
-		HandledThread t = new HandledThread(this);
-		t.start();
+		initialize(null, rListener, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 		
 	}
 	
@@ -156,8 +133,7 @@ public class CommCareRestorer implements Runnable {
 		if(bypassRef != null) {
 			listener.refreshView();
 			tryBypass(bypassRef);
-		} else{ 
-			//entry.sendMessage("");
+		} else{
 			listener.statusUpdate(CommCareOTARestoreListener.REGULAR_START);
 			startOtaProcess();
 		}
@@ -181,90 +157,69 @@ public class CommCareRestorer implements Runnable {
 	}
 	
 	private void getCredentials() {
-		//J2MEDisplay.setView(entry);
 		listener.getCredentials();
 	}
 		
 	private void tryDownload(AuthenticatedHttpTransportMessage message) {
 		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DOWNLOAD);
-		//view.addToMessage(Localization.get("restore.message.startdownload"));
 		Logger.log("restore", "start");
 		try {
 			if(message.getUrl() == null) {
 				//TODO Figure out what's up with this failure
 				listener.onFailure(Localization.get("restore.noserveruri"));
-				//fail(Localization.get("restore.noserveruri"), null, "no restore url");
 				listener.refreshView();
 				listener.onFailure(null);
-				//doneFail(null);
 				return;
 			}
 			AuthenticatedHttpTransportMessage sent = (AuthenticatedHttpTransportMessage)TransportService.sendBlocking(message);
 			if(sent.isSuccess()) {
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_MADE);
-				//view.addToMessage(Localization.get("restore.message.connectionmade"));
 				try {
 					downloadRemoteData(sent.getResponse());
 					return;
 				} catch(IOException e) {
+					System.out.println("catching credentials");
 					listener.getCredentials();
-					//J2MEDisplay.setView(entry);
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_DOWNLOAD);
-					//entry.sendMessage(Localization.get("restore.baddownload"));
 					listener.onFailure("download failure: " + WrappedException.printException(e));
-					//doneFail("download failure: " + WrappedException.printException(e));
 					return;
 				}
 			} else {
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_FAILED);
-				//view.addToMessage(Localization.get("restore.message.connection.failed"));
 				if(sent.getResponseCode() == 401) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS);
-					//view.addToMessage(Localization.get("restore.badcredentials"));
-					//entry.sendMessage(Localization.get("restore.badcredentials"));
 					if(authAttempts > 0) {
+						System.out.println("auth attempts > 0");
 						Logger.log("restore", "bad credentials; " + authAttempts + " attempts remain");
 						authAttempts--;
 						getCredentials();
 					} else {
 						listener.onFailure("bad credentials");
-						//doneFail("bad credentials");
 					}
 					return;
 				} else if(sent.getResponseCode() == 404) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_SERVER);
-					//entry.sendMessage(Localization.get("restore.badserver"));
-					listener.onFailure("404");
-					//doneFail("404");
+					listener.promptRetry(Localization.get("restore.badserver"));
 					return;
 				} else if(sent.getResponseCode() == 412) {
 					//Our local copy of the case database has gotten out of sync. We need to start a recovery
 					//process.
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_DB);
-					//entry.sendMessage(Localization.get("restore.bad.db"));
-					//view.setMessage(Localization.get("restore.bad.db"));
 					startRecovery();
 					return;
 				} else if(sent.getResponseCode() == 503) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DB_BUSY);
-					//view.addToMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
-					//entry.sendMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
-					listener.onFailure("503");
-					//doneFail("503");
+					listener.promptRetry("We're still busy loading your cases and follow-ups. Try again in five minutes.");
 					return;
 				} else {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL_OTHER);
-					//entry.sendMessage(sent.getFailureReason());
-					listener.onFailure("other: " + sent.getFailureReason());
-					//doneFail("other: " + sent.getFailureReason());
+					listener.promptRetry("other: " + sent.getFailureReason());
 					return;
 				}
 			}
 		} catch (TransportException e) {
 			listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_FAIL_ENTRY);
-			//entry.sendMessage(Localization.get("restore.message.connection.failed"));
-			listener.onFailure("tx exception: " + WrappedException.printException(e));
-			//doneFail("tx exception: " + WrappedException.printException(e));
+			listener.promptRetry("tx exception: " + WrappedException.printException(e));
 		}
 	}
 	
@@ -285,7 +240,6 @@ public class CommCareRestorer implements Runnable {
 			}
 		};
 		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_RECOVER_SEND);
-		//view.addToMessage(Localization.get("restore.recover.send"));
 		try {
 			message = TransportService.sendBlocking(message);
 		} catch (TransportException e) {
@@ -300,22 +254,18 @@ public class CommCareRestorer implements Runnable {
 			//TODO: Set a flag somewhere (sync token perhaps) that we're in recovery mode
 			this.startOtaProcess();
 		} else {
-			listener.onFailure(Localization.get("restore.recover.fail"));
-			//this.doneFail(Localization.get("restore.recover.fail"));
+			listener.promptRetry("restore.recover.fail");
 		}
 	}
 	
 	public boolean startRestore(InputStream input) {
 		listener.refreshView();
-		//J2MEDisplay.setView(view);
 		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_START);
-		//view.addToMessage(Localization.get("restore.starting"));
 		
 		final InputStream fInput = input;
 		
 		if(recoveryMode) {
 			listener.statusUpdate(CommCareOTARestoreListener.RESTORE_RECOVERY_WIPE);
-			//view.addToMessage(Localization.get("restore.recovery.wipe"));
 			//We've downloaded our file and can now recovery state fully for this user, so we need to wipe 
 			//out existing cases. Ideally we'd do this by renaming the RMS (so we could recover if needed), 
 			//but for now, just go for it.
@@ -343,20 +293,16 @@ public class CommCareRestorer implements Runnable {
 			parseErrors = parser.getParseErrors();
 				
 		} catch (IOException e) {
-			listener.onFailure(Localization.get("restore.fail"));
-			//CommCareOTARestoreController.this.fail(Localization.get("restore.fail"), e, null);
+			listener.promptRetry(Localization.get("restore.fail"));
 			return false;
 		} catch (InvalidStructureException e) {
-			listener.onFailure(Localization.get("restore.fail"));
-			//CommCareOTARestoreController.this.fail(Localization.get("restore.fail"), e, null);
+			listener.promptRetry(Localization.get("restore.fail"));
 			return false;
 		} catch (XmlPullParserException e) {
-			listener.onFailure(Localization.get("restore.fail"));
-			//CommCareOTARestoreController.this.fail(Localization.get("restore.fail"), e, null);
+			listener.promptRetry(Localization.get("restore.fail"));
 			return false;
 		} catch (UnfullfilledRequirementsException e) {
-			listener.onFailure(Localization.get("restore.fail"));
-			//CommCareOTARestoreController.this.fail(Localization.get("restore.fail"), e, null);
+			listener.promptRetry(Localization.get("restore.fail"));
 			return false;
 		} catch (RuntimeException e) {
 			success = false;
@@ -369,17 +315,14 @@ public class CommCareRestorer implements Runnable {
 		}
 		if (success) {
 			listener.statusUpdate(CommCareOTARestoreListener.RESTORE_SUCCESS);
-			//view.addToMessage(Localization.get("restore.success"));
 			Logger.log("restore", "successful: " + (restoreID != null ? restoreID : "???"));
 		} 
 		else {
 			if (noPartial) {
-				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL);
-				//view.addToMessage(Localization.get("restore.fail"));				
+				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL);	
 			} 
 			else {
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL_PARTIAL);
-				//view.addToMessage(Localization.get("restore.success.partial") + " " + parseErrors.length);
 			}
 				
 			Logger.log("restore", (noPartial ? "restore errors; rolled-back" : "unsuccessful or partially successful") +
@@ -399,30 +342,25 @@ public class CommCareRestorer implements Runnable {
 		
 		HandledThread t = new HandledThread() {
 			public void _run() {
-				//view.addToMessage(Localization.get("restore.bypass.start", new String [] {bypass.getLocalURI()}));
 
 				listener.statusUpdate(CommCareOTARestoreListener.BYPASS_START);
 
 				try {
+					System.out.println("trying bypass");
 					Logger.log("restore", "starting bypass restore attempt with file: " + bypass.getLocalURI());
 					InputStream restoreStream = bypass.getStream();
 					if(startRestore(restoreStream)) {
 						try {
 							//Success! Try to wipe the local file and then let the UI handle the rest.
 							restoreStream.close();
-							
-							//view.addToMessage(Localization.get("restore.bypass.clean"));
 							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN);
 							bypass.remove();
-							
-							//view.addToMessage(Localization.get("restore.bypass.clean.success"));
 							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS);
 						} catch (IOException e) {
 							//Even if we fail to delete the local file, it's mostly fine. Jut let the user know
 							e.printStackTrace();
 							
 							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEANFAIL);
-							//view.addToMessage(Localization.get("restore.bypass.cleanfail", new String[] {bypass.getLocalURI()}));
 						}
 						Logger.log("restore", "bypass restore succeeded");
 						return;
@@ -430,19 +368,14 @@ public class CommCareRestorer implements Runnable {
 				} catch(IOException e) {
 					//Couldn't open a stream to the restore file, we'll need to dump out to
 					//OTA
-					System.out.println("In second bypass catch");
 					e.printStackTrace();
 				}
 				
-				System.out.println("proceeding with bypass");
-				
 				//Something bad about the restore file. 
 				//Skip it and dump back to OTA Restore
-				
+				System.out.println("! Figured out the problem yee!");
 				Logger.log("restore", "bypass restore failed, falling back to OTA");
 				listener.statusUpdate(CommCareOTARestoreListener.BYPASS_FAIL);
-				//view.addToMessage(Localization.get("restore.bypass.fail"));
-				//entry.sendMessage(Localization.get("restore.bypass.instructions"));
 				startOtaProcess();
 			}
 		};
@@ -468,7 +401,6 @@ public class CommCareRestorer implements Runnable {
 			}
 			
 			if(ref.isReadOnly()) {
-				//view.addToMessage(Localization.get("restore.nocache"));
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_NO_CACHE);
 				noCache(stream);
 			} else {
@@ -484,7 +416,6 @@ public class CommCareRestorer implements Runnable {
 			    	if(recoveryMode) {
 			    		//In recovery mode we can't really afford to not cache this, so report that, and try again.
 			    		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_NEED_CACHE);
-			    		//view.setMessage(Localization.get("restore.recover.needcache"));
 			    		return;
 			    	} else {
 			    		e.printStackTrace();
@@ -500,7 +431,6 @@ public class CommCareRestorer implements Runnable {
 				output.close();
 				
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DOWNLOADED);
-				//view.addToMessage(Localization.get("restore.downloaded"));
 				startRestore(ref.getStream());
 			}
 		} catch (InvalidReferenceException e) {
@@ -523,10 +453,8 @@ public class CommCareRestorer implements Runnable {
 		//get property
 		if (lastSync != null) {
 			this.restoreURI = baseURI + (baseURI.indexOf("?") == -1 ? "?" : "&" ) + "since=" + lastSync + "&state=ccsh:" + stateHash;
-			System.out.println("RestoreURI: "+ restoreURI);
 		} else {
 			this.restoreURI = baseURI;
-			System.out.println("RestoreURI: "+ restoreURI);
 		}
 	}
 	
@@ -536,7 +464,6 @@ public class CommCareRestorer implements Runnable {
 			throw new IOException();
 		} else {
 			listener.statusUpdate(CommCareOTARestoreListener.RESTORE_NO_CACHE);
-			//view.addToMessage(Localization.get("restore.nocache"));
 			startRestore(input);
 		}
  	}
@@ -590,6 +517,14 @@ public class CommCareRestorer implements Runnable {
 	
 	private String getSubmitUrl() {
 		return logSubmitURI;
+	}
+	
+	public HttpAuthenticator getAuthenticator(){
+		return authenticator;
+	}
+	
+	public AuthenticatedHttpTransportMessage getMessage(){
+		return message;
 	}
 	
 }

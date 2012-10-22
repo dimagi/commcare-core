@@ -50,19 +50,22 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 	}
 	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean failfast, boolean deep) throws InvalidStructureException, IOException {
+		this(is, factory, failfast, deep, null);
+	}
+	
+	public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean failfast, boolean deep, CommCareOTARestoreListener rListener) throws InvalidStructureException, IOException {
 		super(is);
 		this.is = is;
 		this.failfast = failfast;
 		this.factory = factory;
 		errors = new Vector<String>();
 		this.deep = deep;
+		this.rListener = rListener;
 	}
 
 	public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
 		try {
-			
-			System.out.println("parsing in datamodelpullparser");
-			
+
 			String rootName = parser.getName();
 			
 			String itemString = parser.getAttributeValue(null, "items");
@@ -70,9 +73,7 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 			int itemNumber = -1;
 			
 			if(itemString != null) {
-				
-				System.out.println("item string is: " + itemString);
-				
+
 				try{
 					itemNumber = Integer.parseInt(itemString);
 				}catch(NumberFormatException e){
@@ -107,10 +108,7 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 		int parsedCounter = 0;
 		while(this.nextTagInBlock(root)) {
 			
-			System.out.println("!!! - Iterating in parseBlock");
-			
 			if(listenerSet()){
-				System.out.println("Calling onUpdate!!!");
 				rListener.onUpdate(parsedCounter);
 				parsedCounter++;
 			}
