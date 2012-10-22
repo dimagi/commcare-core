@@ -36,7 +36,8 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 	public CommCareStartupInteraction(String message, boolean cancelable) {
 		super(failSafeText("intro.title", "CommCare"));
 		messageItem = new StringItem(null, null);
-		gauge = new Gauge(null, true, 100,0);
+		//#style focused
+		gauge = new Gauge(null, false, 100,0);
 		this.append(messageItem);
 		this.append(gauge);
 		gauge.setVisible(false);

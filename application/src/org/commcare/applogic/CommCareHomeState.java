@@ -161,19 +161,26 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	}
 	
 	public void editUsers() {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<User>(new UserEntity(), User.STORAGE_KEY) {
-
-			public void cancel() {
-				CommCareUtil.launchHomeState();
-			}
-
-			public void entitySelected(int id) {
-				User u = (User)StorageManager.getStorage(User.STORAGE_KEY).read(id);
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u,	
-						!CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
-						PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
-			}
-		});
+		//2012-10-22 - ctsims - Disabling this for now unless you're in completely offline user mode. 
+		//There's no way to do it without an intermediate authentication otherwise.
+		
+		if(CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE))) {
+			J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<User>(new UserEntity(), User.STORAGE_KEY) {
+	
+				public void cancel() {
+					CommCareUtil.launchHomeState();
+				}
+	
+				public void entitySelected(int id) {
+					User u = (User)StorageManager.getStorage(User.STORAGE_KEY).read(id);
+					J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u,	
+							!CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
+							PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
+				}
+			});
+		} else {
+			J2MEDisplay.showError("Can't edit users", "User edit is disabled when using a server. Please edit the user online.");
+		}
 	}
 	
 	public void reloadForms() {
