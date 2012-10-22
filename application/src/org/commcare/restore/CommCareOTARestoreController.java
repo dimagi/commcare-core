@@ -101,11 +101,6 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 		return "jr://file/commcare_ota_backup.xml";
 	}
 	
-	private AuthenticatedHttpTransportMessage getClientMessage() {
-		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, 
-				new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword())), false));
-		return message;
-	}
 
 	public void _commandAction(Command c, Displayable d) {
 		System.out.println("Command action, c: " + c.getLabel() + ", d: " + d.getTitle());
@@ -114,7 +109,8 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				entry.sendMessage(Localization.get("restore.user.exists"));
 				return;
 			}
-			mRestorer.initialize(getClientMessage(), this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
+			this.authenticator = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(new DefaultHttpCredentialProvider(entry.getUsername(), entry.getPassword())), false);
+			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 			//tryDownload(getClientMessage());
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
 			transitions.cancel();
@@ -123,8 +119,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 			transitions.done(errorsOccurred);
 		}
 		else if(c.equals(CommCareOTAFailView.DOWNLOAD)){
-			System.out.println("entered download!");
-			mRestorer.initialize(mRestorer.getMessage(), this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
+			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
 		}
 		else if(c.equals(CommCareOTAFailView.CANCEL)){
 			System.out.println("entered cancel!");

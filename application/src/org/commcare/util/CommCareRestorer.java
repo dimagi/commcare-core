@@ -36,6 +36,7 @@ import org.javarosa.j2me.reference.HttpReference.SecurityFailureListener;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
+import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
@@ -73,21 +74,8 @@ public class CommCareRestorer implements Runnable {
 	String logSubmitURI;
 	String stateHash;
 	AuthenticatedHttpTransportMessage message;
-
-	public void initialize(CommCareOTARestoreListener restoreListener) {
-		this.listener = restoreListener;
-		HandledThread t = new HandledThread(this);
-		t.start();
-	}
 	
-	public void initialize(CommCareOTARestoreListener rListener, CommCareOTARestoreTransitions transitions, String restoreURI,
-			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI){
-		
-		initialize(null, rListener, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
-		
-	}
-	
-	public void initialize(AuthenticatedHttpTransportMessage message, CommCareOTARestoreListener rListener, CommCareOTARestoreTransitions transitions, 
+	public void initialize(CommCareOTARestoreListener rListener, CommCareOTARestoreTransitions transitions, 
 			String restoreURI, HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI){
 		
 		if (isSync && !noPartial) {
@@ -112,11 +100,18 @@ public class CommCareRestorer implements Runnable {
 		
 		this.transitions = transitions;
 		
-		this.message = message;
+		if(authenticator != null) {
+			this.message = getClientMessage(authenticator);
+		}
 		
 		HandledThread t = new HandledThread(this);
 		t.start();
 		
+	}
+	
+	private AuthenticatedHttpTransportMessage getClientMessage(HttpAuthenticator authenticator) {
+		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator);
+		return message;
 	}
 	
 	public void run() {
@@ -338,48 +333,40 @@ public class CommCareRestorer implements Runnable {
 	}
 	
 	public void tryBypass(final Reference bypass) {
-		//Need to launch the bypass attempt in a thread.
-		
-		HandledThread t = new HandledThread() {
-			public void _run() {
+		listener.statusUpdate(CommCareOTARestoreListener.BYPASS_START);
 
-				listener.statusUpdate(CommCareOTARestoreListener.BYPASS_START);
-
+		try {
+			System.out.println("trying bypass");
+			Logger.log("restore", "starting bypass restore attempt with file: " + bypass.getLocalURI());
+			InputStream restoreStream = bypass.getStream();
+			if(startRestore(restoreStream)) {
 				try {
-					System.out.println("trying bypass");
-					Logger.log("restore", "starting bypass restore attempt with file: " + bypass.getLocalURI());
-					InputStream restoreStream = bypass.getStream();
-					if(startRestore(restoreStream)) {
-						try {
-							//Success! Try to wipe the local file and then let the UI handle the rest.
-							restoreStream.close();
-							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN);
-							bypass.remove();
-							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS);
-						} catch (IOException e) {
-							//Even if we fail to delete the local file, it's mostly fine. Jut let the user know
-							e.printStackTrace();
-							
-							listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEANFAIL);
-						}
-						Logger.log("restore", "bypass restore succeeded");
-						return;
-					}
-				} catch(IOException e) {
-					//Couldn't open a stream to the restore file, we'll need to dump out to
-					//OTA
+					//Success! Try to wipe the local file and then let the UI handle the rest.
+					restoreStream.close();
+					listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN);
+					bypass.remove();
+					listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS);
+				} catch (IOException e) {
+					//Even if we fail to delete the local file, it's mostly fine. Jut let the user know
 					e.printStackTrace();
+					
+					listener.statusUpdate(CommCareOTARestoreListener.BYPASS_CLEANFAIL);
 				}
-				
-				//Something bad about the restore file. 
-				//Skip it and dump back to OTA Restore
-				System.out.println("! Figured out the problem yee!");
-				Logger.log("restore", "bypass restore failed, falling back to OTA");
-				listener.statusUpdate(CommCareOTARestoreListener.BYPASS_FAIL);
-				startOtaProcess();
+				Logger.log("restore", "bypass restore succeeded");
+				return;
 			}
-		};
-		t.start();
+		} catch(IOException e) {
+			//Couldn't open a stream to the restore file, we'll need to dump out to
+			//OTA
+			e.printStackTrace();
+		}
+		
+		//Something bad about the restore file. 
+		//Skip it and dump back to OTA Restore
+		System.out.println("! Figured out the problem yee!");
+		Logger.log("restore", "bypass restore failed, falling back to OTA");
+		listener.statusUpdate(CommCareOTARestoreListener.BYPASS_FAIL);
+		startOtaProcess();
 	}
 	
 	/**
