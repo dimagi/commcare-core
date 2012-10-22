@@ -222,58 +222,85 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				return;
 			case CommCareOTARestoreListener.BYPASS_START:	
 				view.addToMessage(Localization.get("restore.bypass.start", new String [] {mRestorer.getBypassRef().getLocalURI()}));
+				break;
 			case CommCareOTARestoreListener.BYPASS_CLEAN:	
 				view.addToMessage(Localization.get("restore.bypass.clean"));
+				break;
 			case CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS:	
 				view.addToMessage(Localization.get("restore.bypass.clean.success"));
 				return;
 			case CommCareOTARestoreListener.BYPASS_CLEANFAIL:	
 				view.addToMessage(Localization.get("restore.bypass.cleanfail", new String[] {mRestorer.getBypassRef().getLocalURI()}));
+				break;
 			case CommCareOTARestoreListener.BYPASS_FAIL:	
 				view.addToMessage(Localization.get("restore.bypass.fail"));
-				entry.sendMessage(Localization.get("restore.bypass.instructions"));    
+				entry.sendMessage(Localization.get("restore.bypass.instructions"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS:	
 				view.addToMessage(Localization.get("restore.badcredentials"));
 				entry.sendMessage(Localization.get("restore.badcredentials"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_CONNECTION_FAILED:	
 				//Connection failed; could be for any number of reasons, add to message and proceed
 				view.addToMessage(Localization.get("restore.message.connection.failed"));
+				entry.sendMessage(Localization.get("restore.message.connection.failed"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_BAD_DB:	
 				entry.sendMessage(Localization.get("restore.bad.db"));
 				view.setMessage(Localization.get("restore.bad.db"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_DB_BUSY:	
 				view.addToMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
 				entry.sendMessage("We're still busy loading your cases and follow-ups. Try again in five minutes.");
+				break;
 			case CommCareOTARestoreListener.RESTORE_CONNECTION_MADE:	
 				view.addToMessage(Localization.get("restore.message.connectionmade"));
+				entry.sendMessage(Localization.get("restore.message.connectionmade"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_BAD_DOWNLOAD:
 				entry.sendMessage(Localization.get("restore.baddownload"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_BAD_SERVER:
 				entry.sendMessage(Localization.get("restore.badserver"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_FAIL_OTHER:
 				entry.sendMessage("");	//TODO entry.sendMessage(sent.getFailureReason());
+				break;
 			case CommCareOTARestoreListener.RESTORE_DOWNLOAD:
 				view.addToMessage(Localization.get("restore.message.startdownload"));
+				entry.sendMessage(Localization.get("restore.message.startdownload"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_RECOVER_SEND:
 				view.addToMessage(Localization.get("restore.recover.send"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_NO_CACHE:
 				view.addToMessage(Localization.get("restore.nocache"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_DOWNLOADED:
 				view.addToMessage(Localization.get("restore.downloaded"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_NEED_CACHE:
 				view.setMessage(Localization.get("restore.recover.needcache"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_START:
 				view.addToMessage(Localization.get("restore.starting"));
+				entry.sendMessage(Localization.get("restore.starting"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_RECOVERY_WIPE:
 				view.addToMessage(Localization.get("restore.recovery.wipe"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_SUCCESS:
 				view.addToMessage(Localization.get("restore.success"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_FAIL:
 				view.addToMessage(Localization.get("restore.fail"));
+				break;
 			case CommCareOTARestoreListener.RESTORE_FAIL_PARTIAL:
 				view.addToMessage(Localization.get("restore.success.partial"));// + " " + parseErrors.length); //TODO
+				break;
 			case CommCareOTARestoreListener.RESTORE_CONNECTION_FAIL_ENTRY:
 				entry.sendMessage(Localization.get("restore.message.connection.failed"));
+				break;
 			default: 
 		}
 	}
