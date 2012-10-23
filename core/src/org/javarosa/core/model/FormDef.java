@@ -58,6 +58,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -425,7 +426,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 				
 				AbstractTreeElement countNode = this.getMainInstance().resolveReference(repeat.getCountReference());
 				if(countNode == null) {
-					throw new RuntimeException("Could not find the location " + repeat.getCountReference().getReference().toString() + " where the repeat at " + repeatRef.toString(false) + " is looking for its count");
+					throw new XPathTypeMismatchException("Could not find the location " + repeat.getCountReference().getReference().toString() + " where the repeat at " + repeatRef.toString(false) + " is looking for its count");
 				}
 				//get the total multiplicity possible
 				IAnswerData count = countNode.getValue();
@@ -436,7 +437,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					try {
 						fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
 					} catch(IllegalArgumentException iae) {
-						throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + repeat.getCountReference().getReference().toString() + " must be a number!");
+						throw new XPathTypeMismatchException("The repeat count value \"" + count.uncast().getString() + "\" at " + repeat.getCountReference().getReference().toString() + " must be a number!");
 					}
 				}
 						
