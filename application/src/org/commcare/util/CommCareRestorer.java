@@ -425,7 +425,7 @@ public class CommCareRestorer implements Runnable {
 		return "jr://file/commcare_ota_backup.xml";
 	}
 	
-	private void initURI (String lastSync, String stateHash) {
+	private void initURI (String lastSync, String stateHash) {//TODO add character here
 		
 		String baseURI = this.originalRestoreURI;
 		if(baseURI.indexOf("verson=2.0") == -1) {

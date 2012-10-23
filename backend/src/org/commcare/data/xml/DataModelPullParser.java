@@ -41,8 +41,7 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 	}
 	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory, CommCareOTARestoreListener rl) throws InvalidStructureException, IOException {
-		this(is, factory, false);
-		this.rListener = rl;
+		this(is, factory, false, false, rl);
 	}
 	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory, boolean deep) throws InvalidStructureException, IOException {
