@@ -127,3 +127,4 @@ restore.fail.other=Failed for unknown reason: ${0}
 restore.fail.download=Download failed for reason: ${0}
 restore.fail.credentials =Bad Credentials
 restore.fail.transport=Transport Exception: ${0}
+restore.fail.view=Restore Failed
