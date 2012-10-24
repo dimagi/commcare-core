@@ -186,6 +186,7 @@ public class CommCareRestorer implements Runnable {
 						authAttempts--;
 						getCredentials();
 					} else {
+						System.out.println("in 401 case of restorer");
 						listener.onFailure(Localization.get("restore.badcredentials"));
 					}
 					return;
@@ -203,6 +204,8 @@ public class CommCareRestorer implements Runnable {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DB_BUSY);
 					listener.promptRetry(Localization.get("restore.db.busy"));
 					return;
+				} else if(sent.getResponseCode() == 0){
+					listener.promptRetry(Localization.get("restore.fail.nointernet"));
 				} else {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_FAIL_OTHER);
 					listener.promptRetry(Localization.get("restore.fail.other", new String[] {sent.getFailureReason()}));
@@ -269,12 +272,15 @@ public class CommCareRestorer implements Runnable {
 		boolean success = false;
 		String[] parseErrors = new String[0];
 		String restoreID = null;
-			
+		
+		System.out.println("starting try in startRestore");
+		
 		try {
 			beginTransaction();
 			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
 			DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
 			success = parser.parse();
+			System.out.println(success?"parse successful!":"parse not successful :(");
 			restoreID = factory.getRestoreId();
 			caseTallies = factory.getCaseTallies();
 			//TODO: Is success here too strict?
@@ -285,19 +291,24 @@ public class CommCareRestorer implements Runnable {
 			parseErrors = parser.getParseErrors();
 				
 		} catch (IOException e) {
-			listener.promptRetry(Localization.get("restore.fail"));
+			listener.promptRetry(Localization.get("restore.fail.retry"));
 			return false;
 		} catch (InvalidStructureException e) {
-			listener.promptRetry(Localization.get("restore.fail"));
+			listener.promptRetry(Localization.get("restore.fail.technical"));
+			Logger.exception(e);
 			return false;
 		} catch (XmlPullParserException e) {
-			listener.promptRetry(Localization.get("restore.fail"));
+			listener.promptRetry(Localization.get("restore.fail.technical"));
+			Logger.exception(e);
 			return false;
 		} catch (UnfullfilledRequirementsException e) {
-			listener.promptRetry(Localization.get("restore.fail"));
+			listener.promptRetry(Localization.get("restore.fail.technical"));
+			Logger.exception(e);
 			return false;
 		} catch (RuntimeException e) {
-			success = false;
+			Logger.exception(e);
+			listener.promptRetry(Localization.get("restore.fail.technical"));
+			return false;
 		} finally {
 			if (success) {
 				commitTransaction();
