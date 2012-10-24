@@ -60,7 +60,6 @@ public class CommCareRestorer implements Runnable {
 	CommCareOTARestoreTransitions transitions;
 	CommCareOTARestoreListener listener;
 	
-	int authAttempts = 0;
 	String restoreURI;
 	boolean noPartial;
 	boolean isSync;
@@ -136,10 +135,8 @@ public class CommCareRestorer implements Runnable {
 	
 	private void startOtaProcess() {
 		 if(authenticator == null) {
-			authAttempts = 0;
 			getCredentials();
 		} else {
-			authAttempts = 1;
 			listener.refreshView();
 			
 			//TODO: this listener is replicated in quite a few places 
@@ -181,14 +178,8 @@ public class CommCareRestorer implements Runnable {
 			} else {
 				if(sent.getResponseCode() == 401) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS);
-					if(authAttempts > 0) {
-						Logger.log("restore", "bad credentials; " + authAttempts + " attempts remain");
-						authAttempts--;
-						getCredentials();
-					} else {
-						System.out.println("in 401 case of restorer");
-						listener.onFailure(Localization.get("restore.badcredentials"));
-					}
+					Logger.log("restore",Localization.get("restore.badcredentials"));
+					getCredentials();
 					return;
 				} else if(sent.getResponseCode() == 404) {
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_SERVER);
