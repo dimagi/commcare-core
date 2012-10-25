@@ -32,7 +32,7 @@ restore.retry=Retry
 
 sync.unsent.cancel=Cancel Sync
 sync.done.noupdate=No new updates
-sync.done.updates=Update successful!
+sync.done.updates=Update successful
 sync.done.new=${0} new cases
 sync.done.closed=${0} cases closed
 sync.done.updated=${0} cases updated
