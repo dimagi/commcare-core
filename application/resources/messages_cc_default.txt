@@ -40,6 +40,7 @@ sync.pull.admin=Admin user can't sync data. Restore User Data to pull down a Use
 sync.pull.demo=Demo user can't sync data. Restore User Data to pull down a User from server
 
 sync.cancelled=Sync Cancelled!
+sync.cancelled.sending=Sync Cancelled! CommCare will still try to send any unsent forms.
 
 sync.send.fail=We were unable to send your forms back to the clinic and fetch your updated follow-up list. Try again when you have better reception.
 sync.pull.fail=There was a problem and we couldn't get your new follow-ups from the clinic. Try again in five minutes. If it still doesn't work, try again when you have better reception.

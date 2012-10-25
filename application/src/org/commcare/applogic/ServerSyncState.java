@@ -42,7 +42,7 @@ public abstract class ServerSyncState implements State {
 					onError(Localization.get("sync.send.fail"));
 				} else if(TransportService.getCachedMessagesSize() != 0) {
 					//cancelled
-					onError(Localization.get("sync.cancelled"));
+					onError(Localization.get("sync.cancelled.sending"));
 				} else {
 					System.out.println("debug: server sync: send-all-unsent successful");
 					launchPull();
