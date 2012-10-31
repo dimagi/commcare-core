@@ -19,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.Constants;
@@ -28,13 +29,9 @@ import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.model.instance.utils.CompactInstanceWrapper;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
-import org.javarosa.core.model.util.restorable.RestoreUtils;
-import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -42,7 +39,12 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.XPathPathExpr;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
  * An element of a FormInstance.
@@ -1242,9 +1244,82 @@ import org.javarosa.xpath.expr.XPathExpression;
 		this.namespace = namespace;
 	}
 
-	public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-			Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-		return null;
+	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+		//Only do for predicates
+		if(mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
+		
+		Vector<Integer> toRemove = new Vector<Integer>();
+		Vector<TreeReference> selectedChildren = null;
+		
+		//Lazy init these until we've determined that our predicate is hintable
+		Hashtable<XPathPathExpr, String> indices=  null;
+		Vector<TreeElement> kids = null;
+		
+		predicate:
+		for(int i = 0 ; i < predicates.size() ; ++i) {
+			XPathExpression xpe = predicates.elementAt(i);
+			//what we want here is a static evaluation of the expression to see if it consists of evaluating 
+			//something we index with something static.
+			if(xpe instanceof XPathEqExpr) {
+				XPathExpression left = ((XPathEqExpr)xpe).a;
+				XPathExpression right = ((XPathEqExpr)xpe).b;
+				
+				//For now, only cheat when this is a string literal (this basically just means that we're
+				//handling attribute based referencing with very reasonable timing, but it's complex otherwise)
+				if(left instanceof XPathPathExpr && right instanceof XPathStringLiteral) {
+					
+					//We're lazily initializing this, since it might actually take a while, and we 
+					//don't want the overhead if our predicate is too complex anyway
+					if(indices == null) {
+						indices = new Hashtable<XPathPathExpr, String>();
+						kids = this.getChildrenWithName(name);
+						 
+						if(kids.size() == 0 ) { return null; }
+						
+						//Anything that we're going to use across elements should be on all of them 
+						TreeElement kid = kids.elementAt(0);
+						for(int j = 0 ; j < kid.getAttributeCount(); ++j) {
+							String attribute = kid.getAttributeName(j);
+							indices.put(XPathReference.getPathExpr("@" + attribute), attribute);
+						}
+					}
+					
+					for(Enumeration en = indices.keys(); en.hasMoreElements() ;) {
+						XPathPathExpr expr = (XPathPathExpr)en.nextElement();
+						if(expr.equals(left)) {
+							String attributeName = indices.get(expr);
+ 
+							for(int kidI = 0 ; kidI < kids.size() ; ++kidI) {
+								if(kids.elementAt(kidI).getAttributeValue(null, attributeName).equals(((XPathStringLiteral)right).s)) {
+									if(selectedChildren == null) {
+										selectedChildren = new Vector<TreeReference>();
+									}
+									selectedChildren.addElement(kids.elementAt(kidI).getRef());
+								}
+							}
+							
+							
+							//Note that this predicate is evaluated and doesn't need to be evaluated in the future.
+							toRemove.addElement(DataUtil.integer(i));
+							continue predicate;
+						}
+					}
+				}
+			}
+			//There's only one case where we want to keep moving along, and we would have triggered it if it were going to happen,
+			//so otherwise, just get outta here.
+			break;
+		}
+		
+		//if we weren't able to evaluate any predicates, signal that.
+		if(selectedChildren == null) { return null; }
+		
+		//otherwise, remove all of the predicates we've already evaluated
+		for(int i = toRemove.size() - 1; i >= 0 ; i--)  {
+			predicates.removeElementAt(toRemove.elementAt(i).intValue());
+		}
+		
+		return selectedChildren;
 	}
 
 }
