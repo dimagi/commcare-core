@@ -39,7 +39,7 @@ public class EntryParser extends ElementParser<Entry> {
 		String block = isEntry ? "entry" : "view";
 		this.checkNode(block);
 		
-		String xFormNamespace = "";
+		String xFormNamespace = null;
 		Vector<SessionDatum> data = new Vector<SessionDatum>();
 		Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
 

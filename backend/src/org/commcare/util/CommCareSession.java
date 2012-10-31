@@ -167,12 +167,25 @@ public class CommCareSession {
 	}
 	
 	/**
-	 * 
-	 * @return
+	 * @return The next relevant datum for the current entry. Requires there to be
+	 * an entry on the stack
 	 */
 	public SessionDatum getNeededDatum() {
 		Entry entry = getEntriesForCommand(getCommand()).elementAt(0);		
-		SessionDatum datum = entry.getSessionDataReqs().elementAt(getData().size());
+		return getNeededDatum(entry);
+	}
+	
+	/**
+	 * @param entry An entry which is consistent as a step on the stack
+	 * @return A session datum definition if one is pending. Null otherwise.
+	 */
+	public SessionDatum getNeededDatum(Entry entry) {
+		int nextVal = getData().size();
+		//If we've already retrieved all data needed, return null.
+		if(nextVal >= entry.getSessionDataReqs().size()) { return null; }
+		
+		//Otherwise retrieve the needed value
+		SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
 		return datum;
 	}
 

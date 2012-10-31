@@ -86,6 +86,15 @@ public class CommCareSessionController {
 							}
 						}
 						Entry e = suite.getEntries().get(id);
+    					if(e.getXFormNamespace() == null) {
+    						//If this is a "view", not an "entry"
+    						//we only want to display it if all of its 
+    						//datums are not already present
+    						if(session.getNeededDatum(e) == null) {
+    							continue;
+    						}
+    					}
+						
 						int location = list.size();
 						list.append(CommCareUtil.getEntryText(e,suite,location), MediaUtils.getImage(e.getImageURI()));
 						//TODO: All these multiple checks are pretty sloppy
