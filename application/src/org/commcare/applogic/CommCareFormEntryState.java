@@ -172,10 +172,6 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		return profile;
 	}
 
-	public void suspendForMediaCapture(int captureType) {
-		throw new RuntimeException("transition not applicable");
-	}
-
 	/**
 	 * 
 	 * @param instanceData
