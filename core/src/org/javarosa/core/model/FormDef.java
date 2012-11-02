@@ -578,14 +578,39 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			if (t.canCascade()) {
 				for (int j = 0; j < t.getTargets().size(); j++) {
 					TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-					Vector triggered = (Vector)triggerIndex.get(target);
-					if (triggered != null) {
-						for (int k = 0; k < triggered.size(); k++) {
-							Triggerable u = (Triggerable)triggered.elementAt(k);
-							if (!deps.contains(u))
-								deps.addElement(u);
+					Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+					updatedNodes.addElement(target);
+					
+					
+					//Nov-01-2012 - ctsims - Note: This code is duplicated here and in the triggerable
+					//triggering, and it resulted in a bug. This code should centralized somewhere. 
+					
+					//For certain types of triggerables, the update will affect not only the target, but
+					//also the children of the target. In that case, we want to add all of those nodes 
+					//to the list of updated elements as well.
+					if(t.isCascadingToChildren()) {
+						addChildrenOfReference(target, updatedNodes);
+					}
+					
+					//Now go through each of these updated nodes (generally just 1 for a normal calculation,
+					//multiple nodes if there's a relevance cascade.
+					for(TreeReference ref : updatedNodes) {
+						//Check our index to see if that target is a Trigger for other conditions
+						//IE: if they are an element of a different calculation or relevancy calc
+						Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
+						
+						if (triggered != null) {
+							//If so, walk all of these triggerables that we found
+							for (int k = 0; k < triggered.size(); k++) {
+								Triggerable u = (Triggerable)triggered.elementAt(k);
+								
+								//And add them to the queue if they aren't there already
+								if (!deps.contains(u))
+									deps.addElement(u);
+							}
 						}
 					}
+
 				}
 			}
 			
