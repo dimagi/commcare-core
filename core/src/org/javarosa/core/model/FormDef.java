@@ -85,7 +85,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * A unique external name that is used to identify the form between machines
 	 */
 	private Localizer localizer;
-	public Vector triggerables; // <Triggerable>; this list is topologically ordered, meaning for any tA and tB in
+	public Vector<Triggerable> triggerables; // <Triggerable>; this list is topologically ordered, meaning for any tA and tB in
 	//the list, where tA comes before tB, evaluating tA cannot depend on any result from evaluating tB
 	private boolean triggerablesInOrder; //true if triggerables has been ordered topologically (DON'T DELETE ME EVEN THOUGH I'M UNUSED)
 	
@@ -564,7 +564,15 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 	}
 
-	public void finalizeTriggerables () {
+	/**
+	 * Finalize the DAG associated with the form's triggered conditions. This will create
+	 * the appropriate ordering and dependencies to ensure the conditions will be evaluated
+	 * in the appropriate orders.
+	 * 
+	 * @throws IllegalStateException - If the trigger ordering contains an illegal cycle and the
+	 * triggers can't be laid out appropriately
+	 */
+	public void finalizeTriggerables () throws IllegalStateException {
 		//
 		//DAGify the triggerables based on dependencies and sort them so that
 		//trigbles come only after the trigbles they depend on
@@ -573,46 +581,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		Vector partialOrdering = new Vector();
 		for (int i = 0; i < triggerables.size(); i++) {
 			Triggerable t = (Triggerable)triggerables.elementAt(i);
-			Vector deps = new Vector();
 			
-			if (t.canCascade()) {
-				for (int j = 0; j < t.getTargets().size(); j++) {
-					TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-					Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
-					updatedNodes.addElement(target);
-					
-					
-					//Nov-01-2012 - ctsims - Note: This code is duplicated here and in the triggerable
-					//triggering, and it resulted in a bug. This code should centralized somewhere. 
-					
-					//For certain types of triggerables, the update will affect not only the target, but
-					//also the children of the target. In that case, we want to add all of those nodes 
-					//to the list of updated elements as well.
-					if(t.isCascadingToChildren()) {
-						addChildrenOfReference(target, updatedNodes);
-					}
-					
-					//Now go through each of these updated nodes (generally just 1 for a normal calculation,
-					//multiple nodes if there's a relevance cascade.
-					for(TreeReference ref : updatedNodes) {
-						//Check our index to see if that target is a Trigger for other conditions
-						//IE: if they are an element of a different calculation or relevancy calc
-						Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
-						
-						if (triggered != null) {
-							//If so, walk all of these triggerables that we found
-							for (int k = 0; k < triggered.size(); k++) {
-								Triggerable u = (Triggerable)triggered.elementAt(k);
-								
-								//And add them to the queue if they aren't there already
-								if (!deps.contains(u))
-									deps.addElement(u);
-							}
-						}
-					}
-
-				}
-			}
+			Vector deps = new Vector();
+			fillTriggeredElements(t, deps);
 			
 			for (int j = 0; j < deps.size(); j++) {
 				Triggerable u = (Triggerable)deps.elementAt(j);
@@ -621,14 +592,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			}
 		}
 		
-		Vector vertices = new Vector();
+		Vector<Triggerable> vertices = new Vector<Triggerable>();
 		for (int i = 0; i < triggerables.size(); i++)
 			vertices.addElement(triggerables.elementAt(i));
 		triggerables.removeAllElements();
 		
 		while (vertices.size() > 0) {
 			//determine root nodes
-			Vector roots = new Vector();
+			Vector<Triggerable> roots = new Vector<Triggerable>();
 			for (int i = 0; i < vertices.size(); i++) {
 				roots.addElement(vertices.elementAt(i));
 			}
@@ -639,7 +610,17 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			
 			//if no root nodes while graph still has nodes, graph has cycles
 			if (roots.size() == 0) {
-				throw new RuntimeException("Cannot create partial ordering of triggerables due to dependency cycle. Why wasn't this caught during parsing?");
+				String hints = "";
+				for(Triggerable t : vertices) {
+					for(TreeReference r : t.getTargets()) {
+						hints += "\n" + r.toString(true);
+					}
+				}
+				String message = "Cycle detected in form's relevant and calculation logic!";
+				if(!hints.equals("")) {
+					message += "\nThe following nodes are likely involved in the loop:" + hints;
+				}
+				throw new IllegalStateException(message);
 			}
 
 			//remove root nodes and edges originating from them
@@ -677,6 +658,52 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
 	}
 		
+	/**
+	 * Get all of the elements which will need to be evaluated (in order) when the
+	 * triggerable is fired.
+	 * @param t
+	 */
+	public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
+		if (t.canCascade()) {
+			for (int j = 0; j < t.getTargets().size(); j++) {
+				TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+				Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+				updatedNodes.addElement(target);
+				
+				//For certain types of triggerables, the update will affect not only the target, but
+				//also the children of the target. In that case, we want to add all of those nodes 
+				//to the list of updated elements as well.
+				if(t.isCascadingToChildren()) {
+					addChildrenOfReference(target, updatedNodes);
+				}
+				
+				//Now go through each of these updated nodes (generally just 1 for a normal calculation,
+				//multiple nodes if there's a relevance cascade.
+				for(TreeReference ref : updatedNodes) {
+					//Check our index to see if that target is a Trigger for other conditions
+					//IE: if they are an element of a different calculation or relevancy calc
+					Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
+					
+					if (triggered != null) {
+						//If so, walk all of these triggerables that we found
+						for (int k = 0; k < triggered.size(); k++) {
+							Triggerable u = (Triggerable)triggered.elementAt(k);
+							
+							//And add them to the queue if they aren't there already
+							if (!destination.contains(u))
+								destination.addElement(u);
+						}
+					}
+				}
+
+			}
+		}
+	}
+
+
+
+
+
 	public void initializeTriggerables() {
 		initializeTriggerables(TreeReference.rootRef());
 	}
@@ -748,52 +775,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		//Iterate through all of the currently known triggerables to be triggered
 		for (int i = 0; i < tv.size(); i++) {
 			Triggerable t = (Triggerable)tv.elementAt(i);
-			
-			//If this condition should cause other conditons which reference this node to be triggered
-			if (t.canCascade()) {
-				
-				//Navigate through all of the "targets" of this triggerable (Nodes which will be updated when it
-				//is evaluated), since we'll want to see if they trigger other computations
-				for (int j = 0; j < t.getTargets().size(); j++) {
-					
-					//The target here is basically a value that will be updated by the triggerable 
-					//we're evaluating
-					TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-					
-					Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
-					updatedNodes.addElement(target);
-					
-					
-					//TODO: This is likely going to add a substantial cost to the processing step. 
-					//Evaluate how much of one and figure out if we need to optimize this before prod.
-					
-					//For certain types of triggerables, the update will affect not only the target, but
-					//also the children of the target. In that case, we want to add all of those nodes 
-					//to the list of updated elements as well.
-					if(t.isCascadingToChildren()) {
-						addChildrenOfReference(target, updatedNodes);
-					}
-					
-					//Now go through each of these updated nodes (generally just 1 for a normal calculation,
-					//multiple nodes if there's a relevance cascade.
-					for(TreeReference ref : updatedNodes) {
-						//Check our index to see if that target is a Trigger for other conditions
-						//IE: if they are an element of a different calculation or relevancy calc
-						Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
-						
-						if (triggered != null) {
-							//If so, walk all of these triggerables that we found
-							for (int k = 0; k < triggered.size(); k++) {
-								Triggerable u = (Triggerable)triggered.elementAt(k);
-								
-								//And add them to the queue if they aren't there already
-								if (!tv.contains(u))
-									tv.addElement(u);
-							}
-						}
-					}
-				}
-			}
+			fillTriggeredElements(t, tv);
 		}
 		
 		//tv should now contain all of the triggerable components which are going to need to be addressed
@@ -838,7 +820,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	 * This is a utility method to get all of the references of a node. It can be replaced
 	 * when we support dependent XPath Steps (IE: /path/to//)
 	 */
-	private void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
+	public void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
 		for(TreeReference ref : exprEvalContext.expandReference(original)) {
 			addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
 		}
