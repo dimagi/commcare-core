@@ -1722,7 +1722,11 @@ public class XFormParser {
 		
 		checkDependencyCycles();
 		_f.setInstance(instanceModel);
-		_f.finalizeTriggerables();		
+		try {
+			_f.finalizeTriggerables();
+		} catch(IllegalStateException ise) {
+			throw new XFormParseException(ise.getMessage() == null ? "Form has an illegal cycle in its calculate and relevancy expressions!" : ise.getMessage());
+		}
 		
 		//print unused attribute warning message for parent element
 		//if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){

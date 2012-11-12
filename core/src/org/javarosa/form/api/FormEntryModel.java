@@ -600,7 +600,7 @@ public class FormEntryModel {
 				}
 			}
 
-			if (descend) {
+			if (descend && (i == -1  || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)) {
 				indexes.addElement(new Integer(0));
 				multiplicities.addElement(new Integer(0));
 				elements.addElement((i == -1 ? form : (IFormElement) elements.elementAt(i)).getChild(0));
