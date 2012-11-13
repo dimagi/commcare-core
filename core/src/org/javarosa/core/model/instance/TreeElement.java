@@ -718,10 +718,24 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 	private void addSingleAttribute(int i, Vector attStrings) {
 		String att = (String) attStrings.elementAt(i);
 		String[] array = new String[3];
-		int start = 0;
-		// get namespace
 		
 		int pos = -1;
+		
+		//TODO: The only current assumption here is that the namespace/name of the attribute doesn't have
+		//an equals sign in it. I think this is safe. not sure.
+		
+		//Split into first and second parts
+		pos = att.indexOf("=");
+		
+		//put the value in our output
+		array[2] = att.substring(pos + 1, att.length() - 1);
+		
+		//now we're left with the xmlns (possibly) and the
+		//name. Get that into a single string.
+		att = att.substring(0, pos);
+		
+		//reset position marker.
+		pos = -1;
 		
 		// Clayton Sims - Jun 1, 2009 : Updated this code:
 		//	We want to find the _last_ possible ':', not the
@@ -730,18 +744,20 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 		while(att.indexOf(":",pos+1) != -1) {
 			pos = att.indexOf(":",pos+1);
 		}
+		
 		if (pos == -1) {
+			//No namespace
 			array[0] = null;
-			start = 0;
+			
+			//for the name eval below
+			pos = 0;
 		} else {
-			array[0] = att.substring(start, pos);
-			start = ++pos;
+			//there is a namespace, grab it
+			array[0] = att.substring(0, pos);
 		}
-		// get attribute name
-		pos = att.indexOf("=");
-		array[1] = att.substring(start, pos);
-		start = ++pos;
-		array[2] = att.substring(start);
+		// Now get the name part
+		array[1] = att.substring(pos);
+		
 		this.setAttribute(array[0], array[1], array[2]);
 	}
 
