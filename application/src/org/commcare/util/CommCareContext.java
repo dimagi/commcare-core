@@ -165,11 +165,18 @@ public class CommCareContext {
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					String message = CommCareStartupInteraction.failSafeText("install.bad","There's a problem with CommCare's installation, do you want to retry validation?");
+					String topResource="";
 					
 					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 					for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
 						UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
+
 						String res = ure.getResource().getResourceId();
+						
+						if(topResource==""){
+							topResource = res;
+						}
+						
 						Vector<String> list;
 						if(problemList.containsKey(res)) {
 							list = problemList.get(res);
@@ -183,7 +190,7 @@ public class CommCareContext {
 					
 					for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
 						String resource = (String)en.nextElement();
-						message += "\nResource: " + resource;
+						message += "\nProblem with resource: " + topResource;
 						message += "\n-----------";
 						for(String s : problemList.get(resource)) {
 							message += "\n" + s;
@@ -213,7 +220,6 @@ public class CommCareContext {
 				
 				//Try to initialize and install the application resources...
 				try {
-					System.out.println("Installing resources in CommCareContext");
 					ResourceTable global = RetrieveGlobalResourceTable();
 					global.setStateListener(new TableStateListener() {
 						
@@ -744,8 +750,6 @@ public class CommCareContext {
 		} 
 		//Not sure if this reference is actually a good idea, or whether we should 
 		//get the storage link every time... For now, we'll reload storage each time
-		System.out.println("Global Resource Table");
-		System.out.println(global);
 		return global;
 	}
 
