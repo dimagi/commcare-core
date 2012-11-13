@@ -42,7 +42,7 @@ public class J2MEModule implements IModule {
 	
 	public J2MEModule() {
 		//#if !j2merosa.disable.autofile
-		this(new J2meFileSystemProperties());
+		this(new J2meFileSystemProperties(true));
 		//#endif
 		
 	}
