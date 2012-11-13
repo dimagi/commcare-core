@@ -728,7 +728,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 		pos = att.indexOf("=");
 		
 		//put the value in our output
-		array[2] = att.substring(pos + 1, att.length() - 1);
+		array[2] = att.substring(pos + 1);
 		
 		//now we're left with the xmlns (possibly) and the
 		//name. Get that into a single string.
