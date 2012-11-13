@@ -208,11 +208,13 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	 */
 	public TreeElement getAttribute(String namespace, String name) {
 		if(name.equals("case_id")) {
-			//if we're already cached, don't bother with this nonsense
-			synchronized(cache){
-				TreeElement element = cache.retrieve(recordId);
-				if(element != null) {
-					return cache().getAttribute(namespace, name);
+			if(recordId != TreeReference.INDEX_TEMPLATE) {
+				//if we're already cached, don't bother with this nonsense
+				synchronized(cache){
+					TreeElement element = cache.retrieve(recordId);
+					if(element != null) {
+						return cache().getAttribute(namespace, name);
+					}
 				}
 			}
 			
@@ -301,6 +303,9 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
 	//TODO: THIS IS NOT THREAD SAFE
 	private TreeElement cache() {
+		if(recordId == TreeReference.INDEX_TEMPLATE) {
+			return empty;
+		}
 		synchronized(cache){
 			TreeElement element = cache.retrieve(recordId);
 			if(element != null) {
