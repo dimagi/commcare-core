@@ -215,11 +215,11 @@ public class QuestionDef implements IFormElement, Localizable {
 	}
 	
 	public void setChildren (Vector v) {
-		throw new IllegalStateException();
+		throw new IllegalStateException("Can't add children to question def");
 	}
 	
 	public void addChild (IFormElement fe) {
-		throw new IllegalStateException();
+		throw new IllegalStateException("Can't add children to question def");
 	}
 	
 	public IFormElement getChild (int i) {

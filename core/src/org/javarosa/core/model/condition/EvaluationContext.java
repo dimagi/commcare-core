@@ -263,7 +263,7 @@ public class EvaluationContext {
 							if (child != null) {
 								set.addElement(child.getRef());
 							} else {
-								throw new IllegalStateException(); // missing/non-sequential
+								throw new IllegalStateException("Missing or non-sequntial nodes expanding a reference"); // missing/non-sequential
 								// nodes
 							}
 						}

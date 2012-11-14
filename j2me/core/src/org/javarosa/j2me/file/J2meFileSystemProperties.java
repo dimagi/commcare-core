@@ -34,8 +34,10 @@ public class J2meFileSystemProperties implements IPropertyRules {
 	
 	J2meFileRoot currentRoot;
 	
-	public J2meFileSystemProperties() {
-
+	boolean manageRoot = true;
+	
+	public J2meFileSystemProperties(boolean useRealFiles) {
+		manageRoot = useRealFiles;
 	}
 	
 	private Vector<String> roots() {
@@ -235,12 +237,14 @@ public class J2meFileSystemProperties implements IPropertyRules {
 	}
 	
 	private void registerReferenceFactory(String newRoot) {
-		if(currentRoot != null) {
-			ReferenceManager._().removeReferenceFactory(currentRoot);
-		}
-		if(newRoot != null) {
-			currentRoot = root(newRoot);
-			ReferenceManager._().addReferenceFactory(currentRoot);
+		if(manageRoot) {
+			if(currentRoot != null) {
+				ReferenceManager._().removeReferenceFactory(currentRoot);
+			}
+			if(newRoot != null) {
+				currentRoot = root(newRoot);
+				ReferenceManager._().addReferenceFactory(currentRoot);
+			}
 		}
 	}
 	
