@@ -910,3 +910,14 @@ alertcontent {
 .entityDetailScreen {
 	background-color: white;
 }
+
+.networkTestForm {
+	bottomframe-height: 50%;
+} 
+
+.networkTestImage {
+	min-height: 50%;
+	max-height: 50%;
+	margin: 5;
+    layout: center | vcenter| expand;
+}
