@@ -367,10 +367,17 @@ public class CommCareContext {
 	private void failsafeInit (MIDlet m) {
 		DumpRMS.RMSRecoveryHook(m);
 		
-		//TODO: Hilarious? Yes. Reasonable? No.
+		String fileSystemTranslator = m.getAppProperty("FileRootTranslator");
+		boolean useRealFiles = true;
+		if(fileSystemTranslator != null) {
+			useRealFiles = false;
+			ReferenceManager._().addRootTranslator(new RootTranslator("jr://file/",fileSystemTranslator));
+		}
 		
+		//TODO: Hilarious? Yes. Reasonable? No.
+
 		//#if !j2merosa.disable.autofile
-		new J2MEModule(new J2meFileSystemProperties() {
+		new J2MEModule(new J2meFileSystemProperties(useRealFiles) {
 			protected J2meFileRoot root(String root) {
 				return new J2meFileRoot(root) {
 					protected Reference factory(String terminal, String URI) {
