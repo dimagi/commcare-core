@@ -164,18 +164,16 @@ public class CommCareContext {
 				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
-					String message = CommCareStartupInteraction.failSafeText("install.bad","There's a problem with CommCare's installation, do you want to retry validation?");
-					String topResource="";
-					
+					int badImageRef = problems.getBadImageReferenceCount();
+					int badAudioRef = problems.getBadAudioReferenceCount();
+					int badVideoRef = problems.getBadVideoReferenceCount();
+					String errorMessage = "CommCare cannot start because you are missing multimedia files.";
+					String message = CommCareStartupInteraction.failSafeText("install.bad",errorMessage, new String[] {""+badImageRef,""+badAudioRef,""+badVideoRef});
 					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 					for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
 						UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
 
 						String res = ure.getResource().getResourceId();
-						
-						if(topResource==""){
-							topResource = res;
-						}
 						
 						Vector<String> list;
 						if(problemList.containsKey(res)) {
@@ -183,15 +181,25 @@ public class CommCareContext {
 						} else{
 							list = new Vector<String>();
 						}
-						list.addElement(ure.getMessage());
+						
+						// code to pretty up the output for mealz
+						
+						int substringIndex = ure.getMessage().indexOf("/commcare");
+						
+						String shortenedMessage = (ure.getMessage()).substring(substringIndex+1);
+						
+						list.addElement(shortenedMessage);
 						
 						problemList.put(res, list);
+
 					}
 					
+					message += "\n-----------";
+					
 					for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
+						
 						String resource = (String)en.nextElement();
-						message += "\nProblem with resource: " + topResource;
-						message += "\n-----------";
+						//message += "\n-----------";
 						for(String s : problemList.get(resource)) {
 							message += "\n" + s;
 						}

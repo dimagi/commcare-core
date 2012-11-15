@@ -79,6 +79,14 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 			return fallback;
 		}
 	}
+	
+	public static String failSafeText(String localeId, String fallBack, String[] args){
+		try { 
+			return Localization.get(localeId,args);
+		} catch(Exception e) {
+			return fallBack;
+		}
+	}
 
 	public void commandAction(Command c, Displayable d) {
 		if(c.equals(yes)) {
