@@ -30,10 +30,10 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.utilities.media.MediaUtils;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -96,7 +96,7 @@ public class CommCareSessionController {
     					}
 						
 						int location = list.size();
-						list.append(CommCareUtil.getEntryText(e,suite,location), MediaUtils.getImage(e.getImageURI()));
+						list.append(CommCareUtil.getEntryText(e,suite,location), ImageUtils.getImage(e.getImageURI()));
 						//TODO: All these multiple checks are pretty sloppy
 						if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
 							listener.registerAudioTrigger(location, e.getAudioURI());
@@ -106,7 +106,7 @@ public class CommCareSessionController {
 					}
 				}
 				else if(m.getRoot().equals(menu)) {
-					int location = list.append(m.getName().evaluate(),  MediaUtils.getImage(m.getImageURI()));
+					int location = list.append(m.getName().evaluate(),  ImageUtils.getImage(m.getImageURI()));
 					//TODO: All these multiple checks are pretty sloppy
 					if(listener != null && (m.getAudioURI() != null && !"".equals(m.getAudioURI()))) {
 						listener.registerAudioTrigger(location, m.getAudioURI());

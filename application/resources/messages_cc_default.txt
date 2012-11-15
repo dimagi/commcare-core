@@ -120,6 +120,28 @@ commcare.tools.title=Tools
 commcare.tools.network=Network Test
 commcare.tools.permissions=Permissions Test
 
+network.test.title=Network Test
+network.test.details=View Details
+network.test.details.title=Test Details
+
+network.test.begin.message=Beginning test...
+network.test.begin.image=jr://resource/nttest_begin.png
+
+network.test.connecting.message=Connecting to server for download
+network.test.connecting.image=jr://resource/nttest_start.png
+
+network.test.connected.message=Connection established, downloading data
+network.test.connected.image=jr://resource/nttest_downloading.png
+
+network.test.response.message=Response received, validating response
+
+network.test.content.message=Success!
+network.test.content.image=jr://resource/nttest_success.png
+
+network.test.failed.message=Network Test Failed. View Details to see error message
+network.test.failed.image=jr://resource/nttest_fail.png
+
+
 restore.ui.unbounded=Downloaded ${0} items
 restore.ui.bounded=Downloaded ${0} out of ${1} items.
 restore.fail.message=Restore failed for reasons below. Would you like to retry?
