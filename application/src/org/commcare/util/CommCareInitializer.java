@@ -79,11 +79,21 @@ public abstract class CommCareInitializer implements Runnable {
 	
 	protected abstract void askForResponse(String message, YesNoListener listener, boolean yesNo);
 	
+	protected abstract void askForResponse(String message, YesNoListener listener, boolean yesNo, String left, String right);
+	
 	protected boolean blockForResponse(String message) {
 		return this.blockForResponse(message, true);
 	}
 	
+	protected boolean blockForResponse(String message, String left, String right){
+		return this.blockForResponse(message, true, left, right);
+	}
+	
 	protected boolean blockForResponse(String message, boolean yesNo) {
+		return this.blockForResponse(message, yesNo, "Yes", "No");
+	}
+	
+	protected boolean blockForResponse(String message, boolean yesNo, String left, String right) {
 		response = RESPONSE_NONE;
 		askForResponse(message,  new YesNoListener() {
 			public void no() {
@@ -93,7 +103,7 @@ public abstract class CommCareInitializer implements Runnable {
 				CommCareInitializer.this.response = CommCareInitializer.RESPONSE_YES;
 			}
 			
-		}, yesNo);
+		}, yesNo, left, right);
 		while(response == RESPONSE_NONE);
 		return response == RESPONSE_YES;
 	}

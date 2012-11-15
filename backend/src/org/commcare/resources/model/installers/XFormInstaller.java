@@ -154,7 +154,6 @@ public class XFormInstaller extends CacheInstaller {
 				}
 			}
 		}
-		//System.out.println("forms missing audio: " + missingAudioCount + ", video: "+ missingVideoCount + ", image: " + missingImageCount);
 		if(sizeBoundProblems.size() == 0 ) { return false;}
 		return true;
 	}

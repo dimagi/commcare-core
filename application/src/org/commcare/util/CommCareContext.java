@@ -305,7 +305,7 @@ public class CommCareContext {
 					String failureMessage = this.validate();
 					while(failureMessage != null) {
 						Logger.log("startup", "Missing Resources on startup");
-						this.blockForResponse(failureMessage);
+						this.blockForResponse(failureMessage, "Retry", "No");
 						if(this.response == CommCareInitializer.RESPONSE_YES) {
 							failureMessage = this.validate(); 
 						} else {
@@ -357,8 +357,16 @@ public class CommCareContext {
 				} else { 
 					interaction.PromptResponse(message, yesNoListener);
 				}
-
 			}
+			
+			protected void askForResponse(String message, YesNoListener yesNoListener, boolean yesNo, String left, String right) {
+				if(yesNo) {
+					interaction.AskYesNo(message,yesNoListener, left, right);
+				} else {
+					interaction.PromptResponse(message, yesNoListener);
+				}
+			}
+
 
 			protected void setMessage(String message) {
 				interaction.setMessage(message, true);
