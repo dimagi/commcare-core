@@ -17,6 +17,10 @@ public class SizeBoundVector<E> extends Vector<E> {
 	int limit = -1;
 	int additional = 0;
 	
+	int badImageReferenceCount=0;
+	int badAudioReferenceCount=0;
+	int badVideoReferenceCount=0;
+	
 	public SizeBoundVector(int sizeLimit) {
 		this.limit = sizeLimit;
 	}
@@ -36,5 +40,14 @@ public class SizeBoundVector<E> extends Vector<E> {
 	public int getAdditional() {
 		return additional;
 	}
+	
+	public void addBadImageReference(){badImageReferenceCount++;}
+	public void addBadAudioReference(){badAudioReferenceCount++;}
+	public void addBadVideoReference(){badVideoReferenceCount++;}
+	
+	public int getBadImageReferenceCount(){return badImageReferenceCount;}
+	public int getBadAudioReferenceCount(){return badAudioReferenceCount;}
+	public int getBadVideoReferenceCount(){return badVideoReferenceCount;}
+	
 
 }
