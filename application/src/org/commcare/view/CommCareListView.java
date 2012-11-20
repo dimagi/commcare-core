@@ -33,7 +33,7 @@ public class CommCareListView extends List implements MultimediaListener {
 		this.choiceGroup = new CustomChoiceGroup(null, ChoiceGroup.IMPLICIT, autoSelect, numericNavigation) {
 			public void playAudio(int index) {
 				if(audioLocations.size() > index && audioLocations.elementAt(index) != null) {
-					MediaUtils.playAudio(audioLocations.elementAt(index));
+					MediaUtils.playOrPauseAudio(audioLocations.elementAt(index), String.valueOf(index));
 				}
 			}
 		};
@@ -58,6 +58,9 @@ public class CommCareListView extends List implements MultimediaListener {
 						return;
 					}
 				}
+				//All list view actions should stop any currently playing audio
+				MediaUtils.stopAudio();
+				
 				//otherwise
 				wrapped.commandAction(c, d);
 			} 
