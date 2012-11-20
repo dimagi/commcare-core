@@ -20,6 +20,8 @@ import org.commcare.util.time.PermissionsEvent;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.io.StreamsUtil.OutputIOException;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.utils.DateUtils;
@@ -36,7 +38,6 @@ import org.javarosa.j2me.reference.HttpReference.SecurityFailureListener;
 import org.javarosa.j2me.storage.rms.RMSTransaction;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
-import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
@@ -72,7 +73,6 @@ public class CommCareRestorer implements Runnable {
 	String originalRestoreURI;
 	String logSubmitURI;
 	String stateHash;
-	AuthenticatedHttpTransportMessage message;
 	
 	public void initialize(CommCareOTARestoreListener rListener, CommCareOTARestoreTransitions transitions, 
 			String restoreURI, HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI){
@@ -99,25 +99,27 @@ public class CommCareRestorer implements Runnable {
 		
 		this.transitions = transitions;
 		
-		if(authenticator != null) {
-			this.message = getClientMessage(authenticator);
-		}
-		
 		HandledThread t = new HandledThread(this);
 		t.start();
 		
 	}
 	
 	private AuthenticatedHttpTransportMessage getClientMessage(HttpAuthenticator authenticator) {
-		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator);
+		AuthenticatedHttpTransportMessage message = AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator, 
+				new SecurityFailureListener() {
+			
+			public void onSecurityException(SecurityException e) {
+				PeriodicEvent.schedule(new PermissionsEvent());
+			}
+		});
 		return message;
 	}
 	
 	public void run() {
-		if(message != null){
+		if(authenticator != null) {
+			AuthenticatedHttpTransportMessage message = getClientMessage(authenticator);
 			tryDownload(message);
-		}
-		else{
+		} else{
 			start();
 		}
 	}
@@ -139,20 +141,19 @@ public class CommCareRestorer implements Runnable {
 		} else {
 			listener.refreshView();
 			
-			//TODO: this listener is replicated in quite a few places 
-			tryDownload(AuthenticatedHttpTransportMessage.AuthenticatedHttpRequest(restoreURI, authenticator, new SecurityFailureListener(){
-				public void onSecurityException(SecurityException e) {
-					PeriodicEvent.schedule(new PermissionsEvent());
-				}
-			}));
+			tryDownload(getClientMessage(authenticator));
 		}
 	}
 	
 	private void getCredentials() {
 		listener.getCredentials();
 	}
-		
+	
 	private void tryDownload(AuthenticatedHttpTransportMessage message) {
+		tryDownload(message, true);
+	}
+		
+	private void tryDownload(AuthenticatedHttpTransportMessage message, boolean tryCache) {
 		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DOWNLOAD);
 		Logger.log("restore", "start");
 		try {
@@ -167,7 +168,11 @@ public class CommCareRestorer implements Runnable {
 			if(sent.isSuccess()) {
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_CONNECTION_MADE);
 				try {
-					downloadRemoteData(sent.getResponse());
+					if(tryCache) {
+						downloadRemoteData(sent.getResponse());
+					} else {
+						startRestore(sent.getResponse());
+					}
 					return;
 				} catch(IOException e) {
 					listener.getCredentials();
@@ -379,12 +384,17 @@ public class CommCareRestorer implements Runnable {
 		try {
 			ref = ReferenceManager._().DeriveReference(getCacheRef());
 
-			//Wipe out the file if it exists (and we can)
-			if(ref.doesBinaryExist()) {
-				ref.remove();
+			boolean badCache = false;
+			try {
+				//Wipe out the file if it exists (and we can)
+				if(ref.doesBinaryExist()) {
+					ref.remove();
+				}
+			} catch(IOException e) {
+				badCache = true;
 			}
 			
-			if(ref.isReadOnly()) {
+			if(badCache || ref.isReadOnly()) {
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_NO_CACHE);
 				noCache(stream);
 			} else {
@@ -408,11 +418,38 @@ public class CommCareRestorer implements Runnable {
 			    	}
 				}
 			    
-			    //Now any further IOExceptions will get handled as "download failed", 
-			    //rather than "couldn't attempt to download"
-				StreamsUtil.writeFromInputToOutput(stream, output);
-				//need to close file's write stream before we read from it (S60 is not happy otherwise)
-				output.close();
+				try {
+					StreamsUtil.writeFromInputToOutputSpecific(stream, output);
+				} catch (OutputIOException e) {
+					//So for some reason it's entirely possible to fail on some Nokia phones only while _writing_ 
+					//to the SD card, not while opening the Stream for writing. This exception should be handled the
+					//same way 
+					if(recoveryMode) {
+			    		//In recovery mode we can't really afford to not cache this, so report that, and try again.
+			    		listener.statusUpdate(CommCareOTARestoreListener.RESTORE_NEED_CACHE);
+			    		return;
+			    	} else {
+			    		//otherwise we need to start again from the top and not attempt to cache.
+			    		
+			    		//first, close out the input stream
+			    		try { stream.close(); } catch(IOException ioe) { }
+			    		
+			    		//Now start over with no local caching 
+			    		this.tryDownload(this.getClientMessage(this.getAuthenticator()), false);
+			    		return;
+			    	}
+				} catch(InputIOException e) {
+					//Now any further IOExceptions will get handled as "download failed", 
+					//rather than "couldn't attempt to download"
+					throw e.getWrapped();
+				} finally {
+					try {
+					//need to close file's write stream before we read from it (S60 is not happy otherwise)
+					output.close();
+					} catch(IOException e) {
+						//Stupid Java
+					}
+				}
 				
 				listener.statusUpdate(CommCareOTARestoreListener.RESTORE_DOWNLOADED);
 				startRestore(ref.getStream());
@@ -506,9 +543,4 @@ public class CommCareRestorer implements Runnable {
 	public HttpAuthenticator getAuthenticator(){
 		return authenticator;
 	}
-	
-	public AuthenticatedHttpTransportMessage getMessage(){
-		return message;
-	}
-	
 }
