@@ -23,6 +23,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.PrefixTreeNode;
+import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
@@ -99,12 +100,14 @@ public class XFormInstaller extends CacheInstaller {
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
 		
+		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
+		
 		//Check to see whether the formDef exists and reads correctly
 		FormDef formDef;
 		try {
 			formDef = (FormDef)storage().read(cacheLocation);
 		} catch(Exception e) {
-			problems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			sizeBoundProblems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
 			return true;
 		}
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
@@ -116,6 +119,9 @@ public class XFormInstaller extends CacheInstaller {
 			//things are fine
 			return false;
 		}
+		int missingVideoCount = 0;
+		int missingImageCount = 0;
+		int missingAudioCount = 0;
 		for(String locale : localizer.getAvailableLocales()) {
 			OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
 			for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
@@ -132,10 +138,13 @@ public class XFormInstaller extends CacheInstaller {
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + localName));
+									sizeBoundProblems.addElement(new UnresolvedResourceException(r,localName));
+									if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
+									if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
+									if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){sizeBoundProblems.addBadImageReference();}
 								}
 							} catch (IOException e) {
-								problems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+								sizeBoundProblems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
 							}
 						} catch (InvalidReferenceException e) {
 							//So the problem is that this might be a valid entry that depends on context
@@ -145,7 +154,7 @@ public class XFormInstaller extends CacheInstaller {
 				}
 			}
 		}
-		if(problems.size() == 0 ) { return false;}
+		if(sizeBoundProblems.size() == 0 ) { return false;}
 		return true;
 	}
 }

@@ -245,6 +245,14 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				}
 			}
 			
+			protected void askForResponse(String message, YesNoListener yesNoListener, boolean yesNo, String left, String right) {
+				if(yesNo) {
+					interaction.AskYesNo(message,yesNoListener, left, right);
+				} else { 
+					interaction.PromptResponse(message, yesNoListener);
+				}
+			}
+			
 			protected void fail(Exception e) {
 				//Botched! For any number of reasons. However, let's be sure to roll back
 				//any changes, if they happened.

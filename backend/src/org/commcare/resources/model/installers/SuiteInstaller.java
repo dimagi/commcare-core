@@ -32,6 +32,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.PrefixTreeNode;
+import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -105,12 +106,14 @@ public class SuiteInstaller extends CacheInstaller {
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
 		
+		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
+		
 		//Check to see whether the formDef exists and reads correctly
 		Suite mSuite;
 		try {
 			mSuite = (Suite)storage().read(cacheLocation);
 		} catch(Exception e) {
-			problems.addElement(new UnresolvedResourceException(r, "Suite did not properly save into persistent storage"));
+			sizeBoundProblems.addElement(new UnresolvedResourceException(r, "Suite did not properly save into persistent storage"));
 			return true;
 		}
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
@@ -123,6 +126,9 @@ public class SuiteInstaller extends CacheInstaller {
 			Vector<Menu> menus = mSuite.getMenus();
 			Iterator e = menus.iterator();
 			
+			int missingAURI = 0;
+			int missingIURI= 0;
+			
 			while(e.hasNext()){
 				Menu mMenu = (Menu)e.next();
 
@@ -133,20 +139,25 @@ public class SuiteInstaller extends CacheInstaller {
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);
 					String aLocalName = aRef.getLocalURI();				
 					if(!aRef.doesBinaryExist()) {
-						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + aLocalName));
+						sizeBoundProblems.addElement(new UnresolvedResourceException(r,aLocalName));
+						sizeBoundProblems.addBadAudioReference();
+						missingAURI++;
 					}
 				}
 				if(iURI != null){
 					Reference iRef = ReferenceManager._().DeriveReference(iURI);
 					String iLocalName = iRef.getLocalURI();					
 					if(!iRef.doesBinaryExist()) {
-						problems.addElement(new UnresolvedResourceException(r,"Missing external media: " + iLocalName));
+						sizeBoundProblems.addElement(new UnresolvedResourceException(r,iLocalName));
+						sizeBoundProblems.addBadImageReference();
+						missingIURI++;
 					}
 				}
 			}
 		}
 		catch(Exception exc){
-			System.out.println("fail");
+			System.out.println("fail: " + exc.getMessage());
+			System.out.println("fail: " + exc.toString());
 		}
 		if(problems.size() == 0 ) { return false;}
 		return true;
