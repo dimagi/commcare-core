@@ -80,4 +80,8 @@ public class CommCareOTACredentialEntry extends Form {
 			fetch.setVisible(false);
 		}
 	}
+
+	public void setUsername(String sampleUsername) {
+		username.setText(sampleUsername);
+	}
 }

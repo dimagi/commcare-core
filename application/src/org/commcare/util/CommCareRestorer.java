@@ -175,9 +175,8 @@ public class CommCareRestorer implements Runnable {
 					}
 					return;
 				} catch(IOException e) {
-					listener.getCredentials();
 					listener.statusUpdate(CommCareOTARestoreListener.RESTORE_BAD_DOWNLOAD);
-					listener.onFailure(Localization.get("restore.fail.other", new String[] {WrappedException.printException(e)}));
+					listener.promptRetry(Localization.get("restore.fail.transport", new String[] {WrappedException.printException(e)}));
 					return;
 				}
 			} else {

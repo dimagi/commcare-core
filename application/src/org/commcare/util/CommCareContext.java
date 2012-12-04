@@ -100,7 +100,7 @@ public class CommCareContext {
 	private static CommCareContext i;
 	
 	private MIDlet midlet;
-	private User user;
+	private String loggedInUserID;
 	
 	private CommCarePlatform manager;
 	
@@ -535,12 +535,16 @@ public class CommCareContext {
 	}
 
 	public void setUser (User u, HttpCredentialProvider userCredentials) {
-		this.user = u;
+		this.loggedInUserID = u.getUniqueId();
 		this.userCredentials = userCredentials;
 	}
 	
 	public User getUser () {
-		return user;
+		if(loggedInUserID != null) {
+			return (User)((IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY)).getRecordForValue(User.META_UID, loggedInUserID);
+		} else {
+			return null;
+		}
 	}
 	
 	public HttpCredentialProvider getCurrentUserCredentials() {

@@ -58,7 +58,7 @@ public abstract class ServerSyncState implements State {
 		}
 		
 		HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(currentUserCredentials));
-		pull = new CommCareOTARestoreState (syncToken, auth) {
+		pull = new CommCareOTARestoreState (syncToken, auth, u.getUsername()) {
 			public void cancel() {
 				//when your credentials have changed, the ota restore credentials screen will pop up, so we
 				//do need to support canceling here.

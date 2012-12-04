@@ -56,21 +56,24 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	
 	HttpAuthenticator authenticator;
 	boolean errorsOccurred;
+	boolean senseMode;
 	String syncToken;
 	String originalRestoreURI;
 	String logSubmitURI;
 	String stateHash;
+	
+	boolean isUpdatingUser = false;
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
 		this(transitions, restoreURI, null);
 	}
 	
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
-		this(transitions, restoreURI, authenticator, false, false, null, null);
+		this(transitions, restoreURI, authenticator, false, false, null, null, false, null);
 	}
 				
 	public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
-			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI) {
+			HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI, boolean senseMode, String sampleUsername) {
 
 		view = new CommCareOTARestoreView(Localization.get("intro.restore"));
 		view.setCommandListener(this);
@@ -90,7 +93,11 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 		this.noPartial = noPartial;
 		this.syncToken = syncToken;
 		this.logSubmitURI = logSubmitURI;
+		this.senseMode = senseMode;
 		
+		if(sampleUsername != null) {
+			entry.setUsername(sampleUsername);
+		}
 	}
 	
 	public void start() {
@@ -114,12 +121,16 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 			entry.setInteractive(false);
 			fView.setInteractive(false);
 			mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
+			
+			if(isSync) {
+				isUpdatingUser = true;
+			}
+			
 			//tryDownload(getClientMessage());
 		} else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
 			transitions.cancel();
 		} else if(c.equals(view.FINISHED)) {
-			PeriodicEvent.markTriggered(new AutoSyncEvent());
-			transitions.done(errorsOccurred);
+			markDoneAndExit();
 		}
 		else if(c.equals(CommCareOTAFailView.DOWNLOAD)){
 			entry.setInteractive(false);
@@ -174,9 +185,15 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 			Logger.log("restore", "fatal error: " + msg);
 		}
 		if (this.isSync) {
-			done();
+			setFailView(msg);
 			errorsOccurred = true;
+			markDoneAndExit();
 		}
+	}
+	
+	private void markDoneAndExit() {
+		PeriodicEvent.markTriggered(new AutoSyncEvent());
+		transitions.done(errorsOccurred);
 	}
 	
 	private void fail(String message, Exception e, String logmsg) {
@@ -326,12 +343,24 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	
 	public void promptRetry(String msg){
 		entry.setInteractive(true);
-		fView.setInteractive(true);
-		setFailView(msg);
+		if(isSync && !isUpdatingUser) {
+			if(senseMode) {
+				doneFail(msg);
+			} else {
+				setFailView(msg);
+			}
+		} else {
+			entry.sendMessage(msg);
+			getCredentials();
+		}
 	}
 
 	public void onSuccess() {
 		view.setFinished();
-		view.addToMessage(Localization.get("restore.key.continue"));
+		if(!isSync) {
+			view.addToMessage(Localization.get("restore.key.continue"));
+		} else {
+			markDoneAndExit();
+		}
 	}
 }
