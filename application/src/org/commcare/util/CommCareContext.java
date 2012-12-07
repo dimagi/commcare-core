@@ -540,10 +540,10 @@ public class CommCareContext {
 	}
 	
 	public User getUser () {
-		if(loggedInUserID != null) {
-			return (User)((IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY)).getRecordForValue(User.META_UID, loggedInUserID);
-		} else if(loggedInUserID == User.DEMO_USER){
+		if(User.DEMO_USER.equals(loggedInUserID)) {
 			return User.FactoryDemoUser();
+		} else if(loggedInUserID != null) {
+			return (User)((IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY)).getRecordForValue(User.META_UID, loggedInUserID);
 		} else {
 			return null;
 		}
