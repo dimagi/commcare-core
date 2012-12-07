@@ -542,6 +542,8 @@ public class CommCareContext {
 	public User getUser () {
 		if(loggedInUserID != null) {
 			return (User)((IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY)).getRecordForValue(User.META_UID, loggedInUserID);
+		} else if(loggedInUserID == User.DEMO_USER){
+			return User.FactoryDemoUser();
 		} else {
 			return null;
 		}
