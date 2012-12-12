@@ -12,7 +12,7 @@ def submit_build(environ, host):
     target_url= host + "/builds/post/"
 
     command =  (
-        'curl -v '
+        'curl -3 -v '
         '-H "Expect:" '
         '-F "artifacts=@{artifacts}" '
         '-F "username={username}" '
