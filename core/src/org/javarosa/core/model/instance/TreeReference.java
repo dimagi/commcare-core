@@ -396,6 +396,9 @@ public class TreeReference implements Externalizable {
 					int multA = this.getMultiplicity(i);
 					int multB = ref.getMultiplicity(i);
 					
+					Vector<XPathExpression> predA = this.getPredicate(i);
+					Vector<XPathExpression> predB = ref.getPredicate(i);
+					
 					if (!nameA.equals(nameB)) {
 						return false;
 					} else if (multA != multB) {
@@ -404,6 +407,15 @@ public class TreeReference implements Externalizable {
 						} else {
 							return false;
 						}
+					} else if(predA != null && predB != null) {
+						if(predA.size() != predB.size()) { return false;}
+						for(int j = 0 ; j < predA.size() ; ++j) {
+							if(!predA.elementAt(j).equals(predB.elementAt(j))) {
+								return false;
+							}
+						}
+					} else if((predA == null && predB != null) || (predA != null && predB == null)){
+						return false;
 					}
 				}
 				return true;
