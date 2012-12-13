@@ -35,6 +35,7 @@ import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.SortedIntSet;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 
@@ -175,20 +176,28 @@ public class J2MELogger implements ILogger {
 	public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
 		if(storageBroken) { return; };
 		
-		int count = 0;
 		
-		IStorageIterator li;
-		
+		Vector<Integer> logIds = new Vector<Integer>();
+		Object lock = logStorage.getAccessLock();
 		//This should capture its own internal state when it starts to iterate.
-		synchronized(logStorage) {
-			li = logStorage.iterate();
+		synchronized(lock) {
+			int count = 0;
+			IStorageIterator li = logStorage.iterate();
+			while(li.hasMore() && count < limit) {
+				int id = li.nextID();
+				logIds.addElement(DataUtil.integer(id));
+				count++;
+			}
 		}
 		
-		while(li.hasMore() && count < limit) {
-			int id = li.peekID();
-			LogEntry log = (LogEntry)li.nextRecord();
-			serializer.serializeLog(id, log);
-			count++;
+		System.out.println("Captured: " + logIds.size() + " records for serialization");
+		
+		for(Integer logId :logIds) {
+			LogEntry log = (LogEntry)logStorage.read(logId.intValue());
+			//In theeeeooorry, the logs could have been modified. It's really not likely.
+			if(log != null) {
+				serializer.serializeLog(logId.intValue(), log);
+			}
 		}
 		
 		serializer.setPurger(new StreamLogSerializer.Purger () {

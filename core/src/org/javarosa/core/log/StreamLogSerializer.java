@@ -36,6 +36,9 @@ public abstract class StreamLogSerializer {
 	}
 
 	public void purge() {
-		this.purger.purge(logIDs);
+		//The purger is optional, not mandatory.
+		if(purger != null) {
+			this.purger.purge(logIDs);
+		}
 	}
 }
