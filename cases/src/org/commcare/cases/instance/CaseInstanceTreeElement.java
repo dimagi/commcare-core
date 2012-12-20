@@ -156,7 +156,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		return cases.elementAt(i);
 	}
 	
-	private void getCases() {
+	private synchronized void getCases() {
 		if(cases != null) {
 			return;
 		}
@@ -425,9 +425,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		
 		TreeReference base = this.getRef();
 		
-		if(caseIdMapping == null) {
-			this.getCases();
-		}
+		this.getCases();
 		
 		Vector<TreeReference> filtered = new Vector<TreeReference>();
 		for(Integer i : selectedCases) {
