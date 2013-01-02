@@ -92,15 +92,18 @@ public class Menu implements Externalizable {
 		return commandIds;
 	}
 	
-	public XPathExpression getRelevantCondition(int index) {
+	public XPathExpression getRelevantCondition(int index) throws XPathSyntaxException {
 		//Don't cache this for now at all
-		try {
-			return commandExprsRaw[index] == null ? null : XPathParseTool.parseXPath(commandExprsRaw[index]);
-		} catch (XPathSyntaxException e) {
-			//this shouldn't be possible since we parsed this at compile time 
-			e.printStackTrace();
-			throw new RuntimeException("Invalid XPath while parsing relevancy (again): " + e.getMessage());
-		}
+		return commandExprsRaw[index] == null ? null : XPathParseTool.parseXPath(commandExprsRaw[index]);
+	}
+	
+	/**
+	 * @param index the 
+	 * @return the raw xpath string for a relevant condition (if available). Largely for
+	 * displaying to the user in the event of a failure
+	 */
+	public String getRelevantConditionRaw(int index) {
+		return commandExprsRaw[index];
 	}
 
 	/* (non-Javadoc)

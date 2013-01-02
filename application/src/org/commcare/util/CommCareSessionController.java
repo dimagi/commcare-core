@@ -34,6 +34,7 @@ import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -77,33 +78,38 @@ public class CommCareSessionController {
 			for(Menu m : suite.getMenus()) {
 				if(menu.equals(m.getId())){
 					for(int i = 0; i < m.getCommandIds().size(); ++i) {
-						String id = m.getCommandIds().elementAt(i);
-						XPathExpression relevant = m.getRelevantCondition(i);
-						if(relevant != null) {
-							EvaluationContext ec  = session.getEvaluationContext(getIif());
-							if(XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
-								continue;
+						try {
+							String id = m.getCommandIds().elementAt(i);
+							XPathExpression relevant = m.getRelevantCondition(i);
+							if(relevant != null) {
+								EvaluationContext ec  = session.getEvaluationContext(getIif());
+								if(XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
+									continue;
+								}
 							}
+							Entry e = suite.getEntries().get(id);
+	    					if(e.getXFormNamespace() == null) {
+	    						//If this is a "view", not an "entry"
+	    						//we only want to display it if all of its 
+	    						//datums are not already present
+	    						if(session.getNeededDatum(e) == null) {
+	    							continue;
+	    						}
+	    					}
+							
+							int location = list.size();
+							list.append(CommCareUtil.getEntryText(e,suite,location), ImageUtils.getImage(e.getImageURI()));
+							//TODO: All these multiple checks are pretty sloppy
+							if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
+								listener.registerAudioTrigger(location, e.getAudioURI());
+							}
+							suiteTable.put(new Integer(location),suite);
+							entryTable.put(new Integer(location),e);
+						} catch(XPathSyntaxException xpse) {
+							throw new RuntimeException(xpse.getMessage());
 						}
-						Entry e = suite.getEntries().get(id);
-    					if(e.getXFormNamespace() == null) {
-    						//If this is a "view", not an "entry"
-    						//we only want to display it if all of its 
-    						//datums are not already present
-    						if(session.getNeededDatum(e) == null) {
-    							continue;
-    						}
-    					}
-						
-						int location = list.size();
-						list.append(CommCareUtil.getEntryText(e,suite,location), ImageUtils.getImage(e.getImageURI()));
-						//TODO: All these multiple checks are pretty sloppy
-						if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
-							listener.registerAudioTrigger(location, e.getAudioURI());
-						}
-						suiteTable.put(new Integer(location),suite);
-						entryTable.put(new Integer(location),e);
-					}
+					}					
+					
 				}
 				else if(m.getRoot().equals(menu)) {
 					int location = list.append(m.getName().evaluate(),  ImageUtils.getImage(m.getImageURI()));

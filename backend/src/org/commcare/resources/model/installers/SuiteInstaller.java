@@ -85,9 +85,7 @@ public class SuiteInstaller extends CacheInstaller {
 				//so it can be uninstalled appropriately.
 				return true;
 			} catch (InvalidStructureException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
+				throw new UnresolvedResourceException(r, e.getMessage(), true);
 			} catch (StorageFullException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
