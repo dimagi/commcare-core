@@ -1227,11 +1227,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		
 		outputFragments = (Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 		
-		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class));
+		submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class), pf);
 		
-		formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()));
+		formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
 		
-		eventListeners = (Hashtable<String, Vector<Action>>)ExtUtil.read(dis,  new ExtWrapMap(String.class, new ExtWrapListPoly()));
+		eventListeners = (Hashtable<String, Vector<Action>>)ExtUtil.read(dis,  new ExtWrapMap(String.class, new ExtWrapListPoly()), pf);
 		
 		extensions = (Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 		
