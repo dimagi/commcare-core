@@ -40,6 +40,18 @@ public class XPathNodeset {
 	}
 	
 	/**
+	 * for lazy evaluation
+	 * 
+	 * @param instance
+	 * @param ec
+	 */
+	protected XPathNodeset (DataInstance instance, EvaluationContext ec) {
+		this.instance = instance;
+		this.ec = ec;
+	}
+
+	
+	/**
 	 * Construct an XPath nodeset.
 	 * 
 	 * @param nodes
@@ -119,11 +131,11 @@ public class XPathNodeset {
 		return nodes.elementAt(i);
 	}
 	
-	private Object getValAt (int i) {
+	protected Object getValAt (int i) {
 		return XPathPathExpr.getRefValue(instance, ec, getRefAt(i));
 	}
 	
-	private XPathTypeMismatchException getInvalidNodesetException() {
+	protected XPathTypeMismatchException getInvalidNodesetException() {
 		if(!pathEvaluated.equals(originalPath)) {
 			throw new XPathTypeMismatchException("The path " + originalPath + " refers to the location " + pathEvaluated + " which was not found");
 		} else {
@@ -131,7 +143,7 @@ public class XPathNodeset {
 		}
 	}
 	
-	private String nodeContents () {
+	protected String nodeContents () {
 		if(nodes == null) { 
 			return "Invalid Path: " + pathEvaluated;
 		}
