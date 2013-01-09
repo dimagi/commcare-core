@@ -409,9 +409,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 							if(selectedCases == null) {
 								selectedCases = cases;
 							} else {
-								System.out.println("About to Union");
-								selectedCases = DataUtil.union(selectedCases, cases);
-								System.out.println("Unioned");
+								selectedCases = union(selectedCases, cases);
 							}
 							
 							//Note that this predicate is evaluated and doesn't need to be evaluated in the future.
@@ -438,6 +436,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		
 		this.getCases();
 		
+
 		Vector<TreeReference> filtered = new Vector<TreeReference>();
 		for(Integer i : selectedCases) {
 			//this takes _waaaaay_ too long, we need to refactor this
@@ -446,8 +445,13 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 			ref.add("case", realIndex);
 			filtered.addElement(ref);
 		}
+
 		
 		return filtered;
+	}
+
+	protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
+		return DataUtil.union(selectedCases, cases);
 	}
 
 	public String getNamespace() {
