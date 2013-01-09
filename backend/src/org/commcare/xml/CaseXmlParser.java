@@ -69,10 +69,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		boolean create = false;
 		boolean update = false;
 		boolean close = false;
+		Case caseForBlock = null;
 		
 		//Now look for actions
 		while(this.nextTagInBlock("case")) {
-			
 			String action = parser.getName().toLowerCase();
 			
 			if(action.equals("create")) {
@@ -94,82 +94,84 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				if(data[0] == null || data[2] == null) {
 					throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
 				}
-				
-				Case c = null;
 				boolean overriden = false;
 				//CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
 				if(acceptCreateOverwrites) {
 					//If it exists, try to retrieve it
-					c = retrieve(caseId);
+					caseForBlock = retrieve(caseId);
 					
 					//If we found one, override the existing data
-					if(c != null) {
-						c.setName(data[2]);
-						c.setTypeId(data[0]);
+					if(caseForBlock != null) {
+						caseForBlock.setName(data[2]);
+						caseForBlock.setTypeId(data[0]);
 						overriden = true;
 					}
 				} 
 				
-				if(c == null) {
+				if(caseForBlock == null) {
 					//The case is either not present on the phone, or we're on strict tolerance
-					c = CreateCase(data[2], data[0]);
-					c.setCaseId(caseId);
-					c.setDateOpened(modified);
+					caseForBlock = CreateCase(data[2], data[0]);
+					caseForBlock.setCaseId(caseId);
+					caseForBlock.setDateOpened(modified);
 				}
 				
 				if(data[1] != null) {
-					c.setUserId(data[1]);
+					caseForBlock.setUserId(data[1]);
 				}
-				commit(c);
-				if(!overriden) {
-					create = true;
-				}
+				create = true;
 				String succesfulAction = overriden ? "case-recreate" : "case-create";
-				Logger.log(succesfulAction, c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
+				//Logger.log(succesfulAction, c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
 				
 			} else if(action.equals("update")) {
-				Case c = retrieve(caseId);
-				if(c == null) {
+				if(caseForBlock == null) {
+					caseForBlock = retrieve(caseId);
+				}
+				if(caseForBlock == null) {
 					throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
 				}
 				while(this.nextTagInBlock("update")) {
 					String key = parser.getName();
 					String value = parser.nextText().trim();
 					if(key.equals("case_type")) {
-						c.setTypeId(value);
+						caseForBlock.setTypeId(value);
 					} else if(key.equals("case_name")) {
-						c.setName(value);
+						caseForBlock.setName(value);
 					} else if(key.equals("date_opened")) {
-						c.setDateOpened(DateUtils.parseDate(value));
+						caseForBlock.setDateOpened(DateUtils.parseDate(value));
 					} else if(key.equals("owner_id")) {
-						c.setUserId(value);
+						caseForBlock.setUserId(value);
 					} else{
-						c.setProperty(key,value);
+						caseForBlock.setProperty(key,value);
 					}
 				}
-				commit(c);
 				update = true;
 			} else if(action.equals("close")) {
-				Case c = retrieve(caseId);
-				if(c == null) {
+				if(caseForBlock == null) {
+					caseForBlock = retrieve(caseId);
+				}
+				if(caseForBlock == null) {
 					throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
 				}
-				c.setClosed(true);
-				commit(c);
-				Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
+				caseForBlock.setClosed(true);
+				commit(caseForBlock);
+				//Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
 				close = true;
 			} else if(action.equals("index")) {
-				Case c = retrieve(caseId);
+				if(caseForBlock == null) {
+					caseForBlock = retrieve(caseId);
+				}
 				while(this.nextTagInBlock("index")) {
 					String indexName = parser.getName();
 					String caseType = parser.getAttributeValue(null, "case_type");
 					String value = parser.nextText().trim();
 					
-					c.setIndex(indexName, caseType, value);
+					caseForBlock.setIndex(indexName, caseType, value);
 				}
-				commit(c);
 			}
 		}
+		
+		//Now that we've gotten any relevant transactions, commit this case 
+		commit(caseForBlock);
 		
 		if (create) {
 			tallies[0]++;

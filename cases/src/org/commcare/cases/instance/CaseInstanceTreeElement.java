@@ -66,8 +66,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	
 	public void rebase(AbstractTreeElement instanceRoot) {
 		this.instanceRoot = instanceRoot;
+		expireCachedRef();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
 	 */
@@ -284,11 +285,19 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1: -1);
 	}
 	
+	TreeReference cachedRef = null;
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
 	 */
 	public TreeReference getRef() {
-		return TreeElement.BuildRef(this);
+		if(cachedRef ==null) {
+			cachedRef = TreeElement.BuildRef(this);
+		}
+		return cachedRef;
+	}
+	
+	private void expireCachedRef() {
+		cachedRef = null;
 	}
 
 	/* (non-Javadoc)
@@ -400,7 +409,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 							if(selectedCases == null) {
 								selectedCases = cases;
 							} else {
+								System.out.println("About to Union");
 								selectedCases = DataUtil.union(selectedCases, cases);
+								System.out.println("Unioned");
 							}
 							
 							//Note that this predicate is evaluated and doesn't need to be evaluated in the future.
