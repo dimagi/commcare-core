@@ -44,6 +44,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -218,17 +219,26 @@ public class XPathPathExpr extends XPathExpression {
 			return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
 		}
 		
-		Vector<TreeReference> nodesetRefs = ec.expandReference(ref);
+		return new XPathLazyNodeset(ref, m, ec);
 		
-		//to fix conditions based on non-relevant data, filter the nodeset by relevancy
-		for (int i = 0; i < nodesetRefs.size(); i++) {
-			if (!m.resolveReference((TreeReference)nodesetRefs.elementAt(i)).isRelevant()) {
-				nodesetRefs.removeElementAt(i);
-				i--;
-			}
-		}
-		
-		return new XPathNodeset(nodesetRefs, m, ec);
+//		Vector<TreeReference> nodesetRefs;
+//		if(!ec.terminal) {
+//			nodesetRefs = ec.expandReference(ref);
+//		} else {
+//			nodesetRefs = new Vector();
+//			ref.setMultiplicity(ref.size() - 1, 0);
+//			nodesetRefs.addElement(ref);
+//		}
+//		
+//		//to fix conditions based on non-relevant data, filter the nodeset by relevancy
+//		for (int i = 0; i < nodesetRefs.size(); i++) {
+//			if (!m.resolveReference((TreeReference)nodesetRefs.elementAt(i)).isRelevant()) {
+//				nodesetRefs.removeElementAt(i);
+//				i--;
+//			}
+//		}
+//		
+//		return new XPathNodeset(nodesetRefs, m, ec);
 	}
 
 //	
