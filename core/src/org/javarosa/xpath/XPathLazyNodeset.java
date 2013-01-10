@@ -50,7 +50,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 			if(evaluated.booleanValue()) {
 				return;
 			}
-			nodes = ec.expandReference(unExpandedRef);
+			Vector<TreeReference> nodes = ec.expandReference(unExpandedRef);
 			
 			//to fix conditions based on non-relevant data, filter the nodeset by relevancy
 			for (int i = 0; i < nodes.size(); i++) {
@@ -59,9 +59,11 @@ public class XPathLazyNodeset extends XPathNodeset {
 					i--;
 				}
 			}
+			this.setReferences(nodes);
 			evaluated = true;
 		}
 	}
+	
 
 	/**
 	 * @return The value represented by this xpath. Can only be evaluated when this xpath represents exactly one
@@ -99,14 +101,26 @@ public class XPathLazyNodeset extends XPathNodeset {
 			
 			//TOOD: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
 			//the same way, although invalid multiplicities should be fine.
-			
-			return XPathPathExpr.getRefValue(instance, ec, unExpandedRef);
+			try {
+				//TODO: This doesn't handle templated nodes (repeats which may exist in the future)
+				//figure out if we can roll that in easily. For now the catch handles it
+				return XPathPathExpr.getRefValue(instance, ec, unExpandedRef);
+			} catch(XPathException xpe) {
+				//This isn't really a best effort attempt, so if we can, see if evaluating cleany works.
+				performEvaluation();
+				return super.unpack();
+			}
 		}
 	}
 
 	public Object[] toArgList () {
 		performEvaluation();
 		return super.toArgList();
+	}
+	
+	protected Vector<TreeReference> getReferences() {
+		performEvaluation();
+		return super.getReferences();
 	}
 	
 	public int size () {

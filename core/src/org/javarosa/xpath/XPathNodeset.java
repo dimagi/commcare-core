@@ -29,9 +29,9 @@ import org.javarosa.xpath.expr.XPathPathExpr;
  */
 public class XPathNodeset {
 
-	Vector<TreeReference> nodes;
-	DataInstance instance;
-	EvaluationContext ec;
+	private Vector<TreeReference> nodes;
+	protected DataInstance instance;
+	protected EvaluationContext ec;
 	private String pathEvaluated;
 	private String originalPath;
 	
@@ -73,6 +73,14 @@ public class XPathNodeset {
 		nodeset.pathEvaluated = pathEvaluated;
 		nodeset.originalPath = originalPath;
 		return nodeset;
+	}
+	
+	protected void setReferences(Vector<TreeReference> nodes) {
+		this.nodes = nodes;
+	}
+	
+	protected Vector<TreeReference> getReferences() {
+		return this.nodes;
 	}
 	
 

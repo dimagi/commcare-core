@@ -30,7 +30,7 @@ public class PrototypeFactory {
 	
 	//lazy evaluation
 	private PrefixTree classNames;
-	private boolean initialized;
+	protected boolean initialized;
 	
 	public PrototypeFactory () {
 		this(null);
@@ -41,7 +41,7 @@ public class PrototypeFactory {
 		initialized = false;
 	}		
 		
-	private void lazyInit () {
+	protected void lazyInit () {
 		initialized = true;
 		
 		classes = new Vector();
