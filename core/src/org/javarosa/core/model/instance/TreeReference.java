@@ -441,6 +441,16 @@ public class TreeReference implements Externalizable {
 			
 			hash ^= getName(i).hashCode();
 			hash ^= mult.hashCode();
+			Vector<XPathExpression> predicates = this.getPredicate(i);
+			if(predicates == null) {
+				continue;
+			}
+			int val = 0;
+			for(XPathExpression xpe : predicates) {
+				hash ^= val; 
+				hash ^= xpe.hashCode();
+				++val;
+			}
 		}
 		return hash;
 	}
@@ -592,5 +602,22 @@ public class TreeReference implements Externalizable {
 			ret.data.addElement(this.data.elementAt(i));
 		}
 		return ret;
+	}
+
+	public boolean hasPredicates() {
+		for(TreeReferenceLevel level : data) {
+			if(level.getPredicates() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public TreeReference removePredicates() {
+		TreeReference predicateless = clone();
+		for(int i = 0; i < predicateless.data.size(); ++i) {
+			predicateless.data.set(i, predicateless.data.get(i).setPredicates(null));
+		}
+		return predicateless;
 	}
 }

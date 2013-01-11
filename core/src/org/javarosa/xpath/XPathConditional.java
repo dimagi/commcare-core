@@ -98,6 +98,11 @@ public class XPathConditional implements IConditionExpr {
 			if(contextRef != null) { 
 				contextualized = ref.contextualize(contextRef);
 			}
+			
+			//TODO: It's possible we should just handle this the same way as "genericize". Not entirely clear.
+			if(contextualized.hasPredicates()) {
+				contextualized = contextualized.removePredicates();
+			}
 			if (!v.contains(contextualized)) { 
 				v.addElement(contextualized);
 			} 

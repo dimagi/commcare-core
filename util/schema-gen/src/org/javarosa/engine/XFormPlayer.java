@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 
@@ -18,6 +19,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.ActionResponse;
 import org.javarosa.engine.models.Command;
@@ -187,9 +189,22 @@ public class XFormPlayer {
 		} else if("finish".equalsIgnoreCase(command) && fec.getModel().getEvent() == FormEntryController.EVENT_END_OF_FORM) {
 			out.println("Quitting!");
 			return true;
+		} else if("print".equalsIgnoreCase(command)){
+			printInstance(out, fec.getModel().getForm().getInstance());
+			return false;
 		} else {
 			badInput(command, "Invalid Command " + command);
 			return false;
+		}
+	}
+	
+	public static void printInstance(PrintStream out, FormInstance instance) {
+		XFormSerializingVisitor visitor = new XFormSerializingVisitor();
+		try {
+			byte[] data = visitor.serializeInstance(instance);
+			out.println(new String(data));
+		} catch (IOException e) {
+			out.println("Error Serializing XForm Data! " + e.getMessage());
 		}
 	}
 	
