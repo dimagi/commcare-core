@@ -65,6 +65,7 @@ public class DateData implements IAnswerData {
 			throw new NullPointerException("Attempt to set an IAnswerData class to null.");
 		}
 		d = (Date)o;
+		init = false;
 	}
 	
 	public Object getValue () {
