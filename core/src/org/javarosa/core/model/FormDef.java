@@ -682,7 +682,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 				for(TreeReference ref : updatedNodes) {
 					//Check our index to see if that target is a Trigger for other conditions
 					//IE: if they are an element of a different calculation or relevancy calc
-					Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref);
+					
+					//We can't make this reference generic before now or we'll lose the target information,
+					//so we'll be more inclusive than needed and see if any of our triggers are keyed on
+					//the predicate-less path of this ref
+					Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref.hasPredicates() ? ref.removePredicates() : ref);
 					
 					if (triggered != null) {
 						//If so, walk all of these triggerables that we found

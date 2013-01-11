@@ -240,4 +240,8 @@ public abstract class XPathExpression implements Externalizable {
 
 		indent -= 1;
 	}
+	
+	public int hashCode () {
+		return this.toString().hashCode();
+	}
 }
