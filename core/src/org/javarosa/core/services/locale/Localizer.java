@@ -519,8 +519,10 @@ public class Localizer implements Externalizable {
 		String text = getRawText(locale, textID);
 		if (text == null && fallbackDefaultForm && textID.indexOf(";") != -1)
 			text = getRawText(locale, textID.substring(0, textID.indexOf(";")));
-		if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null)
-			text = getText(textID, defaultLocale);
+		
+		//This is no longer needed, since we looad the default locale in from the start  
+//		if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null)
+//			text = getText(textID, defaultLocale);
 		return text;
 	}
 		
