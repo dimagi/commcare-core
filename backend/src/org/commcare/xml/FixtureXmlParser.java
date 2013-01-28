@@ -29,16 +29,17 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
-	IStorageUtilityIndexed storage;
+	IStorageUtilityIndexed<FormInstance> storage;
 	boolean overwrite = true;
 	
 	public FixtureXmlParser(KXmlParser parser) {
-		this(parser, true);
+		this(parser, true, null);
 	}
 	
-	public FixtureXmlParser(KXmlParser parser, boolean overwrite) {
+	public FixtureXmlParser(KXmlParser parser, boolean overwrite, IStorageUtilityIndexed<FormInstance> storage) {
 		super(parser, "fixture", null);
 		this.overwrite = overwrite;
+		this.storage = storage;
 	}
 
 	public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
@@ -100,10 +101,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 		}
 	}
 
-	public IStorageUtilityIndexed storage() {
-		if(storage == null) {
-			storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
-		} 
+	public IStorageUtilityIndexed<FormInstance> storage() {
 		return storage;
 	}
 }

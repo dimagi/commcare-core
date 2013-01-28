@@ -16,7 +16,10 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.services.storage.StorageManager;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -93,7 +96,7 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	menus.addElement(m);
                 } else if(parser.getName().toLowerCase().equals("fixture")) {
                 	//this one automatically commits the fixture to the global memory
-                	new FixtureXmlParser(parser, false).parse();
+                	new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
                 }  else {
                 	System.out.println("Unrecognized Tag: " + parser.getName());
                 }
@@ -120,9 +123,14 @@ public class SuiteParser extends ElementParser<Suite>  {
 			throw new InvalidStructureException("Problem storing parser suite XML",parser);
 		}
 	}
+
 	int maximumResourceAuthority = -1;
 	public void setMaximumAuthority(int authority) {
 		maximumResourceAuthority = authority;
+	}
+	
+	protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
+		return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage("fixture");
 	}
 
 }
