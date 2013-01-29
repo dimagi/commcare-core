@@ -63,7 +63,7 @@ public class Localization {
 	 */
 	private static void init() {
 		if(globalLocalizer == null) {
-			globalLocalizer = new Localizer(true,true);
+			globalLocalizer = new Localizer(true,false);
 		}
 	}
 	/**
