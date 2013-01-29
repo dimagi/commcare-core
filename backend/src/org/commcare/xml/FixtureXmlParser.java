@@ -102,6 +102,12 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 	}
 
 	public IStorageUtilityIndexed<FormInstance> storage() {
+		//...ok... So. This is _not good_. It's badly written and redundant in a lot of ways.
+		//the issue is that there are about 4 ways to set/override how this gets here
+		//TODO: Fix this
+		if(storage == null) {
+			storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+		}
 		return storage;
 	}
 }
