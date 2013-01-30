@@ -300,7 +300,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				view.addToMessage(Localization.get("restore.downloaded"));
 				break;
 			case CommCareOTARestoreListener.RESTORE_NEED_CACHE:
-				view.setMessage(Localization.get("restore.recover.needcache"));
+				setFailView(Localization.get("restore.recover.needcache"));
 				break;
 			case CommCareOTARestoreListener.RESTORE_START:
 				view.addToMessage(Localization.get("restore.starting"));
