@@ -274,6 +274,7 @@ public class CommCareRestorer implements Runnable {
 			beginTransaction();
 			CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
 			DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
+			parser.requireRootEnvelopeType("OpenRosaResponse");
 			success = parser.parse();
 			System.out.println(success?"parse successful!":"parse not successful :(");
 			restoreID = factory.getRestoreId();

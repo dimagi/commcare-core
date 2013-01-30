@@ -8,6 +8,7 @@ import java.io.InputStream;
 
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.services.Logger;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -53,7 +54,8 @@ public abstract class ElementParser<T> {
 			
 		} catch (XmlPullParserException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception("Element Parser", e);
+			throw new IOException(e.getMessage());
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e.getMessage());
 		}

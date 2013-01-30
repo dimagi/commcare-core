@@ -34,6 +34,8 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 	
 	InputStream is;
 	
+	String requiredRootEnvelope = null;
+	
 	CommCareOTARestoreListener rListener;
 	
 	public DataModelPullParser(InputStream is, TransactionParserFactory factory) throws InvalidStructureException, IOException {
@@ -66,6 +68,10 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 		try {
 
 			String rootName = parser.getName();
+			
+			if(requiredRootEnvelope != null && !requiredRootEnvelope.equals(rootName)) {
+				throw new InvalidStructureException("Invalid xml evelope: \"" + rootName + "\" when looking for \"" + requiredRootEnvelope + "\"", parser);
+			}
 			
 			String itemString = parser.getAttributeValue(null, "items");
 			
@@ -163,5 +169,9 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 	public boolean listenerSet(){
 		if(rListener==null){return false;}
 		return true;
+	}
+
+	public void requireRootEnvelopeType(String string) {
+		requiredRootEnvelope = string;
 	}
 }
