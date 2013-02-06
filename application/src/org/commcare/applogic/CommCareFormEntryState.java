@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import org.commcare.cases.util.CaseModelProcessor;
 import org.commcare.core.properties.CommCareProperties;
-import org.commcare.services.AutomatedSenderService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
@@ -22,6 +21,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
@@ -34,6 +34,8 @@ import org.javarosa.formmanager.utility.NamespaceRetrievalMethod;
 import org.javarosa.formmanager.view.IFormEntryView;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
+import org.javarosa.j2me.log.CrashHandler;
+import org.javarosa.j2me.util.CommCareHandledExceptionState;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.services.transport.SubmissionTransportHelper;
@@ -41,7 +43,9 @@ import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
+import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 //can't support editing saved forms; for new forms only
 public abstract class CommCareFormEntryState extends FormEntryState {
@@ -56,11 +60,29 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		
 	public CommCareFormEntryState (String title,String formName,
 			Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers, InstanceInitializationFactory iif) {
+		
 		this.title = title;
 		this.formName = formName;
 		this.preloaders = preloaders;
 		this.funcHandlers = funcHandlers;
 		this.iif = iif;
+		
+		CommCareHandledExceptionState cches = new CommCareHandledExceptionState() {
+
+			public boolean handlesException(Exception e) {
+				return ((e instanceof XPathMissingInstanceException) || (e instanceof XPathTypeMismatchException));
+			}
+			
+			public String getExplanationMessage(String e){
+				return Localization.get("xpath.fail.runtime", new String[] {e});
+			}
+
+			public void done() {
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+			}
+		};
+		
+		CrashHandler.setExceptionHandler(cches);
 	}
 	
 	protected JrFormEntryController getController() {
