@@ -235,10 +235,14 @@ public abstract class ElementParser<T> {
 			throw new InvalidStructureException("Expected attribute @" + attributeName + " in element <" +  parser.getName() + ">", parser);
 		}
 		try {
-			return DateUtils.parseDateTime(dateValue);
+			return parseDateTime(dateValue);
 		} catch(Exception e) {
 			throw new InvalidStructureException("Invalid date " + dateValue+ " in attribute @" + attributeName + " for element <" +  parser.getName() + ">", parser);
 		}
+	}
+	
+	protected Date parseDateTime(String dateValue) {
+		return DateUtils.parseDateTime(dateValue);
 	}
 
 	
