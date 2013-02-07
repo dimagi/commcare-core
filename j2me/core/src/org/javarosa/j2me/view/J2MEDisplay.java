@@ -57,7 +57,6 @@ public class J2MEDisplay {
 	}
 	
 	public static void startStateWithLoadingScreen(State state, ProgressIndicator indicator) {
-		System.out.println("Starting new state: " + state.getClass().getName());
 		final State s = state;
 		loading.cancelLoading();
 		loading = new LoadingScreenThread(display);

@@ -57,24 +57,16 @@ public class HandledThread extends Thread {
 	private static Runnable wrappedRunnable (final Runnable r) {
 		return new Runnable () {
 			public void run() {
-				try {
-					r.run();
-				} catch (Exception e) {
-					Logger.die("thread-r", e);
-				}
+				CrashHandler.executeWrappedRunnable(r);
 			}
 		};
 	}
 	
-	public final void run () {
-		if (withRunnable) {
+	public final void run(){
+		if(withRunnable) {
 			super.run();
-		} else {		
-			try {
-				_run();
-			} catch (Exception e) {
-				Logger.die("thread", e);
-			}
+		} else{
+			CrashHandler.executeHandledThread(this);
 		}
 	}
 	

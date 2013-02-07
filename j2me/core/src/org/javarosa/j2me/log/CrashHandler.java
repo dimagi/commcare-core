@@ -5,6 +5,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Item;
 
 import org.javarosa.core.services.Logger;
+import org.javarosa.j2me.util.CommCareHandledExceptionState;
+import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * This class provides exception-handling wrappers for the GUI event interfaces CommandListener,
@@ -18,6 +20,8 @@ import org.javarosa.core.services.Logger;
  */
 public class CrashHandler {
 	
+	private static CommCareHandledExceptionState cches;
+	
 	/**
 	 * other places exceptions need to be explicitly trapped
 	 * 
@@ -29,12 +33,12 @@ public class CrashHandler {
 	 * 3) anywhere the app code launches a Runnable (thread or timertask)
 	 * 
 	 */
-	
+
 	public static void commandAction(HandledCommandListener handler, Command c, Displayable d) {
 		try {
 			handler._commandAction(c, d);
 		} catch (Exception e) {
-			Logger.die("gui-cl", e);
+			tryCCHES("gui-cl", e);
 		}
 	}
 	
@@ -43,7 +47,7 @@ public class CrashHandler {
 		try {
 			handler._commandAction(c, d);
 		} catch (Exception e) {
-			Logger.die("gui-clp", e);
+			tryCCHES("gui-clp", e);
 		}
 	}
 	
@@ -51,7 +55,7 @@ public class CrashHandler {
 		try {
 			handler._commandAction(c, i);
 		} catch (Exception e) {
-			Logger.die("gui-icl", e);
+			tryCCHES("gui-icl", e);
 		}
 	}
 	
@@ -60,7 +64,7 @@ public class CrashHandler {
 		try {
 			handler._commandAction(c, i);
 		} catch (Exception e) {
-			Logger.die("gui-iclp", e);
+			tryCCHES("gui-iclp", e);
 		}
 	}
 	
@@ -68,7 +72,7 @@ public class CrashHandler {
 		try {
 			handler._itemStateChanged(i);
 		} catch (Exception e) {
-			Logger.die("gui-isl", e);
+			tryCCHES("gui-islp", e);
 		}
 	}
 	
@@ -76,8 +80,38 @@ public class CrashHandler {
 		try {
 			handler._itemStateChanged(i);
 		} catch (Exception e) {
-			Logger.die("gui-islp", e);
+			tryCCHES("gui-islp", e);
 		}
+	}
+	
+	public static void executeHandledThread(HandledThread thread){
+		try{
+			thread._run();
+		} catch(Exception e){
+			tryCCHES("gui-islt", e);
+		}
+	}
+	
+	public static void executeWrappedRunnable(Runnable r){
+		try{r.run();}
+		catch(Exception e){
+			tryCCHES("gui-isrw", e);
+		}
+	}
+	
+	public static void tryCCHES(String failString, Exception e){
+		if(cches == null){Logger.die(failString, e);}
+		if(cches.handlesException(e)){
+			cches.setErrorMessage(e.getMessage());
+			J2MEDisplay.startStateWithLoadingScreen(cches);
+		}
+		else{
+			Logger.die(failString, e);
+		}
+	}
+	
+	public static void setExceptionHandler(CommCareHandledExceptionState s){
+		cches = s;
 	}
 
 }
