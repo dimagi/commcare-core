@@ -1629,7 +1629,7 @@ public class XFormParser {
 				binding.constraint = new XPathConditional(xpathConstr);
 			} catch (XPathSyntaxException xse) {
 				//#if debug.output==verbose
-				System.err.println("Invalid XPath expression [" + xpathConstr + "]!" + getVagueLocation(e));
+				System.err.println("True Invalid XPath expression [" + xpathConstr + "]!" + getVagueLocation(e));
 				//#endif
 			}
 			binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
