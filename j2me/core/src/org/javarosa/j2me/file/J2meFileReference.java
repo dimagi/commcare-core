@@ -177,6 +177,7 @@ public class J2meFileReference implements Reference
 	}
 	
 	protected FileConnection connector(String uri, boolean cache) throws IOException {
+		try {
 		synchronized (connections) {
 			// We only want to allow one connection to a file at a time.
 			// Otherwise we can get into trouble when we want to remove it.
@@ -200,6 +201,10 @@ public class J2meFileReference implements Reference
 				}
 				return connection;
 			}
+		}
+		} catch(IllegalArgumentException iae) {
+			//Invalid filename, apparently.
+			throw new IOException("The filename " + uri + " is not valid on this device");
 		}
 	}
 	
