@@ -15,7 +15,15 @@ package org.commcare.resources.model;
  *
  */
 public class UnreliableSourceException extends UnresolvedResourceException {
+	private boolean shouldBreak=false;
 	public UnreliableSourceException(Resource r, String message) {
 		super(r, message);
+	}
+	public UnreliableSourceException(Resource r, String message, boolean shouldBreak){
+		super(r,message);
+		this.shouldBreak = shouldBreak;
+	}
+	public boolean shouldBreak(){
+		return shouldBreak;
 	}
 }

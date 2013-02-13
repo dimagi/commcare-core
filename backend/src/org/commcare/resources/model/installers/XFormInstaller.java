@@ -78,9 +78,12 @@ public class XFormInstaller extends CacheInstaller {
 		} catch (IOException e) {
 			throw new UnreliableSourceException(r, e.getMessage());
 		} catch(XFormParseException xpe ) {
-			xpe.printStackTrace();
-			return false;
-		} finally {
+			System.out.println("throwing unreliable source exception");
+			throw new UnreliableSourceException(r, xpe.getMessage(),true);
+			//xpe.printStackTrace();
+			//return false;
+		} 
+		finally {
 			try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
 		}
 	}

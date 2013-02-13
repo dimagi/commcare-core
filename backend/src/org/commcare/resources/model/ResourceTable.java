@@ -301,7 +301,10 @@ public class ResourceTable {
 								try {
 									handled = installResource(r, location, ref, this, instance, upgrade);
 								} catch(UnreliableSourceException use) {
+									System.out.println("in first catch");
 									theFailure = use;
+									handled=false;
+									if(use.shouldBreak()){break;}
 								}
 								if(handled) {
 									break;
@@ -318,7 +321,10 @@ public class ResourceTable {
 							ire.printStackTrace();
 							//Continue until no resources can be found.
 						} catch(UnreliableSourceException use) {
+							System.out.println("second caught unreliable source exception");
 							theFailure = use;
+							handled=false;
+							if(use.shouldBreak()){break;}
 						}
 					}
 				}
@@ -355,8 +361,10 @@ public class ResourceTable {
 			try {
 				return r.getInstaller().install(r, location, ref, table, instance, upgrade);
 			} catch(UnreliableSourceException use) {
+				System.out.println("in third catch");
 				aFailure = use;
 				Logger.log("install", "Potentially lossy install attempt # " + (i+1) + " of " + (numberOfLossyRetries+1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
+				if(use.shouldBreak()){break;}
 			}
 		}
 		if(aFailure != null) {
