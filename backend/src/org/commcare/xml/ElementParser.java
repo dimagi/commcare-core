@@ -5,9 +5,11 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -127,7 +129,7 @@ public abstract class ElementParser<T> {
         	
 			//eventType = parser.nextTag();
 		    eventType = parser.next();
-		    if(eventType == KXmlParser.TEXT && parser.isWhitespace()) {   // skip whitespace
+		    while(eventType == KXmlParser.TEXT && parser.isWhitespace()) {   // skip whitespace
 		         eventType = parser.next();
 		    }
 			
@@ -215,6 +217,34 @@ public abstract class ElementParser<T> {
 			throw new InvalidStructureException("Expected an integer value, found " + value + " instead",parser);
 		}
 	}
+	
+	/**
+	 * Takes a string which is either null or represents a date, and
+	 * returns a valid date, or null (if tolerated). If the incoming
+	 * value isn't a date, or is null (if not tolerated) an invalid
+	 * structure exception is thrown
+	 * 
+	 * @param value A string containing an date value
+	 * @return The date represented
+	 * @throws InvalidStructureException If the string does not contain 
+	 * a valid date.
+	 */
+	protected Date getDateAttribute(String attributeName, boolean nullOk) throws InvalidStructureException {
+		String dateValue = parser.getAttributeValue(null, attributeName);
+		if(dateValue == null && !nullOk) {
+			throw new InvalidStructureException("Expected attribute @" + attributeName + " in element <" +  parser.getName() + ">", parser);
+		}
+		try {
+			return parseDateTime(dateValue);
+		} catch(Exception e) {
+			throw new InvalidStructureException("Invalid date " + dateValue+ " in attribute @" + attributeName + " for element <" +  parser.getName() + ">", parser);
+		}
+	}
+	
+	protected Date parseDateTime(String dateValue) {
+		return DateUtils.parseDateTime(dateValue);
+	}
+
 	
 	/**
 	 * Parses the XML document at the current level, returning the datatype
