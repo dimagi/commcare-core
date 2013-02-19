@@ -48,7 +48,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
 	}
 	
 	private String validate() {
-		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating installation..."));
+		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 		SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
 		ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
 		global.verifyInstallation(problems);

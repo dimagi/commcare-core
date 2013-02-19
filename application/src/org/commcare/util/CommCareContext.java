@@ -160,7 +160,7 @@ public class CommCareContext {
 			int block = 0;
 			
 			private String validate() {
-				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating installation..."));
+				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
