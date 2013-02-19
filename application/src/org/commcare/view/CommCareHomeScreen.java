@@ -55,6 +55,7 @@ public class CommCareHomeScreen extends CommCareListView {
 	public Command adminLogin = new Command(Localization.get("home.change.user"), Command.ITEM, 1);
 	public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
 	public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
+	public Command admValidateMedia = new Command("Validate Media", Command.ITEM, 1);
 	
 	private int unsentFormNumberLimit = 10;
 	private int unsentFormTimeLimit = 3;
@@ -105,6 +106,7 @@ public class CommCareHomeScreen extends CommCareListView {
 			addCommand(admViewLogs);
 			addCommand(admGPRSTest);
 			addCommand(admPermTest);
+			addCommand(admValidateMedia);
 		}
 		if (CommCareSense.isAutoLoginEnabled() && !isAdmin) {
 			addCommand(adminLogin);

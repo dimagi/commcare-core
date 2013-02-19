@@ -38,7 +38,6 @@ public class ResourceTable {
 	 * For Serialization Only!
 	 */
 	public ResourceTable() {
-
 	}
 	
 	public boolean isEmpty() {

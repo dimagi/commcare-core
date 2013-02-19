@@ -27,6 +27,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
 	ChoiceItem cUpdates;
 	ChoiceItem cNetwork;
 	ChoiceItem cPermissions;
+	ChoiceItem cMediaTest;
 	
 	Command back;
 	CommCareListView view;
@@ -35,6 +36,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
 		cUpdates = new ChoiceItem(Localization.get("home.updates"), null, List.IMPLICIT);
 		cNetwork = new ChoiceItem(Localization.get("commcare.tools.network"), null, List.IMPLICIT);
 		cPermissions = new ChoiceItem(Localization.get("commcare.tools.permissions"), null, List.IMPLICIT);
+		cMediaTest = new ChoiceItem("Validate Media", null, List.IMPLICIT);
 		
 		back = new Command(Localization.get("polish.command.back"), 2, Command.BACK);
 		
@@ -42,6 +44,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
 		view.append(cUpdates);
 		view.append(cNetwork);
 		view.append(cPermissions);
+		view.append(cMediaTest);
 		view.addCommand(back);
 	}
 
@@ -67,8 +70,19 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
 			} else if(cPermissions == view.getCurrentItem()) {
 				doPermissionsTest();
 				return;
+			} else if(cMediaTest == view.getCurrentItem()) {
+				doMediaValidation();
+				return;
 			}
 		}
+	}
+	
+	protected void doMediaValidation(){
+		J2MEDisplay.startStateWithLoadingScreen(new CommCareValidationState("test message") {
+			public void done() {
+				CommCareToolsState.this.done();
+			}
+		});
 	}
 	
 	protected void doUpdateCheck() {

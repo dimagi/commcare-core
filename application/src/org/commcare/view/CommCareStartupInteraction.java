@@ -45,6 +45,10 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
 		setMessage(message, true);
 	}
 	
+	public void setMessage(String message){
+		setMessage(message, false);
+	}
+	
 	public void setMessage(String message, boolean showSpinner) {
 		this.messageItem.setText(message);
 		gauge.setVisible(showSpinner);

@@ -31,7 +31,7 @@ public class CommCareOTARestoreView extends Form{
 	
 	boolean finished;
 	boolean gaugeIsInfinite = true;
-	double totalItems;
+	int totalItems;
 
 	public CommCareOTARestoreView(String title) {
 		super(title);
@@ -55,7 +55,7 @@ public class CommCareOTARestoreView extends Form{
 		details.setText(buffer);	
 	}
 	
-	public void setTotalItems(double totalItems){
+	public void setTotalItems(int totalItems){
 		this.totalItems = totalItems;
 		gaugeIsInfinite = false;
 		gauge = new Gauge(getTitle(), true, RESOLUTION, 0);
@@ -64,7 +64,7 @@ public class CommCareOTARestoreView extends Form{
 		this.append(details);
 	}
 	
-	public void updateProgress(double finishedItems) {
+	public void updateProgress(int finishedItems) {
 		if(gaugeIsInfinite){
 			addToMessage(Localization.get("restore.ui.unbounded", new String [] {""+finishedItems}));
 		}
