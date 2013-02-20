@@ -1637,7 +1637,12 @@ public class XFormParser {
 		
 		String xpathCalc = e.getAttributeValue(null, "calculate");
 		if (xpathCalc != null) {
-			Recalculate r = buildCalculate(xpathCalc, ref);
+			Recalculate r;
+			try {
+				r = buildCalculate(xpathCalc, ref);
+			} catch (XPathSyntaxException xpse) {
+				throw new XFormParseException("Invalid calculate for the bind attached to \"" + nodeset + "\" : " + xpse.getMessage() + " in expression " + xpathCalc);
+			}
 			r = (Recalculate)_f.addTriggerable(r);
 			binding.calculate = r;
 		}
@@ -1689,17 +1694,8 @@ public class XFormParser {
 		return c;
 	}
 	
-	private static Recalculate buildCalculate (String xpath, IDataReference contextRef) {
-		XPathConditional calc;
-
-		try {
-			calc = new XPathConditional(xpath);
-		} catch (XPathSyntaxException xse) {
-			//#if debug.output==verbose
-			System.err.println("Invalid XPath expression [" + xpath + "]!");
-			//#endif
-			return null;
-		}
+	private static Recalculate buildCalculate (String xpath, IDataReference contextRef) throws XPathSyntaxException {
+		XPathConditional calc = new XPathConditional(xpath);
 				
 		Recalculate r = new Recalculate(calc, FormInstance.unpackReference(contextRef));
 		return r;
