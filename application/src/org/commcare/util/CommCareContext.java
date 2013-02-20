@@ -610,7 +610,6 @@ public class CommCareContext {
 	}
 	
 	public void resetDemoData() {
-		//#debug debug
 		
 		boolean curmode = inDemoMode;
 		if(!inDemoMode) {
