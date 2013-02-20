@@ -256,7 +256,6 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 				entry.sendMessage(Localization.get("restore.bypass.instructions"));
 				break;
 			case CommCareOTARestoreListener.RESTORE_BAD_CREDENTIALS:
-				System.out.println("in bad credentials case of status update");
 				view.addToMessage(Localization.get("restore.badcredentials"));
 				entry.sendMessage(Localization.get("restore.badcredentials"));
 				break;

@@ -268,7 +268,6 @@ public class CommCareRestorer implements Runnable {
 		String[] parseErrors = new String[0];
 		String restoreID = null;
 		
-		System.out.println("starting try in startRestore");
 		
 		try {
 			beginTransaction();
@@ -276,7 +275,6 @@ public class CommCareRestorer implements Runnable {
 			DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
 			parser.requireRootEnvelopeType("OpenRosaResponse");
 			success = parser.parse();
-			System.out.println(success?"parse successful!":"parse not successful :(");
 			restoreID = factory.getRestoreId();
 			caseTallies = factory.getCaseTallies();
 			//TODO: Is success here too strict?

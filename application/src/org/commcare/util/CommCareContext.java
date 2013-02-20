@@ -611,7 +611,6 @@ public class CommCareContext {
 	
 	public void resetDemoData() {
 		//#debug debug
-		System.out.println("Resetting demo data");
 		
 		boolean curmode = inDemoMode;
 		if(!inDemoMode) {
@@ -791,8 +790,6 @@ public class CommCareContext {
 			StorageManager.registerStorage(storageKey, storageKey, Resource.class);
 			table = ResourceTable.RetrieveTable((IStorageUtilityIndexed)StorageManager.getStorage(storageKey));
 		}
-		System.out.println("Temporary Resource Table");
-		System.out.println(table);
 		return table;
 	}
 	

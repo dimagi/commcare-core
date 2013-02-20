@@ -213,7 +213,6 @@ public class ResourceTable {
 		//r should already be in the storage table...
 		try {
 			storage.write(r);
-			//System.out.println(this);
 		}
 		catch(StorageFullException e) {
 			throw new UnresolvedResourceException(r,"Ran out of space while updating resource definition...");
@@ -442,8 +441,6 @@ public class ResourceTable {
 //				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
 //			}
 //		}
-		
-		//System.out.println(this);
 		
 		// All of the incoming resources should now be installed and ready to roll.
 		// The only thing left to do is run a cleanup on this table to clear out any

@@ -53,10 +53,8 @@ public class CommCarePostFormEntryState extends CompletedFormOptionsState {
 	}
 	
 	public void goHome() {
-		System.out.println("Leaving post form entry state");
 		//If we're autosending, make sure to expire old deadlines
 		if(CommCareSense.isAutoSendEnabled()) {
-			System.out.println("Notifying sending service of pending messages");
 			
 			//Notify the service that old deadlines have expired.
 			AutomatedSenderService.NotifyPending();

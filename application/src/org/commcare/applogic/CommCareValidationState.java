@@ -1,21 +1,23 @@
 package org.commcare.applogic;
 
+/**
+ * State class that handles validation, interaction, and message output. Only called by
+ * the CommCareToolsState - initial validation is handled in the CommCareContext class.
+ * 
+ * @author wspride
+ */
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.api.State;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 import org.javarosa.core.util.TrivialTransitions;
-import org.javarosa.j2me.log.CrashHandler;
-import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
-
 import de.enough.polish.ui.Command;
 import de.enough.polish.ui.CommandListener;
 import de.enough.polish.ui.Displayable;
@@ -56,7 +58,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
 			int badImageRef = problems.getBadImageReferenceCount();
 			int badAudioRef = problems.getBadAudioReferenceCount();
 			int badVideoRef = problems.getBadVideoReferenceCount();
-			String errorMessage = "CommCare cannot start because you are missing multimedia files.";
+			String errorMessage	= "CommCare cannot start because you are missing multimedia files.";
 			String message = CommCareStartupInteraction.failSafeText("install.bad",errorMessage, new String[] {""+badImageRef,""+badAudioRef,""+badVideoRef});
 			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
@@ -87,7 +89,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
 			
 			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
 				
-				String resource = (String)en.nextElement();
+				String resource = (String)en.nextElement();		
 				//message += "\n-----------";
 				for(String s : problemList.get(resource)) {
 					message += "\n" + s;
