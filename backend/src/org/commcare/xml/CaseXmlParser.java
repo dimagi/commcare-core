@@ -169,9 +169,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				}
 			}
 		}
-		
-		//Now that we've gotten any relevant transactions, commit this case 
-		commit(caseForBlock);
+		if(caseForBlock != null) {
+			//Now that we've gotten any relevant transactions, commit this case 
+			commit(caseForBlock);
+		}
 		
 		if (create) {
 			tallies[0]++;
