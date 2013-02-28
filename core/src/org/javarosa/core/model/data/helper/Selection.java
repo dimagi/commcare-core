@@ -26,6 +26,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathTypeMismatchException;
 
 /**
  * A response to a question requesting a selection
@@ -109,7 +110,8 @@ public class Selection implements Externalizable {
 		if (choice != null) {
 			attachChoice(choice);
 		} else {
-			throw new RuntimeException("insufficient data in selection to reconstruct");
+			throw new XPathTypeMismatchException("value " + xmlValue + " could not be loaded into question " + q.getTextID()
+					+ ".  Check to see if value " + xmlValue + " is a valid option for question " + q.getTextID() + ".");
 		}
 	}
 	
