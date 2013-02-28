@@ -101,8 +101,9 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	}
 	
 	private IFormEntryView loadView(String title, JrFormEntryController controller) {
-		String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);		
 		
+		String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);
+
 		if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
 			return new Chatterbox(title, controller);
 		} else if (FormManagerProperties.VIEW_SINGLEQUESTIONSCREEN.equals(viewType)) {
