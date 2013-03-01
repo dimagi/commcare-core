@@ -718,6 +718,10 @@ public class FormEntryModel {
 
 		IFormElement element = (i < 0 ? form : (IFormElement) elements.elementAt(i));
 		while (!(element instanceof QuestionDef)) {
+			if(element.getChildren().size() == 0) {
+				//if there are no children we just return the current index (the group itself)
+				return;
+			}
 			int subIndex = element.getChildren().size() - 1;
 			element = element.getChild(subIndex);
 
