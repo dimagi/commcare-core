@@ -20,7 +20,9 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public class CrashHandler {
 	
+	private static final Object lock = new Object();;
 	private static CommCareHandledExceptionState cches;
+	private static Displayable expired;
 	
 	/**
 	 * other places exceptions need to be explicitly trapped
@@ -35,6 +37,12 @@ public class CrashHandler {
 	 */
 
 	public static void commandAction(HandledCommandListener handler, Command c, Displayable d) {
+		synchronized(lock) {
+			if(d == expired) {
+				//Logger.log("ui-workflow", "Command fired on expired view");
+				return;
+			}
+		}
 		try {
 			handler._commandAction(c, d);
 		} catch (Exception e) {
@@ -42,8 +50,13 @@ public class CrashHandler {
 		}
 	}
 	
-	public static void commandAction(HandledPCommandListener handler,
-			de.enough.polish.ui.Command c, de.enough.polish.ui.Displayable d) {
+	public static void commandAction(HandledPCommandListener handler, de.enough.polish.ui.Command c, de.enough.polish.ui.Displayable d) {
+		synchronized(lock) {
+			if(d == expired) {
+				//Logger.log("ui-workflow", "Command fired on expired view");
+				return;
+			}
+		}
 		try {
 			handler._commandAction(c, d);
 		} catch (Exception e) {
@@ -100,6 +113,7 @@ public class CrashHandler {
 	}
 	
 	public static void tryCCHES(String failString, Exception e){
+		expired = null;
 		if(cches == null){Logger.die(failString, e);}
 		if(cches.handlesException(e)){
 			cches.setErrorMessage(e.getMessage());
@@ -113,5 +127,10 @@ public class CrashHandler {
 	public static void setExceptionHandler(CommCareHandledExceptionState s){
 		cches = s;
 	}
-
+	
+	public static void expire(Displayable d) {
+		synchronized(lock) {
+			expired = d;
+		}
+	}
 }

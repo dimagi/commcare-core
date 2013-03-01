@@ -25,6 +25,7 @@ import javax.microedition.lcdui.Screen;
 import javax.microedition.midlet.MIDlet;
 
 import org.javarosa.core.api.State;
+import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledThread;
 
 import de.enough.polish.ui.Alert;
@@ -61,6 +62,10 @@ public class J2MEDisplay {
 		loading.cancelLoading();
 		loading = new LoadingScreenThread(display);
 		loading.startLoading(indicator);
+		//We're about to load the next thread, eat any commands that come through
+		if(display != null) {
+			CrashHandler.expire(display.getCurrent());
+		}
 		new HandledThread(new Runnable() {
 			public void run() {
 				s.start();
@@ -85,6 +90,7 @@ public class J2MEDisplay {
 	 * 
 	 */
 	public static void setView (Displayable d, boolean savePreviousView) {
+		CrashHandler.expire(null);
 		loading.cancelLoading();
 		Displayable old = display.getCurrent();
 		display.setCurrent(d);
