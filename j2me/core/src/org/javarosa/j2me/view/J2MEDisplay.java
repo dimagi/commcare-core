@@ -90,7 +90,6 @@ public class J2MEDisplay {
 	 * 
 	 */
 	public static void setView (Displayable d, boolean savePreviousView) {
-		CrashHandler.expire(null);
 		loading.cancelLoading();
 		Displayable old = display.getCurrent();
 		display.setCurrent(d);
@@ -113,6 +112,7 @@ public class J2MEDisplay {
 				}
 			}
 		}
+		CrashHandler.expire(null);
 	}
 	
 	public static void showError (String title, String message) {
