@@ -47,6 +47,7 @@ import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 public class J2MELogger implements ILogger {
 	
 	RMSStorageUtility logStorage;
+	Object lock;
 	boolean storageBroken = false;
 	
 	public J2MELogger() {
@@ -57,6 +58,7 @@ public class J2MELogger implements ILogger {
 				if(!LogEntry.STORAGE_KEY.equals(storageName)) {
 					this.log("logger", "Old log storage broken. New storage RMS: " + storageName, new Date());
 				}
+				lock = logStorage.getAccessLock();
 				return;
 			} catch(IllegalStateException ise) {
 				ise.printStackTrace();
@@ -80,7 +82,7 @@ public class J2MELogger implements ILogger {
 	 */
 	public void clearLogs() {
 		if(storageBroken) { return; };
-		synchronized(logStorage) {
+		synchronized(lock) {
 			if(!checkStorage()) { return; }
 
 			int size = logStorage.getNumRecords();
@@ -94,7 +96,7 @@ public class J2MELogger implements ILogger {
 	 */
 	protected void clearLogs(final SortedIntSet IDs) {
 		if(storageBroken) { return; };
-		synchronized(logStorage) {
+		synchronized(lock) {
 			if(!checkStorage()) { return; }
 			
 			logStorage.removeAll(new EntityFilter<LogEntry> () {
@@ -116,7 +118,7 @@ public class J2MELogger implements ILogger {
 	 */
 	public void log(String type, String message, Date logDate) {
 		if(storageBroken) { return; };
-		synchronized(logStorage) {
+		synchronized(lock) {
 			LogEntry log = new LogEntry(type, message, logDate);
 			try {
 				logStorage.add(log);
@@ -131,7 +133,7 @@ public class J2MELogger implements ILogger {
 	 */
 	public <T> T serializeLogs(IFullLogSerializer<T> serializer) {
 		if(storageBroken) { return null; };
-		synchronized(logStorage) {
+		synchronized(lock) {
 			if(!checkStorage()) { return null; }
 			
 			Vector logs = new Vector();
@@ -176,13 +178,16 @@ public class J2MELogger implements ILogger {
 	public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
 		if(storageBroken) { return; };
 		
-		
+		//Create a copy read-only handle
+		RMSStorageUtility logStorageReadOnly;
 		Vector<Integer> logIds = new Vector<Integer>();
-		Object lock = logStorage.getAccessLock();
+		
 		//This should capture its own internal state when it starts to iterate.
 		synchronized(lock) {
+			logStorageReadOnly = new RMSStorageUtility(logStorage.getName(), LogEntry.class);
+			logStorageReadOnly.setReadOnly();
 			int count = 0;
-			IStorageIterator li = logStorage.iterate();
+			IStorageIterator li = logStorageReadOnly.iterate();
 			while(li.hasMore() && count < limit) {
 				int id = li.nextID();
 				logIds.addElement(DataUtil.integer(id));
@@ -192,8 +197,10 @@ public class J2MELogger implements ILogger {
 		
 		System.out.println("Captured: " + logIds.size() + " records for serialization");
 		
+		//Ok, so now we 
+		
 		for(Integer logId :logIds) {
-			LogEntry log = (LogEntry)logStorage.read(logId.intValue());
+			LogEntry log = (LogEntry)logStorageReadOnly.read(logId.intValue());
 			//In theeeeooorry, the logs could have been modified. It's really not likely.
 			if(log != null) {
 				serializer.serializeLog(logId.intValue(), log);
@@ -209,7 +216,7 @@ public class J2MELogger implements ILogger {
 
 	public int logSize() {
 		if(storageBroken) { return -1; };
-		synchronized(logStorage) {
+		synchronized(lock) {
 			if(!checkStorage()) { return -1; }
 			return logStorage.getNumRecords();
 		}
