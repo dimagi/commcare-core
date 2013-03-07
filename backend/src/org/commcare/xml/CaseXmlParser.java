@@ -11,10 +11,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -167,6 +165,21 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					
 					caseForBlock.setIndex(indexName, caseType, value);
 				}
+			} else if(action.equals("attachment")) {
+				if(caseForBlock == null) {
+					caseForBlock = retrieve(caseId);
+				}
+				
+				while(this.nextTagInBlock("attachment")) {
+	
+					String attachmentName = parser.getName();
+					String src = parser.getAttributeValue(null, "src");
+					
+					String reference = this.processAttachment(src);
+					if(reference != null) {
+						caseForBlock.updateAttachment(attachmentName, reference);
+					}
+				}
 			}
 		}
 		if(caseForBlock != null) {
@@ -184,6 +197,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		
 		return null;
 	}		
+
+	protected String processAttachment(String src) {
+		return null;
+	}
 
 	protected Case CreateCase(String name, String typeId) {
 		return new Case(name, typeId);
