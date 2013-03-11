@@ -16,8 +16,10 @@
 
 package org.javarosa.core.data;
 
+import java.io.IOException;
 import java.io.InputStream;
 
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
@@ -39,13 +41,14 @@ public interface IDataPointer extends Externalizable {
 	 * Get the data from the underlying storage.  This should maybe be a stream instead of a byte[]
 	 * @return
 	 */
-	public byte[] getData();
+	public byte[] getData() throws IOException;
 
 	/**
 	 * Get the data from the underlying storage.  
 	 * @return
+	 * @throws IOException 
 	 */
-	public InputStream getDataStream();
+	public InputStream getDataStream() throws IOException;
 
 	/**
 	 * Deletes the underlying data from storage.

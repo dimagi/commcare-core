@@ -94,7 +94,7 @@ public class ModelReferencePayload implements IDataPayload {
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
 	 */
-	public InputStream getPayloadStream() {
+	public InputStream getPayloadStream() throws IOException {
 		memoize();
 		return payload.getPayloadStream();
 	}

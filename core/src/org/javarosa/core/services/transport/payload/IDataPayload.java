@@ -16,6 +16,7 @@
 
 package org.javarosa.core.services.transport.payload;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -44,8 +45,9 @@ public interface IDataPayload extends Externalizable {
 	 * Gets the stream for this payload.
 	 * 
 	 * @return A stream for the data in this payload.
+	 * @throws IOException 
 	 */
-	public InputStream getPayloadStream();
+	public InputStream getPayloadStream() throws IOException;
 	
 	/**
 	 * @return A string identifying the contents of the payload
@@ -62,7 +64,7 @@ public interface IDataPayload extends Externalizable {
 	 * Visitor pattern accept method.
 	 * @param visitor The visitor to visit this payload.
 	 */
-	public Object accept(IDataPayloadVisitor visitor);
+	public <T> T accept(IDataPayloadVisitor<T> visitor);
 	
 	public long getLength();
 	

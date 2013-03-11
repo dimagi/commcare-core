@@ -131,7 +131,7 @@ import org.kxml2.kdom.Node;
 					return new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_XML);
 				}
 				MultiMessagePayload payload = new MultiMessagePayload();
-				payload.addPayload(new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_XML));
+				payload.addPayload(new ByteArrayPayload(form, "xml_submission_file", IDataPayload.PAYLOAD_TYPE_XML));
 				Enumeration en = dataPointers.elements();
 				while(en.hasMoreElements()) {
 					IDataPointer pointer = (IDataPointer)en.nextElement();

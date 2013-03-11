@@ -61,6 +61,16 @@ public class ByteArrayPayload implements IDataPayload {
 		this.id = id;
 		this.type = type;
 	}
+	
+	/**
+	 * 
+	 * @param payload The byte array for this payload.
+	 */
+	public ByteArrayPayload(byte[] payload) {
+		this.payload = payload;
+		this.id = null;
+		this.type = IDataPayload.PAYLOAD_TYPE_XML;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()

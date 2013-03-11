@@ -69,7 +69,7 @@ public class MultiMessagePayload implements IDataPayload {
 	 * (non-Javadoc)
 	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
 	 */
-	public InputStream getPayloadStream() {
+	public InputStream getPayloadStream() throws IOException {
 		MultiInputStream bigStream = new MultiInputStream();
 		Enumeration en = payloads.elements();
 		while(en.hasMoreElements()) {
@@ -86,7 +86,6 @@ public class MultiMessagePayload implements IDataPayload {
 	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
-		//payloads = (Vector)ExtUtil.read(in, new ExtWrapList(new ExtWrapTagged()), pf);
 		payloads = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 	}
 
@@ -95,7 +94,6 @@ public class MultiMessagePayload implements IDataPayload {
 	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
 	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
-		//ExtUtil.write(out, new ExtWrapList(payloads));
 		ExtUtil.write(out, new ExtWrapListPoly(payloads));
 	}
 	

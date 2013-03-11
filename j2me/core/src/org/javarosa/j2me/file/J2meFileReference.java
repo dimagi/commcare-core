@@ -13,8 +13,8 @@ import java.util.Vector;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.Logger;
 
 /**
  * A J2ME File reference is a reference type which refers to a 
@@ -156,16 +156,54 @@ public class J2meFileReference implements Reference
 	public OutputStream getOutputStream() throws IOException {
 		FileConnection connector = connector();
 		if(!connector.exists()) {
-			connector.create();
-			if(!connector.exists()) {
-				throw new IOException("File still doesn't exist at  " + this.getLocalURI() + " after create worked succesfully. Reference is probably incorrect");
-			}
+			this.createConnectorAndPath(connector);
 		} else {
 			//TODO: Delete exist file, maybe? Probably....
 		}
 		OutputStream os = connector.openOutputStream();
 		clearReferenceConnection(getLocalURI());
 		return os;
+	}
+	
+	private void createConnectorAndPath(FileConnection connector) throws IOException {
+		try {
+			connector.create();
+		} catch(IOException e) {
+			//one common issue is that the path to this file doesn't exist, we can try to 
+			//address that by creating those paths.
+			
+			//Don't let anything try to touch this connector while we're manipulating it, since the URI won't be correct.
+			synchronized (connections) {
+				Vector<String> pieces = DateUtils.split(connector.getPath(), "/", true);
+				FileConnection walker = null;
+					
+				String fileName = "file:///" + pieces.elementAt(0) + "/";
+				
+				for(int i = 1 ; i < pieces.size() ; ++i) {
+					fileName += pieces.elementAt(i) + "/";
+					try {
+						walker = (FileConnection) Connector.open(fileName);
+						if(!walker.exists()) {
+							walker.mkdir();
+						} else {
+							break;
+						}
+					} finally {
+						if(walker != null) {
+							try{
+								walker.close();
+							} catch(IOException unimportant) {
+								
+							}
+						}
+					}
+				}
+			}
+			connector.create();
+		}
+		if(!connector.exists()) {
+			throw new IOException("File still doesn't exist at  " + this.getLocalURI() + " after create worked succesfully. Reference is probably incorrect");
+		}
 	}
 	
 	protected FileConnection connector() throws IOException {
@@ -303,5 +341,9 @@ public class J2meFileReference implements Reference
 			connections.clear();
 			connectionList.removeAllElements();
 		}
+	}
+
+	public long getSize() throws IOException {
+		return connector().fileSize();
 	}
 }

@@ -81,7 +81,7 @@ public class PointerAnswerData implements IAnswerData {
 		return new UncastData(data.getDisplayText());
 	}
 	
-	public MultiPointerAnswerData cast(UncastData data) throws IllegalArgumentException {
+	public PointerAnswerData cast(UncastData data) throws IllegalArgumentException {
 		return null;
 	}
 }
