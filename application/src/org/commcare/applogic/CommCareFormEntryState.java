@@ -11,16 +11,19 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
 import org.commcare.util.FormTransportWorkflow;
+import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.PointerAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.UnavailableServiceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -28,6 +31,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
+import org.javarosa.formmanager.api.transitions.FormEntryTransitions;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.NamespaceRetrievalMethod;
@@ -37,6 +41,7 @@ import org.javarosa.formmanager.view.singlequestionscreen.SingleQuestionView;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.util.CommCareHandledExceptionState;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.media.image.activity.ImageCaptureState;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.services.transport.SubmissionTransportHelper;
 import org.javarosa.services.transport.TransportMessage;
@@ -117,6 +122,8 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		goHome();
 	}
 	
+	
+	
 	/* (non-Javadoc)
 	 * @see org.javarosa.formmanager.api.transitions.FormEntryTransitions#formEntrySaved(org.javarosa.core.model.FormDef, org.javarosa.core.model.instance.FormInstance, boolean)
 	 */
@@ -193,6 +200,33 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		}
 		
 		return profile;
+	}
+	
+	public void suspendForMediaCapture (int captureType) throws UnavailableServiceException {
+		if(captureType ==FormEntryTransitions.MEDIA_IMAGE){ 
+			ImageCaptureState ics = new ImageCaptureState() {
+
+				public void cancel() {
+					controller.start();
+				}
+
+				public void captured(IDataPointer data) {
+					controller.answerQuestion(new PointerAnswerData(data));
+				}
+
+				public void captured(IDataPointer[] data) {
+					
+				}
+
+				public void noCapture() {
+					controller.start();
+				}
+				
+			};
+			J2MEDisplay.startStateWithLoadingScreen(ics);
+		} else {
+			super.suspendForMediaCapture(captureType);
+		}
 	}
 
 	/**

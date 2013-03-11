@@ -284,9 +284,13 @@ public class Case implements Persistable, IMetaData, Secure {
 		for(Enumeration en = data.keys() ; en.hasMoreElements() ;) {
 			String name = (String)en.nextElement();
 			if(name.startsWith(ATTACHMENT_PREFIX)) {
-				attachments.add(name.substring(ATTACHMENT_PREFIX.length()));
+				attachments.addElement(name.substring(ATTACHMENT_PREFIX.length()));
 			}
 		}
 		return attachments;
+	}
+
+	public void removeAttachment(String attachmentName) {
+		data.remove(ATTACHMENT_PREFIX + attachmentName);
 	}
 }

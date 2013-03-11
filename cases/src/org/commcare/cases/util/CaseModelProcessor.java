@@ -105,6 +105,13 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 				if(kid.isRelevant()) {
 					processCaseIndex(kid,c);
 				}
+			} else if(kid.getName().equals("attachment")) {
+				if(c == null) {
+					c = getCase(caseId);
+				}
+				if(kid.isRelevant()) {
+					processCaseAttachments(kid, c);
+				}
 			}
 		}
 	}
@@ -246,6 +253,30 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 	}
 	
+	private void processCaseAttachments(TreeElement attachments, Case c) throws MalformedCaseModelException {
+		boolean modified = false;
+		for(int i = 0; i < attachments.getNumChildren(); ++i) {
+			TreeElement attachment = attachments.getChildAt(i);
+			if(!attachment.isRelevant()) { continue; }
+			
+			String name = attachment.getName();
+			String src = attachment.getAttributeValue(null, "src");
+			
+			String value = this.localizeAttachment(name, src);
+			
+			if(value != null) {
+				c.updateAttachment(name, value);
+				modified = true;
+			}			
+		}
+		if(modified) {
+			commit(c);
+		}
+	}
+
+	protected String localizeAttachment(String name, String src) {
+		return "jr://file" + src.substring(src.lastIndexOf('/'));
+	}
 	
 	private Vector scrapeForCaseElements(FormInstance tree) {
 		Vector caseElements = new Vector();

@@ -27,6 +27,10 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class CaseXmlParser extends TransactionParser<Case> {
 	
+	public static final String ATTACHMENT_FROM_LOCAL = "local";
+	public static final String ATTACHMENT_FROM_REMOTE = "remote";
+	public static final String ATTACHMENT_FROM_INLINE = "inline";
+	
 	public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
 	IStorageUtilityIndexed storage;
@@ -171,11 +175,19 @@ public class CaseXmlParser extends TransactionParser<Case> {
 				}
 				
 				while(this.nextTagInBlock("attachment")) {
-	
 					String attachmentName = parser.getName();
 					String src = parser.getAttributeValue(null, "src");
+					String from = parser.getAttributeValue(null, "from");
+					String fileName = parser.getAttributeValue(null, "name");
 					
-					String reference = this.processAttachment(src);
+					if((src == null || "".equals(src)) && (from == null || "".equals(from))) {
+						//this is actually an attachment removal
+						this.removeAttachment(caseForBlock, attachmentName);
+						caseForBlock.removeAttachment(attachmentName);
+						continue;
+					}
+					
+					String reference = this.processAttachment(src, from, fileName, parser);
 					if(reference != null) {
 						caseForBlock.updateAttachment(attachmentName, reference);
 					}
@@ -198,7 +210,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		return null;
 	}		
 
-	protected String processAttachment(String src) {
+	protected void removeAttachment(Case caseForBlock, String attachmentName) {
+		
+	}
+
+	protected String processAttachment(String src, String from, String name, KXmlParser parser) {
 		return null;
 	}
 
