@@ -58,6 +58,8 @@ public class StreamsUtil {
 		}
 	}
 	
+	private static final int CHUNK_SIZE = 2048;
+	
 	/**
 	 * 
 	 * Write the byte array to the output stream
@@ -67,12 +69,18 @@ public class StreamsUtil {
 	 * @throws IOException
 	 */
 	public static void writeToOutput(byte[] bytes, OutputStream out, long[] tally) throws IOException {
-
-		for (int i = 0; i < bytes.length; i++) {
-			out.write(bytes[i]);
-			incr(tally);
+		int offset = 0;
+		int remain = bytes.length;
+		
+		while(remain > 0) {
+			int toRead = (remain < CHUNK_SIZE) ? remain : CHUNK_SIZE;
+			out.write(bytes, offset, toRead);
+			remain -= toRead;
+			offset += toRead;
+			if(tally != null) {
+				tally[0] += toRead;
+			}
 		}
-
 	}
 
 	public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
