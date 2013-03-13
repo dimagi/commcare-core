@@ -390,6 +390,36 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 					index.addChild(scratch);
 				}
 				cacheBuilder.addChild(index);
+				
+				TreeElement attachments = new TreeElement("attachment".intern()) {
+					public TreeElement getChild(String name, int multiplicity) {
+						TreeElement child = super.getChild(name.intern(), multiplicity);
+						
+						//TODO: Skeeeetchy, this is not a good way to do this,
+						//should extract pattern instead.
+						
+						//If we haven't finished caching yet, we can safely not return
+						//something useful here, so we can construct as normal.
+						if(done[0] == false) {
+							return child;
+						}
+						if(multiplicity >= 0 && child == null) {
+							TreeElement emptyNode = new TreeElement(name.intern());
+							this.addChild(emptyNode);
+							emptyNode.setParent(this);
+							return emptyNode;
+						}
+						return child;
+					}
+					
+				}; 
+				
+				for(String attachment : c.getAttachments()) {
+					scratch = new TreeElement(attachment);
+					scratch.setValue(new UncastData(c.getAttachmentSource(attachment)));
+					attachments.addChild(scratch);
+				}
+				cacheBuilder.addChild(attachments);
 			}
 			
 			cacheBuilder.setParent(this.parent);

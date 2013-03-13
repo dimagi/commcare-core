@@ -23,6 +23,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -266,5 +267,30 @@ public class Case implements Persistable, IMetaData, Secure {
 	
 	public Vector<CaseIndex> getIndices() {
 		return indices;
+	}
+
+	private static final String ATTACHMENT_PREFIX = "attachmentdata";
+	public void updateAttachment(String attachmentName, String reference) {
+		data.put(ATTACHMENT_PREFIX + attachmentName, reference);
+	}
+	
+	public String getAttachmentSource(String attachmentName) {
+		return (String)data.get(ATTACHMENT_PREFIX + attachmentName);
+	}
+
+	//this is so terrible it hurts. We'll be redoing this
+	public Vector<String> getAttachments() {
+		Vector<String> attachments = new Vector<String>();
+		for(Enumeration en = data.keys() ; en.hasMoreElements() ;) {
+			String name = (String)en.nextElement();
+			if(name.startsWith(ATTACHMENT_PREFIX)) {
+				attachments.addElement(name.substring(ATTACHMENT_PREFIX.length()));
+			}
+		}
+		return attachments;
+	}
+
+	public void removeAttachment(String attachmentName) {
+		data.remove(ATTACHMENT_PREFIX + attachmentName);
 	}
 }

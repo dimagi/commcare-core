@@ -11,10 +11,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -28,6 +26,10 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class CaseXmlParser extends TransactionParser<Case> {
+	
+	public static final String ATTACHMENT_FROM_LOCAL = "local";
+	public static final String ATTACHMENT_FROM_REMOTE = "remote";
+	public static final String ATTACHMENT_FROM_INLINE = "inline";
 	
 	public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
@@ -167,6 +169,29 @@ public class CaseXmlParser extends TransactionParser<Case> {
 					
 					caseForBlock.setIndex(indexName, caseType, value);
 				}
+			} else if(action.equals("attachment")) {
+				if(caseForBlock == null) {
+					caseForBlock = retrieve(caseId);
+				}
+				
+				while(this.nextTagInBlock("attachment")) {
+					String attachmentName = parser.getName();
+					String src = parser.getAttributeValue(null, "src");
+					String from = parser.getAttributeValue(null, "from");
+					String fileName = parser.getAttributeValue(null, "name");
+					
+					if((src == null || "".equals(src)) && (from == null || "".equals(from))) {
+						//this is actually an attachment removal
+						this.removeAttachment(caseForBlock, attachmentName);
+						caseForBlock.removeAttachment(attachmentName);
+						continue;
+					}
+					
+					String reference = this.processAttachment(src, from, fileName, parser);
+					if(reference != null) {
+						caseForBlock.updateAttachment(attachmentName, reference);
+					}
+				}
 			}
 		}
 		if(caseForBlock != null) {
@@ -184,6 +209,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
 		
 		return null;
 	}		
+
+	protected void removeAttachment(Case caseForBlock, String attachmentName) {
+		
+	}
+
+	protected String processAttachment(String src, String from, String name, KXmlParser parser) {
+		return null;
+	}
 
 	protected Case CreateCase(String name, String typeId) {
 		return new Case(name, typeId);
