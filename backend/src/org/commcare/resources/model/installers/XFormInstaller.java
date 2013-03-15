@@ -32,7 +32,7 @@ import org.javarosa.xform.parse.XFormParser;
  * @author ctsims
  *
  */
-public class XFormInstaller extends CacheInstaller {
+public class XFormInstaller extends CacheInstaller<FormDef> {
 
 	protected String getCacheKey() {
 		return FormDef.STORAGE_KEY;
@@ -57,7 +57,7 @@ public class XFormInstaller extends CacheInstaller {
 			if(upgrade) {
 				//There's already a record in the cache with this namespace, so we can't ovewrite it.
 				//TODO: If something broke, this record might already exist. Might be worth checking.
-				formDef.getInstance().schema = formDef.getInstance().schema + "_TEMP";
+				formDef.getInstance().schema = formDef.getInstance().schema + UPGRADE_EXT;
 				storage().write(formDef);
 				cacheLocation = formDef.getID();
 				
@@ -85,18 +85,92 @@ public class XFormInstaller extends CacheInstaller {
 		}
 	}
 	
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+	public boolean upgrade(Resource r) throws UnresolvedResourceException {
+		//Basically some content as revert. Merge;
 		FormDef form = (FormDef)storage().read(cacheLocation);
 		String tempString = form.getInstance().schema;
-		form.getInstance().schema = tempString.substring(0,tempString.indexOf("_TEMP")); 
-		try {
+		
+		//Atomic. Don't re-do this if it was already done.
+		if(tempString.indexOf(UPGRADE_EXT) != -1) {
+			form.getInstance().schema = tempString.substring(0,tempString.indexOf(UPGRADE_EXT)); 
 			storage().write(form);
-		} catch (StorageFullException e) {
-			e.printStackTrace();
-			return false;
 		}
 		return true;
 	}
+	
+	private static final String UPGRADE_EXT = "_TEMP";
+	private static final String STAGING_EXT = "_STAGING-OPENROSA";
+	private static final String[] exts = new String[] {UPGRADE_EXT, STAGING_EXT};
+	
+	public boolean unstage(Resource r, int newStatus) {
+		//This either unstages back to upgrade mode or
+		//to unstaged mode. Figure out which one
+		String destination = UPGRADE_EXT;
+		if(newStatus == Resource.RESOURCE_STATUS_UNSTAGED) {
+			destination = STAGING_EXT;
+		}
+		
+		//Make sure that this form's 
+		FormDef form = (FormDef)storage().read(cacheLocation);
+		String tempString = form.getInstance().schema;
+		
+		//This method should basically be atomic, so don't re-temp it if it's already
+		//temp'd.
+		if(tempString.indexOf(destination) != -1) {
+			return true;
+		} else {
+			form.getInstance().schema = form.getInstance().schema + destination;
+			storage().write(form);
+			return true;
+		}
+	}
+	
+	public boolean revert(Resource r, ResourceTable table) {
+		//Basically some content as upgrade. Merge;
+		FormDef form = (FormDef)storage().read(cacheLocation);
+		String tempString = form.getInstance().schema;
+		
+		//TODO: Aggressively wipe out anything which might conflict with the uniqueness
+		//of the new schema
+		
+		for(String ext : exts) {
+			//Removing any staging/upgrade placeholders.
+			if(tempString.indexOf(ext) != -1) {
+				form.getInstance().schema = tempString.substring(0,tempString.indexOf(ext)); 
+				storage().write(form);
+			}
+		}
+		return true;
+	}
+	
+	public int rollback(Resource r) {
+		int status = r.getStatus();
+		
+		FormDef form = (FormDef)storage().read(cacheLocation);
+		String currentSchema = form.getInstance().schema;
+		
+		//Just figure out whether we finished and return that
+		
+		switch(status) {
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
+		case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:
+			if(currentSchema.indexOf(STAGING_EXT) != -1) {
+				return Resource.RESOURCE_STATUS_UNSTAGED;
+			} else {
+				return Resource.RESOURCE_STATUS_INSTALLED;
+			}
+		case Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL:
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE:
+			if(currentSchema.indexOf(UPGRADE_EXT) != -1) {
+				return Resource.RESOURCE_STATUS_UPGRADE;
+			} else {
+				return Resource.RESOURCE_STATUS_INSTALLED;
+			}
+		default:
+			throw new RuntimeException("Unexpected status for rollback! " + status);
+		}
+	}
+
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
 		

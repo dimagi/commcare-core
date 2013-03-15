@@ -37,6 +37,8 @@ public class ResourceTable {
 	public final static int RESOURCE_TABLE_INSTALLED = 1;
 	public final static int RESOURCE_TABLE_PARTIAL = 2;
 	public final static int RESOURCE_TABLE_UPGRADE = 3;
+	public static final int RESOURCE_TABLE_UNSTAGED = 4;
+	public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 	
 
 	/**
@@ -71,9 +73,14 @@ public class ResourceTable {
 	 * 	RESOURCE_TABLE_PARTIAL
 	 */
 	public int getTableReadiness(){
+		//TODO: this is very hard to fully specify without doing assertions when preparing a
+		//table about appropriate states
 		
 		boolean isFullyInstalled = true;
 		boolean isEmpty = true;
+		boolean unstaged = false;
+		boolean upgrade = false;
+		boolean dirty = false;
 		
 		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
 			Resource r = (Resource)it.nextRecord();
@@ -85,10 +92,24 @@ public class ResourceTable {
 			if(r.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED){
 				isEmpty = false;
 			}
+			
+			if(r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
+				unstaged = true;
+			}
+			if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+				upgrade = true;
+			}
+			if(r.isDirty()) {					
+				dirty = true;
+			}
 		}
 		
+		if(dirty) { return RESOURCE_TABLE_UNCOMMITED; }
 		if(isEmpty){return RESOURCE_TABLE_EMPTY;}
 		if(isFullyInstalled){return RESOURCE_TABLE_INSTALLED;}
+		if(unstaged) { return RESOURCE_TABLE_UNSTAGED; }
+		if(upgrade) { return RESOURCE_TABLE_UPGRADE; }
+		
 		return RESOURCE_TABLE_PARTIAL;
 	}
 	
@@ -253,18 +274,25 @@ public class ResourceTable {
 		commit(r, status);
 	}
 	
-	public void commit(Resource r, int status) throws UnresolvedResourceException{
+	public void commit(Resource r, int status) {
 		r.setStatus(status);
 		commit(r);
 	}
 	
-	public void commit(Resource r) throws UnresolvedResourceException{
-		//r should already be in the storage table...
-		try {
-			storage.write(r);
-		}
-		catch(StorageFullException e) {
-			throw new UnresolvedResourceException(r,"Ran out of space while updating resource definition...");
+	public void commit(Resource r) {
+		storage.write(r);
+	}
+	
+	/**
+	 * Rolls back uncommitted resources from dirty states
+	 */
+	public void rollbackCommits() {
+		Stack<Resource> s = this.GetResourceStack();
+		while(!s.isEmpty()) {
+			Resource r = s.pop();
+			if(r.isDirty()) {
+				this.commit(r, r.getInstaller().rollback(r));
+			}
 		}
 	}
 	
@@ -312,14 +340,11 @@ public class ResourceTable {
 						//TODO: For now we're assuming that Versions greater than the 
 						//current are always acceptable
 						if (!r.isNewer(peer)) {
-							// This resource is already up to date in the master. Set 
-							// its status to installed already.
-							//TODO: If the resource has kids in this table who are pending
-							//we should probably just remove them. Probably a non-issue/
-							//no-op, though.
-							commit(r,Resource.RESOURCE_STATUS_INSTALLED);
+							// This resource doesn't need to be updated, copy the exisitng resource into
+							//this table
+							peer.mimick(r);
+							commit(peer,Resource.RESOURCE_STATUS_INSTALLED);
 							continue;
-							
 						} else {
 							upgrade = true;
 						}
@@ -387,6 +412,8 @@ public class ResourceTable {
 			//We will need to run  a full init later, so we can skip the next step
 			return;
 		}
+		
+		//TODO: Nothing uses this status, really. Should this go away?
 		//Wipe out any resources which are still pending. If they weren't updated by their 
 		//parent, they aren't relevant.
 		for(Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
@@ -411,17 +438,30 @@ public class ResourceTable {
 		} return false;
 	}
 	
+	/**
+	 * Prepares this table to be replaced by the incoming table.
+	 * 
+	 * All conflicting resources from this table will be unstaged so as to not conflict with the
+	 * incoming resources. Once the incoming table is fully installed, this table's resources
+	 * can then be fully removed where relevant.  
+	 * 
+	 * @param incoming 
+	 * @return True if this table was prepared and the incoming table can be fully installed. False
+	 * if something is this table couldn't be unstaged. 
+	 * @throws UnresolvedResourceException
+	 */
 	public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
 		if(!incoming.isReady()) {
 			return false;
 		}
-		//Everything incoming should be marked either ready or upgrade
 		
-		
+		//Everything incoming should be marked either ready or upgrade. Upgrade elements
+		//should result in their counterpart in this table being unstaged (which can be 
+		//reverted). 
+				
 		Stack<Resource> resources = incoming.GetResourceStack();
 		while(!resources.isEmpty()) {
 			Resource r = resources.pop();
-			try {
 			Resource peer = this.getResourceWithId(r.getResourceId());
 			if(peer == null) {
 				this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
@@ -433,92 +473,136 @@ public class ResourceTable {
 					//about for the future.
 				}
 				if(peer.getVersion() < r.getVersion()) {
-					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
-						throw new UnresolvedResourceException(peer, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
+					//Mark as being ready to transition 
+					this.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
+					
+					if(!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED)) {
+						//TODO: revert this resource table!
+						throw new UnresolvedResourceException(peer, "Couldn't make room for new resource " + r.getResourceId() + ", upgrade aborted");
 					} else {
-						//If we don't remove the resource, they're duplicates
-						this.removeResource(peer);
+						//done
+						commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
 					}
-					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-						this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
-					} else if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
-						if(r.getInstaller().upgrade(r,this)) {
-							this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
+					
+					if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
+						incoming.commit(r, Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL);
+						if(r.getInstaller().upgrade(r)) {
+							incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
+						} else {
+							//REVERT!
+							return false;
 						}
 					}
 				}
 			}
-			} catch(StorageFullException sfe) {
-				sfe.printStackTrace();
-				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
-			}
 			r = null;
 		}
-
 		
-//		
-//		for(Resource r : incoming.GetResources()) {
-//			try {
-//			Resource peer = this.getResourceWithId(r.getResourceId());
-//			if(peer == null) {
-//				this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
-//			} else {
-//				if(peer.getVersion() == r.getVersion()) {
-//					//Same resource. Don't do anything with it, it has no
-//					//children, so ID's don't need to change.
-//					//Technically resource locations could change, worth thinking
-//					//about for the future.
-//				}
-//				if(peer.getVersion() < r.getVersion()) {
-//					if(!peer.getInstaller().uninstall(peer, this, incoming)) {
-//						throw new UnresolvedResourceException(peer, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
-//					} else {
-//						//If we don't remove the resource, they're duplicates
-//						this.removeResource(peer);
-//					}
-//					if(r.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-//						this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
-//					} else if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
-//						if(r.getInstaller().upgrade(r,this)) {
-//							this.addResource(r,Resource.RESOURCE_STATUS_INSTALLED);
-//						}
-//					}
-//				}
-//			}
-//			} catch(StorageFullException sfe) {
-//				sfe.printStackTrace();
-//				throw new UnresolvedResourceException(r, "Resource Table Full while manipulating resource");
-//			}
-//		}
-		
-		// All of the incoming resources should now be installed and ready to roll.
-		// The only thing left to do is run a cleanup on this table to clear out any
-		// irrelevant resources. 
-		// It's important to note that there is technically something that could go wrong here.
-		// If the incoming table is lost before this step is completed, future descendents
-		// may not know whether their children are relevant. As such, the installation
-		// cannot really be marked completed (and the incoming table deleted) until
-		// all deletions are made. 
-		Stack<Resource> pendingDelete = GetResourceStack(Resource.RESOURCE_STATUS_DELETE);
-		while(!pendingDelete.isEmpty()) {
-			while(!pendingDelete.isEmpty()) {
-				Resource r = pendingDelete.pop();
-				//Delete pending resource, possibly marking further resources for deletion
-				
-				if(!r.getInstaller().uninstall(r, this, incoming)) {
-					//Do we need to throw this? 
-					throw new UnresolvedResourceException(r, "Couldn't upgrade local resource " + r.getResourceId() + ", upgrade aborted");
-				} else {
-					//If we don't remove the resource, they're duplicates
-					this.removeResource(r);
-				}
-
+		return true;
+	}
+	
+	public void flagForDeletions(ResourceTable replacement) {
+		Stack<Resource> s = this.GetResourceStack();
+		while(!s.isEmpty()) {
+			Resource r = s.pop();
+			Resource peer = replacement.getResourceWithId(r.getResourceId());
+			
+			//If this resource is no longer relevant
+			if(peer == null) {
+				this.commit(r, Resource.RESOURCE_STATUS_DELETE);
+				continue;
 			}
-			pendingDelete = GetResourceStack(Resource.RESOURCE_STATUS_DELETE);
+			
+			//If this resource has been replaced
+			if(r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
+				this.commit(r, Resource.RESOURCE_STATUS_DELETE);
+				continue;
+			}
+		}
+	}
+	
+
+	/**
+	 * Called on a table to restage any unstaged resources. 
+	 * 
+	 * @param incoming The table which unstaged this table's resources
+	 */
+	public void repairTable(ResourceTable incoming) {
+		Stack<Resource> s = this.GetResourceStack(Resource.RESOURCE_STATUS_UNSTAGED);
+		while(!s.isEmpty()) {
+			Resource resource = s.pop();
+			
+			if(incoming != null) {
+				//See if there's a competing resource
+				Resource peer = incoming.getResourceWithId(resource.getResourceId());
+				
+				//If there is, and it's been installed, unstage it to make room again 
+				if(peer != null && peer.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
+					incoming.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE);
+					//TODO: Is there anything we can do about this? Shouldn't it be an exception?
+					if(!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UPGRADE)) {
+						//TODO: IF there are errors here, signal that the incoming table
+						//should just be wiped out. It's not in acceptable shape
+					} else {
+						incoming.commit(peer, Resource.RESOURCE_STATUS_UPGRADE);
+					}
+				}
+			}
+			
+			//Way should be clear.
+			this.commit(resource, Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL);
+			if(resource.getInstaller().revert(resource, this)) {
+				this.commit(resource, Resource.RESOURCE_STATUS_INSTALLED);
+			}
+		}
+	}
+	
+	/**
+	 * Complete the uninstallation of a table that has been overwritten.
+	 * 
+	 * This method is the final step in an update, after this table has
+	 * already been moved to a placeholder table and been evaluated for
+	 * what resources are no longer necessary.
+	 * 
+	 * If this table encounters any problems it will not intentionally
+	 * throw errors, assuming that it's preferable to leave data unremoved
+	 * rather than breaking the app.
+	 *  
+	 */
+	public void completeUninstall() {
+		cleanup();
+		Stack<Resource> s = this.GetResourceStack();
+		while(!s.isEmpty()) {
+			Resource r = s.pop();
+			if(r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
+				try {
+					r.getInstaller().uninstall(r);
+				} catch(Exception e) {
+					Logger.log("resources", "Error uninstalling resource " + r.getRecordGuid() + ". " + e.getMessage());
+				}
+			}
 		}
 		
-		incoming.cleanup();
-		return true;
+		storage.removeAll();
+	}
+	
+	
+	
+	/**
+	 * Copy all of this table's resource records to the (empty) table provided.
+	 * 
+	 * @throws IllegalArgumentException If incoming table is not empty
+	 */
+	public void copyToTable(ResourceTable newTable) throws IllegalArgumentException {
+		if(!newTable.isEmpty()) {
+			throw new IllegalArgumentException("Can't copy into a table with data in it!");
+		}
+		
+		//Copy over all of our resources to the new table
+		for(Resource r : this.GetResources()) {
+			r.setID(-1);
+			newTable.commit(r);
+		}
 	}
 	
 	public String toString() {
@@ -552,6 +636,16 @@ public class ResourceTable {
 			return "Ready for Upgrade";
 		case Resource.RESOURCE_STATUS_DELETE:
 			return "Flagged for Deletion";
+		case Resource.RESOURCE_STATUS_UNSTAGED:
+			return "Unstaged";
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
+			return "Install->Unstage (dirty)";
+		case Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE:
+			return "Install->Upgrade (dirty)";
+		case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:
+			return "Unstage->Install (dirty)";
+		case Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL:
+			return "Upgrade->Install (dirty)";
 		default:
 			return "Unknown";
 		}
@@ -578,7 +672,7 @@ public class ResourceTable {
 			Resource r = s.pop();
 			if(r.getStatus() == Resource.RESOURCE_STATUS_UPGRADE) {
 				try {
-					r.getInstaller().uninstall(r, null, null);
+					r.getInstaller().uninstall(r);
 					count++;
 				} catch (UnresolvedResourceException e) {
 					//already gone!
@@ -739,5 +833,6 @@ public class ResourceTable {
 		if(number < 0) { throw new IllegalArgumentException("Can't have less than 0 retries"); }
 		this.numberOfLossyRetries = number;
 	}
+
 
 }

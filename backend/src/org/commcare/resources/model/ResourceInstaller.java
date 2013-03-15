@@ -62,24 +62,51 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
 	/**
 	 * Removes the binary files and cached data associated with a resource, often in order to 
 	 * overwrite their old location with a new resource.
+	 * 
+	 * This method _should only_ be called on a resource table that will never be made ready again.
 	 */
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException;
+	public boolean uninstall(Resource r) throws UnresolvedResourceException;
 	
 	/**
-	 * Upgrade is called when a resource is installed locally, but is waiting for a 
-	 * previous version of itself to be uninstalled. This method generally moves 
-	 * any unique indexes from a temporary value to the appropriate value which would
-	 * be used for the installed resource.
+	 * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
+	 * resource from an upgrade table.
 	 * 
-	 * After this step is completed, the resource should be marked as installed. 
+	 * This method must be reversible by calling the "revert" method, so no files should be deleted or permanently removed.
+	 * 
+	 * After being unstaged, a resource's status will be set by the resource table.
+	 */
+	public boolean unstage(Resource r, int newStatus);
+	
+	/**
+	 * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
+	 * after an unsuccesful upgrade or other issue. 
+	 */
+	public boolean revert(Resource r, ResourceTable table);
+	
+	/**
+	 * Rolls back an incomplete action.
+	 * 
+	 * @return the new status of this resource
+	 */
+	public int rollback(Resource r);
+	
+	/**
+	 * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
+	 * 
+	 * This method should result in the existing resource being marked as "installed" in the
+	 * existing table and the resource being ready for use.
+	 * 
+	 * This method should be revertable.  
 	 * 
 	 * @param r The resource to be upgraded.
-	 * @param table The table in which the resource belongs.
 	 * @return True if the upgrade step was completed successfully.
 	 * @throws UnresolvedResourceException If the local resource definition could not be found
 	 */
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException;
+	public boolean upgrade(Resource r) throws UnresolvedResourceException;
 	
+	/**
+	 * Called to clean up or close any interstitial state that was created by managing this resource.
+	 */
 	public void cleanup();
 	
 	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problemList);

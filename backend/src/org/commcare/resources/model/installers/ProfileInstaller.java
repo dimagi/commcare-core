@@ -147,7 +147,9 @@ public class ProfileInstaller extends CacheInstaller {
 			cacheLocation = profile.getID();
 	}
 	
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+	public boolean upgrade(Resource r) throws UnresolvedResourceException {
+		//TODO: Hm... how to do this property setting for reverting?
+		
 		Profile p;
 		if(getlocal().containsKey(r.getRecordGuid())) {
 			p = getlocal().get(r.getRecordGuid());
@@ -162,6 +164,16 @@ public class ProfileInstaller extends CacheInstaller {
 			e.printStackTrace();
 			throw new UnresolvedResourceException(r,"Couldn't write the profile to storage. Full.");
 		}
+	}
+	
+	public boolean unstage(Resource r, int newStatus) {
+		//Nothing to do. Cache location is clear.
+		return true;
+	}
+
+	public boolean revert(Resource r, ResourceTable table) {
+		//Possibly re-set this profile's default property setters.
+		return true;
 	}
 	
 	public void cleanup() {

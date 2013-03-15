@@ -40,7 +40,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  *
  */
-public class SuiteInstaller extends CacheInstaller {
+public class SuiteInstaller extends CacheInstaller<Suite> {
 	
 	/* (non-Javadoc)
 	 * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
