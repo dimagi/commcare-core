@@ -119,15 +119,15 @@ public class CommCarePlatform implements CommCareInstance {
 
 	}
 	
-	//TODO: Figure out resuming
 	public void upgrade(ResourceTable global, ResourceTable incoming, ResourceTable recovery) throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
 
 		if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
 			throw new IllegalArgumentException("Global resource table was not ready for upgrading");
 		}
 		
-		//Don't know what else this would be
-		if(incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_UPGRADE) {
+		//TODO: Figure out more cleanly what the acceptable states are here
+		int incomingState = incoming.getTableReadiness();
+		if(incomingState == ResourceTable.RESOURCE_TABLE_UNCOMMITED || incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED || incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
 			throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
 		}
 		
