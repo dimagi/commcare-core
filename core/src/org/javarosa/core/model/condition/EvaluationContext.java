@@ -29,6 +29,7 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /* a collection of objects that affect the evaluation of an expression, like function handlers
  * and (not supported) variable bindings
@@ -295,27 +296,56 @@ public class EvaluationContext {
 			if(predicates != null && predicateEvaluationProgress != null) {
 				predicateEvaluationProgress[1] += set.size();
 			}
-			int numQualifyingElements = 0;
+			//Create a place to store the current position markers
+			int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
+			
+			//init all to 0
+			for(int i = 0 ; i < positionContext.length ; ++ i) { positionContext[i] = 0; }
+			
 			for (Enumeration e = set.elements(); e.hasMoreElements();) {
 				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
 				TreeReference treeRef = (TreeReference)e.nextElement();				
 				if(predicates != null)
 				{
 					boolean passedAll = true;
+					int predIndex = -1;
 					for(XPathExpression xpe : predicates)
 					{
+						predIndex++;
+						//Just by getting here we're establishing a position for evaluating the current 
+						//context. If we break, we won't push up the next one
+						positionContext[predIndex]++;
+						
 						//test the predicate on the treeElement
 						//EvaluationContext evalContext = new EvaluationContext(this, treeRef);
-						EvaluationContext evalContext = rescope(treeRef, numQualifyingElements);
+						EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
 						Object o = xpe.eval(instance, evalContext);
-						if(o instanceof Boolean)
+						
+						//There's a special case here that can't be handled by syntactic sugar.
+						//If the result of a predicate expression is an Integer, we need to 
+						//evaluate whether that value is equal to the current position context
+						
+						o = XPathFuncExpr.unpack(o);
+						
+						boolean passed = false;
+						
+						if(o instanceof Double) {
+							//The spec just says "number" for when to use
+							//this, so I think this is ok? It's not clear 
+							//what to do with a non-integer. It's possible
+							//we are not supposed to round.
+							int intVal = XPathFuncExpr.toInt(o).intValue();
+							passed = (intVal == positionContext[predIndex]);
+						} else if(o instanceof Boolean) {
+							passed = ((Boolean)o).booleanValue();
+						} else {
+							//???
+						}
+						
+						if(!passed)
 						{
-							boolean passed = ((Boolean)o).booleanValue();
-							if(!passed)
-							{
-								passedAll = false;
-								break;
-							}
+							passedAll = false;
+							break;
 						}
 					}
 					if(predicateEvaluationProgress != null) {
@@ -323,7 +353,6 @@ public class EvaluationContext {
 					}
 					if(passedAll)
 					{
-						numQualifyingElements++;
 						expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
 					}
 				}
