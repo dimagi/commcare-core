@@ -32,12 +32,6 @@ public class ResourceTable {
 
 	private IStorageUtilityIndexed storage;
 	private InstallerFactory factory;
-	
-	public final static int RESOURCE_TABLE_EMPTY = 0;
-	public final static int RESOURCE_TABLE_INSTALLED = 1;
-	public final static int RESOURCE_TABLE_PARTIAL = 2;
-	public final static int RESOURCE_TABLE_UPGRADE = 3;
-	
 
 	/**
 	 * For Serialization Only!
@@ -62,34 +56,6 @@ public class ResourceTable {
 		table.storage = storage;
 		table.factory = factory;
 		return table;
-	}
-	
-	/**
-	 * @return status representing table preparedness
-	 * 	RESOURCE_TABLE_EMPTY
-	 * 	RESOURCE_TABLE_INSTALLED
-	 * 	RESOURCE_TABLE_PARTIAL
-	 */
-	public int getTableReadiness(){
-		
-		boolean isFullyInstalled = true;
-		boolean isEmpty = true;
-		
-		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
-			Resource r = (Resource)it.nextRecord();
-
-			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
-				isFullyInstalled = false;
-			}
-			
-			if(r.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED){
-				isEmpty = false;
-			}
-		}
-		
-		if(isEmpty){return RESOURCE_TABLE_EMPTY;}
-		if(isFullyInstalled){return RESOURCE_TABLE_INSTALLED;}
-		return RESOURCE_TABLE_PARTIAL;
 	}
 	
 	public String getTableReadinessString() {
