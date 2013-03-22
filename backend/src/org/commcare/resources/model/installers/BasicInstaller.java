@@ -21,6 +21,9 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
+ * 
+ * TODO: This is... not useful
+ * 
  * @author ctsims
  *
  */
@@ -77,12 +80,26 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 		}
 		return false;
 	}
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
-		throw new RuntimeException("Locale files Shouldn't ever be marked upgrade yet");
+	
+
+	public boolean upgrade(Resource r) throws UnresolvedResourceException {
+		throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
 	}
 
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
+	public boolean uninstall(Resource r) throws UnresolvedResourceException {
 		return true;
+	}
+	
+	public boolean unstage(Resource r, int newStatus) {
+		return true;
+	}
+
+	public boolean revert(Resource r, ResourceTable table) {
+		return true;
+	}
+	
+	public int rollback(Resource r) {
+		throw new RuntimeException("Basic Installer resources can't rolled back");
 	}
 	
 	public void cleanup() {

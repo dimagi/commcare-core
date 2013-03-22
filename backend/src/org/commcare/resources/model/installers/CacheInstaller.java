@@ -18,6 +18,7 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -35,13 +36,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public abstract class CacheInstaller implements ResourceInstaller<CommCareInstance> {
+public abstract class CacheInstaller<T extends Persistable> implements ResourceInstaller<CommCareInstance> {
 
-	private IStorageUtility cacheStorage;
+	private IStorageUtility<T> cacheStorage;
 	
 	protected abstract String getCacheKey();
 	
-	protected IStorageUtility storage() {
+	protected IStorageUtility<T> storage() {
 		if(cacheStorage == null) {
 			cacheStorage = StorageManager.getStorage(getCacheKey());
 		}
@@ -68,39 +69,35 @@ public abstract class CacheInstaller implements ResourceInstaller<CommCareInstan
 	
 	public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
 	
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+	public boolean upgrade(Resource r) throws UnresolvedResourceException {
 		//Don't need to do anything, since the resource is in the RMS already.
 		throw new UnresolvedResourceException(r,"Attempt to upgrade installed resource suite");
 	}
 
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
+	public boolean uninstall(Resource r) {
 		try {
 			storage().remove(cacheLocation);
 		} catch(IllegalArgumentException e) {
 			//Already gone! Shouldn't need to fail.
 		}
-		
-		if(table != null && incoming != null) {
-			//Mark children for deletion
-			Vector<Resource> records = table.getResourcesForParent(r.getRecordGuid());
-			for(Resource child : records) {
-				Resource peer = incoming.getResourceWithId(child.getResourceId());
-				if(peer != null && peer.getVersion() == child.getVersion()) {
-					//Do nothing. Happy duplicates.
-				} else {
-					//Mark kid for deletion, it's no longer useful.
-					table.commit(child, Resource.RESOURCE_STATUS_DELETE);
-					//TODO: Write child back to table
-				}
-			}
-		}
-		
-		//CTS: The table should be taking care of this for the installer, no need to do it manually
-		//Now remove yourself from the table
-		//table.removeResource(r);
-		
 		return true;
 	}
+
+	public boolean unstage(Resource r, int newStatus) {
+		//By default, shouldn't need to move anything.
+		return true;
+	}
+
+	public boolean revert(Resource r, ResourceTable table) {
+		//By default, shouldn't need to move anything.
+		return true;
+	}
+	
+	public int rollback(Resource r) {
+		//This does nothing, since we don't do any upgrades/unstages
+		return Resource.getCleanFlag(r.getStatus());
+	}
+	
 	
 	public void cleanup() {
 		if(cacheStorage != null) {

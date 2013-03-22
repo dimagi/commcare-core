@@ -34,6 +34,7 @@ import org.javarosa.j2me.view.J2MEDisplay;
 public abstract class CommCareUpgradeState implements State, TrivialTransitions {
 	
 	public static final String UPGRADE_TABLE_NAME = "UPGRADGE";
+	public static final String RECOVERY_TABLE_NAME = "RECOVERY";
 	boolean interactive = false;
 	int networkRetries = -1;
 	
@@ -63,6 +64,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 		
 		CommCareInitializer upgradeInitializer = new CommCareInitializer() {
 			ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable(UPGRADE_TABLE_NAME);
+			ResourceTable recovery = CommCareContext.CreateTemporaryResourceTable(RECOVERY_TABLE_NAME);
 
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {
 				
@@ -72,15 +74,17 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
 				
+				if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+					//TODO: Recover/repair
+				}
+				
 				boolean staged = false;
 				
 				while(!staged) {
 					try {
-						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade);
+						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, false);
 						interaction.updateProgess(20);
 						staged = true;
-					} catch (StorageFullException e) {
-						Logger.die("Upgrade", e);
 					} catch (UnresolvedResourceException e) {
 						if(interactive) {
 							if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
@@ -178,7 +182,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 					upgradeAttemptPending = false;
 					
 					try {
-						CommCareContext._().getManager().upgrade(global, upgrade);
+						CommCareContext._().getManager().upgrade(global, upgrade, recovery);
 					} catch(UnreliableSourceException e) {
 						//We simply can't retrieve all of the resources that we're looking for.
 						

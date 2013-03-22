@@ -74,12 +74,71 @@ public class Resource implements Persistable, IMetaData {
 	public static final int RESOURCE_AUTHORITY_RELATIVE = 4;
 	public static final int RESOURCE_AUTHORITY_TEMPORARY = 8;
 	
+	/**
+	 * Completely Unprocessed
+	 */
 	public static final int RESOURCE_STATUS_UNINITIALIZED = 0;
+	
+	/**
+	 * Resource is in the local environment and ready to install
+	 */
 	public static final int RESOURCE_STATUS_LOCAL = 1;
+	
+	/**
+	 * TODO: I think this means the same as "upgade" and should be
+	 * removed and replaced by it
+	 */
 	public static final int RESOURCE_STATUS_PENDING = 2;
+	
+	/**
+	 * Installed and ready to use
+	 */
 	public static final int RESOURCE_STATUS_INSTALLED = 4;
+	
+	/**
+	 * Resource is ready to replace an existing installed
+	 * resource.
+	 */
 	public static final int RESOURCE_STATUS_UPGRADE = 8;
+	
+	/**
+	 * Resource is no longer needed in the local environment and can
+	 * be completely removed
+	 */
 	public static final int RESOURCE_STATUS_DELETE = 16;
+	
+	
+	//TODO: We can probably encode this more sanely. 
+	
+	//Abandoning binary numbering.
+	
+	/**
+	 * Resource has been "unstaged" (won't necessarily work
+	 * as an app resource), but can be reverted to installed
+	 * atomically.
+	 */
+	public static final int RESOURCE_STATUS_UNSTAGED = 17;
+	
+	/**
+	 * Resource is transitioning from installed to unstaged,
+	 * and can be in any interstitial state.
+	 */
+	public static final int RESOURCE_STATUS_INSTALL_TO_UNSTAGE = 18;
+	
+	/**
+	 * Resource is transitioning from unstaged to being installed
+	 */
+	public static final int RESOURCE_STATUS_UNSTAGE_TO_INSTALL = 19;
+	
+	/**
+	 * Resource is transitioning from being upgraded to being installed 
+	 */
+	public static final int RESOURCE_STATUS_UPGRADE_TO_INSTALL = 20;
+	
+	/**
+	 * Resource is transitioning from being installed to being upgraded
+	 */
+	public static final int RESOURCE_STATUS_INSTALL_TO_UPGRADE = 21;
 	
 	public static final int RESOURCE_VERSION_UNKNOWN = -2;
 	
@@ -262,6 +321,17 @@ public class Resource implements Persistable, IMetaData {
 			return this.version > peer.getVersion();
 		}
 	}
+	
+	/**
+	 * Take on all identifiers from the incoming 
+	 * resouce, so as to replace it in a different table.
+	 * 
+	 * @param source
+	 */
+	public void mimick(Resource source) {
+		this.guid = source.guid;
+		this.id = source.id;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -331,5 +401,27 @@ public class Resource implements Persistable, IMetaData {
 	 */
 	public String[] getMetaDataFields() {
 		return new String[] {META_INDEX_RESOURCE_ID,META_INDEX_RESOURCE_GUID, META_INDEX_PARENT_GUID,META_INDEX_VERSION};
+	}
+
+	public boolean isDirty() {
+		return getStatus() == Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE ||
+				getStatus() == Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE ||
+				getStatus() == Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL ||
+				getStatus() == Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL;
+	}
+	
+	public static int getCleanFlag(int dirtyFlag) {
+		//We actually will just push it forward by default, since this method
+		//is used by things that can only be in the right state
+		if(dirtyFlag ==  Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE) {
+			return RESOURCE_STATUS_UNSTAGED;
+		} else if(dirtyFlag ==  Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE) {
+			return RESOURCE_STATUS_UPGRADE;
+		} else if(dirtyFlag ==  Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL) {
+			return RESOURCE_STATUS_INSTALLED;
+		}  else if(dirtyFlag ==  Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL) {
+			return RESOURCE_STATUS_INSTALLED;
+		}  
+		return -1;
 	}
 }

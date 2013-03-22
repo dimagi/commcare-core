@@ -208,12 +208,27 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		}
 	}
 	
-	public boolean upgrade(Resource r, ResourceTable table) throws UnresolvedResourceException {
+	public boolean upgrade(Resource r) throws UnresolvedResourceException {
 		//TODO: Rename file to take off ".N"?
 		return true;
 	}
+	
+	public boolean unstage(Resource r, int newStatus) {
+		return true;
+	}
 
-	public boolean uninstall(Resource r, ResourceTable table, ResourceTable incoming) throws UnresolvedResourceException {
+	public boolean revert(Resource r, ResourceTable table) {
+		return true;
+	}
+	
+	
+	public int rollback(Resource r) {
+		//This does nothing
+		return Resource.getCleanFlag(r.getStatus());
+	}
+	
+
+	public boolean uninstall(Resource r) throws UnresolvedResourceException {
 		//If we're not using files, just deal with the cache (this is even likely unnecessary).
 		if(cache != null) {
 			cache.clear();
@@ -237,7 +252,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 			throw new UnresolvedResourceException(r,"Problem removing local data at reference " + localReference);
 		}
 	}
-	
+
 	public void cleanup() {
 		
 	}
