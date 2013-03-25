@@ -33,6 +33,10 @@ public class ResourceTable {
 	private IStorageUtilityIndexed storage;
 	private InstallerFactory factory;
 
+	public final static int RESOURCE_TABLE_EMPTY = 0;
+ 	public final static int RESOURCE_TABLE_INSTALLED = 1;
+ 	public final static int RESOURCE_TABLE_PARTIAL = 2;
+ 	public final static int RESOURCE_TABLE_UPGRADE = 3;
 	public static final int RESOURCE_TABLE_UNSTAGED = 4;
 	public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 	/**
@@ -60,11 +64,21 @@ public class ResourceTable {
 		return table;
 	}
 	
+ 	public int getTableReadiness(){
 		//TODO: this is very hard to fully specify without doing assertions when preparing a
 		//table about appropriate states
+ 		
+ 		boolean isFullyInstalled = true;
+ 		boolean isEmpty = true;
 		boolean unstaged = false;
 		boolean upgrade = false;
 		boolean dirty = false;
+ 		
+ 		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
+ 			Resource r = (Resource)it.nextRecord();
+ 			if(r.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED){
+ 				isEmpty = false;
+ 			}
 			
 			if(r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
 				unstaged = true;
@@ -75,27 +89,18 @@ public class ResourceTable {
 			if(r.isDirty()) {					
 				dirty = true;
 			}
+ 		}
+ 		
 		if(dirty) { return RESOURCE_TABLE_UNCOMMITED; }
+ 		if(isEmpty){return RESOURCE_TABLE_EMPTY;}
+ 		if(isFullyInstalled){return RESOURCE_TABLE_INSTALLED;}
 		if(unstaged) { return RESOURCE_TABLE_UNSTAGED; }
 		if(upgrade) { return RESOURCE_TABLE_UPGRADE; }
 		
-	public String getTableReadinessString() {
-		
-		int readyCount=0;
-		int totalCount=0;
-		
-		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
-			totalCount++;
-			Resource r = (Resource)it.nextRecord();
+ 		return RESOURCE_TABLE_PARTIAL;
+ 	}
 
-			if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
-				readyCount++;
-			}
-		}
-		return readyCount + " reosources ready out of " + totalCount;
-	}
-	
-	public InstallerFactory getInstallers() {
+ 	public InstallerFactory getInstallers() {
 		return factory;
 	}
 
