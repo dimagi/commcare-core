@@ -228,7 +228,38 @@ public class CommCareContext {
 				
 				//Try to initialize and install the application resources...
 				try {
+					
+					//TODO: This cleanup is replicated across different parts of code.
 					ResourceTable global = RetrieveGlobalResourceTable();
+					
+					ResourceTable upgrade = CommCareContext.CreateTemporaryResourceTable(CommCareUpgradeState.UPGRADE_TABLE_NAME);
+					
+					/**
+					 * See if any of our tables got left in a weird state 
+					 */
+					
+					if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+						global.rollbackCommits();
+					}
+					
+					
+					if(upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+						upgrade.rollbackCommits();
+					}
+
+					/**
+					 * See if we got left in the middle of an update, make sure we get fixed.
+					 *
+					 */
+
+					if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+						//If so, repair the global table. (Always takes priority over maintaining
+						//the update)
+						global.repairTable(upgrade);
+					}
+					
+					
+					
 					global.setStateListener(new TableStateListener() {
 						
 						static final int INSTALL_SCORE = 5; 
