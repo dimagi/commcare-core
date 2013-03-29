@@ -76,6 +76,9 @@ public class ResourceTable {
  		
  		for(IStorageIterator it = storage.iterate(); it.hasMore();) {
  			Resource r = (Resource)it.nextRecord();
+ 			if(r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
+ 				isFullyInstalled = false;
+ 			}
  			if(r.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED){
  				isEmpty = false;
  			}
@@ -122,10 +125,8 @@ public class ResourceTable {
 		Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
 		for(Integer i : existing ) {
 			Resource r = (Resource)storage.read(i.intValue());
-			if(r.getVersion() == resource.getVersion()) {
-				//this resource is already here! No worries
-				return;
-			}
+			//this resource is already here! No worries
+			return;
 		}
 		
 		resource.setStatus(status);
