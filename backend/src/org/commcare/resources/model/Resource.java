@@ -331,6 +331,7 @@ public class Resource implements Persistable, IMetaData {
 	public void mimick(Resource source) {
 		this.guid = source.guid;
 		this.id = source.id;
+		this.recordId = source.recordId;
 	}
 
 	/*
