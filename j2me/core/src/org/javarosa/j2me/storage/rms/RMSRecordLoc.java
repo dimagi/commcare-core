@@ -26,6 +26,16 @@ public class RMSRecordLoc implements Externalizable {
 		this.recID = recID;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		//These values are unlikely to be large, so shouldn't overlap a ton
+		//to use both halves of the int's bytes. Also, we shoudln't really
+		//have negative values
+		return rmsID << 16 | recID;
+	}
+
 	public boolean equals (Object o) {
 		if (o instanceof RMSRecordLoc) {
 			RMSRecordLoc r = (RMSRecordLoc)o;

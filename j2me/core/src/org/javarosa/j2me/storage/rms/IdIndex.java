@@ -71,7 +71,11 @@ public class IdIndex {
 		if(cache != null) {
 			return cache;
 		} else {
-			return (Hashtable)getIndexStore ().readRecord(RMSStorageUtility.ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));
+			Hashtable index = (Hashtable)getIndexStore ().readRecord(RMSStorageUtility.ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));
+			if(index == null) {
+				throw new RuntimeException("corrupted index table!");
+			}
+			return index;
 		}
 	}
 	

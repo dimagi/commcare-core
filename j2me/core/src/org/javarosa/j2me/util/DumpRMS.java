@@ -67,6 +67,7 @@ public class DumpRMS {
 	}
 	
 	public static void dumpRMS (DataOutputStream out) {
+		String currentRMS = "";
 		try {
 			String[] rmses = RecordStore.listRecordStores();
 			if (rmses == null) //seriously??
@@ -76,6 +77,7 @@ public class DumpRMS {
 			
 			for (int i = 0; i < rmses.length; i++) {				
 				String rmsName = rmses[i];
+				currentRMS = rmsName;
 				ExtUtil.writeString(out, rmsName);
 				
 				RecordStore rs = RecordStore.openRecordStore(rmsName, false);
@@ -107,9 +109,9 @@ public class DumpRMS {
 				rs.closeRecordStore();
 			}
 		} catch (IOException ioe) {
-			fail(ioe, "ioexception");
+			fail(ioe, currentRMS + ": ioexception");
 		} catch (RecordStoreException rse) {
-			fail(rse, "recstoreexception");
+			fail(rse, currentRMS + ": recstoreexception");
 		} finally {
 			try {
 				out.flush();

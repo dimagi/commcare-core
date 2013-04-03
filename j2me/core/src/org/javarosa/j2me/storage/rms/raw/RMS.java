@@ -1,6 +1,9 @@
 package org.javarosa.j2me.storage.rms.raw;
 
+import java.util.Hashtable;
+
 import javax.microedition.rms.InvalidRecordIDException;
+import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.rms.RecordStoreFullException;
@@ -9,6 +12,7 @@ import javax.microedition.rms.RecordStoreNotOpenException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
+import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 
 /**
  * A simple wrapper around an RMS RecordStore that handles common exceptions and
@@ -81,6 +85,50 @@ public class RMS {
 
 	public boolean updateRecord(int id, byte[] data) {
 		return updateRecord(id, data, false);
+	}
+	
+	public void listRecords(Hashtable<RMSRecordLoc, Boolean> records, int rmsId) {
+		try {
+			RecordEnumeration re = rms.enumerateRecords(null,  null, false);
+			while(re.hasNextElement()) {
+				try {
+					int i = re.nextRecordId();
+					records.put(new RMSRecordLoc(rmsId, i), Boolean.TRUE);
+				} catch(InvalidRecordIDException iride) {
+					//Hm, not sure what to do with this.
+				}
+			}
+		} catch(RecordStoreNotOpenException e) {
+			
+		}  catch(ArrayIndexOutOfBoundsException oob) {
+			//Apparently Nokias throw this sometimes _instead_ of the invalid
+			//record ID exception! SOUNDS LEGIT, RIGHT?
+			//Just... just what the hell
+			
+			//this indicates this RMS is destroyed, we should copy data out of here to a new one.
+			try {
+				int lastIndex = rms.getNumRecords();
+				int lastRecordID = rms.getNextRecordID();
+				
+				lastIndex = lastIndex > lastRecordID ? lastIndex : lastRecordID;
+				
+					
+				//Ok, so we're gonna try a new approach here. Try to iterate over
+				//everything. Maybe we can still find some records.
+				for(int i = 0 ; i < lastIndex ; ++i ){
+					try {
+						rms.getRecordSize(i);
+						records.put(new RMSRecordLoc(rmsId, i), Boolean.TRUE);
+					} catch(InvalidRecordIDException iride) {
+						//Hm, not sure what to do with this.
+					}
+				}
+					
+				
+			} catch(RecordStoreException rse ){
+				
+			}
+		}
 	}
 
 	/**

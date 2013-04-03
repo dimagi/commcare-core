@@ -84,7 +84,7 @@ public class RMSStorageIterator implements IStorageIterator {
 	public Externalizable nextRecord () {
 		synchronized (store.getAccessLock()) {
 			synchronized (this) {
-				return store.read(nextID(), index);
+				return store.read(nextID(), index, false);
 			}
 		}
 	}

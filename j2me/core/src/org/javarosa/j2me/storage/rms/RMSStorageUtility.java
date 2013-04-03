@@ -129,8 +129,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		this.allocateIDs = allocateIDs;
 		
 		initStaticInfo();
-			
-		loadIndexStore();
+		
+		try {
+			loadIndexStore();
+			//TODO: better exception for corruption
+		} catch(RuntimeException e) {
+			//Index store is corrupted. 
+			repairIndexStore();
+		}
 	}
 	
 	public String getName () {
@@ -141,15 +147,27 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		return type;
 	}
 	
-	protected E read(int id, IdIndex index) {
+	protected E read(int id, IdIndex index, boolean nullOk) {
 		synchronized (getAccessLock()) {
 
 			checkNotCorrupt();
 			
 			RMSRecordLoc loc = index.getRecordLoc(id);
 			if (loc != null) {
-				return (E)getDataStore(loc.rmsID).readRecord(loc.recID, type);
+				E e = (E)getDataStore(loc.rmsID).readRecord(loc.recID, type);
+				if(e == null) {
+					//if there was a record locator, but no record, something is not ok.
+					repair(true);
+					
+					//TODO: Try to return the record if possible?
+					return null;
+				}
+				
+				return e;
 			} else {
+				if(!nullOk) {
+					repair(true);
+				}
 				return null;
 			}
 			
@@ -163,7 +181,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * @return object for 'id'. null if no object is stored under that ID
 	 */
 	public E read (int id) {
-		return read(id, index);
+		return read(id, index, true);
 	}
 
 	/**
@@ -299,7 +317,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				throw new StorageFullException();
 			}
 			
-			index.beginChangeCommit(id, loc);;
+			index.beginChangeCommit(id, loc);
 			info.numRecords++;
 			
 			commitIndex(info, index);
@@ -651,6 +669,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 	 * in data loss
 	 */
 	public void repair () {
+		repair(false);
+	}
+	
+	private void repair(boolean force) {
 		synchronized (getAccessLock()) {
 			if (RMSTransaction.anyTxOpen()) {
 				throw new RuntimeException("operation not allowed while transactions are active");
@@ -658,6 +680,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		
 			try {
 				checkNotCorrupt();
+				if(force) { throw new IllegalStateException("An internal constraint was violated");}
 				
 				//integrity is ok
 				return;
@@ -665,18 +688,45 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			} catch (IllegalStateException ise) {
 				//utility is corrupt; fix it
 				log("rms-repair", "buf[" + getReserveBufferSize() + "]");
+				
+				Hashtable<RMSRecordLoc, Boolean> realRecords = new Hashtable<RMSRecordLoc, Boolean>();
+				
+				//Enumerate all of the records which exist
+				for(int id = 0; id < datastores.length; ++ id) {
+					int numPossible = -1;
+					try {
+						numPossible = datastores[id].rms.getNumRecords();
+					} catch(Exception e) {
+						log("rms-repair", "Error getting num records(" + e.getClass() + ": " + e.getMessage() + ")");
+					}
+					log("rms-repair", "Enumerating recordStore: " + id + " to check " + numPossible + " records");
+					int old = realRecords.size();
+					datastores[id].listRecords(realRecords, id);
+					log("rms-repair", "Located " + (realRecords.size() - old) + " records");
+				}
+				log("rms-repair", "Existing records enumerated");
 			
 				RMSStorageInfo info = getInfoRecord();
+				
+				log("rms-repair", "Retrieving index table for repair");
+				
 				Hashtable idIndex = index.getIndexTable();
 
 				//check index for entries where record does not exist in rms
 				Vector invalidIDs = new Vector();
 				int max_datastore = -1;
+				
+				log("rms-repair", "Enumerating RMS Index items");
 				for (Enumeration e = idIndex.keys(); e.hasMoreElements(); ) {
 					int id = ((Integer)e.nextElement()).intValue();
 					RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
 					if (loc.rmsID > max_datastore) {
 						max_datastore = loc.rmsID;
+					}
+					
+					//remove this record from the table to signify that it's currently known 
+					if(realRecords.containsKey(loc)) {
+						realRecords.remove(loc);
 					}
 					
 					boolean recordExists = false;
@@ -695,6 +745,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 						invalidIDs.addElement(new Integer(id));
 					}
 				}
+				
+				log("rms-repair", "Removing " + invalidIDs.size() + " corrupted records from index");
 				for (int i = 0; i < invalidIDs.size(); i++) {
 					idIndex.remove((Integer)invalidIDs.elementAt(i));
 				}
@@ -702,6 +754,24 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				//check for rms records that have no corresponding index entry
 				//note: this is hte most likely failure scenario
 				//TODO -- it's not going to hurt anything for now
+				
+				int nextID = idIndex.size() + 1;
+				
+				//Any records which exist in this table now represent values _unknown_ to the
+				//record store. We'll add them back (TODO: Maybe see whether some were
+				//part of a transaction and sohldn't be?)
+				for(Enumeration en = realRecords.keys() ; en.hasMoreElements(); ) {
+					RMSRecordLoc loc = (RMSRecordLoc)en.nextElement();
+					idIndex.put(new Integer(nextID), loc);
+					//TODO: The internal record ID's and Persistable record Id's won't necessarily
+					//match up after this op?
+					this.log("rms-corrupt", "Re-Indexed record: " + this.getName() + ": " + nextID + " => (" + loc.rmsID + "," + loc.recID + ")");
+					nextID++;
+					
+					if(loc.rmsID > max_datastore) {
+						max_datastore = loc.rmsID;
+					}
+				}
 				
 				//check for uncommitted spillover
 				try {
@@ -732,8 +802,127 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 					throw new IllegalStateException("Storage utility [" + basename + "] is corrupt and could not be repaired");
 				}
 			}
-
 		}
+	}
+	
+	private void repairIndexStore() {
+		
+		//NOTE: There are some _serious_ timing problems here where things can get into a very bad 
+		//state.
+		
+		log("storage-corrupt", "Index Storage is corrupted. Attempting to recreate");
+		
+		RMS ix = null;
+		if(index != null && index.getIndexStore() != null) {
+			ix = index.getIndexStore();
+		} else {
+			try {
+				ix = rmsFactory.getIndexRMS(indexStoreName(), false);
+			} catch(RecordStoreException rse) {
+				//Storage is not valid.
+			}
+		}
+		
+		//We expect these might be null
+		byte[] storageInfo = null;
+		byte[] indexData = null;
+		//If we have storage, see if we can get anything from it
+		if(ix != null) {
+			//TODO: see if
+			//Get any of the living data if it's working
+			try {
+				storageInfo = ix.readRecord(STORAGE_INFO_REC_ID);
+			} catch(RuntimeException rse) {
+				//corrupt
+			}
+			try {
+				indexData = ix.readRecord(ID_INDEX_REC_ID);
+			} catch(RuntimeException rse) {
+				//corrupt
+			}
+			//Don't worry about the buffer or status...
+		}
+		
+		//ok, so we have all the data we're gonna have.
+		
+		if(ix != null) {
+			ix.close();
+		}
+		
+		//Delete the record store if it still exists.
+		try {
+			RecordStore.deleteRecordStore(indexStoreName());
+		} catch(RecordStoreNotFoundException rsnfe) {
+			//well this is the point....
+		} catch (RecordStoreException e) {
+			String message ="Couldn't wipe to repair record store index " + indexStoreName() + ": " + e.getMessage();
+			log("storage-corrupt", message);
+			//if it's not gone, it's a huge problem
+			throw new RuntimeException(message);
+		}
+		
+		//Create and initialize a new index store.
+		this.initIndexStore();
+		
+		ix = index.getIndexStore();
+		
+		boolean infoRecordRecovered = false;
+		if(storageInfo != null) {
+			ix.updateRecord(STORAGE_INFO_REC_ID, storageInfo, true);
+			infoRecordRecovered = true;
+		}
+		
+		if(!infoRecordRecovered) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover info record");} 
+		else { log("storage-corrupt", "Recovered Info Record");};
+		
+		boolean indexDataRecoverd = false;
+		if(indexData != null) {
+			ix.updateRecord(ID_INDEX_REC_ID, storageInfo, true);
+			indexDataRecoverd = true;
+		}
+		
+		if(!indexDataRecoverd) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover index data");} 
+		else { log("storage-corrupt", "Recovered index data");};
+		
+		
+		//Ok, manually go fix anything that we didn't fix
+		
+		if(!infoRecordRecovered) {
+			RMSStorageInfo info = (RMSStorageInfo)ix.readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
+			
+			//Figure out how many record stores we have
+			int stores = 0;
+			boolean failed = false;
+			while(!failed) {
+				try {
+					RMS rms = rmsFactory.getDataRMS(dataStoreName(stores), false);
+					stores++;
+					rms.close();
+				} catch (RecordStoreException rse) {
+					failed = true;
+				}
+			}
+			info.numDataStores = stores;
+			log("storage-corrupt", indexStoreName() + ": Discovered " + stores + " RMS files");
+			
+			if(!ix.updateRecord(STORAGE_INFO_REC_ID, ExtUtil.serialize(info), true)) {
+				//TODO: What if we can't recover this record?
+			}
+		}
+		
+		//Alright, now initialize the rest of the data.
+		this.datastores = new RMS[0];
+		getInfoRecord();
+		
+		for(int i = 0 ; i < datastores.length ; ++i) {
+			log("storage-corrupt", indexStoreName() + ": Initializing store: " + i);
+			this.getDataStore(i);
+			datastores[i].ensureOpen();
+			log("storage-corrupt", indexStoreName() + ": Store " + i + " reinitialized");
+		}
+		
+		//and repair the rest
+		this.repair(true);
 	}
 	
 	/**
@@ -1133,6 +1322,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		//TODO: All of this logic needs to move to the IdIndex!
 		RMSStorageInfo info = (RMSStorageInfo)index.getIndexStore().readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
 		
+		if(info == null) {
+			throw new RuntimeException("RMS Storage Info record is corrupted");
+		}
+		
 		if (info.numDataStores != datastores.length) {
 			resizeDatastoreArray(info);
 		}
@@ -1396,11 +1589,19 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		StringBuffer sb = new StringBuffer();
 		sb.append("=================\n");
 		
-		RMSStorageInfo info = getInfoRecord();
+		String rmsBaseInfo;
+		int numStores = -1;
+		try {
+			RMSStorageInfo info = getInfoRecord();
+			rmsBaseInfo = info.numRecords + ":" + info.numDataStores + ":" + info.nextRecordID + "\n";
+			numStores = info.numDataStores;
+		} catch(RuntimeException re) {
+			rmsBaseInfo = "info: corrupted\n";
+		}
 		Hashtable ix = index.getIndexTable();
 		
 		sb.append(basename + "(" + type.getName() + ") -- " + getStatus() + "\n");
-		sb.append(info.numRecords + ":" + info.numDataStores + ":" + info.nextRecordID + "\n");
+		sb.append(rmsBaseInfo);
 		
 		sb.append("rec index:\n");
 		for (Enumeration e = ix.keys(); e.hasMoreElements(); ) {
@@ -1410,7 +1611,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		}
 		
 		sb.append(printRMSInfo(index.getIndexStore().rms));
-		for (int i = 0; i < info.numDataStores; i++) {
+
+		for (int i = 0; i < numStores; i++) {
 			sb.append(printRMSInfo(getDataStore(i).rms));
 		}
 		
