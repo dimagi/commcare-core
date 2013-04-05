@@ -22,7 +22,7 @@ public class Localization {
 	}
 	
 	public static void registerLanguageFile(String localeName, String resourceFileURI) {
-		init();
+		init(false);
 		if(!globalLocalizer.hasLocale(localeName)){ 
 			globalLocalizer.addAvailableLocale(localeName);
 		}
@@ -33,7 +33,7 @@ public class Localization {
 	}
 	
 	public static void registerLanguageReference(String localeName, String referenceUri) {
-		init();
+		init(false);
 		if(!globalLocalizer.hasLocale(localeName)){ 
 			globalLocalizer.addAvailableLocale(localeName);
 		}
@@ -44,7 +44,7 @@ public class Localization {
 	}
 	
 	public static Localizer getGlobalLocalizerAdvanced() {
-		init();
+		init(false);
 		return globalLocalizer;
 	}
 	
@@ -61,16 +61,22 @@ public class Localization {
 	/**
 	 * 
 	 */
-	private static void init() {
-		if(globalLocalizer == null) {
+	public static void init(boolean force) {
+		if(globalLocalizer == null || force) {
 			globalLocalizer = new Localizer(true,false);
 		}
 	}
+	
+	public static void setLocalizationData(Localizer localizer) {
+		globalLocalizer = localizer;
+
+	}
+	
 	/**
 	 *  
 	 */
 	private static void checkRep() {
-		init();
+		init(false);
 		if(globalLocalizer.getAvailableLocales().length == 0) {
 			throw new LocaleTextException("There are no locales defined for the application. Please make sure to register locale text using the Locale.register() method");
 		}
