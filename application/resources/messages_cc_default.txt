@@ -155,7 +155,7 @@ restore.fail.nointernet=You appear to not be connected to the internet. Please c
 restore.fail.retry=An error occurred with your restore, would you like to retry?
 restore.fail.technical=An error occurred with your restore. You can retry, but likely need to contact technical support.
 
-xpath.fail.runtime =CommCare had a problem parsing your XForm. The error was: ${0}
+xpath.fail.runtime=CommCare had a problem parsing your XForm. The error was: ${0}
 
 validation.start=Validating media...
 validation.success=Validation successful!
