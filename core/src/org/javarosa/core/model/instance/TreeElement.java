@@ -929,13 +929,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 			}
 		} else {
 			Vector names = new Vector();
-			for (int i = 0; i < this.getNumChildren(); i++) {
-				TreeElement child = this.getChildAt(i);
-				if (!names.contains(child.getName())) {
-					names.addElement(child.getName());
-				}
-			}
-
+			
 			// remove all default repetitions from skeleton data model (_preserving_ templates, though)
 			for (int i = 0; i < this.getNumChildren(); i++) {
 				TreeElement child = this.getChildAt(i);
@@ -943,6 +937,13 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 					this.removeChildAt(i);
 					i--;
 				}
+			}
+
+			//We used to wipe out non-repeated elements, but we won't anymore
+			//since we commonly use the pattern.
+			for (int i = 0; i < this.getNumChildren(); i++) {
+				TreeElement child = this.getChildAt(i);
+				names.addElement(child.getName());
 			}
 
 			// make sure ordering is preserved (needed for compliance with xsd schema)
