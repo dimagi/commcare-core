@@ -10,14 +10,17 @@ package org.commcare.applogic;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.api.State;
-import org.javarosa.core.util.SizeBoundVector;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
+
 import de.enough.polish.ui.Command;
 import de.enough.polish.ui.CommandListener;
 import de.enough.polish.ui.Displayable;
@@ -51,7 +54,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
 	
 	private String validate() {
 		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
-		SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+		SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
 		ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
 		global.verifyInstallation(problems);
 		if(problems.size() > 0 ) {

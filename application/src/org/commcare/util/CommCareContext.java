@@ -19,6 +19,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -161,7 +162,7 @@ public class CommCareContext {
 			
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
-				SizeBoundVector<UnresolvedResourceException> problems = new SizeBoundVector<UnresolvedResourceException>(10);
+				SizeBoundVector<MissingMediaException> problems = new SizeBoundVector<MissingMediaException>(10);
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					int badImageRef = problems.getBadImageReferenceCount();
