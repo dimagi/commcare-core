@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
 
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -270,22 +271,22 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		ExtUtil.write(out, new ExtWrapMap(ExtUtil.emptyIfNull(cache)));
 	}
 
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems)  {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems)  {
 		try {
-		if(locale == null) { problems.addElement(new UnresolvedResourceException(r, "Bad metadata, no locale")); return true;}
+		if(locale == null) { problems.addElement(new MissingMediaException(r, "Bad metadata, no locale")); return true;}
 		if(cache != null) {
 			//If we've gotten the cache into memory, we're fine
 		} else {
 			try {
 				if(!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
-					throw new UnresolvedResourceException(r, "Locale data does note exist at: " + localReference);
+					throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
 				}
 			} catch (IOException e) {
-				throw new UnresolvedResourceException(r, "Problem reading locale data from: " + localReference);
+				throw new MissingMediaException(r, "Problem reading locale data from: " + localReference);
 			} catch (InvalidReferenceException e) {
-				throw new UnresolvedResourceException(r, "Locale reference is invalid: " + localReference);
+				throw new MissingMediaException(r, "Locale reference is invalid: " + localReference);
 			}
-		}} catch(UnresolvedResourceException ure) {
+		}} catch(MissingMediaException ure) {
 			problems.addElement(ure);
 			return true;
 		}

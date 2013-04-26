@@ -102,4 +102,9 @@ public class CommCareOTARestoreView extends Form{
 			return false;
 		}
 	}
+	public void stopGauge(){
+		this.deleteAll();
+		this.append(details);
+		
+	}
 }

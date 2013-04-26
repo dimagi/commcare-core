@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -172,7 +173,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 	}
 
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
 		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
 		
@@ -181,7 +182,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 		try {
 			formDef = (FormDef)storage().read(cacheLocation);
 		} catch(Exception e) {
-			sizeBoundProblems.addElement(new UnresolvedResourceException(r, "Form did not properly save into persistent storage"));
+			sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
 			return true;
 		}
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
@@ -212,13 +213,13 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									sizeBoundProblems.addElement(new UnresolvedResourceException(r,localName));
+									sizeBoundProblems.addElement(new MissingMediaException(r,localName));
 									if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
 									if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
 									if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){sizeBoundProblems.addBadImageReference();}
 								}
 							} catch (IOException e) {
-								sizeBoundProblems.addElement(new UnresolvedResourceException(r,"Problem reading external media: " + localName));
+								sizeBoundProblems.addElement(new MissingMediaException(r,"Problem reading external media: " + localName));
 							}
 						} catch (InvalidReferenceException e) {
 							//So the problem is that this might be a valid entry that depends on context

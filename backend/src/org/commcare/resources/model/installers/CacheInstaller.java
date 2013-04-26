@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -114,7 +115,7 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
 	}
 	
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> resources) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> resources) {
 		return false;
 	}
 

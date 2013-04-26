@@ -177,6 +177,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	
 	private void done() {
 		view.setFinished();
+		System.out.println("405 done");
 		view.addToMessage(Localization.get("restore.key.continue"));
 	}
 	
@@ -233,7 +234,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	public void onUpdate(int numberCompleted) {
 		view.updateProgress(numberCompleted);
 	}
-
+	
 	public void statusUpdate(int statusNumber) {
 		switch(statusNumber){
 			case CommCareOTARestoreListener.REGULAR_START:
@@ -341,6 +342,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	}
 	
 	public void promptRetry(String msg){
+		view.stopGauge();
 		entry.setInteractive(true);
 		if(isSync && !isUpdatingUser) {
 			if(senseMode) {
@@ -357,7 +359,9 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
 	public void onSuccess() {
 		view.setFinished();
 		if(!isSync) {
+			System.out.println("405 done 2");
 			view.addToMessage(Localization.get("restore.key.continue"));
+			markDoneAndExit();
 		} else {
 			markDoneAndExit();
 		}
