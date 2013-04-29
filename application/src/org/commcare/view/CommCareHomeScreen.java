@@ -1,8 +1,11 @@
 package org.commcare.view;
 
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
+
+import javax.microedition.lcdui.Image;
 
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
@@ -13,6 +16,8 @@ import org.commcare.util.CommCareUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.user.model.User;
 
 import de.enough.polish.ui.ChoiceItem;
@@ -36,6 +41,7 @@ public class CommCareHomeScreen extends CommCareListView {
 	
 	public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
 	public ChoiceItem serverSync = new ChoiceItem(Localization.get("menu.sync"), null, List.IMPLICIT);
+	
 	public ChoiceItem reviewRecent;
 
 	public Command select = new Command(Localization.get("polish.command.select"), Command.ITEM, 1);
@@ -115,16 +121,31 @@ public class CommCareHomeScreen extends CommCareListView {
 		this.reviewEnabled = reviewEnabled;
 	}
 	
+	public void setImage(ChoiceItem ci, String filePath){
+		try{
+			Image mImage = ImageUtils.getImage(Localization.get(filePath));
+			ci.setImage(mImage);
+		}
+		catch (NoLocalizedTextException e){
+			System.out.println("couldn't find file path");
+		}
+	}
+	
 	public void init() {
 		if(reviewEnabled) {
+			setImage(reviewRecent,"commcare.review.icon");
 			reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
 			append(reviewRecent);
 		}
+		
+		//serverSync.setImage(serverImage);
 
 		if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
+			setImage(serverSync,"server.sync.icon.normal");
 			append(serverSync);
 			setSync();
 		} else if (!CommCareSense.isAutoSendEnabled()) {
+			setImage(sendAllUnsent,"send.unsent.icon");
 			append(sendAllUnsent);
 			setSendUnsent();
 		} else {
@@ -220,6 +241,8 @@ public class CommCareHomeScreen extends CommCareListView {
 		if(bad) {
 			//#style unsentImportant
 			UiAccess.setStyle(serverSync);
+			
+			setImage(serverSync,"server.sync.icon.warn");
 		} else {
 			//#style listitem
 			UiAccess.setStyle(serverSync);

@@ -141,7 +141,6 @@ network.test.content.image=jr://resource/nttest_success.png
 network.test.failed.message=Network Test Failed. View Details to see error message
 network.test.failed.image=jr://resource/nttest_fail.png
 
-
 restore.ui.unbounded=Downloaded ${0} items
 restore.ui.bounded=Downloaded ${0} out of ${1} items.
 restore.fail.message=Restore failed for reasons below. Would you like to retry?
@@ -159,3 +158,8 @@ xpath.fail.runtime=CommCare had a problem parsing your XForm. The error was: ${0
 
 validation.start=Validating media...
 validation.success=Validation successful!
+
+server.sync.icon.normal=jr://file/commcare/images/sync_server_normal.png
+server.sync.icon.warn=jr://file/commcare/images/sync_server_warn.png
+send.unsent.icon=jr://file/commcare/images/send_unsent.png
+commcare.review.icon=jr://file/commcare/images/review_forms.png
