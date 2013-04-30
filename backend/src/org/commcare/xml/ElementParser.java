@@ -47,10 +47,10 @@ public abstract class ElementParser<T> {
 	 * @throws IOException If the stream cannot be read for any reason
 	 * other than invalid CommCare XML Structures.
 	 */
-	public ElementParser(InputStream suiteStream) throws IOException{
+	public ElementParser(InputStream stream) throws IOException{
 		parser = new KXmlParser();
 		try {
-			parser.setInput(suiteStream,"UTF-8");
+			parser.setInput(stream,"UTF-8");
 			parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
 			parser.next();
 			

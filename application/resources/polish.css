@@ -74,7 +74,6 @@ colors {
 		anchor: bottom | horizontal-center;
 	}
 	background-bottom: menubar;	
-	margin-bottom: 5;
 	layout: horizontal-center | vertical-center;
 }
 
