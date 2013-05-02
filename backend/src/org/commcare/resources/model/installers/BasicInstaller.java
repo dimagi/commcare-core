@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
 
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceInstaller;
@@ -116,7 +117,7 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
 		
 	}
 
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		//Work by default
 		return true;
 	}

@@ -109,5 +109,5 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
 	 */
 	public void cleanup();
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problemList);
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
 }

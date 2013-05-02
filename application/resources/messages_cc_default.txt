@@ -21,7 +21,7 @@ restore.success.partial=Data sync partially successful. Some errors occurred.
 restore.fail=Errors occurred when fetching updates from server.
 restore.baddownload=Download failed, please try again.
 restore.noserveruri=No Restore Server Configured!
-restore.key.continue=Press any key to continue...
+restore.key.continue=User restored! Continuing...
 restore.user.exists=Cannot restore a user that is already on the phone!
 restore.bad.db=Local Database is out of sync with the server. Recovery is necessary.
 restore.recover.send=Sending current database state to server
@@ -141,7 +141,6 @@ network.test.content.image=jr://resource/nttest_success.png
 network.test.failed.message=Network Test Failed. View Details to see error message
 network.test.failed.image=jr://resource/nttest_fail.png
 
-
 restore.ui.unbounded=Downloaded ${0} items
 restore.ui.bounded=Downloaded ${0} out of ${1} items.
 restore.fail.message=Restore failed for reasons below. Would you like to retry?
@@ -159,3 +158,8 @@ xpath.fail.runtime=CommCare had a problem parsing your XForm. The error was: ${0
 
 validation.start=Validating media...
 validation.success=Validation successful!
+
+server.sync.icon.normal=jr://file/commcare/images/sync_server_normal.png
+server.sync.icon.warn=jr://file/commcare/images/sync_server_warn.png
+send.unsent.icon=jr://file/commcare/images/send_unsent.png
+commcare.review.icon=jr://file/commcare/images/review_forms.png

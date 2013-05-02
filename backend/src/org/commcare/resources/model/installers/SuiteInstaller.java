@@ -5,12 +5,12 @@ package org.commcare.resources.model.installers;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -24,16 +24,10 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.SizeBoundVector;
-import org.javarosa.form.api.FormEntryCaption;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -102,7 +96,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		}
 	}
 	
-	public boolean verifyInstallation(Resource r, Vector<UnresolvedResourceException> problems) {
+	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
 		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
 		
@@ -111,7 +105,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		try {
 			mSuite = (Suite)storage().read(cacheLocation);
 		} catch(Exception e) {
-			sizeBoundProblems.addElement(new UnresolvedResourceException(r, "Suite did not properly save into persistent storage"));
+			sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage"));
 			return true;
 		}
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
@@ -137,7 +131,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);
 					String aLocalName = aRef.getLocalURI();				
 					if(!aRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new UnresolvedResourceException(r,aLocalName));
+						sizeBoundProblems.addElement(new MissingMediaException(r,aLocalName));
 						sizeBoundProblems.addBadAudioReference();
 						missingAURI++;
 					}
@@ -146,7 +140,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 					Reference iRef = ReferenceManager._().DeriveReference(iURI);
 					String iLocalName = iRef.getLocalURI();					
 					if(!iRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new UnresolvedResourceException(r,iLocalName));
+						sizeBoundProblems.addElement(new MissingMediaException(r,iLocalName));
 						sizeBoundProblems.addBadImageReference();
 						missingIURI++;
 					}
