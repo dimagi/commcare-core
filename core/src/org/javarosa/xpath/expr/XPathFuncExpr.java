@@ -86,8 +86,11 @@ public class XPathFuncExpr extends XPathExpression {
 			XPathFuncExpr x = (XPathFuncExpr)o;
 			
 			//Shortcuts for very easily comprable values
+			//We also only return "True" for methods we expect to return the same thing. This is not good
+			//practice in Java, since o.equals(o) will return false. We should evaluate that differently.
 			//Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
-			if(!id.equals(x.id) || args.length != x.args.length || id.toString().equals("uuid")) {
+			//May 6, 2013 - Added "random", since two calls asking for a random 
+			if(!id.equals(x.id) || args.length != x.args.length || id.toString().equals("uuid") || id.toString().equals("random")) {
 				return false;
 			}
 			
