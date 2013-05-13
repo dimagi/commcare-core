@@ -41,7 +41,6 @@ public class XPathException extends RuntimeException {
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#getMessage()
 	 */
-	@Override
 	public String getMessage() {
 		if(sourceRef == null) {
 			return super.getMessage();
