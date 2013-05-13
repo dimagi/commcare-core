@@ -34,6 +34,7 @@ import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
 
 public class Recalculate extends Triggerable {
 	public Recalculate () {
@@ -50,7 +51,12 @@ public class Recalculate extends Triggerable {
 	}
 	
 	public Object eval (FormInstance model, EvaluationContext ec) {
-		return expr.evalRaw(model, ec);
+		try {
+			return expr.evalRaw(model, ec);
+		} catch(XPathException e) {
+			e.setSource("calculate expression for " + contextRef.toString(true));
+			throw e;
+		}
 	}
 	
 	public void apply (TreeReference ref, Object result, FormInstance model, FormDef f) {

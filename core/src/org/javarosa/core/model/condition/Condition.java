@@ -28,6 +28,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 
 public class Condition extends Triggerable {
 	public static final int ACTION_NULL = 0;
@@ -59,7 +60,12 @@ public class Condition extends Triggerable {
 	}
 	
 	public Object eval (FormInstance model, EvaluationContext evalContext) {
-		return new Boolean(expr.eval(model, evalContext));
+		try {
+			return new Boolean(expr.eval(model, evalContext));
+		} catch(XPathException e) {
+			e.setSource("Relevant expression for " + contextRef.toString(true));
+			throw e;
+		}
 	}
 	
 	public boolean evalBool (FormInstance model, EvaluationContext evalContext) {
