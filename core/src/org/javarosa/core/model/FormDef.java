@@ -385,14 +385,17 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		mainInstance.copyNode(template, destRef);
 
 		preloadInstance(mainInstance.resolveReference(destRef));
-		triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
-		initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
 		
+		//2013-05-14 - ctsims - Events should get fired _before_ calculate stuff is fired, moved
+		//this above triggering triggerables 
 		//Grab any actions listening to this event
 		Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
 		for(Action a : listeners) {
 			a.processAction(this, destRef);
 		}
+		
+		triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
+		initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
 	}
 	
 	public boolean isRepeatRelevant (TreeReference repeatRef) {
