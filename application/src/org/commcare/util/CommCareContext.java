@@ -58,7 +58,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.core.util.SizeBoundVector;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
@@ -162,7 +162,7 @@ public class CommCareContext {
 			
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
-				SizeBoundVector<MissingMediaException> problems = new SizeBoundVector<MissingMediaException>(10);
+				SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					int badImageRef = problems.getBadImageReferenceCount();
