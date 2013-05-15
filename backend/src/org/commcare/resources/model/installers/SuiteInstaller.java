@@ -27,7 +27,7 @@ import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.SizeBoundVector;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -98,7 +98,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
-		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
+		SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector) problems;
 		
 		//Check to see whether the formDef exists and reads correctly
 		Suite mSuite;

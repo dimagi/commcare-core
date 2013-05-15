@@ -13,7 +13,7 @@ public class MissingMediaException extends Exception {
 	String URI;
 	
 	public MissingMediaException(Resource r, String message) {
-		this(r, message, false);
+		this(r, message, message, false);
 	}
 	
 	public MissingMediaException(Resource r, String message, String uri){

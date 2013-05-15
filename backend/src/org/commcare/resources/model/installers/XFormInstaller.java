@@ -24,7 +24,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.PrefixTreeNode;
-import org.javarosa.core.util.SizeBoundVector;
+import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
@@ -175,7 +175,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
-		SizeBoundVector sizeBoundProblems = (SizeBoundVector) problems;
+		SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector) problems;
 		
 		//Check to see whether the formDef exists and reads correctly
 		FormDef formDef;
