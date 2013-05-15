@@ -109,7 +109,6 @@ public class CommCareProperties implements IPropertyRules {
 
 	public final static String INSTALL_RETRY_ATTEMPTS = "cc-in-retry-attempts";
     
-    
 	/**
 	 * Creates the JavaRosa set of property rules
 	 */
