@@ -165,6 +165,40 @@ public class CommCareSession {
 			return null;
 		}
 	}
+
+	public String[] getHeaderTitles() {
+		Hashtable<String, String> menus = new Hashtable<String, String>();
+		
+		for(Suite s : platform.getInstalledSuites()) {
+			for(Menu m : s.getMenus()) {
+				menus.put(m.getId(), m.getName().evaluate());
+			}
+		}
+		
+		Vector<String[]> steps = getSteps();
+		String[] returnVal = new String[steps.size()];
+		
+		
+		Hashtable<String, Entry> entries = platform.getMenuMap();
+		int i = 0;
+		for(String[] step : steps) {
+			if(step[0] == CommCareSession.STATE_COMMAND_ID) {
+				//Menu or form. 
+				if(menus.containsKey(step[1])) {
+					returnVal[i] = menus.get(step[1]);
+				} else if(entries.containsKey(step[1])) {
+					returnVal[i] = entries.get(step[1]).getText().evaluate();
+				}
+			} else if(step[0] == CommCareSession.STATE_DATUM_VAL) {
+				//TODO: Grab the name of the case
+			}  else if(step[0] == CommCareSession.STATE_DATUM_COMPUTED) {
+				//Nothing to do here
+			}
+			++i;
+		}
+		
+		return returnVal;
+	}
 	
 	/**
 	 * @return The next relevant datum for the current entry. Requires there to be
