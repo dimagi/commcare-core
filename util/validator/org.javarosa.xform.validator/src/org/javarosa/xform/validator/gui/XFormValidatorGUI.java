@@ -69,8 +69,8 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.schema.FormOverview;
-import org.javarosa.xform.schema.FormTranslationFormatter;
 import org.javarosa.xform.util.XFormUtils;
 
 /*
@@ -499,16 +499,22 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 		writeProperties();
 
 		// Test!
-		FormDef xform = XFormUtils.getFormFromInputStream(is);
-		
-		if( xform == null ) {
-			updateStatus("XForm failed validation, see text area for details.");
-			System.out.println("\n\n==================================\nERROR: XForm has failed validation!!");
-			success = false;
-		} else {
+		try {
+			FormDef xform = XFormUtils.getFormFromInputStream(is);
 			updateStatus("XForm has probably passed validation.  Please check any warnings");
 			System.out.println("\n\n==================================\nXForm has passed parsing validation.  There may still be errors, \nso please check for any warnings and test your form!");
 			success = true;
+		} catch(XFormParseException xfpe) {
+			System.out.print(xfpe.getMessage());
+			updateStatus("XForm failed validation, see text area for details.");
+			System.out.println("\n\n==================================\nERROR: XForm has failed validation!!");
+			success = false;
+		} catch(Exception e){
+			System.out.println("Unknown error during parsing!");
+			e.printStackTrace();
+			updateStatus("XForm failed validation, see text area for details.");
+			System.out.println("\n\n==================================\nERROR: XForm has failed validation!!");
+			success = false;
 		}
 		
 		// Restore error and out 

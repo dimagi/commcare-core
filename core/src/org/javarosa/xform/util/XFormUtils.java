@@ -47,7 +47,7 @@ public class XFormUtils {
 		return oldFactory;
 	}
 	
-	public static FormDef getFormFromResource (String resource) {
+	public static FormDef getFormFromResource (String resource) throws XFormParseException {
 		InputStream is = System.class.getResourceAsStream(resource);
 		if (is == null) {
 			System.err.println("Can't find form resource \"" + resource + "\". Is it in the JAR?");
@@ -60,7 +60,7 @@ public class XFormUtils {
 	/*
      * This method throws XFormParseException when the form has errors.
      */
-	public static FormDef getFormFromInputStream(InputStream is) {
+	public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException{
 		InputStreamReader isr;
 		try {
 			isr = new InputStreamReader(is,"UTF-8");
@@ -87,7 +87,7 @@ public class XFormUtils {
 		}
 	}
 
-	public static FormDef getFormFromSerializedResource(String resource) {
+	public static FormDef getFormFromSerializedResource(String resource) throws XFormParseException {
 		FormDef returnForm = null;
 		InputStream is = System.class.getResourceAsStream(resource);
 		try {
@@ -134,7 +134,7 @@ public class XFormUtils {
 	}
 	
 	public static String unusedAttWarning(Element e, Vector usedAtts){
-		String warning = "Warning: ";
+		String warning = "";
 		Vector ua = getUnusedAttributes(e,usedAtts);
 		warning+=ua.size()+" Unrecognized attributes found in Element ["+e.getName()+"] and will be ignored: ";
 		warning+="[";
@@ -143,7 +143,6 @@ public class XFormUtils {
 			if(i!=ua.size()-1) warning+=",";
 		}
 		warning+="] ";
-		warning+="Location:\n"+XFormParser.getVagueLocation(e);
 		
 		return warning;
 	}

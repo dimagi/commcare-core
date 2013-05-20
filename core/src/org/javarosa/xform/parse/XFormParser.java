@@ -17,8 +17,6 @@
 package org.javarosa.xform.parse;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -272,6 +270,8 @@ public class XFormParser {
 				public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
 		});
 	}
+	
+	XFormParserReporter reporter = new XFormParserReporter();
 
 	public XFormParser(Reader reader) {
 		_reader = reader;
@@ -289,6 +289,10 @@ public class XFormParser {
 	public XFormParser(Document form, Document instance) {
 		_xmldoc = form;
 		_instDoc = instance;
+	}
+	
+	public void attachReporter(XFormParserReporter reporter) {
+		this.reporter = reporter;
 	}
 	
 	public FormDef parse() throws IOException {
@@ -457,12 +461,10 @@ public class XFormParser {
 		if (eh != null) {
 			eh.handle(this, e, parent);
 		} else {
-			
-			
 			if (!suppressWarning.contains(name)) {
-				//#if debug.output==verbose
-				System.err.println("XForm Parse: Unrecognized element [" + name	+ "]. Ignoring and processing children..." + getVagueLocation(e));
-				//#endif
+				reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP,
+						"Unrecognized element [" + name	+ "]. Ignoring and processing children...",
+						getVagueLocation(e));
 			}
 			for (int i = 0; i < e.getChildCount(); i++) {
 				if (e.getType(i) == Element.ELEMENT) {
@@ -487,7 +489,7 @@ public class XFormParser {
 		
 		
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 	
@@ -505,7 +507,7 @@ public class XFormParser {
 
 		usedAtts.addElement("name");
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 
@@ -514,17 +516,15 @@ public class XFormParser {
 		Vector<String> usedAtts = new Vector<String>(); //no attributes parsed in title.
 		Vector<Element> delayedParseElements = new Vector<Element>();
 		
-		
 		if (modelFound) {
-			//#if debug.output==verbose
-			System.err.println("Multiple models not supported. Ignoring subsequent models." + getVagueLocation(e));
-			//#endif
+			reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE,
+							"Multiple models not supported. Ignoring subsequent models.", getVagueLocation(e));
 			return;
 		}
 		modelFound = true;
 		
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 		
 		for (int i = 0; i < e.getChildCount(); i++) {
@@ -549,7 +549,7 @@ public class XFormParser {
 				if (type == Node.ELEMENT) {
 					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
 				} else if (type == Node.TEXT && getXMLText(e, i, true).length() != 0) {
-					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"",child);					
+					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"",child == null ? e : child);					
 				}
 			}
 			
@@ -621,6 +621,9 @@ public class XFormParser {
 		
 		actionTargets.addElement(treeref);
 		if(valueRef == null) {
+			if(e.getChildCount() == 0 || !e.isText(0)) {
+				throw new XFormParseException("No 'value' attribute and no inner value set in <setvalue> associated with: " + treeref, e);
+			}
 			//Set expression
 			action = new SetValueAction(treeref, e.getText(0));
 		} else {
@@ -732,7 +735,7 @@ public class XFormParser {
 		
 		usedAtts.addElement("mediatype");
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 		
         return question;
@@ -819,7 +822,7 @@ public class XFormParser {
 		
 
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 		
 		
@@ -848,7 +851,7 @@ public class XFormParser {
 		
 
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 
@@ -878,7 +881,7 @@ public class XFormParser {
 		
 
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 	
@@ -954,10 +957,8 @@ public class XFormParser {
 		try {
 			expr = new XPathConditional(xpath);
 		} catch (XPathSyntaxException xse) {
-			//#if debug.output==verbose
-			System.err.println("Invalid XPath expression [" + xpath + "]!");
+			reporter.error("Invalid XPath expression in <output> [" + xpath + "]! " + xse.getMessage());
 			return "";
-			//#endif
 		}
 
 		int index = -1;
@@ -969,7 +970,7 @@ public class XFormParser {
 		}
 		
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 		
 		return String.valueOf(index);
@@ -997,7 +998,7 @@ public class XFormParser {
 		}
 		
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 
@@ -1024,7 +1025,7 @@ public class XFormParser {
 				
 				//print attribute warning for child element
 				if(XFormUtils.showUnusedAttributeWarning(child, labelUA)){
-					System.out.println(XFormUtils.unusedAttWarning(child, labelUA));
+					reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, labelUA), getVagueLocation(child));
 				}
 				labelInnerText = getLabel(child);
 				String ref = child.getAttributeValue("", REF_ATTR);
@@ -1043,12 +1044,14 @@ public class XFormParser {
 				
 				//print attribute warning for child element
 				if(XFormUtils.showUnusedAttributeWarning(child, valueUA)){
-					System.out.println(XFormUtils.unusedAttWarning(child, valueUA));
+					reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, valueUA), getVagueLocation(child));
 				}
 				
 				if (value != null)  {
 				    if (value.length() > MAX_VALUE_LEN) {
-				        System.err.println("WARNING: choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars" + getVagueLocation(child));
+				    	reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
+				    			"choice value [" + value + "] is too long; max. suggested length " + MAX_VALUE_LEN + " chars",
+				    			getVagueLocation(child));
 				    }
 				
     				//validate
@@ -1057,8 +1060,10 @@ public class XFormParser {
     									
     					if (" \n\t\f\r\'\"`".indexOf(c) >= 0) {
     						boolean isMultiSelect = (q.getControlType() == Constants.CONTROL_SELECT_MULTI);
-    						System.err.println("XForm Parse WARNING: " + (isMultiSelect ? SELECT : SELECTONE) + " question <value>s [" + value + "] " +
-    								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks" + getVagueLocation(child));
+    						reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
+    								(isMultiSelect ? SELECT : SELECTONE) + " question <value>s [" + value + "] " +
+    								(isMultiSelect ? "cannot" : "should not") + " contain spaces, and are recommended not to contain apostraphes/quotation marks",
+    								getVagueLocation(child));
     						break;
     					}
     				}
@@ -1081,7 +1086,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP,XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 	}
 
@@ -1119,7 +1124,7 @@ public class XFormParser {
 				
 				//print unused attribute warning message for child element
 				if(XFormUtils.showUnusedAttributeWarning(child, labelUA)){
-					System.out.println(XFormUtils.unusedAttWarning(child, labelUA));
+					reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, labelUA), getVagueLocation(child));
 				}
 				/////////////////////////////////////////////////////////////
 				
@@ -1141,7 +1146,7 @@ public class XFormParser {
 
 				//print unused attribute warning message for child element
 				if(XFormUtils.showUnusedAttributeWarning(child, copyUA)){
-					System.out.println(XFormUtils.unusedAttWarning(child, copyUA));
+					reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child));
 				}
 				
 				if (copyRef == null) {
@@ -1155,7 +1160,7 @@ public class XFormParser {
 				
 				//print unused attribute warning message for child element
 				if(XFormUtils.showUnusedAttributeWarning(child, valueUA)){
-					System.out.println(XFormUtils.unusedAttWarning(child, valueUA));
+					reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, valueUA), getVagueLocation(child));
 				}
 				
 				if (valueXpath == null) {
@@ -1177,7 +1182,7 @@ public class XFormParser {
 		
 		if (itemset.copyRef != null) {
 			if (itemset.valueRef == null) {
-				System.err.println("WARNING: <itemset>s with <copy> are STRONGLY recommended to have <value> as well; pre-selecting, default answers, and display of answers will not work properly otherwise");
+				reporter.warning(XFormParserReporter.TYPE_TECHNICAL, "<itemset>s with <copy> are STRONGLY recommended to have <value> as well; pre-selecting, default answers, and display of answers will not work properly otherwise",getVagueLocation(e));
 			} else if (!itemset.copyRef.isParentOf(itemset.valueRef, false)) {
 				throw new XFormParseException("<value> is outside <copy>");					
 			}
@@ -1188,8 +1193,9 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP,XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
+		
 	}
 	
 	private void parseGroup (IFormElement parent, Element e, int groupType) {
@@ -1292,7 +1298,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 
 		parent.addChild(group);
@@ -1400,7 +1406,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(itext, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(itext, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(itext, usedAtts), getVagueLocation(itext));
 		}
 	}
 
@@ -1449,7 +1455,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(trans, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(trans, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(trans, usedAtts), getVagueLocation(trans));
 		}
 		
 		//source.stopEditing();
@@ -1496,13 +1502,13 @@ public class XFormParser {
 			
 			//print unused attribute warning message for child element
 			if(XFormUtils.showUnusedAttributeWarning(value, childUsedAtts)){
-				System.out.println(XFormUtils.unusedAttWarning(value, childUsedAtts));
+				reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(value, childUsedAtts), getVagueLocation(value));
 			}
 		}
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(text, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(text, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(text, usedAtts), getVagueLocation(text));
 		}
 	}
 
@@ -1522,7 +1528,7 @@ public class XFormParser {
 				if (locales[i].equals(l.getDefaultLocale())) {
 					throw new XFormParseException(type + " '" + textID + "': text is not localizable for default locale [" + l.getDefaultLocale() + "]!");
 				} else {
-					System.err.println("Warning: " + type + " '" + textID + "': text is not localizable for locale " + locales[i] + ".");
+					reporter.warning(XFormParserReporter.TYPE_TECHNICAL, type + " '" + textID + "': text is not localizable for locale " + locales[i] + ".", null);
 				}
 			}
 		}
@@ -1548,8 +1554,13 @@ public class XFormParser {
 			if(key.startsWith(textID + ";")) {
 				//A key is found, pull it out, add it to the list of guesses, and return positive
 				String textForm = key.substring(key.indexOf(";") + 1, key.length());
-				System.out.println("adding unexpected special itext form: " + textForm + " to list of expected forms");
-				itextKnownForms.addElement(textForm);				
+				//Kind of a long story how we can end up getting here. It involves the default locale loading values
+				//for the other locale, but isn't super good.
+				//TODO: Clean up being able to get here
+				if(!itextKnownForms.contains(textForm)) {
+					System.out.println("adding unexpected special itext form: " + textForm + " to list of expected forms");
+					itextKnownForms.addElement(textForm);
+				}
 				return true;
 			}
 		}
@@ -1628,9 +1639,7 @@ public class XFormParser {
 			try {
 				binding.constraint = new XPathConditional(xpathConstr);
 			} catch (XPathSyntaxException xse) {
-				//#if debug.output==verbose
-				System.err.println("Invalid XPath expression [" + xpathConstr + "]!" + getVagueLocation(e));
-				//#endif
+				reporter.error("bind for " + nodeset + " contains invalid constraint expression [" + xpathConstr + "] " + xse.getMessage());
 			}
 			binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
 		}
@@ -1660,13 +1669,13 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 
 		addBinding(binding);
 	}
 
-	private static Condition buildCondition (String xpath, String type, IDataReference contextRef) {
+	private Condition buildCondition (String xpath, String type, IDataReference contextRef) {
 		XPathConditional cond;
 		int trueAction = -1, falseAction = -1;
 
@@ -1684,9 +1693,7 @@ public class XFormParser {
 		try {
 			cond = new XPathConditional(xpath);
 		} catch (XPathSyntaxException xse) {
-			//#if debug.output==verbose
-			System.err.println("Invalid XPath expression [" + xpath + "]!");
-			//#endif
+			reporter.error("bind for " + contextRef.getReference().toString() + " contains invalid display condition [" + xpath + "] " + xse.getMessage());
 			return null;
 		}
 				
@@ -1726,7 +1733,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		//if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-		//	System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+		//	reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		//}
 	}
 	
@@ -1747,6 +1754,7 @@ public class XFormParser {
 		Vector usedAtts = new Vector();
 		usedAtts.addElement("version");
 		usedAtts.addElement("uiVersion");
+		usedAtts.add("name");
 		
 		String schema = e.getNamespace();
 		if (schema != null && schema.length() > 0 && !schema.equals(defaultNamespace)) {
@@ -1766,7 +1774,7 @@ public class XFormParser {
 		
 		//print unused attribute warning message for parent element
 		if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
-			System.out.println(XFormUtils.unusedAttWarning(e, usedAtts));
+			reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
 		}
 		
 		return instanceModel;
@@ -1926,12 +1934,13 @@ public class XFormParser {
 	// 2) catalog which repeat template nodes are explicitly defined, and note which repeats bindings lack templates
 	// 3) remove template nodes that are not valid for a repeat binding
 	// 4) generate template nodes for repeat bindings that do not have one defined explicitly
-	// 5) give a stern warning for any repeated instance nodes that do not correspond to a repeat binding
+	// (removed) 5) give a stern warning for any repeated instance nodes that do not correspond to a repeat binding
 	// 6) verify that all sets of repeated nodes are homogeneous
 	private void processRepeats (FormInstance instance) {
 		flagRepeatables(instance);
 		processTemplates(instance);
-		checkDuplicateNodesAreRepeatable(instance.getRoot());	
+		//2013-05-17 - ctsims - No longer call this, since we don't do the check
+		//checkDuplicateNodesAreRepeatable(instance.getRoot());	
 		checkHomogeneity(instance);
 	}
 
@@ -2027,21 +2036,21 @@ public class XFormParser {
 	//iterates through instance and removes template nodes that are not valid. a template is invalid if:
 	//  it is declared for a node that is not repeatable
 	//  it is for a repeat that is a child of another repeat and is not located within the parent's template node
-	private static void removeInvalidTemplates (FormInstance instance, FormInstance repeatTree) {
+	private void removeInvalidTemplates (FormInstance instance, FormInstance repeatTree) {
 		removeInvalidTemplates(instance.getRoot(), (repeatTree == null ? null : repeatTree.getRoot()), true);
 	}
 	
 	//helper function for removeInvalidTemplates
-	private static boolean removeInvalidTemplates (TreeElement instanceNode, TreeElement repeatTreeNode, boolean templateAllowed) {
+	private boolean removeInvalidTemplates (TreeElement instanceNode, TreeElement repeatTreeNode, boolean templateAllowed) {
 		int mult = instanceNode.getMult();
 		boolean repeatable = (repeatTreeNode == null ? false : repeatTreeNode.isRepeatable());
 		
 		if (mult == TreeReference.INDEX_TEMPLATE) {
 			if (!templateAllowed) {
-				System.out.println("Warning: template nodes for sub-repeats must be located within the template node of the parent repeat; ignoring template... [" + instanceNode.getName() + "]");
+				reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, "Template nodes for sub-repeats must be located within the template node of the parent repeat; ignoring template... [" + instanceNode.getName() + "]", null);
 				return true;
 			} else if (!repeatable) {
-				System.out.println("Warning: template node found for ref that is not repeatable; ignoring... [" + instanceNode.getName() + "]");
+				reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, "Warning: template node found for ref that is not repeatable; ignoring... [" + instanceNode.getName() + "]", null);
 				return true;
 			}
 		}
@@ -2062,7 +2071,7 @@ public class XFormParser {
 	}
 	
 	//if repeatables have no template node, duplicate first as template
-	private static void createMissingTemplates (FormInstance instance, Vector<TreeReference> missingTemplates) {
+	private void createMissingTemplates (FormInstance instance, Vector<TreeReference> missingTemplates) {
 		//it is VERY important that the missing template refs are listed in depth-first or breadth-first order... namely, that
 		//every ref is listed after a ref that could be its parent. checkRepeatsForTemplate currently behaves this way
 		for (int i = 0; i < missingTemplates.size(); i++) {
@@ -2085,8 +2094,7 @@ public class XFormParser {
 			try {
 				instance.copyNode(firstMatch, templRef);
 			} catch (InvalidReferenceException e) {
-				System.out.println("WARNING! Could not create a default repeat template; this is almost certainly a homogeneity error! Your form will not work! (Failed on " + templRef.toString() + ")");
-				e.printStackTrace();
+				reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, "Could not create a default repeat template; this is almost certainly a homogeneity error! Your form will not work! (Failed on " + templRef.toString() + ")", null);
 			}
 			trimRepeatChildren(instance.resolveReference(templRef)); 
 		}
@@ -2110,8 +2118,11 @@ public class XFormParser {
 		int mult = node.getMult();
 		if (mult > 0) { //repeated node
 			if (!node.isRepeatable()) {
-				System.out.println("Warning: repeated nodes [" + node.getName() + "] detected that have no repeat binding in the form; DO NOT bind questions to these nodes or their children!");
-				//we could do a more comprehensive safety check in the future
+				//2013-05-17 - ctsims - I removed our check here, since we now support this
+				//much more cleanly.
+				
+				//In theory, we should possibly make sure there are no _binds_ defined on these
+				//nodes at the very least, but that can be its own step
 			}
 		}
 		
@@ -2137,7 +2148,7 @@ public class XFormParser {
 					template = instance.getTemplate(nref);
 				
 				if (!FormInstance.isHomogeneous(template, node)) {
-					System.out.println("WARNING! Not all repeated nodes for a given repeat binding [" + nref.toString() + "] are homogeneous! This will cause serious problems!");
+					reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, "Not all repeated nodes for a given repeat binding [" + nref.toString() + "] are homogeneous! This will cause serious problems!", null);
 				}
 			}
 		}
@@ -2156,7 +2167,7 @@ public class XFormParser {
 			} else {
 				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
 				if (nodes.size() == 0) {
-					System.out.println("WARNING: Bind [" + ref.toString() + "] matches no nodes; ignoring bind...");
+					reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "<bind> defined for a node that doesn't exist [" + ref.toString() + "]. The node's name was probably changed and the bind should be updated. ", null);
 				}
 			}
 		}
@@ -2202,7 +2213,7 @@ public class XFormParser {
 		}
 	}
 	
-	private static void verifyControlBindings (IFormElement fe, FormInstance instance, Vector<String> errors) { //throws XmlPullParserException {
+	private void verifyControlBindings (IFormElement fe, FormInstance instance, Vector<String> errors) { //throws XmlPullParserException {
 		if (fe.getChildren() == null)
 			return;
 		
@@ -2216,17 +2227,18 @@ public class XFormParser {
 				type = (((GroupDef)child).getRepeat() ? "Repeat" : "Group");
 			} else if (child instanceof QuestionDef) {
 				ref = ((QuestionDef)child).getBind();
-				type = "Control";
+				type = "Question";
 			}
 			TreeReference tref = FormInstance.unpackReference(ref);
 
 			if (child instanceof QuestionDef && tref.size() == 0) {
-				System.out.println("Warning! Cannot bind control to '/'"); //group can bind to '/'; repeat can't, but that's checked above
+				//group can bind to '/'; repeat can't, but that's checked above
+				reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, "Cannot bind control to '/'",null);
 			} else {
 				Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(tref, true);
 				if (nodes.size() == 0) {
-				    String error = "ERROR: " + type + " binding [" + tref.toString() + "] matches no nodes";
-					System.err.println(error);
+					String error = type+ " bound to non-existent node: [" + tref.toString() + "]";
+					reporter.error(error);
 					errors.addElement(error);
 				}
 				//we can't check whether questions map to the right kind of node ('data' node vs. 'sub-tree' node) as that depends
@@ -2354,8 +2366,9 @@ public class XFormParser {
 				TreeElement dstNode = instance.getTemplate(itemset.getDestRef());
 				
 				if (!FormInstance.isHomogeneous(srcNode, dstNode)) {
-					System.out.println("WARNING! Source [" + srcNode.getRef().toString() + "] and dest [" + dstNode.getRef().toString() +
-							"] of itemset appear to be incompatible!");
+					reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE,
+					"Your itemset source [" + srcNode.getRef().toString() + "] and dest [" + dstNode.getRef().toString() +
+							"] of appear to be incompatible!", null);
 				}
 				
 				//TODO: i feel like, in theory, i should additionally check that the repeatable children of src and dst
@@ -2442,7 +2455,8 @@ public class XFormParser {
 					} else if (node.getDataType() == Constants.DATATYPE_NULL || node.getDataType() == Constants.DATATYPE_TEXT) {
 						node.setDataType(type);
 					} else {
-						System.out.println("Warning! Type incompatible with select question node [" + ref.toString() + "] detected!");
+						reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, 
+								"Select question " + ref.toString() + " appears to have data type that is incompatible with selection", null);
 					}
 				}
 			}
@@ -2566,11 +2580,13 @@ public class XFormParser {
 		}
 		
 		if (!acyclic) {
-			System.err.println("XPath Dependency Cycle:");
+			String errorMessage = "XPath Dependency Cycle:\n";
 			for (int i = 0; i < edges.size(); i++) {
 				TreeReference[] edge = (TreeReference[])edges.elementAt(i);
-				System.err.println(edge[0].toString() + " => " + edge[1].toString());
+				errorMessage += edge[0].toString() + " => " + edge[1].toString() + "\n";
 			}
+			reporter.error(errorMessage);
+			
 			throw new RuntimeException("Dependency cycles amongst the xpath expressions in relevant/calculate");
 		}
 	}
@@ -2611,7 +2627,7 @@ public class XFormParser {
 	}
 			
 	//returns data type corresponding to type string; doesn't handle defaulting to 'text' if type unrecognized/unknown
-	private static int getDataType(String type) {
+	private int getDataType(String type) {
 		int dataType = Constants.DATATYPE_NULL;
 		
 		if (type != null) {
@@ -2624,9 +2640,7 @@ public class XFormParser {
 				dataType = ((Integer)typeMappings.get(type)).intValue();				
 			} else {
 				dataType = Constants.DATATYPE_UNSUPPORTED;
-				//#if debug.output==verbose
-				System.err.println("XForm Parse WARNING: unrecognized data type [" + type + "]");
-				//#endif
+				reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "unrecognized data type [" + type + "]", null);
 			}
 		}
 		
