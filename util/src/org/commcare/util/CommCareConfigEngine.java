@@ -224,7 +224,12 @@ public class CommCareConfigEngine {
 				if(m.getId().equals("root")) {
 					root.add(m);
 				} else {
-					mapping.get(m.getRoot()).add(m);
+					Vector<Menu> menus = mapping.get(m.getRoot());
+					if(menus == null) {
+						menus = new Vector<Menu>();
+					}
+					menus.add(m);
+					mapping.put(m.getRoot(), menus);
 				}
 			}
 		}

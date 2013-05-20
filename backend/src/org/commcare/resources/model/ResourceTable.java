@@ -438,13 +438,7 @@ public class ResourceTable {
 			if(peer == null) {
 				this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
 			} else {
-				if(peer.getVersion() == r.getVersion()) {
-					//Same resource. Don't do anything with it, it has no
-					//children, so ID's don't need to change.
-					//Technically resource locations could change, worth thinking
-					//about for the future.
-				}
-				if(peer.getVersion() < r.getVersion()) {
+				if(r.isNewer(peer)) {
 					//Mark as being ready to transition 
 					this.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
 					
@@ -465,6 +459,12 @@ public class ResourceTable {
 							return false;
 						}
 					}
+				}
+				if(peer.getVersion() == r.getVersion()) {
+					//Same resource. Don't do anything with it, it has no
+					//children, so ID's don't need to change.
+					//Technically resource locations could change, worth thinking
+					//about for the future.
 				}
 			}
 			r = null;
