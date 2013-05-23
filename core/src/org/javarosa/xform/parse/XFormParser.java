@@ -1754,7 +1754,7 @@ public class XFormParser {
 		Vector usedAtts = new Vector();
 		usedAtts.addElement("version");
 		usedAtts.addElement("uiVersion");
-		usedAtts.add("name");
+		usedAtts.addElement("name");
 		
 		String schema = e.getNamespace();
 		if (schema != null && schema.length() > 0 && !schema.equals(defaultNamespace)) {

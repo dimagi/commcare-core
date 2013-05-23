@@ -37,6 +37,7 @@ public class JSONReporter extends XFormParserReporter {
 	
 	public void setFailed(Exception e) {
 		this.passedValidation = false;
+		this.failureExpected =false;
 		this.failureReason = e.getMessage();
 	}
 
