@@ -103,14 +103,14 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 					c = getCase(caseId);
 				}
 				if(kid.isRelevant()) {
-					processCaseIndex(kid,c);
+					processCaseIndex(kid,c, date);
 				}
 			} else if(kid.getName().equals("attachment")) {
 				if(c == null) {
 					c = getCase(caseId);
 				}
 				if(kid.isRelevant()) {
-					processCaseAttachments(kid, c);
+					processCaseAttachments(kid, c, date);
 				}
 			}
 		}
@@ -133,7 +133,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 	}
 	
-	private void commit(Case c) {
+	private void commit(Case c, Date lastModified) {
 		IStorageUtility utility = StorageManager.getStorage(Case.STORAGE_KEY);
 		try {
 			utility.write(c);
@@ -143,7 +143,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 	}
 	
-	private Case processCaseCreate(TreeElement create, String caseId, Date date) throws MalformedCaseModelException {
+	private Case processCaseCreate(TreeElement create, String caseId, Date lastModified) throws MalformedCaseModelException {
 		String caseTypeId = null;
 		String extId = null;
 		String caseName = null;
@@ -178,16 +178,16 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 		}
 		Case c = new Case(caseName, caseTypeId);
 		c.setCaseId(caseId);
-		c.setDateOpened(date);
+		c.setDateOpened(lastModified);
 		if(userId != null) {
 			c.setUserId(userId);
 		}
-		commit(c);
+		commit(c, lastModified);
 		Logger.log("case-create", c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
 		return c;
 	}
 	
-	private void processCaseMutate(TreeElement mutate,Case c, Date date) throws MalformedCaseModelException {
+	private void processCaseMutate(TreeElement mutate,Case c, Date lastModified) throws MalformedCaseModelException {
 		for(int i=0; i < mutate.getNumChildren(); ++i ){
 			TreeElement kid = mutate.getChildAt(i);
 			if(!kid.isRelevant()) {
@@ -225,16 +225,16 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			}
 			c.setProperty(vname, value);
 		}
-		commit(c);
+		commit(c, lastModified);
 	}
 	
-	private void processCaseClose(TreeElement close,Case c, Date date) throws MalformedCaseModelException {
+	private void processCaseClose(TreeElement close,Case c, Date lastModified) throws MalformedCaseModelException {
 		c.setClosed(true);
-		commit(c);
+		commit(c, lastModified);
 		Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
 	}
 	
-	private void processCaseIndex(TreeElement index, Case c) throws MalformedCaseModelException {
+	private void processCaseIndex(TreeElement index, Case c, Date lastModified) throws MalformedCaseModelException {
 		boolean modified = false;
 		for(int i = 0; i < index.getNumChildren(); ++i) {
 			TreeElement child = index.getChildAt(i);
@@ -249,11 +249,11 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			modified = true;
 		}
 		if(modified) {
-			commit(c);
+			commit(c,lastModified);
 		}
 	}
 	
-	private void processCaseAttachments(TreeElement attachments, Case c) throws MalformedCaseModelException {
+	private void processCaseAttachments(TreeElement attachments, Case c, Date lastModified) throws MalformedCaseModelException {
 		boolean modified = false;
 		for(int i = 0; i < attachments.getNumChildren(); ++i) {
 			TreeElement attachment = attachments.getChildAt(i);
@@ -270,7 +270,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 			}			
 		}
 		if(modified) {
-			commit(c);
+			commit(c,lastModified);
 		}
 	}
 

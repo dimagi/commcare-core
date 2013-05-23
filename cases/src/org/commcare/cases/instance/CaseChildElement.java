@@ -78,6 +78,10 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		scratch = new TreeElement("date_opened");
 		scratch.setAnswer(null);
 		empty.addChild(scratch);
+		
+		scratch = new TreeElement("last_modified");
+		scratch.setAnswer(null);
+		empty.addChild(scratch);
 	}
 	
 	/* (non-Javadoc)
@@ -300,6 +304,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	public void clearCaches() {
 		//cached = null;
 	}
+	
+	static final String LAST_MODIFIED_KEY = "last_modified";
 
 	//TODO: THIS IS NOT THREAD SAFE
 	private TreeElement cache() {
@@ -346,8 +352,16 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 				scratch.setAnswer(new DateData(c.getDateOpened()));
 				cacheBuilder.addChild(scratch);
 				
+				scratch = new TreeElement(LAST_MODIFIED_KEY.intern());
+				scratch.setAnswer(new DateData(c.getLastModified()));
+				cacheBuilder.addChild(scratch);
+				
 				for(Enumeration en = c.getProperties().keys();en.hasMoreElements();) {
 					String key = (String)en.nextElement();
+					
+					//this is an unfortunate complication of our internal model
+					if(LAST_MODIFIED_KEY.equals(key)) { continue;}
+					
 					scratch = new TreeElement(key.intern());
 					Object temp = c.getProperty(key);
 					if(temp instanceof String) {

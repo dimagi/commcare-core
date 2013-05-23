@@ -80,6 +80,7 @@ public class Case implements Persistable, IMetaData, Secure {
 		this.name = name;
 		this.typeId = typeId;
 		dateOpened = new Date();
+		setLastModified(dateOpened);
 	}
 	
 	/**
@@ -292,5 +293,24 @@ public class Case implements Persistable, IMetaData, Secure {
 
 	public void removeAttachment(String attachmentName) {
 		data.remove(ATTACHMENT_PREFIX + attachmentName);
+	}
+	
+	// ugh, adding stuff to case models sucks. Need to code up a transition scheme in android so we
+	// can stop having shitty models.
+	
+	private static final String LAST_MODIFIED = "last_modified";
+	
+	/**
+	 * 
+	 * @param lastModified
+	 */
+	public void setLastModified(Date lastModified) {
+		if(lastModified == null) { throw new NullPointerException("Case date last modified cannot be null"); }
+		data.put(LAST_MODIFIED, lastModified);
+	}
+	
+	public Date getLastModified() {
+		if(!data.containsKey(LAST_MODIFIED)) { return getDateOpened();}
+		return (Date)data.get(LAST_MODIFIED);
 	}
 }
