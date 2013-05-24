@@ -83,7 +83,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 			}
 
 			public void done() {
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+				CommCareFormEntryState.this.abort();
 			}
 		};
 		
