@@ -58,7 +58,7 @@
 		<javac 
 			srcdir="${build.dir}/src"
 			destdir="${build.dir}/classes" 
-			classpath="${base.dir}/tools/javarosa-libraries.jar;${lib.dir}/kxml2-2.3.0.jar;${base.dir}/lib/xpp3-1.1.4.jar"
+			classpath="${base.dir}/tools/javarosa-libraries.jar;${lib.dir}/kxml2-2.3.0.jar;${base.dir}/lib/xpp3-1.1.4.jar;${base.dir}/lib/json-simple-1.1.1.jar"
 			includeAntRuntime="false"
 			debug="${build.debug}" 
 			deprecation="${build.deprecation}" />
