@@ -104,7 +104,7 @@ id=ID
 install.verify=CommCare initialized. Validating multimedia files...
 install.bad=CommCare cannot start because you are missing ${0} images, ${1} audio clips, and ${2} videos. Ensure the files listed below are on your phone's SD card.
 
-message.permissions=CommCare has been unable to access certain permissions needed for correct functioning. Please configure the applicaiton's permissions to allow network and file system access.
+message.permissions=CommCare has been unable to access certain permissions needed for correct functioning. Please configure the application's permissions to allow network and file system access.
 
 node.select.filtering=Filtering Cases...
 
