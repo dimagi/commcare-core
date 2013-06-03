@@ -6,10 +6,12 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -101,7 +103,24 @@ public class Entry implements Externalizable{
 	}
 
 	public Hashtable<String, DataInstance> getInstances() {
-		return instances;
+		//return instances;
+		
+		Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
+		for(Enumeration en = instances.keys(); en.hasMoreElements();){
+			String key = (String)en.nextElement();
+			
+			//This is silly, all of these are externaldata instances. TODO: save their
+			//construction details instead.
+			DataInstance cur = instances.get(key);
+			if(cur instanceof ExternalDataInstance) {
+				//Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
+				copy.put(key, new ExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
+			} else {
+				copy.put(key, cur);
+			}
+		}
+		
+		return copy;
 	}
 	
 	/*
