@@ -213,10 +213,12 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									sizeBoundProblems.addElement(new MissingMediaException(r,localName));
-									if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
-									if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
-									if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){sizeBoundProblems.addBadImageReference();}
+									boolean addedSuccessfully = sizeBoundProblems.addElementForResult(new MissingMediaException(r,localName));
+									if(addedSuccessfully){
+										if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
+										if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
+										if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){sizeBoundProblems.addBadImageReference();}
+									}
 								}
 							} catch (IOException e) {
 								sizeBoundProblems.addElement(new MissingMediaException(r,"Problem reading external media: " + localName));
