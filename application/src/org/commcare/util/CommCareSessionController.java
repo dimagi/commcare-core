@@ -227,6 +227,7 @@ public class CommCareSessionController {
 		}
 		
 		//The rest of the selections all depend on the suite being available for checkin'
+		//TODO: Stuff can be in more than one suite!!!
 		Suite suite = session.getCurrentSuite();
 		
 		SessionDatum datum = session.getNeededDatum();
