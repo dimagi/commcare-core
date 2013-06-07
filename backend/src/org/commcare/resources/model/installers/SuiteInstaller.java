@@ -131,8 +131,10 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 					Reference aRef = ReferenceManager._().DeriveReference(aURI);
 					String aLocalName = aRef.getLocalURI();				
 					if(!aRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new MissingMediaException(r,aLocalName));
-						sizeBoundProblems.addBadAudioReference();
+						boolean added = sizeBoundProblems.add(new MissingMediaException(r,aLocalName));
+						if(added){
+							sizeBoundProblems.addBadAudioReference();
+						}
 						missingAURI++;
 					}
 				}
@@ -140,8 +142,10 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 					Reference iRef = ReferenceManager._().DeriveReference(iURI);
 					String iLocalName = iRef.getLocalURI();					
 					if(!iRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new MissingMediaException(r,iLocalName));
-						sizeBoundProblems.addBadImageReference();
+						boolean added = sizeBoundProblems.add(new MissingMediaException(r,iLocalName));
+						if(added){
+							sizeBoundProblems.addBadImageReference();
+						}
 						missingIURI++;
 					}
 				}
