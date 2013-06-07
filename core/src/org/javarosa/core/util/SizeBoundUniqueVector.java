@@ -34,5 +34,19 @@ public class SizeBoundUniqueVector<E> extends SizeBoundVector<E> {
 			super.addElement(obj);
 		}
 	}
+	
+	public synchronized boolean addElementForResult(E obj) {
+		if(this.size() == limit) {
+			additional++;
+			return true;
+		}
+		else if(this.contains(obj)){
+			return false;
+		}
+		else {
+			super.addElement(obj);
+			return true;
+		}
+	}
 
 }
