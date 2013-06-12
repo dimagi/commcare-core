@@ -340,7 +340,11 @@ public class TreeReference implements Externalizable {
 	public TreeReference genericize () {	
 		TreeReference genericRef = clone();
 		for (int i = 0; i < genericRef.size(); i++) {
-			genericRef.setMultiplicity(i, INDEX_UNBOUND);
+			//TODO: It's not super clear whether template refs should get
+			//genericized or not
+			if(genericRef.getMultiplicity(i) > -1 || genericRef.getMultiplicity(i) == INDEX_TEMPLATE) {
+				genericRef.setMultiplicity(i, INDEX_UNBOUND);
+			}
 		}
 		return genericRef;
 	}
