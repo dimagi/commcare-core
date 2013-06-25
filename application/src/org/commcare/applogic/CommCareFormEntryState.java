@@ -62,6 +62,8 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	private Vector<IFunctionHandler> funcHandlers;
 	private InstanceInitializationFactory iif;
 	String title;
+	//Keep this alive for the lifecycle of the state.
+	private CommCareHandledExceptionState cches;
 		
 	public CommCareFormEntryState (String title,String formName,
 			Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers, InstanceInitializationFactory iif) {
@@ -72,7 +74,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 		this.funcHandlers = funcHandlers;
 		this.iif = iif;
 		
-		CommCareHandledExceptionState cches = new CommCareHandledExceptionState() {
+		cches = new CommCareHandledExceptionState() {
 
 			public boolean handlesException(Exception e) {
 				return ((e instanceof XPathMissingInstanceException) || (e instanceof XPathTypeMismatchException));
@@ -83,7 +85,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 			}
 
 			public void done() {
-				CommCareFormEntryState.this.abort();
+				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 			}
 		};
 		
