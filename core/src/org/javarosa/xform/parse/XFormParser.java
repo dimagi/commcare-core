@@ -1110,7 +1110,7 @@ public class XFormParser {
 		if(nodesetStr == null ) throw new RuntimeException("No nodeset attribute in element: ["+e.getName()+"]. This is required. (Element Printout:"+XFormSerializer.elementToString(e)+")");
 		XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
 		itemset.nodesetExpr = new XPathConditional(path);
-		itemset.contextRef = getFormElementRef(qparent);
+		itemset.contextRef = getFormElementRef(q);
 		itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference(true)), itemset.contextRef));
 		
 		for (int i = 0; i < e.getChildCount(); i++) {
