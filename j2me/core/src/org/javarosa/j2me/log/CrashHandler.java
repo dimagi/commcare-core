@@ -1,5 +1,7 @@
 package org.javarosa.j2me.log;
 
+import java.lang.ref.WeakReference;
+
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Item;
@@ -20,9 +22,9 @@ import org.javarosa.j2me.view.J2MEDisplay;
  */
 public class CrashHandler {
 	
-	private static final Object lock = new Object();;
-	private static CommCareHandledExceptionState cches;
-	private static Displayable expired;
+	private static final Object lock = new Object();
+	private static WeakReference exceptionStateHolder;
+	private static WeakReference expired;
 	
 	/**
 	 * other places exceptions need to be explicitly trapped
@@ -38,9 +40,12 @@ public class CrashHandler {
 
 	public static void commandAction(HandledCommandListener handler, Command c, Displayable d) {
 		synchronized(lock) {
-			if(d == expired) {
-				//Logger.log("ui-workflow", "Command fired on expired view");
-				return;
+			if(expired != null) {
+				Displayable old = (Displayable)expired.get();
+				if(old == null) { expired = null; }
+				if(d == old) {
+					return;
+				}
 			}
 		}
 		try {
@@ -52,8 +57,9 @@ public class CrashHandler {
 	
 	public static void commandAction(HandledPCommandListener handler, de.enough.polish.ui.Command c, de.enough.polish.ui.Displayable d) {
 		synchronized(lock) {
-			if(d == expired) {
-				//Logger.log("ui-workflow", "Command fired on expired view");
+			Displayable old = (Displayable)expired.get();
+			if(old == null) { expired = null; }
+			if(d == old) {
 				return;
 			}
 		}
@@ -114,6 +120,11 @@ public class CrashHandler {
 	
 	public static void tryCCHES(String failString, Exception e){
 		expired = null;
+		
+		if(exceptionStateHolder == null){Logger.die(failString, e);}
+
+		CommCareHandledExceptionState cches = (CommCareHandledExceptionState)exceptionStateHolder.get();
+		
 		if(cches == null){Logger.die(failString, e);}
 		if(cches.handlesException(e)){
 			cches.setErrorMessage(e.getMessage());
@@ -125,12 +136,12 @@ public class CrashHandler {
 	}
 	
 	public static void setExceptionHandler(CommCareHandledExceptionState s){
-		cches = s;
+		exceptionStateHolder = new WeakReference(s);
 	}
 	
 	public static void expire(Displayable d) {
 		synchronized(lock) {
-			expired = d;
+			expired = new WeakReference(d);
 		}
 	}
 }
