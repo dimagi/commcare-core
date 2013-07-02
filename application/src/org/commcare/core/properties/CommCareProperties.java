@@ -341,6 +341,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "User Login Mode";
         } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
         	return "Auto-Update Frequency";
+        } else if (LOGIN_IMAGES.equals(propertyName)) {
+        	return "Display Login Images?";
         }
     	return propertyName;
 	}
