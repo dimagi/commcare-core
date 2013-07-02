@@ -36,7 +36,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
 		cUpdates = new ChoiceItem(Localization.get("home.updates"), null, List.IMPLICIT);
 		cNetwork = new ChoiceItem(Localization.get("commcare.tools.network"), null, List.IMPLICIT);
 		cPermissions = new ChoiceItem(Localization.get("commcare.tools.permissions"), null, List.IMPLICIT);
-		cMediaTest = new ChoiceItem("Validate Media", null, List.IMPLICIT);
+		cMediaTest = new ChoiceItem(Localization.get("commcare.tools.validate"), null, List.IMPLICIT);
 		
 		back = new Command(Localization.get("polish.command.back"), 2, Command.BACK);
 		
