@@ -4,6 +4,7 @@
 package org.commcare.util;
 
 import java.io.IOException;
+import org.javarosa.core.reference.Reference;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -163,6 +164,12 @@ public class CommCareContext {
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 				SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
+				
+				if(CommCareUtil.loginImagesEnabled()){
+					checkMedia(Localization.get("icon.demo.path"), problems);
+					checkMedia(Localization.get("icon.login.path"), problems);
+				}
+				
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					int badImageRef = problems.getBadImageReferenceCount();
@@ -173,13 +180,18 @@ public class CommCareContext {
 					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 					for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
 						MissingMediaException ure = (MissingMediaException)en.nextElement();
-
-						String res = ure.getResource().getResourceId();
+						
+						Resource res = ure.getResource();
+						String resId;
 						
 						Vector<String> list;
-						if(problemList.containsKey(res)) {
-							list = problemList.get(res);
+						// this is a little hacky: but basically: if we have a resource, use the resourceId to identify
+						// the missing media; if not, just use the message (for now, applies to login icons)
+						if(res != null && problemList.containsKey(res)) {
+							resId = res.getResourceId();
+							list = problemList.get(resId);
 						} else{
+							resId = ure.getMessage();
 							list = new Vector<String>();
 						}
 						
@@ -191,7 +203,7 @@ public class CommCareContext {
 						
 						list.addElement(shortenedMessage);
 						
-						problemList.put(res, list);
+						problemList.put(resId, list);
 
 					}
 					
@@ -407,6 +419,26 @@ public class CommCareContext {
 			protected void updateProgress(int progress) {
 				interaction.updateProgess(progress);
 			}
+			
+			//lets you check whether a given image is available; used for login icons
+			private void checkMedia(String filePath, SizeBoundUniqueVector<MissingMediaException> problems){
+				try{
+					Reference ref = ReferenceManager._().DeriveReference(filePath);
+					String localName = ref.getLocalURI();
+					try {
+						if(!ref.doesBinaryExist()) {
+							problems.addElement(new MissingMediaException(null,"Missing external media: " + localName, filePath));
+							problems.addBadImageReference();
+						}
+					} catch (IOException e) {
+						problems.addElement(new MissingMediaException(null,"Problem reading external media: " + localName, filePath));
+					} 
+				} catch (InvalidReferenceException e) {
+					//So the problem is that this might be a valid entry that depends on context
+					//in the form, so we'll ignore this situation for now.
+				}
+			}
+			
 		};
 		
 		initializer.initialize(listener);

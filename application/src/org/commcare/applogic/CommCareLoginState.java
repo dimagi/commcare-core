@@ -79,7 +79,8 @@ public class CommCareLoginState extends LoginState {
 				extraText, CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
 				                              CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
 				                              CreateUserController.PASSWORD_FORMAT_NUMERIC,
-				                              CommCareUtil.demoEnabled());
+				                              CommCareUtil.demoEnabled(),
+				                              CommCareUtil.loginImagesEnabled());
 	}
 
 	/* (non-Javadoc)
