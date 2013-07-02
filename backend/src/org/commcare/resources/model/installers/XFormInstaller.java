@@ -213,7 +213,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 							String localName = ref.getLocalURI();
 							try {
 								if(!ref.doesBinaryExist()) {
-									boolean addedSuccessfully = sizeBoundProblems.addElementForResult(new MissingMediaException(r,localName));
+									boolean addedSuccessfully = sizeBoundProblems.add(new MissingMediaException(r,localName));
 									if(addedSuccessfully){
 										if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
 										if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
