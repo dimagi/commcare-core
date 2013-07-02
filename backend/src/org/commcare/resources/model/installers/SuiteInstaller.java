@@ -24,8 +24,10 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.xmlpull.v1.XmlPullParserException;
@@ -96,9 +98,30 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		}
 	}
 	
+	private void checkMedia(String filePath, SizeBoundUniqueVector<MissingMediaException> problems){
+		try{
+			Reference ref = ReferenceManager._().DeriveReference(filePath);
+			String localName = ref.getLocalURI();
+			try {
+				if(!ref.doesBinaryExist()) {
+					problems.addElement(new MissingMediaException(null,"Missing external media: " + localName, filePath));
+					problems.addBadImageReference();
+				}
+			} catch (IOException e) {
+				problems.addElement(new MissingMediaException(null,"Problem reading external media: " + localName, filePath));
+			} 
+		} catch (InvalidReferenceException e) {
+			//So the problem is that this might be a valid entry that depends on context
+			//in the form, so we'll ignore this situation for now.
+		}
+	}
+	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
 		SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector) problems;
+		
+		checkMedia(Localization.get("icon.demo.path"), sizeBoundProblems);
+		checkMedia(Localization.get("icon.login.path"), sizeBoundProblems);
 		
 		//Check to see whether the formDef exists and reads correctly
 		Suite mSuite;
