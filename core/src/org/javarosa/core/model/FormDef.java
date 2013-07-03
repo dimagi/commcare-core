@@ -1664,4 +1664,18 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     	extensions.addElement(newEx);
     	return newEx;
     }
+    
+
+    /**
+     * Frees all of the components of this form which are no longer needed once it is completed.
+     * 
+     * Once this is called, the form is no longer capable of functioning, but all data should be retained.
+     */
+	public void seal() {
+		triggerables = null;
+		triggerIndex = null;
+		conditionRepeatTargetIndex = null;
+		//We may need ths one, actually
+		exprEvalContext = null;
+	}
 }

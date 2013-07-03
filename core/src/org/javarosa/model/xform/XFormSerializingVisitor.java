@@ -107,7 +107,7 @@ import org.kxml2.kdom.Node;
 			
 			model.accept(this);
 			if(theXmlDoc != null) {
-				return XFormSerializer.getString(theXmlDoc).getBytes("UTF-8");
+				return XFormSerializer.getUtfBytes(theXmlDoc);
 			}
 			else {
 				return null;
@@ -126,7 +126,8 @@ import org.kxml2.kdom.Node;
 			}
 			model.accept(this);
 			if(theXmlDoc != null) {
-				byte[] form = XFormSerializer.getString(theXmlDoc).getBytes("UTF-8");
+				//TODO: Did this strip necessary data?
+				byte[] form = XFormSerializer.getUtfBytes(theXmlDoc);
 				if(dataPointers.size() == 0) {
 					return new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_XML);
 				}
