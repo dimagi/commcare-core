@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ConcreteTreeElement;
@@ -31,13 +32,13 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
-	CommCareSessionController session;
+	CommCareSession session;
 	CaseInstanceTreeElement casebase;
 	
 	public CommCareInstanceInitializer(){ 
 		this(null);
 	}
-	public CommCareInstanceInitializer(CommCareSessionController session) {
+	public CommCareInstanceInitializer(CommCareSession session) {
 		this.session = session;
 	}
 	
@@ -117,7 +118,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 			return root;
 		}
 		if(instance.getReference().indexOf("session") != -1) {
-			TreeElement root = session.getSessionInstance().getRoot();
+			FormInstance sessionInstance = session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY), 
+	                PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
+	                CommCareContext._().getUser().getUsername(),
+	                CommCareContext._().getUser().getUniqueId(),
+	                CommCareContext._().getUser().getProperties());
+
+			
+			TreeElement root = sessionInstance.getRoot();
 			root.setParent(instance.getBase());
 			return root;
 		}

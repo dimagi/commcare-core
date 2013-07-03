@@ -132,6 +132,8 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 	public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
 		if(formWasCompleted) {
 			
+			form.seal();
+			
 			logCompleted(instanceData);
 			
 			// This process will take place in three parts, in order to ensure that the server and client don't get
