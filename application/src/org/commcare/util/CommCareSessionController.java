@@ -187,6 +187,11 @@ public class CommCareSessionController {
 			
 			//Start form entry and clear anything we've been using from memory
 			initializer = null;
+		
+			suiteTable.clear();
+			entryTable.clear();
+			menuTable.clear();
+
 			
 			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
 				protected void goHome() {
@@ -325,7 +330,7 @@ public class CommCareSessionController {
 	
 	private InstanceInitializationFactory getIif() {
 		if(initializer == null) {
-			initializer = new CommCareInstanceInitializer(this);
+			initializer = new CommCareInstanceInitializer(this.session);
 		}
 		return initializer;
 	}
@@ -337,13 +342,5 @@ public class CommCareSessionController {
 	protected void back() {
 		session.stepBack();
 		next();
-	}
-
-	public FormInstance getSessionInstance() {
-		return session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY), 
-                PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
-                CommCareContext._().getUser().getUsername(),
-                CommCareContext._().getUser().getUniqueId(),
-                CommCareContext._().getUser().getProperties());
 	}
 }
