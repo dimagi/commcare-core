@@ -348,7 +348,7 @@ public class XPathPathExpr extends XPathExpression {
 		Vector v = (Vector)ExtUtil.read(in, new ExtWrapList(XPathStep.class), pf);
 		steps = new XPathStep[v.size()];
 		for (int i = 0; i < steps.length; i++)
-			steps[i] = (XPathStep)v.elementAt(i);
+			steps[i] = ((XPathStep)v.elementAt(i)).intern();
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
@@ -369,9 +369,9 @@ public class XPathPathExpr extends XPathExpression {
 		path.steps = new XPathStep[ref.size()];
 		for (int i = 0; i < path.steps.length; i++) {
 			if (ref.getName(i).equals(TreeReference.NAME_WILDCARD)) {
-				path.steps[i] = new XPathStep(XPathStep.AXIS_CHILD, XPathStep.TEST_NAME_WILDCARD);
+				path.steps[i] = new XPathStep(XPathStep.AXIS_CHILD, XPathStep.TEST_NAME_WILDCARD).intern();
 			} else {
-				path.steps[i] = new XPathStep(XPathStep.AXIS_CHILD, new XPathQName(ref.getName(i)));
+				path.steps[i] = new XPathStep(XPathStep.AXIS_CHILD, new XPathQName(ref.getName(i))).intern();
 			}
 		}
 		return path;

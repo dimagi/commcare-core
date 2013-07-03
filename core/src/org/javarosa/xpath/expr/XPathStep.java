@@ -19,8 +19,11 @@ package org.javarosa.xpath.expr;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Vector;
 
+import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -50,6 +53,12 @@ public class XPathStep implements Externalizable {
 	public static final int TEST_TYPE_TEXT = 4;
 	public static final int TEST_TYPE_COMMENT = 5;
 	public static final int TEST_TYPE_PROCESSING_INSTRUCTION = 6;
+	
+	private static CacheTable<Integer> refs;
+	
+	public static void attachCacheTable(CacheTable<Integer> refs) {
+		XPathStep.refs = refs; 
+	}
 
 	public static XPathStep ABBR_SELF () {
 		return new XPathStep(AXIS_SELF, TEST_TYPE_NODE);
@@ -149,7 +158,7 @@ public class XPathStep implements Externalizable {
 			XPathStep x = (XPathStep)o;
 			
 			//shortcuts for faster evaluation
-			if(axis != x.axis && test != x.test || predicates.length != x.predicates.length) {
+			if(axis != x.axis || test != x.test || predicates.length != x.predicates.length) {
 				return false;
 			}
 			
@@ -164,6 +173,14 @@ public class XPathStep implements Externalizable {
 		} else {
 			return false;
 		}
+	}
+	
+	public int hashCode() {
+		int code = this.axis | this.test | (this.name == null ? 0 : this.name.hashCode()) | (this.literal == null ? 0 : this.literal.hashCode()) | (this.namespace == null ? 0 : this.namespace.hashCode());
+		for(XPathExpression xpe : predicates) {
+			code |= xpe.hashCode();
+		}
+		return code;
 	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -196,5 +213,22 @@ public class XPathStep implements Externalizable {
 		for (int i = 0; i < predicates.length; i++)
 			v.addElement(predicates[i]);
 		ExtUtil.write(out, new ExtWrapListPoly(v));
+	}
+	
+	public static boolean XPathStepInterningEnabled = true;
+	public XPathStep intern() {
+		if(!XPathStepInterningEnabled || refs == null) {
+			return this;
+		} else{
+			Integer hashCode = DataUtil.integer(this.hashCode());
+			if(refs.containsKey(hashCode)) {
+				XPathStep l = (XPathStep)refs.get(hashCode).get();
+				if(l == null) { refs.put(hashCode, new WeakReference(this)); return this;};
+				if(l.equals(this)) { return l;}
+				return this;
+			} 
+			refs.put(hashCode, new WeakReference(this));
+			return this;
+		}
 	}
 }

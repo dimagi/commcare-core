@@ -44,6 +44,10 @@ public class XPathQName implements Externalizable {
 	public XPathQName (String namespace, String name) {
 		init(namespace, name);
 	}
+	
+	public int hashCode() {
+		return name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
+	}
 
 	private void init (String namespace, String name) {
 		if (name == null ||
