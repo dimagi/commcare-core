@@ -18,13 +18,13 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -282,8 +282,8 @@ public class CommCareUtil {
 	 * @param entry
 	 * @return
 	 */
-	public static String getEntryText(Entry entry, Suite suite, int location) {
-		String text = entry.getText().evaluate();
+	public static String getMenuText(Text input, Suite suite, int location) {
+		String text = input.evaluate();
 		if(Localizer.getArgs(text).size() == 0) {
 			return text;
 		}
