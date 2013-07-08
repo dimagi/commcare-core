@@ -98,7 +98,7 @@ public class CommCareSessionController {
 	    					}
 							
 							int location = list.size();
-							list.append(CommCareUtil.getEntryText(e,suite,location), ImageUtils.getImage(e.getImageURI()));
+							list.append(CommCareUtil.getMenuText(e.getText(),suite,location), ImageUtils.getImage(e.getImageURI()));
 							//TODO: All these multiple checks are pretty sloppy
 							if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
 								listener.registerAudioTrigger(location, e.getAudioURI());
@@ -112,7 +112,8 @@ public class CommCareSessionController {
 					
 				}
 				else if(m.getRoot().equals(menu)) {
-					int location = list.append(m.getName().evaluate(),  ImageUtils.getImage(m.getImageURI()));
+					int location = list.size();
+					list.append(CommCareUtil.getMenuText(m.getName(), suite,location),  ImageUtils.getImage(m.getImageURI()));
 					//TODO: All these multiple checks are pretty sloppy
 					if(listener != null && (m.getAudioURI() != null && !"".equals(m.getAudioURI()))) {
 						listener.registerAudioTrigger(location, m.getAudioURI());

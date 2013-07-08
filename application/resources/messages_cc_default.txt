@@ -119,6 +119,7 @@ commcare.fail.sendlogs=Attempt to send logs?
 commcare.tools.title=Tools
 commcare.tools.network=Network Test
 commcare.tools.permissions=Permissions Test
+commcare.tools.validate=Validate Media
 
 network.test.title=Network Test
 network.test.details=View Details
