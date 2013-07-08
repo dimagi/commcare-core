@@ -165,10 +165,12 @@ public class CommCareContext {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 				SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
 				
+				/*
 				if(CommCareUtil.loginImagesEnabled()){
 					checkMedia(Localization.get("icon.demo.path"), problems);
 					checkMedia(Localization.get("icon.login.path"), problems);
 				}
+				*/
 				
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {

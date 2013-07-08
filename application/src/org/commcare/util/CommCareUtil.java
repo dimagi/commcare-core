@@ -310,7 +310,14 @@ public class CommCareUtil {
 	}
 	
 	public static boolean loginImagesEnabled(){
-		return CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGES));
+		
+		boolean sense = CommCareSense.sense();
+		String loginImages = PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGES);
+		
+		if(!sense){
+			return CommCareProperties.PROPERTY_YES.equals(loginImages);
+		}
+		return (!CommCareProperties.PROPERTY_NO.equals(loginImages));
 	}
 	
 	public static boolean partialRestoreEnabled() {
