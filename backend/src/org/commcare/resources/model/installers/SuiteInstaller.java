@@ -24,7 +24,6 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
@@ -98,30 +97,12 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		}
 	}
 	
-	private void checkMedia(String filePath, SizeBoundUniqueVector<MissingMediaException> problems){
-		try{
-			Reference ref = ReferenceManager._().DeriveReference(filePath);
-			String localName = ref.getLocalURI();
-			try {
-				if(!ref.doesBinaryExist()) {
-					problems.addElement(new MissingMediaException(null,"Missing external media: " + localName, filePath));
-					problems.addBadImageReference();
-				}
-			} catch (IOException e) {
-				problems.addElement(new MissingMediaException(null,"Problem reading external media: " + localName, filePath));
-			} 
-		} catch (InvalidReferenceException e) {
-			//So the problem is that this might be a valid entry that depends on context
-			//in the form, so we'll ignore this situation for now.
-		}
-	}
-	
 	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
 		
 		SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector) problems;
 		
-		checkMedia(Localization.get("icon.demo.path"), sizeBoundProblems);
-		checkMedia(Localization.get("icon.login.path"), sizeBoundProblems);
+		InstallerUtil.checkMedia(r, Localization.get("icon.demo.path"), sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
+		InstallerUtil.checkMedia(r, Localization.get("icon.login.path"), sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
 		
 		//Check to see whether the formDef exists and reads correctly
 		Suite mSuite;
@@ -134,39 +115,20 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		//Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
 		//available
 		try{
-			Hashtable<String,Entry> mHashtable = mSuite.getEntries();
-			for(Enumeration en = mHashtable.keys();en.hasMoreElements() ; ){
-				String key = (String)en.nextElement();
-			}
 			Vector<Menu> menus = mSuite.getMenus();
 			Iterator e = menus.iterator();
-			
-			int missingAURI = 0;
-			int missingIURI= 0;
 			
 			while(e.hasNext()){
 				Menu mMenu = (Menu)e.next();
 
 				String aURI = mMenu.getAudioURI();
-				String iURI = mMenu.getImageURI();
-				
 				if(aURI != null){
-					Reference aRef = ReferenceManager._().DeriveReference(aURI);
-					String aLocalName = aRef.getLocalURI();				
-					if(!aRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new MissingMediaException(r,aLocalName));
-						sizeBoundProblems.addBadAudioReference();
-						missingAURI++;
-					}
+					InstallerUtil.checkMedia(r, aURI, sizeBoundProblems, InstallerUtil.mediaType.AUDIO);
 				}
+				
+				String iURI = mMenu.getImageURI();
 				if(iURI != null){
-					Reference iRef = ReferenceManager._().DeriveReference(iURI);
-					String iLocalName = iRef.getLocalURI();					
-					if(!iRef.doesBinaryExist()) {
-						sizeBoundProblems.addElement(new MissingMediaException(r,iLocalName));
-						sizeBoundProblems.addBadImageReference();
-						missingIURI++;
-					}
+					InstallerUtil.checkMedia(r, iURI, sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
 				}
 			}
 		}

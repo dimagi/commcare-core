@@ -20,6 +20,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -194,9 +195,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 			//things are fine
 			return false;
 		}
-		int missingVideoCount = 0;
-		int missingImageCount = 0;
-		int missingAudioCount = 0;
+		
 		for(String locale : localizer.getAvailableLocales()) {
 			OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
 			for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
@@ -204,29 +203,20 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 				if(key.indexOf(";") != -1) {
 					//got some forms here
 					String form = key.substring(key.indexOf(";") + 1, key.length());
-					if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
-					   form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
-					   form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
-						try {
-							String externalMedia = localeData.get(key).render();
-							Reference ref = ReferenceManager._().DeriveReference(externalMedia);
-							String localName = ref.getLocalURI();
-							try {
-								if(!ref.doesBinaryExist()) {
-									boolean addedSuccessfully = sizeBoundProblems.add(new MissingMediaException(r,localName));
-									if(addedSuccessfully){
-										if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){sizeBoundProblems.addBadVideoReference();}
-										if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){sizeBoundProblems.addBadAudioReference();}
-										if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){sizeBoundProblems.addBadImageReference();}
-									}
-								}
-							} catch (IOException e) {
-								sizeBoundProblems.addElement(new MissingMediaException(r,"Problem reading external media: " + localName));
-							}
-						} catch (InvalidReferenceException e) {
-							//So the problem is that this might be a valid entry that depends on context
-							//in the form, so we'll ignore this situation for now.
-						}
+					
+					if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){
+						String externalMedia = localeData.get(key).render();
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.VIDEO);
+					}
+					
+					if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){
+						String externalMedia = localeData.get(key).render();
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
+					}
+					
+					if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){
+						String externalMedia = localeData.get(key).render();
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.AUDIO);
 					}
 				}
 			}

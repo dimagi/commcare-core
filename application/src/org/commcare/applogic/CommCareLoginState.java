@@ -72,11 +72,15 @@ public class CommCareLoginState extends LoginState {
 	 * 
 	 * Returns a LoginController to handle the CommCare LoginProcess
 	 * 
-	 * @param CommCareUtil.demoEnalbed() true if the user should be allowed to login as a demo user
-	 * @param CommCareUtil.loginImagesEnabled() true if the login screen should use icons instead of buttons
-	 * @param CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) - true if the password can contain letters and numbers - false if only numbers
-	 * @param PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGE) - the URI to an image the login screen should use as a banner, null for no banner
-	 * @param Localization.get("login.title") - the String title of the login screen
+	 * @param CommCareProperties.DEMO_MODE = CommCareProperties.DEMO_DISABLED prevents the user from login in as a demo user. 
+	 * 		CommCareUtil.demoEnabled() returns false
+	 * 
+	 * @param CommCareProperties.LOGIN_IMAGES = CommCareProperties.PROPERTY_YES causes the login screen to use images instead of buttons
+	 * 		CommCareUtil.loginImagesEnabled() returns true
+	 * 
+	 * @param CommCareProperties.PASSWORD_FORMAT = CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC allows letters in the user's password, otherwise only digits
+	 * 
+	 * @param CommCareProperties.LOGIN_IMAGE - the URI to an image the login screen should use as a banner, null for no banner
 	 * 
 	 */
 	
