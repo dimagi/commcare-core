@@ -179,8 +179,7 @@ public class CommCareContext {
 						String res = ure.getResource().getResourceId();
 						
 						Vector<String> list;
-						// this is a little hacky: but basically: if we have a resource, use the resourceId to identify
-						// the missing media; if not, just use the message (for now, applies to login icons)
+
 						if(problemList.containsKey(res)) {
 							list = problemList.get(res);
 						} else{
