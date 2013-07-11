@@ -58,49 +58,53 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 			//Temporarily stop doing any interning since we don't want to increase memory fragmentation
 			//for objects we're just going to throw out anyway
 			MemoryUtils.stopTerning();
-			metaDataIndex = new Hashtable();
-			
-			if (!hasMetaData) {
-				return;
-			}
-			
-			String[] fields = getFields();
-			for (int k = 0; k < fields.length; k++) {
-				metaDataIndex.put(fields[k], new Hashtable());
-			}
-			
-			
-			IStorageIterator i = iterate();
-			int records = this.getNumRecords();
-			Hashtable[] metadata = new Hashtable[records];
-			int[] recordIds = new int[records];
-			for(int j = 0 ; j < records ; ++j) {
-				metadata[j] = new Hashtable(fields.length); 
-				for(String field : fields) {
-					metadata[j].put(field, "");
+			try{
+				
+				metaDataIndex = new Hashtable();
+				
+				if (!hasMetaData) {
+					return;
 				}
-			}
-			int count = 0;
-			IMetaData obj;
-			while (i.hasMore()) {
-				recordIds[count] = i.nextID();
-				count++;
-			}
-			
-			//0 memory allocation zone
-			for(int index = 0 ; index < recordIds.length; ++ index) {
-				obj = (IMetaData)read(recordIds[index]);
 				
-				copyHT(metadata[index], getMetaData(obj, fields), fields);
+				String[] fields = getFields();
+				for (int k = 0; k < fields.length; k++) {
+					metaDataIndex.put(fields[k], new Hashtable());
+				}
 				
-				obj = null;
-				System.gc();
+				
+				IStorageIterator i = iterate();
+				int records = this.getNumRecords();
+				Hashtable[] metadata = new Hashtable[records];
+				int[] recordIds = new int[records];
+				for(int j = 0 ; j < records ; ++j) {
+					metadata[j] = new Hashtable(fields.length); 
+					for(String field : fields) {
+						metadata[j].put(field, "");
+					}
+				}
+				int count = 0;
+				IMetaData obj;
+				while (i.hasMore()) {
+					recordIds[count] = i.nextID();
+					count++;
+				}
+				
+				//0 memory allocation zone
+				for(int index = 0 ; index < recordIds.length; ++ index) {
+					obj = (IMetaData)read(recordIds[index]);
+					
+					copyHT(metadata[index], getMetaData(obj, fields), fields);
+					
+					obj = null;
+					System.gc();
+				}
+				//0 memory allocation zone
+				for(int index = 0; index < recordIds.length; ++index) {
+					indexMetaData(recordIds[index], metadata[index]);
+				}
+			} finally{
+				MemoryUtils.revertTerning();
 			}
-			//0 memory allocation zone
-			for(int index = 0; index < recordIds.length; ++index) {
-				indexMetaData(recordIds[index], metadata[index]);
-			}
-			MemoryUtils.revertTerning();
 		}
 	}
 	
