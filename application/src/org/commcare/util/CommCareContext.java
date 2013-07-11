@@ -79,6 +79,8 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.resources.locale.LanguageUtils;
+import org.javarosa.service.transport.securehttp.AuthUtils;
+import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportManagerModule;
 import org.javarosa.services.transport.TransportService;
@@ -569,6 +571,7 @@ public class CommCareContext {
 	public void setUser (User u, HttpCredentialProvider userCredentials) {
 		this.loggedInUserID = u.getUniqueId();
 		this.userCredentials = userCredentials;
+		AuthUtils.setStaticAuthenticator(new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(userCredentials)));
 	}
 	
 	public User getUser () {
