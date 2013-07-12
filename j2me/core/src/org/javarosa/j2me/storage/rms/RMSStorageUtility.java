@@ -695,6 +695,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 				for(int id = 0; id < datastores.length; ++ id) {
 					int numPossible = -1;
 					try {
+						if(datastores[id] == null) {
+							try {
+								datastores[id] = this.getDataStore(id);
+							} catch (Exception e) {
+								log("rms-repair", "Un-openable record store " + this.getName() + " [" + id+ "]");
+								throw new RuntimeException("Unable to open storage [" + this.getName()+": " + id+ "]. Please ensure all media is plugged in and try again.");
+							}
+						}
 						numPossible = datastores[id].rms.getNumRecords();
 					} catch(Exception e) {
 						log("rms-repair", "Error getting num records(" + e.getClass() + ": " + e.getMessage() + ")");
