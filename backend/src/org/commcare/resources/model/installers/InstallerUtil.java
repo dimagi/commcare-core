@@ -11,11 +11,11 @@ import org.javarosa.core.util.SizeBoundUniqueVector;
 
 public class InstallerUtil {
 	
-	public static enum mediaType{
+	public static enum MediaType{
 		IMAGE, AUDIO, VIDEO
 	}
 	
-	public static void checkMedia(Resource r, String filePath, SizeBoundUniqueVector<MissingMediaException> problems, mediaType mt){
+	public static void checkMedia(Resource r, String filePath, SizeBoundUniqueVector<MissingMediaException> problems, MediaType mt){
 		try{
 			Reference ref = ReferenceManager._().DeriveReference(filePath);
 			String localName = ref.getLocalURI();

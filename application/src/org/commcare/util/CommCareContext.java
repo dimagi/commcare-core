@@ -4,7 +4,6 @@
 package org.commcare.util;
 
 import java.io.IOException;
-import org.javarosa.core.reference.Reference;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -164,7 +163,6 @@ public class CommCareContext {
 			private String validate() {
 				this.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 				SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
-				
 				global.verifyInstallation(problems);
 				if(problems.size() > 0 ) {
 					int badImageRef = problems.getBadImageReferenceCount();
@@ -175,11 +173,10 @@ public class CommCareContext {
 					Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 					for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
 						MissingMediaException ure = (MissingMediaException)en.nextElement();
-						
+
 						String res = ure.getResource().getResourceId();
 						
 						Vector<String> list;
-
 						if(problemList.containsKey(res)) {
 							list = problemList.get(res);
 						} else{

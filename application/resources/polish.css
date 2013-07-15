@@ -60,7 +60,7 @@ colors {
 	
 	demoTitleColor: #7AB847;
 	
-	selectedBg: #99FF55;
+	selectedBg: #99FF55; /* nerve damage green */
 	selectedBgSense: #00FFEE;
 	borderSense: #2685FF;
 	
@@ -99,10 +99,10 @@ focusHighlight extends focused {
 }
 
 .myButtonFocused {
-	border-color: #1557a2;
+	border-color: #99FF55;
 	border-width: 3;
 	layout: horizontal-center;
-	background-color: #1557a2
+	background-color: #99FF55
 	/*
 	background-color: #99FF55;
 	*/

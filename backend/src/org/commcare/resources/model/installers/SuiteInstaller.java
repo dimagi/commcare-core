@@ -5,8 +5,6 @@ package org.commcare.resources.model.installers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -17,7 +15,7 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Entry;
+import org.commcare.resources.model.installers.InstallerUtil;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareInstance;
@@ -25,7 +23,6 @@ import org.commcare.xml.SuiteParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
@@ -101,8 +98,8 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 		
 		SizeBoundUniqueVector sizeBoundProblems = (SizeBoundUniqueVector) problems;
 		
-		InstallerUtil.checkMedia(r, Localization.get("icon.demo.path"), sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
-		InstallerUtil.checkMedia(r, Localization.get("icon.login.path"), sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
+		InstallerUtil.checkMedia(r, Localization.get("icon.demo.path"), sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
+		InstallerUtil.checkMedia(r, Localization.get("icon.login.path"), sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
 		
 		//Check to see whether the formDef exists and reads correctly
 		Suite mSuite;
@@ -123,12 +120,12 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
 
 				String aURI = mMenu.getAudioURI();
 				if(aURI != null){
-					InstallerUtil.checkMedia(r, aURI, sizeBoundProblems, InstallerUtil.mediaType.AUDIO);
+					InstallerUtil.checkMedia(r, aURI, sizeBoundProblems, InstallerUtil.MediaType.AUDIO);
 				}
 				
 				String iURI = mMenu.getImageURI();
 				if(iURI != null){
-					InstallerUtil.checkMedia(r, iURI, sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
+					InstallerUtil.checkMedia(r, iURI, sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
 				}
 			}
 		}

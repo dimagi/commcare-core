@@ -206,17 +206,17 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 					
 					if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO)){
 						String externalMedia = localeData.get(key).render();
-						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.VIDEO);
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.VIDEO);
 					}
 					
 					if(form.equals(FormEntryCaption.TEXT_FORM_IMAGE)){
 						String externalMedia = localeData.get(key).render();
-						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.IMAGE);
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
 					}
 					
 					if(form.equals(FormEntryCaption.TEXT_FORM_AUDIO)){
 						String externalMedia = localeData.get(key).render();
-						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.mediaType.AUDIO);
+						InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.AUDIO);
 					}
 				}
 			}
