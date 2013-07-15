@@ -42,6 +42,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		this.session = session;
 	}
 	
+	/**
+	 * 
+	 * This method's behavior depends on the following configuration properties:
+	 *  
+	 * @see DeviceID - Needs to Exist
+	 * @see app-version - Needs to exist.
+	 */
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		String ref = instance.getReference();
 		
