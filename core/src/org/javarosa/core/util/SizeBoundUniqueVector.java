@@ -23,16 +23,20 @@ public class SizeBoundUniqueVector<E> extends SizeBoundVector<E> {
 	 * @see java.util.Vector#addElement(java.lang.Object)
 	 */
 	public synchronized void addElement(E obj) {
+		add(obj);
+	}
+	
+	public synchronized boolean add(E obj) {
 		if(this.size() == limit) {
 			additional++;
-			return;
+			return true;
 		}
 		else if(this.contains(obj)){
-			return;
+			return false;
 		}
 		else {
 			super.addElement(obj);
+			return true;
 		}
 	}
-
 }
