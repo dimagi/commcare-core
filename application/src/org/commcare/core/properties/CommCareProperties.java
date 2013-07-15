@@ -99,6 +99,8 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String CONTENT_VALIDATED = "cc-content-valid";
     
+    public final static String LOGIN_IMAGES = "cc-login-images";
+    
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
@@ -216,6 +218,8 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(LOGIN_MODE, userSettings);
         
         rules.put(CONTENT_VALIDATED, yesNo);
+        
+        rules.put(LOGIN_IMAGES, yesNo);
         
         Vector updateFreq = new Vector();
         updateFreq.addElement(FREQUENCY_NEVER);
@@ -337,6 +341,8 @@ public class CommCareProperties implements IPropertyRules {
         	return "User Login Mode";
         } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
         	return "Auto-Update Frequency";
+        } else if (LOGIN_IMAGES.equals(propertyName)) {
+        	return "Display Login Images?";
         }
     	return propertyName;
 	}

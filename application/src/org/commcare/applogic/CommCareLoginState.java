@@ -66,6 +66,24 @@ public class CommCareLoginState extends LoginState {
 		return admin;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.user.api.LoginState#getController()
+	 * 
+	 * Returns a LoginController to handle the CommCare LoginProcess
+	 * 
+	 * @param CommCareProperties.DEMO_MODE = CommCareProperties.DEMO_DISABLED prevents the user from login in as a demo user. 
+	 * 		CommCareUtil.demoEnabled() returns false
+	 * 
+	 * @param CommCareProperties.LOGIN_IMAGES = CommCareProperties.PROPERTY_YES causes the login screen to use images instead of buttons
+	 * 		CommCareUtil.loginImagesEnabled() returns true
+	 * 
+	 * @param CommCareProperties.PASSWORD_FORMAT = CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC allows letters in the user's password, otherwise only digits
+	 * 
+	 * @param CommCareProperties.LOGIN_IMAGE - the URI to an image the login screen should use as a banner, null for no banner
+	 * 
+	 */
+	
 	protected LoginController getController () {		
 		String ver = "CommCare " + CommCareUtil.getVersion(CommCareUtil.VERSION_MED);
 		String[] extraText = (CommCareUtil.isTestingMode() ? new String[] {ver, "*** TEST BUILD ***"}
@@ -79,7 +97,8 @@ public class CommCareLoginState extends LoginState {
 				extraText, CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
 				                              CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
 				                              CreateUserController.PASSWORD_FORMAT_NUMERIC,
-				                              CommCareUtil.demoEnabled());
+				                              CommCareUtil.demoEnabled(),
+				                              CommCareUtil.loginImagesEnabled());
 	}
 
 	/* (non-Javadoc)

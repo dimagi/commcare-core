@@ -309,6 +309,17 @@ public class CommCareUtil {
 		return !CommCareProperties.DEMO_DISABLED.equals(PropertyManager._().getSingularProperty(CommCareProperties.DEMO_MODE));
 	}
 	
+	public static boolean loginImagesEnabled(){
+		
+		boolean sense = CommCareSense.sense();
+		String loginImages = PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGES);
+		
+		if(!sense){
+			return CommCareProperties.PROPERTY_YES.equals(loginImages);
+		}
+		return (!CommCareProperties.PROPERTY_NO.equals(loginImages));
+	}
+	
 	public static boolean partialRestoreEnabled() {
 		return !CommCareProperties.REST_TOL_STRICT.equals(PropertyManager._().getSingularProperty(CommCareProperties.RESTORE_TOLERANCE));
 	}

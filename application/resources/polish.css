@@ -60,7 +60,7 @@ colors {
 	
 	demoTitleColor: #7AB847;
 	
-	selectedBg: #99FF55;
+	selectedBg: #99FF55; /* nerve damage green */
 	selectedBgSense: #00FFEE;
 	borderSense: #2685FF;
 	
@@ -96,6 +96,34 @@ focusHighlight extends focused {
 	
 	layout: horizontal-center;
 	min-width: 80;
+}
+
+.myButtonFocused {
+	border-color: #99FF55;
+	border-width: 3;
+	layout: horizontal-center;
+	background-color: #99FF55
+	/*
+	background-color: #99FF55;
+	*/
+}
+
+.myButton {
+	font-color:buttonTextColor;
+	font-style:bold;
+	padding:3;
+	focused-style: myButtonFocused;
+	background-color: white;
+	layout: horizontal-center;
+}
+
+.imageView {
+	background {
+		color: white;
+		anchor: bottom | horizontal-center;
+	}
+	background-bottom: menubar;	
+	layout: horizontal-center | vertical-center;
 }
 
 .button {
