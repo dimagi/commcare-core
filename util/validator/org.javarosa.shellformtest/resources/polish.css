@@ -31,6 +31,8 @@ colors {
 	menubottombarColor: rgb( 210, 210, 210 ); /* little less almost white */
 	oldQuestionColor: #E2E2E2;	/* little less almost white */
 	overlay: argb( 150, 255, 255, 255 ); /*see through white */
+	nothing: argb( 0, 255, 255, 255 ); /*see through white */
+	
 	
 	manyUnsent: #FF0000; /*Red as Red can be */
 	
@@ -39,8 +41,9 @@ colors {
 	requiredColorFocus: #DC143C; /* pretty much red */
 	headerColor: 	#D9D9D9; /*again with the grey */
 	dimagiBlue: #114281;
-	lighterBlue: #4779B8;
-	otherLighterBlue:#2B7BE3;
+	/*lighterBlue: #4779B8;*/
+	lighterBlue: #1557A2;
+	hqHeaderBlue: #587392;
 	dimagiBackground: #F5F1E5;
 	dimagiGold: #DD9911;
 	
@@ -55,9 +58,15 @@ colors {
 	
 	popupFontColor: black;
 	
-	selectedBg: #D5D8DD;
+	demoTitleColor: #7AB847;
+	
+	selectedBg: #99FF55; /* nerve damage green */
 	selectedBgSense: #00FFEE;
 	borderSense: #2685FF;
+	
+	entitydetailheaderColor: hqHeaderBlue;
+	entitydetailvalueColor: white;
+	
 }
 .loginView {
 	background {
@@ -65,7 +74,6 @@ colors {
 		anchor: bottom | horizontal-center;
 	}
 	background-bottom: menubar;	
-	margin-bottom: 5;
 	layout: horizontal-center | vertical-center;
 }
 
@@ -90,6 +98,34 @@ focusHighlight extends focused {
 	min-width: 80;
 }
 
+.myButtonFocused {
+	border-color: #99FF55;
+	border-width: 3;
+	layout: horizontal-center;
+	background-color: #99FF55
+	/*
+	background-color: #99FF55;
+	*/
+}
+
+.myButton {
+	font-color:buttonTextColor;
+	font-style:bold;
+	padding:3;
+	focused-style: myButtonFocused;
+	background-color: white;
+	layout: horizontal-center;
+}
+
+.imageView {
+	background {
+		color: white;
+		anchor: bottom | horizontal-center;
+	}
+	background-bottom: menubar;	
+	layout: horizontal-center | vertical-center;
+}
+
 .button {
 	font-color:buttonTextColor;
 	font-style:bold;
@@ -110,9 +146,12 @@ focusHighlight extends focused {
 }
 
 title{
-	margin: 4;
+	margin-top: -16;
+	margin-right: 0;
+	margin-left: 0;
+	margin-bottom: 2;
 	padding: 4;
-	padding-top: 4;
+	padding-top: 18;
 	padding-bottom: 4;
 	font-face: proportional;
 	font-size: medium;
@@ -123,11 +162,42 @@ title{
 	background {
 		type: round-rect;
 		color: lighterBlue;
-		arc-width: 10;
-		arc-height: 10;
-	}	
+		arc-width: 40;
+		arc-height: 40;	
+	}
 }
 
+.popupTitle{
+	font-face: proportional;
+	font-size: medium;
+	font-style: bold;
+	font-color: white;
+	layout: center | expand;
+	text-effect: none;
+	background {
+		color: lighterBlue;	
+	}
+}
+
+
+.normaltitle {
+   	background {
+		type: round-rect;
+		color: lighterBlue;
+		arc-width: 40;
+		arc-height: 40;	
+	}
+}
+
+
+.demotitle {
+   	background {
+		type: round-rect;
+		color: black;
+		arc-width: 40;
+		arc-height: 40;	
+	}
+}
 
 .modeList{
 	background: #FFC;
@@ -195,7 +265,8 @@ focused{
 
 .cgEmptyFocus extends cgItemFocused {
     background-color: white;
-    border-color: white;
+    /*border-color: white;*/
+    border: none;
     before: white;
 }
 
@@ -233,6 +304,7 @@ choiceGroup extends textBox {
 
 .unsentImportant extends listitem {
     font-color: manyUnsent;
+    font-style: bold;
 }
 
 .yesNoChoiceGroup extends choicegroup{
@@ -297,14 +369,17 @@ menu {
 		end-color: #2222;
 		orientation: top-right;
 	}
-	padding: 0;
 	background-color: menubarColor;
 	font-style: bold; 
 	font-face: proportional; 
 	font-size: medium; 
 	font-color: black;
 	menubar-color: menubottombarColor;
-	margin: 0;
+	padding-top: 3;
+	padding-bottom: 3;
+	padding-right: 1;
+	padding-left: 1;
+	
 }
 /**
   * The menuItem style is a predefined style
@@ -318,6 +393,14 @@ menuItem {
 		size: medium;
 		style: bold;
 	}
+
+	background-color: menubarColor;
+	
+	padding-left: 3;
+	padding-right: 7;
+	margin-right: 3;
+	
+	focused-style: menuItem:hover;
 	layout: left;
 	//#if ${ exists( arrowRight.png ) }
 		command-child-indicator: url(arrowRight.png);
@@ -329,18 +412,29 @@ menuItem {
 }
 
 .menuItem:hover {
-	border {
-		type: simple;
-		width: 1;
-		color: black;
-		orientation: all;
-	}	
 	font {
 		style: bold;
 		size: medium;
 		color: black;
 	}
-	layout: left | horizontal-expand;
+	layout: left | expand;
+	
+	background {
+		type: round-rect;
+		color: selectedBg;
+	}
+	
+	padding-left: 1;
+	padding-right: 5;
+	margin-right: 1;
+	
+	border {
+		type:round-rect;
+		arc-width:6;
+		arc-height:6;
+		width:2;
+		color:dimagiBlue;
+	}	
 }
 
 .container {
@@ -421,14 +515,19 @@ rightcommand {
 
 .urlInput{}
 
+.submitText {
+	margin: 20;
+}
+
 .submitPopup {
 	margin: 10;
-	padding: 5;
+	padding: -1;
 	layout: horizontal-center | vertical-center | horizontal-shrink;
-	repaint-previous-screen: true;
+	repaint-previous-screen: false;
 	border-width: 1;
 	border-color: black;
 	background-color: white;
+	title-style: popupTitle;
 	
 /*	
 	//#if polish.midp2 || polish.api.nokia-ui
@@ -444,7 +543,7 @@ rightcommand {
 }
 
 .submitYesNo {
-	
+	margin: 5;
 }
 
 /* JJ trying this new style just to see if it works, copied the polish site */
@@ -466,7 +565,8 @@ alertcontent {
 }
 
 .mailAlert extends .mailForm {
-    title-style: title;
+    title-style: popupTitle;
+    
     background-color: popupBgColor;
     font-color: popupFontColor;
     
@@ -502,6 +602,7 @@ alertcontent {
 	background-color: white;
 	padding: 0;
 }
+
 
 .ReviewSplit extends .split {
  	background-color: white;
@@ -539,16 +640,6 @@ alertcontent {
 	padding:2;
 }
 
-.patselDetailRow {
-    font-size: small;
-	columns: 2;
-	//#if javarosa.patientselect.formfactor == nokia-s40
-	columns-width: 40,85;
-	//#else
-	columns-width: 80,150;
-	//#endif
-}
-
 .patselEvenRow extends patselRow {
 	background-color: white;
 }
@@ -558,7 +649,7 @@ alertcontent {
 }
 
 .patselSelectedRow extends patselRow {
-	background-color: focusedBackground;
+	background-color: selectedBg;
 	border {
 		type:round-rect;
 		arc-width:6;
@@ -572,6 +663,10 @@ alertcontent {
     text-wrap: false
 }
 
+.patselImageCell {
+	layout: vertical-center | horizontal-center| vertical-shrink;;
+}
+
 .patselTitleRowContainer extends patselRow {
 
 	background-color: lighterBlue;
@@ -580,17 +675,8 @@ alertcontent {
 
 /** ------------   Popup Style   -----------------**/
 
-.patselDetailRow {
-    font-size: small;
-	columns: 2;
-	//#if javarosa.patientselect.formfactor == nokia-s40
-	columns-width: 40,85;
-	//#else
-	columns-width: 80,150;
-	//#endif
-}
-
 .patselSortPopup {
+	title-style: popupTitle;
     margin-right: 15;
 	margin-left: 15;
     margin-top: 5;
@@ -796,7 +882,69 @@ alertcontent {
 .View_All_Form {
 	padding: 2;	
 	background-color: white;
-	screen-change-animation: zoomin;
+	/** screen-change-animation: zoomin;**/
 	layout: bottom | horizontal-center;
 	always-include: true	
+}
+
+
+.patselDetailLabel {
+    background-color: entitydetailheaderColor;
+    layout: expand;
+    margin:0;
+    padding-left: 5;
+    font {
+		color: white;
+		size: medium;
+	}
+	border {
+		color: headerColor;
+		width: 1;
+	}    
+}
+
+.patselDetailData {
+    margin: 0;
+    background-color: entitydetailvalueColor;
+    layout: horizontal-center | expand;
+    padding-top: 0;
+    padding-bottom: 4;
+    
+    font {
+		face: proportional;
+		style: bold;
+		size: medium;
+	}
+}
+
+.patselDetailContainer {
+	padding: 0;
+	margin-top: 0;
+	margin-left: -1;
+	margin-right: -1;
+	margin-bottom: -2;
+	
+	background-color: white;
+	border {
+		color: gray;
+		width-top: 1;
+		width-left: 1;
+		width-right: 1;
+		width-bottom: 1;
+	}
+}
+
+.entityDetailScreen {
+	background-color: white;
+}
+
+.networkTestForm {
+	bottomframe-height: 50%;
+} 
+
+.networkTestImage {
+	min-height: 50%;
+	max-height: 50%;
+	margin: 5;
+    layout: center | vcenter| expand;
 }
