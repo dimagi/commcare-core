@@ -427,9 +427,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			if(repeat.getCountReference() != null) {
 				int currentMultiplicity = repeatIndex.getElementMultiplicity();
 				
-				AbstractTreeElement countNode = this.getMainInstance().resolveReference(repeat.getCountReference());
+				AbstractTreeElement countNode = this.getMainInstance().resolveReference(repeat.getConextualizedCountReference(repeatRef));
 				if(countNode == null) {
-					throw new XPathTypeMismatchException("Could not find the location " + repeat.getCountReference().getReference().toString() + " where the repeat at " + repeatRef.toString(false) + " is looking for its count");
+					throw new XPathTypeMismatchException("Could not find the location " + repeat.getConextualizedCountReference(repeatRef).toString() + " where the repeat at " + repeatRef.toString(false) + " is looking for its count");
 				}
 				//get the total multiplicity possible
 				IAnswerData count = countNode.getValue();
@@ -440,7 +440,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 					try {
 						fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
 					} catch(IllegalArgumentException iae) {
-						throw new XPathTypeMismatchException("The repeat count value \"" + count.uncast().getString() + "\" at " + repeat.getCountReference().getReference().toString() + " must be a number!");
+						throw new XPathTypeMismatchException("The repeat count value \"" + count.uncast().getString() + "\" at " + repeat.getConextualizedCountReference(repeatRef).toString() + " must be a number!");
 					}
 				}
 						

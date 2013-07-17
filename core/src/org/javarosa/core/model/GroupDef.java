@@ -23,6 +23,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 import java.lang.String;
 
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
@@ -148,6 +150,10 @@ public class GroupDef implements IFormElement, Localizable {
     
     public IDataReference getCountReference() {
     	return count;
+    }
+    
+    public TreeReference getConextualizedCountReference(TreeReference context) {
+    	return DataInstance.unpackReference(count).contextualize(context);
     }
 	
 	public String toString() {
