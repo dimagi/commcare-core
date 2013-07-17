@@ -18,6 +18,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 
 /**
@@ -194,6 +195,13 @@ public class CommCareSession {
 			}  else if(step[0] == CommCareSession.STATE_DATUM_COMPUTED) {
 				//Nothing to do here
 			}
+			
+			if(returnVal[i] != null) {
+				//Menus contain a potential argument listing where that value is on the screen, 
+				//clear it out if it exists
+				returnVal[i] = Localizer.processArguments(returnVal[i], new String[] {""}).trim();
+			}
+			
 			++i;
 		}
 		
