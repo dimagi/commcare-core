@@ -1678,23 +1678,34 @@ public class XFormParser {
 	private Condition buildCondition (String xpath, String type, IDataReference contextRef) {
 		XPathConditional cond;
 		int trueAction = -1, falseAction = -1;
+		
+		String prettyType;
 
 		if ("relevant".equals(type)) {
+			prettyType = "display condition";
 			trueAction = Condition.ACTION_SHOW;
 			falseAction = Condition.ACTION_HIDE;
 		} else if ("required".equals(type)) {
+			prettyType = "require condition";
 			trueAction = Condition.ACTION_REQUIRE;
 			falseAction = Condition.ACTION_DONT_REQUIRE;
 		} else if ("readonly".equals(type)) {
+			prettyType = "readonly condition";
 			trueAction = Condition.ACTION_DISABLE;
 			falseAction = Condition.ACTION_ENABLE;
+		} else{
+			prettyType = "unknown condition";
 		}
 
 		try {
 			cond = new XPathConditional(xpath);
 		} catch (XPathSyntaxException xse) {
-			reporter.error("bind for " + contextRef.getReference().toString() + " contains invalid display condition [" + xpath + "] " + xse.getMessage());
-			return null;
+			
+			String errorMessage = "Encountered a problem with " + prettyType + " for node ["  + contextRef.getReference().toString() + "] at line: " + xpath + ", " +  xse.getMessage();
+			
+			reporter.error(errorMessage);
+			
+			throw new XFormParseException(errorMessage);
 		}
 				
 		Condition c = new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
