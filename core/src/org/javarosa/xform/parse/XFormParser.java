@@ -1701,7 +1701,7 @@ public class XFormParser {
 			cond = new XPathConditional(xpath);
 		} catch (XPathSyntaxException xse) {
 			
-			String errorMessage = "Encountered a problem with " + prettyType + " for node ["  + contextRef.getReference().toString() + "] at XPath: " + xpath + ", " +  xse.getMessage();
+			String errorMessage = "Encountered a problem with " + prettyType + " for node ["  + contextRef.getReference().toString() + "] at line: " + xpath + ", " +  xse.getMessage();
 			
 			reporter.error(errorMessage);
 			
