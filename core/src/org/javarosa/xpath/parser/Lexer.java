@@ -177,7 +177,7 @@ public class Lexer {
 		String postcontext = i == expr.length() - 1 ? "" : 
 				expr.substring(Math.min(i + 1, expr.length() - 1), Math.min(i + CONTEXT_LENGTH, expr.length())).trim() + (Math.min(i + CONTEXT_LENGTH, expr.length()) != expr.length() ? "..." : "");
 		
-		throw new XPathSyntaxException("The problem is around: " + (preContext + start + postcontext));
+		throw new XPathSyntaxException("Couldn't understand the expression starting at this point: " + (preContext + start + postcontext));
 	}
 
 	private static int matchNumeric (String expr, int i) {
