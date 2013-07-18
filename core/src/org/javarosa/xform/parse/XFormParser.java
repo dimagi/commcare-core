@@ -1693,8 +1693,11 @@ public class XFormParser {
 		try {
 			cond = new XPathConditional(xpath);
 		} catch (XPathSyntaxException xse) {
-			reporter.error("bind for " + contextRef.getReference().toString() + " contains invalid display condition [" + xpath + "] " + xse.getMessage());
-			return null;
+			//reporter.error("bind for " + contextRef.getReference().toString() + " contains invalid display condition [" + xpath + "] " + xse.getMessage());
+			
+			throw new XFormParseException("Encountered a problem at XPath: " + xpath + ", " +  xse.getMessage());
+			
+			//return null;
 		}
 				
 		Condition c = new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));

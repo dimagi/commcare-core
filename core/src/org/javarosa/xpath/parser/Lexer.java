@@ -18,6 +18,7 @@ package org.javarosa.xpath.parser;
 
 import java.util.Vector;
 
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xpath.expr.XPathQName;
 
 public class Lexer {
@@ -170,12 +171,13 @@ public class Lexer {
 	}
 	
 	private static void badParse(String expr, int i, char c) throws XPathSyntaxException {
+		
 		String start = "\u034E" + c;
 		String preContext =  (Math.max(0, i - CONTEXT_LENGTH) != 0 ? "..." : "") + expr.substring(Math.max(0, i - CONTEXT_LENGTH), Math.max(0, i)).trim();
 		String postcontext = i == expr.length() - 1 ? "" : 
 				expr.substring(Math.min(i + 1, expr.length() - 1), Math.min(i + CONTEXT_LENGTH, expr.length())).trim() + (Math.min(i + CONTEXT_LENGTH, expr.length()) != expr.length() ? "..." : "");
 		
-		throw new XPathSyntaxException("Unable to tokenize: " + (preContext + start + postcontext));
+		throw new XPathSyntaxException("The problem is around: " + (preContext + start + postcontext));
 	}
 
 	private static int matchNumeric (String expr, int i) {
