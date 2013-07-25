@@ -42,6 +42,7 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * Representation of an xpath function expression.
@@ -60,7 +61,14 @@ public class XPathFuncExpr extends XPathExpression {
 
 	public XPathFuncExpr () { } //for deserialization
 	
-	public XPathFuncExpr (XPathQName id, XPathExpression[] args) {
+	public XPathFuncExpr (XPathQName id, XPathExpression[] args) throws XPathSyntaxException{
+		
+		if(id.name.equals("if")){
+			if(args.length != 3){
+				throw new XPathSyntaxException("Bad number of arguments to if() function");
+			}
+		}
+		
 		this.id = id;
 		this.args = args;
 	}
@@ -134,7 +142,6 @@ public class XPathFuncExpr extends XPathExpression {
 		Object[] argVals = new Object[args.length];
 		
 		Hashtable funcHandlers = evalContext.getFunctionHandlers();
-		
 		
 		//TODO: Func handlers should be able to declare the desire for short circuiting as well
 		if(name.equals("if") && args.length == 3) {
@@ -303,6 +310,7 @@ public class XPathFuncExpr extends XPathExpression {
 		} else {
 			throw new XPathTypeMismatchException("for function \'" + handler.getName() + "\'");
 		}
+		
 	}
 	
 	/**
