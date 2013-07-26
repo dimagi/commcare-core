@@ -16,6 +16,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
@@ -35,12 +36,14 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 
 	private AbstractTreeElement instanceRoot;
 	
-	private IStorageUtilityIndexed storage;
+	IStorageUtilityIndexed storage;
 	private String[] caseRecords;
 	
 	private Vector<CaseChildElement> cases;
 	
-	TreeElementCache cache = new TreeElementCache();
+	protected CacheTable<TreeElement> treeCache = new CacheTable<TreeElement>();
+	
+	protected CacheTable<String> stringCache;
 	
 	private Hashtable<Integer, Integer> caseIdMapping;
 	
@@ -50,7 +53,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	/** In report mode, casedb is not the root of a document, and we only build the top
 	 *	level case node (not the whole thing) 
 	 */
-	private boolean reportMode;
+	boolean reportMode;
 	
 	public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
 		this(instanceRoot, storage, false);
@@ -90,6 +93,10 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	 */
 	public String getInstanceName() {
 		return instanceRoot.getInstanceName();
+	}
+	
+	public void attachStringCache(CacheTable<String> stringCache) {
+		this.stringCache = stringCache;
 	}
 
 	/* (non-Javadoc)
@@ -166,14 +173,14 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		if(caseRecords != null) {
 			int i = 0;
 			for(String id : caseRecords) {
-				cases.addElement(new CaseChildElement(this, -1, id, i, storage, cache, reportMode));
+				cases.addElement(new CaseChildElement(this, -1, id, i));
 				++i;
 			}
 		} else {
 			int mult = 0;
 			for(IStorageIterator i = storage.iterate(); i.hasMore();) {
 				int id = i.nextID();
-				cases.addElement(new CaseChildElement(this, id, null, mult, storage, cache, reportMode));
+				cases.addElement(new CaseChildElement(this, id, null, mult));
 				caseIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 				mult++;
 			}
@@ -458,4 +465,11 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		return null;
 	}
 
+	public String intern(String s) {
+		if(stringCache == null) {
+			return s;
+		} else {
+			return stringCache.intern(s);
+		}
+	}
 }

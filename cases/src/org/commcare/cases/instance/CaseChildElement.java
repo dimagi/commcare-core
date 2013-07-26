@@ -19,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 /**
@@ -27,35 +28,27 @@ import org.javarosa.xpath.expr.XPathExpression;
  */
 public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 	
-	AbstractTreeElement<CaseChildElement> parent;
+	CaseInstanceTreeElement parent;
 	int recordId; 
 	String caseId;
 	int mult;
 	
-	IStorageUtilityIndexed storage;
-	
-	TreeElementCache cache;
-	
 	TreeElement empty;
 	
 	int numChildren = -1;
-	private boolean reportMode;
 	
-	public CaseChildElement(AbstractTreeElement<CaseChildElement> parent, int recordId, String caseId, int mult, IStorageUtilityIndexed storage, TreeElementCache cache, boolean reportMode) {
+	public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
 		if(recordId == -1 && caseId == null) { throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");}
 		this.parent = parent;
 		this.recordId = recordId;
 		this.caseId = caseId;
 		this.mult = mult;
-		this.storage = storage;
-		this.cache = cache;
-		this.reportMode = reportMode;
 	}
 	
 	/*
 	 * Template constructor (For elements that need to create reference nodesets but never look up values)
 	 */
-	private CaseChildElement(AbstractTreeElement<CaseChildElement> parent) {
+	private CaseChildElement(CaseInstanceTreeElement parent) {
 		//Template
 		this.parent = parent;
 		this.recordId = TreeReference.INDEX_TEMPLATE;
@@ -214,8 +207,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		if(name.equals("case_id")) {
 			if(recordId != TreeReference.INDEX_TEMPLATE) {
 				//if we're already cached, don't bother with this nonsense
-				synchronized(cache){
-					TreeElement element = cache.retrieve(recordId);
+				synchronized(parent.treeCache){
+					TreeElement element = parent.treeCache.retrieve(recordId);
 					if(element != null) {
 						return cache().getAttribute(namespace, name);
 					}
@@ -312,47 +305,47 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		if(recordId == TreeReference.INDEX_TEMPLATE) {
 			return empty;
 		}
-		synchronized(cache){
-			TreeElement element = cache.retrieve(recordId);
+		synchronized(parent.treeCache){
+			TreeElement element = parent.treeCache.retrieve(recordId);
 			if(element != null) {
 				return element;
 			}
 			//For now this seems impossible
 			if(recordId == -1) {
-				Vector<Integer> ids = storage.getIDsForValue("case_id",caseId);
+				Vector<Integer> ids = parent.storage.getIDsForValue("case_id",caseId);
 				recordId = ids.elementAt(0).intValue();
 			}
 			
-			TreeElement cacheBuilder = new TreeElement("case".intern()); 
-			Case c = (Case)storage.read(recordId);
+			TreeElement cacheBuilder = new TreeElement("case"); 
+			Case c = (Case)parent.storage.read(recordId);
 			caseId = c.getCaseId();
-			cacheBuilder = new TreeElement("case".intern());
+			cacheBuilder = new TreeElement("case");
 			cacheBuilder.setMult(this.mult);
 			
-			cacheBuilder.setAttribute(null, "case_id".intern(), c.getCaseId());
-			cacheBuilder.setAttribute(null, "case_type".intern(), c.getTypeId());
-			cacheBuilder.setAttribute(null, "status".intern(), c.isClosed() ? "closed".intern() : "open".intern());
+			cacheBuilder.setAttribute(null, "case_id", c.getCaseId());
+			cacheBuilder.setAttribute(null, "case_type", c.getTypeId());
+			cacheBuilder.setAttribute(null, "status", c.isClosed() ? "closed" : "open");
 			
 			//Don't set anything to null
-			cacheBuilder.setAttribute(null, "owner_id".intern(), c.getUserId() == null ? "" : c.getUserId());
+			cacheBuilder.setAttribute(null, "owner_id", c.getUserId() == null ? "" : c.getUserId());
 
 			final boolean[] done = new boolean[] {false}; 
 
 			//If we're not in report node, fill in all of this data
-			if(!reportMode) {
+			if(!parent.reportMode) {
 			
-				TreeElement scratch = new TreeElement("case_name".intern());
+				TreeElement scratch = new TreeElement("case_name");
 				String name = c.getName();
 				//This shouldn't be possible
 				scratch.setAnswer(new StringData(name == null? "" : name));
 				cacheBuilder.addChild(scratch);
 				
 				
-				scratch = new TreeElement("date_opened".intern());
+				scratch = new TreeElement("date_opened");
 				scratch.setAnswer(new DateData(c.getDateOpened()));
 				cacheBuilder.addChild(scratch);
 				
-				scratch = new TreeElement(LAST_MODIFIED_KEY.intern());
+				scratch = new TreeElement(LAST_MODIFIED_KEY);
 				scratch.setAnswer(new DateData(c.getLastModified()));
 				cacheBuilder.addChild(scratch);
 				
@@ -362,7 +355,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 					//this is an unfortunate complication of our internal model
 					if(LAST_MODIFIED_KEY.equals(key)) { continue;}
 					
-					scratch = new TreeElement(key.intern());
+					scratch = new TreeElement(parent.intern(key));
 					Object temp = c.getProperty(key);
 					if(temp instanceof String) {
 						scratch.setValue(new UncastData((String)temp));
@@ -372,7 +365,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 					cacheBuilder.addChild(scratch);
 				}
 				//TODO: Extract this pattern
-				TreeElement index = new TreeElement("index".intern()) {
+				TreeElement index = new TreeElement("index") {
 					public TreeElement getChild(String name, int multiplicity) {
 						TreeElement child = super.getChild(name.intern(), multiplicity);
 						
@@ -385,7 +378,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 							return child;
 						}
 						if(multiplicity >= 0 && child == null) {
-							TreeElement emptyNode = new TreeElement(name.intern());
+							TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
 							emptyNode.setAttribute(null, "case_type", "");
 							this.addChild(emptyNode);
 							emptyNode.setParent(this);
@@ -399,13 +392,13 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 				Vector<CaseIndex> indices = c.getIndices();
 				for(CaseIndex i : indices) {
 					scratch = new TreeElement(i.getName());
-					scratch.setAttribute(null, "case_type".intern(), i.getTargetType().intern());
+					scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
 					scratch.setValue(new UncastData(i.getTarget()));
 					index.addChild(scratch);
 				}
 				cacheBuilder.addChild(index);
 				
-				TreeElement attachments = new TreeElement("attachment".intern()) {
+				TreeElement attachments = new TreeElement("attachment") {
 					public TreeElement getChild(String name, int multiplicity) {
 						TreeElement child = super.getChild(name.intern(), multiplicity);
 						
@@ -418,7 +411,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 							return child;
 						}
 						if(multiplicity >= 0 && child == null) {
-							TreeElement emptyNode = new TreeElement(name.intern());
+							TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name.intern()));
 							this.addChild(emptyNode);
 							emptyNode.setParent(this);
 							return emptyNode;
@@ -439,7 +432,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			cacheBuilder.setParent(this.parent);
 			done[0] = true;
 			
-			cache.register(recordId, cacheBuilder);
+			parent.treeCache.register(recordId, cacheBuilder);
 			
 			return cacheBuilder;
 		}
@@ -449,7 +442,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 		return true;
 	}
 
-	public static CaseChildElement TemplateElement(AbstractTreeElement<CaseChildElement> parent) {
+	public static CaseChildElement TemplateElement(CaseInstanceTreeElement parent) {
 		CaseChildElement template = new CaseChildElement(parent);
 		return template;
 	}

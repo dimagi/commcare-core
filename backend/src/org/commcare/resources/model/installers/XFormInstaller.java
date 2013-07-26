@@ -29,6 +29,8 @@ import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.parse.XFormParserFactory;
+import org.javarosa.xform.util.XFormUtils;
 
 /**
  * @author ctsims
@@ -51,7 +53,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 			if(incoming == null) {
 				return false;
 			}
-			FormDef formDef = new XFormParser(new InputStreamReader(incoming, "UTF-8")).parse();
+			FormDef formDef = XFormUtils.getFormRaw(new InputStreamReader(incoming, "UTF-8"));
 			if(formDef == null) {
 				//Bad Form!
 				return false;

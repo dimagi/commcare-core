@@ -225,7 +225,7 @@ public class CommCareRestorer implements Runnable {
 		TransportMessage message = new StreamingHTTPMessage(this.getSubmitUrl()) {
 			public void _writeBody(OutputStream os) throws IOException {
 				//TODO: This is just the casedb, we actually want 
-				DataModelSerializer s = new DataModelSerializer(os, new CommCareInstanceInitializer());
+				DataModelSerializer s = new DataModelSerializer(os, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
 				s.serialize(new ExternalDataInstance("jr://instance/casedb/report" + "/" + syncToken + "/" + stateHash,"casedb"), null);
 			}
 		};

@@ -5,7 +5,6 @@ package org.commcare.util;
 
 
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -24,8 +23,8 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.user.model.User;
-import org.xmlpull.v1.XmlSerializer;
 
 /**
  * @author ctsims
@@ -34,11 +33,12 @@ import org.xmlpull.v1.XmlSerializer;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
+	CacheTable<String> stringCache;
 	
-	public CommCareInstanceInitializer(){ 
-		this(null);
+	public CommCareInstanceInitializer(CacheTable<String> stringCache){ 
+		this(null, null);
 	}
-	public CommCareInstanceInitializer(CommCareSession session) {
+	public CommCareInstanceInitializer(CacheTable<String> stringCache, CommCareSession session) {
 		this.session = session;
 	}
 	
@@ -88,6 +88,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 				
 				
 				CaseInstanceTreeElement reportBase = new CaseInstanceTreeElement(msg, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY), true);
+				if(stringCache != null ) {
+					reportBase.attachStringCache(stringCache);
+				}
 				
 				//jr: | instance | casedb | report | (sync | state)?
 				if(data.size() == 6) {
@@ -103,6 +106,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 			}
 			if(casebase == null) {
 				casebase =  new CaseInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY), false);
+				if(stringCache != null ) {
+					casebase.attachStringCache(stringCache);
+				}
 			} else {
 				casebase.rebase(instance.getBase());
 			}

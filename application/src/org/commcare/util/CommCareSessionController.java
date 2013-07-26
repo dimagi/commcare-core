@@ -330,7 +330,7 @@ public class CommCareSessionController {
 	
 	private InstanceInitializationFactory getIif() {
 		if(initializer == null) {
-			initializer = new CommCareInstanceInitializer(this.session);
+			initializer = new CommCareInstanceInitializer(CommCareStatic.appStringCache, this.session);
 		}
 		return initializer;
 	}

@@ -399,7 +399,7 @@ public class CommCareUtil {
 	public static void printInstance(String instanceRef) {
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer());
+			DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
 			
 			s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
 			System.out.println(new String(bos.toByteArray()));
