@@ -119,7 +119,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 	}
 
 	public TreeElement(String name, int multiplicity) {
-		this.name = name == null ? null : name.intern();
+		this.name = name;
 		this.multiplicity = multiplicity;
 		this.parent = null;
 	}

@@ -19,6 +19,11 @@ import org.javarosa.xpath.expr.XPathStep;
  *
  */
 public class MemoryUtils {
+	
+	private static long[] memoryProfile;
+	private static byte[][] memoryHolders;
+	static int currentCount = 0;
+	
 	static boolean oldterning;
 	static boolean otrt;
 	static boolean oldxpath;
@@ -35,6 +40,13 @@ public class MemoryUtils {
 		ExtUtil.interning = oldterning;
 		TreeReferenceLevel.treeRefLevelInterningEnabled = otrt;
 		XPathStep.XPathStepInterningEnabled = oldxpath;
+	}
+	
+	
+	private static final int MEMORY_PROFILE_SIZE = 5000;
+	public static void enableMemoryProfile() {
+		memoryProfile = new long[MEMORY_PROFILE_SIZE * 2];
+		memoryHolders = new byte[MEMORY_PROFILE_SIZE][];
 	}
 	
 	//#if javarosa.memory.print
@@ -97,6 +109,50 @@ public class MemoryUtils {
 				e.printStackTrace();
 			}
 		}
-
+	}
+	
+	public static void profileMemory() {
+		if(memoryProfile == null) {
+			System.out.println("You must initialize the memory profiler before it can be used!");
+			return;
+		}
+		currentCount = 0;
+		int chunkSize = 100000;
+		long memoryAccountedFor = 0;
+		boolean succeeded = false;
+		
+		int threshold  = 4;
+		Runtime r = Runtime.getRuntime();
+		
+		System.gc();
+		long memory = r.freeMemory();
+		while(true) {
+			if(currentCount >= MEMORY_PROFILE_SIZE) {
+				System.out.println("Memory profile is too small for this device's usage!");
+				break;
+			}
+			if(chunkSize < threshold) { succeeded = true; break;}
+			
+			try {
+				memoryHolders[currentCount] = new byte[chunkSize];
+				memoryProfile[currentCount * 2] = (memoryHolders[currentCount].hashCode() & 0x00000000ffffffffL);
+				memoryProfile[(currentCount * 2) + 1] = chunkSize;
+				currentCount++;
+				memoryAccountedFor += chunkSize;
+			} catch(OutOfMemoryError oom) {
+				chunkSize = chunkSize - (chunkSize < 100 ? 1 : 50);
+			}
+		}
+		for(int i = 0 ; i < currentCount; ++i) {
+			memoryHolders[i] = null;
+		}		
+		System.gc();
+		
+		if(succeeded) {
+			System.out.println("Acquired memory profile for " + memoryAccountedFor + " of the " + memory + " available bytes, with " + currentCount + " traces");
+			for(int i = 0 ; i < currentCount * 2 ; i+=2) { 
+				System.out.println("Address: " + memoryProfile[i] + " -> " + memoryProfile[i + 1]);
+			}
+		}
 	}
 }

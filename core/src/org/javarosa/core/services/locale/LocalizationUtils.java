@@ -90,7 +90,7 @@ public class LocalizationUtils {
 				//might be some big problems.
 				if(line.indexOf('=') != line.length()-1) {
 					String value = line.substring(line.indexOf('=') + 1,line.length());
-					locale.put(line.substring(0, line.indexOf('=')).intern(), value.intern());
+					locale.put(line.substring(0, line.indexOf('=')), value);
 				}
 				 else {
 					System.out.println("Invalid line (#" + curline + ") read: '" + line + "'. No value follows the '='.");

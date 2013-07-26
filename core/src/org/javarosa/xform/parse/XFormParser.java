@@ -56,6 +56,7 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -155,6 +156,14 @@ public class XFormParser {
 		initTypeMappings();
 		modelPrototypes = new PrototypeFactoryDeprecated();
 		submissionParsers = new Vector<SubmissionParser>();					
+	}
+	
+	public static void uninit() {
+		modelPrototypes = null;
+		submissionParsers = null;
+		topLevelHandlers = null;
+		groupLevelHandlers = null;
+		typeMappings = null;
 	}
 	
 	private static void initProcessingRules () {
@@ -272,6 +281,8 @@ public class XFormParser {
 	}
 	
 	XFormParserReporter reporter = new XFormParserReporter();
+	
+	CacheTable<String> stringCache;
 
 	public XFormParser(Reader reader) {
 		_reader = reader;
@@ -297,10 +308,10 @@ public class XFormParser {
 	
 	public FormDef parse() throws IOException {
 		if (_f == null) {
-			System.out.println("Parsing form...");
+			//System.out.println("Parsing form...");
 			
 			if (_xmldoc == null) {
-				_xmldoc = getXMLDocument(_reader);
+				_xmldoc = getXMLDocument(_reader, stringCache);
 			}
 			
 			parseDoc();
@@ -316,10 +327,21 @@ public class XFormParser {
 	}
 	
 	public static Document getXMLDocument(Reader reader) throws IOException  {
+		return getXMLDocument(reader, null);
+	}
+	
+	public static Document getXMLDocument(Reader reader, CacheTable<String> stringCache) throws IOException  {
 		Document doc = new Document();
 
 		try{
-			KXmlParser parser = new InterningKXmlParser();
+			KXmlParser parser;
+			
+			if(stringCache != null) {
+				parser = new InterningKXmlParser(stringCache);
+			} else {
+				parser = new KXmlParser();
+			}
+			
 			parser.setInput(reader);
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
 			doc.parse(parser);
@@ -370,7 +392,11 @@ public class XFormParser {
 					}
 					String accstr = accumulate.trim();
 					if(accstr.length() != 0) {
-						e.addChild(i, Element.TEXT, accumulate.intern());
+						if(stringCache == null) {
+							e.addChild(i, Element.TEXT, accumulate);
+						} else {
+							e.addChild(i, Element.TEXT, stringCache.intern(accumulate));
+						}
 						accumulate = "";
 						++i;
 					} else {
@@ -379,7 +405,11 @@ public class XFormParser {
 				}
 			}
 			if(accumulate.trim().length() != 0) {
-				e.addChild(Element.TEXT, accumulate.intern());
+				if(stringCache == null) {
+					e.addChild(Element.TEXT, accumulate);
+				} else {
+					e.addChild(Element.TEXT, stringCache.intern(accumulate));
+				}
 			}
 			for(int i = e.getChildCount() - 1; i >= 0 ; i-- ){
 				if(toRemove[i]) {
@@ -477,7 +507,7 @@ public class XFormParser {
 	private void parseTitle (Element e) {
 		Vector usedAtts = new Vector(); //no attributes parsed in title.
 		String title = getXMLText(e, true);
-		System.out.println("Title: \"" + title + "\"");
+		//System.out.println("Title: \"" + title + "\"");
 		_f.setTitle(title);
 		if(_f.getName() == null) {
 			//Jan 9, 2009 - ctsims
@@ -2591,7 +2621,7 @@ public class XFormParser {
 		}
 	}
 	
-	public static void loadXmlInstance(FormDef f, Reader xmlReader) throws IOException {
+	public void loadXmlInstance(FormDef f, Reader xmlReader) throws IOException {
 		loadXmlInstance(f, getXMLDocument(xmlReader));
 	}
 	
@@ -2776,5 +2806,9 @@ public class XFormParser {
 			elementString += "/>";
 		}
 		return elementString;
+	}
+
+	public void setStringCache(CacheTable<String> stringCache) {
+		this.stringCache = stringCache;
 	}
 }

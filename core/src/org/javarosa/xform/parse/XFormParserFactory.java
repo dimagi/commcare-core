@@ -2,6 +2,7 @@ package org.javarosa.xform.parse;
 
 import java.io.Reader;
 
+import org.javarosa.core.util.CacheTable;
 import org.kxml2.kdom.Document;
 
 /**
@@ -12,24 +13,45 @@ import org.kxml2.kdom.Document;
  *
  */
 public class XFormParserFactory implements IXFormParserFactory {
+	CacheTable<String> stringCache;
 
 	public XFormParserFactory() {
 	}
 	
+	public XFormParserFactory(CacheTable<String> stringCache) {
+		this.stringCache = stringCache;
+	}
+	
 	public XFormParser getXFormParser(Reader reader) {
-		return new XFormParser(reader);
+		XFormParser parser = new XFormParser(reader);
+		if(stringCache != null) {
+			parser.setStringCache(stringCache);
+		}
+		return parser;
 	}
 	
 	public XFormParser getXFormParser(Document doc) {
-		return new XFormParser(doc);
+		XFormParser parser = new XFormParser(doc);
+		if(stringCache != null) {
+			parser.setStringCache(stringCache);
+		}
+		return parser;
 	}
 	
 	public XFormParser getXFormParser(Reader form, Reader instance) {
-		return new XFormParser(form, instance);
+		XFormParser parser = new XFormParser(form, instance);
+		if(stringCache != null) {
+			parser.setStringCache(stringCache);
+		}
+		return parser;
 	}
 	
 	public XFormParser getXFormParser(Document form, Document instance) {
-		return new XFormParser(form, instance);
+		XFormParser parser = new XFormParser(form, instance);
+		if(stringCache != null) {
+			parser.setStringCache(stringCache);
+		}
+		return parser;
 	}
 
 }

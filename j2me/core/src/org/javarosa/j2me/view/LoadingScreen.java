@@ -19,8 +19,11 @@ public class LoadingScreen extends Form {
 	private Gauge gauge;
 	
 	public LoadingScreen(ProgressIndicator indicator) {
-		super(Localization.get("loading.screen.title"));
-		String message = Localization.get("loading.screen.message");
+		this(indicator, Localization.get("loading.screen.title"), Localization.get("loading.screen.message"));
+	}
+	
+	public LoadingScreen(ProgressIndicator indicator, String title, String message) {
+		super(title);
 		if(indicator != null && (indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
 			message = indicator.getCurrentLoadingStatus();
 		}

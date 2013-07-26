@@ -22,7 +22,7 @@ import org.javarosa.xpath.parser.Parser;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class XPathParseTool {
-	public static String[] xpathClasses = {
+	public static final String[] xpathClasses = {
 			"org.javarosa.xpath.expr.XPathArithExpr",
 			"org.javarosa.xpath.expr.XPathBoolExpr",
 			"org.javarosa.xpath.expr.XPathCmpExpr",

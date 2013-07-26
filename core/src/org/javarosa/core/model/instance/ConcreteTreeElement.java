@@ -92,7 +92,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 	}
 
 	public ConcreteTreeElement(String name, int multiplicity) {
-		this.name = name == null ? null : name.intern();
+		this.name = name;
 		this.multiplicity = multiplicity;
 		this.parent = null;
 	}

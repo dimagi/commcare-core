@@ -56,6 +56,11 @@ public class XFormUtils {
 		
 		return getFormFromInputStream(is);
 	}
+	
+	
+	public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException{
+		return _factory.getXFormParser(isr).parse();
+	}
 
 	/*
      * This method throws XFormParseException when the form has errors.
