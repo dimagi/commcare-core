@@ -367,7 +367,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 				//TODO: Extract this pattern
 				TreeElement index = new TreeElement("index") {
 					public TreeElement getChild(String name, int multiplicity) {
-						TreeElement child = super.getChild(name.intern(), multiplicity);
+						TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
 						
 						//TODO: Skeeeetchy, this is not a good way to do this,
 						//should extract pattern instead.
@@ -400,7 +400,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 				
 				TreeElement attachments = new TreeElement("attachment") {
 					public TreeElement getChild(String name, int multiplicity) {
-						TreeElement child = super.getChild(name.intern(), multiplicity);
+						TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
 						
 						//TODO: Skeeeetchy, this is not a good way to do this,
 						//should extract pattern instead.
@@ -411,7 +411,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 							return child;
 						}
 						if(multiplicity >= 0 && child == null) {
-							TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name.intern()));
+							TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
 							this.addChild(emptyNode);
 							emptyNode.setParent(this);
 							return emptyNode;

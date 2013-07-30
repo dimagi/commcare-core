@@ -30,10 +30,7 @@ public class CommCareHomeController implements HandledCommandListener {
 	CommCareSessionController session;
 	User current;
 	
-	Vector<Suite> suites;
-	
-	public CommCareHomeController (Vector<Suite> suites, Profile profile, CommCareSessionController session) {
-		this.suites = suites;
+	public CommCareHomeController (Profile profile, CommCareSessionController session) {
 		this.profile = profile;
 		this.session = session;
 		current = CommCareContext._().getUser();
@@ -44,7 +41,7 @@ public class CommCareHomeController implements HandledCommandListener {
 	}
 
 	public void start() {
-		view = new CommCareHomeScreen(this, suites, current, profile.isFeatureActive(Profile.FEATURE_REVIEW));
+		view = new CommCareHomeScreen(this, current, profile.isFeatureActive(Profile.FEATURE_REVIEW));
 		session.populateMenu(view, "root", view);
 		view.init();
 		J2MEDisplay.setView(view);

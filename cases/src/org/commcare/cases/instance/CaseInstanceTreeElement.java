@@ -256,9 +256,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	 */
 	public String getAttributeName(int index) {
 		if(index == 0) {
-			return "syncToken".intern();
+			return "syncToken";
 		} else if(index == 1) {
-			return "stateHash".intern();
+			return "stateHash";
 		} else { 
 			return null;
 		}

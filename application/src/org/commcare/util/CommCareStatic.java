@@ -4,6 +4,7 @@
 package org.commcare.util;
 
 import org.javarosa.core.model.instance.TreeReferenceLevel;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.XFormParserFactory;

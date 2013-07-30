@@ -26,6 +26,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.util.MemoryUtils;
 import org.javarosa.formmanager.api.FormEntryState;
 import org.javarosa.formmanager.api.JrFormEntryController;
 import org.javarosa.formmanager.api.JrFormEntryModel;
@@ -54,8 +55,9 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	CommCareSessionController sessionController;
 	
 	public void start () {
+		MemoryUtils.printMemoryTest("Home Screen");
 		sessionController = new CommCareSessionController(new CommCareSession(CommCareContext._().getManager()), this);
-		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getInstalledSuites(), CommCareContext._().getManager().getCurrentProfile(), sessionController);
+		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getCurrentProfile(), sessionController);
 		home.setTransitions(this);
 		home.start();
 	}

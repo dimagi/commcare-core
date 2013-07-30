@@ -66,7 +66,7 @@ public class CommCareHomeScreen extends CommCareListView {
 	private int unsentFormNumberLimit = 10;
 	private int unsentFormTimeLimit = 3;
 	
-	public CommCareHomeScreen(CommCareHomeController controller, Vector<Suite> suites, User loggedInUser, boolean reviewEnabled) {
+	public CommCareHomeScreen(CommCareHomeController controller, User loggedInUser, boolean reviewEnabled) {
 		super(Localization.get("homescreen.title"));
 		
 		try {

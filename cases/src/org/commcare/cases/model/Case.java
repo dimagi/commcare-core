@@ -235,7 +235,7 @@ public class Case implements Persistable, IMetaData, Secure {
 		} else if (fieldName.equals("case-type")) {
 			return typeId;
 		} else if (fieldName.equals(INDEX_CASE_STATUS)) {
-			return closed ? "closed".intern() : "open".intern();
+			return closed ? "closed" : "open";
 		} else if (fieldName.startsWith(INDEX_CASE_INDEX_PRE)) {
 			String name = fieldName.substring(fieldName.lastIndexOf('-') + 1, fieldName.length());
 			
