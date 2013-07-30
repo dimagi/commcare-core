@@ -57,10 +57,12 @@ public class CrashHandler {
 	
 	public static void commandAction(HandledPCommandListener handler, de.enough.polish.ui.Command c, de.enough.polish.ui.Displayable d) {
 		synchronized(lock) {
-			Displayable old = (Displayable)expired.get();
-			if(old == null) { expired = null; }
-			if(d == old) {
-				return;
+			if(expired != null) {
+				Displayable old = (Displayable)expired.get();
+				if(old == null) { expired = null; }
+				if(d == old) {
+					return;
+				}
 			}
 		}
 		try {
