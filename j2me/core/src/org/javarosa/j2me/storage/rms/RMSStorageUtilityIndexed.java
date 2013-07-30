@@ -57,7 +57,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 		synchronized(metadataAccessLock) {
 			//Temporarily stop doing any interning since we don't want to increase memory fragmentation
 			//for objects we're just going to throw out anyway
-			MemoryUtils.stopTerning();
+			//MemoryUtils.stopTerning();
 			try{
 				
 				metaDataIndex = new Hashtable();
@@ -103,7 +103,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 					indexMetaData(recordIds[index], metadata[index]);
 				}
 			} finally{
-				MemoryUtils.revertTerning();
+				//MemoryUtils.revertTerning();
 			}
 		}
 	}

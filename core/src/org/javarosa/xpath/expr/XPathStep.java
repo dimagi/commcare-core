@@ -174,9 +174,9 @@ public class XPathStep implements Externalizable {
 	}
 	
 	public int hashCode() {
-		int code = this.axis | this.test | (this.name == null ? 0 : this.name.hashCode()) | (this.literal == null ? 0 : this.literal.hashCode()) | (this.namespace == null ? 0 : this.namespace.hashCode());
+		int code = this.axis ^ this.test ^ (this.name == null ? 0 : this.name.hashCode()) ^ (this.literal == null ? 0 : this.literal.hashCode()) ^ (this.namespace == null ? 0 : this.namespace.hashCode());
 		for(XPathExpression xpe : predicates) {
-			code |= xpe.hashCode();
+			code ^= xpe.hashCode();
 		}
 		return code;
 	}

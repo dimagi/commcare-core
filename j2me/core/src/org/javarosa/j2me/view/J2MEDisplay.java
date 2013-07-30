@@ -25,6 +25,7 @@ import javax.microedition.lcdui.Screen;
 import javax.microedition.midlet.MIDlet;
 
 import org.javarosa.core.api.State;
+import org.javarosa.core.util.MemoryUtils;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledThread;
 
@@ -68,6 +69,8 @@ public class J2MEDisplay {
 		}
 		new HandledThread(new Runnable() {
 			public void run() {
+				String className = s.getClass().getName();
+				MemoryUtils.printMemoryTest(className.substring(Math.max(0,className.lastIndexOf('.'))));
 				s.start();
 			}
 		}).start();

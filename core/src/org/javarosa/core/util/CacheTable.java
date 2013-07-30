@@ -13,7 +13,7 @@ import java.util.Vector;
  *
  */
 public class CacheTable<K> {
-	int largestSize = 0;
+	int totalAdditions = 0;
 	
 	private Hashtable<Integer, WeakReference> currentTable;
 	
@@ -32,11 +32,13 @@ public class CacheTable<K> {
 						} else {
 							Hashtable<Integer, WeakReference> table = cache.currentTable;
 							int start = table.size();
-							if(start > cache.largestSize) { cache.largestSize = start; }
+							if(start > cache.totalAdditions) { cache.totalAdditions = start; }
 							for (Enumeration en = table.keys(); en.hasMoreElements();) {
 								Object key = en.nextElement();
 								if (((WeakReference) table.get(key)).get() == null) {
-									table.remove(key);
+									synchronized(cache) {
+										table.remove(key);
+									}
 								}
 							}
 							
@@ -44,14 +46,15 @@ public class CacheTable<K> {
 								//See if our current size is 12.5% the size of the largest size we've been
 								//and compact (clone to a new table) if so
 								//TODO: 50 is a super arbitrary upper bound
-								if(cache.largestSize > 50 && cache.largestSize > (cache.currentTable.size() >> 2) ) {
+								if(cache.totalAdditions > 50 && cache.totalAdditions - cache.currentTable.size() > (cache.currentTable.size() >> 2) ) {
 									Hashtable newTable = new Hashtable(cache.currentTable.size());
+									int oldMax = cache.totalAdditions; 
 									for (Enumeration en = table.keys(); en.hasMoreElements();) {
 										Object key = en.nextElement();
 										newTable.put(key, cache.currentTable.get(key));
 									}
 									cache.currentTable = newTable;
-									cache.largestSize = cache.currentTable.size();
+									cache.totalAdditions = cache.currentTable.size();
 								}
 							}
 							
@@ -99,6 +102,8 @@ public class CacheTable<K> {
 			}
 			if(k.equals(nk)) {
 				return nk;
+			} else {
+				System.out.println("Hash collision! Stored: " + nk.toString() +  " to add: " + k);
 			}
 			return k;
 		}
@@ -117,6 +122,7 @@ public class CacheTable<K> {
 	public void register(int key, K item) {
 		synchronized(this) {
 			currentTable.put(DataUtil.integer(key), new WeakReference(item));
+			totalAdditions++;
 		}
 	}
 }

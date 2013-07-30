@@ -693,7 +693,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 			for (int i = 0; i < this.attributes.size(); i++) {
 				TreeElement attribute = attributes.elementAt(i);
 				String value = getAttributeValue(attribute);
-				if (attribute.namespace == null || attribute.namespace == "")
+				if (attribute.namespace == null || attribute.namespace.equals(""))
 					strings.addElement(new String(attribute.getName() + "=" + value));
 				else
 					strings.addElement(new String(attribute.namespace + ":" + attribute.getName()
