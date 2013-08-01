@@ -173,6 +173,33 @@ public class XPathStep implements Externalizable {
 		}
 	}
 	
+	/**
+	 * The same as equals() except will also match wildcards for names
+	 * @param xPathStep
+	 * @return
+	 */
+	protected boolean matches(XPathStep o) {
+		if (o instanceof XPathStep) {
+			XPathStep x = (XPathStep)o;
+			
+			//shortcuts for faster evaluation
+			if(axis != x.axis || (test != x.test && !((x.test == TEST_NAME && this.test == TEST_NAME_WILDCARD)||(this.test==TEST_NAME && x.test == TEST_NAME_WILDCARD))) || predicates.length != x.predicates.length) {
+				return false;
+			}
+			
+			switch (test) {
+			case TEST_NAME: if(x.test != TEST_NAME_WILDCARD && !name.equals(x.name)) {return false;} break;
+			case TEST_NAMESPACE_WILDCARD: if(!namespace.equals(x.namespace)) {return false;} break;
+			case TEST_TYPE_PROCESSING_INSTRUCTION: if(!ExtUtil.equals(literal, x.literal)) {return false;} break;
+			default: break;
+			}
+			
+			return ExtUtil.arrayEquals(predicates, x.predicates);
+		} else {
+			return false;
+		}
+	}
+	
 	public int hashCode() {
 		int code = this.axis ^ this.test ^ (this.name == null ? 0 : this.name.hashCode()) ^ (this.literal == null ? 0 : this.literal.hashCode()) ^ (this.namespace == null ? 0 : this.namespace.hashCode());
 		for(XPathExpression xpe : predicates) {

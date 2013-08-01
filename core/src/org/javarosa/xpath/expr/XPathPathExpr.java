@@ -338,6 +338,38 @@ public class XPathPathExpr extends XPathExpression {
 			return false;
 		}
 	}
+
+	/**
+	 * Warning: this method has somewhat unclear semantics. It matches roughly
+	 * the same process as equals(), but will do its best to match wildcards.
+	 * 
+	 * @param o
+	 * @return true if the expression is a path that matches this one
+	 */
+	public boolean matches(XPathExpression o) {
+		if (o instanceof XPathPathExpr) {
+			XPathPathExpr x = (XPathPathExpr)o;
+			
+			//Shortcuts for easily comparable values
+			if(init_context != x.init_context || steps.length != x.steps.length) {
+				return false;
+			}
+			
+			if (steps.length != x.steps.length) {
+				return false;
+			} else {
+				for (int i = 0; i < steps.length; i++) {
+					if (!steps[i].matches(x.steps[i])) {
+						return false;
+					}
+				}
+			}
+			
+			return (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
+		} else {
+			return false;
+		}
+	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		init_context = ExtUtil.readInt(in);
