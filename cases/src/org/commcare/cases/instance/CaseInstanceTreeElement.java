@@ -376,7 +376,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 				if(left instanceof XPathPathExpr) {
 					for(Enumeration en = indices.keys(); en.hasMoreElements() ;) {
 						XPathPathExpr expr = (XPathPathExpr)en.nextElement();
-						if(expr.equals(left)) {
+						if(expr.matches(left)) {
 							String filterIndex = indices.get(expr);
 							
 							//If we're matching a case index, we've got some magic to take care of. First,
