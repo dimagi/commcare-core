@@ -23,6 +23,8 @@ public abstract class CommCareInitializer implements Runnable {
 	protected static final int RESPONSE_YES = 1;
 	protected static final int RESPONSE_NO = 2;
 	
+	public static final String LOG_INIT = "initialization";
+	
 	private InitializationListener listener;
 	int response = RESPONSE_NONE;
 
@@ -45,9 +47,19 @@ public abstract class CommCareInitializer implements Runnable {
 		} catch(Exception e) {
 			Logger.exception(e);
 			fail(e);
+		} catch(OutOfMemoryError e){
+			Logger.log(LOG_INIT, "OOM during startup");
+			promptRestart();
 		}
 	}
 	
+	private void promptRestart() {
+		blockForResponse(CommCareStartupInteraction.failSafeText("commcare.startup.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again."), false,  null, null);
+		
+		//I don't remember, do we have a cleaner way to exit?
+		CommCareContext._().getMidlet().notifyDestroyed();
+	}
+
 	protected void fail(Exception e) {
 		if(blockForResponse(CommCareStartupInteraction.failSafeText("commcare.fail", "There was an error, and CommCare could not be started. Do you want to see the debug information?"))) {
 			if(blockForResponse(e.getMessage() + "\n" + CommCareStartupInteraction.failSafeText("commcare.fail.sendlogs", "Attempt to send logs?"), true)) {

@@ -164,3 +164,5 @@ server.sync.icon.normal=jr://file/commcare/images/sync_server_normal.png
 server.sync.icon.warn=jr://file/commcare/images/sync_server_warn.png
 send.unsent.icon=jr://file/commcare/images/send_unsent.png
 commcare.review.icon=jr://file/commcare/images/review_forms.png
+
+commcare.startup.oom=CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again.
