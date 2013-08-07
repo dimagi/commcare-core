@@ -174,7 +174,20 @@ public class XPathStep implements Externalizable {
 	}
 	
 	/**
-	 * The same as equals() except will also match wildcards for names
+	 * "matches" follows roughly the same process as equals(), in that it for a step it will
+	 * check whether two steps share the same properties (multiplicity, test, axis, etc). 
+	 * The only difference is that match() will allow for a named step to match a step who's name
+	 * is a wildcard. 
+	 * 
+	 * So 
+	 * \/path\/
+	 * will "match"
+	 * \/*\/
+	 * 
+	 * even though they are not equal.
+	 *
+	 * Matching is reflexive, consistent, and symmetric, but _not_ transitive.
+
 	 * @param xPathStep
 	 * @return
 	 */

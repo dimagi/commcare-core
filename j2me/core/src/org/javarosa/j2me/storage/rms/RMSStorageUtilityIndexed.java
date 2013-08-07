@@ -55,9 +55,9 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 	
 	private void buildIndex () {
 		synchronized(metadataAccessLock) {
-			//Temporarily stop doing any interning since we don't want to increase memory fragmentation
-			//for objects we're just going to throw out anyway
-			//MemoryUtils.stopTerning();
+			//cts: We used to turn off interning here, but it's unclear whether it was useful
+			//in very many environments. We should re-profile on bad Garbage collectors and check
+			//again.
 			try{
 				
 				metaDataIndex = new Hashtable();
@@ -103,7 +103,8 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
 					indexMetaData(recordIds[index], metadata[index]);
 				}
 			} finally{
-				//MemoryUtils.revertTerning();
+				//we used to have to revert the interning flip here. If we need to re-introduce
+				//not-interning during this period, this is where we should revert it.
 			}
 		}
 	}
