@@ -31,20 +31,22 @@ public class CacheTable<K> {
 							toRemove.addElement(DataUtil.integer(i));
 						} else {
 							Hashtable<Integer, WeakReference> table = cache.currentTable;
-							int start = table.size();
-							if(start > cache.totalAdditions) { cache.totalAdditions = start; }
 							for (Enumeration en = table.keys(); en.hasMoreElements();) {
 								Object key = en.nextElement();
-								if (((WeakReference) table.get(key)).get() == null) {
-									synchronized(cache) {
-										table.remove(key);
+								
+								synchronized(cache) {
+									//See whether or not the cached reference has been cleared by the GC
+									if (((WeakReference) table.get(key)).get() == null) {
+											//If so, remove the entry, it's no longer useful.
+											table.remove(key);
 									}
 								}
 							}
 							
 							synchronized(cache) {
-								//See if our current size is 12.5% the size of the largest size we've been
-								//and compact (clone to a new table) if so
+								//See if our current size is 25% the size of the largest size we've been
+								//and compact (clone to a new table) if so, since the table maintains the
+								//largest size it has ever been.
 								//TODO: 50 is a super arbitrary upper bound
 								if(cache.totalAdditions > 50 && cache.totalAdditions - cache.currentTable.size() > (cache.currentTable.size() >> 2) ) {
 									Hashtable newTable = new Hashtable(cache.currentTable.size());
@@ -103,7 +105,7 @@ public class CacheTable<K> {
 			if(k.equals(nk)) {
 				return nk;
 			} else {
-				System.out.println("Hash collision! Stored: " + nk.toString() +  " to add: " + k);
+				//Collision. We should deal with this better for interning (and not manually caching) tables.
 			}
 			return k;
 		}

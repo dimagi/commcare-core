@@ -157,15 +157,7 @@ public class XFormParser {
 		modelPrototypes = new PrototypeFactoryDeprecated();
 		submissionParsers = new Vector<SubmissionParser>();					
 	}
-	
-	public static void uninit() {
-		modelPrototypes = null;
-		submissionParsers = null;
-		topLevelHandlers = null;
-		groupLevelHandlers = null;
-		typeMappings = null;
-	}
-	
+
 	private static void initProcessingRules () {
 		IElementHandler title = new IElementHandler () {
 			public void handle (XFormParser p, Element e, Object parent) { p.parseTitle(e); } };
@@ -308,7 +300,7 @@ public class XFormParser {
 	
 	public FormDef parse() throws IOException {
 		if (_f == null) {
-			//System.out.println("Parsing form...");
+			System.out.println("Parsing form...");
 			
 			if (_xmldoc == null) {
 				_xmldoc = getXMLDocument(_reader, stringCache);
@@ -390,8 +382,8 @@ public class XFormParser {
 					if(type ==Element.ELEMENT) {
 						q.addElement(e.getElement(i));
 					}
-					String accstr = accumulate.trim();
-					if(accstr.length() != 0) {
+					String accumulatedString = accumulate.trim();
+					if(accumulatedString.length() != 0) {
 						if(stringCache == null) {
 							e.addChild(i, Element.TEXT, accumulate);
 						} else {
@@ -507,7 +499,7 @@ public class XFormParser {
 	private void parseTitle (Element e) {
 		Vector usedAtts = new Vector(); //no attributes parsed in title.
 		String title = getXMLText(e, true);
-		//System.out.println("Title: \"" + title + "\"");
+		System.out.println("Title: \"" + title + "\"");
 		_f.setTitle(title);
 		if(_f.getName() == null) {
 			//Jan 9, 2009 - ctsims

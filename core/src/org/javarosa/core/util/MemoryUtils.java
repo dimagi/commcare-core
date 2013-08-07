@@ -20,10 +20,15 @@ import org.javarosa.xpath.expr.XPathStep;
  */
 public class MemoryUtils {
 	
+	//These 3 are used to hold the profile of the heapspace, only relevant 
+	//if you are doing deep memory profiling
 	private static long[] memoryProfile;
 	private static byte[][] memoryHolders;
 	static int currentCount = 0;
 	
+	//Variables to keep track of the state of some of the internal 
+	//interning options 
+	//TODO: I think we can get rid of this, depending on fragmentation analysis
 	static boolean oldterning;
 	static boolean otrt;
 	static boolean oldxpath;
@@ -43,6 +48,9 @@ public class MemoryUtils {
 	}
 	
 	
+	//Used once at the beginning of an execution to enable memory profiling for
+	//this run through. If you get an error when you try to profile memory,
+	//due to lack of space, you can increase the profile size.
 	private static final int MEMORY_PROFILE_SIZE = 5000;
 	public static void enableMemoryProfile() {
 		memoryProfile = new long[MEMORY_PROFILE_SIZE * 2];
@@ -55,14 +63,36 @@ public class MemoryUtils {
 	private static boolean MEMORY_PRINT_ENABLED = false;
 	//#endif
 	
+	/**
+	 * Prints a memory test debug statement to stdout.
+	 * Requires memory printing to be enabled, otherwise
+	 * is a no-op
+	 */
 	public static void printMemoryTest() {
 		printMemoryTest(null);
 	}
 	
+	/**
+	 * Prints a memory test debug statement to stdout 
+	 * with a tag to reference
+	 * Requires memory printing to be enabled, otherwise
+	 * is a no-op 
+	 * @param tag
+	 */
 	public static void printMemoryTest(String tag) {
 		printMemoryTest(tag, -1);
 	}
 	
+	/**
+	 * Prints a memory test debug statement to stdout
+	 * with a tag to reference. After printing the message
+	 * the app waits for Pause milliseconds to allow profiling
+	 * 
+	 * Requires memory printing to be enabled, otherwise
+	 * is a no-op
+	 * @param tag
+	 * @param pause
+	 */
 	public static void printMemoryTest(String tag, int pause) {
 		if(!MEMORY_PRINT_ENABLED) { return; }
 		System.gc();
@@ -79,13 +109,22 @@ public class MemoryUtils {
 		int chunk = 100;
 		int lastSuccess = 100;
 		
+		//Some environments provide better or more accurate numbers for available memory than 
+		//others. Just in case, we go through and allocate the largest contiguious block of
+		//memory that is available to see what the actual upper bound is for what we can
+		//use
+		
+		//The resolution is the smallest chunk of memory that we care about. We won't bother
+		//trying to add resolution more bytes if we couldn't add resolution * 2 bytes.
 		int resolution = 10000;
+		
 		while(true) {
 			System.gc();
 			try {
 				int newAmount  = lastSuccess + chunk;
 				byte[] allocated = new byte[newAmount];
 				lastSuccess = newAmount;
+				//If we succeeded, keep trying a larger piece. 
 				chunk = chunk * 10;
 			} catch(OutOfMemoryError oom) {
 				chunk = chunk / 2;
@@ -111,6 +150,14 @@ public class MemoryUtils {
 		}
 	}
 	
+	/**
+	 * Experimental.
+	 * 
+	 * This method builds a profile of what the current memory allocation looks like in the current heap.
+	 * 
+	 * You must initialize the profiler once in your app (preferably immediately upon entering) to pre-allocate
+	 * the space for the profile.
+	 */
 	public static void profileMemory() {
 		if(memoryProfile == null) {
 			System.out.println("You must initialize the memory profiler before it can be used!");
@@ -126,6 +173,10 @@ public class MemoryUtils {
 		
 		System.gc();
 		long memory = r.freeMemory();
+		
+		//Basically: We go through here and allocate arrays over and over, making them smaller and smaller 
+		//until we reach the smallest unit we care about allocating. The parameters can be tuned depending
+		//on the type of fragmentation you are concerned about. 
 		while(true) {
 			if(currentCount >= MEMORY_PROFILE_SIZE) {
 				System.out.println("Memory profile is too small for this device's usage!");
@@ -148,6 +199,7 @@ public class MemoryUtils {
 		}		
 		System.gc();
 		
+		//For now, just print out the profile. Eventually we should compress it and output it in a useful format.
 		if(succeeded) {
 			System.out.println("Acquired memory profile for " + memoryAccountedFor + " of the " + memory + " available bytes, with " + currentCount + " traces");
 			for(int i = 0 ; i < currentCount * 2 ; i+=2) { 

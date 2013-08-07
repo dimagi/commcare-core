@@ -340,8 +340,21 @@ public class XPathPathExpr extends XPathExpression {
 	}
 
 	/**
-	 * Warning: this method has somewhat unclear semantics. It matches roughly
-	 * the same process as equals(), but will do its best to match wildcards.
+	 * Warning: this method has somewhat unclear semantics. 
+	 * 
+	 * "matches" follows roughly the same process as equals(), in that it goes 
+	 * through the path step by step and compares whether each step can refer to the same node. 
+	 * The only difference is that match() will allow for a named step to match a step who's name
+	 * is a wildcard. 
+	 * 
+	 * So 
+	 * \/data\/path\/to
+	 * will "match"
+	 * \/data\/*\/to
+	 * 
+	 * even though they are not equal.
+	 *
+	 * Matching is reflexive, consistent, and symmetric, but _not_ transitive.
 	 * 
 	 * @param o
 	 * @return true if the expression is a path that matches this one
@@ -365,6 +378,8 @@ public class XPathPathExpr extends XPathExpression {
 				}
 			}
 			
+			// If all steps match, we still need to make sure we're in the same "context" if this
+			// is a normal expression.
 			return (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
 		} else {
 			return false;
