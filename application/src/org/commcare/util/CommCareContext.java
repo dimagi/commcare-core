@@ -298,10 +298,21 @@ public class CommCareContext {
 							updateProgress(currentProgress + (int)Math.ceil(block * (complete * 1.0 / total))); 
 						}
 					});
+					
+					String profileRef = CommCareUtil.getProfileReference();
 					if(global.isEmpty()) {
 						this.setMessage(CommCareStartupInteraction.failSafeText("commcare.firstload","First start detected, loading resources..."));
+						if(profileRef == null) {
+							String message = "CommCare could not find any application configuration data to install. Please make sure that all CommCare install files are present.";
+							
+							//#ifdef polish.group.Series40
+							//# message = "CommCare cannot find the CommCare.jad file. Please ensure that it is placed in the same install folder as CommCare.jar";
+							//#endif
+							
+							throw new RuntimeException(message);
+						}
 					}
-					manager.init(CommCareUtil.getProfileReference(), global, false);
+					manager.init(profileRef, global, false);
 					updateProgress(60);
 					
 				} catch (UnfullfilledRequirementsException e) {
