@@ -23,10 +23,17 @@ public abstract class CommCareInitializer implements Runnable {
 	protected static final int RESPONSE_YES = 1;
 	protected static final int RESPONSE_NO = 2;
 	
+	private String currentOOMMessage;
+	
 	public static final String LOG_INIT = "initialization";
 	
 	private InitializationListener listener;
 	int response = RESPONSE_NONE;
+	
+	public CommCareInitializer() {
+		currentOOMMessage = CommCareStartupInteraction.failSafeText("commcare.startup.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again.");
+	}
+	
 
 	public void initialize(InitializationListener listener) {
 		this.listener = listener;
@@ -53,8 +60,17 @@ public abstract class CommCareInitializer implements Runnable {
 		}
 	}
 	
+	/**
+	 * Signal to the initalizer that progress has been made in advancing the state of the application during
+	 * an installation. This helps differentiate between OOM errors which occur in a larger install and OOM's
+	 * which are endemic 
+	 */
+	protected void setCurrentOOMMessage(String message){ 
+		this.currentOOMMessage = message;
+	}
+	
 	private void promptRestart() {
-		blockForResponse(CommCareStartupInteraction.failSafeText("commcare.startup.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again."), false,  null, null);
+		blockForResponse(currentOOMMessage, false,  null, null);
 		
 		//I don't remember, do we have a cleaner way to exit?
 		CommCareContext._().getMidlet().notifyDestroyed();

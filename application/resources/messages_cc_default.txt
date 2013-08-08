@@ -165,4 +165,5 @@ server.sync.icon.warn=jr://file/commcare/images/sync_server_warn.png
 send.unsent.icon=jr://file/commcare/images/send_unsent.png
 commcare.review.icon=jr://file/commcare/images/review_forms.png
 
-commcare.startup.oom=CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again.
+commcare.startup.oom=CommCare ran out of memory while starting your app. You can try to restart the app, but your form content may be too large for this phone. Please contact technical support if you continue to receive this message.
+commcare.install.oom=CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again.
