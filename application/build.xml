@@ -77,6 +77,7 @@
 					<attribute name="JR-Build-Version" value="${jr-build-version}" />
 					<attribute name="Polish-Device" value="${polish.identifier}" />
 					<attribute name="Built-on" value="${built-on}" />
+					<attribute name="Build-Number" value="${commcare.build.number}"/>
 					
 					<!-- Release property can't go in jad if it will be changed -->
 					<!--attribute name="CommCare-Release"	value="${commcare.release}" /-->
