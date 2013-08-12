@@ -20,18 +20,18 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class PrefixTreeNode {
-	private String prefix;
+	private char[] prefix;
 	private boolean terminal;
 	private Vector<PrefixTreeNode> children;
 	private PrefixTreeNode parent;
 	
-	public PrefixTreeNode (String prefix) {
+	public PrefixTreeNode (char[] prefix) {
 		this.prefix = prefix;
 		this.terminal = false;
 	}
 	
 	public void decompose (Vector<String> v, String s) {
-		String stem = s + prefix;
+		String stem = s + new String(prefix);
 		
 		if (terminal) {
 			v.addElement(stem);
@@ -44,7 +44,7 @@ public class PrefixTreeNode {
 		}		
 	}
 	
-	public String getPrefix() {
+	public char[] getPrefix() {
 		return prefix;
 	}
 	
@@ -72,11 +72,16 @@ public class PrefixTreeNode {
 	}
 	
 	public String render() {
-		String ret = this.prefix;
-		if(this.parent != null) {
-			ret = parent.render() + ret;
+		StringBuffer temp = new StringBuffer();
+		return render(temp);
+	}
+	
+	public String render(StringBuffer buffer) {
+		if(parent != null){
+			parent.render(buffer);
 		}
-		return ret;
+		buffer.append(this.prefix);
+		return buffer.toString();
 	}
 	
 	public void seal() {
@@ -86,7 +91,6 @@ public class PrefixTreeNode {
 			}
 		}		
 		this.children = null;
-		this.prefix = prefix;
 	}
 
 	public void addChild(PrefixTreeNode node) {
@@ -102,7 +106,7 @@ public class PrefixTreeNode {
 		terminal = true;
 	}
 
-	public PrefixTreeNode budChild(PrefixTreeNode node, String subPrefix, int subPrefixLen) {
+	public PrefixTreeNode budChild(PrefixTreeNode node, char[] subPrefix, int subPrefixLen) {
 		//make a new child for the subprefix
 		PrefixTreeNode newChild = new PrefixTreeNode(subPrefix);
 		
@@ -111,8 +115,12 @@ public class PrefixTreeNode {
 		node.parent = null;
 		
 		//cut out the middle part of the prefix (which is now this node's domain)
-		node.prefix = node.prefix.substring(subPrefixLen);
-		
+		char[] old = node.prefix;
+		node.prefix = new char[old.length - subPrefixLen];
+		for(int i = 0 ; i < old.length - subPrefixLen; ++i) {
+			node.prefix[i] = old[subPrefixLen + i];
+		}
+				
 		//replace the old child with the new one, and put it in the proper order
 		this.addChild(newChild);
 		newChild.addChild(node);
