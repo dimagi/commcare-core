@@ -20,6 +20,12 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class PrefixTree {
+	//Sometimes the string optimizations here are basically useless 
+	//due to wide availability of memory. It's easier in many cases
+	//to simply keep using the framework, but just disable the actual
+	//stemming/prefix ops
+	boolean disablePrefixing = false;
+	
 	private PrefixTreeNode root;
 	
 	int minimumPrefixLength;
@@ -57,6 +63,14 @@ public class PrefixTree {
 		if(finalized) { 
 			throw new RuntimeException("Can't manipulate a finalized Prefix Tree");
 		}
+		
+		if(disablePrefixing) {
+			PrefixTreeNode newNode = new PrefixTreeNode(newString.toCharArray());
+			newNode.setTerminal();
+			root.addChild(newNode);
+			return newNode;
+		}
+		
 		PrefixTreeNode current = root;
 		
 		char[] chars = newString.toCharArray();
