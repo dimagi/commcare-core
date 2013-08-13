@@ -45,7 +45,7 @@ public class XPathException extends RuntimeException {
 		if(sourceRef == null) {
 			return super.getMessage();
 		} else {
-			return "There was a problem with your form. The problem was located in " + sourceRef + "\n" + super.getMessage();
+			return "The problem was located in " + sourceRef + "\n" + super.getMessage();
 		}
 	}
 }
