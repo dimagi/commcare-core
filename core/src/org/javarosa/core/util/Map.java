@@ -36,6 +36,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * 
  * Lookups in a map are accomplished in O(n) time.
  * 
+ * 
+ * TODO: Figure out if this actually works anymore!
+ * (Is actually smaller in memory than a hashtable)
+ * 
  * @author Clayton Sims
  *
  */
