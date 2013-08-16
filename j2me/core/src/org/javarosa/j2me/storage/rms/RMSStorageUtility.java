@@ -886,7 +886,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 		
 		boolean indexDataRecoverd = false;
 		if(indexData != null) {
-			ix.updateRecord(ID_INDEX_REC_ID, storageInfo, true);
+			ix.updateRecord(ID_INDEX_REC_ID, indexData, true);
 			indexDataRecoverd = true;
 		}
 		
