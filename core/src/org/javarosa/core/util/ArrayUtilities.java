@@ -28,26 +28,26 @@ public class ArrayUtilities {
 		if(array1.length != array2.length) {
 			return false;
 		}
-		boolean retVal = true;
+
 		for(int i = 0 ; i < array1.length ; ++i ) {
 			if(!array1[i].equals(array2[i])) {
-				retVal = false;
+				return false;
 			}
 		}
-		return retVal;
+		return true;
 	}
 	
 	public static boolean arraysEqual(byte[] array1, byte[] array2) {
 		if(array1.length != array2.length) {
 			return false;
 		}
-		boolean retVal = true;
+
 		for(int i = 0 ; i < array1.length ; ++i ) {
 			if(array1[i] != array2[i]) {
-				retVal = false;
+				return false;
 			}
 		}
-		return retVal;
+		return true;
 	}
 	
 	
@@ -55,13 +55,13 @@ public class ArrayUtilities {
 		if(array1.length - a1start != array2.length - a2start) {
 			return false;
 		}
-		boolean retVal = true;
+
 		for(int i = 0 ; i < array1.length - a1start ; ++i ) {
 			if(array1[i + a1start] != array2[i + a2start]) {
-				retVal = false;
+				return false;
 			}
 		}
-		return retVal;
+		return true;
 	}
 	
 	/**
