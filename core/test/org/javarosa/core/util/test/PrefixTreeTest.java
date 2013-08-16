@@ -103,16 +103,16 @@ public class PrefixTreeTest extends TestCase  {
 
 		PrefixTree t = new PrefixTree(i);
 	
-			add(t, "jr://file/images/something/abcd.png");
-			add(t, "jr://file/audio/something/abcd.mp3");
-			add(t, "jr://file/audio/something/adfd.mp3");
-			add(t, "jr://file/images/something/dsf.png");
-			add(t, "jr://file/images/sooth/abcd.png");
-			add(t, "jr://file/audio/something/bsadf.mp3");
-			add(t, "jr://file/audio/something/fsde.mp3");
+		add(t, "jr://file/images/something/abcd.png");
+		add(t, "jr://file/audio/something/abcd.mp3");
+		add(t, "jr://file/audio/something/adfd.mp3");
+		add(t, "jr://file/images/something/dsf.png");
+		add(t, "jr://file/images/sooth/abcd.png");
+		add(t, "jr://file/audio/something/bsadf.mp3");
+		add(t, "jr://file/audio/something/fsde.mp3");
 			
-			add(t, "jr://file/images/some");
-			System.out.println(t.toString());
+		add(t, "jr://file/images/some");
+		System.out.println(t.toString());
 		}
 	}
 }
