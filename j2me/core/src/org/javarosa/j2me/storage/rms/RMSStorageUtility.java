@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.microedition.rms.InvalidRecordIDException;
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
@@ -1031,6 +1032,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 			this.datastores = new RMS[0];
 			getInfoRecord();
 			
+			try {
+				//this gets wrapped (with questionable value!!!) later on, so if we're going to 
+				//catch errors with it and trigger a repair, we need to do it early!
+				index.getIndexStore().rms.getRecordSize(RESERVE_BUFFER_REC_ID);
+			} catch (RecordStoreNotFoundException rsnfe) {
+				throw new RuntimeException("Error + (" + rsnfe.getClass().getName() + ") getting reserve buffer for store " + basename + " : " + rsnfe.getMessage());
+			} catch (RecordStoreException rse) {
+				throw new RuntimeException("Error + (" + rse.getClass().getName() + ") getting reserve buffer for store " + basename + " : " + rse.getMessage());
+			}
 		}
 	}
 	
