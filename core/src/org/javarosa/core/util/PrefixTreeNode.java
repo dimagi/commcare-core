@@ -53,7 +53,8 @@ public class PrefixTreeNode {
 	}
 	
 	public boolean equals (Object o) {
-		return (o instanceof PrefixTreeNode ? prefix.equals(((PrefixTreeNode)o).prefix) : false);
+		//uh... is this right?
+		return (o instanceof PrefixTreeNode ? ArrayUtilities.arraysEqual(prefix,0, ((PrefixTreeNode)o).prefix, 0) : false);
 	}
 	
 	public String toString () {
