@@ -20,6 +20,12 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class PrefixTree {
+	//Sometimes the string optimizations here are basically useless 
+	//due to wide availability of memory. It's easier in many cases
+	//to simply keep using the framework, but just disable the actual
+	//stemming/prefix ops
+	boolean disablePrefixing = false;
+	
 	private PrefixTreeNode root;
 	
 	int minimumPrefixLength;
@@ -36,29 +42,41 @@ public class PrefixTree {
 	}
 
 	public PrefixTree (int minimumPrefixLength) {
-		root = new PrefixTreeNode("");
+		root = new PrefixTreeNode(new char[0]);
 		this.minimumPrefixLength = Math.max(minimumPrefixLength++, 0);
 		this.minimumHeuristicLength = Math.max((int)(minimumPrefixLength / 2), 3);
 	}
 	
-	public static int sharedPrefixLength (String a, String b) {
+	public static int sharedPrefixLength (char[] a, int aStart, char[] b) {
 		int len;
+		int minLength = Math.min(a.length - aStart, b.length);
 		
-		for (len = 0; len < a.length() && len < b.length(); len++) {
-			if (a.charAt(len) != b.charAt(len))
+		for (len = 0; len < minLength;len++) {
+			if (a[len + aStart] != b[len])
 				break;
 		}
 		
 		return len;
 	}
 	
-	public PrefixTreeNode addString (String s) {
+	public PrefixTreeNode addString (String newString) {
 		if(finalized) { 
 			throw new RuntimeException("Can't manipulate a finalized Prefix Tree");
 		}
+		
+		if(disablePrefixing) {
+			PrefixTreeNode newNode = new PrefixTreeNode(newString.toCharArray());
+			newNode.setTerminal();
+			root.addChild(newNode);
+			return newNode;
+		}
+		
 		PrefixTreeNode current = root;
+		
+		char[] chars = newString.toCharArray();
+		int currentIndex = 0;
 
-		while (s.length() > 0) {
+		while (currentIndex < chars.length) {
 			
 			//The length of the string we've incorporated into the tree
 			int len = 0;
@@ -66,23 +84,32 @@ public class PrefixTree {
 			//The (potential) next node in the tree which prefixes the rest of the string
 			PrefixTreeNode node = null;
 
+			//TODO: This would be way faster if we sorted upon insertion....
 			if (current.getChildren() != null) {
 				for (Enumeration e = current.getChildren().elements(); e.hasMoreElements(); ) {
 					node = (PrefixTreeNode)e.nextElement();
 					
-					String prefix = node.getPrefix();
-					if(prefix.equals(s)) {
+					char[] prefix = node.getPrefix();
+					//if(prefix.equals(s)) {
+					if(ArrayUtilities.arraysEqual(prefix, 0, chars, currentIndex)) {
 						return node;
 					}
 					
-					len = sharedPrefixLength(s, prefix);
+					len = sharedPrefixLength(chars, currentIndex, prefix);
 					if (len > minimumPrefixLength) {
 						//See if we have any breaks which might make more heuristic sense than simply grabbing the biggest
 						//difference
 						for(char c : delimiters) {
-							int sepLen = prefix.lastIndexOf(c, len - 1) + 1;
+							int sepLen = -1;
+							for(int i = currentIndex + len -1; i >= currentIndex; i--) {
+								if(chars[i] == c) {
+									sepLen = i - currentIndex;
+									break;
+								}
+							}
 							if(sepLen != -1 && len - sepLen < delSacrifice && sepLen > minimumHeuristicLength) {
 								len = sepLen;
+								break;
 							}
 						}
 						
@@ -95,23 +122,34 @@ public class PrefixTree {
 			//If we didn't find anything that shared any common roots
 			if (node == null) {
 				//Create a placeholder for the rest of the string
-				node = new PrefixTreeNode(s);
+				char[] newArray;
+				if(currentIndex == 0) {
+					newArray = chars;
+				} else {
+					newArray = new char[chars.length - currentIndex];
+					for(int i = 0 ; i < chars.length - currentIndex; ++i) { newArray[i] = chars[i + currentIndex];}
+				}
+				node = new PrefixTreeNode(newArray);
 				
-				//Note that we're accounting for the remainder
-				len = s.length();
+				len = chars.length - currentIndex;
 								
 				//Add this to the highest level prefix we've found
 				current.addChild(node);
-			} else if (len < node.getPrefix().length()) {
-				String prefix = s.substring(0, len);
+			} 
+			//Otherwise check to see if we are going to split the current prefix
+			else if (len < node.getPrefix().length) {
+				char[] newPrefix = new char[len];
+				for(int i = 0; i < len ; ++i) {
+					newPrefix[i] = chars[currentIndex + i];
+				}
 				
-				PrefixTreeNode interimNode = current.budChild(node, prefix, len);
+				PrefixTreeNode interimNode = current.budChild(node, newPrefix, len);
 				
 				node = interimNode;
 			}
 			
 			current = node;
-			s = s.substring(len);
+			currentIndex = currentIndex + len;
 		}
 		
 		current.setTerminal();
@@ -138,6 +176,6 @@ public class PrefixTree {
 	
 	public void clear() {
 		finalized = false;
-		root = new PrefixTreeNode("");
+		root = new PrefixTreeNode(new char[0]);
 	}
 }
