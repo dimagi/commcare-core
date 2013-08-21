@@ -1,0 +1,119 @@
+/**
+ * 
+ */
+package org.commcare.suite.model;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Vector;
+
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.parser.XPathSyntaxException;
+
+/**
+ * A stack operation descriptor, containing all of the relevant details
+ * about which operation to perform and any associated metadata 
+ * 
+ * @author ctsims
+ *
+ */
+public class StackOperation implements Externalizable {
+	
+	public static final int OPERATION_CREATE = 0;
+	public static final int OPERATION_PUSH= 1;
+	public static final int OPERATION_CLEAR = 2;
+	
+	int opType;
+	String ifCondition;
+	String id;
+	Vector<StackFrameStep> elements;
+	
+	/**
+	 * Deserialization Only!
+	 */
+	public StackOperation() {
+		
+	}
+	
+	//  Constructors
+	
+	public static StackOperation CreateFrame(String frameId, String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+		return new StackOperation(OPERATION_CREATE, frameId, ifCondition, elements);
+	}
+	
+	public static StackOperation PushData(String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+		return new StackOperation(OPERATION_PUSH, null, ifCondition, elements);
+	}
+	
+	public static StackOperation ClearFrame(String frameId, String ifCondition) throws XPathSyntaxException {
+		return new StackOperation(OPERATION_CLEAR, frameId, ifCondition, null);
+	}
+	
+	private StackOperation(int opType, String frameId, String ifCondition, Vector<StackFrameStep> elements) throws XPathSyntaxException {
+		this.opType = opType;
+		this.id = frameId;
+		this.ifCondition = ifCondition;
+		if(ifCondition != null) {
+			XPathParseTool.parseXPath(ifCondition);
+		}
+		this.elements =elements;
+	}
+	
+	//retrieval
+	
+	public int getOp() {
+		return opType;
+	}
+	
+	public String getFrameId() {
+		return id;
+	}
+	
+	public boolean isOperationTriggered(EvaluationContext ec) {
+		return true;
+	}
+	
+
+	/**
+	 * Get the actual steps to be added (un-processed) to a frame.
+	 * 
+	 * @return The definitions for the steps that should be included in this operation
+	 * @throws IllegalStateException if this operation do not support stack frame steps
+	 */
+	public Vector<StackFrameStep> getStackFrameSteps() {
+		if(opType == OPERATION_CLEAR) {
+			throw new IllegalStateException("Clear Operations do not define frame steps");
+		}
+		return elements;
+	}
+
+	
+	
+
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+	 */
+	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+		opType = ExtUtil.readInt(in);
+		ifCondition = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+		elements = (Vector<StackFrameStep>) ExtUtil.read(in, new ExtWrapList(StackFrameStep.class));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+	 */
+	public void writeExternal(DataOutputStream out) throws IOException {
+		ExtUtil.writeNumeric(out, opType);
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(ifCondition));
+		ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
+		ExtUtil.write(out, new ExtWrapList(elements));
+	}
+}
