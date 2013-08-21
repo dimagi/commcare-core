@@ -340,7 +340,16 @@ public abstract class CommCareFormEntryState extends FormEntryState {
 				}
 				
 				public void postProcessing() {
-					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message.getCacheIdentifier(), CommCareSense.isAutoSendEnabled() || !cacheable);
+					CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message.getCacheIdentifier(), CommCareSense.isAutoSendEnabled() || !cacheable) {
+
+						/* (non-Javadoc)
+						 * @see org.commcare.applogic.CommCarePostFormEntryState#goHome()
+						 */
+						public void goHome() {
+							CommCareFormEntryState.this.goHome();
+						}
+						
+					};
 					
 					J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
 				}

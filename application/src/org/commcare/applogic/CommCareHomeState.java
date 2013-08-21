@@ -56,7 +56,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
 	
 	public void start () {
 		MemoryUtils.printMemoryTest("Home Screen");
-		sessionController = new CommCareSessionController(new CommCareSession(CommCareContext._().getManager()), this);
+		sessionController = new CommCareSessionController(new CommCareSession(CommCareContext._().getManager()));
 		CommCareHomeController home = new CommCareHomeController(CommCareContext._().getManager().getCurrentProfile(), sessionController);
 		home.setTransitions(this);
 		home.start();

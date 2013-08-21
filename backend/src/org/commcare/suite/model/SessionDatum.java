@@ -44,6 +44,12 @@ public class SessionDatum implements Externalizable {
 		this.value = value;
 	}
 	
+	public SessionDatum(String id, String value) {
+		type = DATUM_TYPE_NORMAL;
+		this.id = id;
+		this.value = value;
+	}
+	
 	public static SessionDatum FormIdDatum(String calculate) {
 		SessionDatum ret = new SessionDatum();
 		ret.id = "";

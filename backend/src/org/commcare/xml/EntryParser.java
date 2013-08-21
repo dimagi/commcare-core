@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.instance.DataInstance;
@@ -49,6 +50,7 @@ public class EntryParser extends ElementParser<Entry> {
 		String imageURI = null;
 		String audioURI = null;
 		Object[] displayArr;  //Should *ALWAYS* be [Text commandText, String imageURI, String audioURI]
+		Vector<StackOperation> stackOps = new Vector<StackOperation>();
 			
 		while(nextTagInBlock(block)) {
 			if(parser.getName().equals("form")) {
@@ -85,9 +87,14 @@ public class EntryParser extends ElementParser<Entry> {
 			else if(parser.getName().equals("entity") || parser.getName().equals("details")) {
 				throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + block + ">. " + 
 						                             parser.getName() + " is not a valid construct in 2.0 CaseXML", parser);
+			} else if(parser.getName().equals("stack")) {
+				StackOpParser sop = new StackOpParser(parser);
+				while(this.nextTagInBlock("stack")) {
+					stackOps.addElement(sop.parse());
+				}
 			}
 		}
-		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances, stackOps);
 		return e;
 	}
 }

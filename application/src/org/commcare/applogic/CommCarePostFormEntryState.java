@@ -37,9 +37,19 @@ public class CommCarePostFormEntryState extends CompletedFormOptionsState {
 			}
 
 			public void done() {
-				new CommCareHomeState().start();
+				notifyUnsent();
+				goHome();
 			}
 		});
+	}
+	
+	public void notifyUnsent() {
+		//If we're autosending, make sure to expire old deadlines
+				if(CommCareSense.isAutoSendEnabled()) {
+					
+					//Notify the service that old deadlines have expired.
+					AutomatedSenderService.NotifyPending();
+				}
 	}
 
 	/* (non-Javadoc)
@@ -49,16 +59,11 @@ public class CommCarePostFormEntryState extends CompletedFormOptionsState {
 		// We're now relying on the form processor to have cached the message already, since otherwise
 		// we may end up processing but not caching/sending the form. 
 		Logger.log("transport", "Defer[" + messageId + "]");
+		notifyUnsent();
 		goHome();
 	}
 	
 	public void goHome() {
-		//If we're autosending, make sure to expire old deadlines
-		if(CommCareSense.isAutoSendEnabled()) {
-			
-			//Notify the service that old deadlines have expired.
-			AutomatedSenderService.NotifyPending();
-		}
 		J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 	}
 }

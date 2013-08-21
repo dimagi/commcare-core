@@ -45,7 +45,7 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
 			if("form".equals(this.parser.getName())) {
 				datum = SessionDatum.FormIdDatum(calculate);
 			} else {
-				datum = new SessionDatum(id,null, null, null, calculate);
+				datum = new SessionDatum(id, calculate);
 			}
 		}
 		

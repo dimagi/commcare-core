@@ -39,6 +39,7 @@ public class Entry implements Externalizable{
 	private String imageResource;
 	private String audioResource;
 	Hashtable<String, DataInstance> instances;
+	Vector<StackOperation> stackOperations;
 	
 	/**
 	 * Serialization only!
@@ -48,7 +49,8 @@ public class Entry implements Externalizable{
 	}
 	
 	public Entry(String commandId, Text commandText, Vector<SessionDatum> data,
-			String formNamespace, String imageResource, String audioResource, Hashtable<String, DataInstance> instances) {
+			String formNamespace, String imageResource, String audioResource, Hashtable<String, DataInstance> instances,
+			Vector<StackOperation> stackOperations) {
 		this.commandId = commandId  == null ? "" : commandId;
 		this.commandText = commandText;
 		this.data = data;
@@ -56,6 +58,7 @@ public class Entry implements Externalizable{
 		this.imageResource = imageResource == null ? "" : imageResource;
 		this.audioResource = audioResource == null ? "" : audioResource;
 		this.instances = instances;
+		this.stackOperations = stackOperations;
 	}
 	
 	/**
@@ -137,6 +140,7 @@ public class Entry implements Externalizable{
 		
 		data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
 		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
+		stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
 	}
 	
 	/*
@@ -151,5 +155,10 @@ public class Entry implements Externalizable{
 		ExtUtil.write(out, audioResource);
 		ExtUtil.write(out, new ExtWrapList(data));
 		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
+		ExtUtil.write(out, new ExtWrapList(stackOperations));
+	}
+
+	public Vector<StackOperation> getPostEntrySessionOperations() {
+		return stackOperations;
 	}
 }

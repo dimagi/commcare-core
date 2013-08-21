@@ -11,30 +11,25 @@ import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
-import org.commcare.core.properties.CommCareProperties;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.NodeEntitySet;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
-import org.javarosa.core.api.State;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IPreloadHandler;
-import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -60,7 +55,7 @@ public class CommCareSessionController {
 	private Hashtable<Integer, Entry> entryTable = new Hashtable<Integer,Entry>();
 	private Hashtable<Integer, Menu> menuTable = new Hashtable<Integer,Menu>();
 
-	public CommCareSessionController(CommCareSession session, State currentState) {
+	public CommCareSessionController(CommCareSession session) {
 		this.session = session;
 	}
 	
@@ -177,7 +172,7 @@ public class CommCareSessionController {
 				return;
 			}
 			//create form entry session
-			Entry entry = session.getEntriesForCommand(session.getCommand()).elementAt(0);
+			Entry entry = session.getCurrentEntry();
 			String title;
 			if(CommCareSense.sense()) {
 				title = null;
@@ -191,11 +186,29 @@ public class CommCareSessionController {
 			suiteTable.clear();
 			entryTable.clear();
 			menuTable.clear();
-
+			
+			//load up any ops that we may need after the entry is over
+			final Vector<StackOperation> ops = entry.getPostEntrySessionOperations();
 			
 			CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
 				protected void goHome() {
-					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+					//Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
+					
+					//TODO: should ths section get wrapped up in the session, maybe?
+					//First, see if we have operations to run
+					if(ops.size() > 0) {
+						EvaluationContext ec = session.getEvaluationContext(getIif());
+						for(StackOperation op : ops) {
+							session.executeStackOperation(op, ec);
+						}
+					}
+					
+					//Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
+					if(session.finishAndPop()) {
+						next();
+					} else {					
+						J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
+					}
 				}
 				public void abort () {
 					 back();
@@ -205,13 +218,13 @@ public class CommCareSessionController {
 			return;
 		}
 		
-		if(next.equals(CommCareSession.STATE_COMMAND_ID)) {
+		if(next.equals(SessionFrame.STATE_COMMAND_ID)) {
 			//You only get commands from menus, so the current 
 			//command has to be a menu, we should load a menu state
 			
 			if(session.getCommand() == null) {
 				//We're at the root selection, we need to go home
-				session.clearState();
+				session.clearAllState();
 				J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				return;
 			}
