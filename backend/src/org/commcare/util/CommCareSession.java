@@ -470,6 +470,15 @@ public class CommCareSession {
 			//ok, frame should be appropriately modified now. 
 			//we also need to push this frame if it's new 
 			if(newFrame){
+				//Before we can push a frame onto the stack, we need to
+				//make sure the stack is clean. This means that if the
+				//current frame has a snapshot, we've gotta make sure 
+				//the existing frames are still valid.
+				//TODO: We might want to handle this differently in the future,
+				//so that we can account for the invalidated frames in the ui
+				//somehow.
+				cleanStack();
+				
 				frameStack.push(matchingFrame);
 			}
 			break;
@@ -489,6 +498,21 @@ public class CommCareSession {
 	}
 
 	/**
+	 * Checks to see if the current frame has a clean snapshot. If
+	 * not, clears the stack and the snapshot (since the snapshot can
+	 * only be relevant to the existing frames)
+	 */
+	private void cleanStack() {
+		//See whether the current frame was incompatible with its start
+		//state.
+		if(frame.isSnapshotIncompatible()) {
+			//If it is, our frames can no longer make sense.
+			this.frameStack.removeAllElements();
+			frame.clearSnapshot();
+		}
+	}
+
+	/**
 	 * Complete the current session (and perform any cleanup), then
 	 * check the stack for any pending frames, and load the top one
 	 * into the current session if so. 
@@ -498,10 +522,20 @@ public class CommCareSession {
 	 * and the session is over.
 	 */
 	public boolean finishAndPop() {
+		cleanStack();
+
 		if(frameStack.empty()) {
 			return false;
 		} else {
 			frame = frameStack.pop();
+			//Ok, so if _after_ popping from the stack, we still have
+			//stack members, we need to be careful about making sure 
+			//that they won't get triggered if we abandon the current
+			//frame
+			if(!frameStack.isEmpty()) {
+				frame.captureSnapshot();
+			}
+			
 			syncState();
 			return true;
 		}
