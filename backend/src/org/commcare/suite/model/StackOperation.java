@@ -14,7 +14,9 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
@@ -77,7 +79,17 @@ public class StackOperation implements Externalizable {
 	}
 	
 	public boolean isOperationTriggered(EvaluationContext ec) {
-		return true;
+		if(ifCondition != null) {
+			try {
+				return XPathFuncExpr.toBoolean(XPathParseTool.parseXPath(ifCondition).eval(ec)).booleanValue();
+			} catch (XPathSyntaxException e) {
+				//This error makes no sense, since we parse the input for
+				//validation when we create it!
+				throw new XPathException(e.getMessage());
+			}
+		} else {
+			return true;
+		}
 	}
 	
 
