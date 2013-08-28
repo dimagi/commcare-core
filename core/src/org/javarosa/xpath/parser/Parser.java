@@ -98,7 +98,7 @@ public class Parser {
 
 		int funcEnd = node.indexOfBalanced(funcStart + 1, Token.RPAREN, Token.LPAREN, Token.RPAREN);
 		if (funcEnd == -1) {
-			throw new XPathSyntaxException(); //mismatched parens			
+			throw new XPathSyntaxException("Mismatched brackets or parentheses"); //mismatched parens			
 		}
 		
 		ASTNodeAbstractExpr.Partition args = node.partitionBalanced(Token.COMMA, funcStart + 1, Token.LPAREN, Token.RPAREN);
@@ -144,7 +144,7 @@ public class Parser {
 				} else if (type == lToken) {
 					int j = absNode.indexOfBalanced(i, rToken, lToken, rToken);
 					if (j == -1) {
-						throw new XPathSyntaxException(); //mismatched
+						throw new XPathSyntaxException("mismatched brackets or parentheses!"); //mismatched
 					}
 					
 					absNode.condense(snf.newNode(absNode.extract(i + 1, j)), i, j + 1);
@@ -244,7 +244,7 @@ public class Parser {
 										path.clauses.addElement(x);
 								}
 							} else {
-								throw new XPathSyntaxException();
+								throw new XPathSyntaxException("Unexpected beginning of path");
 							}
 						}
 					}
@@ -297,7 +297,7 @@ public class Parser {
 			} else if (node.content.size() > 1 && node.getTokenType(0) == Token.QNAME && node.getTokenType(1) == Token.DBL_COLON) {
 				int axisVal = ASTNodePathStep.validateAxisName(((XPathQName)node.getToken(0).val).toString());
 				if (axisVal == -1) {
-					throw new XPathSyntaxException();
+					throw new XPathSyntaxException("Invalid Axis: " + ((XPathQName)node.getToken(0).val).toString());
 				}
 				step.axisType = ASTNodePathStep.AXIS_TYPE_EXPLICIT;
 				step.axisVal = axisVal;
@@ -361,7 +361,7 @@ public class Parser {
 			ASTNodeAbstractExpr absNode = (ASTNodeAbstractExpr)node;
 			
 			if (!absNode.isNormalized()) {
-				throw new XPathSyntaxException();
+				throw new XPathSyntaxException("Bad node: " + absNode.toString());
 			}
 		}
 			
