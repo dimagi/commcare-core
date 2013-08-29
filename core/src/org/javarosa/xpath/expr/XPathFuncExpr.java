@@ -271,7 +271,12 @@ public class XPathFuncExpr extends XPathExpression {
 			
 			int len = toInt(argVals[0]).intValue();			
 			return PropertyUtils.genGUID(len);
-		} else {
+		} else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
+			double a = toDouble(argVals[0]).doubleValue();
+			double b = toDouble(argVals[1]).doubleValue();
+			
+			return Math.pow(a, b);
+		}  else {
 			//check for custom handler
 			IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
 			if (handler != null) {
