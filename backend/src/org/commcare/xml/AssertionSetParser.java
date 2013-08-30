@@ -40,7 +40,7 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
 		Vector<Text> messages = new Vector<Text>();
 
 		
-		while(nextTagInBlock("asseritons")) {
+		while(nextTagInBlock("assertions")) {
 			if(parser.getName().equals("assert")) {
 				String test = parser.getAttributeValue(null, "test");
 				if(test == null) { throw new InvalidStructureException("<assert> element must have a test attribute!", parser); } 
