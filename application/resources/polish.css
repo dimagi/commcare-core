@@ -22,7 +22,7 @@
 colors {
 	fontColor: #eee; /** weird green*/
 	focusedFontColor: #000; /* black */
-	bgColor:  #eee; /** grey **/
+	bgColor:  #eee; /** gray **/
 	focusedBgColor:  #fff;
 	focusedBackground: white;
 	borderColor: fontColor;
@@ -132,6 +132,9 @@ focusHighlight extends focused {
 	padding:1;
 	focused-style: buttonfocused;
 	background-color: buttonBgColor;
+}
+.buttonGreyedOut extends button{
+	background-color: gray;
 }
 
 .groupName {
