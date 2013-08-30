@@ -42,6 +42,7 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
+import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
@@ -272,10 +273,7 @@ public class XPathFuncExpr extends XPathExpression {
 			int len = toInt(argVals[0]).intValue();			
 			return PropertyUtils.genGUID(len);
 		} else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
-			double a = toDouble(argVals[0]).doubleValue();
-			double b = toDouble(argVals[1]).doubleValue();
-			
-			return Math.pow(a, b);
+			return power(argVals[0], argVals[1]);
 		}  else {
 			//check for custom handler
 			IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
@@ -937,5 +935,73 @@ public class XPathFuncExpr extends XPathExpression {
 		return eval(model, evalContext);
 		
 	}
+	/**
+	 * Best faith effort at getting a result for math.pow 
+	 * 
+	 * @param o1 The base number
+	 * @param o2 The exponent of the number that it is to be raised to
+	 * @return An approximation of o1 ^ o2. If there is a native power
+	 * function, it is utilized. It there is not, a recursive exponent is
+	 * run if (b) is an integer value, and a taylor series approximation is 
+	 * used otherwise. 
+	 */
+	private Double power(Object o1, Object o2) {	
+		//#if polish.cldc
+		//# //CLDC doesn't support craziness like "power" functions, so we're on our own.
+		//# return powerApprox(o1, o2);
+		//#else 
+		//Just use the native lib! should be available.
+		double a = toDouble(o1).doubleValue();
+		double b = toDouble(o2).doubleValue();
 
+		return Math.pow(a, b);
+		//#endif
+	}
+	
+	private Double powerApprox(Object o1, Object o2) {
+		double a = toDouble(o1).doubleValue();
+		Double db = toDouble(o2);
+		//We need to determine if "b" is a double, or an integer.
+		if(Math.abs(db.doubleValue()- toInt(db).doubleValue()) > DOUBLE_TOLERANCE) {
+			throw new XPathUnsupportedException("Sorry, power functions with non-integer exponents are not supported on your platform");
+		} else {
+			//Integer it is, whew!
+			int b = db.intValue();
+			//One last check. If b is negative, we need to invert A, 
+			//and then do the exponent.
+			if(b < 0) {
+				b = -b;
+				a = 1.0 / a;
+			}
+			//Ok, now we can do a simple recursive solution
+			return power(a, b);
+		}
+	}
+	
+	private static Double power(double a, int b) {
+		if(b == 0) { return new Double(1.0); }
+		double ret = a;
+		for(int i = 1 ; i < b ; ++i) {
+			ret *= a;
+		}
+		return new Double(ret);
+	}
+	
+	/**
+	 * This code is fairly legit, but it not compliant with actual
+	 * floating point math reqs. I don't know whether we 
+	 * should expose the option of using it, exactly. 
+	 * 
+	 *  
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static double pow(final double a, final double b) {
+		final long tmp = Double.doubleToLongBits(a);
+		final long tmp2 = (long)(b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
+		return Double.longBitsToDouble(tmp2);
+	}
+	
+	public static final double DOUBLE_TOLERANCE = 1.0e-12;
 }
