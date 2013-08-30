@@ -342,7 +342,7 @@ public class CommCareContext {
 					}
 				} catch (UnresolvedResourceException e) {
 					//this whole process needs to be cleaned up 
-					throw new RuntimeException(e.getMessage());
+					throw new RuntimeException("Error installing resource: " + e.getResource().getDescriptor() + "\n" + e.getMessage());
 				}
 				
 				currentProgress = 60;

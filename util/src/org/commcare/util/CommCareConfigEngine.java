@@ -127,7 +127,7 @@ public class CommCareConfigEngine {
 		ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, reference);
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
 		locations.add(location);
-		Resource test = new Resource(-2, resource.replace("\\",""), locations);
+		Resource test = new Resource(-2, resource.replace("\\",""), locations, "Application Descriptor");
 		try {
 			table.addResource(test, new ProfileInstaller(),null);
 		} catch (StorageFullException e) {
@@ -162,7 +162,7 @@ public class CommCareConfigEngine {
 					//skip it
 				} else {
 					String locale = name.substring(name.lastIndexOf("_") + 1, name.lastIndexOf("."));
-					Resource test = new Resource(-2, name, locations);
+					Resource test = new Resource(-2, name, locations, "Internal Strings: " + locale);
 					try {
 						table.addResource(test, new LocaleFileInstaller(locale),null);
 					} catch (StorageFullException e) {

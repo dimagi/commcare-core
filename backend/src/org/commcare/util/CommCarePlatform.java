@@ -68,7 +68,7 @@ public class CommCarePlatform implements CommCareInstance {
 				locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 				
 				//We need a way to identify this version...
-				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
+				Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
 				
 				global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
 				global.prepareResources(null, this);
@@ -109,7 +109,7 @@ public class CommCarePlatform implements CommCareInstance {
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
 		locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 			
-		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations);
+		Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
 		
 		incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
 		

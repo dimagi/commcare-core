@@ -24,6 +24,8 @@ public class ResourceParser extends ElementParser<Resource> {
 		String id = parser.getAttributeValue(null,"id");
 		int version = parseInt(parser.getAttributeValue(null, "version"));
 		
+		String descriptor = parser.getAttributeValue(null, "descriptor");
+		
 		Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
 		
 		while(nextTagInBlock("resource")) {
@@ -43,6 +45,6 @@ public class ResourceParser extends ElementParser<Resource> {
 			}
 		}
 		
-		return new Resource(version, id, locations);
+		return new Resource(version, id, locations, descriptor);
 	}
 }

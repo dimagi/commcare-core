@@ -153,6 +153,8 @@ public class Resource implements Persistable, IMetaData {
 	//Not sure if we want this persisted just yet...
 	private String parent;
 	
+	private String descriptor;
+	
 	/**
 	 * For serialization only 
 	 */
@@ -170,12 +172,13 @@ public class Resource implements Persistable, IMetaData {
 	 * can be retrieved. Note that this vector is copied and should not be changed
 	 * after being passed in here.
 	 */
-	public Resource(int version, String id, Vector<ResourceLocation> locations) {
+	public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
 		this.version = version;
 		this.id = id;
 		this.locations = locations;
 		this.guid = PropertyUtils.genGUID(25);
 		this.status = RESOURCE_STATUS_UNINITIALIZED;
+		this.descriptor = descriptor;
 	}
 	
 	/**
@@ -332,6 +335,15 @@ public class Resource implements Persistable, IMetaData {
 		this.guid = source.guid;
 		this.id = source.id;
 		this.recordId = source.recordId;
+		this.descriptor = source.descriptor;
+	}
+	
+	public String getDescriptor() {
+		if(descriptor == null) {
+			return id;
+		} else {
+			return descriptor;
+		}
 	}
 
 	/*
@@ -348,6 +360,7 @@ public class Resource implements Persistable, IMetaData {
 		
 		locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class),pf);
 		this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
+		this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 	}
 
 	/*
@@ -364,6 +377,7 @@ public class Resource implements Persistable, IMetaData {
 		
 		ExtUtil.write(out, new ExtWrapList(locations));
 		ExtUtil.write(out, new ExtWrapTagged(initializer));
+		ExtUtil.writeString(out,  ExtUtil.emptyIfNull(descriptor));
 	}
 
 	/*
