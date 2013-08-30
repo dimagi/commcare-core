@@ -13,12 +13,14 @@ import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.NodeEntitySet;
+import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -26,6 +28,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.entity.model.Entity;
+import org.javarosa.j2me.util.CommCareHandledExceptionState;
 import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
@@ -173,6 +176,11 @@ public class CommCareSessionController {
 			}
 			//create form entry session
 			Entry entry = session.getCurrentEntry();
+			
+			if(failedAssertion(entry.getAssertions())) {
+				return;
+			}
+			
 			String title;
 			if(CommCareSense.sense()) {
 				title = null;
@@ -339,6 +347,32 @@ public class CommCareSessionController {
 		return;
 	}
 	
+	private boolean failedAssertion(AssertionSet assertionSet) {
+		//Check to see whether there are any issues here:
+		EvaluationContext ec = session.getEvaluationContext(getIif());
+		Text assertionFailure = assertionSet.getAssertionFailure(ec);
+		if(assertionFailure != null) {
+			final String failureMsg = assertionFailure.evaluate(ec);
+			CommCareHandledExceptionState assertFailState = new CommCareHandledExceptionState() {
+
+				public String getExplanationMessage(String e) {
+					return failureMsg;
+				}
+
+				public boolean handlesException(Exception e) {
+					return true;
+				}
+
+				public void done() {
+					CommCareSessionController.this.back();
+				}
+			};
+			J2MEDisplay.startStateWithLoadingScreen(assertFailState);
+			return true;
+		}
+		return false;
+	}
+
 	CommCareInstanceInitializer initializer = null;
 	
 	private InstanceInitializationFactory getIif() {

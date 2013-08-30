@@ -86,7 +86,13 @@ public abstract class ElementParser<T> {
 	 */
 	protected void checkNode(String name) throws InvalidStructureException {
 		if(!parser.getName().toLowerCase().equals(name)) {
-			throw new InvalidStructureException("Expected <" + name + "> element <"+ parser.getName() + "> found instead",parser);
+			int eventType = -1;
+			try {
+				eventType = parser.getEventType();
+			} catch(XmlPullParserException xppe) {
+				//Eh, this is just for helping anyway, I don't wanna crash on it.
+			}
+			throw new InvalidStructureException("Expected <" + name + ">. "+ (eventType == KXmlParser.END_TAG ? "Closing tag </" : "Element <") +parser.getName() + "> found instead",parser);
 		}
 	}
 	

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
@@ -51,6 +52,7 @@ public class EntryParser extends ElementParser<Entry> {
 		String audioURI = null;
 		Object[] displayArr;  //Should *ALWAYS* be [Text commandText, String imageURI, String audioURI]
 		Vector<StackOperation> stackOps = new Vector<StackOperation>();
+		AssertionSet assertions = null;
 			
 		while(nextTagInBlock(block)) {
 			if(parser.getName().equals("form")) {
@@ -92,9 +94,11 @@ public class EntryParser extends ElementParser<Entry> {
 				while(this.nextTagInBlock("stack")) {
 					stackOps.addElement(sop.parse());
 				}
+			}else if (parser.getName().equals("assertions")) {
+				assertions = new AssertionSetParser(parser).parse();
 			}
 		}
-		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances, stackOps);
+		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances, stackOps, assertions);
 		return e;
 	}
 }

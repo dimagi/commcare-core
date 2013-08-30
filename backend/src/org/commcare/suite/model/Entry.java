@@ -16,6 +16,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -40,6 +41,7 @@ public class Entry implements Externalizable{
 	private String audioResource;
 	Hashtable<String, DataInstance> instances;
 	Vector<StackOperation> stackOperations;
+	AssertionSet assertions;
 	
 	/**
 	 * Serialization only!
@@ -50,7 +52,7 @@ public class Entry implements Externalizable{
 	
 	public Entry(String commandId, Text commandText, Vector<SessionDatum> data,
 			String formNamespace, String imageResource, String audioResource, Hashtable<String, DataInstance> instances,
-			Vector<StackOperation> stackOperations) {
+			Vector<StackOperation> stackOperations, AssertionSet assertions) {
 		this.commandId = commandId  == null ? "" : commandId;
 		this.commandText = commandText;
 		this.data = data;
@@ -59,6 +61,7 @@ public class Entry implements Externalizable{
 		this.audioResource = audioResource == null ? "" : audioResource;
 		this.instances = instances;
 		this.stackOperations = stackOperations;
+		this.assertions = assertions;
 	}
 	
 	/**
@@ -126,6 +129,10 @@ public class Entry implements Externalizable{
 		return copy;
 	}
 	
+	public AssertionSet getAssertions() {
+		return assertions == null ? new AssertionSet(new Vector<String>() ,new Vector<Text>()) : assertions;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
@@ -141,6 +148,7 @@ public class Entry implements Externalizable{
 		data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
 		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
 		stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
+		assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class));
 	}
 	
 	/*
@@ -156,6 +164,7 @@ public class Entry implements Externalizable{
 		ExtUtil.write(out, new ExtWrapList(data));
 		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
 		ExtUtil.write(out, new ExtWrapList(stackOperations));
+		ExtUtil.write(out, new ExtWrapNullable(assertions));
 	}
 
 	public Vector<StackOperation> getPostEntrySessionOperations() {
