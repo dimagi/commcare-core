@@ -198,6 +198,10 @@ public class XPathPathExpr extends XPathExpression {
 			if(nonMain != null)
 			{
 				m = nonMain;
+				if(m.getRoot() == null) {
+					//This instance is _declared_, but doesn't actually have any data in it.
+					throw new XPathMissingInstanceException(ref.getInstanceName(), "Instance referenced by " + ref.toString(true) + " has not been loaded"); 
+				}
 			}
 			else
 			{

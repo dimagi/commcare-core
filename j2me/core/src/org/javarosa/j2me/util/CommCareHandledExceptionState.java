@@ -65,7 +65,6 @@ public abstract class CommCareHandledExceptionState implements State, CommandLis
 	
 	
 	private void setDisplayText(){
-		System.out.println("setting display text");
 		view.setString(getExplanationMessage(errorMessage));
 	}
 	
