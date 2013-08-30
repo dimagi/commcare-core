@@ -66,6 +66,7 @@ import org.javarosa.xform.util.InterningKXmlParser;
 import org.javarosa.xform.util.XFormSerializer;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathConditional;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -1611,7 +1612,12 @@ public class XFormParser {
 		if (nodeset == null) {
 			throw new XFormParseException("XForm Parse: <bind> without nodeset",e);
 		}
-		IDataReference ref = new XPathReference(nodeset);
+		IDataReference ref;
+		try {			
+			ref = new XPathReference(nodeset);
+		} catch(XPathException xpe) {
+			throw new XFormParseException(xpe.getMessage());
+		}
 		ref = getAbsRef(ref, _f);
 		binding.setReference(ref);
 
