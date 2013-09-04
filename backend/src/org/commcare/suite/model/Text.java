@@ -189,7 +189,12 @@ public class Text implements Externalizable {
 					    //Do an XPath cast to a string as part of the operation.
 						cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
 					}
-					EvaluationContext temp = new EvaluationContext(context, context == null ? null : context.getContextRef());
+					EvaluationContext temp;
+					if(context == null) {
+						temp = new EvaluationContext(null);
+					} else {
+						temp = new EvaluationContext(context, context.getContextRef());
+					}
 					
 					temp.addFunctionHandler(new IFunctionHandler() {
 
@@ -262,7 +267,7 @@ public class Text implements Externalizable {
 						temp.setVariable(key,value);
 					}
 					
-					return (String)cacheParse.eval(context.getMainInstance(), context);
+					return (String)cacheParse.eval(temp.getMainInstance(), temp);
 				} catch (XPathSyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
