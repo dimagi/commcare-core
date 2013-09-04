@@ -625,7 +625,15 @@ public class XPathFuncExpr extends XPathExpression {
 	}
 
 	public static String dateStr (Object od, Object of) {
-		od = toDate(od);
+		if(od instanceof Date) {
+			//There's no reason to pull out the time info here if 
+			//this is already a date (might still have time info
+			//that we want to preserve).
+			//we round at all of the relevant points up to here,
+			//and we only print out the date info when asked anyway.
+		} else {
+			od = toDate(od);
+		}
 		if (od instanceof Date) {
 			return DateUtils.format((Date)od, toString(of));
 		} else {
