@@ -69,7 +69,7 @@ public class CommCareOTARestoreView extends Form{
 			addToMessage(Localization.get("restore.ui.unbounded", new String [] {""+finishedItems}));
 		}
 		else{
-			gauge.setValue((int)Math.floor(RESOLUTION*(finishedItems/totalItems)));
+			gauge.setValue((int)Math.floor(RESOLUTION*((finishedItems*1.0)/totalItems)));
 			addToMessage(Localization.get("restore.ui.bounded", new String [] {""+finishedItems,""+totalItems}));
 		}
 	}
