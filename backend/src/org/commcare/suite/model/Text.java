@@ -189,6 +189,11 @@ public class Text implements Externalizable {
 					    //Do an XPath cast to a string as part of the operation.
 						cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
 					}
+					
+					//We need an EvaluatonContext in a specific sense in order to evaluate certain components
+					//like Instance references or relative references to some models, but it's valid to use
+					//XPath expressions for other things like Dates, or simply manipulating other variables,
+					//so if we don't have one, we can make one that doesn't reference any data specifically
 					EvaluationContext temp;
 					if(context == null) {
 						temp = new EvaluationContext(null);
