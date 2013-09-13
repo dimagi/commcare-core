@@ -142,18 +142,18 @@ public class Resource implements Persistable, IMetaData {
 	
 	public static final int RESOURCE_VERSION_UNKNOWN = -2;
 	
-	private int recordId = -1;
-	private int version;
-	private int status;
-	private String id;
-	private Vector<ResourceLocation> locations;
-	private ResourceInstaller initializer;
-	private String guid;
+	protected int recordId = -1;
+	protected int version;
+	protected int status;
+	protected String id;
+	protected Vector<ResourceLocation> locations;
+	protected ResourceInstaller initializer;
+	protected String guid;
 	
 	//Not sure if we want this persisted just yet...
-	private String parent;
+	protected String parent;
 	
-	private String descriptor;
+	protected String descriptor;
 	
 	/**
 	 * For serialization only 
