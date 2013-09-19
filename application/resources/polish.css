@@ -667,7 +667,7 @@ alertcontent {
 }
 
 .patselImageCell {
-	layout: vertical-center | horizontal-center| vertical-shrink;;
+	layout: vertical-center | vertical-shrink;;
 }
 
 .patselTitleRowContainer extends patselRow {
