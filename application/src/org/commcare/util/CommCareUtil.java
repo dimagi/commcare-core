@@ -25,6 +25,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -291,9 +292,12 @@ public class CommCareUtil {
 			//We really don't know how to deal with this yet. Shouldn't happen!
 			return text;
 		} else {
+			
+			String arg = Localization.get("commcare.menu.count.wrapper", new String[] {String.valueOf(location + 1)});
+			
 			//Sweet spot! This argument should be the count of all entities
 			//which are possible inside of its selection.
-			return Localizer.processArguments(text, new String[] {String.valueOf(location + 1)} );
+			return Localizer.processArguments(text, new String[] {arg} );
 		}
 	}
 

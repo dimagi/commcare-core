@@ -11,6 +11,7 @@ import org.commcare.api.transitions.MenuTransitions;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCareSessionController;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -33,7 +34,8 @@ public class CommCareSuiteController implements HandledCommandListener {
 		this.m = m;
 		this.controller = controller;
 		
-		view = new CommCareListView(m.getName().evaluate());
+		//Strip any hanging menu stuff from this title 
+		view = new CommCareListView(Localizer.processArguments(m.getName().evaluate(), new String[]{""}));
 		view.setCommandListener(this);
 		view.addCommand(BACK);
 	}
