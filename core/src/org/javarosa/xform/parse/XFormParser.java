@@ -1667,7 +1667,7 @@ public class XFormParser {
 			try {
 				binding.constraint = new XPathConditional(xpathConstr);
 			} catch (XPathSyntaxException xse) {
-				reporter.error("bind for " + nodeset + " contains invalid constraint expression [" + xpathConstr + "] " + xse.getMessage());
+				throw new XFormParseException("bind for " + nodeset + " contains invalid constraint expression [" + xpathConstr + "] " + xse.getMessage());
 			}
 			binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
 		}
