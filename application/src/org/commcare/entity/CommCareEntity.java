@@ -15,6 +15,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.xpath.XPathException;
@@ -50,7 +51,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 	 * @see org.javarosa.entity.model.Entity#entityType()
 	 */
 	public String entityType() {
-		return shortDetail.getTitle().evaluate(context);
+		return Localizer.clearArguments(shortDetail.getTitle().evaluate(context));
 	}
 
 	/* (non-Javadoc)
