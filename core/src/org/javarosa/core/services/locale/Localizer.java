@@ -642,18 +642,23 @@ public class Localizer implements Externalizable {
 	}
 	
 	public static String processArguments(String text, String[] args) {
+		return processArguments(text, args, 0); 
+	}
+	
+	public static String processArguments(String text, String[] args, int currentArg) {
 		String working = text;
-		int currentArg = 0;
-		while(working.indexOf("${") != -1 && args.length > currentArg) {
+		if(working.indexOf("${") != -1 && args.length > currentArg) {
 			int index = extractNextIndex(working, args);
 			if(index == -1) {
 				index = currentArg;
 				currentArg++;
 			}
 			String value = args[index];
-			working = replaceFirstValue(working, value);
+			String[] replaced = replaceFirstValue(working, value);
+			return replaced[0] + processArguments(replaced[1], args, currentArg); 
+		} else {
+			return working;
 		}
-		return working;
 	}
 	
 
@@ -685,11 +690,11 @@ public class Localizer implements Externalizable {
 		return -1;
 	}
 	
-	private static String replaceFirstValue(String text, String value) {
+	private static String[] replaceFirstValue(String text, String value) {
 		int start = text.indexOf("${");
 		int end = text.indexOf("}");
 		
-		return text.substring(0,start) + value + text.substring(end + 1, text.length()); 
+		return new String[] {text.substring(0,start) + value, text.substring(end + 1, text.length())}; 
 	}
 
 	/* === (DE)SERIALIZATION === */
