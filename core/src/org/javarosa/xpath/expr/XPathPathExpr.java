@@ -219,6 +219,8 @@ public class XPathPathExpr extends XPathExpression {
 		}
 		//Otherwise we'll leave 'm' as set to the main instance 
 		
+		//TODO: This causes problems when the paths are heterogeneous. IE: If the path is looking for an attribute that 
+		//doesn't exist on the first node, there is no template path
 		if (ref.isAbsolute() && m.getTemplatePath(ref) == null) {
 			return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
 		}

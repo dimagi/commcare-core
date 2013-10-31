@@ -52,6 +52,19 @@ public class SetValueAction extends Action {
 		//Qualify the reference if necessary
 		TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
 		
+		//For now we only process setValue actions which are within the
+		//context if a context is provided. This happens for repeats where
+		//insert events should only trigger on the right nodes
+		if(contextRef != null){
+			
+			//Note: right now we're qualifying then testing parentage to see wheter
+			//there was a conflict, but it's not super clear whether this is a perfect
+			//strategy
+			if(!contextRef.isParentOf(qualifiedReference, false)) {
+				return;
+			}
+		}
+		
 		//TODO: either the target or the value's node might not exist here, catch and throw
 		//reasonably
 		EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), qualifiedReference);
