@@ -6,6 +6,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.OpenRosaApiResponseProcessor;
 import org.javarosa.core.model.utils.IPreloadHandler;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -63,8 +64,7 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 			}
 		}
 		
-		
-		
+		Logger.log("user-reg", "User add form complete. Calling out to register");
 		
 		if(requireRegistration) {
 
@@ -83,6 +83,7 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 				}
 	
 				public void succesfullyRegistered(User user) {
+					Logger.log("user-reg", "Succesfully registered user: " + user.getUsername() + " | " + user.getUniqueId() + ". Writing to db");
 					IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
 					try {
 						//If the incoming user is null, there were no updates
