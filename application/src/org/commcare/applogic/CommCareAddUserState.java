@@ -10,7 +10,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -69,7 +68,7 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 		
 		if(requireRegistration) {
 
-			new RegisterUserState(newUser, orApiVersion) {
+			J2MEDisplay.startStateWithLoadingScreen(new RegisterUserState(newUser, orApiVersion) {
 				
 				public String getRegistrationURL() {
 					return CommCareContext._().getSubmitURL();
@@ -95,7 +94,7 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 					J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
 				}
 				
-			}.start();
+			});
 		} else {
 			try {
 				userStorage.write(newUser);
