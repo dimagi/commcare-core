@@ -83,7 +83,11 @@ public class CommCareAddUserState extends CreateUserFormEntryState {
 				}
 	
 				public void succesfullyRegistered(User user) {
-					Logger.log("user-reg", "Succesfully registered user: " + user.getUsername() + " | " + user.getUniqueId() + ". Writing to db");
+					if(user != null) {
+						Logger.log("user-reg", "Succesful online registration user: " + user.getUsername() + " | " + user.getUniqueId() + ". Writing to db");
+					} else {
+						Logger.log("user-reg", "Delayed online registration of user " + newUser.getUsername() + " | " + newUser.getUniqueId() + ". Writing to db");
+					}
 					IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
 					try {
 						//If the incoming user is null, there were no updates
