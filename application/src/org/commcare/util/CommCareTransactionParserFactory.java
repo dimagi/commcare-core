@@ -6,10 +6,12 @@ package org.commcare.util;
 import java.io.IOException;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.stock.Stock;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
 import org.commcare.xml.FixtureXmlParser;
+import org.commcare.xml.StockXmlParsers;
 import org.commcare.xml.UserXmlParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
@@ -65,6 +67,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 			//TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the 
 			//restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
 			return new UserXmlParser(parser, restoreId);
+		}  else if(namespace.toLowerCase().equals(StockXmlParsers.STOCK_XML_NAMESPACE)) {
+			return new StockXmlParsers(parser, (IStorageUtilityIndexed)StorageManager.getStorage(Stock.STORAGE_KEY));
 		} else if(name.toLowerCase().equals("message")) {
 			return new TransactionParser<String> (parser, "message", null) {
 

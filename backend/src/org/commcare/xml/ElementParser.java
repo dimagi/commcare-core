@@ -84,15 +84,46 @@ public abstract class ElementParser<T> {
 	 * @throws InvalidStructureException If the node at the current
 	 * position is not the one expected.
 	 */
+	
+	/**
+	 * Evaluates whether the current node is the appropriate name
+	 * and throws the proper exception if not.
+	 * 
+	 * @param name The name of the element which is expected at this
+	 * step of parsing.
+	 * @throws InvalidStructureException If the node at the current
+	 * position is not the one expected.
+	 */
 	protected void checkNode(String name) throws InvalidStructureException {
-		if(!parser.getName().toLowerCase().equals(name)) {
+		checkNode(new String[]{name});	
+	}
+	
+	protected void checkNode(String[] names) throws InvalidStructureException {
+		boolean checksOut = false;
+		
+		for(String name : names) {
+			if(parser.getName().toLowerCase().equals(name)) {
+				checksOut = true;
+			}
+		}
+		if(!checksOut) {
 			int eventType = -1;
 			try {
 				eventType = parser.getEventType();
 			} catch(XmlPullParserException xppe) {
 				//Eh, this is just for helping anyway, I don't wanna crash on it.
 			}
-			throw new InvalidStructureException("Expected <" + name + ">. "+ (eventType == KXmlParser.END_TAG ? "Closing tag </" : "Element <") +parser.getName() + "> found instead",parser);
+			String oneOf = null;
+			if(names.length == 1) {
+				oneOf = "<" + names[0] + "> ";
+			} else {
+				oneOf = "one of [";
+				for(String name : names) {
+					oneOf += "<" + name + "> ";
+				}
+				oneOf += "]";
+			}
+			throw new InvalidStructureException("Expected "+ oneOf + (eventType == KXmlParser.END_TAG ? "Closing tag </" : "Element <") +parser.getName() + "> found instead",parser);
 		}
 	}
 	

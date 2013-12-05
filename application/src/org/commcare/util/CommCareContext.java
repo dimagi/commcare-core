@@ -15,6 +15,8 @@ import javax.microedition.midlet.MIDlet;
 import org.commcare.applogic.CommCareUpgradeState;
 import org.commcare.cases.CaseManagementModule;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.stock.Stock;
+import org.commcare.cases.stock.StockPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
@@ -717,6 +719,10 @@ public class CommCareContext {
 		
 		//3) cases (delete cases that are closed AND have no open cases which index them)
 		purgeRMS(Case.STORAGE_KEY, caseFilter(), deletedLog);
+		
+		//4) Stock models (stock database objects with no matching case)
+		purgeRMS(Stock.STORAGE_KEY, new StockPurgeFilter((IStorageUtilityIndexed)StorageManager.getStorage(Stock.STORAGE_KEY),
+				(IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY)), deletedLog);
 
 		//5) reclog will never grow that large in size
 		//do nothing

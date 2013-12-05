@@ -10,6 +10,8 @@ import java.util.Vector;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.stock.Stock;
+import org.commcare.cases.stock.instance.StockInstanceTreeElement;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -33,6 +35,7 @@ import org.javarosa.user.model.User;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
+	StockInstanceTreeElement stockbase;
 	CacheTable<String> stringCache;
 	
 	public CommCareInstanceInitializer(CacheTable<String> stringCache){ 
@@ -52,8 +55,19 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		String ref = instance.getReference();
 		
+		if(ref.indexOf("stockdb") != -1) {
+			if(stockbase == null) {
+				stockbase =  new StockInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Stock.STORAGE_KEY));
+				if(stringCache != null ) {
+					stockbase.attachStringCache(stringCache);
+				}
+			} else {
+				stockbase.rebase(instance.getBase());
+			}
+			return stockbase;
+		}
 		//TODO: Clayton should feel bad about all of this. Man is it terrible
-		if(ref.indexOf("casedb") != -1) {
+		else if(ref.indexOf("casedb") != -1) {
 			Vector<String> data = DateUtils.split(ref, "/", true);
 			if(ref.indexOf("report") != -1) {
 				ConcreteTreeElement base = new ConcreteTreeElement("device_report");
