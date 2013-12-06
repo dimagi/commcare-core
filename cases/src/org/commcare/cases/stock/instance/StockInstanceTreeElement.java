@@ -89,7 +89,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 		}
 		
 		//name is always "case", so multiplicities are the only relevant component here
-		if(name.equals("case")) { 
+		if(name.equals("stock")) { 
 			getStocks();
 			if(stocks.size() == 0) {
 				//If we have no cases, we still need to be able to return a template element so as to not

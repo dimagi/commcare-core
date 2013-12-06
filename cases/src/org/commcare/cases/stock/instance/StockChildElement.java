@@ -310,7 +310,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 
 			String[] productList =  s.getProductList();
 			for(int i = 0 ; i < productList.length ; ++i) {
-				product = new TreeElement("product");
+				product = new TreeElement("product", i);
 				product.setAttribute(null, "id", productList[i]);
 				product.setValue(new IntegerData(s.getProductValue(productList[i])));
 				cacheBuilder.addChild(product);

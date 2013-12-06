@@ -28,7 +28,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class StockXmlParsers extends TransactionParser<Stock[]> {
-	public static final String STOCK_XML_NAMESPACE = "http://commtrack.org/commcare/models";
+	public static final String STOCK_XML_NAMESPACE = "http://commtrack.org/stock_report";
 
 	IStorageUtilityIndexed<Stock> storage;
 	
@@ -54,8 +54,8 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 		Date modified = DateUtils.parseDateTime(dateModified);
 		
 		if(name.equals("balance")) {
-			String entityId = parser.getAttributeValue(null, "id");
-			if(entityId == null) { throw new InvalidStructureException("<balance> block with no id attribute.", this.parser); }
+			String entityId = parser.getAttributeValue(null, "entity-id");
+			if(entityId == null) { throw new InvalidStructureException("<balance> block with no entity-id attribute.", this.parser); }
 			
 			Stock s = retrieve(entityId);
 			if(s == null) {
@@ -85,7 +85,7 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			}
 			Stock destinationStock = retrieve(destination);
 			if(destinationStock == null) {
-				destinationStock = new Stock(source, new Hashtable<String, Integer>());
+				destinationStock = new Stock(destination, new Hashtable<String, Integer>());
 			}
 			
 			while(this.nextTagInBlock("transfer")) {
@@ -96,7 +96,7 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 				int quantity = this.parseInt(quantityString);
 				
 				sourceStock.setProductValue(productId, sourceStock.getProductValue(productId) - quantity);
-				destinationStock.setProductValue(productId, destinationStock.getProductValue(productId) - quantity);
+				destinationStock.setProductValue(productId, destinationStock.getProductValue(productId) + quantity);
 			}
 			toWrite.addElement(sourceStock);
 			toWrite.addElement(destinationStock);
@@ -108,9 +108,10 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			tw[i] = s;
 			i++;
 		}
+		//this should really be decided on _not_ in the parser...
 		commit(tw);
 		
-		return null;
+		return tw;
 	}		
 
 	public void commit(Stock[] parsed) throws IOException {

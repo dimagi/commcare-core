@@ -101,9 +101,14 @@ public abstract class ElementParser<T> {
 	protected void checkNode(String[] names) throws InvalidStructureException {
 		boolean checksOut = false;
 		
-		for(String name : names) {
-			if(parser.getName().toLowerCase().equals(name)) {
-				checksOut = true;
+		if(parser.getName() == null) {
+			//this isn't even a start tag!
+		}
+		else {
+			for(String name : names) {
+				if(parser.getName().toLowerCase().equals(name)) {
+					checksOut = true;
+				}
 			}
 		}
 		if(!checksOut) {
@@ -123,7 +128,19 @@ public abstract class ElementParser<T> {
 				}
 				oneOf += "]";
 			}
-			throw new InvalidStructureException("Expected "+ oneOf + (eventType == KXmlParser.END_TAG ? "Closing tag </" : "Element <") +parser.getName() + "> found instead",parser);
+			
+			String foundInstead = "";
+			if(eventType == KXmlParser.END_TAG){
+				foundInstead =  "Closing tag </" +parser.getName() + ">";
+			} else if(eventType == KXmlParser.START_TAG) {
+				foundInstead =  "Element <" +parser.getName() + ">";
+			} else if(eventType == KXmlParser.TEXT) {
+				foundInstead =  "Text \"" +parser.getText() + "\"";
+			} else {
+				foundInstead = "Unknown";
+			}
+			
+			throw new InvalidStructureException("Expected "+ oneOf + foundInstead +" found instead",parser);
 		}
 	}
 	

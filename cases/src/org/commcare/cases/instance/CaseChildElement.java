@@ -377,6 +377,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 						if(done[0] == false) {
 							return child;
 						}
+						
+						//blank template index for repeats and such to not crash
 						if(multiplicity >= 0 && child == null) {
 							TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
 							emptyNode.setAttribute(null, "case_type", "");

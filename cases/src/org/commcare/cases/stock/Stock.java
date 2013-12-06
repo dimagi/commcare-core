@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -19,7 +20,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  *
  */
-public class Stock implements Persistable {
+public class Stock implements Persistable, IMetaData {
 
 	public static final String STORAGE_KEY = "stock";
 	public static final String INDEX_ENTITY_ID = "entity-id";
@@ -84,6 +85,18 @@ public class Stock implements Persistable {
 
 	public void setProductValue(String id, int quantity) {
 		products.put(id, new Integer(quantity));
+	}
+
+	public String[] getMetaDataFields() {
+		return new String[] {INDEX_ENTITY_ID};
+	}
+
+	public Object getMetaData(String fieldName) {
+		if(fieldName.equals(INDEX_ENTITY_ID)){
+			return entityId;
+		} else {
+			throw new IllegalArgumentException("No metadata field " + fieldName  + " in the stock storage system");
+		}
 	}
 	
 	
