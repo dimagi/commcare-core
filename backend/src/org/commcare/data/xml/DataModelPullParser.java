@@ -84,7 +84,9 @@ public class DataModelPullParser extends ElementParser<Boolean>{
 				}catch(NumberFormatException e){
 					itemNumber = 0;
 				}
-				rListener.setTotalForms(itemNumber);
+				if(rListener != null) {
+					rListener.setTotalForms(itemNumber);
+				}
 				//throw new InvalidStructureException("<item> block with no item_id attribute.", this.parser);
 			}
 			//Here we'll go through in search of CommCare data models and parse
