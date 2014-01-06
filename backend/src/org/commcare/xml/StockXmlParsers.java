@@ -73,19 +73,24 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			
 			toWrite.addElement(s);
 		} else if(name.equals("transfer")) {
-			String source = parser.getAttributeValue(null, "source");
-			if(source == null) { throw new InvalidStructureException("<transfer> block with no source id.", this.parser); }
+			String source = parser.getAttributeValue(null, "src");
+			String destination = parser.getAttributeValue(null, "dest");
 			
-			String destination = parser.getAttributeValue(null, "destination");
-			if(destination == null) { throw new InvalidStructureException("<transfer> block with no destination id.", this.parser); }
+			if(source == null && destination == null) { throw new InvalidStructureException("<transfer> block no source or destination id.", this.parser); }
 			
-			Stock sourceStock = retrieve(source);
-			if(sourceStock == null) {
-				sourceStock = new Stock(source, new Hashtable<String, Integer>());
+			Stock sourceStock = null;
+			if(source != null) {
+				sourceStock = retrieve(source);
+				if(sourceStock == null) {
+					sourceStock = new Stock(source, new Hashtable<String, Integer>());
+				}
 			}
-			Stock destinationStock = retrieve(destination);
-			if(destinationStock == null) {
-				destinationStock = new Stock(destination, new Hashtable<String, Integer>());
+			Stock destinationStock = null;
+			if(destination != null) {
+				destinationStock = retrieve(destination);
+				if(destinationStock == null) {
+					destinationStock = new Stock(destination, new Hashtable<String, Integer>());
+				}
 			}
 			
 			while(this.nextTagInBlock("transfer")) {
@@ -95,11 +100,19 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 				if(productId == null || productId == "") { throw new InvalidStructureException("<product> update requires a valid @id attribute", this.parser); }
 				int quantity = this.parseInt(quantityString);
 				
-				sourceStock.setProductValue(productId, sourceStock.getProductValue(productId) - quantity);
-				destinationStock.setProductValue(productId, destinationStock.getProductValue(productId) + quantity);
+				if(sourceStock != null) {
+					sourceStock.setProductValue(productId, sourceStock.getProductValue(productId) - quantity);
+				}
+				if(destinationStock != null) {
+					destinationStock.setProductValue(productId, destinationStock.getProductValue(productId) + quantity);
+				}
 			}
-			toWrite.addElement(sourceStock);
-			toWrite.addElement(destinationStock);
+			if(sourceStock != null) {
+				toWrite.addElement(sourceStock);
+			}
+			if(destinationStock != null) {
+				toWrite.addElement(destinationStock);
+			}
 		}
 		
 		Stock[] tw = new Stock[toWrite.size()];
