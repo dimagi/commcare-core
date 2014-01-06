@@ -317,7 +317,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 			}
 			
 			TreeElement cacheBuilder = new TreeElement("case"); 
-			Case c = (Case)parent.storage.read(recordId);
+			Case c = parent.getCase(recordId);
 			caseId = c.getCaseId();
 			cacheBuilder = new TreeElement("case");
 			cacheBuilder.setMult(this.mult);

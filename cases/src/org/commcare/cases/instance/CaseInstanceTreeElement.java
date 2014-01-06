@@ -36,16 +36,16 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 
 	private AbstractTreeElement instanceRoot;
 	
-	IStorageUtilityIndexed storage;
+	protected IStorageUtilityIndexed storage;
 	private String[] caseRecords;
 	
-	private Vector<CaseChildElement> cases;
+	protected  Vector<CaseChildElement> cases;
 	
 	protected CacheTable<TreeElement> treeCache = new CacheTable<TreeElement>();
 	
 	protected CacheTable<String> stringCache;
 	
-	private Hashtable<Integer, Integer> caseIdMapping;
+	protected Hashtable<Integer, Integer> caseIdMapping;
 	
 	String syncToken;
 	String stateHash;
@@ -164,7 +164,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		return cases.elementAt(i);
 	}
 	
-	private synchronized void getCases() {
+	protected synchronized void getCases() {
 		if(cases != null) {
 			return;
 		}
@@ -448,7 +448,8 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		for(Integer i : selectedCases) {
 			//this takes _waaaaay_ too long, we need to refactor this
 			TreeReference ref = base.clone();
-			int realIndex = caseIdMapping.get(i).intValue();
+			Integer realIndexInt = caseIdMapping.get(i);
+			int realIndex =realIndexInt.intValue();
 			ref.add("case", realIndex);
 			filtered.addElement(ref);
 		}
@@ -471,5 +472,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		} else {
 			return stringCache.intern(s);
 		}
+	}
+
+	public Case getCase(int recordId) {
+		return (Case)storage.read(recordId);
 	}
 }
