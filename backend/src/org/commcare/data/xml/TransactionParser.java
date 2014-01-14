@@ -23,7 +23,7 @@ public abstract class TransactionParser<T> extends ElementParser<T> {
 	}
 	
 	public boolean parses(String name, String namespace) {
-		if(name.toLowerCase().equals(name)) {
+		if(name.toLowerCase().equals(this.name)) {
 			return true;
 		}
 		return false;

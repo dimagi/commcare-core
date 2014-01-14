@@ -26,6 +26,8 @@ import org.javarosa.xpath.expr.XPathExpression;
  *
  */
 public class StockChildElement implements AbstractTreeElement<TreeElement> {
+
+	private static final String NAME = "stocks";
 	
 	StockInstanceTreeElement parent;
 	int recordId; 
@@ -55,7 +57,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 		this.entityId = null;
 		
 		empty = new TreeElement();
-		empty = new TreeElement("stock");
+		empty = new TreeElement(NAME);
 		empty.setMult(this.mult);
 		
 		empty.setAttribute(null, "id", "");
@@ -248,7 +250,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
 	 */
 	public String getName() {
-		return "stock";
+		return NAME;
 	}
 
 	/* (non-Javadoc)
@@ -298,22 +300,29 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 				return element;
 			}
 			
-			TreeElement cacheBuilder = new TreeElement("stock"); 
+			TreeElement cacheBuilder = new TreeElement(NAME); 
 			Stock s = parent.storage.read(recordId);
 			entityId = s.getEntiyId();
-			cacheBuilder = new TreeElement("stock");
 			cacheBuilder.setMult(this.mult);
 			
 			cacheBuilder.setAttribute(null, "id", s.getEntiyId());
-		
-			TreeElement product;
+			
+			TreeElement stock;
+			String[] stockList = s.getStockList();
+			for(int i = 0 ; i < stockList.length ; ++i) {
+				stock = new TreeElement("stock", i); 
+				stock.setAttribute(null, "stock-id", stockList[i]);
+				cacheBuilder.addChild(stock);
 
-			String[] productList =  s.getProductList();
-			for(int i = 0 ; i < productList.length ; ++i) {
-				product = new TreeElement("product", i);
-				product.setAttribute(null, "id", productList[i]);
-				product.setValue(new IntegerData(s.getProductValue(productList[i])));
-				cacheBuilder.addChild(product);
+				TreeElement product;
+	
+				String[] productList =  s.getProductList(stockList[i]);
+				for(int j = 0 ; j < productList.length ; ++j) {
+					product = new TreeElement("product", j);
+					product.setAttribute(null, "id", productList[j]);
+					product.setValue(new IntegerData(s.getProductValue(stockList[i], productList[j])));
+					cacheBuilder.addChild(product);
+				}
 			}
 			
 			cacheBuilder.setParent(this.parent);

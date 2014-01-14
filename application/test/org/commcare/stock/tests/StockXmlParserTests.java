@@ -36,7 +36,7 @@ public class StockXmlParserTests extends TestCase {
 	
 	private static int NUM_TESTS = 1;
 	
-	private static final String BALANCE_GOOD = "<balance entity-id='a59d8b11-218e-47a9-ba49-fb8e6f615085' date='2013-12-05' xmlns='http://commtrack.org/stock_report'><n2:product index='0' id='productguid0' quantity='10' /><n2:product index='1' id='productguid2' quantity='20' /></n2:balance></data>";
+	private static final String BALANCE_GOOD = "<balance entity-id='a59d8b11-218e-47a9-ba49-fb8e6f615085' stock-id='supplies' date='2013-12-05' xmlns='http://commtrack.org/stock_report'><n2:product index='0' id='productguid0' quantity='10' /><n2:product index='1' id='productguid2' quantity='20' /></n2:balance></data>";
 	
 	/* (non-Javadoc)
 	 * @see j2meunit.framework.TestCase#setUp()
@@ -110,7 +110,7 @@ public class StockXmlParserTests extends TestCase {
 						 * @see org.commcare.xml.StockXmlParsers#retrieve(java.lang.String)
 						 */
 						@Override
-						public Stock retrieve(String entityId) {
+						public Stock retrieveOrCreate(String entityId) {
 							return null;
 						}
 						
