@@ -104,7 +104,7 @@ public class Stock implements Persistable, IMetaData {
 	}
 
 	public void setProductValue(String stockId, String productId, int quantity) {
-		if(!stocks.contains(stockId)) {
+		if(!stocks.containsKey(stockId)) {
 			stocks.put(stockId, new Hashtable<String, Integer>());
 		}
 		stocks.get(stockId).put(productId, new Integer(quantity));

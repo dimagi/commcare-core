@@ -27,7 +27,9 @@ import org.javarosa.xpath.expr.XPathExpression;
  */
 public class StockChildElement implements AbstractTreeElement<TreeElement> {
 
-	private static final String NAME = "stocks";
+	public static final String NAME = "stocks";
+	public static final String SUBNAME = "stock";
+	public static final String FINALNAME = "product";
 	
 	StockInstanceTreeElement parent;
 	int recordId; 
@@ -60,12 +62,17 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 		empty = new TreeElement(NAME);
 		empty.setMult(this.mult);
 		
-		empty.setAttribute(null, "id", "");
+		empty.setAttribute(null, "entity-id", "");
 		
-		TreeElement scratch = new TreeElement("product");
+		TreeElement blankStock = new TreeElement(SUBNAME);
+		blankStock.setAttribute(null, "stock-id", "");
+		
+		TreeElement scratch = new TreeElement(FINALNAME);
 		scratch.setAttribute(null, "id", "");
 		scratch.setAnswer(null);
-		empty.addChild(scratch);
+		
+		blankStock.addChild(scratch);
+		empty.addChild(blankStock);
 	}
 	
 	/* (non-Javadoc)
@@ -195,7 +202,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
 	 */
 	public TreeElement getAttribute(String namespace, String name) {
-		if(name.equals("id")) {
+		if(name.equals("entity-id")) {
 			if(recordId != TreeReference.INDEX_TEMPLATE) {
 				//if we're already cached, don't bother with this nonsense
 				synchronized(parent.treeCache){
@@ -305,7 +312,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 			entityId = s.getEntiyId();
 			cacheBuilder.setMult(this.mult);
 			
-			cacheBuilder.setAttribute(null, "id", s.getEntiyId());
+			cacheBuilder.setAttribute(null, "entity-id", s.getEntiyId());
 			
 			TreeElement stock;
 			String[] stockList = s.getStockList();
@@ -321,7 +328,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 					product = new TreeElement("product", j);
 					product.setAttribute(null, "id", productList[j]);
 					product.setValue(new IntegerData(s.getProductValue(stockList[i], productList[j])));
-					cacheBuilder.addChild(product);
+					stock.addChild(product);
 				}
 			}
 			

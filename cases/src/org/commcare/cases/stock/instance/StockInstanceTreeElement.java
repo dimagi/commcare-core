@@ -88,8 +88,8 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 			return null;
 		}
 		
-		//name is always "case", so multiplicities are the only relevant component here
-		if(name.equals("stock")) { 
+		//name is always the same, so multiplicities are the only relevant component here
+		if(name.equals(StockChildElement.NAME)) { 
 			getStocks();
 			if(stocks.size() == 0) {
 				//If we have no cases, we still need to be able to return a template element so as to not
@@ -105,7 +105,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
 	 */
 	public Vector getChildrenWithName(String name) {
-		if(name.equals("stock")) {
+		if(name.equals(StockChildElement.NAME)) {
 			getStocks();
 			return stocks;
 		} else {
@@ -190,7 +190,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 */
 	public int getChildMultiplicity(String name) {
 		//All children have the same name;
-		if(name.equals("stock")) {
+		if(name.equals(StockChildElement.NAME)) {
 			return this.getNumChildren();
 		} else {
 			return 0;
