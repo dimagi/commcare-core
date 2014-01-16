@@ -29,6 +29,8 @@ import org.javarosa.xpath.expr.XPathExpression;
  */
 public class StockInstanceTreeElement implements AbstractTreeElement<StockChildElement> {
 
+	public static final String MODEL_NAME = "ledgerdb"; 
+	
 	private AbstractTreeElement instanceRoot;
 	
 	IStorageUtilityIndexed<Stock> storage;
@@ -281,7 +283,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
 	 */
 	public String getName() {
-		return "stockdb";
+		return MODEL_NAME;
 	}
 
 	/* (non-Javadoc)

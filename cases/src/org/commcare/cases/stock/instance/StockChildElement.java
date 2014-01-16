@@ -27,9 +27,12 @@ import org.javarosa.xpath.expr.XPathExpression;
  */
 public class StockChildElement implements AbstractTreeElement<TreeElement> {
 
-	public static final String NAME = "stocks";
-	public static final String SUBNAME = "stock";
-	public static final String FINALNAME = "product";
+	public static final String NAME = "ledger";
+	public static final String NAME_ID = "entity-id";
+	public static final String SUBNAME = "section";
+	public static final String SUBNAME_ID = "section-id";
+	public static final String FINALNAME = "entry";
+	public static final String FINALNAME_ID = "id";
 	
 	StockInstanceTreeElement parent;
 	int recordId; 
@@ -62,13 +65,13 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 		empty = new TreeElement(NAME);
 		empty.setMult(this.mult);
 		
-		empty.setAttribute(null, "entity-id", "");
+		empty.setAttribute(null, NAME_ID, "");
 		
 		TreeElement blankStock = new TreeElement(SUBNAME);
-		blankStock.setAttribute(null, "stock-id", "");
+		blankStock.setAttribute(null, SUBNAME_ID, "");
 		
 		TreeElement scratch = new TreeElement(FINALNAME);
-		scratch.setAttribute(null, "id", "");
+		scratch.setAttribute(null, FINALNAME_ID, "");
 		scratch.setAnswer(null);
 		
 		blankStock.addChild(scratch);
@@ -202,7 +205,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
 	 */
 	public TreeElement getAttribute(String namespace, String name) {
-		if(name.equals("entity-id")) {
+		if(name.equals(NAME_ID)) {
 			if(recordId != TreeReference.INDEX_TEMPLATE) {
 				//if we're already cached, don't bother with this nonsense
 				synchronized(parent.treeCache){
@@ -229,7 +232,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
 	 */
 	public String getAttributeValue(String namespace, String name) {
-		if(name.equals("id")) {
+		if(name.equals(NAME_ID)) {
 			return entityId;
 		}
 		return cache().getAttributeValue(namespace, name);
@@ -312,21 +315,21 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 			entityId = s.getEntiyId();
 			cacheBuilder.setMult(this.mult);
 			
-			cacheBuilder.setAttribute(null, "entity-id", s.getEntiyId());
+			cacheBuilder.setAttribute(null, NAME_ID, s.getEntiyId());
 			
 			TreeElement stock;
 			String[] stockList = s.getStockList();
 			for(int i = 0 ; i < stockList.length ; ++i) {
-				stock = new TreeElement("stock", i); 
-				stock.setAttribute(null, "stock-id", stockList[i]);
+				stock = new TreeElement(SUBNAME, i); 
+				stock.setAttribute(null, SUBNAME_ID, stockList[i]);
 				cacheBuilder.addChild(stock);
 
 				TreeElement product;
 	
 				String[] productList =  s.getProductList(stockList[i]);
 				for(int j = 0 ; j < productList.length ; ++j) {
-					product = new TreeElement("product", j);
-					product.setAttribute(null, "id", productList[j]);
+					product = new TreeElement(FINALNAME, j);
+					product.setAttribute(null, FINALNAME_ID, productList[j]);
 					product.setValue(new IntegerData(s.getProductValue(stockList[i], productList[j])));
 					stock.addChild(product);
 				}

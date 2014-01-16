@@ -29,6 +29,11 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class StockXmlParsers extends TransactionParser<Stock[]> {
 	public static final String STOCK_XML_NAMESPACE = "http://commtrack.org/stock_report";
+	
+	private static final String MODEL_ID = "entity-id";
+	private static final String SUBMODEL_ID = "section-id";
+	private static final String FINAL_NAME = "entry"; 
+	
 
 	IStorageUtilityIndexed<Stock> storage;
 	
@@ -54,13 +59,13 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 		Date modified = DateUtils.parseDateTime(dateModified);
 		
 		if(name.equals("balance")) {
-			String entityId = parser.getAttributeValue(null, "entity-id");
-			if(entityId == null) { throw new InvalidStructureException("<balance> block with no entity-id attribute.", this.parser); }
+			String entityId = parser.getAttributeValue(null, MODEL_ID);
+			if(entityId == null) { throw new InvalidStructureException("<balance> block with no " + MODEL_ID + " attribute.", this.parser); }
 			
 			final Stock s = retrieveOrCreate(entityId);
 
 			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
-			String stockId = parser.getAttributeValue(null, "stock-id");
+			String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
 			if(stockId == null) {
 				//Complex case: we need to update multiple stocks on a per-product basis
@@ -68,12 +73,12 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 					new ElementParser<Stock[]>(this.parser) {
 						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
 							String productId = parser.getAttributeValue(null, "id");
-							while(this.nextTagInBlock("product")) {
+							while(this.nextTagInBlock(FINAL_NAME)) {
 								this.checkNode("value");
 								
 								String quantityString = parser.getAttributeValue(null, "quantity");
-								String stockId = parser.getAttributeValue(null, "stock-id");
-								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @stock-id attribute", this.parser); }
+								String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
+								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
 								int quantity = this.parseInt(quantityString);
 								s.setProductValue(stockId,productId, quantity);
 
@@ -88,10 +93,10 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			
 				//Simple case - Updating one stock by its id.				
 				while(this.nextTagInBlock("balance")) {
-					this.checkNode("product");
+					this.checkNode(FINAL_NAME);
 					String id = parser.getAttributeValue(null, "id");
 					String quantityString = parser.getAttributeValue(null, "quantity");
-					if(id == null || id == "") { throw new InvalidStructureException("<product> update requires a valid @id attribute", this.parser); }
+					if(id == null || id == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser); }
 					int quantity = this.parseInt(quantityString);
 					s.setProductValue(stockId, id, quantity);
 				}				
@@ -110,19 +115,19 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			final Stock destinationStock = destination == null ? null : retrieveOrCreate(destination);
 			
 			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
-			String stockId = parser.getAttributeValue(null, "stock-id");
+			String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
 			if(stockId == null) {
 				while(this.nextTagInBlock("transfer")) {
 					new ElementParser<Stock[]>(this.parser) {
 						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
 							String productId = parser.getAttributeValue(null, "id");
-							while(this.nextTagInBlock("product")) {
+							while(this.nextTagInBlock(FINAL_NAME)) {
 								this.checkNode("value");
 								
 								String quantityString = parser.getAttributeValue(null, "quantity");
-								String stockId = parser.getAttributeValue(null, "stock-id");
-								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @stock-id attribute", this.parser); }
+								String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
+								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
 								int quantity = this.parseInt(quantityString);
 
 								if(sourceStock != null) {
@@ -139,10 +144,10 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 				}
 			} else {
 				while(this.nextTagInBlock("transfer")) {
-					this.checkNode("product");
+					this.checkNode(FINAL_NAME);
 					String productId = parser.getAttributeValue(null, "id");
 					String quantityString = parser.getAttributeValue(null, "quantity");
-					if(productId == null || productId == "") { throw new InvalidStructureException("<product> update requires a valid @id attribute", this.parser); }
+					if(productId == null || productId == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser); }
 					int quantity = this.parseInt(quantityString);
 					
 					if(sourceStock != null) {

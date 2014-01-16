@@ -30,7 +30,7 @@ public class Stock implements Persistable, IMetaData {
 	//to do things long-term. 
 	
 	
-	public static final String STORAGE_KEY = "stock";
+	public static final String STORAGE_KEY = "ledger";
 	public static final String INDEX_ENTITY_ID = "entity-id";
 
 	String entityId;
