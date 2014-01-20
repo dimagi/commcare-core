@@ -58,6 +58,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 /**
@@ -1063,6 +1064,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		else
 		{
 			fi = getMainInstance();
+		}
+		
+		if(matches == null){
+			throw new XPathException("Could not create choices from itemset: " +itemset.nodesetRef.getInstanceName());
 		}
 		
 		for (int i = 0; i < matches.size(); i++) {
