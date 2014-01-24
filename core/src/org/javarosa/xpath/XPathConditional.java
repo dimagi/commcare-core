@@ -69,7 +69,13 @@ public class XPathConditional implements IConditionExpr {
 		try{
 			return XPathFuncExpr.unpack(expr.eval(model, evalContext));
 		} catch(XPathUnsupportedException e){
-			throw new XPathUnsupportedException(xpath);
+			if(xpath != null){
+				throw new XPathUnsupportedException(xpath);
+			}else{
+				throw new XPathUnsupportedException(this.toString());
+			}
+				
+		
 		}
 	}
 	
