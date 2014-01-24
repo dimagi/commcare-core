@@ -1052,22 +1052,22 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(this.getMainInstance(),
 				new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 		
+		if(matches == null){
+			throw new XPathException("No matches found for reference " + curQRef.toString());
+		}
+		
 		DataInstance fi = null;
 		if(itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
 		{
 			fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
 			if(fi == null)
 			{
-				System.out.println("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
+				throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
 			}
 		}
 		else
 		{
 			fi = getMainInstance();
-		}
-		
-		if(matches == null){
-			throw new XPathException("Could not create itemset: " +itemset.nodesetRef.getInstanceName());
 		}
 		
 		for (int i = 0; i < matches.size(); i++) {
