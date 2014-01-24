@@ -72,7 +72,7 @@ public class XPathConditional implements IConditionExpr {
 			if(xpath != null){
 				throw new XPathUnsupportedException(xpath);
 			}else{
-				throw new XPathUnsupportedException(this.toString());
+				throw e;
 			}
 				
 		
