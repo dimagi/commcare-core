@@ -1067,7 +1067,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		}
 		
 		if(matches == null){
-			throw new XPathException("Could not create choices from itemset: " +itemset.nodesetRef.getInstanceName());
+			throw new XPathException("Could not create itemset: " +itemset.nodesetRef.getInstanceName());
 		}
 		
 		for (int i = 0; i < matches.size(); i++) {
