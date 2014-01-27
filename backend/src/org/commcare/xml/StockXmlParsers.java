@@ -19,15 +19,23 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * The CaseXML Parser is responsible for processing and performing
- * case transactions from an incoming XML stream. It will perform
- * all of the actions specified by the transaction (Create/modify/close)
- * against the application's current storage. 
+ * Contains all of the logic for parsing transactions in xml that pertain to
+ * ledgers (balance/transfer actions)
  * 
  * @author ctsims
  *
  */
 public class StockXmlParsers extends TransactionParser<Stock[]> {
+	private static final String TAG_QUANTITY = "quantity";
+
+	private static final String TAG_VALUE = "value";
+
+	private static final String ENTRY_ID = "id";
+
+	private static final String TRANSFER = "transfer";
+
+	private static final String TAG_BALANCE = "balance";
+
 	public static final String STOCK_XML_NAMESPACE = "http://commtrack.org/stock_report";
 	
 	private static final String MODEL_ID = "entity-id";
@@ -48,7 +56,7 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 	}
 
 	public Stock[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode(new String[] {"balance", "transfer"});
+		this.checkNode(new String[] {TAG_BALANCE, TRANSFER});
 		
 		String name = parser.getName().toLowerCase();
 	
@@ -58,31 +66,36 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 		if(dateModified == null) { throw new InvalidStructureException("<" + name + "> block with no date_modified attribute.", this.parser); }
 		Date modified = DateUtils.parseDateTime(dateModified);
 		
-		if(name.equals("balance")) {
+		if(name.equals(TAG_BALANCE)) {
 			String entityId = parser.getAttributeValue(null, MODEL_ID);
 			if(entityId == null) { throw new InvalidStructureException("<balance> block with no " + MODEL_ID + " attribute.", this.parser); }
 			
-			final Stock s = retrieveOrCreate(entityId);
+			final Stock ledger = retrieveOrCreate(entityId);
 
 			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
-			String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
+			String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
-			if(stockId == null) {
+			if(sectionId == null) {
 				//Complex case: we need to update multiple stocks on a per-product basis
-				while(this.nextTagInBlock("balance")) {
+				while(this.nextTagInBlock(TAG_BALANCE)) {
+					
+					//We need to capture some of the state (IE: Depth, etc) to parse recursively, 
+					//so create a new anonymous parser.
 					new ElementParser<Stock[]>(this.parser) {
 						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
-							String productId = parser.getAttributeValue(null, "id");
+							String productId = parser.getAttributeValue(null, ENTRY_ID);
+							
+							//Walk through the value setters and pull out all of the quantities to be updated for this stock.
 							while(this.nextTagInBlock(FINAL_NAME)) {
-								this.checkNode("value");
+								this.checkNode(TAG_VALUE);
 								
-								String quantityString = parser.getAttributeValue(null, "quantity");
+								String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
 								String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
 								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
 								int quantity = this.parseInt(quantityString);
-								s.setProductValue(stockId,productId, quantity);
-
 								
+								//This performs the actual modification. This entity will be written outside of the loop 
+								ledger.setProductValue(stockId,productId, quantity);
 							}
 							return null;
 						}
@@ -90,51 +103,55 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 					}.parse();
 				}
 			} else {
-			
 				//Simple case - Updating one stock by its id.				
-				while(this.nextTagInBlock("balance")) {
+				while(this.nextTagInBlock(TAG_BALANCE)) {
 					this.checkNode(FINAL_NAME);
-					String id = parser.getAttributeValue(null, "id");
-					String quantityString = parser.getAttributeValue(null, "quantity");
+					String id = parser.getAttributeValue(null, ENTRY_ID);
+					String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
 					if(id == null || id == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser); }
 					int quantity = this.parseInt(quantityString);
-					s.setProductValue(stockId, id, quantity);
+					ledger.setProductValue(sectionId, id, quantity);
 				}				
 			}
 			
 			//Either way, we've updated the stock and want to write it now
-			toWrite.addElement(s);
-		} else if(name.equals("transfer")) {
+			toWrite.addElement(ledger);
+		} else if(name.equals(TRANSFER)) {
+			
+			//First, figure out where we're reading/writing and load the ledgers 
 			String source = parser.getAttributeValue(null, "src");
 			String destination = parser.getAttributeValue(null, "dest");
 			
 			if(source == null && destination == null) { throw new InvalidStructureException("<transfer> block no source or destination id.", this.parser); }
 			
-			final Stock sourceStock = source == null ? null : retrieveOrCreate(source);
-			
-			final Stock destinationStock = destination == null ? null : retrieveOrCreate(destination);
+			final Stock sourceLeger = source == null ? null : retrieveOrCreate(source);
+			final Stock destinationLedger = destination == null ? null : retrieveOrCreate(destination);
 			
 			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
-			String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
+			String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
-			if(stockId == null) {
-				while(this.nextTagInBlock("transfer")) {
+			if(sectionId == null) {
+				while(this.nextTagInBlock(TRANSFER)) {
+					//We need to capture some of the state (IE: Depth, etc) to parse recursively, 
+					//so create a new anonymous parser.
 					new ElementParser<Stock[]>(this.parser) {
 						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
-							String productId = parser.getAttributeValue(null, "id");
+							String productId = parser.getAttributeValue(null, ENTRY_ID);
+							
+							//Walk through and find what sections to update for this entry 
 							while(this.nextTagInBlock(FINAL_NAME)) {
-								this.checkNode("value");
+								this.checkNode(TAG_VALUE);
 								
-								String quantityString = parser.getAttributeValue(null, "quantity");
-								String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
-								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
+								String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
+								String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
+								if(sectionId == null || sectionId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
 								int quantity = this.parseInt(quantityString);
 
-								if(sourceStock != null) {
-									sourceStock.setProductValue(stockId, productId, sourceStock.getProductValue(stockId, productId) - quantity);
+								if(sourceLeger != null) {
+									sourceLeger.setProductValue(sectionId, productId, sourceLeger.getProductValue(sectionId, productId) - quantity);
 								}
-								if(destinationStock != null) {
-									destinationStock.setProductValue(stockId, productId, destinationStock.getProductValue(stockId, productId) + quantity);
+								if(destinationLedger != null) {
+									destinationLedger.setProductValue(sectionId, productId, destinationLedger.getProductValue(sectionId, productId) + quantity);
 								}
 							}
 							return null;
@@ -143,28 +160,29 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 					}.parse();
 				}
 			} else {
-				while(this.nextTagInBlock("transfer")) {
+				//Easy case, we've got a single section and we're going to transfer between the ledgers
+				while(this.nextTagInBlock(TRANSFER)) {
 					this.checkNode(FINAL_NAME);
-					String productId = parser.getAttributeValue(null, "id");
-					String quantityString = parser.getAttributeValue(null, "quantity");
-					if(productId == null || productId == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser); }
+					String entryId = parser.getAttributeValue(null, ENTRY_ID);
+					String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
+					if(entryId == null || entryId == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @" + ENTRY_ID + " attribute", this.parser); }
 					int quantity = this.parseInt(quantityString);
 					
-					if(sourceStock != null) {
-						sourceStock.setProductValue(stockId, productId, sourceStock.getProductValue(stockId, productId) - quantity);
+					if(sourceLeger != null) {
+						sourceLeger.setProductValue(sectionId, entryId, sourceLeger.getProductValue(sectionId, entryId) - quantity);
 					}
-					if(destinationStock != null) {
-						destinationStock.setProductValue(stockId, productId, destinationStock.getProductValue(stockId, productId) + quantity);
+					if(destinationLedger != null) {
+						destinationLedger.setProductValue(sectionId, entryId, destinationLedger.getProductValue(sectionId, entryId) + quantity);
 					}
 				}
 			}
 			
 			//Either way, we want to now write both stocks.
-			if(sourceStock != null) {
-				toWrite.addElement(sourceStock);
+			if(sourceLeger != null) {
+				toWrite.addElement(sourceLeger);
 			}
-			if(destinationStock != null) {
-				toWrite.addElement(destinationStock);
+			if(destinationLedger != null) {
+				toWrite.addElement(destinationLedger);
 			}
 		}
 		
