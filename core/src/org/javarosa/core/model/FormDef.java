@@ -58,6 +58,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 /**
@@ -1051,13 +1052,17 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 		Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(this.getMainInstance(),
 				new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 		
+		if(matches == null){
+			throw new XPathException("No matches found for reference " + curQRef.toString());
+		}
+		
 		DataInstance fi = null;
 		if(itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
 		{
 			fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
 			if(fi == null)
 			{
-				System.out.println("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
+				throw new XPathException("Instance " + itemset.nodesetRef.getInstanceName() + " not found"); 
 			}
 		}
 		else
