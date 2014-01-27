@@ -56,18 +56,22 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 		String ref = instance.getReference();
 		
 		if(ref.indexOf(StockInstanceTreeElement.MODEL_NAME) != -1) {
+			
+			//See if we already have a stock model loaded
 			if(stockbase == null) {
+				//If not create one and attach our cache
 				stockbase =  new StockInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Stock.STORAGE_KEY));
 				if(stringCache != null ) {
 					stockbase.attachStringCache(stringCache);
 				}
 			} else {
+				//re-use the existing model if it exists.
 				stockbase.rebase(instance.getBase());
 			}
 			return stockbase;
 		}
 		//TODO: Clayton should feel bad about all of this. Man is it terrible
-		else if(ref.indexOf("casedb") != -1) {
+		else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
 			Vector<String> data = DateUtils.split(ref, "/", true);
 			if(ref.indexOf("report") != -1) {
 				ConcreteTreeElement base = new ConcreteTreeElement("device_report");

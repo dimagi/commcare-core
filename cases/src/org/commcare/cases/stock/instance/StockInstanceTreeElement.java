@@ -50,6 +50,13 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 		storage.setReadOnly();
 	}
 	
+	/**
+	 * Rebase assigns this tree element to a new root instance node. 
+	 * 
+	 * Used to migrate the already created tree structure to a new instance connector.
+	 * 
+	 * @param instanceRoot The root of the new tree that this element should be a part of
+	 */
 	public void rebase(AbstractTreeElement instanceRoot) {
 		this.instanceRoot = instanceRoot;
 		expireCachedRef();
