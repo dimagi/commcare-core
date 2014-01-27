@@ -84,20 +84,19 @@ public abstract class ElementParser<T> {
 	 * @throws InvalidStructureException If the node at the current
 	 * position is not the one expected.
 	 */
-	
-	/**
-	 * Evaluates whether the current node is the appropriate name
-	 * and throws the proper exception if not.
-	 * 
-	 * @param name The name of the element which is expected at this
-	 * step of parsing.
-	 * @throws InvalidStructureException If the node at the current
-	 * position is not the one expected.
-	 */
 	protected void checkNode(String name) throws InvalidStructureException {
 		checkNode(new String[]{name});	
 	}
 	
+	/**
+	 * Evaluates whether the current node is of an appropriate name
+	 * and throws the proper exception if not.
+	 * 
+	 * @param name A list of names which are valid during this step
+	 * of parsing
+	 * @throws InvalidStructureException If the node at the current
+	 * position is not the one expected.
+	 */
 	protected void checkNode(String[] names) throws InvalidStructureException {
 		boolean checksOut = false;
 		
@@ -116,7 +115,8 @@ public abstract class ElementParser<T> {
 			try {
 				eventType = parser.getEventType();
 			} catch(XmlPullParserException xppe) {
-				//Eh, this is just for helping anyway, I don't wanna crash on it.
+				//This event type is just here to help elaborate on the exception
+				//so don't crash on it
 			}
 			String oneOf = null;
 			if(names.length == 1) {
