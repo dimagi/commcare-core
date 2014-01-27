@@ -85,6 +85,7 @@ import org.kxml2.io.KXmlSerializer;
 			
 			//end root
 			serializer.endTag(root.getNamespace(), root.getName());
+			serializer.flush();
 		}
 
 		public void serializeNode (AbstractTreeElement instanceNode) throws IOException {
