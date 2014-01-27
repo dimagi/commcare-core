@@ -25,11 +25,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.StockXmlParsers;
+import org.commcare.xml.LedgerXmlParsers;
 import org.kxml2.io.KXmlParser;
 
 public class StockXmlParserTests extends TestCase {
@@ -81,27 +81,27 @@ public class StockXmlParserTests extends TestCase {
 	}
 	
 	public void testGoodParses() {
-		Vector<Stock> s = parseBlock(BALANCE_GOOD);
+		Vector<Ledger> s = parseBlock(BALANCE_GOOD);
 		assertTrue("Wrong number of stock records!", s.size() == 1);
 		
 	}
 	
-	public Vector<Stock> parseBlock(String source) {
-		final Vector<Stock> stockResults = new Vector<Stock>();
+	public Vector<Ledger> parseBlock(String source) {
+		final Vector<Ledger> stockResults = new Vector<Ledger>();
 		
 		TransactionParserFactory factory = new TransactionParserFactory() {
 
 			public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
 				
-				if(StockXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
-					return new StockXmlParsers(parser, null) {
+				if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+					return new LedgerXmlParsers(parser, null) {
 	
 						/* (non-Javadoc)
 						 * @see org.commcare.xml.StockXmlParsers#commit(org.commcare.cases.stock.Stock[])
 						 */
 						@Override
-						public void commit(Stock[] parsed) throws IOException {
-							for(Stock s : parsed) {
+						public void commit(Ledger[] parsed) throws IOException {
+							for(Ledger s : parsed) {
 								stockResults.addElement(s);
 							}
 						}
@@ -110,7 +110,7 @@ public class StockXmlParserTests extends TestCase {
 						 * @see org.commcare.xml.StockXmlParsers#retrieve(java.lang.String)
 						 */
 						@Override
-						public Stock retrieveOrCreate(String entityId) {
+						public Ledger retrieveOrCreate(String entityId) {
 							return null;
 						}
 						

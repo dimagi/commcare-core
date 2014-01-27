@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.cases.stock;
+package org.commcare.cases.ledger;
 
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -17,21 +17,21 @@ import org.javarosa.core.util.DataUtil;
  * @author ctsims
  *
  */
-public class StockPurgeFilter extends EntityFilter<Stock> {	
+public class LedgerPurgeFilter extends EntityFilter<Ledger> {	
 	Vector<Integer> idsToRemove = new Vector<Integer>();
 		
 	/**
-	 * Create a filter for purging stocks which should no longer be on the phone from
-	 * the database. Stock liveness matches that of the case database, so we can just 
+	 * Create a filter for purging ledgers which should no longer be on the phone from
+	 * the database. Ledger liveness matches that of the case database, so we can just 
 	 * look for deltas between the two models 
 	 * 
-	 * @param stockStorage The storage which is to be cleaned up.
+	 * @param ledgerStorage The storage which is to be cleaned up.
 	 * @param caseStorage The case storage database for reference
 	 * 
 	 */
-	public StockPurgeFilter(IStorageUtilityIndexed<Stock> stockStorage, IStorageUtilityIndexed<Case> caseStorage) {
-		for(IStorageIterator<Stock> i = stockStorage.iterate() ; i.hasMore() ; ) {
-			Stock s = i.nextRecord();
+	public LedgerPurgeFilter(IStorageUtilityIndexed<Ledger> ledgerStorage, IStorageUtilityIndexed<Case> caseStorage) {
+		for(IStorageIterator<Ledger> i = ledgerStorage.iterate() ; i.hasMore() ; ) {
+			Ledger s = i.nextRecord();
 			try {
 				caseStorage.getRecordForValue(Case.INDEX_CASE_ID, s.getEntiyId());
 			} catch(NoSuchElementException nsee) {
@@ -51,7 +51,7 @@ public class StockPurgeFilter extends EntityFilter<Stock> {
 		}
 	}
 
-	public boolean matches(Stock e) {
+	public boolean matches(Ledger e) {
 		//We're doing everything with pre-filtering
 		return false;
 	}

@@ -19,8 +19,8 @@
  */
 package org.commcare.cases;
 
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.stock.Stock;
 import org.javarosa.core.api.IModule;
 import org.javarosa.core.services.storage.StorageManager;
 
@@ -36,7 +36,7 @@ public class CaseManagementModule implements IModule {
 	 */
 	public void registerModule() {
 		StorageManager.registerStorage(Case.STORAGE_KEY, Case.class);
-		StorageManager.registerStorage(Stock.STORAGE_KEY, Stock.class);
+		StorageManager.registerStorage(Ledger.STORAGE_KEY, Ledger.class);
 	}
 
 }

@@ -1,12 +1,12 @@
 /**
  * 
  */
-package org.commcare.cases.stock.instance;
+package org.commcare.cases.ledger.instance;
 
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -27,24 +27,24 @@ import org.javarosa.xpath.expr.XPathExpression;
  * @author ctsims
  *
  */
-public class StockInstanceTreeElement implements AbstractTreeElement<StockChildElement> {
+public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChildElement> {
 
 	public static final String MODEL_NAME = "ledgerdb"; 
 	
 	private AbstractTreeElement instanceRoot;
 	
-	IStorageUtilityIndexed<Stock> storage;
-	private String[] stockRecords;
+	IStorageUtilityIndexed<Ledger> storage;
+	private String[] ledgerRecords;
 	
-	private Vector<StockChildElement> stocks;
+	private Vector<LedgerChildElement> ledgers;
 	
 	protected CacheTable<TreeElement> treeCache = new CacheTable<TreeElement>();
 	
 	protected CacheTable<String> stringCache;
 	
-	private Hashtable<Integer, Integer> stockIdMapping;
+	private Hashtable<Integer, Integer> ledgerIdMapping;
 	
-	public StockInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
+	public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
 		this.instanceRoot= instanceRoot;
 		this.storage = storage;
 		storage.setReadOnly();
@@ -92,20 +92,20 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
 	 */
-	public StockChildElement getChild(String name, int multiplicity) {
+	public LedgerChildElement getChild(String name, int multiplicity) {
 		if(multiplicity == TreeReference.INDEX_TEMPLATE) {
 			return null;
 		}
 		
 		//name is always the same, so multiplicities are the only relevant component here
-		if(name.equals(StockChildElement.NAME)) { 
-			getStocks();
-			if(stocks.size() == 0) {
-				//If we have no cases, we still need to be able to return a template element so as to not
+		if(name.equals(LedgerChildElement.NAME)) { 
+			getLedgers();
+			if(ledgers.size() == 0) {
+				//If we have no ledgers, we still need to be able to return a template element so as to not
 				//break xpath evaluation
-				return StockChildElement.TemplateElement(this);
+				return LedgerChildElement.TemplateElement(this);
 			}
-			return stocks.elementAt(multiplicity);
+			return ledgers.elementAt(multiplicity);
 		}
 		return null;
 	}
@@ -114,9 +114,9 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
 	 */
 	public Vector getChildrenWithName(String name) {
-		if(name.equals(StockChildElement.NAME)) {
-			getStocks();
-			return stocks;
+		if(name.equals(LedgerChildElement.NAME)) {
+			getLedgers();
+			return ledgers;
 		} else {
 			return new Vector();
 		}
@@ -136,8 +136,8 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
 	 */
 	public int getNumChildren() {
-		if(stockRecords != null) {
-			return stockRecords.length;
+		if(ledgerRecords != null) {
+			return ledgerRecords.length;
 		} else {
 			if(numRecords == -1) {
 				numRecords = storage.getNumRecords();
@@ -149,29 +149,29 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
 	 */
-	public StockChildElement getChildAt(int i) {
-		getStocks();
-		return stocks.elementAt(i);
+	public LedgerChildElement getChildAt(int i) {
+		getLedgers();
+		return ledgers.elementAt(i);
 	}
 	
-	private synchronized void getStocks() {
-		if(stocks != null) {
+	private synchronized void getLedgers() {
+		if(ledgers != null) {
 			return;
 		}
-		stockIdMapping = new Hashtable<Integer, Integer>();
-		stocks = new Vector<StockChildElement>();
-		if(stockRecords != null) {
+		ledgerIdMapping = new Hashtable<Integer, Integer>();
+		ledgers = new Vector<LedgerChildElement>();
+		if(ledgerRecords != null) {
 			int i = 0;
-			for(String id : stockRecords) {
-				stocks.addElement(new StockChildElement(this, -1, id, i));
+			for(String id : ledgerRecords) {
+				ledgers.addElement(new LedgerChildElement(this, -1, id, i));
 				++i;
 			}
 		} else {
 			int mult = 0;
 			for(IStorageIterator i = storage.iterate(); i.hasMore();) {
 				int id = i.nextID();
-				stocks.addElement(new StockChildElement(this, id, null, mult));
-				stockIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+				ledgers.addElement(new LedgerChildElement(this, id, null, mult));
+				ledgerIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 				mult++;
 			}
 			
@@ -199,7 +199,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	 */
 	public int getChildMultiplicity(String name) {
 		//All children have the same name;
-		if(name.equals(StockChildElement.NAME)) {
+		if(name.equals(LedgerChildElement.NAME)) {
 			return this.getNumChildren();
 		} else {
 			return 0;
@@ -252,7 +252,7 @@ public class StockInstanceTreeElement implements AbstractTreeElement<StockChildE
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
 	 */
-	public StockChildElement getAttribute(String namespace, String name) {
+	public LedgerChildElement getAttribute(String namespace, String name) {
 		//Oooooof, this is super janky;
 		return null;
 	}

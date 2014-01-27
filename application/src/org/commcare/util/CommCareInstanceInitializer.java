@@ -9,9 +9,9 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.cases.model.Case;
-import org.commcare.cases.stock.Stock;
-import org.commcare.cases.stock.instance.StockInstanceTreeElement;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -35,7 +35,7 @@ import org.javarosa.user.model.User;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
-	StockInstanceTreeElement stockbase;
+	LedgerInstanceTreeElement ledgerBase;
 	CacheTable<String> stringCache;
 	
 	public CommCareInstanceInitializer(CacheTable<String> stringCache){ 
@@ -55,20 +55,20 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
 		String ref = instance.getReference();
 		
-		if(ref.indexOf(StockInstanceTreeElement.MODEL_NAME) != -1) {
+		if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
 			
-			//See if we already have a stock model loaded
-			if(stockbase == null) {
+			//See if we already have a ledger model loaded
+			if(ledgerBase == null) {
 				//If not create one and attach our cache
-				stockbase =  new StockInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Stock.STORAGE_KEY));
+				ledgerBase =  new LedgerInstanceTreeElement(instance.getBase(), (IStorageUtilityIndexed)StorageManager.getStorage(Ledger.STORAGE_KEY));
 				if(stringCache != null ) {
-					stockbase.attachStringCache(stringCache);
+					ledgerBase.attachStringCache(stringCache);
 				}
 			} else {
 				//re-use the existing model if it exists.
-				stockbase.rebase(instance.getBase());
+				ledgerBase.rebase(instance.getBase());
 			}
-			return stockbase;
+			return ledgerBase;
 		}
 		//TODO: Clayton should feel bad about all of this. Man is it terrible
 		else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {

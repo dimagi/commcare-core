@@ -1,13 +1,13 @@
 /**
  * 
  */
-package org.commcare.cases.stock.instance;
+package org.commcare.cases.ledger.instance;
 
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.CaseIndex;
-import org.commcare.cases.stock.Stock;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -25,7 +25,7 @@ import org.javarosa.xpath.expr.XPathExpression;
  * @author ctsims
  *
  */
-public class StockChildElement implements AbstractTreeElement<TreeElement> {
+public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
 
 	public static final String NAME = "ledger";
 	public static final String NAME_ID = "entity-id";
@@ -34,7 +34,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	public static final String FINALNAME = "entry";
 	public static final String FINALNAME_ID = "id";
 	
-	StockInstanceTreeElement parent;
+	LedgerInstanceTreeElement parent;
 	int recordId; 
 	String entityId;
 	int mult;
@@ -43,7 +43,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	
 	int numChildren = -1;
 	
-	public StockChildElement(StockInstanceTreeElement parent, int recordId, String entityId, int mult) {
+	public LedgerChildElement(LedgerInstanceTreeElement parent, int recordId, String entityId, int mult) {
 		if(recordId == -1 && entityId == null) { throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");}
 		this.parent = parent;
 		this.recordId = recordId;
@@ -54,7 +54,7 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 	/*
 	 * Template constructor (For elements that need to create reference nodesets but never look up values)
 	 */
-	private StockChildElement(StockInstanceTreeElement parent) {
+	private LedgerChildElement(LedgerInstanceTreeElement parent) {
 		//Template
 		this.parent = parent;
 		this.recordId = TreeReference.INDEX_TEMPLATE;
@@ -67,15 +67,15 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 		
 		empty.setAttribute(null, NAME_ID, "");
 		
-		TreeElement blankStock = new TreeElement(SUBNAME);
-		blankStock.setAttribute(null, SUBNAME_ID, "");
+		TreeElement blankLedger = new TreeElement(SUBNAME);
+		blankLedger.setAttribute(null, SUBNAME_ID, "");
 		
 		TreeElement scratch = new TreeElement(FINALNAME);
 		scratch.setAttribute(null, FINALNAME_ID, "");
 		scratch.setAnswer(null);
 		
-		blankStock.addChild(scratch);
-		empty.addChild(blankStock);
+		blankLedger.addChild(scratch);
+		empty.addChild(blankLedger);
 	}
 	
 	/* (non-Javadoc)
@@ -311,27 +311,27 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 			}
 			
 			TreeElement cacheBuilder = new TreeElement(NAME); 
-			Stock s = parent.storage.read(recordId);
-			entityId = s.getEntiyId();
+			Ledger ledger = parent.storage.read(recordId);
+			entityId = ledger.getEntiyId();
 			cacheBuilder.setMult(this.mult);
 			
-			cacheBuilder.setAttribute(null, NAME_ID, s.getEntiyId());
+			cacheBuilder.setAttribute(null, NAME_ID, ledger.getEntiyId());
 			
-			TreeElement stock;
-			String[] stockList = s.getStockList();
-			for(int i = 0 ; i < stockList.length ; ++i) {
-				stock = new TreeElement(SUBNAME, i); 
-				stock.setAttribute(null, SUBNAME_ID, stockList[i]);
-				cacheBuilder.addChild(stock);
+			TreeElement ledgerElement;
+			String[] sectionList = ledger.getSectionList();
+			for(int i = 0 ; i < sectionList.length ; ++i) {
+				ledgerElement = new TreeElement(SUBNAME, i); 
+				ledgerElement.setAttribute(null, SUBNAME_ID, sectionList[i]);
+				cacheBuilder.addChild(ledgerElement);
 
-				TreeElement product;
+				TreeElement entry;
 	
-				String[] productList =  s.getProductList(stockList[i]);
-				for(int j = 0 ; j < productList.length ; ++j) {
-					product = new TreeElement(FINALNAME, j);
-					product.setAttribute(null, FINALNAME_ID, productList[j]);
-					product.setValue(new IntegerData(s.getProductValue(stockList[i], productList[j])));
-					stock.addChild(product);
+				String[] entryList =  ledger.getListOfEntries(sectionList[i]);
+				for(int j = 0 ; j < entryList.length ; ++j) {
+					entry = new TreeElement(FINALNAME, j);
+					entry.setAttribute(null, FINALNAME_ID, entryList[j]);
+					entry.setValue(new IntegerData(ledger.getEntry(sectionList[i], entryList[j])));
+					ledgerElement.addChild(entry);
 				}
 			}
 			
@@ -347,8 +347,8 @@ public class StockChildElement implements AbstractTreeElement<TreeElement> {
 		return true;
 	}
 
-	public static StockChildElement TemplateElement(StockInstanceTreeElement parent) {
-		StockChildElement template = new StockChildElement(parent);
+	public static LedgerChildElement TemplateElement(LedgerInstanceTreeElement parent) {
+		LedgerChildElement template = new LedgerChildElement(parent);
 		return template;
 	}
 

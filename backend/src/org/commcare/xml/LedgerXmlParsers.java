@@ -8,10 +8,9 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.commcare.cases.stock.Stock;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -25,7 +24,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  *
  */
-public class StockXmlParsers extends TransactionParser<Stock[]> {
+public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 	private static final String TAG_QUANTITY = "quantity";
 
 	private static final String TAG_VALUE = "value";
@@ -43,24 +42,24 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 	private static final String FINAL_NAME = "entry"; 
 	
 
-	IStorageUtilityIndexed<Stock> storage;
+	IStorageUtilityIndexed<Ledger> storage;
 	
 	/**
 	 * Creates a Parser for case blocks in the XML stream provided. 
 	 * 
 	 * @param parser The parser for incoming XML.
 	 */
-	public StockXmlParsers(KXmlParser parser, IStorageUtilityIndexed<Stock> storage) {
+	public LedgerXmlParsers(KXmlParser parser, IStorageUtilityIndexed<Ledger> storage) {
 		super(parser, null, null);
 		this.storage = storage;
 	}
 
-	public Stock[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
+	public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		this.checkNode(new String[] {TAG_BALANCE, TRANSFER});
 		
 		String name = parser.getName().toLowerCase();
 	
-		final Vector<Stock> toWrite = new Vector<Stock>();
+		final Vector<Ledger> toWrite = new Vector<Ledger>();
 		
 		String dateModified = parser.getAttributeValue(null, "date");
 		if(dateModified == null) { throw new InvalidStructureException("<" + name + "> block with no date_modified attribute.", this.parser); }
@@ -70,32 +69,33 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			String entityId = parser.getAttributeValue(null, MODEL_ID);
 			if(entityId == null) { throw new InvalidStructureException("<balance> block with no " + MODEL_ID + " attribute.", this.parser); }
 			
-			final Stock ledger = retrieveOrCreate(entityId);
+			final Ledger ledger = retrieveOrCreate(entityId);
 
-			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
+			//The section ID being defined or not determines whether this is going to update a single section or whether
+			//we'll be updating multiple sections
 			String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
 			if(sectionId == null) {
-				//Complex case: we need to update multiple stocks on a per-product basis
+				//Complex case: we need to update multiple sections on a per-entry basis
 				while(this.nextTagInBlock(TAG_BALANCE)) {
 					
 					//We need to capture some of the state (IE: Depth, etc) to parse recursively, 
 					//so create a new anonymous parser.
-					new ElementParser<Stock[]>(this.parser) {
-						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
+					new ElementParser<Ledger[]>(this.parser) {
+						public Ledger[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
 							String productId = parser.getAttributeValue(null, ENTRY_ID);
 							
-							//Walk through the value setters and pull out all of the quantities to be updated for this stock.
+							//Walk through the value setters and pull out all of the quantities to be updated for this section.
 							while(this.nextTagInBlock(FINAL_NAME)) {
 								this.checkNode(TAG_VALUE);
 								
 								String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
-								String stockId = parser.getAttributeValue(null, SUBMODEL_ID);
-								if(stockId == null || stockId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
+								String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
+								if(sectionId == null || sectionId == "") { throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser); }
 								int quantity = this.parseInt(quantityString);
 								
 								//This performs the actual modification. This entity will be written outside of the loop 
-								ledger.setProductValue(stockId,productId, quantity);
+								ledger.setEntry(sectionId,productId, quantity);
 							}
 							return null;
 						}
@@ -103,18 +103,18 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 					}.parse();
 				}
 			} else {
-				//Simple case - Updating one stock by its id.				
+				//Simple case - Updating one section				
 				while(this.nextTagInBlock(TAG_BALANCE)) {
 					this.checkNode(FINAL_NAME);
 					String id = parser.getAttributeValue(null, ENTRY_ID);
 					String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
 					if(id == null || id == "") { throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser); }
 					int quantity = this.parseInt(quantityString);
-					ledger.setProductValue(sectionId, id, quantity);
+					ledger.setEntry(sectionId, id, quantity);
 				}				
 			}
 			
-			//Either way, we've updated the stock and want to write it now
+			//Either way, we've updated the ledger and want to write it now
 			toWrite.addElement(ledger);
 		} else if(name.equals(TRANSFER)) {
 			
@@ -124,18 +124,20 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			
 			if(source == null && destination == null) { throw new InvalidStructureException("<transfer> block no source or destination id.", this.parser); }
 			
-			final Stock sourceLeger = source == null ? null : retrieveOrCreate(source);
-			final Stock destinationLedger = destination == null ? null : retrieveOrCreate(destination);
+			final Ledger sourceLeger = source == null ? null : retrieveOrCreate(source);
+			final Ledger destinationLedger = destination == null ? null : retrieveOrCreate(destination);
 			
-			//The stock ID being defined or not determines whether this is a per product stock update or an individual update
+			//The section ID being defined or not determines whether this is going to update a single section or whether
+			//we'll be updating multiple sections
+
 			String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
 			
 			if(sectionId == null) {
 				while(this.nextTagInBlock(TRANSFER)) {
 					//We need to capture some of the state (IE: Depth, etc) to parse recursively, 
 					//so create a new anonymous parser.
-					new ElementParser<Stock[]>(this.parser) {
-						public Stock[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
+					new ElementParser<Ledger[]>(this.parser) {
+						public Ledger[] parse() throws InvalidStructureException, IOException,XmlPullParserException {
 							String productId = parser.getAttributeValue(null, ENTRY_ID);
 							
 							//Walk through and find what sections to update for this entry 
@@ -148,10 +150,10 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 								int quantity = this.parseInt(quantityString);
 
 								if(sourceLeger != null) {
-									sourceLeger.setProductValue(sectionId, productId, sourceLeger.getProductValue(sectionId, productId) - quantity);
+									sourceLeger.setEntry(sectionId, productId, sourceLeger.getEntry(sectionId, productId) - quantity);
 								}
 								if(destinationLedger != null) {
-									destinationLedger.setProductValue(sectionId, productId, destinationLedger.getProductValue(sectionId, productId) + quantity);
+									destinationLedger.setEntry(sectionId, productId, destinationLedger.getEntry(sectionId, productId) + quantity);
 								}
 							}
 							return null;
@@ -169,15 +171,15 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 					int quantity = this.parseInt(quantityString);
 					
 					if(sourceLeger != null) {
-						sourceLeger.setProductValue(sectionId, entryId, sourceLeger.getProductValue(sectionId, entryId) - quantity);
+						sourceLeger.setEntry(sectionId, entryId, sourceLeger.getEntry(sectionId, entryId) - quantity);
 					}
 					if(destinationLedger != null) {
-						destinationLedger.setProductValue(sectionId, entryId, destinationLedger.getProductValue(sectionId, entryId) + quantity);
+						destinationLedger.setEntry(sectionId, entryId, destinationLedger.getEntry(sectionId, entryId) + quantity);
 					}
 				}
 			}
 			
-			//Either way, we want to now write both stocks.
+			//Either way, we want to now write both ledgers.
 			if(sourceLeger != null) {
 				toWrite.addElement(sourceLeger);
 			}
@@ -186,9 +188,9 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 			}
 		}
 		
-		Stock[] tw = new Stock[toWrite.size()];
+		Ledger[] tw = new Ledger[toWrite.size()];
 		int i =0;
-		for(Stock s : toWrite) {
+		for(Ledger s : toWrite) {
 			tw[i] = s;
 			i++;
 		}
@@ -198,9 +200,9 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 		return tw;
 	}		
 
-	public void commit(Stock[] parsed) throws IOException {
+	public void commit(Ledger[] parsed) throws IOException {
 		try {
-			for(Stock s : parsed) {
+			for(Ledger s : parsed) {
 				storage().write(s);
 			}
 		} catch (StorageFullException e) {
@@ -209,15 +211,15 @@ public class StockXmlParsers extends TransactionParser<Stock[]> {
 		}
 	}
 
-	public Stock retrieveOrCreate(String entityId) {
+	public Ledger retrieveOrCreate(String entityId) {
 		try{
-			return (Stock)storage().getRecordForValue(Stock.INDEX_ENTITY_ID, entityId);
+			return (Ledger)storage().getRecordForValue(Ledger.INDEX_ENTITY_ID, entityId);
 		} catch(NoSuchElementException nsee) {
-			return new Stock(entityId);
+			return new Ledger(entityId);
 		}
 	}
 	
-	public IStorageUtilityIndexed<Stock> storage() {
+	public IStorageUtilityIndexed<Ledger> storage() {
 		return storage;
 	}
 
