@@ -105,7 +105,7 @@ public abstract class ElementParser<T> {
 		}
 		else {
 			for(String name : names) {
-				if(parser.getName().toLowerCase().equals(name)) {
+				if(isTagNamed(name)) {
 					checksOut = true;
 				}
 			}
@@ -196,7 +196,7 @@ public abstract class ElementParser<T> {
             } else if(eventType == KXmlParser.END_TAG) {
                 //If we've reached the end of the current node path, 
                 //return false (signaling that the parsing action should end).
-                if(parser.getName().toLowerCase().equals(terminal.toLowerCase())) { return false; }
+                if(isTagNamed(terminal)) { return false; }
                 //Elsewise, as long as we haven't left the current context, keep diving
                 else if(parser.getDepth() >= level) { return nextTagInBlock(terminal); }
                 //if we're below the limit, get out.
@@ -223,7 +223,7 @@ public abstract class ElementParser<T> {
 		int depth = parser.getDepth();
 		if(nextTagInBlock(null)) {
 			if(parser.getDepth() == depth || parser.getDepth() == depth + 1) {
-				if(parser.getName().toLowerCase().equals(name.toLowerCase())) {
+				if(isTagNamed(name)) {
 					return;
 				}
 				throw new InvalidStructureException("Expected tag " + name + " but got tag: " + parser.getName(), parser);
@@ -362,5 +362,15 @@ public abstract class ElementParser<T> {
 			ret = parser.next();
 		}
 		return ret;
+	}
+	
+	/**
+	 * @param s The proposed name to be evaluated
+	 * @return true if the passed in string matches the name
+	 * of the current tag (case insensitive). 
+	 */
+	public boolean isTagNamed(String s) {
+		if(s == null || parser.getName() == null) { return false;}
+		return parser.getName().toLowerCase().equals(s.toLowerCase());
 	}
 }
