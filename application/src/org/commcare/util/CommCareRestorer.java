@@ -475,6 +475,10 @@ public class CommCareRestorer implements Runnable {
 		} else {
 			this.restoreURI = baseURI;
 		}
+		
+		//add arg to request the count of items in the envelope
+		this.restoreURI = restoreURI + (restoreURI.indexOf("?") == -1 ? "?" : "&") + "items=true";
+
 	}
 	
 	private void noCache(InputStream input) throws IOException {
