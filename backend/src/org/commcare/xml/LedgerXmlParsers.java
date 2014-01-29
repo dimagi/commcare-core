@@ -35,7 +35,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
 	private static final String TAG_BALANCE = "balance";
 
-	public static final String STOCK_XML_NAMESPACE = "http://commtrack.org/stock_report";
+	public static final String STOCK_XML_NAMESPACE = "http://commcarehq.org/ledger/v1";
 	
 	private static final String MODEL_ID = "entity-id";
 	private static final String SUBMODEL_ID = "section-id";
