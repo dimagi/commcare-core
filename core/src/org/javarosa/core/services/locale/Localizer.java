@@ -673,7 +673,7 @@ public class Localizer implements Externalizable {
 	
 	private static int extractNextIndex(String text, String[] args) {
 		int start = text.indexOf("${");
-		int end = text.indexOf("}");
+		int end = text.indexOf("}", start);
 		
 		if(start != -1 && end != -1 ) {
 			String val = text.substring(start + "${".length(), end);
@@ -692,7 +692,7 @@ public class Localizer implements Externalizable {
 	
 	private static String[] replaceFirstValue(String text, String value) {
 		int start = text.indexOf("${");
-		int end = text.indexOf("}");
+		int end = text.indexOf("}", start);
 		
 		return new String[] {text.substring(0,start) + value, text.substring(end + 1, text.length())}; 
 	}
