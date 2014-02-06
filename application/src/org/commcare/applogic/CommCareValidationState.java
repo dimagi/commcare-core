@@ -59,62 +59,6 @@ public abstract class CommCareValidationState implements State, CommandListener,
 		}
 	}
 	
-	public String validate() {
-		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
-		SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
-		ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
-		global.verifyInstallation(problems);
-		if(problems.size() > 0 ) {
-			int badImageRef = problems.getBadImageReferenceCount();
-			int badAudioRef = problems.getBadAudioReferenceCount();
-			int badVideoRef = problems.getBadVideoReferenceCount();
-			String errorMessage	= "CommCare cannot start because you are missing multimedia files.";
-			String message = CommCareStartupInteraction.failSafeText("install.bad",errorMessage, new String[] {""+badImageRef,""+badAudioRef,""+badVideoRef});
-			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
-			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
-				MissingMediaException ure = (MissingMediaException)en.nextElement();
-
-				String res = ure.getResource().getResourceId();
-				
-				Vector<String> list;
-				if(problemList.containsKey(res)) {
-					list = problemList.get(res);
-				} else{
-					list = new Vector<String>();
-				}
-				
-				// code to pretty up the output for mealz
-				
-				int substringIndex = ure.getMessage().indexOf("/commcare");
-				
-				String shortenedMessage = (ure.getMessage()).substring(substringIndex+1);
-				
-				list.addElement(shortenedMessage);
-				
-				problemList.put(res, list);
-
-			}
-			
-			message += "\n-----------";
-			
-			for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
-				
-				String resource = (String)en.nextElement();		
-				//message += "\n-----------";
-				for(String s : problemList.get(resource)) {
-					message += "\n" + s;
-				}
-			}
-			if(problems.getAdditional() > 0) {
-				message += "\n\n..." + problems.getAdditional() + " more";
-			}
-			
-			return message;
-		}
-		view.removeCommand(cmdRetry);
-		return CommCareStartupInteraction.failSafeText("validation.success","Validation successful!");
-	}
-	
 	public void commandAction(Command c, Displayable d) {
 		if(c==cmdRetry){
 			validationHelper();
