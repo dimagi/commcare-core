@@ -47,11 +47,11 @@ public class CommCareStatic {
 		appStringCache = null;
 	}
 	
-	public static String validate(CommCareStartupInteraction view){
-		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
+	public static String validate(ResourceTable mResourceTable){
+		
 		SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
-		ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
-		global.verifyInstallation(problems);
+		
+		mResourceTable.verifyInstallation(problems);
 		if(problems.size() > 0 ) {
 			int badImageRef = problems.getBadImageReferenceCount();
 			int badAudioRef = problems.getBadAudioReferenceCount();

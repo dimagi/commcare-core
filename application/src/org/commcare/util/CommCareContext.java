@@ -165,7 +165,8 @@ public class CommCareContext {
 			int block = 0;
 			
 			private String validate() {
-				return CommCareStatic.validate(interaction);
+				interaction.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
+				return CommCareStatic.validate(CommCareContext.RetrieveGlobalResourceTable());
 			}
 
 			protected boolean runWrapper() throws UnfullfilledRequirementsException {

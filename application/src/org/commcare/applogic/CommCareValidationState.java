@@ -43,13 +43,13 @@ public abstract class CommCareValidationState implements State, CommandListener,
 		view.setCommandListener(this);
 		view.setMessage(CommCareStartupInteraction.failSafeText("validation.start","Validating media..."));
 		J2MEDisplay.setView(view);
-		String results = CommCareStatic.validate(view);
+		String results = CommCareStatic.validate(CommCareContext.RetrieveGlobalResourceTable());
 		view.setMessage(results,false);
 	}
 	
 	private void validationHelper(){
 		view.setMessage(CommCareStartupInteraction.failSafeText("validation.start","Validating media..."));
-		String validationResult = CommCareStatic.validate(view);
+		String validationResult = CommCareStatic.validate(CommCareContext.RetrieveGlobalResourceTable());
 		
 		if(validationResult == null){
 			view.removeCommand(cmdRetry);
