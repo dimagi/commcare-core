@@ -72,7 +72,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
 			String message = CommCareStartupInteraction.failSafeText("install.bad",errorMessage, new String[] {""+badImageRef,""+badAudioRef,""+badVideoRef});
 			Hashtable<String, Vector<String>> problemList = new Hashtable<String,Vector<String>>();
 			for(Enumeration en = problems.elements() ; en.hasMoreElements() ;) {
-				UnresolvedResourceException ure = (UnresolvedResourceException)en.nextElement();
+				MissingMediaException ure = (MissingMediaException)en.nextElement();
 
 				String res = ure.getResource().getResourceId();
 				
