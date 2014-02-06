@@ -13,8 +13,8 @@ import java.util.Vector;
 
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
+import org.commcare.util.CommCareStatic;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.api.State;
 import org.javarosa.core.util.SizeBoundUniqueVector;
@@ -43,16 +43,23 @@ public abstract class CommCareValidationState implements State, CommandListener,
 		view.setCommandListener(this);
 		view.setMessage(CommCareStartupInteraction.failSafeText("validation.start","Validating media..."));
 		J2MEDisplay.setView(view);
-		String results = validate();
+		String results = CommCareStatic.validate(view);
 		view.setMessage(results,false);
 	}
 	
 	private void validationHelper(){
 		view.setMessage(CommCareStartupInteraction.failSafeText("validation.start","Validating media..."));
-		view.setMessage(validate(), false);
+		String validationResult = CommCareStatic.validate(view);
+		
+		if(validationResult == null){
+			view.removeCommand(cmdRetry);
+			view.setMessage(CommCareStartupInteraction.failSafeText("validation.success","Validation successful!"), false);
+		} else{
+			view.setMessage(validationResult, false);
+		}
 	}
 	
-	private String validate() {
+	public String validate() {
 		view.setMessage(CommCareStartupInteraction.failSafeText("install.verify","CommCare initialized. Validating multimedia files..."));
 		SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
 		ResourceTable global = CommCareContext.RetrieveGlobalResourceTable();
