@@ -68,6 +68,7 @@ import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathConditional;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
@@ -1630,9 +1631,13 @@ public class XFormParser {
 			} else if ("false()".equals(xpathRel)) {
 				binding.relevantAbsolute = false;
 			} else {
-				Condition c = buildCondition(xpathRel, "relevant", ref);
-				c = (Condition)_f.addTriggerable(c);
-				binding.relevancyCondition = c;
+				try{
+					Condition c = buildCondition(xpathRel, "relevant", ref);
+					c = (Condition)_f.addTriggerable(c);
+					binding.relevancyCondition = c;
+				} catch(XPathUnsupportedException xue){
+					throw new XFormParseException("Problem with relevency \"" + nodeset + "\" : " + xue.getMessage() + " in expression " + xpathRel);
+				}
 			}
 		}
 
