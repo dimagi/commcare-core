@@ -68,7 +68,9 @@ import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathConditional;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
@@ -977,12 +979,13 @@ public class XFormParser {
 			throw new XFormParseException("XForm Parse: <output> without 'ref' or 'value'",e);	
 		}
 		
-		XPathConditional expr = null;
+		XPathReference expr = null;
 		try {
-			expr = new XPathConditional(xpath);
-		} catch (XPathSyntaxException xse) {
+			expr = new XPathReference(xpath);
+		} catch (XPathException xse) {
 			reporter.error("Invalid XPath expression in <output> [" + xpath + "]! " + xse.getMessage());
-			return "";
+			throw new XFormParseException("Invalid XPath expression in <output> [" + xpath + "]! " + xse.getMessage());
+		//	return "";
 		}
 
 		int index = -1;
