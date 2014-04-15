@@ -289,7 +289,12 @@ public class XPathFuncExpr extends XPathExpression {
 			
 		//Specific list of issues that we know come up	
 		} catch (ClassCastException cce) {
-			throw new XPathException("There was an invalid argument to a function " + name);
+			String args = "";
+			for(int i = 0; i < argVals.length ; ++i ){
+				args += "'" + String.valueOf(unpack(argVals[i]))+ "'" + (i == argVals.length - 1 ? "" : ", ");
+			}
+			
+			throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
 		}
 	}
 
