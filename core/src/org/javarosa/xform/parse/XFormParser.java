@@ -1636,7 +1636,7 @@ public class XFormParser {
 					c = (Condition)_f.addTriggerable(c);
 					binding.relevancyCondition = c;
 				} catch(XPathUnsupportedException xue){
-					throw new XFormParseException("Problem with relevency \"" + nodeset + "\" : " + xue.getMessage() + " in expression " + xpathRel);
+					throw new XFormParseException("Problem with relevency condition \"" + nodeset + "\" : " + xue.getMessage() + " in expression " + xpathRel);
 				}
 			}
 		}
@@ -1648,9 +1648,13 @@ public class XFormParser {
 			} else if ("false()".equals(xpathReq)) {
 				binding.requiredAbsolute = false;
 			} else {
-				Condition c = buildCondition(xpathReq, "required", ref);
-				c = (Condition)_f.addTriggerable(c);
-				binding.requiredCondition = c;
+				try{
+					Condition c = buildCondition(xpathReq, "required", ref);
+					c = (Condition)_f.addTriggerable(c);
+					binding.requiredCondition = c;
+				} catch(XPathUnsupportedException xue){
+					throw new XFormParseException("Problem with required condition \"" + nodeset + "\" : " + xue.getMessage() + " in expression " + xpathRel);
+				}
 			}
 		}
 
@@ -1661,9 +1665,13 @@ public class XFormParser {
 			} else if ("false()".equals(xpathRO)) {
 				binding.readonlyAbsolute = false;
 			} else {
-				Condition c = buildCondition(xpathRO, "readonly", ref);
-				c = (Condition)_f.addTriggerable(c);
-				binding.readonlyCondition = c;
+				try{
+					Condition c = buildCondition(xpathRO, "readonly", ref);
+					c = (Condition)_f.addTriggerable(c);
+					binding.readonlyCondition = c;
+				} catch(XPathUnsupportedException xue){
+					throw new XFormParseException("Problem with read-only condition \"" + nodeset + "\" : " + xue.getMessage() + " in expression " + xpathRel);
+				}
 			}
 		}
 
@@ -1672,7 +1680,7 @@ public class XFormParser {
 			try {
 				binding.constraint = new XPathConditional(xpathConstr);
 			} catch (XPathSyntaxException xse) {
-				throw new XFormParseException("bind for " + nodeset + " contains invalid constraint expression [" + xpathConstr + "] " + xse.getMessage());
+				throw new XFormParseException("Problem with bind for " + nodeset + " contains invalid constraint expression [" + xpathConstr + "] " + xse.getMessage());
 			}
 			binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
 		}
@@ -1683,7 +1691,7 @@ public class XFormParser {
 			try {
 				r = buildCalculate(xpathCalc, ref);
 			} catch (XPathSyntaxException xpse) {
-				throw new XFormParseException("Invalid calculate for the bind attached to \"" + nodeset + "\" : " + xpse.getMessage() + " in expression " + xpathCalc);
+				throw new XFormParseException("Problem with calculate calculate for the bind attached to \"" + nodeset + "\" : " + xpse.getMessage() + " in expression " + xpathCalc);
 			}
 			r = (Recalculate)_f.addTriggerable(r);
 			binding.calculate = r;
