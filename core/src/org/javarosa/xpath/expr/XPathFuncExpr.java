@@ -673,12 +673,13 @@ public class XPathFuncExpr extends XPathExpression {
 	 * @return
 	 */
 	public static Double countSelected (Object o) {
-		try{
-			String s = (String)unpack(o);
-			return new Double(DateUtils.split(s, " ", true).size());
-		} catch(ClassCastException cce){
-			throw new XPathTypeMismatchException("count-selected argument was not a select list");		
+		
+		if(!(unpack(o) instanceof String)){
+			throw new XPathTypeMismatchException("count-selected argument was not a select list");	
 		}
+
+		String s = (String)unpack(o);
+		return new Double(DateUtils.split(s, " ", true).size());
 	}
 	
 	/**
