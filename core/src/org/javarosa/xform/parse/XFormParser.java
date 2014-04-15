@@ -1636,7 +1636,7 @@ public class XFormParser {
 					c = (Condition)_f.addTriggerable(c);
 					binding.relevancyCondition = c;
 				} catch(XPathUnsupportedException xue){
-					throw buildParseException(nodeset, xue.getMessage(),xpathRel, "relevant condition");
+					throw buildParseException(nodeset, xue.getMessage(),xpathRel, "display condition");
 				}
 			}
 		}
@@ -1653,7 +1653,7 @@ public class XFormParser {
 					c = (Condition)_f.addTriggerable(c);
 					binding.requiredCondition = c;
 				} catch(XPathUnsupportedException xue){
-					throw buildParseException(nodeset, xue.getMessage(),xpathRel, "required condition");
+					throw buildParseException(nodeset, xue.getMessage(),xpathReq, "required condition");
 				}
 			}
 		}
@@ -1670,7 +1670,7 @@ public class XFormParser {
 					c = (Condition)_f.addTriggerable(c);
 					binding.readonlyCondition = c;
 				} catch(XPathUnsupportedException xue){
-					throw buildParseException(nodeset, xue.getMessage(),xpathRel, "read-only condition");
+					throw buildParseException(nodeset, xue.getMessage(),xpathRO, "read-only condition");
 				}
 			}
 		}
