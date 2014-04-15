@@ -18,6 +18,7 @@ package org.javarosa.core.util;
 
 import java.util.Random;
 import java.util.Vector;
+
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 
@@ -73,11 +74,6 @@ public class PropertyUtils {
 			PropertyManager._().setProperty("DeviceID", newId);
 			Logger.log("device", "DeviceID set: [" + newId + "]");
 		}
-	}
-	
-	public static boolean playFormAudio(){
-		String playAudio = PropertyManager._().getSingularProperty("cc-play-audio");
-		return (!"No".equals(playAudio));
 	}
 	
 	
