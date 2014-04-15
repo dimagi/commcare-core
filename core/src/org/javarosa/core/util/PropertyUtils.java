@@ -75,12 +75,6 @@ public class PropertyUtils {
 		}
 	}
 	
-	public static boolean playFormAudio(){
-		String playAudio = PropertyManager._().getSingularProperty("cc-play-audio");
-		return (!"No".equals(playAudio));
-	}
-	
-	
 	/**
 	 * Generate an RFC 1422 Version 4 UUID.
 	 * 
