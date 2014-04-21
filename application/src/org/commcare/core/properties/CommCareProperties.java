@@ -110,8 +110,6 @@ public class CommCareProperties implements IPropertyRules {
 	public static final String UNSENT_FORM_TIME_LIMIT = "form-time-limit";
 
 	public final static String INSTALL_RETRY_ATTEMPTS = "cc-in-retry-attempts";
-	
-	public final static String PLAY_AUDIO = "cc-play-audio";
     
     
 	/**
@@ -208,8 +206,6 @@ public class CommCareProperties implements IPropertyRules {
         rules.put(ENTRY_MODE, entrymode);
         
         rules.put(LOGIN_IMAGE, new Vector());
-        
-        rules.put(PLAY_AUDIO, yesNo);
         
         rules.put(USER_DOMAIN, new Vector());
         
@@ -347,8 +343,6 @@ public class CommCareProperties implements IPropertyRules {
         	return "Auto-Update Frequency";
         } else if (LOGIN_IMAGES.equals(propertyName)) {
         	return "Display Login Images?";
-        } else if (PLAY_AUDIO.equals(propertyName)) {
-        	return "Play audio for form questions?";
         }
     	return propertyName;
 	}
