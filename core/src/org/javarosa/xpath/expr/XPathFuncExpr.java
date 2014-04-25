@@ -39,6 +39,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
@@ -160,128 +161,140 @@ public class XPathFuncExpr extends XPathExpression {
 		for (int i = 0; i < args.length; i++) {
 			argVals[i] = args[i].eval(model, evalContext);
 		}
-		
-		//check built-in functions
-		if (name.equals("true") && args.length == 0) {
-			return Boolean.TRUE;
-		} else if (name.equals("false") && args.length == 0) {
-			return Boolean.FALSE;
-		} else if (name.equals("boolean") && args.length == 1) {
-			return toBoolean(argVals[0]);
-		} else if (name.equals("number") && args.length == 1) {
-			return toNumeric(argVals[0]);
-		} else if (name.equals("int") && args.length == 1) { //non-standard
-			return toInt(argVals[0]);
-		} else if (name.equals("double") && args.length == 1) { //non-standard
-			return toDouble(argVals[0]);
-		} else if (name.equals("string") && args.length == 1) {
-			return toString(argVals[0]);			
-		} else if (name.equals("date") && args.length == 1) { //non-standard
-			return toDate(argVals[0]);				
-		} else if (name.equals("not") && args.length == 1) {
-			return boolNot(argVals[0]);
-		} else if (name.equals("boolean-from-string") && args.length == 1) {
-			return boolStr(argVals[0]);
-		} else if (name.equals("format-date") && args.length == 2) {
-			return dateStr(argVals[0], argVals[1]);
-		} else if ((name.equals("selected") || name.equals("is-selected")) && args.length == 2) { //non-standard
-			return multiSelected(argVals[0], argVals[1]);
-		} else if (name.equals("count-selected") && args.length == 1) { //non-standard
-			return countSelected(argVals[0]);		
-		} else if (name.equals("selected-at") && args.length == 2) { //non-standard
-			return selectedAt(argVals[0], argVals[1]);		
-		} else if (name.equals("position") && (args.length == 0 || args.length == 1)) {
-			//TODO: Technically, only the 0 length argument is valid here.
-			if(args.length == 1) {
-				return position(((XPathNodeset)argVals[0]).getRefAt(0));
-			} else {
-				if(evalContext.getContextPosition() != -1) { 
-					return new Double(evalContext.getContextPosition());
+			
+		try {
+			
+			//check built-in functions
+			if (name.equals("true") && args.length == 0) {
+				return Boolean.TRUE;
+			} else if (name.equals("false") && args.length == 0) {
+				return Boolean.FALSE;
+			} else if (name.equals("boolean") && args.length == 1) {
+				return toBoolean(argVals[0]);
+			} else if (name.equals("number") && args.length == 1) {
+				return toNumeric(argVals[0]);
+			} else if (name.equals("int") && args.length == 1) { //non-standard
+				return toInt(argVals[0]);
+			} else if (name.equals("double") && args.length == 1) { //non-standard
+				return toDouble(argVals[0]);
+			} else if (name.equals("string") && args.length == 1) {
+				return toString(argVals[0]);			
+			} else if (name.equals("date") && args.length == 1) { //non-standard
+				return toDate(argVals[0]);				
+			} else if (name.equals("not") && args.length == 1) {
+				return boolNot(argVals[0]);
+			} else if (name.equals("boolean-from-string") && args.length == 1) {
+				return boolStr(argVals[0]);
+			} else if (name.equals("format-date") && args.length == 2) {
+				return dateStr(argVals[0], argVals[1]);
+			} else if ((name.equals("selected") || name.equals("is-selected")) && args.length == 2) { //non-standard
+				return multiSelected(argVals[0], argVals[1]);
+			} else if (name.equals("count-selected") && args.length == 1) { //non-standard
+				return countSelected(argVals[0]);		
+			} else if (name.equals("selected-at") && args.length == 2) { //non-standard
+				return selectedAt(argVals[0], argVals[1]);		
+			} else if (name.equals("position") && (args.length == 0 || args.length == 1)) {
+				//TODO: Technically, only the 0 length argument is valid here.
+				if(args.length == 1) {
+					return position(((XPathNodeset)argVals[0]).getRefAt(0));
+				} else {
+					if(evalContext.getContextPosition() != -1) { 
+						return new Double(evalContext.getContextPosition());
+					}
+					return position(evalContext.getContextRef());
 				}
-				return position(evalContext.getContextRef());
-			}
-		}  else if (name.equals("count") && args.length == 1) {
-			return count(argVals[0]);
-		} else if (name.equals("sum") && args.length == 1) {
-			if (argVals[0] instanceof XPathNodeset) {
-				return sum(((XPathNodeset)argVals[0]).toArgList());
-			} else {
-				throw new XPathTypeMismatchException("not a nodeset");				
-			}
-		} else if (name.equals("max")) {
-			if (argVals[0] instanceof XPathNodeset) {
-				return max(((XPathNodeset)argVals[0]).toArgList());
-			} else {
-				return max(argVals);				
-			}
-		}  else if (name.equals("min")) {
-			if (argVals[0] instanceof XPathNodeset) {
-				return min(((XPathNodeset)argVals[0]).toArgList());
-			} else {
-				return min(argVals);				
-			}
-		} else if (name.equals("today") && args.length == 0) {
-			return DateUtils.roundDate(new Date());
-		} else if (name.equals("now") && args.length == 0) {
-			return new Date();
-		} else if (name.equals("concat")) {
-			if (args.length == 1 && argVals[0] instanceof XPathNodeset) {
-				return join("", ((XPathNodeset)argVals[0]).toArgList());
-			} else {
-				return join("", argVals);
-			}
-		} else if (name.equals("join") && args.length >= 1) {
-			if (args.length == 2 && argVals[1] instanceof XPathNodeset) {
-				return join(argVals[0], ((XPathNodeset)argVals[1]).toArgList());
-			} else {
-				return join(argVals[0], subsetArgList(argVals, 1));
-			}
-		} else if (name.equals("substr") && (args.length == 2 || args.length == 3)) {
-			return substring(argVals[0], argVals[1], args.length == 3 ? argVals[2] : null);
-		} else if (name.equals("string-length") && args.length == 1) {
-			return stringLength(argVals[0]);
-		} else if (name.equals("checklist") && args.length >= 2) { //non-standard
-			if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
-				return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
-			} else {
-				return checklist(argVals[0], argVals[1], subsetArgList(argVals, 2));
-			}
-		} else if (name.equals("weighted-checklist") && args.length >= 2 && args.length % 2 == 0) { //non-standard
-			if (args.length == 4 && argVals[2] instanceof XPathNodeset && argVals[3] instanceof XPathNodeset) {
-				Object[] factors = ((XPathNodeset)argVals[2]).toArgList();
-				Object[] weights = ((XPathNodeset)argVals[3]).toArgList();
-				if (factors.length != weights.length) {
-					throw new XPathTypeMismatchException("weighted-checklist: nodesets not same length");
+			}  else if (name.equals("count") && args.length == 1) {
+				return count(argVals[0]);
+			} else if (name.equals("sum") && args.length == 1) {
+				if (argVals[0] instanceof XPathNodeset) {
+					return sum(((XPathNodeset)argVals[0]).toArgList());
+				} else {
+					throw new XPathTypeMismatchException("not a nodeset");				
 				}
-				return checklistWeighted(argVals[0], argVals[1], factors, weights);
-			} else {
-				return checklistWeighted(argVals[0], argVals[1], subsetArgList(argVals, 2, 2), subsetArgList(argVals, 3, 2));
-			}
-		} else if (name.equals("regex") && args.length == 2) { //non-standard
-			return regex(argVals[0], argVals[1]);
-		} else if (name.equals("depend") && args.length >= 1) { //non-standard
-			return argVals[0];
-		} else if (name.equals("random") && args.length == 0) { //non-standard
-			//calculated expressions may be recomputed w/o warning! use with caution!!
-			return new Double(MathUtils.getRand().nextDouble());
-		} else if (name.equals("uuid") && (args.length == 0 || args.length == 1)) { //non-standard
-			//calculated expressions may be recomputed w/o warning! use with caution!!
-			if(args.length == 0) {
-				return PropertyUtils.genUUID();
+			} else if (name.equals("max")) {
+				if (argVals[0] instanceof XPathNodeset) {
+					return max(((XPathNodeset)argVals[0]).toArgList());
+				} else {
+					return max(argVals);				
+				}
+			}  else if (name.equals("min")) {
+				if (argVals[0] instanceof XPathNodeset) {
+					return min(((XPathNodeset)argVals[0]).toArgList());
+				} else {
+					return min(argVals);				
+				}
+			} else if (name.equals("today") && args.length == 0) {
+				return DateUtils.roundDate(new Date());
+			} else if (name.equals("now") && args.length == 0) {
+				return new Date();
+			} else if (name.equals("concat")) {
+				if (args.length == 1 && argVals[0] instanceof XPathNodeset) {
+					return join("", ((XPathNodeset)argVals[0]).toArgList());
+				} else {
+					return join("", argVals);
+				}
+			} else if (name.equals("join") && args.length >= 1) {
+				if (args.length == 2 && argVals[1] instanceof XPathNodeset) {
+					return join(argVals[0], ((XPathNodeset)argVals[1]).toArgList());
+				} else {
+					return join(argVals[0], subsetArgList(argVals, 1));
+				}
+			} else if (name.equals("substr") && (args.length == 2 || args.length == 3)) {
+				return substring(argVals[0], argVals[1], args.length == 3 ? argVals[2] : null);
+			} else if (name.equals("string-length") && args.length == 1) {
+				return stringLength(argVals[0]);
+			} else if (name.equals("checklist") && args.length >= 2) { //non-standard
+				if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
+					return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
+				} else {
+					return checklist(argVals[0], argVals[1], subsetArgList(argVals, 2));
+				}
+			} else if (name.equals("weighted-checklist") && args.length >= 2 && args.length % 2 == 0) { //non-standard
+				if (args.length == 4 && argVals[2] instanceof XPathNodeset && argVals[3] instanceof XPathNodeset) {
+					Object[] factors = ((XPathNodeset)argVals[2]).toArgList();
+					Object[] weights = ((XPathNodeset)argVals[3]).toArgList();
+					if (factors.length != weights.length) {
+						throw new XPathTypeMismatchException("weighted-checklist: nodesets not same length");
+					}
+					return checklistWeighted(argVals[0], argVals[1], factors, weights);
+				} else {
+					return checklistWeighted(argVals[0], argVals[1], subsetArgList(argVals, 2, 2), subsetArgList(argVals, 3, 2));
+				}
+			} else if (name.equals("regex") && args.length == 2) { //non-standard
+				return regex(argVals[0], argVals[1]);
+			} else if (name.equals("depend") && args.length >= 1) { //non-standard
+				return argVals[0];
+			} else if (name.equals("random") && args.length == 0) { //non-standard
+				//calculated expressions may be recomputed w/o warning! use with caution!!
+				return new Double(MathUtils.getRand().nextDouble());
+			} else if (name.equals("uuid") && (args.length == 0 || args.length == 1)) { //non-standard
+				//calculated expressions may be recomputed w/o warning! use with caution!!
+				if(args.length == 0) {
+					return PropertyUtils.genUUID();
+				}
+				
+				int len = toInt(argVals[0]).intValue();			
+				return PropertyUtils.genGUID(len);
+			} else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
+				return power(argVals[0], argVals[1]);
+			}  else {
+				//check for custom handler
+				IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
+				if (handler != null) {
+					return evalCustomFunction(handler, argVals, evalContext);
+				} else {
+					throw new XPathUnhandledException("function \'" + name + "\'");
+				}
 			}
 			
-			int len = toInt(argVals[0]).intValue();			
-			return PropertyUtils.genGUID(len);
-		} else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
-			return power(argVals[0], argVals[1]);
-		}  else {
-			//check for custom handler
-			IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
-			if (handler != null) {
-				return evalCustomFunction(handler, argVals, evalContext);
-			} else {
-				throw new XPathUnhandledException("function \'" + name + "\'");
+		//Specific list of issues that we know come up	
+		} catch (ClassCastException cce) {
+			String args = "";
+			for(int i = 0; i < argVals.length ; ++i ){
+				args += "'" + String.valueOf(unpack(argVals[i]))+ "'" + (i == argVals.length - 1 ? "" : ", ");
 			}
+			
+			throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
 		}
 	}
 
@@ -660,10 +673,18 @@ public class XPathFuncExpr extends XPathExpression {
 	 * @return
 	 */
 	public static Boolean multiSelected (Object o1, Object o2) {
+		o2 = unpack(o2);
+		if(!(o2 instanceof String)) {
+			throw generateBadArgumentMessage("selected", 2, "single potential value from the list of select options", o2);
+		}
 		String s1 = (String)unpack(o1);
-		String s2 = ((String)unpack(o2)).trim();
+		String s2 = ((String)o2).trim();
 		
 		return new Boolean((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
+	}
+	
+	public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
+		return new XPathException("Bad argument to function '" + functionName +"'. Argument #" + argNumber +" should be a " + type + ", but instead evaluated to: " + String.valueOf(endValue));
 	}
 
 	/**
@@ -673,8 +694,12 @@ public class XPathFuncExpr extends XPathExpression {
 	 * @return
 	 */
 	public static Double countSelected (Object o) {
-		String s = (String)unpack(o);
+		
+		if(!(unpack(o) instanceof String)){
+			throw new XPathTypeMismatchException("count-selected argument was not a select list");	
+		}
 
+		String s = (String)unpack(o);
 		return new Double(DateUtils.split(s, " ", true).size());
 	}
 	
