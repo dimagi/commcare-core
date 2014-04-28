@@ -74,7 +74,7 @@ public class CommCareConfigEngine {
 			}
 
 			public int getMinorVersion() {
-				return 12;
+				return 13;
 			}
 		};
 		
