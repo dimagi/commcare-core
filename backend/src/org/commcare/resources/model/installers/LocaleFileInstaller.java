@@ -63,8 +63,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
 		if(cache == null) {
 			Localization.registerLanguageReference(locale, localReference);
 		} else {
-			//TODO: This will _not_ create a locale's availability if it doesn't exist. Need to determine
-			//what to do about that... 
+			Localization.getGlobalLocalizerAdvanced().addAvailableLocale(locale);
 			Localization.getGlobalLocalizerAdvanced().registerLocaleResource(locale, new TableLocaleSource(cache));
 		}
 		return true;
