@@ -836,9 +836,9 @@ public class XFormParser {
 		}
 		if (isSelect) {
 			if (question.getNumChoices() > 0 && question.getDynamicChoices() != null) {
-				throw new XFormParseException("Select question contains both literal choices and <itemset>");
+				throw new XFormParseException("Multiple choice question contains both literal choices and <itemset>");
 			} else if (question.getNumChoices() == 0 && question.getDynamicChoices() == null) {
-				throw new XFormParseException("Select question has no choices");
+				throw new XFormParseException("Multiple choice question has no choices");
 			}
 		}
 			
@@ -2512,7 +2512,7 @@ public class XFormParser {
 						node.setDataType(type);
 					} else {
 						reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE, 
-								"Select question " + ref.toString() + " appears to have data type that is incompatible with selection", null);
+								"Multiple choice question " + ref.toString() + " appears to have data type that is incompatible with selection", null);
 					}
 				}
 			}

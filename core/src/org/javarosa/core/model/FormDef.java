@@ -1101,7 +1101,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 			//go through all the questions. Well of course not all the questions are going to have answers
 			//to chose from if the user hasn't filled them out. So I'm just going to make a note of this
 			//and not throw an exception.
-			System.out.println("dynamic select question has no choices! [" + itemset.nodesetRef + "]. If this didn't occure durring saving an incomplete form, you've got a problem.");
+			System.out.println("dynamic multiple choice question has no choices! [" + itemset.nodesetRef + "]. If this didn't occure durring saving an incomplete form, you've got a problem.");
 			
 		}
 		
