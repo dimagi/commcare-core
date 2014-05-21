@@ -27,6 +27,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.Secure;
@@ -206,6 +208,18 @@ public class Case implements Persistable, IMetaData, Secure {
 			return id;
 		}
 		return data.get(key);
+	}
+	
+	public String getPropertyString(String key) {
+		Object o = this.getProperty(key);
+		if(o instanceof String) {
+			return (String)o;
+		} else {
+			//This is not good, but it's also the uniform matching that's used in the 
+			//xml transform, essentially.
+			return PreloadUtils.wrapIndeterminedObject(o).uncast().getString();
+		}
+
 	}
 	
 	public Hashtable getProperties() {
