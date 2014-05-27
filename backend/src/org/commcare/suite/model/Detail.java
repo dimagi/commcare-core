@@ -46,6 +46,9 @@ public class Detail implements Externalizable {
 	OrderedHashtable<String, String> variables;
 	OrderedHashtable<String, XPathExpression> variablesCompiled;
 	
+	//This will probably be a list sooner rather than later?
+	Action action;
+	
 	/**
 	 * Serialization Only
 	 */
@@ -53,15 +56,16 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, Vector<DetailField> fields, OrderedHashtable<String, String> variables) {
-		this(id, title, ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), variables);
+	public Detail(String id, Text title, Vector<DetailField> fields, OrderedHashtable<String, String> variables, Action action) {
+		this(id, title, ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), variables, action);
 	}
 	
-	public Detail(String id, Text title, DetailField[] fields, OrderedHashtable<String, String> variables) {
+	public Detail(String id, Text title, DetailField[] fields, OrderedHashtable<String, String> variables, Action action) {
 		this.id = id;
 		this.title = title;
 		this.fields = fields;
 		this.variables = variables;
+		this.action = action;
 	}
 	
 	private int[] initBlank(int size) {
@@ -101,7 +105,7 @@ public class Detail implements Externalizable {
 		fields = new DetailField[theFields.size()];
 		ArrayUtilities.copyIntoArray(theFields, fields);
 		variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
-		
+		action = (Action)ExtUtil.read(in, Action.class);
 	}
 
 	/*
@@ -113,6 +117,7 @@ public class Detail implements Externalizable {
 		ExtUtil.write(out, title);
 		ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
 		ExtUtil.write(out, new ExtWrapMap(variables));
+		ExtUtil.write(out, action);
 	}
 	
 	public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
@@ -130,6 +135,17 @@ public class Detail implements Externalizable {
 			}
 		}
 		return variablesCompiled;
+	}
+	
+	/**
+	 * Retrieve the custom/callback action used in this detail in 
+	 * the event that there are no matches.
+	 * 
+	 * @return An Action model definition if one is defined for this detail.
+	 * Null if there is no associated action.
+	 */
+	public Action getCustomAction() {
+		return action;
 	}
 	
 	public Vector<String> toVector(String[] array) {

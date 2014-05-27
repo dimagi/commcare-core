@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -339,7 +341,7 @@ public abstract class ElementParser<T> {
 	}
 	
 	//This is, er, kind of not the best place for this. Should possibly be its own parser?
-	public Object[] parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException{
+	public DisplayUnit parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException{
 		Object[] info = new Object[3];
 		while(nextTagInBlock("display")){
 			if(parser.getName().equals("text")){
@@ -353,7 +355,8 @@ public abstract class ElementParser<T> {
 				//each attribute, but we can only use one of each anyway.
 			}
 		}
-		return info;
+		
+		return new DisplayUnit((Text)info[0], (String)info[1], (String)info[2]);
 	}
 	
 	protected int nextNonWhitespace() throws XmlPullParserException, IOException {

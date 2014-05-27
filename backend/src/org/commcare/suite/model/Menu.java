@@ -30,15 +30,12 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  *
  */
 public class Menu implements Externalizable {
-	
-	Text name;
+	DisplayUnit display;
 	Vector<String> commandIds;
 	String[] commandExprsRaw;
 	XPathExpression[] commandExprsCompiled;
 	String id;
 	String root;
-	String imageReference;
-	String audioReference;
 	
 	/**
 	 * Serialization only!!!
@@ -47,15 +44,12 @@ public class Menu implements Externalizable {
 		
 	}
 	
-	
-	public Menu(String id, String root, Text name, Vector<String> commandIds, String[] commandExprs, String imageReference, String audioReference) {
+	public Menu(String id, String root, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
 		this.id = id;
 		this.root = root;
-		this.name = name;
+		this.display = display;
 		this.commandIds = commandIds;
 		this.commandExprsRaw = commandExprs;
-		this.imageReference = imageReference;
-		this.audioReference = audioReference;
 	}
 	
 	/**
@@ -71,7 +65,7 @@ public class Menu implements Externalizable {
 	 * the action which will display this menu.
 	 */
 	public Text getName() {
-		return name;
+		return display.getText();
 	}
 	
 	/**
@@ -113,7 +107,7 @@ public class Menu implements Externalizable {
 			throws IOException, DeserializationException {
 		id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		root = ExtUtil.readString(in);
-		name = (Text)ExtUtil.read(in, Text.class);
+		display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
 		commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
 		commandExprsRaw =  new String[ExtUtil.readInt(in)];
 		for(int i = 0 ; i < commandExprsRaw.length; ++i) {
@@ -121,8 +115,6 @@ public class Menu implements Externalizable {
 				commandExprsRaw[i] = ExtUtil.readString(in);
 			}
 		}
-		imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		
 	}
 
@@ -132,7 +124,7 @@ public class Menu implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out,ExtUtil.emptyIfNull(id));
 		ExtUtil.writeString(out,root);
-		ExtUtil.write(out,name);
+		ExtUtil.write(out, display);
 		ExtUtil.write(out, new ExtWrapList(commandIds));
 		ExtUtil.writeNumeric(out, commandExprsRaw.length);
 		for(int i = 0 ; i < commandExprsRaw.length ; ++i) {
@@ -143,18 +135,15 @@ public class Menu implements Externalizable {
 				ExtUtil.writeString(out, commandExprsRaw[i]);
 			}
 		}
-		ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));
-		ExtUtil.writeString(out,ExtUtil.emptyIfNull(audioReference));
 	}
 
 
 	public String getImageURI() {
-		return imageReference;
+		return display.getImageURI();
 	}
 	
 	public String getAudioURI() {
-		// TODO Auto-generated method stub
-		return audioReference;
+		return display.getAudioURI();
 	}
 	// unsafe! assumes that xpath expressions evaluate properly...
 	public int indexOfCommand(String cmd){

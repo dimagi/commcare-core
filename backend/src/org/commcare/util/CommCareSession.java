@@ -50,6 +50,7 @@ public class CommCareSession {
 	
 	/** The current session frame data **/
 	SessionFrame frame;
+	
 	/** The stack of pending Frames **/
 	Stack<SessionFrame> frameStack;
 	
@@ -127,6 +128,9 @@ public class CommCareSession {
 		String needDatum = null;
 		String nextKey = null;
 		for(Entry e : entries) {
+			
+			//TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
+			//to make sure things are fine. We need to comprehensively address matching these as sets.
 			if(e.getSessionDataReqs().size() > this.getData().size()) {
 				SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
 				String needed = datum.getDataId();
@@ -409,92 +413,150 @@ public class CommCareSession {
 		return frame;
 	}
 	
-	public void executeStackOperation(StackOperation op, EvaluationContext ec) {
-		//First, see if there is a frame with a matching ID (relevant for a couple
-		//reasons, and possibly prevents a costly XPath lookup
-		String frameId = op.getFrameId();
-		SessionFrame matchingFrame = null;
-		if(frameId != null) {
-			//TODO: This is correct, right? We want to treat the current frame
-			//as part of the "environment" and not let people create a new frame
-			//with the same id?
-			if(frameId.equals(frame.getFrameId())) {
-				matchingFrame = frame;
-			} else {
-				//Otherwise, peruse the stack looking for another
-				//frame with a matching ID.
-				for(Enumeration e = frameStack.elements() ; e .hasMoreElements() ;) {
-					SessionFrame stackFrame = (SessionFrame)e.nextElement();
-					if(frameId.equals(stackFrame.getFrameId())) {
-						matchingFrame = stackFrame;
-						break;
+
+	/**
+	 * Deprecated. Fires a single stack operation.
+	 * 
+	 * @param op
+	 * @param ec
+	 */
+	public boolean executeStackOperation(StackOperation op, EvaluationContext ec) {
+		Vector<StackOperation> ops = new Vector<StackOperation>();
+		ops.addElement(op);
+		return executeStackOperations(ops, ec);
+	}
+	
+	/**
+	 * Executes a set of stock operations against the current session environment.
+	 * 
+	 * The context data and session data provided will consistently match the live frame
+	 * when the operations began executing, although frame operations will be executed
+	 * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
+	 * calculated within it will be evaluated against the starting, but <push> actions
+	 * will happen against the newly pushed frame)
+	 * 
+	 * @param ops
+	 * @param ec
+	 */
+	public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {		
+		//the on deck frame is the frame that is the target of operations that execute
+		//as part of this stack update. If at the end of the stack ops the frame on deck
+		//doesn't match the current (living) frame, it will become the the current frame
+		SessionFrame onDeck  = frame;
+		
+		//Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
+		//at first, basically.
+		boolean currentFramePushed = false;
+		
+		for(StackOperation op : ops) {
+			//First, see if there is a frame with a matching ID for this op
+			//(relevant for a couple reasons, and possibly prevents a costly XPath lookup)
+			String frameId = op.getFrameId();
+			SessionFrame matchingFrame = null;
+			if(frameId != null) {
+				//TODO: This is correct, right? We want to treat the current frame
+				//as part of the "environment" and not let people create a new frame
+				//with the same id? Possibly this should only be true if the current
+				//frame is live?
+				if(frameId.equals(frame.getFrameId())) {
+					matchingFrame = frame;
+				} else {
+					//Otherwise, peruse the stack looking for another
+					//frame with a matching ID.
+					for(Enumeration e = frameStack.elements() ; e .hasMoreElements() ;) {
+						SessionFrame stackFrame = (SessionFrame)e.nextElement();
+						if(frameId.equals(stackFrame.getFrameId())) {
+							matchingFrame = stackFrame;
+							break;
+						}
 					}
 				}
 			}
-		}
-		
-		boolean newFrame = false;
-		switch(op.getOp()) {
-		//Note: the Create step and Push step utilize the same code, 
-		//and the create step does some setup first
-		case StackOperation.OPERATION_CREATE:
-			//First make sure we have no existing frames with this ID
-			if(matchingFrame != null) {
-				//If we do, just bail.
-				return;
-			}
-			//Otherwise, create our new frame (we'll only manipulate it
-			//and add it if it is triggered)
-			matchingFrame = new SessionFrame(frameId);
 			
-			//Ok, now fall through to the push case using that frame, 
-			//as the push operations are ~identical
-			newFrame = true;
-		case StackOperation.OPERATION_PUSH:
-			
-			//Ok, first, see if we need to execute this op
-			if(!op.isOperationTriggered(ec)){
-				//Otherwise, we're done.
-				return;
-			}
-			
-			//If this is a fresh push, grab the frame, if this is
-			//a new push 
-			if(matchingFrame == null) { matchingFrame = frame;}
-			
-			//Now, execute the steps in this operation
-			for(StackFrameStep step : op.getStackFrameSteps()) {
-				matchingFrame.pushStep(step.defineStep(ec));
-			}
-			
-			//ok, frame should be appropriately modified now. 
-			//we also need to push this frame if it's new 
-			if(newFrame){
-				//Before we can push a frame onto the stack, we need to
-				//make sure the stack is clean. This means that if the
-				//current frame has a snapshot, we've gotta make sure 
-				//the existing frames are still valid.
-				//TODO: We might want to handle this differently in the future,
-				//so that we can account for the invalidated frames in the ui
-				//somehow.
-				cleanStack();
-				
-				frameStack.push(matchingFrame);
-			}
-			break;
-		case StackOperation.OPERATION_CLEAR:
-			if(matchingFrame != null) {
-				if(op.isOperationTriggered(ec)) {
-					frameStack.removeElement(matchingFrame);
+			boolean newFrame = false;
+			switch(op.getOp()) {
+			//Note: the Create step and Push step utilize the same code, 
+			//and the create step does some setup first
+			case StackOperation.OPERATION_CREATE:
+				//First make sure we have no existing frames with this ID
+				if(matchingFrame != null) {
+					//If we do, just bail.
+					continue;
 				}
-			}
-			break;
-		default:
-			throw new RuntimeException("Undefined stack operation: " + op.getOp());
+				//Otherwise, create our new frame (we'll only manipulate it
+				//and add it if it is triggered)
+				matchingFrame = new SessionFrame(frameId);
+				
+				//Ok, now fall through to the push case using that frame, 
+				//as the push operations are ~identical
+				newFrame = true;
+			case StackOperation.OPERATION_PUSH:
+				//Ok, first, see if we need to execute this op
+				if(!op.isOperationTriggered(ec)){
+					//Otherwise, we're done.
+					continue;
+				}
+				
+				//If we don't have a frame yet, this push is targeting the
+				//frame on deck
+				if(matchingFrame == null) { matchingFrame = onDeck;}
+				
+				//Now, execute the steps in this operation
+				for(StackFrameStep step : op.getStackFrameSteps()) {
+					matchingFrame.pushStep(step.defineStep(ec));
+				}
+				
+				//ok, frame should be appropriately modified now. 
+				//we also need to push this frame if it's new 
+				if(newFrame){
+					//Before we can push a frame onto the stack, we need to
+					//make sure the stack is clean. This means that if the
+					//current frame has a snapshot, we've gotta make sure 
+					//the existing frames are still valid.
+					
+					//TODO: We might want to handle this differently in the future,
+					//so that we can account for the invalidated frames in the ui
+					//somehow.
+					cleanStack();
+					
+					//OK, now we want to take the current frame and put it up on the frame stack unless
+					//this frame is dead (IE: We're closing it out). then we'll push the new frame
+					//on top of it.
+					if(!frame.isDead() && !currentFramePushed) {
+						frameStack.push(frame);
+						currentFramePushed = true;
+					}
+					
+					frameStack.push(matchingFrame);
+				}
+				break;
+			case StackOperation.OPERATION_CLEAR:
+				if(matchingFrame != null) {
+					if(op.isOperationTriggered(ec)) {
+						frameStack.removeElement(matchingFrame);
+					}
+				}
+				break;
+			default:
+				throw new RuntimeException("Undefined stack operation: " + op.getOp());
+			}		
 		}
 		
-		//Not sure if we should sync here, probably not, only the push op could result in a sync,
-		//so we should take care of it there.
+		//All stack ops executed. Now we need to see if we're on the right frame.
+		if(!this.frame.isDead() && frame != onDeck) {
+			//If the current frame isn't dead, and isn't on deck, that means we've pushed
+			//in new frames and need to load up the correct one
+			
+			if(!finishAndPop()) {
+				//Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
+				//we should just start over.
+				this.clearAllState();
+			}
+			return true;
+		}
+		//otherwise we still want to make sure we sync
+		this.syncState();
+		return false;
 	}
 
 	/**
@@ -549,5 +611,9 @@ public class CommCareSession {
 			throw new IllegalStateException("The current session has no valid entry");
 		}
 		return e.elementAt(0);
+	}
+
+	public void markCurrentFrameForDeath() {
+		frame.kill();
 	}
 }
