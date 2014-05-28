@@ -96,7 +96,9 @@ public class SuiteParser extends ElementParser<Suite>  {
                 	menus.addElement(m);
                 } else if(parser.getName().toLowerCase().equals("fixture")) {
                 	//this one automatically commits the fixture to the global memory
-                	new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
+                	if(!inValidationMode()){
+                		new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
+                	}
                 }  else {
                 	System.out.println("Unrecognized Tag: " + parser.getName());
                 }
@@ -131,6 +133,10 @@ public class SuiteParser extends ElementParser<Suite>  {
 	
 	protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
 		return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage("fixture");
+	}
+	
+	protected boolean inValidationMode() {
+		return false;
 	}
 
 }
