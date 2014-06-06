@@ -18,6 +18,7 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -43,9 +44,9 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	
 	protected  Vector<CaseChildElement> cases;
 	
-	protected CacheTable<TreeElement> treeCache = new CacheTable<TreeElement>();
+	protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 	
-	protected CacheTable<String> stringCache;
+	protected Interner<String> stringCache;
 	
 	protected Hashtable<Integer, Integer> caseIdMapping;
 	
@@ -104,7 +105,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		return instanceRoot.getInstanceName();
 	}
 	
-	public void attachStringCache(CacheTable<String> stringCache) {
+	public void attachStringCache(Interner<String> stringCache) {
 		this.stringCache = stringCache;
 	}
 
@@ -363,12 +364,17 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	public void clearCaches() {
 		// TODO Auto-generated method stub
 	}
+	
+	//Xpath parsing is sllllllloooooooowwwwwww
+	final static private XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
+	final static private XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
+	final static private XPathPathExpr CASE_TYPE_EXPR = XPathReference.getPathExpr("@case_type");
+	final static private XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
+	final static private XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
 
 	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
 		//Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
 		if(!name.equals("case") || mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
-		
-		XPathPathExpr caseIndexRef = XPathReference.getPathExpr("index/*");
 		
 		Vector<Integer> toRemove = new Vector<Integer>();
 		Vector<Integer> selectedCases = null;
@@ -376,11 +382,11 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
 		
 		//TODO: Much better matching
-		indices.put(XPathReference.getPathExpr("@case_id"), Case.INDEX_CASE_ID);
-		indices.put(XPathReference.getPathExpr("./@case_id"), Case.INDEX_CASE_ID);
-		indices.put(XPathReference.getPathExpr("@case_type"), Case.INDEX_CASE_TYPE);
-		indices.put(XPathReference.getPathExpr("@status"), Case.INDEX_CASE_STATUS);
-		indices.put(caseIndexRef, Case.INDEX_CASE_INDEX_PRE);
+		indices.put(CASE_ID_EXPR, Case.INDEX_CASE_ID);
+		indices.put(CASE_ID_EXPR_TWO, Case.INDEX_CASE_ID);
+		indices.put(CASE_TYPE_EXPR, Case.INDEX_CASE_TYPE);
+		indices.put(CASE_STATUS_EXPR, Case.INDEX_CASE_STATUS);
+		indices.put(CASE_INDEX_EXPR, Case.INDEX_CASE_INDEX_PRE);
 		
 		predicate:
 		for(int i = 0 ; i < predicates.size() ; ++i) {
@@ -397,7 +403,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 							
 							//If we're matching a case index, we've got some magic to take care of. First,
 							//generate the expected case ID
-							if(expr == caseIndexRef) {
+							if(expr == CASE_INDEX_EXPR) {
 								filterIndex += ((XPathPathExpr)left).steps[1].name.name;
 							}
 							

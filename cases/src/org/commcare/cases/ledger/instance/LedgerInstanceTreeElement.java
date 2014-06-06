@@ -15,8 +15,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.Interner;
 import org.javarosa.xpath.expr.XPathExpression;
 
 /**
@@ -38,9 +38,9 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 	
 	private Vector<LedgerChildElement> ledgers;
 	
-	protected CacheTable<TreeElement> treeCache = new CacheTable<TreeElement>();
+	protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 	
-	protected CacheTable<String> stringCache;
+	protected Interner<String> stringCache;
 	
 	private Hashtable<Integer, Integer> ledgerIdMapping;
 	
@@ -85,7 +85,7 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 		return instanceRoot.getInstanceName();
 	}
 	
-	public void attachStringCache(CacheTable<String> stringCache) {
+	public void attachStringCache(Interner<String> stringCache) {
 		this.stringCache = stringCache;
 	}
 
