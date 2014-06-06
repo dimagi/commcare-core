@@ -19,7 +19,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.Constants;
@@ -31,6 +30,7 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -42,7 +42,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 
@@ -1262,6 +1261,17 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 	}
 
 	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+		//This method builds a predictive model for quick queries that prevents the need to fully flesh out 
+		//full walks of the tree.
+		
+		//TODO:
+		//We build a bunch of models here, it's not clear whether we should be retaining them for multiple queries in the future
+		//rather than letting it rebuild the same caches a couple of times
+		
+		//We also need to figure out exactly how to determine whether this "worked" more or less and potentially preventing this attempt
+		//from proceeding in the future, since it's not exactly free...
+		
+		
 		//Only do for predicates
 		if(mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
 		
@@ -1269,7 +1279,11 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 		Vector<TreeReference> selectedChildren = null;
 		
 		//Lazy init these until we've determined that our predicate is hintable
-		Hashtable<XPathPathExpr, String> indices=  null;
+		
+		//These two are basically a map, but we dont' have a great datatype for this
+		Vector<String> attributes = null;
+		Vector<XPathPathExpr> indices = null;
+		
 		Vector<TreeElement> kids = null;
 		
 		predicate:
@@ -1287,8 +1301,9 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 					
 					//We're lazily initializing this, since it might actually take a while, and we 
 					//don't want the overhead if our predicate is too complex anyway
-					if(indices == null) {
-						indices = new Hashtable<XPathPathExpr, String>();
+					if(attributes == null) {
+						attributes = new Vector<String>();
+						indices = new Vector<XPathPathExpr>();
 						kids = this.getChildrenWithName(name);
 						 
 						if(kids.size() == 0 ) { return null; }
@@ -1297,14 +1312,16 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 						TreeElement kid = kids.elementAt(0);
 						for(int j = 0 ; j < kid.getAttributeCount(); ++j) {
 							String attribute = kid.getAttributeName(j);
-							indices.put(XPathReference.getPathExpr("@" + attribute), attribute);
+							XPathPathExpr path = getXPathAttrExpression(attribute);
+							attributes.addElement(attribute);
+							indices.addElement(path);
 						}
 					}
 					
-					for(Enumeration en = indices.keys(); en.hasMoreElements() ;) {
-						XPathPathExpr expr = (XPathPathExpr)en.nextElement();
+					for(int j = 0 ; j < indices.size() ; ++j) {
+						XPathPathExpr expr = indices.elementAt(j);
 						if(expr.equals(left)) {
-							String attributeName = indices.get(expr);
+							String attributeName = attributes.elementAt(j);
  
 							for(int kidI = 0 ; kidI < kids.size() ; ++kidI) {
 								if(kids.elementAt(kidI).getAttributeValue(null, attributeName).equals(((XPathStringLiteral)right).s)) {
@@ -1337,6 +1354,21 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 		}
 		
 		return selectedChildren;
+	}
+	
+	//Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest. 
+	static CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
+
+	private XPathPathExpr getXPathAttrExpression(String attribute) {
+		//Cache tables can only take in integers due to some terrible 1.3 design issues
+		//so we have to manually cache our attribute string's hash and follow from there.
+		XPathPathExpr cached = table.retrieve(attribute);
+		
+		if(cached == null) {
+			cached = XPathReference.getPathExpr("@" + attribute);
+			table.register(attribute, cached);
+		}
+		return cached;
 	}
 
 }

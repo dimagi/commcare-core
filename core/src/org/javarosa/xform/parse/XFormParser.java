@@ -56,8 +56,8 @@ import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactoryDeprecated;
@@ -276,7 +276,7 @@ public class XFormParser {
 	
 	XFormParserReporter reporter = new XFormParserReporter();
 	
-	CacheTable<String> stringCache;
+	Interner<String> stringCache;
 
 	public XFormParser(Reader reader) {
 		_reader = reader;
@@ -324,7 +324,7 @@ public class XFormParser {
 		return getXMLDocument(reader, null);
 	}
 	
-	public static Document getXMLDocument(Reader reader, CacheTable<String> stringCache) throws IOException  {
+	public static Document getXMLDocument(Reader reader, Interner<String> stringCache) throws IOException  {
 		Document doc = new Document();
 
 		try{
@@ -2834,7 +2834,7 @@ public class XFormParser {
 		return elementString;
 	}
 
-	public void setStringCache(CacheTable<String> stringCache) {
+	public void setStringCache(Interner<String> stringCache) {
 		this.stringCache = stringCache;
 	}
 }

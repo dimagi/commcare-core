@@ -6,12 +6,10 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Vector;
 
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.core.util.CacheTable;
-import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -30,9 +28,9 @@ public class TreeReferenceLevel implements Externalizable {
 	private int multiplicity = MULT_UNINIT;
 	private Vector<XPathExpression> predicates;
 	
-	private static CacheTable<TreeReferenceLevel> refs;
+	private static Interner<TreeReferenceLevel> refs;
 	
-	public static void attachCacheTable(CacheTable<TreeReferenceLevel> refs) {
+	public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
 		TreeReferenceLevel.refs = refs; 
 	}
 
