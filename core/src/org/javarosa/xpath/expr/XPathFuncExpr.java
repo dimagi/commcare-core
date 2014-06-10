@@ -787,8 +787,13 @@ public class XPathFuncExpr extends XPathExpression {
 		return sb.toString();
 	}
 	
-	public static String substring (Object o1, Object o2, Object o3) {
+	public static String substring (Object o1, Object o2, Object o3) throws XPathException {
 		String s = toString(o1);
+		
+		if (s.length() == 0) {
+			return "";
+		}
+		
 		int start = toInt(o2).intValue();
 		
 		int len = s.length();
@@ -803,7 +808,7 @@ public class XPathFuncExpr extends XPathExpression {
 		start = Math.min(Math.max(0, start), end);
 		end = Math.min(Math.max(0, end), end);
 		
-		return (start <= end ? s.substring(start, end) : "");
+		return (start <= end && end < len ? s.substring(start, end) : "");
 	}
 	
 	/**
