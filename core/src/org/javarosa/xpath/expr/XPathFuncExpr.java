@@ -787,7 +787,7 @@ public class XPathFuncExpr extends XPathExpression {
 		return sb.toString();
 	}
 	
-	public static String substring (Object o1, Object o2, Object o3) throws XPathException {
+	public static String substring (Object o1, Object o2, Object o3) {
 		String s = toString(o1);
 		
 		if (s.length() == 0) {
