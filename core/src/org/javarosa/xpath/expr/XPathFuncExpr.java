@@ -787,6 +787,13 @@ public class XPathFuncExpr extends XPathExpression {
 		return sb.toString();
 	}
 	
+	/*
+	 * Implementation decisions:
+	 * -Returns the empty string if o1.equals("")
+	 * -Returns the empty string for any inputs that would 
+	 * cause an IndexOutOfBoundsException on call to Java's substring method, 
+	 * after start and end have been adjusted
+	 */
 	public static String substring (Object o1, Object o2, Object o3) {
 		String s = toString(o1);
 		
@@ -808,7 +815,7 @@ public class XPathFuncExpr extends XPathExpression {
 		start = Math.min(Math.max(0, start), end);
 		end = Math.min(Math.max(0, end), end);
 		
-		return (start <= end && end < len ? s.substring(start, end) : "");
+		return ((start <= end && end <= len) ? s.substring(start, end) : "");
 	}
 	
 	/**
