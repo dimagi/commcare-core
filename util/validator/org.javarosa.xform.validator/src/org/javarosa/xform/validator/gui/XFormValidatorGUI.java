@@ -69,7 +69,7 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.Interner;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.javarosa.xform.schema.FormOverview;
@@ -148,7 +148,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 	public static BufferedReader brOut = null;
 	public static Process process = null;
 	
-	static CacheTable<String> interns = new CacheTable<String>();
+	static Interner<String> interns = new Interner<String>();
 
 	
 	public static void main(String argv[]) {
