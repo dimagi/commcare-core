@@ -11,8 +11,7 @@ import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.model.instance.TreeReferenceLevel;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.XFormParserFactory;
@@ -25,16 +24,16 @@ import org.javarosa.xpath.expr.XPathStep;
  */
 public class CommCareStatic {
 	//Holds all static reference stuff
-	private static CacheTable<TreeReferenceLevel> treeRefLevels;
-	private static CacheTable<XPathStep> xpathSteps;
-	public static CacheTable<String> appStringCache;
+	private static Interner<TreeReferenceLevel> treeRefLevels;
+	private static Interner<XPathStep> xpathSteps;
+	public static Interner<String> appStringCache;
 	
 	public static void init() {
-		treeRefLevels = new CacheTable<TreeReferenceLevel>();
-		xpathSteps = new CacheTable<XPathStep>();
-		appStringCache= new CacheTable<String>();
+		treeRefLevels = new Interner<TreeReferenceLevel>();
+		xpathSteps = new Interner<XPathStep>();
+		appStringCache= new Interner<String>();
 		TreeReferenceLevel.attachCacheTable(treeRefLevels);
-		XPathStep.attachCacheTable(xpathSteps);
+		XPathStep.attachInterner(xpathSteps);
 		ExtUtil.attachCacheTable(appStringCache);
 		
 		XFormUtils.setXFormParserFactory(new XFormParserFactory(appStringCache));

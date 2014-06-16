@@ -25,7 +25,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.Interner;
 import org.javarosa.user.model.User;
 
 /**
@@ -36,12 +36,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 	CommCareSession session;
 	CaseInstanceTreeElement casebase;
 	LedgerInstanceTreeElement ledgerBase;
-	CacheTable<String> stringCache;
+	Interner<String> stringCache;
 	
-	public CommCareInstanceInitializer(CacheTable<String> stringCache){ 
+	public CommCareInstanceInitializer(Interner<String> stringCache){ 
 		this(null, null);
 	}
-	public CommCareInstanceInitializer(CacheTable<String> stringCache, CommCareSession session) {
+	public CommCareInstanceInitializer(Interner<String> stringCache, CommCareSession session) {
 		this.session = session;
 	}
 	
