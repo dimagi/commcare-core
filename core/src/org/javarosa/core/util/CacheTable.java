@@ -9,13 +9,23 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * A Cache Table is a self-purging weak reference store that can be used
+ * to maintain a cache of objects keyed by a dynamic type.
+ * 
+ * Cache tables will automatically clean up references to freed week references
+ * on an internal schedule, and compact the table size to maintain as small
+ * of a footprint as possible.
+ * 
+ * Cache tables are only available with Weak References to maintain compatibility
+ * with j2me runtimes.
+ * 
  * @author ctsims
  *
  */
-public class CacheTable<K> {
+public class CacheTable<T, K> {
 	int totalAdditions = 0;
 	
-	private Hashtable<Integer, WeakReference> currentTable;
+	private Hashtable<T, WeakReference> currentTable;
 	
 	private static Vector<WeakReference> caches = new Vector<WeakReference>();
 	
@@ -30,7 +40,7 @@ public class CacheTable<K> {
 						if (cache == null) {
 							toRemove.addElement(DataUtil.integer(i));
 						} else {
-							Hashtable<Integer, WeakReference> table = cache.currentTable;
+							Hashtable<Object, WeakReference> table = cache.currentTable;
 							for (Enumeration en = table.keys(); en.hasMoreElements();) {
 								Object key = en.nextElement();
 								
@@ -90,40 +100,23 @@ public class CacheTable<K> {
 	
 	public CacheTable() {
 		super();
-		currentTable = new Hashtable<Integer, WeakReference>();
+		currentTable = new Hashtable<T, WeakReference>();
 		registerCache(this);
 	}
-	
-	public K intern(K k) {
-		synchronized(this) {
-			int hash = k.hashCode();
-			K nk = retrieve(hash);
-			if(nk == null) {
-				register(hash, k);
-				return k;
-			}
-			if(k.equals(nk)) {
-				return nk;
-			} else {
-				//Collision. We should deal with this better for interning (and not manually caching) tables.
-			}
-			return k;
-		}
-	}
-	
 
-	public K retrieve(int key) {
+
+	public K retrieve(T key) {
 		synchronized(this) {
-			if(!currentTable.containsKey(DataUtil.integer(key))) { return null; }
-			K retVal = (K)currentTable.get(DataUtil.integer(key)).get();
-			if(retVal == null) { currentTable.remove(DataUtil.integer(key)); }
+			if(!currentTable.containsKey(key)) { return null; }
+			K retVal = (K)currentTable.get(key).get();
+			if(retVal == null) { currentTable.remove(key); }
 			return retVal;
 		}
 	}
 
-	public void register(int key, K item) {
+	public void register(T key, K item) {
 		synchronized(this) {
-			currentTable.put(DataUtil.integer(key), new WeakReference(item));
+			currentTable.put(key, new WeakReference(item));
 			totalAdditions++;
 		}
 	}

@@ -3,7 +3,7 @@
  */
 package org.javarosa.xform.util;
 
-import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.Interner;
 import org.kxml2.io.KXmlParser;
 
 /**
@@ -12,9 +12,9 @@ import org.kxml2.io.KXmlParser;
  */
 public class InterningKXmlParser extends KXmlParser{
 	
-	CacheTable<String> stringCache;
+	Interner<String> stringCache;
 	
-	public InterningKXmlParser(CacheTable<String> stringCache) {
+	public InterningKXmlParser(Interner<String> stringCache) {
 		super();
 		this.stringCache = stringCache;
 	}

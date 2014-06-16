@@ -189,13 +189,34 @@ public class FormEntryController {
     private int stepEvent(boolean forward) {
         FormIndex index = model.getFormIndex();
 
+        boolean descend = true;
+        boolean relevant = true;
+        boolean inForm = true;
+        
         do {
             if (forward) {
-                index = model.incrementIndex(index);
+                index = model.incrementIndex(index, descend);
             } else {
                 index = model.decrementIndex(index);
             }
-        } while (index.isInForm() && !model.isIndexRelevant(index));
+            
+            //reset all step rules
+            descend = true;
+            relevant = true;
+            inForm = true;
+            
+            
+            inForm = index.isInForm();
+            if(inForm) {
+	            relevant = model.isIndexRelevant(index);
+	
+	            //If this the current index is a group and it is not relevant
+	            //do _not_ dig into it. 
+	            if(!relevant && model.getEvent(index) == FormEntryController.EVENT_GROUP) {
+	            	descend = false;
+	            }
+            }
+        } while (inForm && !relevant);
 
         return jumpToIndex(index);
     }
