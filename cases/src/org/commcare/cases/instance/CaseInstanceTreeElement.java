@@ -3,11 +3,11 @@
  */
 package org.commcare.cases.instance;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.cases.model.Case;
+import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -16,13 +16,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 /**
@@ -33,7 +30,7 @@ import org.javarosa.xpath.expr.XPathPathExpr;
  * @author ctsims
  *
  */
-public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildElement> {
+public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElement> {
 
 	public static final String MODEL_NAME = "casedb";
 
@@ -47,8 +44,6 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 	
 	protected Interner<String> stringCache;
-	
-	protected Hashtable<Integer, Integer> caseIdMapping;
 	
 	String syncToken;
 	String stateHash;
@@ -178,7 +173,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 		if(cases != null) {
 			return;
 		}
-		caseIdMapping = new Hashtable<Integer, Integer>();
+		objectIdMapping = new Hashtable<Integer, Integer>();
 		cases = new Vector<CaseChildElement>();
 		if(caseRecords != null) {
 			int i = 0;
@@ -191,7 +186,7 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 			for(IStorageIterator i = storage.iterate(); i.hasMore();) {
 				int id = i.nextID();
 				cases.addElement(new CaseChildElement(this, id, null, mult));
-				caseIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+				objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 				mult++;
 			}
 			
@@ -372,109 +367,17 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 	final static private XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
 	final static private XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
 
-	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-		//Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
-		if(!name.equals("case") || mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
+	
+	protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
+		String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
 		
-		Vector<Integer> toRemove = new Vector<Integer>();
-		Vector<Integer> selectedCases = null;
-		
-		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
-		
-		//TODO: Much better matching
-		indices.put(CASE_ID_EXPR, Case.INDEX_CASE_ID);
-		indices.put(CASE_ID_EXPR_TWO, Case.INDEX_CASE_ID);
-		indices.put(CASE_TYPE_EXPR, Case.INDEX_CASE_TYPE);
-		indices.put(CASE_STATUS_EXPR, Case.INDEX_CASE_STATUS);
-		indices.put(CASE_INDEX_EXPR, Case.INDEX_CASE_INDEX_PRE);
-		
-		predicate:
-		for(int i = 0 ; i < predicates.size() ; ++i) {
-			XPathExpression xpe = predicates.elementAt(i);
-			//what we want here is a static evaluation of the expression to see if it consists of evaluating 
-			//something we index with something static.
-			if(xpe instanceof XPathEqExpr) {
-				XPathExpression left = ((XPathEqExpr)xpe).a;
-				if(left instanceof XPathPathExpr) {
-					for(Enumeration en = indices.keys(); en.hasMoreElements() ;) {
-						XPathPathExpr expr = (XPathPathExpr)en.nextElement();
-						if(expr.matches(left)) {
-							String filterIndex = indices.get(expr);
-							
-							//If we're matching a case index, we've got some magic to take care of. First,
-							//generate the expected case ID
-							if(expr == CASE_INDEX_EXPR) {
-								filterIndex += ((XPathPathExpr)left).steps[1].name.name;
-							}
-							
-							//TODO: We need a way to determine that this value does not also depend on anything in the current context, not 
-							//sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
-							//to resolve in a certain area?
-							Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
-							
-							Vector<Integer> cases = null;
-							try{
-								//Get all of the cases that meet this criteria
-								cases = storage.getIDsForValue(filterIndex, o);
-							} catch(IllegalArgumentException IAE) {
-								//We can only get this if we have a new index type
-								storage.registerIndex(filterIndex);
-								try{
-									cases = storage.getIDsForValue(filterIndex, o);
-								} catch(IllegalArgumentException iaeagain) {
-									//Still didn't work, platform can't expand indices
-									break predicate;
-								}
-							}
-							
-							// merge with any other sets of cases
-							if(selectedCases == null) {
-								selectedCases = cases;
-							} else {
-								selectedCases = union(selectedCases, cases);
-							}
-							
-							//Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-							toRemove.addElement(DataUtil.integer(i));
-							continue predicate;
-						}
-					}
-				}
-			}
-			//There's only one case where we want to keep moving along, and we would have triggered it if it were going to happen,
-			//so otherwise, just get outta here.
-			break;
+		//If we're matching a case index, we've got some magic to take care of. First,
+		//generate the expected case ID
+		if(expressionTemplate == CASE_INDEX_EXPR) {
+			filter += ((XPathPathExpr)matchingExpr).steps[1].name.name;
 		}
 		
-		//if we weren't able to evaluate any predicates, signal that.
-		if(selectedCases == null) { return null; }
-		
-		//otherwise, remove all of the predicates we've already evaluated
-		for(int i = toRemove.size() - 1; i >= 0 ; i--)  {
-			predicates.removeElementAt(toRemove.elementAt(i).intValue());
-		}
-		
-		TreeReference base = this.getRef();
-		
-		this.getCases();
-		
-
-		Vector<TreeReference> filtered = new Vector<TreeReference>();
-		for(Integer i : selectedCases) {
-			//this takes _waaaaay_ too long, we need to refactor this
-			TreeReference ref = base.clone();
-			Integer realIndexInt = caseIdMapping.get(i);
-			int realIndex =realIndexInt.intValue();
-			ref.add("case", realIndex);
-			filtered.addElement(ref);
-		}
-
-		
-		return filtered;
-	}
-
-	protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-		return DataUtil.union(selectedCases, cases);
+		return filter;
 	}
 
 	public String getNamespace() {
@@ -491,5 +394,34 @@ public class CaseInstanceTreeElement implements AbstractTreeElement<CaseChildEle
 
 	public Case getCase(int recordId) {
 		return (Case)storage.read(recordId);
+	}
+
+	@Override
+	protected String getChildHintName() {
+		return "case";
+	}
+
+	@Override
+	protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
+		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
+		
+		//TODO: Much better matching
+		indices.put(CASE_ID_EXPR, Case.INDEX_CASE_ID);
+		indices.put(CASE_ID_EXPR_TWO, Case.INDEX_CASE_ID);
+		indices.put(CASE_TYPE_EXPR, Case.INDEX_CASE_TYPE);
+		indices.put(CASE_STATUS_EXPR, Case.INDEX_CASE_STATUS);
+		indices.put(CASE_INDEX_EXPR, Case.INDEX_CASE_INDEX_PRE);
+		
+		return indices; 
+	}
+
+	@Override
+	protected IStorageUtilityIndexed<?> getStorage() {
+		return storage;
+	}
+
+	@Override
+	protected void initStorageCache() {
+		getCases();
 	}
 }

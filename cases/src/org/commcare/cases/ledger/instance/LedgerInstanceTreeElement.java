@@ -3,10 +3,13 @@
  */
 package org.commcare.cases.ledger.instance;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.cases.model.Case;
+import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -17,7 +20,11 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 /**
  * The root element for the <casedb> abstract type. All children are
@@ -27,7 +34,7 @@ import org.javarosa.xpath.expr.XPathExpression;
  * @author ctsims
  *
  */
-public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChildElement> {
+public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChildElement> {
 
 	public static final String MODEL_NAME = "ledgerdb"; 
 	
@@ -36,13 +43,12 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 	IStorageUtilityIndexed<Ledger> storage;
 	private String[] ledgerRecords;
 	
-	private Vector<LedgerChildElement> ledgers;
+	//TODO: much of this is still shared w/the casedb and should be centralized there
+	protected Vector<LedgerChildElement> ledgers;
 	
 	protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 	
 	protected Interner<String> stringCache;
-	
-	private Hashtable<Integer, Integer> ledgerIdMapping;
 	
 	public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
 		this.instanceRoot= instanceRoot;
@@ -158,7 +164,7 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 		if(ledgers != null) {
 			return;
 		}
-		ledgerIdMapping = new Hashtable<Integer, Integer>();
+		objectIdMapping = new Hashtable<Integer, Integer>();
 		ledgers = new Vector<LedgerChildElement>();
 		if(ledgerRecords != null) {
 			int i = 0;
@@ -171,7 +177,7 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 			for(IStorageIterator i = storage.iterate(); i.hasMore();) {
 				int id = i.nextID();
 				ledgers.addElement(new LedgerChildElement(this, id, null, mult));
-				ledgerIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+				objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
 				mult++;
 			}
 			
@@ -327,14 +333,6 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 		// TODO Auto-generated method stub
 	}
 
-	public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-		return null;
-	}
-
-//	protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-//		return DataUtil.union(selectedCases, cases);
-//	}
-
 	public String getNamespace() {
 		return null;
 	}
@@ -345,5 +343,36 @@ public class LedgerInstanceTreeElement implements AbstractTreeElement<LedgerChil
 		} else {
 			return stringCache.intern(s);
 		}
+	}
+
+	@Override
+	protected String getChildHintName() {
+		return "ledger";
+	}
+	
+	final static private XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
+	final static private XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
+
+
+
+	@Override
+	protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
+		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
+		
+		//TODO: Much better matching
+		indices.put(ENTITY_ID_EXPR, Ledger.INDEX_ENTITY_ID);
+		indices.put(ENTITY_ID_EXPR_TWO, Ledger.INDEX_ENTITY_ID);
+		
+		return indices; 
+	}
+
+	@Override
+	protected IStorageUtilityIndexed<?> getStorage() {
+		return storage;
+	}
+
+	@Override
+	protected void initStorageCache() {
+		getLedgers();
 	}
 }
