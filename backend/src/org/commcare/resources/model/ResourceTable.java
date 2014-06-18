@@ -33,10 +33,16 @@ public class ResourceTable {
 	private IStorageUtilityIndexed storage;
 	private InstallerFactory factory;
 
+	//nothing here
 	public final static int RESOURCE_TABLE_EMPTY = 0;
+	//this is the table currently being used by the app
  	public final static int RESOURCE_TABLE_INSTALLED = 1;
+ 	//in any number of intermediate stages
  	public final static int RESOURCE_TABLE_PARTIAL = 2;
+ 	//this is the table constructed in order to do an upgrade -- 
+ 	//means that it is not ready to upgrade the current table
  	public final static int RESOURCE_TABLE_UPGRADE = 3;
+ 	//
 	public static final int RESOURCE_TABLE_UNSTAGED = 4;
 	public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 	/**
