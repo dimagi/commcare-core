@@ -23,3 +23,4 @@ application/weblib*/*
 
 *.orig
 *.swp
+.hg*
