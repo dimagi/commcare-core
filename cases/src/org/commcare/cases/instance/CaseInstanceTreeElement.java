@@ -396,12 +396,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 		return (Case)storage.read(recordId);
 	}
 
-	@Override
 	protected String getChildHintName() {
 		return "case";
 	}
 
-	@Override
 	protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
 		Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
 		
@@ -415,12 +413,10 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 		return indices; 
 	}
 
-	@Override
 	protected IStorageUtilityIndexed<?> getStorage() {
 		return storage;
 	}
 
-	@Override
 	protected void initStorageCache() {
 		getCases();
 	}
