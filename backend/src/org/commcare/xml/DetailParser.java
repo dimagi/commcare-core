@@ -6,6 +6,7 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -38,6 +39,7 @@ public class DetailParser extends ElementParser<Detail> {
 			checkNode("title");
 			getNextTagInBlock("title");
 			Text title = new TextParser(parser).parse();
+			Action action = null;
 			
 			//Now get the headers and templates.
 			Vector<DetailField> fields = new Vector<DetailField>();
@@ -56,6 +58,10 @@ public class DetailParser extends ElementParser<Detail> {
 						}
 						variables.put(parser.getName(), function);
 					}
+					continue;
+				}
+				if(ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
+					action = new ActionParser(parser).parse();
 					continue;
 				}
 				DetailField.Builder builder = new DetailField().new Builder();
@@ -151,7 +157,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, fields, variables);
+		Detail d = new Detail(id, title, fields, variables, action);
 		return d;
 	}
 	

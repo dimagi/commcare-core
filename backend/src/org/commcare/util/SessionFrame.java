@@ -26,6 +26,9 @@ public class SessionFrame {
 	
 	protected Vector<String[]> snapshot;
 	
+	/** A Frame is dead if it's execution path has finished and it shouldn't be considered part of the stack **/
+	boolean dead = false;
+	
 	/**
 	 * Create a new, un-id'd session frame
 	 */
@@ -123,5 +126,22 @@ public class SessionFrame {
 		synchronized(steps) {
 			this.snapshot = null;
 		}
+	}
+
+
+	/** 
+	 * @return Whether this frame is dead or not. Dead frames have finished their session
+	 * and can never again become part of the stack.
+	 */
+	public boolean isDead() {
+		return dead;
+	}
+
+
+	/**
+	 * Kill this frame, ensuring it will never return to the stack.
+	 */
+	public void kill() {
+		dead = true;
 	}
 }

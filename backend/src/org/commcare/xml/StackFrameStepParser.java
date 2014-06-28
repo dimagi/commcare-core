@@ -39,6 +39,7 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
 	}
 
 	private StackFrameStep parseValue(String type, String datumId) throws XmlPullParserException, IOException, InvalidStructureException {
+		//TODO: ... require this to have a value!!!! It's not processing this properly
 		String value = parser.getAttributeValue(null, "value");
 		boolean valueIsXpath = false;
 		if(value == null) {
