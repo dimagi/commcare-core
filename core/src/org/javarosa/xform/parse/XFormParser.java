@@ -2722,10 +2722,19 @@ public class XFormParser {
 		groupLevelHandlers.put(type, handler);
 	}
 	
+	/**
+	 * Let parser know how to handle a given action.
+	 * @param type Name of tag.
+	 * @param handler Handler for tag.
+	 */
 	public static void registerStructuredAction(String type, IElementHandler handler) {
 		structuredActions.put(type, handler);
 	}
 
+	/**
+	 * Notify parser about a node that will later be relevant to an action.
+	 * @param target
+	 */
 	public void registerActionTarget(TreeReference target) {
 		actionTargets.addElement(target);
 	}
