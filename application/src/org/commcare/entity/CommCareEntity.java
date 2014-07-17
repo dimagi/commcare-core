@@ -89,7 +89,8 @@ public class CommCareEntity extends Entity<TreeReference> {
 		String[] fields = this.getShortFields();
 		for(int i = 0; i < fields.length; ++i) {
 			//don't match to images
-			if("image".equals(shortDetail.getFields()[i].getTemplateForm())) {
+			String form = shortDetail.getFields()[i].getTemplateForm();
+			if(form.equals("image") || form.equals("graph")) {
 				continue;
 			}
 			if(fields[i].toLowerCase().startsWith(key)) {

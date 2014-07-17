@@ -28,7 +28,7 @@ public class DetailField implements Externalizable {
 	public static final int DIRECTION_DESCENDING = 2;
 	
 	private Text header;
-	private Text template; 
+	private IDetailTemplate template; // Text or Graph
 	private Text sort; 
 	private int headerHint = -1; 
 	private int templateHint = -1; 
@@ -39,10 +39,9 @@ public class DetailField implements Externalizable {
 	private int sortType = Constants.DATATYPE_TEXT;
 	
 	public DetailField() {
-		
 	}
 	
-	public DetailField(Text header, Text template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
+	public DetailField(Text header, IDetailTemplate template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
 		this.header = header;
 		this.template = template;
 		this.sort = sort;
@@ -66,7 +65,7 @@ public class DetailField implements Externalizable {
 	/**
 	 * @return the template
 	 */
-	public Text getTemplate() {
+	public IDetailTemplate getTemplate() {
 		return template;
 	}
 
@@ -137,7 +136,6 @@ public class DetailField implements Externalizable {
 	}
 
 
-
 	/* (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
 	 */
@@ -192,7 +190,7 @@ public class DetailField implements Externalizable {
 		/**
 		 * @param template the template to set
 		 */
-		public void setTemplate(Text template) {
+		public void setTemplate(IDetailTemplate template) {
 			field.template = template;
 		}
 
