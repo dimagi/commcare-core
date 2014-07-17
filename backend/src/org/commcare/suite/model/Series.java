@@ -11,19 +11,25 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 
 public class Series implements Externalizable {
-	private TreeReference x;	// XPath expression
-	private TreeReference y;	// XPath expression
+	private TreeReference nodeSet;
+	private String x;	// XPath expression
+	private String y;	// XPath expression
 
-	public Series(String x, String y) {
-		this.x = XPathReference.getPathExpr(x).getReference(true);
-		this.y = XPathReference.getPathExpr(y).getReference(true);
+	public Series(String nodeSet, String x, String y) {
+		this.nodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
+		this.x = x;
+		this.y = y;
 	}
 	
-	public TreeReference getX() {
+	public TreeReference getNodeSet() {
+		return nodeSet;
+	}
+	
+	public String getX() {
 		return x;
 	}
 	
-	public TreeReference getY() {
+	public String getY() {
 		return y;
 	}
 

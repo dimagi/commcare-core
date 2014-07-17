@@ -29,6 +29,7 @@ public class GraphParser extends ElementParser<Graph> {
 	
 	private Series parseSeries() throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("series");
+		String nodeSet = parser.getAttributeValue(null, "nodeset");
 		
 		nextStartTag();
 		checkNode("x");
@@ -41,7 +42,7 @@ public class GraphParser extends ElementParser<Graph> {
 		while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("series")) {
 			parser.nextTag();
 		}
-		return new Series(x, y);
+		return new Series(nodeSet, x, y);
 	}
 	
 	private void nextStartTag() throws IOException, XmlPullParserException {

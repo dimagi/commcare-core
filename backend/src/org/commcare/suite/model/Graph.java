@@ -13,6 +13,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class Graph implements Externalizable, IDetailTemplate {
 	private Vector<Series> series;
@@ -37,15 +39,20 @@ public class Graph implements Externalizable, IDetailTemplate {
 	}
 
 	public String evaluate(EvaluationContext context) {
-		TreeReference xRef = series.elementAt(0).getX();
-		TreeReference yRef = series.elementAt(0).getY();
-		Vector<TreeReference> xList = context.expandReference(xRef);
-		Vector<TreeReference> yList = context.expandReference(yRef);
+		Series s = series.elementAt(0);
 		String csv = "";
-		for (int i = 0; i < xList.size(); i++) {
-			AbstractTreeElement xElement = context.resolveReference(xList.elementAt(i));
-			AbstractTreeElement yElement = context.resolveReference(yList.elementAt(i));
-			csv += "(" + Double.parseDouble(xElement.getValue().getDisplayText()) + "," + Double.parseDouble(yElement.getValue().getDisplayText()) + ")";
+		try {
+			XPathExpression xParse = XPathParseTool.parseXPath("string(" + s.getX() + ")");
+			XPathExpression yParse = XPathParseTool.parseXPath("string(" + s.getY() + ")");
+			
+			Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
+			for (TreeReference ref : refList) {
+				EvaluationContext temp = new EvaluationContext(context, ref);
+				csv += "(" + (String)xParse.eval(temp.getMainInstance(), temp) + ", " + (String)yParse.eval(temp.getMainInstance(), temp) + ") ";
+			}
+		}
+		catch (XPathSyntaxException e) {
+			e.printStackTrace();
 		}
 		return csv;
 	}
