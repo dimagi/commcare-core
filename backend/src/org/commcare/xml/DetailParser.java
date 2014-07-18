@@ -96,7 +96,7 @@ public class DetailParser extends ElementParser<Detail> {
 						
 					parser.nextTag();
 					IDetailTemplate template;
-					if (parser.getName().equals("graph")) {
+					if (form.equals("graph")) {
 						template = new GraphParser(parser).parse();
 					}
 					else {

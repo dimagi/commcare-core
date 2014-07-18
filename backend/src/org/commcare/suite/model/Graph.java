@@ -48,7 +48,7 @@ public class Graph implements Externalizable, IDetailTemplate {
 			Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
 			for (TreeReference ref : refList) {
 				EvaluationContext temp = new EvaluationContext(context, ref);
-				csv += "(" + (String)xParse.eval(temp.getMainInstance(), temp) + ", " + (String)yParse.eval(temp.getMainInstance(), temp) + ") ";
+				csv += (String)xParse.eval(temp.getMainInstance(), temp) + "," + (String)yParse.eval(temp.getMainInstance(), temp) + "&";
 			}
 		}
 		catch (XPathSyntaxException e) {
