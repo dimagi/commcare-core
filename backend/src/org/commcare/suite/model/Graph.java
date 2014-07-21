@@ -39,16 +39,18 @@ public class Graph implements Externalizable, IDetailTemplate {
 	}
 
 	public String evaluate(EvaluationContext context) {
-		Series s = series.elementAt(0);
 		String csv = "";
 		try {
-			XPathExpression xParse = XPathParseTool.parseXPath("string(" + s.getX() + ")");
-			XPathExpression yParse = XPathParseTool.parseXPath("string(" + s.getY() + ")");
-			
-			Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
-			for (TreeReference ref : refList) {
-				EvaluationContext temp = new EvaluationContext(context, ref);
-				csv += (String)xParse.eval(temp.getMainInstance(), temp) + "," + (String)yParse.eval(temp.getMainInstance(), temp) + "&";
+			for (Series s : series) {
+				XPathExpression xParse = XPathParseTool.parseXPath("string(" + s.getX() + ")");
+				XPathExpression yParse = XPathParseTool.parseXPath("string(" + s.getY() + ")");
+				
+				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
+				for (TreeReference ref : refList) {
+					EvaluationContext temp = new EvaluationContext(context, ref);
+					csv += (String)xParse.eval(temp.getMainInstance(), temp) + "," + (String)yParse.eval(temp.getMainInstance(), temp) + "&";
+				}
+				csv += "===";
 			}
 		}
 		catch (XPathSyntaxException e) {
