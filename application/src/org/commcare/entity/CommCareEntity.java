@@ -126,7 +126,13 @@ public class CommCareEntity extends Entity<TreeReference> {
 		loadVars(ec, longDetail);
 		String[] output = new String[longDetail.getFields().length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = longDetail.getFields()[i].getTemplate().evaluate(ec);
+			Object template = longDetail.getFields()[i].getTemplate();
+			if (template instanceof Text) {
+				output[i] = ((Text) template).evaluate(ec);
+			}
+			else {
+				output[i] = "";
+			}
 		}
 		return output;
 	}
@@ -172,7 +178,13 @@ public class CommCareEntity extends Entity<TreeReference> {
 		shortText = new String[shortDetail.getFields().length];
 		sortText = new String[shortDetail.getFields().length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = shortDetail.getFields()[i].getTemplate().evaluate(context);
+			Object template = shortDetail.getFields()[i].getTemplate();
+			if (template instanceof Text) {
+				shortText[i] = ((Text) template).evaluate(context);
+			}
+			else {
+				shortText[i] = "";
+			}
 			
 			//see whether or not the field has a special text form just for sorting
 			Text sortKey = shortDetail.getFields()[i].getSort();
