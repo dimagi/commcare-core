@@ -51,6 +51,8 @@ public class ProfileParser extends ElementParser<Profile> {
 		String sMajor = parser.getAttributeValue(null,"requiredMajor");
 		String sMinor = parser.getAttributeValue(null,"requiredMinor");
 		
+		//String uniqueId = parser.getAttributeValue(null, "uniqueId");
+		
 		int major = -1;
 		int minor = -1;
 		
@@ -87,7 +89,8 @@ public class ProfileParser extends ElementParser<Profile> {
 
 		String registrationNamespace = null;
 		
-		Profile profile = new Profile(version, authRef);
+		//TODO: pass uniqueId to this
+		Profile profile = new Profile(version, authRef, "");
 		try {
 
 			// Now that we've covered being inside of the profile,
