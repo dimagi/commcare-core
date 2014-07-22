@@ -38,7 +38,7 @@ public class Graph implements Externalizable, IDetailTemplate {
 
 	}
 
-	public String evaluate(EvaluationContext context) {
+	public Object evaluate(EvaluationContext context) {
 		String csv = "";
 		try {
 			for (Series s : series) {
