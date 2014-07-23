@@ -37,6 +37,13 @@ public class DetailField implements Externalizable {
 	private int sortOrder = -1;
 	private int sortDirection = DIRECTION_ASCENDING;
 	private int sortType = Constants.DATATYPE_TEXT;
+	private int gridX = -1;
+	private int gridY = -1;
+	private int gridWidth = -1;
+	private int gridHeight = -1;
+	private String horizontalAlign;
+	private String verticalAlign;
+	private String fontSize;
 	
 	public DetailField() {
 		
@@ -170,6 +177,34 @@ public class DetailField implements Externalizable {
 		ExtUtil.writeNumeric(out, sortType);
 	}
 	
+	public int getGridX() {
+		return gridX;
+	}
+
+	public int getGridY() {
+		return gridY;
+	}
+
+	public int getGridWidth() {
+		return gridWidth;
+	}
+
+	public int getGridHeight() {
+		return gridHeight;
+	}
+
+	public String getHorizontalAlign() {
+		return horizontalAlign;
+	}
+
+	public String getVerticalAlign() {
+		return verticalAlign;
+	}
+
+	public String getFontSize() {
+		return fontSize;
+	}
+
 	public class Builder {
 		DetailField field;
 		public Builder() {
@@ -263,6 +298,35 @@ public class DetailField implements Externalizable {
 		 */
 		public void setSortType(int sortType) {
 			field.sortType = sortType;
+		}
+		
+		public void setGridX(int gridX) {
+			field.gridX = gridX;
+		}
+
+		public void setGridY(int gridY) {
+			field.gridY = gridY;
+		}
+
+		public void setGridWidth(int gridWidth) {
+			field.gridWidth = gridWidth;
+		}
+
+
+		public void setGridHeight(int gridHeight) {
+			field.gridHeight = gridHeight;
+		}
+
+		public void setHorizontalAlign(String horizontalAlign) {
+			field.horizontalAlign = horizontalAlign;
+		}
+
+		public void setVerticalAlign(String verticalAlign) {
+			field.verticalAlign = verticalAlign;
+		}
+
+		public void setFontSize(String fontSize) {
+			field.fontSize = fontSize;
 		}
 	}
 }
