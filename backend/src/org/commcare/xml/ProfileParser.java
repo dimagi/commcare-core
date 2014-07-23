@@ -89,8 +89,8 @@ public class ProfileParser extends ElementParser<Profile> {
 
 		String registrationNamespace = null;
 		
-		//TODO: pass uniqueId to this
-		Profile profile = new Profile(version, authRef, "");
+		//TODO: change resourceId to actual uniqueId
+		Profile profile = new Profile(version, authRef, resourceId);
 		try {
 
 			// Now that we've covered being inside of the profile,
