@@ -2,19 +2,19 @@ package org.commcare.xml;
 
 import java.io.IOException;
 
-import org.commcare.suite.model.Graph;
+import org.commcare.suite.model.GraphTemplate;
 import org.commcare.suite.model.Series;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class GraphParser extends ElementParser<Graph> {
+public class GraphParser extends ElementParser<GraphTemplate> {
 	public GraphParser(KXmlParser parser) {
 		super(parser);
 	}	
 	
-	public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		Graph graph = new Graph();
+	public GraphTemplate parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		GraphTemplate graph = new GraphTemplate();
 		
 		int entryLevel = parser.getDepth();
 		do {

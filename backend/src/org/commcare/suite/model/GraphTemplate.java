@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.suite.model.graph.GraphData;
+import org.commcare.suite.model.graph.PointData;
+import org.commcare.suite.model.graph.SeriesData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -16,10 +19,10 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class Graph implements Externalizable, IDetailTemplate {
+public class GraphTemplate implements Externalizable, IDetailTemplate {
 	private Vector<Series> series;
 	
-	public Graph() {
+	public GraphTemplate() {
 		series = new Vector<Series>();
 	}
 	
@@ -38,25 +41,30 @@ public class Graph implements Externalizable, IDetailTemplate {
 
 	}
 
-	public Object evaluate(EvaluationContext context) {
-		String csv = "";
+	public GraphData evaluate(EvaluationContext context) {
+		GraphData graphData = new GraphData();
 		try {
 			for (Series s : series) {
 				XPathExpression xParse = XPathParseTool.parseXPath("string(" + s.getX() + ")");
 				XPathExpression yParse = XPathParseTool.parseXPath("string(" + s.getY() + ")");
 				
 				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
+				SeriesData seriesData = new SeriesData();
 				for (TreeReference ref : refList) {
-					EvaluationContext temp = new EvaluationContext(context, ref);
-					csv += (String)xParse.eval(temp.getMainInstance(), temp) + "," + (String)yParse.eval(temp.getMainInstance(), temp) + "&";
+					EvaluationContext refContext = new EvaluationContext(context, ref);
+					String x = (String) xParse.eval(refContext.getMainInstance(), refContext);
+					String y = (String) yParse.eval(refContext.getMainInstance(), refContext);
+					if (x.length() > 0 && y.length() > 0) {
+						seriesData.addPoint(new PointData(Double.valueOf(x), Double.valueOf(y)));
+					}
 				}
-				csv += "===";
+				graphData.addSeries(seriesData);
 			}
 		}
 		catch (XPathSyntaxException e) {
 			e.printStackTrace();
 		}
-		return csv;
+		return graphData;
 	}
 
 }

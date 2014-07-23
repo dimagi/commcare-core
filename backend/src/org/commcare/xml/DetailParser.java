@@ -8,7 +8,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Graph;
+import org.commcare.suite.model.GraphTemplate;
 import org.commcare.suite.model.IDetailTemplate;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
