@@ -17,4 +17,13 @@ public class SeriesData {
 	public Iterator<PointData> getPointsIterator() {
 		return points.iterator();
 	}
+	
+	// TODO: perhaps the series should store this value, or have a BubbleSeriesData class derived from this
+	public boolean hasRadius() {
+		return points.size() > 0 && points.elementAt(0).getRadius() != null;
+	}
+
+	public int size() {
+		return points.size();
+	}
 }

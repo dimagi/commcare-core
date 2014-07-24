@@ -3,6 +3,7 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -45,17 +46,35 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 		GraphData graphData = new GraphData();
 		try {
 			for (Series s : series) {
-				XPathExpression xParse = XPathParseTool.parseXPath("string(" + s.getX() + ")");
-				XPathExpression yParse = XPathParseTool.parseXPath("string(" + s.getY() + ")");
+				Hashtable<String, String> functions = new Hashtable<String, String>(3);
+				functions.put("x", s.getX());
+				functions.put("y", s.getY());
+				functions.put("radius", s.getRadius());
+				Hashtable<String, XPathExpression> parse = new Hashtable<String, XPathExpression>(functions.size());
+				Enumeration e = functions.keys();
+				while (e.hasMoreElements()) {
+					String dimension = (String) e.nextElement();
+					String function = functions.get(dimension);
+					if (function != null) {
+						parse.put(dimension, XPathParseTool.parseXPath("string(" + function + ")"));
+					}
+				}
 				
 				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
 				SeriesData seriesData = new SeriesData();
 				for (TreeReference ref : refList) {
 					EvaluationContext refContext = new EvaluationContext(context, ref);
-					String x = (String) xParse.eval(refContext.getMainInstance(), refContext);
-					String y = (String) yParse.eval(refContext.getMainInstance(), refContext);
-					if (x.length() > 0 && y.length() > 0) {
-						seriesData.addPoint(new PointData(Double.valueOf(x), Double.valueOf(y)));
+					Enumeration f = parse.keys();
+					Hashtable<String, Double> doubles = new Hashtable<String, Double>(parse.size());
+					while (f.hasMoreElements()) {
+						String dimension = (String) f.nextElement();
+						String value = (String) parse.get(dimension).eval(refContext.getMainInstance(), refContext);
+						if (value.length() > 0) {
+							doubles.put(dimension, Double.valueOf(value));
+						}
+					}
+					if (doubles.containsKey("x") && doubles.containsKey("y")) {
+						seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y"), doubles.get("radius")));
 					}
 				}
 				graphData.addSeries(seriesData);

@@ -12,13 +12,17 @@ import org.javarosa.model.xform.XPathReference;
 
 public class Series implements Externalizable {
 	private TreeReference nodeSet;
-	private String x;	// XPath expression
-	private String y;	// XPath expression
+	
+	// XPath expressions
+	private String x;
+	private String y;
+	private String radius;	// bubble charts only
 
-	public Series(String nodeSet, String x, String y) {
+	public Series(String nodeSet, String x, String y, String radius) {
 		this.nodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
 		this.x = x;
 		this.y = y;
+		this.radius = radius;
 	}
 	
 	public TreeReference getNodeSet() {
@@ -31,6 +35,10 @@ public class Series implements Externalizable {
 	
 	public String getY() {
 		return y;
+	}
+	
+	public String getRadius() {
+		return radius;
 	}
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)

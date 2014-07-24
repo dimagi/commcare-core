@@ -1,32 +1,31 @@
 package org.commcare.suite.model.graph;
 
 public class PointData {
-	private double x;
-	private double y;
+	private Double x;
+	private Double y;
+	private Double radius = null;	// bubble charts
 
-	public PointData() {
-		this(0, 0);
+	public PointData(Double x, Double y) {
+		this.x = new Double(x);
+		this.y = new Double(y);
 	}
 	
-	public PointData(double x, double y) {
-		this.x = x;
-		this.y = y;
+	public PointData(Double x, Double y, Double radius) {
+		this.x = new Double(x);
+		this.y = new Double(y);
+		this.radius = new Double(radius);
 	}
 	
-	public double getX() {
+	public Double getX() {
 		return x;
 	}
 	
-	public double getY() {
+	public Double getY() {
 		return y;
 	}
 	
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	public void setY(double y) {
-		this.y = y;
+	public Double getRadius() {
+		return radius;
 	}
 
 }

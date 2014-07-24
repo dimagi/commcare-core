@@ -39,10 +39,14 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 		checkNode("y");
 		String y = parser.getAttributeValue(null,"function");
 
+		String radius = null;
 		while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("series")) {
 			parser.nextTag();
+			if (parser.getName().equals("radius") && parser.getEventType() == KXmlParser.START_TAG) {
+				radius = parser.getAttributeValue(null, "function");
+			}
 		}
-		return new Series(nodeSet, x, y);
+		return new Series(nodeSet, x, y, radius);
 	}
 	
 	private void nextStartTag() throws IOException, XmlPullParserException {
