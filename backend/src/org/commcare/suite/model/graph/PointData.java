@@ -1,6 +1,7 @@
 package org.commcare.suite.model.graph;
 
 public class PointData {
+	//dummy
 	private Double x;
 	private Double y;
 	private Double radius = null;	// bubble charts

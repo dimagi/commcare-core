@@ -49,7 +49,9 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 				Hashtable<String, String> functions = new Hashtable<String, String>(3);
 				functions.put("x", s.getX());
 				functions.put("y", s.getY());
-				functions.put("radius", s.getRadius());
+				if (s.getRadius() != null) {
+					functions.put("radius", s.getRadius());
+				}
 				Hashtable<String, XPathExpression> parse = new Hashtable<String, XPathExpression>(functions.size());
 				Enumeration e = functions.keys();
 				while (e.hasMoreElements()) {
@@ -74,7 +76,12 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 						}
 					}
 					if (doubles.containsKey("x") && doubles.containsKey("y")) {
-						seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y"), doubles.get("radius")));
+						if (doubles.containsKey("radius")) {
+							seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y"), doubles.get("radius")));
+						}
+						else {
+							seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y")));
+						}
 					}
 				}
 				graphData.addSeries(seriesData);
