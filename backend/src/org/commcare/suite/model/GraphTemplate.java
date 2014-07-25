@@ -22,28 +22,50 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class GraphTemplate implements Externalizable, IDetailTemplate {
 	private Vector<Series> series;
+	private Hashtable<String, Text> configuration;
 	
 	public GraphTemplate() {
 		series = new Vector<Series>();
+		configuration = new Hashtable<String, Text>();
 	}
 	
 	public void addSeries(Series s) {
 		series.addElement(s);
 	}
 	
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
+	public Text getConfiguration(String key) {
+		return configuration.get(key);
+	}
+	
+	public void setConfiguration(String key, Text value) {
+		configuration.put(key, value);
+	}
+	
+	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		// TODO Auto-generated method stub
 
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
 		// TODO Auto-generated method stub
-
 	}
 
 	public GraphData evaluate(EvaluationContext context) {
-		GraphData graphData = new GraphData();
+		GraphData data = new GraphData();
+		evaluateSeries(data, context);
+		evaluateConfiguration(data, context);
+		return data;
+	}
+	
+	private void evaluateConfiguration(GraphData graphData, EvaluationContext context) {
+		Enumeration e = configuration.keys();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			graphData.setConfiguration(key, configuration.get(key).evaluate(context));
+		}
+	}
+	
+	private void evaluateSeries(GraphData graphData, EvaluationContext context) {
 		try {
 			for (Series s : series) {
 				Hashtable<String, String> functions = new Hashtable<String, String>(3);
@@ -90,7 +112,6 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 		catch (XPathSyntaxException e) {
 			e.printStackTrace();
 		}
-		return graphData;
 	}
 
 }

@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class GraphData {
-	Hashtable<String, String> configuration;
 	Vector<SeriesData> series;
+	Hashtable<String, String> configuration;
 
 	public GraphData() {
 		series = new Vector<SeriesData>();
