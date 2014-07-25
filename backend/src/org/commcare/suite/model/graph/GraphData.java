@@ -5,12 +5,21 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class GraphData {
-	Vector<SeriesData> series;
-	Hashtable<String, String> configuration;
+	private String type;
+	private Vector<SeriesData> series;
+	private Hashtable<String, String> configuration;
 
 	public GraphData() {
 		series = new Vector<SeriesData>();
 		configuration = new Hashtable<String, String>();
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public Iterator<SeriesData> getSeriesIterator() {

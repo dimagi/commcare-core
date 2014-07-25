@@ -21,12 +21,24 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class GraphTemplate implements Externalizable, IDetailTemplate {
+	public static final String TYPE_LINE = "line";
+	public static final String TYPE_BUBBLE = "bubble";
+
+	private String type;
 	private Vector<Series> series;
 	private Hashtable<String, Text> configuration;
 	
 	public GraphTemplate() {
 		series = new Vector<Series>();
 		configuration = new Hashtable<String, Text>();
+	}
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	public void addSeries(Series s) {
@@ -52,6 +64,7 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 
 	public GraphData evaluate(EvaluationContext context) {
 		GraphData data = new GraphData();
+		data.setType(type);
 		evaluateSeries(data, context);
 		evaluateConfiguration(data, context);
 		return data;

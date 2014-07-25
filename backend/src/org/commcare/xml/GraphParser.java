@@ -17,6 +17,11 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 	
 	public GraphTemplate parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		GraphTemplate graph = new GraphTemplate();
+		String type = parser.getAttributeValue(null, "type");
+		if (type == null) {
+			throw new InvalidStructureException("Expected attribute @type for element <" +  parser.getName() + ">", parser);
+		}
+		graph.setType(type);
 		
 		int entryLevel = parser.getDepth();
 		do {
@@ -25,7 +30,7 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 				parseConfiguration(graph);
 			}
 			if (parser.getName().equals("series")) {
-				graph.addSeries(parseSeries());
+				graph.addSeries(parseSeries(type));
 			}
 		} while (parser.getDepth() > entryLevel);
 		
@@ -46,7 +51,7 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 		} while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("configuration"));
 	}
 	
-	private Series parseSeries() throws InvalidStructureException, IOException, XmlPullParserException {
+	private Series parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("series");
 		String nodeSet = parser.getAttributeValue(null, "nodeset");
 		
@@ -59,12 +64,16 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 		String y = parser.getAttributeValue(null,"function");
 
 		String radius = null;
+		if (type.equals(GraphTemplate.TYPE_BUBBLE)) {
+			nextStartTag();
+			checkNode("radius");
+			radius = parser.getAttributeValue(null, "function");
+		}
+
 		while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("series")) {
 			parser.nextTag();
-			if (parser.getName().equals("radius") && parser.getEventType() == KXmlParser.START_TAG) {
-				radius = parser.getAttributeValue(null, "function");
-			}
 		}
+		
 		return new Series(nodeSet, x, y, radius);
 	}
 	
