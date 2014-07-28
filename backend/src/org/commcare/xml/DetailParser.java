@@ -70,31 +70,12 @@ public class DetailParser extends ElementParser<Detail> {
 			if(nextTagInBlock("field")) {
 				//style
 				if(parser.getName().toLowerCase().equals("style")){
-
-					String fontSize = parser.getAttributeValue(null, "font-size");
-					builder.setFontSize(fontSize);
-
-					String horzAlign = parser.getAttributeValue(null, "horz-align");
-					builder.setHorizontalAlign(horzAlign);
-
-					String vertAlign = parser.getAttributeValue(null, "vert-align");
-					builder.setVerticalAlign(vertAlign);
-
-					parser.nextTag();
-					checkNode("grid");
-
-					String gridx = parser.getAttributeValue(null, "grid-x");
-					builder.setGridX(Integer.parseInt(gridx));
-
-					String gridy = parser.getAttributeValue(null, "grid-y");
-					builder.setGridY(Integer.parseInt(gridy));
-
-					String gridw = parser.getAttributeValue(null, "grid-width");
-					builder.setGridWidth(Integer.parseInt(gridw));
-
-					String gridh = parser.getAttributeValue(null, "grid-height");
-					builder.setGridHeight(Integer.parseInt(gridh));
-					parser.nextTag();
+					StyleParser styleParser = new StyleParser(builder,parser);
+					styleParser.parse();
+					
+					GridParser gridParser = new GridParser(builder,parser);
+					gridParser.parse();
+					//exit style block
 					parser.nextTag();
 					parser.nextTag();
 				}
