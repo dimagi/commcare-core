@@ -3,6 +3,7 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.commcare.suite.model.Annotation;
 import org.commcare.suite.model.GraphTemplate;
 import org.commcare.suite.model.Series;
 import org.commcare.suite.model.Text;
@@ -33,9 +34,35 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 			if (parser.getName().equals("series")) {
 				graph.addSeries(parseSeries(type));
 			}
+			if (parser.getName().equals("annotation")) {
+				parseAnnotation(graph);
+			}
 		} while (parser.getDepth() > entryLevel);
 		
 		return graph;
+	}
+	
+	private void parseAnnotation(GraphTemplate graph) throws InvalidStructureException, IOException, XmlPullParserException {
+		checkNode("annotation");
+		
+		TextParser textParser = new TextParser(parser);
+		
+		nextStartTag();
+		checkNode("x");
+		nextStartTag();
+		Text x = textParser.parse();
+		
+		nextStartTag();
+		checkNode("y");
+		nextStartTag();
+		Text y = textParser.parse();
+		
+		nextStartTag();
+		Text text = textParser.parse();
+		
+		parser.nextTag();
+		
+		graph.addAnnotation(new Annotation(x, y, text));
 	}
 	
 	private void parseConfiguration(Configurable data) throws InvalidStructureException, IOException, XmlPullParserException {

@@ -8,10 +8,12 @@ public class GraphData implements ConfigurableData {
 	private String type;
 	private Vector<SeriesData> series;
 	private Hashtable<String, String> configuration;
+	private Vector<PointData> annotations;
 
 	public GraphData() {
 		series = new Vector<SeriesData>();
 		configuration = new Hashtable<String, String>();
+		annotations = new Vector<PointData>();
 	}
 	
 	public String getType() {
@@ -28,6 +30,14 @@ public class GraphData implements ConfigurableData {
 	
 	public void addSeries(SeriesData s) {
 		series.addElement(s);
+	}
+	
+	public void addAnnotation(PointData p) {
+		annotations.addElement(p);
+	}
+	
+	public Iterator<PointData> getAnnotationIterator() {
+		return annotations.iterator();
 	}
 
 	public void setConfiguration(String key, String value) {

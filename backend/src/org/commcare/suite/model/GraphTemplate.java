@@ -29,10 +29,12 @@ public class GraphTemplate implements Externalizable, IDetailTemplate, Configura
 	private String type;
 	private Vector<Series> series;
 	private Hashtable<String, Text> configuration;
+	private Vector<Annotation> annotations;
 	
 	public GraphTemplate() {
 		series = new Vector<Series>();
 		configuration = new Hashtable<String, Text>();
+		annotations = new Vector<Annotation>();
 	}
 	
 	public String getType() {
@@ -45,6 +47,10 @@ public class GraphTemplate implements Externalizable, IDetailTemplate, Configura
 	
 	public void addSeries(Series s) {
 		series.addElement(s);
+	}
+	
+	public void addAnnotation(Annotation a) {
+		annotations.addElement(a);
 	}
 	
 	public Text getConfiguration(String key) {
@@ -72,8 +78,19 @@ public class GraphTemplate implements Externalizable, IDetailTemplate, Configura
 		GraphData data = new GraphData();
 		data.setType(type);
 		evaluateSeries(data, context);
+		evaluateAnnotations(data, context);
 		evaluateConfiguration(this, data, context);
 		return data;
+	}
+	
+	private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
+		for (Annotation a : annotations) {
+			graphData.addAnnotation(new PointData(
+				Double.valueOf(a.getX().evaluate(context)), 
+				Double.valueOf(a.getY().evaluate(context)), 
+				a.getAnnotation().evaluate(context)
+			));
+		}
 	}
 	
 	private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {

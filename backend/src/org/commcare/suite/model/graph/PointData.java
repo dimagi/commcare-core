@@ -4,6 +4,7 @@ public class PointData {
 	private Double x;
 	private Double y;
 	private Double radius = null;	// bubble charts
+	private String annotation;
 
 	public PointData(Double x, Double y) {
 		this.x = new Double(x);
@@ -16,6 +17,12 @@ public class PointData {
 		this.radius = new Double(radius);
 	}
 	
+	public PointData(Double x, Double y, String annotation) {
+		this.x = new Double(x);
+		this.y = new Double(y);
+		this.annotation = annotation;
+	}
+	
 	public Double getX() {
 		return x;
 	}
@@ -26,6 +33,10 @@ public class PointData {
 	
 	public Double getRadius() {
 		return radius;
+	}
+	
+	public String getAnnotation() {
+		return annotation;
 	}
 
 }
