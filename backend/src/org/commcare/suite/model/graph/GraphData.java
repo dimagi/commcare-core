@@ -4,7 +4,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class GraphData {
+public class GraphData implements ConfigurableData {
 	private String type;
 	private Vector<SeriesData> series;
 	private Hashtable<String, String> configuration;

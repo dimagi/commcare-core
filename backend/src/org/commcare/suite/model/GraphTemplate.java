@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.suite.model.graph.Configurable;
+import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.PointData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -20,7 +22,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class GraphTemplate implements Externalizable, IDetailTemplate {
+public class GraphTemplate implements Externalizable, IDetailTemplate, Configurable {
 	public static final String TYPE_LINE = "line";
 	public static final String TYPE_BUBBLE = "bubble";
 
@@ -52,6 +54,10 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 	public void setConfiguration(String key, Text value) {
 		configuration.put(key, value);
 	}
+
+	public Enumeration getConfigurationKeys() {
+		return configuration.keys();
+	}
 	
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		// TODO Auto-generated method stub
@@ -66,15 +72,15 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 		GraphData data = new GraphData();
 		data.setType(type);
 		evaluateSeries(data, context);
-		evaluateConfiguration(data, context);
+		evaluateConfiguration(this, data, context);
 		return data;
 	}
 	
-	private void evaluateConfiguration(GraphData graphData, EvaluationContext context) {
-		Enumeration e = configuration.keys();
+	private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {
+		Enumeration e = template.getConfigurationKeys();
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
-			graphData.setConfiguration(key, configuration.get(key).evaluate(context));
+			data.setConfiguration(key, template.getConfiguration(key).evaluate(context));
 		}
 	}
 	
@@ -99,6 +105,7 @@ public class GraphTemplate implements Externalizable, IDetailTemplate {
 				
 				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
 				SeriesData seriesData = new SeriesData();
+				evaluateConfiguration(s, seriesData, context);
 				for (TreeReference ref : refList) {
 					EvaluationContext refContext = new EvaluationContext(context, ref);
 					Enumeration f = parse.keys();
