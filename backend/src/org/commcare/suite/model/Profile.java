@@ -40,6 +40,7 @@ public class Profile implements Persistable {
 	int recordId = -1;
 	int version;
 	String uniqueId;
+	String displayName;
 	String authRef;
 	Vector<PropertySetter> properties;
 	Vector<RootTranslator> roots;
@@ -67,10 +68,11 @@ public class Profile implements Persistable {
 	 * is obsoleted by it. 
 	 * 
 	 */
-	public Profile(int version, String authRef, String uniqueId) {
+	public Profile(int version, String authRef, String uniqueId, String displayName) {
 		this.version = version;
 		this.authRef = authRef;
 		this.uniqueId = uniqueId;
+		this.displayName = displayName;
 		properties = new Vector<PropertySetter>();
 		roots = new Vector<RootTranslator>();
 		featureStatus = new Hashtable<String, Boolean>();
@@ -92,6 +94,13 @@ public class Profile implements Persistable {
 	 */
 	public String getUniqueId() {
 		return this.uniqueId;
+	}
+	
+	/*
+	 * Return the app name assigned to this app from HQ
+	 */
+	public String getDisplayName() {
+		return this.displayName;
 	}
 
 	/*
