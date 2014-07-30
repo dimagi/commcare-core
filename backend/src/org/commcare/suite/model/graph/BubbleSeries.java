@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -41,12 +42,12 @@ public class BubbleSeries extends XYSeries {
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
-		// TODO Auto-generated method stub
-
+		super.readExternal(in, pf);
+		radius = ExtUtil.readString(in);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
-
+		super.writeExternal(out);
+		ExtUtil.writeString(out, radius);
 	}
 }

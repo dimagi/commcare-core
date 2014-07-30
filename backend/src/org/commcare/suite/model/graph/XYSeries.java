@@ -10,6 +10,8 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
@@ -68,13 +70,17 @@ public class XYSeries implements Externalizable, Configurable {
 
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
-		// TODO Auto-generated method stub
-
+		x = ExtUtil.readString(in);
+		y = ExtUtil.readString(in);
+		nodeSet = (TreeReference) ExtUtil.read(in, TreeReference.class, pf);
+		configuration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
 	}
 
 	public void writeExternal(DataOutputStream out) throws IOException {
-		// TODO Auto-generated method stub
-
+		ExtUtil.writeString(out, x);
+		ExtUtil.writeString(out, y);
+		ExtUtil.write(out, nodeSet);
+		ExtUtil.write(out, new ExtWrapMap(configuration));
 	}
 	
 	protected void parse() throws XPathSyntaxException {
