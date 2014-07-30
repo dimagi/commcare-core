@@ -5,19 +5,19 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class SeriesData implements ConfigurableData {
-	private Vector<PointData> points;
+	private Vector<XYPointData> points;
 	private Hashtable<String, String> configuration;
 
 	public SeriesData() {
-		points = new Vector<PointData>();
+		points = new Vector<XYPointData>();
 		configuration = new Hashtable<String, String>();
 	}
 
-	public void addPoint(PointData p) {
+	public void addPoint(XYPointData p) {
 		points.addElement(p);
 	}
 	
-	public Iterator<PointData> getPointsIterator() {
+	public Iterator<XYPointData> getPointsIterator() {
 		return points.iterator();
 	}
 	

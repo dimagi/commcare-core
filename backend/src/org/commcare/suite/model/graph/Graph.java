@@ -82,7 +82,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 	
 	private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
 		for (Annotation a : annotations) {
-			graphData.addAnnotation(new PointData(
+			graphData.addAnnotation(new AnnotationData(
 				Double.valueOf(a.getX().evaluate(context)), 
 				Double.valueOf(a.getY().evaluate(context)), 
 				a.getAnnotation().evaluate(context)
@@ -129,13 +129,13 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 					EvaluationContext refContext = new EvaluationContext(context, ref);
 					Double x = evaluateExpression(xParse, refContext);
 					Double y = evaluateExpression(yParse, refContext);
-					Double radius = evaluateExpression(radiusParse, refContext);
 					if (x != null && y != null) {
-						if (radius != null) {
-							seriesData.addPoint(new PointData(x, y, radius));
+						if (radiusParse != null) {
+							Double radius = evaluateExpression(radiusParse, refContext);
+							seriesData.addPoint(new BubblePointData(x, y, radius));
 						}
 						else {
-							seriesData.addPoint(new PointData(x, y));
+							seriesData.addPoint(new XYPointData(x, y));
 						}
 					}
 				}
