@@ -98,45 +98,44 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 		}
 	}
 	
+	private XPathExpression parseExpression(String function) throws XPathSyntaxException {
+		if (function == null) {
+			return null;
+		}
+		return XPathParseTool.parseXPath("string(" + function + ")");
+	}
+	
+	private Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
+		if (expression != null) {
+			String value = (String) expression.eval(context.getMainInstance(), context);
+			if (value.length() > 0) {
+				return Double.valueOf(value);
+			}
+		}
+		return null;
+	}
+	
 	private void evaluateSeries(GraphData graphData, EvaluationContext context) {
 		try {
 			for (Series s : series) {
-				Hashtable<String, String> functions = new Hashtable<String, String>(3);
-				functions.put("x", s.getX());
-				functions.put("y", s.getY());
-				if (s.getRadius() != null) {
-					functions.put("radius", s.getRadius());
-				}
-				Hashtable<String, XPathExpression> parse = new Hashtable<String, XPathExpression>(functions.size());
-				Enumeration e = functions.keys();
-				while (e.hasMoreElements()) {
-					String dimension = (String) e.nextElement();
-					String function = functions.get(dimension);
-					if (function != null) {
-						parse.put(dimension, XPathParseTool.parseXPath("string(" + function + ")"));
-					}
-				}
+				XPathExpression xParse = parseExpression(s.getX());
+				XPathExpression yParse = parseExpression(s.getY());
+				XPathExpression radiusParse = parseExpression(s.getRadius());
 				
 				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
 				SeriesData seriesData = new SeriesData();
 				evaluateConfiguration(s, seriesData, context);
 				for (TreeReference ref : refList) {
 					EvaluationContext refContext = new EvaluationContext(context, ref);
-					Enumeration f = parse.keys();
-					Hashtable<String, Double> doubles = new Hashtable<String, Double>(parse.size());
-					while (f.hasMoreElements()) {
-						String dimension = (String) f.nextElement();
-						String value = (String) parse.get(dimension).eval(refContext.getMainInstance(), refContext);
-						if (value.length() > 0) {
-							doubles.put(dimension, Double.valueOf(value));
-						}
-					}
-					if (doubles.containsKey("x") && doubles.containsKey("y")) {
-						if (doubles.containsKey("radius")) {
-							seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y"), doubles.get("radius")));
+					Double x = evaluateExpression(xParse, refContext);
+					Double y = evaluateExpression(yParse, refContext);
+					Double radius = evaluateExpression(radiusParse, refContext);
+					if (x != null && y != null) {
+						if (radius != null) {
+							seriesData.addPoint(new PointData(x, y, radius));
 						}
 						else {
-							seriesData.addPoint(new PointData(doubles.get("x"), doubles.get("y")));
+							seriesData.addPoint(new PointData(x, y));
 						}
 					}
 				}
