@@ -24,12 +24,12 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 	public static final String TYPE_BUBBLE = "bubble";
 
 	private String type;
-	private Vector<Series> series;
+	private Vector<XYSeries> series;
 	private Hashtable<String, Text> configuration;
 	private Vector<Annotation> annotations;
 	
 	public Graph() {
-		series = new Vector<Series>();
+		series = new Vector<XYSeries>();
 		configuration = new Hashtable<String, Text>();
 		annotations = new Vector<Annotation>();
 	}
@@ -42,7 +42,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 		this.type = type;
 	}
 	
-	public void addSeries(Series s) {
+	public void addSeries(XYSeries s) {
 		series.addElement(s);
 	}
 	
@@ -98,40 +98,19 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 		}
 	}
 	
-	private XPathExpression parseExpression(String function) throws XPathSyntaxException {
-		if (function == null) {
-			return null;
-		}
-		return XPathParseTool.parseXPath("string(" + function + ")");
-	}
-	
-	private Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
-		if (expression != null) {
-			String value = (String) expression.eval(context.getMainInstance(), context);
-			if (value.length() > 0) {
-				return Double.valueOf(value);
-			}
-		}
-		return null;
-	}
-	
 	private void evaluateSeries(GraphData graphData, EvaluationContext context) {
 		try {
-			for (Series s : series) {
-				XPathExpression xParse = parseExpression(s.getX());
-				XPathExpression yParse = parseExpression(s.getY());
-				XPathExpression radiusParse = parseExpression(s.getRadius());
-				
+			for (XYSeries s : series) {
 				Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
 				SeriesData seriesData = new SeriesData();
 				evaluateConfiguration(s, seriesData, context);
 				for (TreeReference ref : refList) {
 					EvaluationContext refContext = new EvaluationContext(context, ref);
-					Double x = evaluateExpression(xParse, refContext);
-					Double y = evaluateExpression(yParse, refContext);
+					Double x = s.evaluateX(refContext);
+					Double y = s.evaluateY(refContext);
 					if (x != null && y != null) {
-						if (radiusParse != null) {
-							Double radius = evaluateExpression(radiusParse, refContext);
+						if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
+							Double radius = ((BubbleSeries) s).evaluateRadius(refContext);
 							seriesData.addPoint(new BubblePointData(x, y, radius));
 						}
 						else {

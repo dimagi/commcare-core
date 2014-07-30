@@ -5,9 +5,10 @@ import java.util.Hashtable;
 
 import org.commcare.suite.model.Text;
 import org.commcare.suite.model.graph.Annotation;
+import org.commcare.suite.model.graph.BubbleSeries;
 import org.commcare.suite.model.graph.Configurable;
 import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.Series;
+import org.commcare.suite.model.graph.XYSeries;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -79,10 +80,10 @@ public class GraphParser extends ElementParser<Graph> {
 		} while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("configuration"));
 	}
 	
-	private Series parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
+	private XYSeries parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("series");
 		String nodeSet = parser.getAttributeValue(null, "nodeset");
-		Series series = new Series(nodeSet);
+		XYSeries series = type.equals(Graph.TYPE_BUBBLE) ? new BubbleSeries(nodeSet) : new XYSeries(nodeSet);
 		
 		nextStartTag();
 		if (parser.getName().equals("configuration")) {
@@ -100,7 +101,7 @@ public class GraphParser extends ElementParser<Graph> {
 		if (type.equals(Graph.TYPE_BUBBLE)) {
 			nextStartTag();
 			checkNode("radius");
-			series.setRadius(parser.getAttributeValue(null, "function"));
+			((BubbleSeries) series).setRadius(parser.getAttributeValue(null, "function"));
 		}
 
 		while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("series")) {

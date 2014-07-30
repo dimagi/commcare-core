@@ -7,24 +7,29 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class Series implements Externalizable, Configurable {
+public class XYSeries implements Externalizable, Configurable {
 	private TreeReference nodeSet;
 	private Hashtable<String, Text> configuration;
 	
-	// XPath expressions
 	private String x;
 	private String y;
-	private String radius;	// bubble charts only
 	
-	public Series(String nodeSet) {
+	private XPathExpression xParse;
+	private XPathExpression yParse;
+	
+	public XYSeries(String nodeSet) {
 		this.nodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
-		configuration = new Hashtable<String, Text>();
+		this.configuration = new Hashtable<String, Text>();
 	}
 	
 	public TreeReference getNodeSet() {
@@ -37,6 +42,7 @@ public class Series implements Externalizable, Configurable {
 	
 	public void setX(String x) {
 		this.x = x;
+		this.xParse = null;
 	}
 	
 	public String getY() {
@@ -45,16 +51,9 @@ public class Series implements Externalizable, Configurable {
 	
 	public void setY(String y) {
 		this.y = y;
+		this.yParse = null;
 	}
 	
-	public String getRadius() {
-		return radius;
-	}
-	
-	public void setRadius(String radius) {
-		this.radius = radius;
-	}
-
 	public void setConfiguration(String key, Text value) {
 		configuration.put(key, value);
 	}
@@ -77,5 +76,40 @@ public class Series implements Externalizable, Configurable {
 		// TODO Auto-generated method stub
 
 	}
+	
+	protected void parse() throws XPathSyntaxException {
+		if (xParse == null) {
+			xParse = parse(x);
+		}
+		if (yParse == null) {
+			yParse = parse(y);
+		}
+	}
 
+	protected XPathExpression parse(String function) throws XPathSyntaxException {
+		if (function == null) {
+			return null;
+		}
+		return XPathParseTool.parseXPath("string(" + function + ")");
+	}
+	
+	public Double evaluateX(EvaluationContext context) throws XPathSyntaxException {
+		parse();
+		return evaluateExpression(xParse, context);
+	}
+	
+	public Double evaluateY(EvaluationContext context) throws XPathSyntaxException {
+		parse();
+		return evaluateExpression(yParse, context);
+	}
+	
+	protected Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
+		if (expression != null) {
+			String value = (String) expression.eval(context.getMainInstance(), context);
+			if (value.length() > 0) {
+				return Double.valueOf(value);
+			}
+		}
+		return null;
+	}
 }
