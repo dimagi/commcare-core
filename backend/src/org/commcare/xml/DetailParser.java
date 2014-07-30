@@ -8,9 +8,9 @@ import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.GraphTemplate;
-import org.commcare.suite.model.IDetailTemplate;
+import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.graph.Graph;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
@@ -95,7 +95,7 @@ public class DetailParser extends ElementParser<Detail> {
 					builder.setTemplateForm(form);
 						
 					parser.nextTag();
-					IDetailTemplate template;
+					DetailTemplate template;
 					if (form.equals("graph")) {
 						template = new GraphParser(parser).parse();
 					}

@@ -1,4 +1,4 @@
-package org.commcare.suite.model;
+package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,11 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.suite.model.graph.Configurable;
-import org.commcare.suite.model.graph.ConfigurableData;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.PointData;
-import org.commcare.suite.model.graph.SeriesData;
+import org.commcare.suite.model.DetailTemplate;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -22,8 +19,8 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class GraphTemplate implements Externalizable, IDetailTemplate, Configurable {
-	public static final String TYPE_LINE = "line";
+public class Graph implements Externalizable, DetailTemplate, Configurable {
+	public static final String TYPE_XY = "xy";
 	public static final String TYPE_BUBBLE = "bubble";
 
 	private String type;
@@ -31,7 +28,7 @@ public class GraphTemplate implements Externalizable, IDetailTemplate, Configura
 	private Hashtable<String, Text> configuration;
 	private Vector<Annotation> annotations;
 	
-	public GraphTemplate() {
+	public Graph() {
 		series = new Vector<Series>();
 		configuration = new Hashtable<String, Text>();
 		annotations = new Vector<Annotation>();

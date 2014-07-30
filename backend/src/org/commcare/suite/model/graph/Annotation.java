@@ -1,4 +1,6 @@
-package org.commcare.suite.model;
+package org.commcare.suite.model.graph;
+
+import org.commcare.suite.model.Text;
 
 public class Annotation {
 	private Text x;

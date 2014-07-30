@@ -28,7 +28,7 @@ public class DetailField implements Externalizable {
 	public static final int DIRECTION_DESCENDING = 2;
 	
 	private Text header;
-	private IDetailTemplate template; // Text or Graph
+	private DetailTemplate template; // Text or Graph
 	private Text sort; 
 	private int headerHint = -1; 
 	private int templateHint = -1; 
@@ -41,7 +41,7 @@ public class DetailField implements Externalizable {
 	public DetailField() {
 	}
 	
-	public DetailField(Text header, IDetailTemplate template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
+	public DetailField(Text header, DetailTemplate template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
 		this.header = header;
 		this.template = template;
 		this.sort = sort;
@@ -65,7 +65,7 @@ public class DetailField implements Externalizable {
 	/**
 	 * @return the template
 	 */
-	public IDetailTemplate getTemplate() {
+	public DetailTemplate getTemplate() {
 		return template;
 	}
 
@@ -190,7 +190,7 @@ public class DetailField implements Externalizable {
 		/**
 		 * @param template the template to set
 		 */
-		public void setTemplate(IDetailTemplate template) {
+		public void setTemplate(DetailTemplate template) {
 			field.template = template;
 		}
 

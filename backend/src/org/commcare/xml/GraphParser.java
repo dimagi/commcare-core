@@ -3,22 +3,22 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.commcare.suite.model.Annotation;
-import org.commcare.suite.model.GraphTemplate;
-import org.commcare.suite.model.Series;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.graph.Annotation;
 import org.commcare.suite.model.graph.Configurable;
+import org.commcare.suite.model.graph.Graph;
+import org.commcare.suite.model.graph.Series;
 import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class GraphParser extends ElementParser<GraphTemplate> {
+public class GraphParser extends ElementParser<Graph> {
 	public GraphParser(KXmlParser parser) {
 		super(parser);
 	}	
 	
-	public GraphTemplate parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		GraphTemplate graph = new GraphTemplate();
+	public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
+		Graph graph = new Graph();
 		String type = parser.getAttributeValue(null, "type");
 		if (type == null) {
 			throw new InvalidStructureException("Expected attribute @type for element <" +  parser.getName() + ">", parser);
@@ -42,7 +42,7 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 		return graph;
 	}
 	
-	private void parseAnnotation(GraphTemplate graph) throws InvalidStructureException, IOException, XmlPullParserException {
+	private void parseAnnotation(Graph graph) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("annotation");
 		
 		TextParser textParser = new TextParser(parser);
@@ -97,7 +97,7 @@ public class GraphParser extends ElementParser<GraphTemplate> {
 		checkNode("y");
 		series.setY(parser.getAttributeValue(null,"function"));
 
-		if (type.equals(GraphTemplate.TYPE_BUBBLE)) {
+		if (type.equals(Graph.TYPE_BUBBLE)) {
 			nextStartTag();
 			checkNode("radius");
 			series.setRadius(parser.getAttributeValue(null, "function"));

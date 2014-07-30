@@ -1,4 +1,4 @@
-package org.commcare.suite.model;
+package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.commcare.suite.model.graph.Configurable;
+import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
