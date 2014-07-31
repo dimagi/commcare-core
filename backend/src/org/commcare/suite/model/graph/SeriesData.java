@@ -1,3 +1,7 @@
+/*
+ * Contains the fully-evaluated data for a single graph series.
+ * @author jschweers
+ */
 package org.commcare.suite.model.graph;
 
 import java.util.Hashtable;
@@ -5,31 +9,42 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class SeriesData implements ConfigurableData {
-	private Vector<XYPointData> points;
-	private Hashtable<String, String> configuration;
+	private Vector<XYPointData> mPoints;
+	private Hashtable<String, String> mConfiguration;
 
 	public SeriesData() {
-		points = new Vector<XYPointData>();
-		configuration = new Hashtable<String, String>();
+		mPoints = new Vector<XYPointData>();
+		mConfiguration = new Hashtable<String, String>();
 	}
 
 	public void addPoint(XYPointData p) {
-		points.addElement(p);
+		mPoints.addElement(p);
 	}
 	
 	public Iterator<XYPointData> getPointsIterator() {
-		return points.iterator();
+		return mPoints.iterator();
 	}
 	
+	/*
+	 * Number of points in the series.
+	 */
 	public int size() {
-		return points.size();
+		return mPoints.size();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.suite.model.graph.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
+	 */
 	public void setConfiguration(String key, String value) {
-		configuration.put(key, value);
+		mConfiguration.put(key, value);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.suite.model.graph.ConfigurableData#getConfiguration(java.lang.String)
+	 */
 	public String getConfiguration(String key) {
-		return configuration.get(key);
+		return mConfiguration.get(key);
 	}
 }

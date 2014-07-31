@@ -1,3 +1,7 @@
+/*
+ * Parser for a <graph> element, typically used as a detail field's template.
+ * @author jschweers
+ */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -18,6 +22,10 @@ public class GraphParser extends ElementParser<Graph> {
 		super(parser);
 	}	
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.xml.ElementParser#parse()
+	 */
 	public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		Graph graph = new Graph();
 		String type = parser.getAttributeValue(null, "type");
@@ -28,8 +36,12 @@ public class GraphParser extends ElementParser<Graph> {
 		
 		int entryLevel = parser.getDepth();
 		do {
+			// <graph> contains an optional <configuration>, 0 to many <series>, 
+			// and 0 to many <annotation>, in any order.
 			parser.nextTag();
 			if (parser.getName().equals("configuration")) {
+				// There's no reason for a graph to have multiple <configuration> elements, 
+				// but if it does, any later configuration settings will override earlier ones.
 				parseConfiguration(graph);
 			}
 			if (parser.getName().equals("series")) {
@@ -43,6 +55,11 @@ public class GraphParser extends ElementParser<Graph> {
 		return graph;
 	}
 	
+	/*
+	 * Helper for parse; handles a single annotation, which must contain an x 
+	 * (which contains a single <text>), y (also contains a single <text>), 
+	 * and then another <text> for the annotation's actual text.
+	 */
 	private void parseAnnotation(Graph graph) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("annotation");
 		
@@ -66,6 +83,9 @@ public class GraphParser extends ElementParser<Graph> {
 		graph.addAnnotation(new Annotation(x, y, text));
 	}
 	
+	/*
+	 * Helper for parse; handles a configuration element, which is a set of <text> elements, each with an id.
+	 */
 	private void parseConfiguration(Configurable data) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("configuration");
 		
@@ -80,6 +100,10 @@ public class GraphParser extends ElementParser<Graph> {
 		} while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("configuration"));
 	}
 	
+	/*
+	 * Helper for parse; handles a single series, which is an optional <configuration> followed by an <x>, a <y>,
+	 * and, if this graph is a bubble graph, a <radius>.
+	 */
 	private XYSeries parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
 		checkNode("series");
 		String nodeSet = parser.getAttributeValue(null, "nodeset");
@@ -111,6 +135,9 @@ public class GraphParser extends ElementParser<Graph> {
 		return series;
 	}
 	
+	/*
+	 * Move parser along until it hits a start tag.
+	 */
 	private void nextStartTag() throws IOException, XmlPullParserException {
 		do {
 			parser.nextTag();

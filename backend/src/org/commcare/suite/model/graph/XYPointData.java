@@ -1,20 +1,24 @@
+/**
+ * Representation of a point on an x, y plane.
+ * @author jschweers
+ */
 package org.commcare.suite.model.graph;
 
 public class XYPointData {
-	private Double x;
-	private Double y;
+	private Double mX;
+	private Double mY;
 
 	public XYPointData(Double x, Double y) {
-		this.x = new Double(x);
-		this.y = new Double(y);
+		mX = new Double(x);
+		mY = new Double(y);
 	}
 	
 	public Double getX() {
-		return x;
+		return mX;
 	}
 	
 	public Double getY() {
-		return y;
+		return mY;
 	}
 	
 }

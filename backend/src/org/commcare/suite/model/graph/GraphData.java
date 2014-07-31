@@ -1,3 +1,6 @@
+/**
+ * Contains all of the fully-evaluated data to draw a graph: a type, set of series, set of text annotations, and key-value map of configuration.
+ */
 package org.commcare.suite.model.graph;
 
 import java.util.Hashtable;
@@ -5,47 +8,55 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class GraphData implements ConfigurableData {
-	private String type;
-	private Vector<SeriesData> series;
-	private Hashtable<String, String> configuration;
-	private Vector<AnnotationData> annotations;
+	private String mType;
+	private Vector<SeriesData> mSeries;
+	private Hashtable<String, String> mConfiguration;
+	private Vector<AnnotationData> mAnnotations;
 
 	public GraphData() {
-		series = new Vector<SeriesData>();
-		configuration = new Hashtable<String, String>();
-		annotations = new Vector<AnnotationData>();
+		mSeries = new Vector<SeriesData>();
+		mConfiguration = new Hashtable<String, String>();
+		mAnnotations = new Vector<AnnotationData>();
 	}
 	
 	public String getType() {
-		return type;
+		return mType;
 	}
 	
 	public void setType(String type) {
-		this.type = type;
+		mType = type;
 	}
 
 	public Iterator<SeriesData> getSeriesIterator() {
-		return series.iterator();
+		return mSeries.iterator();
 	}
 	
 	public void addSeries(SeriesData s) {
-		series.addElement(s);
+		mSeries.addElement(s);
 	}
 	
 	public void addAnnotation(AnnotationData a) {
-		annotations.addElement(a);
+		mAnnotations.addElement(a);
 	}
 	
 	public Iterator<AnnotationData> getAnnotationIterator() {
-		return annotations.iterator();
+		return mAnnotations.iterator();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.suite.model.graph.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
+	 */
 	public void setConfiguration(String key, String value) {
-		configuration.put(key, value);
+		mConfiguration.put(key, value);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.suite.model.graph.ConfigurableData#getConfiguration(java.lang.String)
+	 */
 	public String getConfiguration(String key) {
-		return configuration.get(key);
+		return mConfiguration.get(key);
 	}
 	
 }

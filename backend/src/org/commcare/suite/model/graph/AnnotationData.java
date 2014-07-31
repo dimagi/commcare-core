@@ -1,14 +1,18 @@
+/**
+ * Data for an annotation, which is text drawn at a specified x, y coordinate on a graph.
+ * @author jschweers
+ */
 package org.commcare.suite.model.graph;
 
 public class AnnotationData extends XYPointData {
-	private String annotation;
+	private String mAnnotation;
 
 	public AnnotationData(Double x, Double y, String annotation) {
 		super(x, y);
-		this.annotation = annotation;
+		mAnnotation = annotation;
 	}
 
 	public String getAnnotation() {
-		return annotation;
+		return mAnnotation;
 	}
 }

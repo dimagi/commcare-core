@@ -1,3 +1,7 @@
+/**
+ * Definition of an annotation, which is text drawn at a specified x, y coordinate on a graph.
+ * @author jschweers 
+ */
 package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
@@ -11,38 +15,46 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class Annotation implements Externalizable {
-	private Text x;
-	private Text y;
-	private Text annotation;
+	private Text mX;
+	private Text mY;
+	private Text mAnnotation;
 
 	public Annotation(Text x, Text y, Text annotation) {
-		this.x = x;
-		this.y = y;
-		this.annotation = annotation;
+		mX = x;
+		mY = y;
+		mAnnotation = annotation;
 	}
 
 	public Text getX() {
-		return x;
+		return mX;
 	}
 	
 	public Text getY() {
-		return y;
+		return mY;
 	}
 	
 	public Text getAnnotation() {
-		return annotation;
+		return mAnnotation;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+	 */
 	public void readExternal(DataInputStream in, PrototypeFactory pf)
 			throws IOException, DeserializationException {
-		x = (Text)ExtUtil.read(in, Text.class, pf);
-		y = (Text)ExtUtil.read(in,  Text.class, pf);
-		annotation = (Text)ExtUtil.read(in, Text.class, pf);
+		mX = (Text)ExtUtil.read(in, Text.class, pf);
+		mY = (Text)ExtUtil.read(in,  Text.class, pf);
+		mAnnotation = (Text)ExtUtil.read(in, Text.class, pf);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+	 */
 	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.write(out, x);
-		ExtUtil.write(out,  y);
-		ExtUtil.write(out, annotation);
+		ExtUtil.write(out, mX);
+		ExtUtil.write(out,  mY);
+		ExtUtil.write(out, mAnnotation);
 	}
 }
