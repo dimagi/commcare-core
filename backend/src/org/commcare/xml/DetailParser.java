@@ -5,7 +5,6 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.util.Vector;
-
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -74,7 +73,6 @@ public class DetailParser extends ElementParser<Detail> {
 					
 					String form = parser.getAttributeValue(null, "form");
 					builder.setHeaderForm(form == null ? "" : form);
-					
 					parser.nextTag();
 					checkNode("text");
 					Text header = new TextParser(parser).parse();
