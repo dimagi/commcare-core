@@ -135,8 +135,9 @@ public class XFormParser {
 	private Vector<String> instanceNodeIdStrs;
 	private String defaultNamespace;
 	private Vector<String> itextKnownForms;
-	private Vector<String> namedActions;
-	private Hashtable<String, IElementHandler> structuredActions;
+	
+	private static Vector<String> namedActions;
+	private static Hashtable<String, IElementHandler> structuredActions;
 	
 	
 	private FormInstance repeatTree; //pseudo-data model tree that describes the repeat structure of the instance;
@@ -206,6 +207,11 @@ public class XFormParser {
 		topLevelHandlers.put("meta", meta);
 
 		groupLevelHandlers.put(LABEL_ELEMENT, groupLabel);
+
+		structuredActions = new Hashtable<String, IElementHandler>();
+		registerStructuredAction("setvalue", new IElementHandler() {
+			public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
+		});
 	}
 
 	private static void initTypeMappings () {
@@ -266,12 +272,6 @@ public class XFormParser {
 		namedActions.addElement("refresh");
 		namedActions.addElement("setfocus");
 		namedActions.addElement("reset");
-		
-		
-		structuredActions = new Hashtable<String, IElementHandler>();
-		structuredActions.put("setvalue", new IElementHandler() {
-				public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
-		});
 	}
 	
 	XFormParserReporter reporter = new XFormParserReporter();
@@ -643,7 +643,7 @@ public class XFormParser {
 		Action action;
 		TreeReference treeref = FormInstance.unpackReference(dataRef);
 		
-		actionTargets.addElement(treeref);
+		registerActionTarget(treeref);
 		if(valueRef == null) {
 			if(e.getChildCount() == 0 || !e.isText(0)) {
 				throw new XFormParseException("No 'value' attribute and no inner value set in <setvalue> associated with: " + treeref, e);
@@ -659,7 +659,6 @@ public class XFormParser {
 			}
 		}
 		form.registerEventListener(event, action);
-		
 	}
 	
 	private void parseSubmission(Element submission) {
@@ -1343,7 +1342,7 @@ public class XFormParser {
 	}
 	
 	//take a (possibly relative) reference, and make it absolute based on its parent
-	private static IDataReference getAbsRef (IDataReference ref, TreeReference parentRef) {
+	public static IDataReference getAbsRef (IDataReference ref, TreeReference parentRef) {
 		TreeReference tref;
 		
 		if (!parentRef.isAbsolute()) {
@@ -2721,6 +2720,23 @@ public class XFormParser {
 	public static void registerHandler(String type, IElementHandler handler) {
 		topLevelHandlers.put(type, handler);
 		groupLevelHandlers.put(type, handler);
+	}
+	
+	/**
+	 * Let parser know how to handle a given action.
+	 * @param type Name of tag.
+	 * @param handler Handler for tag.
+	 */
+	public static void registerStructuredAction(String type, IElementHandler handler) {
+		structuredActions.put(type, handler);
+	}
+
+	/**
+	 * Notify parser about a node that will later be relevant to an action.
+	 * @param target
+	 */
+	public void registerActionTarget(TreeReference target) {
+		actionTargets.addElement(target);
 	}
 
 	public static String getXMLText (Node n, boolean trim) {
