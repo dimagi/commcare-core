@@ -65,6 +65,16 @@ public class DetailParser extends ElementParser<Detail> {
 				if(sortDefault != null && sortDefault.equals("default")) {
 					builder.setSortOrder(1);
 				}
+				String relevancy = parser.getAttributeValue(null, "relevant");
+				if (relevancy != null) {
+					try {
+						XPathParseTool.parseXPath(relevancy);
+						builder.setRelevancy(relevancy);
+					} catch (XPathSyntaxException e) {
+						e.printStackTrace();
+						throw new InvalidStructureException("Bad XPath Expression {" + relevancy + "}", parser);
+					}
+				}
 				if(nextTagInBlock("field")) {
 					//Header
 					checkNode("header");

@@ -30,6 +30,7 @@ public class DetailField implements Externalizable {
 	private Text header;
 	private Text template; 
 	private Text sort; 
+	private String relevancy;
 	private int headerHint = -1; 
 	private int templateHint = -1; 
 	private String headerForm; 
@@ -42,10 +43,16 @@ public class DetailField implements Externalizable {
 		
 	}
 	
-	public DetailField(Text header, Text template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
+	public DetailField(
+		Text header, Text template, Text sort, String relevancy, 
+		int headerHint, int templateHint, 
+		String headerForm, String templateForm,
+		int sortOrder, int sortDirection, int sortType
+	) {
 		this.header = header;
 		this.template = template;
 		this.sort = sort;
+		this.relevancy = relevancy;
 		this.headerHint = headerHint;
 		this.templateHint = templateHint;
 		this.headerForm = headerForm;
@@ -78,7 +85,12 @@ public class DetailField implements Externalizable {
 		return sort;
 	}
 
-
+	/**
+	 * @return the relevancy
+	 */
+	public String getRelevancy() {
+		return relevancy;
+	}
 
 	/**
 	 * @return the headerHint
@@ -205,6 +217,12 @@ public class DetailField implements Externalizable {
 			field.sort = sort;
 		}
 
+		/**
+		 * @param relevancy the relevancy to set
+		 */
+		public void setRelevancy(String relevancy) {
+			field.relevancy = relevancy;
+		}
 
 
 		/**
