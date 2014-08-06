@@ -106,6 +106,11 @@ public class CommCarePlatform implements CommCareInstance {
 			throw new IllegalArgumentException("Global resource table was not ready for upgrading");
 		}
 		
+		/*TODO: 
+		 * -KEY: This is the flag that determines whether the incoming table gets cleared away
+		 * -incoming always represents the last ResourceTable that was attempted to be installed
+		 * -if the last install was successful, then incoming will just be empty
+		 */
 		if(clearProgress) {
 			//In the future: Continuable upgrades. Now: Clear old upgrade info
 			incoming.clear();
