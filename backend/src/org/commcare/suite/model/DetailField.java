@@ -91,6 +91,12 @@ public class DetailField implements Externalizable {
 		return sort;
 	}
 
+	/**
+	 * Determine if field should be shown, based on any relevancy condition.
+	 * @param context Context in which to evaluate the field.
+	 * @return true iff the field should be displayed
+	 * @throws XPathSyntaxException
+	 */
 	public boolean isRelevant(EvaluationContext context) throws XPathSyntaxException {
 		if (relevancy == null) {
 			return true;
