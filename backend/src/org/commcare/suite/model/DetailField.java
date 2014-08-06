@@ -8,11 +8,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * Detail Fields represent the <field> elements of a suite's detail
@@ -31,6 +36,7 @@ public class DetailField implements Externalizable {
 	private Text template; 
 	private Text sort; 
 	private String relevancy;
+	private XPathExpression parsedRelevancy;
 	private int headerHint = -1; 
 	private int templateHint = -1; 
 	private String headerForm; 
@@ -85,11 +91,16 @@ public class DetailField implements Externalizable {
 		return sort;
 	}
 
-	/**
-	 * @return the relevancy
-	 */
-	public String getRelevancy() {
-		return relevancy;
+	public boolean isRelevant(EvaluationContext context) throws XPathSyntaxException {
+		if (relevancy == null) {
+			return true;
+		}
+		
+		if (parsedRelevancy == null) {
+			parsedRelevancy = XPathParseTool.parseXPath(relevancy);
+		}
+
+		return XPathFuncExpr.toBoolean(parsedRelevancy.eval(context)).booleanValue();
 	}
 
 	/**
