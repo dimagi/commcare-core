@@ -157,6 +157,7 @@ public class DetailField implements Externalizable {
 		header = (Text)ExtUtil.read(in, Text.class);
 		template = (Text)ExtUtil.read(in, Text.class);
 		sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+		relevancy = ExtUtil.readString(in);
 		headerHint = ExtUtil.readInt(in);
 		templateHint = ExtUtil.readInt(in);
 		headerForm = ExtUtil.readString(in);
@@ -173,6 +174,7 @@ public class DetailField implements Externalizable {
 		ExtUtil.write(out, header);
 		ExtUtil.write(out, template);
 		ExtUtil.write(out, new ExtWrapNullable(sort));
+		ExtUtil.writeString(out, relevancy);
 		ExtUtil.writeNumeric(out, headerHint);
 		ExtUtil.writeNumeric(out, templateHint);
 		ExtUtil.writeString(out,headerForm);
