@@ -427,7 +427,7 @@ public class CommCareSession {
 	}
 	
 	/**
-	 * Executes a set of stock operations against the current session environment.
+	 * Executes a set of stack operations against the current session environment.
 	 * 
 	 * The context data and session data provided will consistently match the live frame
 	 * when the operations began executing, although frame operations will be executed
