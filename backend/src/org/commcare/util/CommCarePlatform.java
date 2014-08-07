@@ -103,7 +103,6 @@ public class CommCarePlatform implements CommCareInstance {
 			if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
 				throw new IllegalArgumentException("Global resource table was not ready for upgrading");
 			}
-			throw new IllegalArgumentException("Global resource table was not ready for upgrading");
 		}
 		
 		/*TODO: 
