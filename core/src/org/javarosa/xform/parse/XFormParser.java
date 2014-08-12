@@ -212,13 +212,6 @@ public class XFormParser {
 		registerStructuredAction("setvalue", new IElementHandler() {
 			public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
 		});
-		
-		// Prevent parser from choking on pollsensor events. Any actual handler provided will overwrite this.
-		if (structuredActions.get("pollsensor") == null) {
-			registerStructuredAction("pollsensor", new IElementHandler() {
-				public void handle (XFormParser p, Element e, Object parent) { /* do nothing */ }
-			});
-		}
 	}
 
 	private static void initTypeMappings () {
@@ -578,7 +571,9 @@ public class XFormParser {
 				delayedParseElements.addElement(child);
 			} else { //invalid model content
 				if (type == Node.ELEMENT) {
-					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
+					if (child.getNamespace().equals(defaultNamespace)) {
+						throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
+					}
 				} else if (type == Node.TEXT && getXMLText(e, i, true).length() != 0) {
 					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"",child == null ? e : child);					
 				}
