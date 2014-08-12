@@ -433,10 +433,28 @@ public class XFormParser {
 			{
 				Element e = instanceNodes.elementAt(i);
 				String srcLocation = e.getAttributeValue(null, "src");
+				String instanceid = instanceNodeIdStrs.elementAt(i);
 				
 				DataInstance di;
-				if(e.getChildCount() == 0 && srcLocation != null) {
-					di = new ExternalDataInstance(srcLocation, instanceNodeIdStrs.elementAt(i));
+				if(srcLocation != null) {
+					//If there's a src, we shouldn't accept a body, so make 
+					//sure these are real children and not whitespace issues
+					if(e.getChildCount() > 0) {
+						for(int k = 0; k < e.getChildCount(); ++k) {
+							switch(e.getType(k)) {
+							case Element.TEXT:
+								if("".equals(e.getText(i).trim())) {
+									//this isn't real data
+									continue;
+								}
+							case Element.IGNORABLE_WHITESPACE:
+								continue;
+							case Element.ELEMENT:
+								throw new XFormParseException("Instance declaration for instance " + instanceid + " contains both a src and a body, only one is permitted", e);
+							}
+						}
+					}
+					di = new ExternalDataInstance(srcLocation, instanceid);
 				} else {
 					FormInstance fi = parseInstance(e, false);
 					loadInstanceData(e, fi.getRoot(), _f);
@@ -734,6 +752,8 @@ public class XFormParser {
 		
 		if (mainInstanceNode == null) {
 			mainInstanceNode = instanceNode;
+		} else if(instanceId == null) {
+			throw new XFormParseException("XForm Parse: Non-main <instance> element requires an id attribute", instance);
 		}
 		
 		instanceNodes.addElement(instanceNode);
