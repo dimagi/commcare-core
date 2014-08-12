@@ -212,6 +212,13 @@ public class XFormParser {
 		registerStructuredAction("setvalue", new IElementHandler() {
 			public void handle (XFormParser p, Element e, Object parent) { p.parseSetValueAction((FormDef)parent, e);}
 		});
+		
+		// Prevent parser from choking on pollsensor events. Any actual handler provided will overwrite this.
+		if (structuredActions.get("pollsensor") == null) {
+			registerStructuredAction("pollsensor", new IElementHandler() {
+				public void handle (XFormParser p, Element e, Object parent) { /* do nothing */ }
+			});
+		}
 	}
 
 	private static void initTypeMappings () {
