@@ -35,10 +35,8 @@ public class Entry implements Externalizable{
 	
 	private String xFormNamespace;
 	Vector<SessionDatum> data;
-	private Text commandText;
+	DisplayUnit display;
 	private String commandId;
-	private String imageResource;
-	private String audioResource;
 	Hashtable<String, DataInstance> instances;
 	Vector<StackOperation> stackOperations;
 	AssertionSet assertions;
@@ -50,15 +48,12 @@ public class Entry implements Externalizable{
 		
 	}
 	
-	public Entry(String commandId, Text commandText, Vector<SessionDatum> data,
-			String formNamespace, String imageResource, String audioResource, Hashtable<String, DataInstance> instances,
+	public Entry(String commandId, DisplayUnit display, Vector<SessionDatum> data,String formNamespace, Hashtable<String, DataInstance> instances,
 			Vector<StackOperation> stackOperations, AssertionSet assertions) {
 		this.commandId = commandId  == null ? "" : commandId;
-		this.commandText = commandText;
+		this.display = display;
 		this.data = data;
 		xFormNamespace = formNamespace;
-		this.imageResource = imageResource == null ? "" : imageResource;
-		this.audioResource = audioResource == null ? "" : audioResource;
 		this.instances = instances;
 		this.stackOperations = stackOperations;
 		this.assertions = assertions;
@@ -77,7 +72,7 @@ public class Entry implements Externalizable{
 	 * user as the entry point for this operation
 	 */
 	public Text getText() {
-		return commandText;
+		return display.getText();
 	}
 	
 	/**
@@ -94,14 +89,14 @@ public class Entry implements Externalizable{
 	 * view displaying all xform entries.
 	 */
 	public String getImageURI(){
-		return imageResource;
+		return display.getImageURI();
 	}
 	
 	/**
 	 * @return the URI of an optional audio resource to be used in the view displaying all xform entries
 	 */
 	public String getAudioURI(){
-		return audioResource;
+		return display.getAudioURI();
 	}
 	
 	public Vector<SessionDatum> getSessionDataReqs() {
@@ -141,9 +136,7 @@ public class Entry implements Externalizable{
 			throws IOException, DeserializationException {
 		this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 		this.commandId = ExtUtil.readString(in);
-		this.commandText = (Text)ExtUtil.read(in, Text.class, pf);
-		this.imageResource = ExtUtil.readString(in);
-		this.audioResource = ExtUtil.readString(in);
+		this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
 		
 		data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
 		instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
@@ -158,15 +151,19 @@ public class Entry implements Externalizable{
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace));
 		ExtUtil.writeString(out,commandId);
-		ExtUtil.write(out,commandText);
-		ExtUtil.write(out, imageResource);
-		ExtUtil.write(out, audioResource);
+		ExtUtil.write(out,display);
 		ExtUtil.write(out, new ExtWrapList(data));
 		ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
 		ExtUtil.write(out, new ExtWrapList(stackOperations));
 		ExtUtil.write(out, new ExtWrapNullable(assertions));
 	}
 
+	/**
+	 * Retrieve the stack operations that should be processed after this entry
+	 * session has successfully completed.
+	 * 
+	 * @return a Vector of Stack Operation models. 
+	 */
 	public Vector<StackOperation> getPostEntrySessionOperations() {
 		return stackOperations;
 	}

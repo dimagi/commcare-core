@@ -82,7 +82,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				while(!staged) {
 					try {
-						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, false);
+						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, recovery, false);
 						interaction.updateProgess(20);
 						staged = true;
 					} catch (UnresolvedResourceException e) {
