@@ -1,12 +1,13 @@
-/**
- * Contains all of the fully-evaluated data to draw a graph: a type, set of series, set of text annotations, and key-value map of configuration.
- */
 package org.commcare.suite.model.graph;
 
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
+/**
+ * Contains all of the fully-evaluated data to draw a graph: a type, set of series, set of text annotations, and key-value map of configuration.
+ * @author jschweers
+ */
 public class GraphData implements ConfigurableData {
 	private String mType;
 	private Vector<SeriesData> mSeries;
@@ -27,8 +28,8 @@ public class GraphData implements ConfigurableData {
 		mType = type;
 	}
 
-	public Iterator<SeriesData> getSeriesIterator() {
-		return mSeries.iterator();
+	public Vector<SeriesData> getSeries() {
+		return mSeries;
 	}
 	
 	public void addSeries(SeriesData s) {
@@ -39,8 +40,8 @@ public class GraphData implements ConfigurableData {
 		mAnnotations.addElement(a);
 	}
 	
-	public Iterator<AnnotationData> getAnnotationIterator() {
-		return mAnnotations.iterator();
+	public Vector<AnnotationData> getAnnotations() {
+		return mAnnotations;
 	}
 
 	/*

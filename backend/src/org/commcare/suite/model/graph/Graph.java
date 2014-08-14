@@ -1,7 +1,3 @@
-/**
- * Defines a graph: type, set of series, set of text annotations, and key-value-based configuration.
- * @author jschweers
- */
 package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
@@ -26,6 +22,10 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+/**
+ * Defines a graph: type, set of series, set of text annotations, and key-value-based configuration.
+ * @author jschweers
+ */
 public class Graph implements Externalizable, DetailTemplate, Configurable {
 	public static final String TYPE_XY = "xy";
 	public static final String TYPE_BUBBLE = "bubble";

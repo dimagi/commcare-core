@@ -1,13 +1,13 @@
-/*
- * Contains the fully-evaluated data for a single graph series.
- * @author jschweers
- */
 package org.commcare.suite.model.graph;
 
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
+/*
+ * Contains the fully-evaluated data for a single graph series.
+ * @author jschweers
+ */
 public class SeriesData implements ConfigurableData {
 	private Vector<XYPointData> mPoints;
 	private Hashtable<String, String> mConfiguration;
@@ -21,8 +21,8 @@ public class SeriesData implements ConfigurableData {
 		mPoints.addElement(p);
 	}
 	
-	public Iterator<XYPointData> getPointsIterator() {
-		return mPoints.iterator();
+	public Vector<XYPointData> getPoints() {
+		return mPoints;
 	}
 	
 	/*

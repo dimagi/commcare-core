@@ -1,7 +1,3 @@
-/*
- * Parser for a <graph> element, typically used as a detail field's template.
- * @author jschweers
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -17,6 +13,10 @@ import org.commcare.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+/*
+ * Parser for a <graph> element, typically used as a detail field's template.
+ * @author jschweers
+ */
 public class GraphParser extends ElementParser<Graph> {
 	public GraphParser(KXmlParser parser) {
 		super(parser);

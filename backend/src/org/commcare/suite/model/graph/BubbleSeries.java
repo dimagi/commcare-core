@@ -1,7 +1,3 @@
-/**
- * Single series ("line") on a bubble chart.
- * @author jschweers
- */
 package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
@@ -15,6 +11,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+/**
+ * Single series ("line") on a bubble chart.
+ * @author jschweers
+ */
 public class BubbleSeries extends XYSeries {
 	private String mRadius;
 	private XPathExpression mRadiusParse;

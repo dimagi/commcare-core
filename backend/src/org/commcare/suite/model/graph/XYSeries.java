@@ -1,7 +1,3 @@
-/**
- * Single series (line) on an xy graph.
- * @author jschweers
- */
 package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
@@ -23,6 +19,10 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+/**
+ * Single series (line) on an xy graph.
+ * @author jschweers
+ */
 public class XYSeries implements Externalizable, Configurable {
 	private TreeReference mNodeSet;
 	private Hashtable<String, Text> mConfiguration;

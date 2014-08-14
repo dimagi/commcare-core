@@ -1,9 +1,9 @@
+package org.commcare.suite.model.graph;
+
 /**
  * Representation of a point on an x, y plane.
  * @author jschweers
  */
-package org.commcare.suite.model.graph;
-
 public class XYPointData {
 	private Double mX;
 	private Double mY;

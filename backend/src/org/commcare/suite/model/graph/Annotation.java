@@ -1,7 +1,3 @@
-/**
- * Definition of an annotation, which is text drawn at a specified x, y coordinate on a graph.
- * @author jschweers 
- */
 package org.commcare.suite.model.graph;
 
 import java.io.DataInputStream;
@@ -14,6 +10,10 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+/**
+ * Definition of an annotation, which is text drawn at a specified x, y coordinate on a graph.
+ * @author jschweers 
+ */
 public class Annotation implements Externalizable {
 	private Text mX;
 	private Text mY;
