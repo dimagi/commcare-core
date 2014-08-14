@@ -4,11 +4,13 @@ public class GridStyle {
 	private String fontSize;
 	private String horzAlign;
 	private String vertAlign;
+	private String cssID;
 	
-	public GridStyle(String fs, String ha, String va){
+	public GridStyle(String fs, String ha, String va, String cssid){
 		fontSize = fs;
 		horzAlign = ha;
 		vertAlign = va;
+		cssID = cssid;
 	}
 	
 	public String getFontSize(){
@@ -30,6 +32,13 @@ public class GridStyle {
 			return "none";
 		}
 		return vertAlign;
+	}
+	
+	public String getCssID(){
+		if(cssID == null){
+			return "none";
+		}
+		return cssID;
 	}
 	
 	public String toString(){

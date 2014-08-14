@@ -75,6 +75,7 @@ public class DetailParser extends ElementParser<Detail> {
 					
 					GridParser gridParser = new GridParser(builder,parser);
 					gridParser.parse();
+					
 					//exit style block
 					parser.nextTag();
 					parser.nextTag();

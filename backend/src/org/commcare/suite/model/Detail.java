@@ -260,7 +260,7 @@ public class Detail implements Externalizable {
 		for(int i=0; i< fields.length; i++){
 			DetailField currentField = fields[i];
 			mGC[i] = new GridStyle(currentField.getFontSize(), currentField.getHorizontalAlign(), 
-											currentField.getVerticalAlign());
+											currentField.getVerticalAlign(), currentField.getCssId());
 		}
 		
 		return mGC;

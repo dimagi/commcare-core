@@ -44,6 +44,7 @@ public class DetailField implements Externalizable {
 	private String horizontalAlign;
 	private String verticalAlign;
 	private String fontSize;
+	private String cssID;
 	
 	public DetailField() {
 		
@@ -204,6 +205,10 @@ public class DetailField implements Externalizable {
 	public String getFontSize() {
 		return fontSize;
 	}
+	
+	public String getCssId(){
+		return cssID;
+	}
 
 	public class Builder {
 		DetailField field;
@@ -327,6 +332,11 @@ public class DetailField implements Externalizable {
 
 		public void setFontSize(String fontSize) {
 			field.fontSize = fontSize;
+		}
+
+		public void setCssID(String id) {
+			field.cssID = id;
+			
 		}
 	}
 }
