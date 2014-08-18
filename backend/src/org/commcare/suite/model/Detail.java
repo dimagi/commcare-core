@@ -102,6 +102,10 @@ public class Detail implements Externalizable {
 		return fields;
 	}
 	
+	public boolean isCompound() {
+		return details.length > 0;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
