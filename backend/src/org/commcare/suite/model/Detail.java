@@ -41,6 +41,7 @@ public class Detail implements Externalizable {
 	
 	private Text title;
 	
+	Detail[] details;
 	DetailField[] fields;
 	
 	OrderedHashtable<String, String> variables;
@@ -56,24 +57,26 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, Vector<DetailField> fields, OrderedHashtable<String, String> variables, Action action) {
-		this(id, title, ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), variables, action);
+	public Detail(String id, Text title, Vector<Detail> details, Vector<DetailField> fields, OrderedHashtable<String, String> variables, Action action) {
+		this(
+			id, title, 
+			ArrayUtilities.copyIntoArray(details, new Detail[details.size()]), 
+			ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), 
+			variables, action
+		);
 	}
 	
-	public Detail(String id, Text title, DetailField[] fields, OrderedHashtable<String, String> variables, Action action) {
+	public Detail(String id, Text title, Detail[] details, DetailField[] fields, OrderedHashtable<String, String> variables, Action action) {
+		if (details.length > 0 && fields.length > 0) {
+			throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
+		}
+		
 		this.id = id;
 		this.title = title;
+		this.details = details;
 		this.fields = fields;
 		this.variables = variables;
 		this.action = action;
-	}
-	
-	private int[] initBlank(int size) {
-		int[] blank = new int[size];
-		for(int i = 0; i < size ; ++i) {
-			blank[i] = -1;
-		}
-		return blank;
 	}
 	
 	/**
@@ -90,6 +93,11 @@ public class Detail implements Externalizable {
 	public Text getTitle() {
 		return title;
 	}
+	
+	public Detail[] getDetails() {
+		return details;
+	}
+	
 	public DetailField[] getFields() {
 		return fields;
 	}
@@ -101,6 +109,9 @@ public class Detail implements Externalizable {
 	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
 		id = ExtUtil.readString(in);
 		title = (Text)ExtUtil.read(in, Text.class, pf);
+		Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
+		details = new Detail[theDetails.size()];
+		ArrayUtilities.copyIntoArray(theDetails, details);
 		Vector<DetailField> theFields  = (Vector<DetailField>)ExtUtil.read(in, new ExtWrapList(DetailField.class), pf);
 		fields = new DetailField[theFields.size()];
 		ArrayUtilities.copyIntoArray(theFields, fields);
@@ -115,6 +126,7 @@ public class Detail implements Externalizable {
 	public void writeExternal(DataOutputStream out) throws IOException {
 		ExtUtil.writeString(out,id);
 		ExtUtil.write(out, title);
+		ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
 		ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
 		ExtUtil.write(out, new ExtWrapMap(variables));
 		ExtUtil.write(out, action);

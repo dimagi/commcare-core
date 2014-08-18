@@ -28,43 +28,48 @@ public class DetailParser extends ElementParser<Detail> {
 	}
 
 	public Detail parse() throws InvalidStructureException, IOException, XmlPullParserException {
-			checkNode("detail");
+		checkNode("detail");
+	
+		String id = parser.getAttributeValue(null,"id");
 		
-			String id = parser.getAttributeValue(null,"id");
-			
-			//First fetch the title
-			getNextTagInBlock("detail");
-			//inside title, should be a text node as the child
-			checkNode("title");
-			getNextTagInBlock("title");
-			Text title = new TextParser(parser).parse();
-			Action action = null;
-			
-			//Now get the headers and templates.
-			Vector<DetailField> fields = new Vector<DetailField>();
-			OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
-			
-			while(nextTagInBlock("detail")) {
-				if("variables".equals(parser.getName().toLowerCase())) {
-					while(nextTagInBlock("variables")) {
-						String function = parser.getAttributeValue(null, "function");
-						if(function == null) { throw new InvalidStructureException("No function in variable declaration for variable " + parser.getName(), parser); }
-						try {
-							XPathParseTool.parseXPath(function);
-						} catch (XPathSyntaxException e) {
-							e.printStackTrace();
-							throw new InvalidStructureException("Invalid XPath function " + function +". " + e.getMessage(), parser);
-						}
-						variables.put(parser.getName(), function);
+		//First fetch the title
+		getNextTagInBlock("detail");
+		//inside title, should be a text node as the child
+		checkNode("title");
+		getNextTagInBlock("title");
+		Text title = new TextParser(parser).parse();
+		Action action = null;
+		
+		//Now get the headers and templates.
+		Vector<Detail> subdetails = new Vector<Detail>();
+		Vector<DetailField> fields = new Vector<DetailField>();
+		OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
+		
+		while(nextTagInBlock("detail")) {
+			if("variables".equals(parser.getName().toLowerCase())) {
+				while(nextTagInBlock("variables")) {
+					String function = parser.getAttributeValue(null, "function");
+					if(function == null) { throw new InvalidStructureException("No function in variable declaration for variable " + parser.getName(), parser); }
+					try {
+						XPathParseTool.parseXPath(function);
+					} catch (XPathSyntaxException e) {
+						e.printStackTrace();
+						throw new InvalidStructureException("Invalid XPath function " + function +". " + e.getMessage(), parser);
 					}
-					continue;
+					variables.put(parser.getName(), function);
 				}
-				if(ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
-					action = new ActionParser(parser).parse();
-					continue;
-				}
-				DetailField.Builder builder = new DetailField().new Builder();
-				
+				continue;
+			}
+			if(ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
+				action = new ActionParser(parser).parse();
+				continue;
+			}
+			DetailField.Builder builder = new DetailField().new Builder();
+			
+			if (parser.getName().equals("detail")) {
+				subdetails.addElement(this.parse());
+			}
+			else {
 				checkNode("field");
 				//Get the fields
 				String sortDefault = parser.getAttributeValue(null, "sort");
@@ -162,10 +167,9 @@ public class DetailParser extends ElementParser<Detail> {
 				}
 				fields.addElement(builder.build());
 			}
+		}
 		
-		
-		
-		Detail d = new Detail(id, title, fields, variables, action);
+		Detail d = new Detail(id, title, subdetails, fields, variables, action);
 		return d;
 	}
 	
