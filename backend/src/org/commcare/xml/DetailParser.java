@@ -36,6 +36,7 @@ public class DetailParser extends ElementParser<Detail> {
 		getNextTagInBlock("detail");
 		//inside title, should be a text node as the child
 		checkNode("title");
+		String titleForm = parser.getAttributeValue(null, "form");
 		getNextTagInBlock("title");
 		Text title = new TextParser(parser).parse();
 		Action action = null;
@@ -169,7 +170,7 @@ public class DetailParser extends ElementParser<Detail> {
 			}
 		}
 		
-		Detail d = new Detail(id, title, subdetails, fields, variables, action);
+		Detail d = new Detail(id, title, titleForm, subdetails, fields, variables, action);
 		return d;
 	}
 	
