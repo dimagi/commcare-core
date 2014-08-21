@@ -129,8 +129,11 @@ public class BufferedInputStream extends InputStream {
 						}
 					}
 					
-					//Incomplete read. Get the bits back. Hopefully the stream won't be blocked next time they try to read.  
-					quitEarly = true;
+					//0 is always an illegal return from here, so if we haven't read any bits yet, we need to do so now
+					if(counter != 0) {
+						//Incomplete read. Get the bits back. Hopefully the stream won't be blocked next time they try to read.  
+						quitEarly = true;
+					}
 				}
 			}
 		}
