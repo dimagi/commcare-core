@@ -20,12 +20,15 @@ import org.commcare.view.CommCareStartupInteraction;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.api.State;
 import org.javarosa.core.io.BufferedInputStream;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
+
+import de.enough.polish.util.StreamUtil;
 
 /**
  * @author ctsims
@@ -80,14 +83,17 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				boolean staged = false;
 				
+				String message = "";
 				while(!staged) {
 					try {
 						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, recovery, false);
 						interaction.updateProgess(20);
 						staged = true;
 					} catch (UnresolvedResourceException e) {
+						Logger.log("upgrade", "Error locating upgrade profile: " + e.getMessage());
+						
 						if(interactive) {
-							if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
+							if(blockForResponse("Couldn't find the update profile, do you want to try again?" + message)) {
 								//loop here
 							} else {
 								return false;
