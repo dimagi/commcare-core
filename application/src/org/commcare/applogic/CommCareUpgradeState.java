@@ -83,7 +83,6 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 				
 				boolean staged = false;
 				
-				String message = "";
 				while(!staged) {
 					try {
 						CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, recovery, false);
@@ -93,7 +92,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 						Logger.log("upgrade", "Error locating upgrade profile: " + e.getMessage());
 						
 						if(interactive) {
-							if(blockForResponse("Couldn't find the update profile, do you want to try again?" + message)) {
+							if(blockForResponse("Couldn't find the update profile, do you want to try again?")) {
 								//loop here
 							} else {
 								return false;
