@@ -36,6 +36,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 //TODO: This class needs to be immutable
 public class TreeReference implements Externalizable {
+	
+	int hashCode = -1;
+	
 	public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
 	public static final int INDEX_UNBOUND = -1;//multiplicity
 	public static final int INDEX_TEMPLATE = -2;//multiplicity
@@ -84,6 +87,7 @@ public class TreeReference implements Externalizable {
 
 	//TODO: This should be constructed I think
 	public void setInstanceName(String instanceName) {
+		hashCode = -1;
 		if(instanceName == null) {
 			if(this.refLevel == REF_ABSOLUTE) {
 				this.contextType = CONTEXT_ABSOLUTE;
@@ -113,23 +117,33 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public void setMultiplicity (int i, int mult) {
+		hashCode = -1;
 		data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
 	}
 	
+	int size = -1;
 	public int size () {
-		return data.size();
+		if(size == -1) {
+			size = data.size();
+		}
+		return size;
 	}
 	
 	private void add (TreeReferenceLevel level) {
+		hashCode = -1;
+		size = -1;
 		data.addElement(level);
 	}
 	
 	public void add (String name, int mult) {
+		hashCode = -1;
+		size = -1;
 		add(new TreeReferenceLevel(name, mult).intern());
 	}
 	
 	public void addPredicate(int key, Vector<XPathExpression> xpe)
 	{
+		hashCode = -1;
 		data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
 	}
 	
@@ -143,6 +157,7 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public void setRefLevel (int refLevel) {
+		hashCode = -1;
 		this.refLevel = refLevel;
 	}
 	
@@ -193,6 +208,8 @@ public class TreeReference implements Externalizable {
 	 */
 	public boolean removeLastLevel () {
 		int size = size();
+		hashCode = -1;
+		this.size = -1;
 		if (size == 0) {
 			if (isAbsolute()) {
 				return false;
@@ -432,7 +449,10 @@ public class TreeReference implements Externalizable {
 	}
 	
 	public int hashCode () {
-		int hash = (new Integer(refLevel)).hashCode();
+		if(hashCode != -1 ) {
+			return hashCode;
+		}
+		int hash = (DataUtil.integer(refLevel)).hashCode();
 		for (int i = 0; i < size(); i++) {
 			//NOTE(ctsims): It looks like this is only using Integer to
 			//get the hashcode method, but that method
@@ -456,6 +476,7 @@ public class TreeReference implements Externalizable {
 				++val;
 			}
 		}
+		hashCode = hash;
 		return hash;
 	}
 	
@@ -576,6 +597,7 @@ public class TreeReference implements Externalizable {
 
 	//TODO: This should be in construction
 	public void setContext(int context) {
+		hashCode = -1;
 		this.contextType = context;
 	}
 
@@ -618,6 +640,7 @@ public class TreeReference implements Externalizable {
 	}
 
 	public TreeReference removePredicates() {
+		hashCode = -1;
 		TreeReference predicateless = clone();
 		for(int i = 0; i < predicateless.data.size(); ++i) {
 			predicateless.data.setElementAt(predicateless.data.elementAt(i).setPredicates(null), i	);
