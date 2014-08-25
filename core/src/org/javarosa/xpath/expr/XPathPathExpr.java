@@ -178,6 +178,7 @@ public class XPathPathExpr extends XPathExpression {
 		return ref;
 	}
 
+	AbstractTreeElement cachedTemplate = null;
 	public XPathNodeset eval (DataInstance m, EvaluationContext ec) {		
 		TreeReference genericRef = getReference();
 		
@@ -221,8 +222,15 @@ public class XPathPathExpr extends XPathExpression {
 		
 		//TODO: This causes problems when the paths are heterogeneous. IE: If the path is looking for an attribute that 
 		//doesn't exist on the first node, there is no template path
-		if (ref.isAbsolute() && m.getTemplatePath(ref) == null) {
-			return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
+		
+		
+		if (ref.isAbsolute()) { 
+			if(cachedTemplate == null) {
+				cachedTemplate = m.getTemplatePath(ref);
+			}
+			if(cachedTemplate == null) {
+				return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
+			}
 		}
 		
 		return new XPathLazyNodeset(ref, m, ec);
