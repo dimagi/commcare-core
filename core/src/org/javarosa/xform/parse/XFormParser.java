@@ -105,6 +105,7 @@ public class XFormParser {
 	
 	public static final String NAMESPACE_JAVAROSA = "http://openrosa.org/javarosa";
 	public static final String NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
+	public static final String NAMESPACE_XFORMS = "http://www.w3.org/2002/xforms";
 
 	private static final int CONTAINER_GROUP = 1;
 	private static final int CONTAINER_REPEAT = 2;
@@ -589,7 +590,9 @@ public class XFormParser {
 				delayedParseElements.addElement(child);
 			} else { //invalid model content
 				if (type == Node.ELEMENT) {
-					throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
+					if (child.getNamespace().equals(NAMESPACE_XFORMS)) {
+						throw new XFormParseException("Unrecognized top-level tag [" + childName + "] found within <model>",child);
+					}
 				} else if (type == Node.TEXT && getXMLText(e, i, true).length() != 0) {
 					throw new XFormParseException("Unrecognized text content found within <model>: \"" + getXMLText(e, i, true) + "\"",child == null ? e : child);					
 				}

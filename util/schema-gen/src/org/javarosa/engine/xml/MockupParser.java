@@ -24,6 +24,10 @@ public class MockupParser extends ElementParser<Mockup> {
 		super(suiteStream);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.engine.xml.ElementParser#parse()
+	 */
 	@Override
 	public Mockup parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		this.checkNode("mockup");
