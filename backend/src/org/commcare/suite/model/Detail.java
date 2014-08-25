@@ -107,7 +107,7 @@ public class Detail implements Externalizable {
 	}
 	
 	/**
-	 * @return The title's form, either null or ViewUtil.FORM_IMAGE.
+	 * @return The title's form, either null or from MediaUtil.
 	 * Note that form is relevant only if this detail is the child of another detail.
 	 */
 	public String getTitleForm() {
