@@ -19,6 +19,10 @@ public class SessionParser extends ElementParser<Session> {
 		super(parser);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.javarosa.engine.xml.ElementParser#parse()
+	 */
 	@Override
 	public Session parse() throws InvalidStructureException, IOException, XmlPullParserException {
 		this.checkNode("session");
