@@ -24,6 +24,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.LocaleDataSource;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.OrderedHashtable;
@@ -66,15 +67,20 @@ public class ReferenceDataSource implements LocaleDataSource {
 	 * @see org.javarosa.core.services.locale.LocaleDataSource#getLocalizedText()
 	 */
 	public OrderedHashtable getLocalizedText() {
+		InputStream is = null;
 		try {
-			InputStream is = ReferenceManager._().DeriveReference(referenceURI).getStream();
+			is = ReferenceManager._().DeriveReference(referenceURI).getStream();
 			return LocalizationUtils.parseLocaleInput(is);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException("IOException while getting localized text at reference " + referenceURI);
+			throw new RuntimeException("IOException while getting localized text at reference " + referenceURI + "\n" + e.getMessage());
 		} catch (InvalidReferenceException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Invalid Reference! " + referenceURI);
+		} finally {
+			if(is != null) {
+				try { is.close(); } catch(IOException e) { }
+			}
 		}
 	}
 
