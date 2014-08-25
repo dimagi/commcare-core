@@ -58,7 +58,12 @@ public class Detail implements Externalizable {
 		
 	}
 	
-	public Detail(String id, Text title, String titleForm, Vector<Detail> details, Vector<DetailField> fields, OrderedHashtable<String, String> variables, Action action) {
+	public Detail(
+		String id, Text title, String titleForm, 
+		Vector<Detail> details, 
+		Vector<DetailField> fields, 
+		OrderedHashtable<String, String> variables, Action action
+	) {
 		this(
 			id, title, titleForm,
 			ArrayUtilities.copyIntoArray(details, new Detail[details.size()]), 
@@ -67,7 +72,12 @@ public class Detail implements Externalizable {
 		);
 	}
 	
-	public Detail(String id, Text title, String titleForm, Detail[] details, DetailField[] fields, OrderedHashtable<String, String> variables, Action action) {
+	public Detail(
+		String id, Text title, String titleForm, 
+		Detail[] details, 
+		DetailField[] fields, 
+		OrderedHashtable<String, String> variables, Action action
+	) {
 		if (details.length > 0 && fields.length > 0) {
 			throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
 		}
@@ -96,18 +106,31 @@ public class Detail implements Externalizable {
 		return title;
 	}
 	
+	/**
+	 * @return The title's form, either null or ViewUtil.FORM_IMAGE.
+	 * Note that form is relevant only if this detail is the child of another detail.
+	 */
 	public String getTitleForm() {
 		return titleForm;
 	}
 	
+	/**
+	 * @return Any child details of this detail.
+	 */
 	public Detail[] getDetails() {
 		return details;
 	}
 	
+	/**
+	 * @return Any fields belonging to this detail.
+	 */
 	public DetailField[] getFields() {
 		return fields;
 	}
 	
+	/**
+	 * @return True iff this detail has child details.
+	 */
 	public boolean isCompound() {
 		return details.length > 0;
 	}
