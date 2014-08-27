@@ -90,17 +90,26 @@ public class CommCarePlatform implements CommCareInstance {
 		return minorVersion;
 	}
 	
-	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, ResourceTable recovery, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
 		Profile current = getCurrentProfile();
-		return stageUpgradeTable(global, incoming, current.getAuthReference(), clearProgress);
+		return stageUpgradeTable(global, incoming, recovery, current.getAuthReference(), clearProgress);
 	}
 	
-	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, String profileRef, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+	public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, ResourceTable recovery, String profileRef, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
 		//Make sure everything's in a good state
 		if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-			throw new IllegalArgumentException("Global resource table was not ready for upgrading");
+			repair(global, incoming, recovery);
+
+			if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+				throw new IllegalArgumentException("Global resource table was not ready for upgrading");
+			}
 		}
 		
+		/*TODO: 
+		 * -KEY: This is the flag that determines whether the incoming table gets cleared away
+		 * -incoming always represents the last ResourceTable that was attempted to be installed
+		 * -if the last install was successful, then incoming will just be empty
+		 */
 		if(clearProgress) {
 			//In the future: Continuable upgrades. Now: Clear old upgrade info
 			incoming.clear();
@@ -122,7 +131,11 @@ public class CommCarePlatform implements CommCareInstance {
 	public void upgrade(ResourceTable global, ResourceTable incoming, ResourceTable recovery) throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
 
 		if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-			throw new IllegalArgumentException("Global resource table was not ready for upgrading");
+			repair(global, incoming, recovery);
+
+			if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+				throw new IllegalArgumentException("Global resource table was not ready for upgrading");
+			}
 		}
 		
 		//TODO: Figure out more cleanly what the acceptable states are here

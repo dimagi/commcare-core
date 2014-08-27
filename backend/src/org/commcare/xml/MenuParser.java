@@ -6,11 +6,11 @@ package org.commcare.xml;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -36,21 +36,13 @@ public class MenuParser extends ElementParser<Menu> {
 		root = root == null? "root" : root;
 		getNextTagInBlock("menu");
 		
-		
-		
-		Text name;
-		String imageURI = null;
-		String audioURI=  null;
-		
+		DisplayUnit display;
 		if(parser.getName().equals("text")){
-			name = new TextParser(parser).parse();
+			display = new DisplayUnit(new TextParser(parser).parse(), null, null);
 		}else if(parser.getName().equals("display")){
-			Object[] displayArr = parseDisplayBlock();
+			display = parseDisplayBlock();
 			//check that we have a commandText;
-			if(displayArr[0] == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
-			else name = (Text)displayArr[0];
-			imageURI = (String)displayArr[1];
-			audioURI = (String)displayArr[2];
+			if(display.getText() == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
 		} else {
 			throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
 		}
@@ -81,7 +73,7 @@ public class MenuParser extends ElementParser<Menu> {
 		String[] expressions = new String[relevantExprs.size()];
 		relevantExprs.copyInto(expressions);
 
-		Menu m = new Menu(id, root, name, commandIds, expressions, imageURI, audioURI);
+		Menu m = new Menu(id, root, display, commandIds, expressions);
 		return m;
 
 	}

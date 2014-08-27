@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.AssertionSet;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
@@ -47,10 +48,7 @@ public class EntryParser extends ElementParser<Entry> {
 
 		
 		String commandId = "";
-		Text commandText = null;
-		String imageURI = null;
-		String audioURI = null;
-		Object[] displayArr;  //Should *ALWAYS* be [Text commandText, String imageURI, String audioURI]
+		DisplayUnit display = null;
 		Vector<StackOperation> stackOps = new Vector<StackOperation>();
 		AssertionSet assertions = null;
 			
@@ -63,15 +61,11 @@ public class EntryParser extends ElementParser<Entry> {
 				commandId = parser.getAttributeValue(null, "id");
 				parser.nextTag();
 				if(parser.getName().equals("text")){
-					commandText = new TextParser(parser).parse();
+					display = new DisplayUnit(new TextParser(parser).parse(), null, null);
 				}else if(parser.getName().equals("display")){
-					displayArr = parseDisplayBlock();
-					//check that we have a commandText;
-					if(displayArr[0] == null) throw new InvalidStructureException("Expected CommandText in Display block",parser);
-					else commandText = (Text)displayArr[0];
-					
-					imageURI = (String)displayArr[1];
-					audioURI = (String)displayArr[2];
+					display = parseDisplayBlock();
+					//check that we have text to display;
+					if(display.getText() == null) { throw new InvalidStructureException("Expected CommandText in Display block",parser); }
 				}
 			}
 			else if("instance".equals(parser.getName().toLowerCase())) {
@@ -98,7 +92,9 @@ public class EntryParser extends ElementParser<Entry> {
 				assertions = new AssertionSetParser(parser).parse();
 			}
 		}
-		Entry e = new Entry(commandId, commandText, data, xFormNamespace, imageURI, audioURI, instances, stackOps, assertions);
+		
+		if(display == null) { throw new InvalidStructureException("<entry> block must define display text details", parser); } 
+		Entry e = new Entry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
 		return e;
 	}
 }

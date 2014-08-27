@@ -8,11 +8,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * Detail Fields represent the <field> elements of a suite's detail
@@ -30,6 +35,8 @@ public class DetailField implements Externalizable {
 	private Text header;
 	private DetailTemplate template; // Text or Graph
 	private Text sort; 
+	private String relevancy;
+	private XPathExpression parsedRelevancy;
 	private int headerHint = -1; 
 	private int templateHint = -1; 
 	private String headerForm; 
@@ -41,10 +48,16 @@ public class DetailField implements Externalizable {
 	public DetailField() {
 	}
 	
-	public DetailField(Text header, DetailTemplate template, Text sort, int headerHint, int templateHint, String headerForm, String templateForm, int sortOrder, int sortDirection, int sortType) {
+	public DetailField(
+		Text header, DetailTemplate template, Text sort, String relevancy, 
+		int headerHint, int templateHint, 
+		String headerForm, String templateForm,
+		int sortOrder, int sortDirection, int sortType
+	) {
 		this.header = header;
 		this.template = template;
 		this.sort = sort;
+		this.relevancy = relevancy;
 		this.headerHint = headerHint;
 		this.templateHint = templateHint;
 		this.headerForm = headerForm;
@@ -77,7 +90,23 @@ public class DetailField implements Externalizable {
 		return sort;
 	}
 
+	/**
+	 * Determine if field should be shown, based on any relevancy condition.
+	 * @param context Context in which to evaluate the field.
+	 * @return true iff the field should be displayed
+	 * @throws XPathSyntaxException
+	 */
+	public boolean isRelevant(EvaluationContext context) throws XPathSyntaxException {
+		if (relevancy == null) {
+			return true;
+		}
+		
+		if (parsedRelevancy == null) {
+			parsedRelevancy = XPathParseTool.parseXPath(relevancy);
+		}
 
+		return XPathFuncExpr.toBoolean(parsedRelevancy.eval(context)).booleanValue();
+	}
 
 	/**
 	 * @return the headerHint
@@ -143,6 +172,11 @@ public class DetailField implements Externalizable {
 		header = (Text)ExtUtil.read(in, Text.class);
 		template = (Text)ExtUtil.read(in, Text.class);
 		sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+		
+		//Unfortunately I don't think there's a clean way to do this
+		if(ExtUtil.readBool(in)) {
+			relevancy = ExtUtil.readString(in);
+		}
 		headerHint = ExtUtil.readInt(in);
 		templateHint = ExtUtil.readInt(in);
 		headerForm = ExtUtil.readString(in);
@@ -159,6 +193,12 @@ public class DetailField implements Externalizable {
 		ExtUtil.write(out, header);
 		ExtUtil.write(out, template);
 		ExtUtil.write(out, new ExtWrapNullable(sort));
+		
+		boolean relevantSet = relevancy != null;
+		ExtUtil.writeBool(out, relevantSet);
+		if(relevantSet) {
+			ExtUtil.writeString(out, relevancy);
+		}
 		ExtUtil.writeNumeric(out, headerHint);
 		ExtUtil.writeNumeric(out, templateHint);
 		ExtUtil.writeString(out,headerForm);
@@ -203,6 +243,12 @@ public class DetailField implements Externalizable {
 			field.sort = sort;
 		}
 
+		/**
+		 * @param relevancy the relevancy to set
+		 */
+		public void setRelevancy(String relevancy) {
+			field.relevancy = relevancy;
+		}
 
 
 		/**

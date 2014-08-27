@@ -5,7 +5,7 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.util.Vector;
-
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
@@ -40,6 +40,7 @@ public class DetailParser extends ElementParser<Detail> {
 			checkNode("title");
 			getNextTagInBlock("title");
 			Text title = new TextParser(parser).parse();
+			Action action = null;
 			
 			//Now get the headers and templates.
 			Vector<DetailField> fields = new Vector<DetailField>();
@@ -60,6 +61,10 @@ public class DetailParser extends ElementParser<Detail> {
 					}
 					continue;
 				}
+				if(ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
+					action = new ActionParser(parser).parse();
+					continue;
+				}
 				DetailField.Builder builder = new DetailField().new Builder();
 				
 				checkNode("field");
@@ -67,6 +72,16 @@ public class DetailParser extends ElementParser<Detail> {
 				String sortDefault = parser.getAttributeValue(null, "sort");
 				if(sortDefault != null && sortDefault.equals("default")) {
 					builder.setSortOrder(1);
+				}
+				String relevancy = parser.getAttributeValue(null, "relevant");
+				if (relevancy != null) {
+					try {
+						XPathParseTool.parseXPath(relevancy);
+						builder.setRelevancy(relevancy);
+					} catch (XPathSyntaxException e) {
+						e.printStackTrace();
+						throw new InvalidStructureException("Bad XPath Expression {" + relevancy + "}", parser);
+					}
 				}
 				if(nextTagInBlock("field")) {
 					//Header
@@ -76,7 +91,6 @@ public class DetailParser extends ElementParser<Detail> {
 					
 					String form = parser.getAttributeValue(null, "form");
 					builder.setHeaderForm(form == null ? "" : form);
-					
 					parser.nextTag();
 					checkNode("text");
 					Text header = new TextParser(parser).parse();
@@ -162,7 +176,7 @@ public class DetailParser extends ElementParser<Detail> {
 		
 		
 		
-		Detail d = new Detail(id, title, fields, variables);
+		Detail d = new Detail(id, title, fields, variables, action);
 		return d;
 	}
 	

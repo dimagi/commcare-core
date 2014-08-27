@@ -21,6 +21,7 @@ import org.commcare.xml.ProfileParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -111,6 +112,7 @@ public class ProfileInstaller extends CacheInstaller {
 				}
 				p = parser.parse();
 				} catch(IOException e) {
+					if(e.getMessage() != null) { Logger.log("resource", "IO Exception fetching profile: " + e.getMessage()); }
 					throw new UnreliableSourceException(r, e.getMessage());
 				}
 					
@@ -128,14 +130,14 @@ public class ProfileInstaller extends CacheInstaller {
 				return true;
 		}
 		} catch (InvalidStructureException e) {
+			if(e.getMessage() != null) { Logger.log("resource", "Invalid profile structure: " + e.getMessage()); }
 			e.printStackTrace();
 			return false;
 		} catch (StorageFullException e) {
 			e.printStackTrace();
 			return false;
 		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(e.getMessage() != null) { Logger.log("resource", "XML Parse exception fetching profile: " + e.getMessage()); }
 			return false;
 		} finally {
 			try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
