@@ -46,7 +46,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author ctsims
  *
  */
-public class Text implements Externalizable {
+public class Text implements Externalizable, DetailTemplate {
 	private int type;
 	private String argument;
 	

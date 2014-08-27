@@ -88,8 +88,9 @@ public class CommCareEntity extends Entity<TreeReference> {
 		key = key.toLowerCase();
 		String[] fields = this.getShortFields();
 		for(int i = 0; i < fields.length; ++i) {
-			//don't match to images
-			if("image".equals(shortDetail.getFields()[i].getTemplateForm())) {
+			// don't match to images or graphs
+			String form = shortDetail.getFields()[i].getTemplateForm();
+			if(form.equals("image") || form.equals("graph")) {
 				continue;
 			}
 			if(fields[i].toLowerCase().startsWith(key)) {
@@ -125,7 +126,13 @@ public class CommCareEntity extends Entity<TreeReference> {
 		loadVars(ec, longDetail);
 		String[] output = new String[longDetail.getFields().length];
 		for(int i = 0 ; i < output.length ; ++i) {
-			output[i] = longDetail.getFields()[i].getTemplate().evaluate(ec);
+			Object template = longDetail.getFields()[i].getTemplate();
+			if (template instanceof Text) {
+				output[i] = ((Text) template).evaluate(ec);
+			}
+			else {
+				output[i] = "";
+			}
 		}
 		return output;
 	}
@@ -171,7 +178,13 @@ public class CommCareEntity extends Entity<TreeReference> {
 		shortText = new String[shortDetail.getFields().length];
 		sortText = new String[shortDetail.getFields().length];
 		for(int i = 0 ; i < shortText.length ; ++i) {
-			shortText[i] = shortDetail.getFields()[i].getTemplate().evaluate(context);
+			Object template = shortDetail.getFields()[i].getTemplate();
+			if (template instanceof Text) {
+				shortText[i] = ((Text) template).evaluate(context);
+			}
+			else {
+				shortText[i] = "";
+			}
 			
 			//see whether or not the field has a special text form just for sorting
 			Text sortKey = shortDetail.getFields()[i].getSort();

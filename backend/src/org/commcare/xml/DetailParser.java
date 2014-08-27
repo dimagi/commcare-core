@@ -8,7 +8,9 @@ import java.util.Vector;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.graph.Graph;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
@@ -99,13 +101,22 @@ public class DetailParser extends ElementParser<Detail> {
 					checkNode("template");
 					
 					builder.setTemplateHint(getWidth());
-					
+						
 					String form = parser.getAttributeValue(null, "form");
-					builder.setTemplateForm(form == null ? "" : form);
-					
+					if (form == null) {
+						form = "";
+					}
+					builder.setTemplateForm(form);
+						
 					parser.nextTag();
-					checkNode("text");
-					Text template = new TextParser(parser).parse();
+					DetailTemplate template;
+					if (form.equals("graph")) {
+						template = new GraphParser(parser).parse();
+					}
+					else {
+						checkNode("text");
+						template = new TextParser(parser).parse();
+					}
 					builder.setTemplate(template);
 				} else {
 					throw new InvalidStructureException("detail <field> with no <template>!", parser);
