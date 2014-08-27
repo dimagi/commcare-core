@@ -10,4 +10,5 @@ public interface ConfigurableData {
 
 	public String getConfiguration(String key);
 
+	public String getConfiguration(String key, String defaultValue);
 }

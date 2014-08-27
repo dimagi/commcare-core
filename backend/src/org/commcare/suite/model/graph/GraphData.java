@@ -59,5 +59,17 @@ public class GraphData implements ConfigurableData {
 	public String getConfiguration(String key) {
 		return mConfiguration.get(key);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.commcare.suite.model.graph.ConfigurableData#getConfiguration(java.lang.String, java.lang.String)
+	 */
+	public String getConfiguration(String key, String defaultValue) {
+		String value = getConfiguration(key);
+		if (value == null) {
+			return defaultValue;
+		}
+		return value;
+	}
 	
 }
