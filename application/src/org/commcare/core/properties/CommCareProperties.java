@@ -13,20 +13,20 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
 
 public class CommCareProperties implements IPropertyRules {
-	Hashtable rules;
-	Vector readOnlyProperties;
+    Hashtable rules;
+    Vector readOnlyProperties;
 
-	public final static String COMMCARE_VERSION = "app-version";
-	
-	public final static String DEPLOYMENT_MODE = "deployment";
-	public final static String DEPLOY_TESTING = "deploy-test";
-	public final static String DEPLOY_RELEASE = "deploy-rel";
-	public final static String DEPLOY_DEFAULT = "deploy-def";
-	
-	// http, since it doesn't go in transport layer anymore
+    public final static String COMMCARE_VERSION = "app-version";
+    
+    public final static String DEPLOYMENT_MODE = "deployment";
+    public final static String DEPLOY_TESTING = "deploy-test";
+    public final static String DEPLOY_RELEASE = "deploy-rel";
+    public final static String DEPLOY_DEFAULT = "deploy-def";
+    
+    // http, since it doesn't go in transport layer anymore
     public final static String POST_URL_PROPERTY = "PostURL";
     
-	// http, since it doesn't go in transport layer anymore
+    // http, since it doesn't go in transport layer anymore
     public final static String POST_URL_TEST_PROPERTY = "PostTestURL";
     
     //auto-purging
@@ -65,11 +65,11 @@ public class CommCareProperties implements IPropertyRules {
     public final static String USER_REG_SKIP = "skip";
     
     public final static String SEND_STYLE ="cc-send-procedure";
-    	
+        
     public final static String SEND_STYLE_HTTP ="cc-send-http";
-    	
+        
     public final static String SEND_STYLE_FILE ="cc-send-file";
-    	
+        
     public final static String SEND_STYLE_NONE ="cc-send-none";
     
     //Number of days before a form can be deleted
@@ -77,13 +77,13 @@ public class CommCareProperties implements IPropertyRules {
     
     public final static String PASSWORD_FORMAT = "password_format";
     
-	public final static String ENTRY_MODE = "cc-entry-mode";
-	public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
-	public final static String ENTRY_MODE_REVIEW = "cc-entry-review";
-		
-	public final static String SEND_UNSENT_STYLE = "cc-send-unsent";
-	public final static String SEND_UNSENT_MANUAL = "cc-su-man";
-	public final static String SEND_UNSENT_AUTOMATIC = "cc-su-auto";
+    public final static String ENTRY_MODE = "cc-entry-mode";
+    public final static String ENTRY_MODE_QUICK = "cc-entry-quick";
+    public final static String ENTRY_MODE_REVIEW = "cc-entry-review";
+        
+    public final static String SEND_UNSENT_STYLE = "cc-send-unsent";
+    public final static String SEND_UNSENT_MANUAL = "cc-su-man";
+    public final static String SEND_UNSENT_AUTOMATIC = "cc-su-auto";
     
     public final static String OTA_RESTORE_OFFLINE = "cc-restore-offline-file";
     
@@ -105,26 +105,26 @@ public class CommCareProperties implements IPropertyRules {
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
-	public static final String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
-	public static final String UNSENT_FORM_NUMBER_LIMIT = "form-number-limit";
-	public static final String UNSENT_FORM_TIME_LIMIT = "form-time-limit";
+    public static final String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
+    public static final String UNSENT_FORM_NUMBER_LIMIT = "form-number-limit";
+    public static final String UNSENT_FORM_TIME_LIMIT = "form-time-limit";
 
-	public final static String INSTALL_RETRY_ATTEMPTS = "cc-in-retry-attempts";
+    public final static String INSTALL_RETRY_ATTEMPTS = "cc-in-retry-attempts";
     
     
-	/**
-	 * Creates the JavaRosa set of property rules
-	 */
-	public CommCareProperties() {
-		rules = new Hashtable();
-		readOnlyProperties = new Vector();
-		
-		Vector yesNo = new Vector();
-		yesNo.addElement(PROPERTY_YES);
-		yesNo.addElement(PROPERTY_NO);
-		
-		rules.put(IS_FIRST_RUN, yesNo);
-		
+    /**
+     * Creates the JavaRosa set of property rules
+     */
+    public CommCareProperties() {
+        rules = new Hashtable();
+        readOnlyProperties = new Vector();
+        
+        Vector yesNo = new Vector();
+        yesNo.addElement(PROPERTY_YES);
+        yesNo.addElement(PROPERTY_NO);
+        
+        rules.put(IS_FIRST_RUN, yesNo);
+        
         rules.put(COMMCARE_VERSION, new Vector());
         readOnlyProperties.addElement(COMMCARE_VERSION);
         
@@ -237,192 +237,192 @@ public class CommCareProperties implements IPropertyRules {
         readOnlyProperties.addElement(SEND_UNSENT_STYLE);
         readOnlyProperties.addElement(LOGIN_IMAGE);
         readOnlyProperties.addElement(LOGGED_IN_USER);
-	}
+    }
 
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.javarosa.properties.IPropertyRules#allowableValues(String)
-	 */
-	public Vector allowableValues(String propertyName) {
-		return (Vector) rules.get(propertyName);
-	}
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.javarosa.properties.IPropertyRules#allowableValues(String)
+     */
+    public Vector allowableValues(String propertyName) {
+        return (Vector) rules.get(propertyName);
+    }
 
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.javarosa.properties.IPropertyRules#checkValueAllowed(String,
-	 *      String)
-	 */
-	public boolean checkValueAllowed(String propertyName, String potentialValue) {
-		if (PURGE_FREQ.equals(propertyName)) {
-			return (parsePurgeFreq(potentialValue) != -1);
-		}
-		
-		Vector prop = ((Vector) rules.get(propertyName));
-		if (prop.size() != 0) {
-			// Check whether this is a dynamic property
-			if (prop.size() == 1
-					&& checkPropertyAllowed((String) prop.elementAt(0))) {
-				// If so, get its list of available values, and see whether the
-				// potential value is acceptable.
-				return ((Vector) PropertyManager._().getProperty((String) prop.elementAt(0))).contains(potentialValue);
-			} else {
-				return ((Vector) rules.get(propertyName)).contains(potentialValue);
-			}
-		} else
-			return true;
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.javarosa.properties.IPropertyRules#allowableProperties()
-	 */
-	public Vector allowableProperties() {
-		Vector propList = new Vector();
-		Enumeration iter = rules.keys();
-		while (iter.hasMoreElements()) {
-			propList.addElement(iter.nextElement());
-		}
-		return propList;
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.javarosa.properties.IPropertyRules#checkPropertyAllowed)
-	 */
-	public boolean checkPropertyAllowed(String propertyName) {
-		Enumeration iter = rules.keys();
-		while (iter.hasMoreElements()) {
-			if (propertyName.equals(iter.nextElement())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see org.javarosa.properties.IPropertyRules#checkPropertyUserReadOnly)
-	 */
-	public boolean checkPropertyUserReadOnly(String propertyName) {
-		return readOnlyProperties.contains(propertyName);
-	}
-
-	public String getHumanReadableDescription(String propertyName) {
-		if(COMMCARE_VERSION.equals(propertyName)) {
-			return "CommCare Version";
-		} else if (DEPLOYMENT_MODE.equals(propertyName)) {
-			return "Deployment mode";
-		} else if (PURGE_LAST.equals(propertyName)) {
-        	return "Last Purge on";
-        } else if (PURGE_FREQ.equals(propertyName)) {
-        	return "Purge Freq. (days)";
-        } else if (POST_URL_TEST_PROPERTY.equals(propertyName)) {
-        	return "Testing Submission URL";
-        } else if (POST_URL_PROPERTY.equals(propertyName)) {
-        	return "Form Submission URL";
-        } else if (IS_FIRST_RUN.equals(propertyName)) {
-        	return "First Run Screen at Startup?";
-        } else if (OTA_RESTORE_URL.equals(propertyName)) {
-        	return "URL of OTA Restore Server";
-        } else if (OTA_RESTORE_TEST_URL.equals(propertyName)) {
-        	return "URL of OTA Restore Testing Server";
-        } else if(SEND_STYLE.equals(propertyName)) {
-        	return "Form Send/Save Process";
-        } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
-        	return "Offline File Ref for OTA Bypass";
-        } else if (DEMO_MODE.equals(propertyName)) {
-        	return "Demo Mode Enabled";
-        } else if (LOGIN_MODE.equals(propertyName)) {
-        	return "User Login Mode";
-        } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
-        	return "Auto-Update Frequency";
-        } else if (LOGIN_IMAGES.equals(propertyName)) {
-        	return "Display Login Images?";
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.javarosa.properties.IPropertyRules#checkValueAllowed(String,
+     *      String)
+     */
+    public boolean checkValueAllowed(String propertyName, String potentialValue) {
+        if (PURGE_FREQ.equals(propertyName)) {
+            return (parsePurgeFreq(potentialValue) != -1);
         }
-    	return propertyName;
-	}
+        
+        Vector prop = ((Vector) rules.get(propertyName));
+        if (prop.size() != 0) {
+            // Check whether this is a dynamic property
+            if (prop.size() == 1
+                    && checkPropertyAllowed((String) prop.elementAt(0))) {
+                // If so, get its list of available values, and see whether the
+                // potential value is acceptable.
+                return ((Vector) PropertyManager._().getProperty((String) prop.elementAt(0))).contains(potentialValue);
+            } else {
+                return ((Vector) rules.get(propertyName)).contains(potentialValue);
+            }
+        } else
+            return true;
+    }
 
-	public String getHumanReadableValue(String propertyName, String value) {
-		if(SEND_STYLE.equals(propertyName)) {
-        	if(SEND_STYLE_HTTP.equals(value)) {
-        		return "HTTP Post";
-        	} else if(SEND_STYLE_FILE.equals(value)) {
-        		return "Save to File";
-        	} else if(SEND_STYLE_NONE.equals(value)) {
-        		return "Don't Save";
-        	}
-		} else if (DEPLOYMENT_MODE.equals(propertyName)) {
-			if (DEPLOY_TESTING.equals(value)) {
-				return "Testing";
-			} else if (DEPLOY_RELEASE.equals(value)) {
-				return "Release";
-			} else if (DEPLOY_DEFAULT.equals(value)) {
-				return "JAD setting";
-			}
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.javarosa.properties.IPropertyRules#allowableProperties()
+     */
+    public Vector allowableProperties() {
+        Vector propList = new Vector();
+        Enumeration iter = rules.keys();
+        while (iter.hasMoreElements()) {
+            propList.addElement(iter.nextElement());
+        }
+        return propList;
+    }
+
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.javarosa.properties.IPropertyRules#checkPropertyAllowed)
+     */
+    public boolean checkPropertyAllowed(String propertyName) {
+        Enumeration iter = rules.keys();
+        while (iter.hasMoreElements()) {
+            if (propertyName.equals(iter.nextElement())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * (non-Javadoc)
+     * 
+     * @see org.javarosa.properties.IPropertyRules#checkPropertyUserReadOnly)
+     */
+    public boolean checkPropertyUserReadOnly(String propertyName) {
+        return readOnlyProperties.contains(propertyName);
+    }
+
+    public String getHumanReadableDescription(String propertyName) {
+        if(COMMCARE_VERSION.equals(propertyName)) {
+            return "CommCare Version";
+        } else if (DEPLOYMENT_MODE.equals(propertyName)) {
+            return "Deployment mode";
+        } else if (PURGE_LAST.equals(propertyName)) {
+            return "Last Purge on";
+        } else if (PURGE_FREQ.equals(propertyName)) {
+            return "Purge Freq. (days)";
+        } else if (POST_URL_TEST_PROPERTY.equals(propertyName)) {
+            return "Testing Submission URL";
+        } else if (POST_URL_PROPERTY.equals(propertyName)) {
+            return "Form Submission URL";
+        } else if (IS_FIRST_RUN.equals(propertyName)) {
+            return "First Run Screen at Startup?";
+        } else if (OTA_RESTORE_URL.equals(propertyName)) {
+            return "URL of OTA Restore Server";
+        } else if (OTA_RESTORE_TEST_URL.equals(propertyName)) {
+            return "URL of OTA Restore Testing Server";
+        } else if(SEND_STYLE.equals(propertyName)) {
+            return "Form Send/Save Process";
+        } else if (OTA_RESTORE_OFFLINE.equals(propertyName)) {
+            return "Offline File Ref for OTA Bypass";
+        } else if (DEMO_MODE.equals(propertyName)) {
+            return "Demo Mode Enabled";
         } else if (LOGIN_MODE.equals(propertyName)) {
-        	if(LOGIN_MODE_NORMAL.equals(value)) {
-        		return "Normal Login";
-        	} else if(LOGIN_MODE_AUTO.equals(value)) {
-        		return "Automatic Login";
-        	}
+            return "User Login Mode";
         } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
-        	if(FREQUENCY_NEVER.equals(value)) {
-        		return "Never";
-        	} else if(FREQUENCY_DAILY.equals(value)) {
-        		return "Daily";
-        	} else if(FREQUENCY_WEEKLY.equals(value)) {
-        		return "Weekly";
-        	}
+            return "Auto-Update Frequency";
+        } else if (LOGIN_IMAGES.equals(propertyName)) {
+            return "Display Login Images?";
+        }
+        return propertyName;
+    }
+
+    public String getHumanReadableValue(String propertyName, String value) {
+        if(SEND_STYLE.equals(propertyName)) {
+            if(SEND_STYLE_HTTP.equals(value)) {
+                return "HTTP Post";
+            } else if(SEND_STYLE_FILE.equals(value)) {
+                return "Save to File";
+            } else if(SEND_STYLE_NONE.equals(value)) {
+                return "Don't Save";
+            }
+        } else if (DEPLOYMENT_MODE.equals(propertyName)) {
+            if (DEPLOY_TESTING.equals(value)) {
+                return "Testing";
+            } else if (DEPLOY_RELEASE.equals(value)) {
+                return "Release";
+            } else if (DEPLOY_DEFAULT.equals(value)) {
+                return "JAD setting";
+            }
+        } else if (LOGIN_MODE.equals(propertyName)) {
+            if(LOGIN_MODE_NORMAL.equals(value)) {
+                return "Normal Login";
+            } else if(LOGIN_MODE_AUTO.equals(value)) {
+                return "Automatic Login";
+            }
+        } else if (AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
+            if(FREQUENCY_NEVER.equals(value)) {
+                return "Never";
+            } else if(FREQUENCY_DAILY.equals(value)) {
+                return "Daily";
+            } else if(FREQUENCY_WEEKLY.equals(value)) {
+                return "Weekly";
+            }
         }
 
         return value;
-	}
+    }
 
-	public void handlePropertyChanges(String propertyName) {
-		if(AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
-			//It might need to reschedule.
-			PeriodicEvent.schedule(new AutoUpdateEvent());
-		}
-		if(AUTO_SYNC_FREQUENCY.equals(propertyName)) {
-			//It might need to reschedule.
-			PeriodicEvent.schedule(new AutoSyncEvent());
-		}
-	}	
-	
-	//0 == always purge
-	//-1 == error
-	//n > 0 == purge if last purge was at least n days ago
-	public static int parsePurgeFreq (String freqStr) {
-		if (freqStr == null) {
-			return 0;
-		}
-		
-		freqStr = freqStr.trim();
-		if (freqStr.length() == 0) {
-			return 0;
-		} else {
-			int n;
-			try {
-				n = Integer.parseInt(freqStr);
-				if (n < 0)
-					n = -1;
-			} catch (NumberFormatException nfe) {
-				n = -1;
-			}
-			return n;
-		}
-	}
-	
-	public static Date parseLastPurge (String lastStr) {
-		if (lastStr == null) {
-			return null;
-		}
-		
-		return DateUtils.parseDateTime(lastStr.trim());
-	}
+    public void handlePropertyChanges(String propertyName) {
+        if(AUTO_UPDATE_FREQUENCY.equals(propertyName)) {
+            //It might need to reschedule.
+            PeriodicEvent.schedule(new AutoUpdateEvent());
+        }
+        if(AUTO_SYNC_FREQUENCY.equals(propertyName)) {
+            //It might need to reschedule.
+            PeriodicEvent.schedule(new AutoSyncEvent());
+        }
+    }    
+    
+    //0 == always purge
+    //-1 == error
+    //n > 0 == purge if last purge was at least n days ago
+    public static int parsePurgeFreq (String freqStr) {
+        if (freqStr == null) {
+            return 0;
+        }
+        
+        freqStr = freqStr.trim();
+        if (freqStr.length() == 0) {
+            return 0;
+        } else {
+            int n;
+            try {
+                n = Integer.parseInt(freqStr);
+                if (n < 0)
+                    n = -1;
+            } catch (NumberFormatException nfe) {
+                n = -1;
+            }
+            return n;
+        }
+    }
+    
+    public static Date parseLastPurge (String lastStr) {
+        if (lastStr == null) {
+            return null;
+        }
+        
+        return DateUtils.parseDateTime(lastStr.trim());
+    }
 }

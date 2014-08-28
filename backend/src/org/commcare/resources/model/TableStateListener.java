@@ -8,7 +8,7 @@ package org.commcare.resources.model;
  *
  */
 public interface TableStateListener {
-	public void resourceStateUpdated(ResourceTable table);
-	
-	public void incrementProgress(int complete, int total);
+    public void resourceStateUpdated(ResourceTable table);
+    
+    public void incrementProgress(int complete, int total);
 }

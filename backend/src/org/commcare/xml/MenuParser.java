@@ -20,62 +20,62 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class MenuParser extends ElementParser<Menu> {
-	
-	public MenuParser(KXmlParser parser) {
-		super(parser);
-	}
+    
+    public MenuParser(KXmlParser parser) {
+        super(parser);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.xml.ElementParser#parse()
-	 */
-	public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		checkNode("menu");
+    /* (non-Javadoc)
+     * @see org.commcare.xml.ElementParser#parse()
+     */
+    public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
+        checkNode("menu");
 
-		String id = parser.getAttributeValue(null, "id");
-		String root = parser.getAttributeValue(null, "root");
-		root = root == null? "root" : root;
-		getNextTagInBlock("menu");
-		
-		DisplayUnit display;
-		if(parser.getName().equals("text")){
-			display = new DisplayUnit(new TextParser(parser).parse(), null, null);
-		}else if(parser.getName().equals("display")){
-			display = parseDisplayBlock();
-			//check that we have a commandText;
-			if(display.getText() == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
-		} else {
-			throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
-		}
+        String id = parser.getAttributeValue(null, "id");
+        String root = parser.getAttributeValue(null, "root");
+        root = root == null? "root" : root;
+        getNextTagInBlock("menu");
+        
+        DisplayUnit display;
+        if(parser.getName().equals("text")){
+            display = new DisplayUnit(new TextParser(parser).parse(), null, null);
+        }else if(parser.getName().equals("display")){
+            display = parseDisplayBlock();
+            //check that we have a commandText;
+            if(display.getText() == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
+        } else {
+            throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
+        }
 
-		
-		//name = new TextParser(parser).parse();
+        
+        //name = new TextParser(parser).parse();
 
-		Vector<String> commandIds = new Vector<String>();
-		Vector<String> relevantExprs = new Vector<String>();
-		while (nextTagInBlock("menu")) {
-			checkNode("command");
-			commandIds.addElement(parser.getAttributeValue(null, "id"));
-			String relevantExpr = parser.getAttributeValue(null, "relevant");
-			if(relevantExpr == null) {
-				relevantExprs.addElement(null);
-			} else {
-				try {
-					//Safety checking
-					XPathParseTool.parseXPath(relevantExpr);
-					relevantExprs.addElement(relevantExpr);
-				} catch (XPathSyntaxException e) {
-					e.printStackTrace();
-					throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
-				}
-			}
-		}
-		
-		String[] expressions = new String[relevantExprs.size()];
-		relevantExprs.copyInto(expressions);
+        Vector<String> commandIds = new Vector<String>();
+        Vector<String> relevantExprs = new Vector<String>();
+        while (nextTagInBlock("menu")) {
+            checkNode("command");
+            commandIds.addElement(parser.getAttributeValue(null, "id"));
+            String relevantExpr = parser.getAttributeValue(null, "relevant");
+            if(relevantExpr == null) {
+                relevantExprs.addElement(null);
+            } else {
+                try {
+                    //Safety checking
+                    XPathParseTool.parseXPath(relevantExpr);
+                    relevantExprs.addElement(relevantExpr);
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                    throw new InvalidStructureException("Bad XPath Expression {" + relevantExpr + "}", parser);
+                }
+            }
+        }
+        
+        String[] expressions = new String[relevantExprs.size()];
+        relevantExprs.copyInto(expressions);
 
-		Menu m = new Menu(id, root, display, commandIds, expressions);
-		return m;
+        Menu m = new Menu(id, root, display, commandIds, expressions);
+        return m;
 
-	}
+    }
 
 }

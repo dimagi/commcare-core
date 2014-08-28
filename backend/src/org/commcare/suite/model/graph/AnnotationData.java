@@ -5,14 +5,14 @@ package org.commcare.suite.model.graph;
  * @author jschweers
  */
 public class AnnotationData extends XYPointData {
-	private String mAnnotation;
+    private String mAnnotation;
 
-	public AnnotationData(Double x, Double y, String annotation) {
-		super(x, y);
-		mAnnotation = annotation;
-	}
+    public AnnotationData(Double x, Double y, String annotation) {
+        super(x, y);
+        mAnnotation = annotation;
+    }
 
-	public String getAnnotation() {
-		return mAnnotation;
-	}
+    public String getAnnotation() {
+        return mAnnotation;
+    }
 }

@@ -17,52 +17,52 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class CaseIndex implements Externalizable {
-	
-	private String name;
-	private String targetId;
-	private String targetCaseType;
-	
-	/*
-	 * serialization only!
-	 */
-	public CaseIndex() {
-		
-	}
-	
-	public CaseIndex(String name, String targetCaseType, String targetId) {
-		this.name = name;
-		this.targetId = targetId;
-		this.targetCaseType = targetCaseType;
-	}
+    
+    private String name;
+    private String targetId;
+    private String targetCaseType;
+    
+    /*
+     * serialization only!
+     */
+    public CaseIndex() {
+        
+    }
+    
+    public CaseIndex(String name, String targetCaseType, String targetId) {
+        this.name = name;
+        this.targetId = targetId;
+        this.targetCaseType = targetCaseType;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		name = ExtUtil.readString(in);
-		targetId = ExtUtil.readString(in);
-		targetCaseType = ExtUtil.readString(in);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        name = ExtUtil.readString(in);
+        targetId = ExtUtil.readString(in);
+        targetCaseType = ExtUtil.readString(in);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeString(out, name);
-		ExtUtil.writeString(out, targetId);
-		ExtUtil.writeString(out, targetCaseType);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, name);
+        ExtUtil.writeString(out, targetId);
+        ExtUtil.writeString(out, targetCaseType);
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getTargetType() {
-		return targetCaseType;
-	}
+    public String getTargetType() {
+        return targetCaseType;
+    }
 
-	public String getTarget() {
-		return targetId;
-	}
+    public String getTarget() {
+        return targetId;
+    }
 
 }

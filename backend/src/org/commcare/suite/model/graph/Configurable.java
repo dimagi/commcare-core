@@ -9,11 +9,11 @@ import org.commcare.suite.model.Text;
  * @author jschweers
  */
 public interface Configurable {
-	
-	public Enumeration getConfigurationKeys();
+    
+    public Enumeration getConfigurationKeys();
 
-	public Text getConfiguration(String key);
-	
-	public void setConfiguration(String key, Text value);
+    public Text getConfiguration(String key);
+    
+    public void setConfiguration(String key, Text value);
 
 }

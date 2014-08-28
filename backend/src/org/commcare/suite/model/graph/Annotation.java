@@ -15,46 +15,46 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author jschweers 
  */
 public class Annotation implements Externalizable {
-	private Text mX;
-	private Text mY;
-	private Text mAnnotation;
+    private Text mX;
+    private Text mY;
+    private Text mAnnotation;
 
-	public Annotation(Text x, Text y, Text annotation) {
-		mX = x;
-		mY = y;
-		mAnnotation = annotation;
-	}
+    public Annotation(Text x, Text y, Text annotation) {
+        mX = x;
+        mY = y;
+        mAnnotation = annotation;
+    }
 
-	public Text getX() {
-		return mX;
-	}
-	
-	public Text getY() {
-		return mY;
-	}
-	
-	public Text getAnnotation() {
-		return mAnnotation;
-	}
+    public Text getX() {
+        return mX;
+    }
+    
+    public Text getY() {
+        return mY;
+    }
+    
+    public Text getAnnotation() {
+        return mAnnotation;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		mX = (Text)ExtUtil.read(in, Text.class, pf);
-		mY = (Text)ExtUtil.read(in,  Text.class, pf);
-		mAnnotation = (Text)ExtUtil.read(in, Text.class, pf);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        mX = (Text)ExtUtil.read(in, Text.class, pf);
+        mY = (Text)ExtUtil.read(in,  Text.class, pf);
+        mAnnotation = (Text)ExtUtil.read(in, Text.class, pf);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.write(out, mX);
-		ExtUtil.write(out,  mY);
-		ExtUtil.write(out, mAnnotation);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out, mX);
+        ExtUtil.write(out,  mY);
+        ExtUtil.write(out, mAnnotation);
+    }
 }

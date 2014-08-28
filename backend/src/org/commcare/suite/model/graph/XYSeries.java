@@ -24,125 +24,125 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author jschweers
  */
 public class XYSeries implements Externalizable, Configurable {
-	private TreeReference mNodeSet;
-	private Hashtable<String, Text> mConfiguration;
-	
-	private String mX;
-	private String mY;
-	
-	private XPathExpression mXParse;
-	private XPathExpression mYParse;
-	
-	public XYSeries(String nodeSet) {
-		mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
-		mConfiguration = new Hashtable<String, Text>();
-	}
-	
-	public TreeReference getNodeSet() {
-		return mNodeSet;
-	}
-	
-	public String getX() {
-		return mX;
-	}
-	
-	public void setX(String x) {
-		mX = x;
-		mXParse = null;
-	}
-	
-	public String getY() {
-		return mY;
-	}
-	
-	public void setY(String y) {
-		mY = y;
-		mYParse = null;
-	}
-	
-	public void setConfiguration(String key, Text value) {
-		mConfiguration.put(key, value);
-	}
-	
-	public Text getConfiguration(String key) {
-		return mConfiguration.get(key);
-	}
+    private TreeReference mNodeSet;
+    private Hashtable<String, Text> mConfiguration;
+    
+    private String mX;
+    private String mY;
+    
+    private XPathExpression mXParse;
+    private XPathExpression mYParse;
+    
+    public XYSeries(String nodeSet) {
+        mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
+        mConfiguration = new Hashtable<String, Text>();
+    }
+    
+    public TreeReference getNodeSet() {
+        return mNodeSet;
+    }
+    
+    public String getX() {
+        return mX;
+    }
+    
+    public void setX(String x) {
+        mX = x;
+        mXParse = null;
+    }
+    
+    public String getY() {
+        return mY;
+    }
+    
+    public void setY(String y) {
+        mY = y;
+        mYParse = null;
+    }
+    
+    public void setConfiguration(String key, Text value) {
+        mConfiguration.put(key, value);
+    }
+    
+    public Text getConfiguration(String key) {
+        return mConfiguration.get(key);
+    }
 
-	public Enumeration getConfigurationKeys() {
-		return mConfiguration.keys();
-	}
+    public Enumeration getConfigurationKeys() {
+        return mConfiguration.keys();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		mX = ExtUtil.readString(in);
-		mY = ExtUtil.readString(in);
-		mNodeSet = (TreeReference) ExtUtil.read(in, TreeReference.class, pf);
-		mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        mX = ExtUtil.readString(in);
+        mY = ExtUtil.readString(in);
+        mNodeSet = (TreeReference) ExtUtil.read(in, TreeReference.class, pf);
+        mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeString(out, mX);
-		ExtUtil.writeString(out, mY);
-		ExtUtil.write(out, mNodeSet);
-		ExtUtil.write(out, new ExtWrapMap(mConfiguration));
-	}
-	
-	/*
-	 * Parse all not-yet-parsed functions in this object.
-	 */
-	protected void parse() throws XPathSyntaxException {
-		if (mXParse == null) {
-			mXParse = parse(mX);
-		}
-		if (mYParse == null) {
-			mYParse = parse(mY);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, mX);
+        ExtUtil.writeString(out, mY);
+        ExtUtil.write(out, mNodeSet);
+        ExtUtil.write(out, new ExtWrapMap(mConfiguration));
+    }
+    
+    /*
+     * Parse all not-yet-parsed functions in this object.
+     */
+    protected void parse() throws XPathSyntaxException {
+        if (mXParse == null) {
+            mXParse = parse(mX);
+        }
+        if (mYParse == null) {
+            mYParse = parse(mY);
+        }
+    }
 
-	/*
-	 * Helper function to parse a single piece of XPath.
-	 */
-	protected XPathExpression parse(String function) throws XPathSyntaxException {
-		if (function == null) {
-			return null;
-		}
-		return XPathParseTool.parseXPath("string(" + function + ")");
-	}
-	
-	/*
-	 * Get the actual x value within a given EvaluationContext.
-	 */
-	public Double evaluateX(EvaluationContext context) throws XPathSyntaxException {
-		parse();
-		return evaluateExpression(mXParse, context);
-	}
-	
-	/*
-	 * Get the actual y value within a given EvaluationContext.
-	 */
-	public Double evaluateY(EvaluationContext context) throws XPathSyntaxException {
-		parse();
-		return evaluateExpression(mYParse, context);
-	}
-	
-	/*
-	 * Helper for evaluateX and evaluateY.
-	 */
-	protected Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
-		if (expression != null) {
-			String value = (String) expression.eval(context.getMainInstance(), context);
-			if (value.length() > 0) {
-				return Double.valueOf(value);
-			}
-		}
-		return null;
-	}
+    /*
+     * Helper function to parse a single piece of XPath.
+     */
+    protected XPathExpression parse(String function) throws XPathSyntaxException {
+        if (function == null) {
+            return null;
+        }
+        return XPathParseTool.parseXPath("string(" + function + ")");
+    }
+    
+    /*
+     * Get the actual x value within a given EvaluationContext.
+     */
+    public Double evaluateX(EvaluationContext context) throws XPathSyntaxException {
+        parse();
+        return evaluateExpression(mXParse, context);
+    }
+    
+    /*
+     * Get the actual y value within a given EvaluationContext.
+     */
+    public Double evaluateY(EvaluationContext context) throws XPathSyntaxException {
+        parse();
+        return evaluateExpression(mYParse, context);
+    }
+    
+    /*
+     * Helper for evaluateX and evaluateY.
+     */
+    protected Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
+        if (expression != null) {
+            String value = (String) expression.eval(context.getMainInstance(), context);
+            if (value.length() > 0) {
+                return Double.valueOf(value);
+            }
+        }
+        return null;
+    }
 }

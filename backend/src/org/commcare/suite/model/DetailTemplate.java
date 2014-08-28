@@ -8,8 +8,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
  * @author jschweers
  */
 public interface DetailTemplate {
-	/**
-	 * Generate the actual data for this template, given a specific EvaluationContext.
-	 */
-	public Object evaluate(EvaluationContext context);
+    /**
+     * Generate the actual data for this template, given a specific EvaluationContext.
+     */
+    public Object evaluate(EvaluationContext context);
 }

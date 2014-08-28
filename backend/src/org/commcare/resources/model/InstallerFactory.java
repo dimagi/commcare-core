@@ -15,28 +15,28 @@ import org.commcare.resources.model.installers.XFormInstaller;
  *
  */
 public class InstallerFactory {
-	
-	public ResourceInstaller getProfileInstaller(boolean forceInstall) {
-		return new ProfileInstaller(forceInstall);
-	}
-	
-	public ResourceInstaller getXFormInstaller() {
-		return new XFormInstaller();
-	}
-	
-	public ResourceInstaller getSuiteInstaller() {
-		return new SuiteInstaller();
-	}
-	
-	public ResourceInstaller getLocaleFileInstaller(String locale) {
-		return new LocaleFileInstaller(locale);
-	}
-	
-	public ResourceInstaller getLoginImageInstaller() {
-		return new LoginImageInstaller();
-	}
-	
-	public ResourceInstaller getMediaInstaller(String path) {
-		return new MediaInstaller(path);
-	}
+    
+    public ResourceInstaller getProfileInstaller(boolean forceInstall) {
+        return new ProfileInstaller(forceInstall);
+    }
+    
+    public ResourceInstaller getXFormInstaller() {
+        return new XFormInstaller();
+    }
+    
+    public ResourceInstaller getSuiteInstaller() {
+        return new SuiteInstaller();
+    }
+    
+    public ResourceInstaller getLocaleFileInstaller(String locale) {
+        return new LocaleFileInstaller(locale);
+    }
+    
+    public ResourceInstaller getLoginImageInstaller() {
+        return new LoginImageInstaller();
+    }
+    
+    public ResourceInstaller getMediaInstaller(String path) {
+        return new MediaInstaller(path);
+    }
 }
