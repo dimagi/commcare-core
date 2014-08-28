@@ -21,58 +21,58 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 
 public class JRFormTestState extends FormEntryState {
 
-	protected JrFormEntryController getController() {
-		
-		int formID = 1;
-		
-		Vector<IPreloadHandler> preloaders = JRFormTestUtil.getPreloaders();
-		FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null, new InstanceInitializationFactory());
-		FormDef form = fetcher.getFormDef();
+    protected JrFormEntryController getController() {
+        
+        int formID = 1;
+        
+        Vector<IPreloadHandler> preloaders = JRFormTestUtil.getPreloaders();
+        FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null, new InstanceInitializationFactory());
+        FormDef form = fetcher.getFormDef();
 
-		JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR));
-		//controller.setView(new SingleQuestionView(controller));
-		controller.setView(new Chatterbox("Chatterbox", controller));
-		return controller;
-	}
+        JrFormEntryController controller =  new JrFormEntryController(new JrFormEntryModel(form, false, FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR));
+        //controller.setView(new SingleQuestionView(controller));
+        controller.setView(new Chatterbox("Chatterbox", controller));
+        return controller;
+    }
 
-	public void abort() {
-		JRFormTestUtil.exit();
-	}
+    public void abort() {
+        JRFormTestUtil.exit();
+    }
 
-	public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
-		if (formWasCompleted) {
-			
-			ByteArrayPayload payload = null;
-			try {
-				payload = (ByteArrayPayload)(new XFormSerializingVisitor()).createSerializedPayload(instanceData);
-			} catch (IOException e) {
-				throw new RuntimeException("a");
-			}
-			InputStream is = payload.getPayloadStream();
-			int len = (int)(payload.getLength());
-			
-			byte[] data = new byte[len];
-			try {
-				is.read(data, 0, len);
-			} catch (IOException e) {
-				throw new RuntimeException("b");
-			}
-			
-			System.out.println("BEGINXMLOUTPUT");
-			try {
-				System.out.println(new String(data, "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException("c");
-			}
-			System.out.println("ENDXMLOUTPUT");
-			
-		}
+    public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
+        if (formWasCompleted) {
+            
+            ByteArrayPayload payload = null;
+            try {
+                payload = (ByteArrayPayload)(new XFormSerializingVisitor()).createSerializedPayload(instanceData);
+            } catch (IOException e) {
+                throw new RuntimeException("a");
+            }
+            InputStream is = payload.getPayloadStream();
+            int len = (int)(payload.getLength());
+            
+            byte[] data = new byte[len];
+            try {
+                is.read(data, 0, len);
+            } catch (IOException e) {
+                throw new RuntimeException("b");
+            }
+            
+            System.out.println("BEGINXMLOUTPUT");
+            try {
+                System.out.println(new String(data, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException("c");
+            }
+            System.out.println("ENDXMLOUTPUT");
+            
+        }
 
-		JRFormTestUtil.exit();
-	}
+        JRFormTestUtil.exit();
+    }
 
-	public void suspendForMediaCapture(int captureType) {
-		throw new RuntimeException("not supported");
-	}
+    public void suspendForMediaCapture(int captureType) {
+        throw new RuntimeException("not supported");
+    }
 
 }

@@ -11,14 +11,14 @@ package org.javarosa.core.model.instance;
  *
  */
 public class InvalidReferenceException extends Exception {
-	TreeReference invalid;
-	
-	public InvalidReferenceException(String message, TreeReference reference) {
-		super(message);
-		this.invalid = reference;
-	}
-	
-	public TreeReference getInvalidReference() {
-		return invalid;
-	}
+    TreeReference invalid;
+    
+    public InvalidReferenceException(String message, TreeReference reference) {
+        super(message);
+        this.invalid = reference;
+    }
+    
+    public TreeReference getInvalidReference() {
+        return invalid;
+    }
 }

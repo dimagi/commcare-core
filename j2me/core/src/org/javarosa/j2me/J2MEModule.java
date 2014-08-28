@@ -35,50 +35,50 @@ import org.javarosa.j2me.storage.rms.RMSStorageUtilityIndexed;
  *
  */
 public class J2MEModule implements IModule {
-	
-	//#if !j2merosa.disable.autofile
-	J2meFileSystemProperties properties;
-	//#endif
-	
-	public J2MEModule() {
-		//#if !j2merosa.disable.autofile
-		this(new J2meFileSystemProperties(true));
-		//#endif
-		
-	}
-	
-	//#if !j2merosa.disable.autofile
-	public J2MEModule(J2meFileSystemProperties properties) {
-		this.properties = properties;
-	}
-	//#endif
+    
+    //#if !j2merosa.disable.autofile
+    J2meFileSystemProperties properties;
+    //#endif
+    
+    public J2MEModule() {
+        //#if !j2merosa.disable.autofile
+        this(new J2meFileSystemProperties(true));
+        //#endif
+        
+    }
+    
+    //#if !j2merosa.disable.autofile
+    public J2MEModule(J2meFileSystemProperties properties) {
+        this.properties = properties;
+    }
+    //#endif
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.api.IModule#registerModule(org.javarosa.core.Context)
-	 */
-	public void registerModule() {
-		StorageManager.setStorageFactory(new IStorageFactory () {
-			public IStorageUtility newStorage(String name, Class type) {
-				return new RMSStorageUtilityIndexed(name, type);
-			}
-		});
-		
-		postStorageRegistration();
+    /* (non-Javadoc)
+     * @see org.javarosa.core.api.IModule#registerModule(org.javarosa.core.Context)
+     */
+    public void registerModule() {
+        StorageManager.setStorageFactory(new IStorageFactory () {
+            public IStorageUtility newStorage(String name, Class type) {
+                return new RMSStorageUtilityIndexed(name, type);
+            }
+        });
+        
+        postStorageRegistration();
 
-		Logger.registerLogger(new J2MELogger());
-		
-		//The j2merosa.disable.autofile is used if the automatic file
-		//system setup should not be used (since it might trigger security
-		//problems on some devices)
-		
-		//#if !j2merosa.disable.autofile
-		PropertyManager._().addRules(properties);
-		properties.initializeFileReference();
-		//#endif
-	}
+        Logger.registerLogger(new J2MELogger());
+        
+        //The j2merosa.disable.autofile is used if the automatic file
+        //system setup should not be used (since it might trigger security
+        //problems on some devices)
+        
+        //#if !j2merosa.disable.autofile
+        PropertyManager._().addRules(properties);
+        properties.initializeFileReference();
+        //#endif
+    }
 
-	
-	protected void postStorageRegistration() {
-		
-	}
+    
+    protected void postStorageRegistration() {
+        
+    }
 }

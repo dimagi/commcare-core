@@ -14,29 +14,29 @@ import java.util.Vector;
  *
  */
 public class SizeBoundUniqueVector<E> extends SizeBoundVector<E> {
-	
-	public SizeBoundUniqueVector(int sizeLimit) {
-		super(sizeLimit);
-	}
+    
+    public SizeBoundUniqueVector(int sizeLimit) {
+        super(sizeLimit);
+    }
 
-	/* (non-Javadoc)
-	 * @see java.util.Vector#addElement(java.lang.Object)
-	 */
-	public synchronized void addElement(E obj) {
-		add(obj);
-	}
-	
-	public synchronized boolean add(E obj) {
-		if(this.size() == limit) {
-			additional++;
-			return true;
-		}
-		else if(this.contains(obj)){
-			return false;
-		}
-		else {
-			super.addElement(obj);
-			return true;
-		}
-	}
+    /* (non-Javadoc)
+     * @see java.util.Vector#addElement(java.lang.Object)
+     */
+    public synchronized void addElement(E obj) {
+        add(obj);
+    }
+    
+    public synchronized boolean add(E obj) {
+        if(this.size() == limit) {
+            additional++;
+            return true;
+        }
+        else if(this.contains(obj)){
+            return false;
+        }
+        else {
+            super.addElement(obj);
+            return true;
+        }
+    }
 }

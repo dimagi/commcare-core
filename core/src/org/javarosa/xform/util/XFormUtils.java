@@ -39,131 +39,131 @@ import org.kxml2.kdom.Element;
  *
  */
 public class XFormUtils {
-	private static IXFormParserFactory _factory = new XFormParserFactory();
-	
-	public static IXFormParserFactory setXFormParserFactory(IXFormParserFactory factory) {
-		IXFormParserFactory oldFactory = _factory;
-		_factory = factory;
-		return oldFactory;
-	}
-	
-	public static FormDef getFormFromResource (String resource) throws XFormParseException {
-		InputStream is = System.class.getResourceAsStream(resource);
-		if (is == null) {
-			System.err.println("Can't find form resource \"" + resource + "\". Is it in the JAR?");
-			return null;
-		}
-		
-		return getFormFromInputStream(is);
-	}
-	
-	
-	public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException{
-		return _factory.getXFormParser(isr).parse();
-	}
+    private static IXFormParserFactory _factory = new XFormParserFactory();
+    
+    public static IXFormParserFactory setXFormParserFactory(IXFormParserFactory factory) {
+        IXFormParserFactory oldFactory = _factory;
+        _factory = factory;
+        return oldFactory;
+    }
+    
+    public static FormDef getFormFromResource (String resource) throws XFormParseException {
+        InputStream is = System.class.getResourceAsStream(resource);
+        if (is == null) {
+            System.err.println("Can't find form resource \"" + resource + "\". Is it in the JAR?");
+            return null;
+        }
+        
+        return getFormFromInputStream(is);
+    }
+    
+    
+    public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException{
+        return _factory.getXFormParser(isr).parse();
+    }
 
-	/*
+    /*
      * This method throws XFormParseException when the form has errors.
      */
-	public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException{
-		InputStreamReader isr;
-		try {
-			isr = new InputStreamReader(is,"UTF-8");
-		} catch(UnsupportedEncodingException uee) {
-			System.out.println("UTF 8 encoding unavailable, trying default encoding");
-			isr = new InputStreamReader(is); 
-		}
-		
-		try {
-			try {
-				return _factory.getXFormParser(isr).parse();
-				//TODO: Keep removing these, shouldn't be swallowing them
-			} catch(IOException e) {
-				throw new XFormParseException("IO Exception during parse! " + e.getMessage());
-			}
-		} finally {
-			try {
-				isr.close();
-			}
-			catch(IOException e) {
-				System.err.println("IO Exception while closing stream.");
-				e.printStackTrace();
-			}
-		}
-	}
+    public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException{
+        InputStreamReader isr;
+        try {
+            isr = new InputStreamReader(is,"UTF-8");
+        } catch(UnsupportedEncodingException uee) {
+            System.out.println("UTF 8 encoding unavailable, trying default encoding");
+            isr = new InputStreamReader(is); 
+        }
+        
+        try {
+            try {
+                return _factory.getXFormParser(isr).parse();
+                //TODO: Keep removing these, shouldn't be swallowing them
+            } catch(IOException e) {
+                throw new XFormParseException("IO Exception during parse! " + e.getMessage());
+            }
+        } finally {
+            try {
+                isr.close();
+            }
+            catch(IOException e) {
+                System.err.println("IO Exception while closing stream.");
+                e.printStackTrace();
+            }
+        }
+    }
 
-	public static FormDef getFormFromSerializedResource(String resource) throws XFormParseException {
-		FormDef returnForm = null;
-		InputStream is = System.class.getResourceAsStream(resource);
-		try {
-			if(is != null) {
-				DataInputStream dis = new DataInputStream(is);
-				returnForm = (FormDef)ExtUtil.read(dis, FormDef.class);
-				dis.close();
-				is.close();
-			}else{
-				//#if debug.output==verbose
-				System.out.println("ResourceStream NULL");
-				//#endif
-			}
-		}
-		catch(IOException e) {
-			e.printStackTrace();
-		} catch (DeserializationException e) {
-			e.printStackTrace();
-		}
-		return returnForm;
-	}
-	
-	
-	/////Parser Attribute warning stuff
-	
-	public static Vector getAttributeList(Element e){
-		Vector atts = new Vector();
-		for(int i=0;i<e.getAttributeCount();i++){
-			atts.addElement(e.getAttributeName(i));
-		}
-		
-		return atts;
-	}
-	
-	public static Vector getUnusedAttributes(Element e,Vector usedAtts){
-		Vector unusedAtts = getAttributeList(e);
-		for(int i=0;i<usedAtts.size();i++){
-			if(unusedAtts.contains(usedAtts.elementAt(i))){
-				unusedAtts.removeElement(usedAtts.elementAt(i));
-			}
-		}
-		
-		return unusedAtts;
-	}
-	
-	public static String unusedAttWarning(Element e, Vector usedAtts){
-		String warning = "";
-		Vector ua = getUnusedAttributes(e,usedAtts);
-		warning+=ua.size()+" Unrecognized attributes found in Element ["+e.getName()+"] and will be ignored: ";
-		warning+="[";
-		for(int i=0;i<ua.size();i++){
-			warning+=ua.elementAt(i);
-			if(i!=ua.size()-1) warning+=",";
-		}
-		warning+="] ";
-		
-		return warning;
-	}
-	
-	public static boolean showUnusedAttributeWarning(Element e, Vector usedAtts){
-		return getUnusedAttributes(e,usedAtts).size()>0;
-	}
-	
-	/**
-	 * Is this element an Output tag?
-	 * @param e
-	 * @return
-	 */
-	public static boolean isOutput(Element e){
-		if(e.getName().toLowerCase().equals("output")) return true;
-		else return false;
-	}
-	
+    public static FormDef getFormFromSerializedResource(String resource) throws XFormParseException {
+        FormDef returnForm = null;
+        InputStream is = System.class.getResourceAsStream(resource);
+        try {
+            if(is != null) {
+                DataInputStream dis = new DataInputStream(is);
+                returnForm = (FormDef)ExtUtil.read(dis, FormDef.class);
+                dis.close();
+                is.close();
+            }else{
+                //#if debug.output==verbose
+                System.out.println("ResourceStream NULL");
+                //#endif
+            }
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        } catch (DeserializationException e) {
+            e.printStackTrace();
+        }
+        return returnForm;
+    }
+    
+    
+    /////Parser Attribute warning stuff
+    
+    public static Vector getAttributeList(Element e){
+        Vector atts = new Vector();
+        for(int i=0;i<e.getAttributeCount();i++){
+            atts.addElement(e.getAttributeName(i));
+        }
+        
+        return atts;
+    }
+    
+    public static Vector getUnusedAttributes(Element e,Vector usedAtts){
+        Vector unusedAtts = getAttributeList(e);
+        for(int i=0;i<usedAtts.size();i++){
+            if(unusedAtts.contains(usedAtts.elementAt(i))){
+                unusedAtts.removeElement(usedAtts.elementAt(i));
+            }
+        }
+        
+        return unusedAtts;
+    }
+    
+    public static String unusedAttWarning(Element e, Vector usedAtts){
+        String warning = "";
+        Vector ua = getUnusedAttributes(e,usedAtts);
+        warning+=ua.size()+" Unrecognized attributes found in Element ["+e.getName()+"] and will be ignored: ";
+        warning+="[";
+        for(int i=0;i<ua.size();i++){
+            warning+=ua.elementAt(i);
+            if(i!=ua.size()-1) warning+=",";
+        }
+        warning+="] ";
+        
+        return warning;
+    }
+    
+    public static boolean showUnusedAttributeWarning(Element e, Vector usedAtts){
+        return getUnusedAttributes(e,usedAtts).size()>0;
+    }
+    
+    /**
+     * Is this element an Output tag?
+     * @param e
+     * @return
+     */
+    public static boolean isOutput(Element e){
+        if(e.getName().toLowerCase().equals("output")) return true;
+        else return false;
+    }
+    
 }

@@ -14,6 +14,6 @@ import javax.microedition.lcdui.ItemCommandListener;
  */
 public interface HandledItemCommandListener extends ItemCommandListener {
 
-	void _commandAction (Command c, Item i);
-	
+    void _commandAction (Command c, Item i);
+    
 }

@@ -13,6 +13,6 @@ import de.enough.polish.ui.ItemStateListener;
  */
 public interface HandledPItemStateListener extends ItemStateListener {
 
-	void _itemStateChanged (Item i);
-	
+    void _itemStateChanged (Item i);
+    
 }

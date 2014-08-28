@@ -17,14 +17,14 @@
 package org.javarosa.xpath;
 
 public class XPathMissingInstanceException extends XPathException {
-	String instanceName;
-	public XPathMissingInstanceException (String instanceName) {
-		super("Instance " + instanceName + " is missing");
-		this.instanceName = instanceName;
-	}
-	
-	public XPathMissingInstanceException (String instanceName, String message) {
-		super(message);
-		this.instanceName = instanceName;
-	}
+    String instanceName;
+    public XPathMissingInstanceException (String instanceName) {
+        super("Instance " + instanceName + " is missing");
+        this.instanceName = instanceName;
+    }
+    
+    public XPathMissingInstanceException (String instanceName, String message) {
+        super(message);
+        this.instanceName = instanceName;
+    }
 }

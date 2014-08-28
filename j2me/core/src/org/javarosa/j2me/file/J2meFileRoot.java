@@ -18,26 +18,26 @@ import org.javarosa.core.reference.Reference;
  *
  */
 public class J2meFileRoot extends PrefixedRootFactory {
-	
-	protected String localRoot;
-	
-	/**
-	 * Creates a RootFactory which derives file roots
-	 * in the local environment to the localRoot provided
-	 * 
-	 * @param localRoot A local file root in the current
-	 * runtime environment.
-	 */
-	public J2meFileRoot(String localRoot) {
-		super(new String[] {"file"});
-		this.localRoot = localRoot;
-	}
+    
+    protected String localRoot;
+    
+    /**
+     * Creates a RootFactory which derives file roots
+     * in the local environment to the localRoot provided
+     * 
+     * @param localRoot A local file root in the current
+     * runtime environment.
+     */
+    public J2meFileRoot(String localRoot) {
+        super(new String[] {"file"});
+        this.localRoot = localRoot;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.reference.PrefixedRootFactory#factory(java.lang.String, java.lang.String)
-	 */
-	protected Reference factory(String terminal, String URI) {
-		return new J2meFileReference(localRoot,  terminal);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.reference.PrefixedRootFactory#factory(java.lang.String, java.lang.String)
+     */
+    protected Reference factory(String terminal, String URI) {
+        return new J2meFileReference(localRoot,  terminal);
+    }
 }

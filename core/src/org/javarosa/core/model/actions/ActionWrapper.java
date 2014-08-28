@@ -19,32 +19,32 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class ActionWrapper extends Action {
-	
-	Vector<Action> listOfActions = new Vector<Action>();
-	
-	public ActionWrapper() {
-		super("action");
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.model.Action#processAction(org.javarosa.core.model.FormDef)
-	 */
-	public void processAction(FormDef target, TreeReference context) {
-		super.processAction(target, context);
-	}
+    
+    Vector<Action> listOfActions = new Vector<Action>();
+    
+    public ActionWrapper() {
+        super("action");
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.Action#processAction(org.javarosa.core.model.FormDef)
+     */
+    public void processAction(FormDef target, TreeReference context) {
+        super.processAction(target, context);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.model.Action#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		super.readExternal(in, pf);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.Action#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.model.Action#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		super.writeExternal(out);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.Action#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+    }
 
 }

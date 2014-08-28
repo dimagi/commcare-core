@@ -32,71 +32,71 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class IntegerData implements IAnswerData {
-	int n;
+    int n;
 
-	/**
-	 * Empty Constructor, necessary for dynamic construction during deserialization.
-	 * Shouldn't be used otherwise.
-	 */
-	public IntegerData() {
-		
-	}
-	
-	public IntegerData(int n) {
-		this.n = n;
-	}
-	public IntegerData(Integer n) {
-		setValue(n);
-	}
-	
-	public IAnswerData clone () {
-		return new IntegerData(n);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
-	 */
-	public String getDisplayText() {
-		return String.valueOf(n);
-	}
+    /**
+     * Empty Constructor, necessary for dynamic construction during deserialization.
+     * Shouldn't be used otherwise.
+     */
+    public IntegerData() {
+        
+    }
+    
+    public IntegerData(int n) {
+        this.n = n;
+    }
+    public IntegerData(Integer n) {
+        setValue(n);
+    }
+    
+    public IAnswerData clone () {
+        return new IntegerData(n);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
+     */
+    public String getDisplayText() {
+        return String.valueOf(n);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.model.data.IAnswerData#getValue()
-	 */
-	public Object getValue() {
-		return DataUtil.integer(n); 
-	}
-	
-	public void setValue(Object o) {
-		if(o == null) {
-			throw new NullPointerException("Attempt to set an IAnswerData class to null.");
-		}
-		n = ((Integer)o).intValue();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		n = ExtUtil.readInt(in);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.data.IAnswerData#getValue()
+     */
+    public Object getValue() {
+        return DataUtil.integer(n); 
+    }
+    
+    public void setValue(Object o) {
+        if(o == null) {
+            throw new NullPointerException("Attempt to set an IAnswerData class to null.");
+        }
+        n = ((Integer)o).intValue();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        n = ExtUtil.readInt(in);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out, n);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, n);
+    }
 
-	public UncastData uncast() {
-		return new UncastData(DataUtil.integer(n).toString());
-	}
-	
-	public IntegerData cast(UncastData data) throws IllegalArgumentException {
-		try {
-			return new IntegerData(Integer.parseInt(data.value));
-		} catch(NumberFormatException nfe) {
-			throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal");
-		}
-	}
+    public UncastData uncast() {
+        return new UncastData(DataUtil.integer(n).toString());
+    }
+    
+    public IntegerData cast(UncastData data) throws IllegalArgumentException {
+        try {
+            return new IntegerData(Integer.parseInt(data.value));
+        } catch(NumberFormatException nfe) {
+            throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal");
+        }
+    }
 }

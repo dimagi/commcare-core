@@ -31,41 +31,41 @@ import org.kxml2.kdom.Element;
  */
 public class XmlLogSerializer implements IFullLogSerializer<Element> {
 
-	private String topElementName;
-	
-	public XmlLogSerializer(String topElementName) {
-		this.topElementName = topElementName;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.log.ILogSerializer#serializeLog(org.javarosa.core.log.IncidentLog)
-	 */
-	private Element serializeLog(LogEntry log) {
-		Element entry = new Element();
-		entry.setName("log");
-		entry.setAttribute(null, "date", DateUtils.formatDateTime(log.getTime(), DateUtils.FORMAT_ISO8601));
-		
-		Element type = entry.createElement(null,"type");
-		type.addChild(Element.TEXT, log.getType());
-		entry.addChild(Element.ELEMENT, type);
-		
-		Element message = entry.createElement(null,"msg");
-		message.addChild(Element.TEXT, log.getMessage());
-		entry.addChild(Element.ELEMENT, message);
-		
-		return entry;
-	}
+    private String topElementName;
+    
+    public XmlLogSerializer(String topElementName) {
+        this.topElementName = topElementName;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.log.ILogSerializer#serializeLog(org.javarosa.core.log.IncidentLog)
+     */
+    private Element serializeLog(LogEntry log) {
+        Element entry = new Element();
+        entry.setName("log");
+        entry.setAttribute(null, "date", DateUtils.formatDateTime(log.getTime(), DateUtils.FORMAT_ISO8601));
+        
+        Element type = entry.createElement(null,"type");
+        type.addChild(Element.TEXT, log.getType());
+        entry.addChild(Element.ELEMENT, type);
+        
+        Element message = entry.createElement(null,"msg");
+        message.addChild(Element.TEXT, log.getMessage());
+        entry.addChild(Element.ELEMENT, message);
+        
+        return entry;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.log.ILogSerializer#serializeLogs(org.javarosa.core.log.IncidentLog[])
-	 */
-	public Element serializeLogs(LogEntry[] logs) {
-		Element report = new Element();
-		report.setName(topElementName);
-		for(int i = 0; i < logs.length; ++i ) {
-			report.addChild(Element.ELEMENT, this.serializeLog(logs[i]));
-		}
-		return report;
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.log.ILogSerializer#serializeLogs(org.javarosa.core.log.IncidentLog[])
+     */
+    public Element serializeLogs(LogEntry[] logs) {
+        Element report = new Element();
+        report.setName(topElementName);
+        for(int i = 0; i < logs.length; ++i ) {
+            report.addChild(Element.ELEMENT, this.serializeLog(logs[i]));
+        }
+        return report;
+    }
 
 }

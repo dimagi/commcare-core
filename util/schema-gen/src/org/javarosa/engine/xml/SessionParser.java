@@ -15,18 +15,18 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class SessionParser extends ElementParser<Session> {
 
-	public SessionParser(KXmlParser parser) throws IOException {
-		super(parser);
-	}
+    public SessionParser(KXmlParser parser) throws IOException {
+        super(parser);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.engine.xml.ElementParser#parse()
-	 */
-	@Override
-	public Session parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode("session");
-		this.skipBlock("session");
-		return null;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.engine.xml.ElementParser#parse()
+     */
+    @Override
+    public Session parse() throws InvalidStructureException, IOException, XmlPullParserException {
+        this.checkNode("session");
+        this.skipBlock("session");
+        return null;
+    }
 }

@@ -29,34 +29,34 @@ import org.javarosa.core.util.externalizable.Externalizable;
  *
  */
 public interface IDataPointer extends Externalizable {
-	
-	/**
-	 * Get a display string that represents this data.
-	 * @return
-	 */
-	
-	public String getDisplayText();
-	
-	/**
-	 * Get the data from the underlying storage.  This should maybe be a stream instead of a byte[]
-	 * @return
-	 */
-	public byte[] getData() throws IOException;
+    
+    /**
+     * Get a display string that represents this data.
+     * @return
+     */
+    
+    public String getDisplayText();
+    
+    /**
+     * Get the data from the underlying storage.  This should maybe be a stream instead of a byte[]
+     * @return
+     */
+    public byte[] getData() throws IOException;
 
-	/**
-	 * Get the data from the underlying storage.  
-	 * @return
-	 * @throws IOException 
-	 */
-	public InputStream getDataStream() throws IOException;
+    /**
+     * Get the data from the underlying storage.  
+     * @return
+     * @throws IOException 
+     */
+    public InputStream getDataStream() throws IOException;
 
-	/**
-	 * Deletes the underlying data from storage.
-	 */
-	public boolean deleteData();
-	
-	/**
-	 * @return Gets the length of the data payload
-	 */
-	public long getLength();
+    /**
+     * Deletes the underlying data from storage.
+     */
+    public boolean deleteData();
+    
+    /**
+     * @return Gets the length of the data payload
+     */
+    public long getLength();
 }

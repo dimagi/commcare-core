@@ -14,6 +14,6 @@ import de.enough.polish.ui.Displayable;
  */
 public interface HandledPCommandListener extends CommandListener {
 
-	void _commandAction (Command c, Displayable d);
-	
+    void _commandAction (Command c, Displayable d);
+    
 }

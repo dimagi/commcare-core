@@ -24,64 +24,64 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class SubmissionProfile implements Externalizable {
-	
-	IDataReference ref;
-	String method;
-	String action;
-	String mediaType;
-	Hashtable<String,String> attributeMap;
-	
-	public SubmissionProfile() {
-		
-	}
-	
-	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
-		this(ref, method, action, mediatype, new Hashtable<String, String>());
-	}
-	
-	public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String,String> attributeMap) {
-		this.method = method;
-		this.ref = ref;
-		this.action = action;
-		this.mediaType = mediatype;
-		this.attributeMap = attributeMap;
-	}
+    
+    IDataReference ref;
+    String method;
+    String action;
+    String mediaType;
+    Hashtable<String,String> attributeMap;
+    
+    public SubmissionProfile() {
+        
+    }
+    
+    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
+        this(ref, method, action, mediatype, new Hashtable<String, String>());
+    }
+    
+    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String,String> attributeMap) {
+        this.method = method;
+        this.ref = ref;
+        this.action = action;
+        this.mediaType = mediatype;
+        this.attributeMap = attributeMap;
+    }
 
-	public IDataReference getRef() {
-		return ref;
-	}
+    public IDataReference getRef() {
+        return ref;
+    }
 
-	public String getMethod() {
-		return method;
-	}
+    public String getMethod() {
+        return method;
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+        return action;
+    }
 
-	public String getMediaType() {
-		return mediaType;
-	}
-	
-	public String getAttribute(String name) {
-	    return attributeMap.get(name);
-	}
-	
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
-		method = ExtUtil.readString(in);
-		action = ExtUtil.readString(in);
-		mediaType = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		attributeMap = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
-	}
+    public String getMediaType() {
+        return mediaType;
+    }
+    
+    public String getAttribute(String name) {
+        return attributeMap.get(name);
+    }
+    
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
+        method = ExtUtil.readString(in);
+        action = ExtUtil.readString(in);
+        mediaType = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        attributeMap = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.write(out, new ExtWrapTagged(ref));
-		ExtUtil.writeString(out, method);
-		ExtUtil.writeString(out, action);
-		ExtUtil.writeString(out, ExtUtil.emptyIfNull(mediaType));
-		ExtUtil.write(out, new ExtWrapMap(attributeMap));
-	}
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out, new ExtWrapTagged(ref));
+        ExtUtil.writeString(out, method);
+        ExtUtil.writeString(out, action);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(mediaType));
+        ExtUtil.write(out, new ExtWrapMap(attributeMap));
+    }
 
-	
+    
 }
