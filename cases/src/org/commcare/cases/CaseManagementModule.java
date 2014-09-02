@@ -31,12 +31,12 @@ import org.javarosa.core.services.storage.StorageManager;
  */
 public class CaseManagementModule implements IModule {
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.api.IModule#registerModule(org.javarosa.core.Context)
-	 */
-	public void registerModule() {
-		StorageManager.registerStorage(Case.STORAGE_KEY, Case.class);
-		StorageManager.registerStorage(Ledger.STORAGE_KEY, Ledger.class);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.api.IModule#registerModule(org.javarosa.core.Context)
+     */
+    public void registerModule() {
+        StorageManager.registerStorage(Case.STORAGE_KEY, Case.class);
+        StorageManager.registerStorage(Ledger.STORAGE_KEY, Ledger.class);
+    }
 
 }

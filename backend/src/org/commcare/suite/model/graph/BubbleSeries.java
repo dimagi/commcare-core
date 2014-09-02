@@ -16,57 +16,57 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author jschweers
  */
 public class BubbleSeries extends XYSeries {
-	private String mRadius;
-	private XPathExpression mRadiusParse;
+    private String mRadius;
+    private XPathExpression mRadiusParse;
 
-	public BubbleSeries(String nodeSet) {
-		super(nodeSet);
-	}
+    public BubbleSeries(String nodeSet) {
+        super(nodeSet);
+    }
 
-	public String getRadius() {
-		return mRadius;
-	}
-	
-	public void setRadius(String radius) {
-		mRadius = radius;
-		mRadiusParse = null;
-	}
+    public String getRadius() {
+        return mRadius;
+    }
+    
+    public void setRadius(String radius) {
+        mRadius = radius;
+        mRadiusParse = null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.commcare.suite.model.graph.XYSeries#parse()
-	 */
-	protected void parse() throws XPathSyntaxException {
-		super.parse();
-		if (mRadiusParse == null) {
-			mRadiusParse = parse(mRadius);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.suite.model.graph.XYSeries#parse()
+     */
+    protected void parse() throws XPathSyntaxException {
+        super.parse();
+        if (mRadiusParse == null) {
+            mRadiusParse = parse(mRadius);
+        }
+    }
 
-	/*
-	 * Get actual value for radius in a given EvaluationContext.
-	 */
-	public Double evaluateRadius(EvaluationContext context) throws XPathSyntaxException {
-		parse();
-		return evaluateExpression(mRadiusParse, context);
-	}
+    /*
+     * Get actual value for radius in a given EvaluationContext.
+     */
+    public Double evaluateRadius(EvaluationContext context) throws XPathSyntaxException {
+        parse();
+        return evaluateExpression(mRadiusParse, context);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.commcare.suite.model.graph.XYSeries#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		super.readExternal(in, pf);
-		mRadius = ExtUtil.readString(in);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.suite.model.graph.XYSeries#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+        mRadius = ExtUtil.readString(in);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.commcare.suite.model.graph.XYSeries#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		super.writeExternal(out);
-		ExtUtil.writeString(out, mRadius);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.commcare.suite.model.graph.XYSeries#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+        ExtUtil.writeString(out, mRadius);
+    }
 }

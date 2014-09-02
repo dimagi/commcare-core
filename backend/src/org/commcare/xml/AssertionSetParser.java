@@ -26,39 +26,39 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public class AssertionSetParser extends ElementParser<AssertionSet> {
 
-	public AssertionSetParser(KXmlParser parser) {
-		super(parser);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.commcare.xml.ElementParser#parse()
-	 */
-	public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode("assertions");
-		
-		Vector<String> tests = new Vector<String>();
-		Vector<Text> messages = new Vector<Text>();
+    public AssertionSetParser(KXmlParser parser) {
+        super(parser);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.commcare.xml.ElementParser#parse()
+     */
+    public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
+        this.checkNode("assertions");
+        
+        Vector<String> tests = new Vector<String>();
+        Vector<Text> messages = new Vector<Text>();
 
-		
-		while(nextTagInBlock("assertions")) {
-			if(parser.getName().equals("assert")) {
-				String test = parser.getAttributeValue(null, "test");
-				if(test == null) { throw new InvalidStructureException("<assert> element must have a test attribute!", parser); } 
-				try {
-					XPathParseTool.parseXPath(test);
-				} catch (XPathSyntaxException e) {
-					throw new InvalidStructureException("Invalid assertion test : " + test + "\n" + e.getMessage(), parser);
-				}
-				parser.nextTag();
-				checkNode("text");
-				Text message = new TextParser(parser).parse();
-				tests.addElement(test);
-				messages.addElement(message);
+        
+        while(nextTagInBlock("assertions")) {
+            if(parser.getName().equals("assert")) {
+                String test = parser.getAttributeValue(null, "test");
+                if(test == null) { throw new InvalidStructureException("<assert> element must have a test attribute!", parser); } 
+                try {
+                    XPathParseTool.parseXPath(test);
+                } catch (XPathSyntaxException e) {
+                    throw new InvalidStructureException("Invalid assertion test : " + test + "\n" + e.getMessage(), parser);
+                }
+                parser.nextTag();
+                checkNode("text");
+                Text message = new TextParser(parser).parse();
+                tests.addElement(test);
+                messages.addElement(message);
 
-			} else {
-				throw new InvalidStructureException("Unknown test : " + parser.getName(), parser);
-			}
-		}
-		return new AssertionSet(tests, messages);
-	}
+            } else {
+                throw new InvalidStructureException("Unknown test : " + parser.getName(), parser);
+            }
+        }
+        return new AssertionSet(tests, messages);
+    }
 }

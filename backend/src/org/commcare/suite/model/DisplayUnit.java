@@ -29,60 +29,60 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  *
  */
 public class DisplayUnit implements Externalizable {
-	
-	Text name;
-	String imageReference;
-	String audioReference;
-	
-	/**
-	 * Serialization only!!!
-	 */
-	public DisplayUnit() {
-		
-	}
-	
-	
-	public DisplayUnit(Text name, String imageReference, String audioReference) {
-		this.name = name;
-		this.imageReference = imageReference;
-		this.audioReference = audioReference;
-	}
-	
-	/**
-	 * @return A Text which should be displayed to the user as
-	 * the action which will display this menu.
-	 */
-	public Text getText() {
-		return name;
-	}
+    
+    Text name;
+    String imageReference;
+    String audioReference;
+    
+    /**
+     * Serialization only!!!
+     */
+    public DisplayUnit() {
+        
+    }
+    
+    
+    public DisplayUnit(Text name, String imageReference, String audioReference) {
+        this.name = name;
+        this.imageReference = imageReference;
+        this.audioReference = audioReference;
+    }
+    
+    /**
+     * @return A Text which should be displayed to the user as
+     * the action which will display this menu.
+     */
+    public Text getText() {
+        return name;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		name = (Text)ExtUtil.read(in, Text.class, pf);
-		imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-		
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        name = (Text)ExtUtil.read(in, Text.class, pf);
+        imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.write(out,name);
-		ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));
-		ExtUtil.writeString(out,ExtUtil.emptyIfNull(audioReference));
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out,name);
+        ExtUtil.writeString(out,ExtUtil.emptyIfNull(imageReference));
+        ExtUtil.writeString(out,ExtUtil.emptyIfNull(audioReference));
+    }
 
 
-	public String getImageURI() {
-		return imageReference;
-	}
-	
-	public String getAudioURI() {
-		// TODO Auto-generated method stub
-		return audioReference;
-	}
+    public String getImageURI() {
+        return imageReference;
+    }
+    
+    public String getAudioURI() {
+        // TODO Auto-generated method stub
+        return audioReference;
+    }
 }

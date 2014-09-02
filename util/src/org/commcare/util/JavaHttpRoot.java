@@ -12,12 +12,12 @@ import org.javarosa.core.reference.Reference;
  */
 public class JavaHttpRoot extends PrefixedRootFactory {
 
-	public JavaHttpRoot() {
-		super(new String[] {"http://", "https://"});
-	}
+    public JavaHttpRoot() {
+        super(new String[] {"http://", "https://"});
+    }
 
-	protected Reference factory(String terminal, String URI) {
-		return new JavaHttpReference(URI);
-	}
+    protected Reference factory(String terminal, String URI) {
+        return new JavaHttpReference(URI);
+    }
 
 }

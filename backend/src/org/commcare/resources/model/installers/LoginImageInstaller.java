@@ -14,18 +14,18 @@ import org.commcare.resources.model.ResourceInitializationException;
  */
 public class LoginImageInstaller extends BasicInstaller {
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#initialize()
-	 */
-	public boolean initialize() throws ResourceInitializationException {
-		//Tell the login screen where to get this?
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#initialize()
+     */
+    public boolean initialize() throws ResourceInitializationException {
+        //Tell the login screen where to get this?
+        return true;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-	 */
-	public boolean requiresRuntimeInitialization() {
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
+     */
+    public boolean requiresRuntimeInitialization() {
+        return true;
+    }
 }

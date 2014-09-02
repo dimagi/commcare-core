@@ -11,6 +11,6 @@ import org.commcare.suite.model.Suite;
  *
  */
 public interface MenuTransitions {
-	public void entry(Suite suite, Entry entry);
-	public void exitMenuTransition();
+    public void entry(Suite suite, Entry entry);
+    public void exitMenuTransition();
 }

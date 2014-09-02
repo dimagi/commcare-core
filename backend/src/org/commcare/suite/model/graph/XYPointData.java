@@ -5,20 +5,20 @@ package org.commcare.suite.model.graph;
  * @author jschweers
  */
 public class XYPointData {
-	private Double mX;
-	private Double mY;
+    private Double mX;
+    private Double mY;
 
-	public XYPointData(Double x, Double y) {
-		mX = new Double(x);
-		mY = new Double(y);
-	}
-	
-	public Double getX() {
-		return mX;
-	}
-	
-	public Double getY() {
-		return mY;
-	}
-	
+    public XYPointData(Double x, Double y) {
+        mX = new Double(x);
+        mY = new Double(y);
+    }
+    
+    public Double getX() {
+        return mX;
+    }
+    
+    public Double getY() {
+        return mY;
+    }
+    
 }
