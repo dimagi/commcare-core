@@ -38,7 +38,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 	private CacheTable<TreeReference, T> referenceCache;
 	
 	public DataInstance() {
-	
+		referenceCache = new CacheTable<TreeReference, T>();
 	}
 
 	
