@@ -57,7 +57,7 @@ public class Property implements Persistable, IMetaData {
         int nameindex = fullString.indexOf(","); 
         value = new Vector();
         if(nameindex == -1) {
-    		//#if debug.output==verbose
+            //#if debug.output==verbose
             System.out.println("WARNING: Property in RMS with no value:"+fullString);
             //#endif
             name = fullString.substring(0, fullString.length());
@@ -108,27 +108,27 @@ public class Property implements Persistable, IMetaData {
     }
     
     public int getID () {
-    	return recordId;
+        return recordId;
     }
 
-	public Hashtable getMetaData() {
-		Hashtable metadata = new Hashtable();
-		String[] fields = getMetaDataFields();
-		for (int i = 0; i < fields.length; i++) {
-			metadata.put(fields[i], getMetaData(fields[i]));
-		}
-		return metadata;
-	}
+    public Hashtable getMetaData() {
+        Hashtable metadata = new Hashtable();
+        String[] fields = getMetaDataFields();
+        for (int i = 0; i < fields.length; i++) {
+            metadata.put(fields[i], getMetaData(fields[i]));
+        }
+        return metadata;
+    }
 
-	public Object getMetaData(String fieldName) {
-		if (fieldName.equals("NAME")) {
-			return name;
-		} else {
-			throw new IllegalArgumentException();
-		}
-	}
+    public Object getMetaData(String fieldName) {
+        if (fieldName.equals("NAME")) {
+            return name;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
 
-	public String[] getMetaDataFields() {
-		return new String[] {"NAME"};
-	}
+    public String[] getMetaDataFields() {
+        return new String[] {"NAME"};
+    }
 }

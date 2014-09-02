@@ -30,131 +30,131 @@ import org.javarosa.j2me.services.exception.LocationServiceException;
  */
 public abstract class LocationCaptureService implements DataCaptureService {
 
-	public static final int NOT_INITIALISED = 0;
-	public static final int READY = 1;
-	public static final int WAITING_FOR_FIX = 2;
-	public static final int FIX_OBTAINED = 3;
-	public static final int FIX_FAILED = 4;
+    public static final int NOT_INITIALISED = 0;
+    public static final int READY = 1;
+    public static final int WAITING_FOR_FIX = 2;
+    public static final int FIX_OBTAINED = 3;
+    public static final int FIX_FAILED = 4;
 
-	private int status = LocationCaptureService.NOT_INITIALISED;
+    private int status = LocationCaptureService.NOT_INITIALISED;
 
-	private Vector listeners = new Vector();
+    private Vector listeners = new Vector();
 
-	/**
-	 * @return current service status
-	 */
-	public int getStatus() {
-		return status;
-	}
+    /**
+     * @return current service status
+     */
+    public int getStatus() {
+        return status;
+    }
 
-	/**
-	 * @param newState
-	 *            the service status to set
-	 */
-	protected void setStatus(int newState) {
-		status = newState;
-		notifyStateChanged();
-	}
+    /**
+     * @param newState
+     *            the service status to set
+     */
+    protected void setStatus(int newState) {
+        status = newState;
+        notifyStateChanged();
+    }
 
-	/**
-	 * @param receiver
-	 *            the state that will receive the results of the location
-	 *            capture attempt
-	 * @return get a State that uses this service to perform location capture
-	 */
-	public abstract State getStateForCapture(LocationReceiver receiver);
+    /**
+     * @param receiver
+     *            the state that will receive the results of the location
+     *            capture attempt
+     * @return get a State that uses this service to perform location capture
+     */
+    public abstract State getStateForCapture(LocationReceiver receiver);
 
-	/**
-	 * @param listener
-	 *            a LocationStateListener to notify of changes to the service
-	 *            state
-	 */
-	public void addListener(LocationStateListener listener) {
-		listeners.addElement(listener);
-	}
+    /**
+     * @param listener
+     *            a LocationStateListener to notify of changes to the service
+     *            state
+     */
+    public void addListener(LocationStateListener listener) {
+        listeners.addElement(listener);
+    }
 
-	/**
-	 * Notify all listeners that the state of the service has changed
-	 */
-	protected void notifyStateChanged() {
-		for (int i = 0; i < listeners.size(); i++) {
-			((LocationStateListener) this.listeners.elementAt(i))
-					.onChange(getStatus());
-		}
-	}
+    /**
+     * Notify all listeners that the state of the service has changed
+     */
+    protected void notifyStateChanged() {
+        for (int i = 0; i < listeners.size(); i++) {
+            ((LocationStateListener) this.listeners.elementAt(i))
+                    .onChange(getStatus());
+        }
+    }
 
-	/**
-	 * @return a location fix
-	 * @throws LocationServiceException
-	 */
-	public abstract Fix getFix() throws LocationServiceException;
+    /**
+     * @return a location fix
+     * @throws LocationServiceException
+     */
+    public abstract Fix getFix() throws LocationServiceException;
 
-	/**
-	 * @author mel a location fix
-	 * 
-	 */
-	public class Fix {
-		private double lat;
-		private double lon;
-		private double altitude;
-		private double accuracy;
+    /**
+     * @author mel a location fix
+     * 
+     */
+    public class Fix {
+        private double lat;
+        private double lon;
+        private double altitude;
+        private double accuracy;
 
-		public Fix(double lat, double lon, double altitude, double accuracy) {
-			super();
-			this.lat = lat;
-			this.lon = lon;
-			this.altitude = altitude;
-			this.accuracy = accuracy;
-		}
+        public Fix(double lat, double lon, double altitude, double accuracy) {
+            super();
+            this.lat = lat;
+            this.lon = lon;
+            this.altitude = altitude;
+            this.accuracy = accuracy;
+        }
 
-		public double getLat() {
-			return lat;
-		}
+        public double getLat() {
+            return lat;
+        }
 
-		public double getLon() {
-			return lon;
-		}
+        public double getLon() {
+            return lon;
+        }
 
-		public double getAltitude() {
-			return altitude;
-		}
+        public double getAltitude() {
+            return altitude;
+        }
 
-		public double getAccuracy() {
-			return accuracy;
-		}
+        public double getAccuracy() {
+            return accuracy;
+        }
 
-	}
+    }
 
-	/**
-	 * @author mel implementers of this interface want to be notified when the
-	 *         state of the location service changes
-	 * 
-	 */
-	public interface LocationStateListener {
+    /**
+     * @author mel implementers of this interface want to be notified when the
+     *         state of the location service changes
+     * 
+     */
+    public interface LocationStateListener {
 
-		public void onChange(int status);
+        public void onChange(int status);
 
-	}
-	
-	/**
-	 * Implemented by states that can receive a location fix
-	 * 
-	 * @author melissa
-	 * 
-	 */
-	public interface LocationReceiver {
+    }
+    
+    /**
+     * Implemented by states that can receive a location fix
+     * 
+     * @author melissa
+     * 
+     */
+    public interface LocationReceiver {
 
-		/**
-		 * Transition back to the calling state; fix has been obtained
-		 * 
-		 * @param fix
-		 */
-		void fixObtained(Fix fix);
+        /**
+         * Transition back to the calling state; fix has been obtained
+         * 
+         * @param fix
+         */
+        void fixObtained(Fix fix);
 
-		/**
-		 * Transition back to the calling state; fix has not been obtained
-		 */
-		void fixFailed();
-	}
+        /**
+         * Transition back to the calling state; fix has not been obtained
+         */
+        void fixFailed();
+    }
 
 }

@@ -26,139 +26,139 @@ import org.javarosa.form.api.FormEntryModel;
  *
  */
 public class XFormEnvironment {
-	
-	private FormDef form;
-	
-	private FormEntryModel fem;
-	private FormEntryController fec;
-	
-	
-	private Step currentStep;
-	private int stepCount = 0;
-	
-	private Session session;
-	private Mockup mockup;
-	boolean recording = true;
+    
+    private FormDef form;
+    
+    private FormEntryModel fem;
+    private FormEntryController fec;
+    
+    
+    private Step currentStep;
+    private int stepCount = 0;
+    
+    private Session session;
+    private Mockup mockup;
+    boolean recording = true;
 
-	public XFormEnvironment(FormDef form) {
-		this.form = form;
-	}
-	
-	public XFormEnvironment(FormDef form, Session session) {
-		this.form = form;
-		this.session = session;
-		recording = false;
-	}
-	
-	
-	public XFormEnvironment(FormDef form, Mockup mockup) {
-		this(form);
-		this.mockup = mockup;
-	}
-	
-	public FormEntryController setup() {
-		form.setEvaluationContext(getEC());
-		
-		form.initialize(true, createIIF());
-		
-		if(recording) {
-			session = new Session();
-			currentStep = new Step();
-		} else {
-			currentStep = session.getSteps().elementAt(0);
-		}
-		
-		fem = new FormEntryModel(form);
-		fec = new FormEntryController(fem);
-		
-		return fec;
-	}
-	
-	public Step popStep() {
-		if(!recording) {
-			Step toRet = currentStep;
-			stepCount++;
-			if(session.getSteps().size() > stepCount) {
-				currentStep = session.getSteps().elementAt(stepCount);
-			} else {
-				currentStep = null;
-			}
-			return toRet;
-		} else {
-			throw new IllegalStateException("Can't get step records in playback mode");
-		}
-	}
-	
-	private InstanceInitializationFactory createIIF() {
-		return new MockupProviderFactory(mockup == null ? new Hashtable() : mockup.getInstances());
-	}
-	
-	private EvaluationContext getEC() {
-		EvaluationContext ec = new EvaluationContext(null);
-		ec.addFunctionHandler(new TodayFunc("today"));
-		ec.addFunctionHandler(new TodayFunc("now"));
-		return ec;
-	}
-	
-	private class TodayFunc implements IFunctionHandler {
+    public XFormEnvironment(FormDef form) {
+        this.form = form;
+    }
+    
+    public XFormEnvironment(FormDef form, Session session) {
+        this.form = form;
+        this.session = session;
+        recording = false;
+    }
+    
+    
+    public XFormEnvironment(FormDef form, Mockup mockup) {
+        this(form);
+        this.mockup = mockup;
+    }
+    
+    public FormEntryController setup() {
+        form.setEvaluationContext(getEC());
+        
+        form.initialize(true, createIIF());
+        
+        if(recording) {
+            session = new Session();
+            currentStep = new Step();
+        } else {
+            currentStep = session.getSteps().elementAt(0);
+        }
+        
+        fem = new FormEntryModel(form);
+        fec = new FormEntryController(fem);
+        
+        return fec;
+    }
+    
+    public Step popStep() {
+        if(!recording) {
+            Step toRet = currentStep;
+            stepCount++;
+            if(session.getSteps().size() > stepCount) {
+                currentStep = session.getSteps().elementAt(stepCount);
+            } else {
+                currentStep = null;
+            }
+            return toRet;
+        } else {
+            throw new IllegalStateException("Can't get step records in playback mode");
+        }
+    }
+    
+    private InstanceInitializationFactory createIIF() {
+        return new MockupProviderFactory(mockup == null ? new Hashtable() : mockup.getInstances());
+    }
+    
+    private EvaluationContext getEC() {
+        EvaluationContext ec = new EvaluationContext(null);
+        ec.addFunctionHandler(new TodayFunc("today"));
+        ec.addFunctionHandler(new TodayFunc("now"));
+        return ec;
+    }
+    
+    private class TodayFunc implements IFunctionHandler {
 
-		String name;
-		
-		public TodayFunc(String name) {
-			this.name = name;
-		}
-		
-		public String getName() {
-			return name;
-		}
+        String name;
+        
+        public TodayFunc(String name) {
+            this.name = name;
+        }
+        
+        public String getName() {
+            return name;
+        }
 
-		public Vector getPrototypes() {
-			Vector p = new Vector();
-			p.addElement(new Class[0]);
-			return p;
-		}
+        public Vector getPrototypes() {
+            Vector p = new Vector();
+            p.addElement(new Class[0]);
+            return p;
+        }
 
-		public boolean rawArgs() {
-			return false;
-		}
+        public boolean rawArgs() {
+            return false;
+        }
 
-		public boolean realTime() {
-			return true;
-		}
+        public boolean realTime() {
+            return true;
+        }
 
-		public Object eval(Object[] args, EvaluationContext ec) {
-			if(mockup != null && mockup.getDate() != null) {
-				return mockup.getDate();
-			} else {
-				return new Date();
-			}
-		}
-		
-	}
+        public Object eval(Object[] args, EvaluationContext ec) {
+            if(mockup != null && mockup.getDate() != null) {
+                return mockup.getDate();
+            } else {
+                return new Date();
+            }
+        }
+        
+    }
 
-	public void commitStep() {
-		if(recording) {				
-			session.addStep(currentStep);
-			currentStep = new Step();
-		}
-	}
+    public void commitStep() {
+        if(recording) {                
+            session.addStep(currentStep);
+            currentStep = new Step();
+        }
+    }
 
 
-	public void recordAction(Action action) {
-		if(recording) {
-			currentStep.setAction(action);
-		}
-	}
-	
-	public boolean isModePlayback() { 
-		return !recording;
-	}
+    public void recordAction(Action action) {
+        if(recording) {
+            currentStep.setAction(action);
+        }
+    }
+    
+    public boolean isModePlayback() { 
+        return !recording;
+    }
 
-	public Session getSessionRecording() {
-		if(recording) {
-			return session;
-		} else { 
-			throw new IllegalStateException("Can't get a recording from a playback session!");
-		}
-	}
+    public Session getSessionRecording() {
+        if(recording) {
+            return session;
+        } else { 
+            throw new IllegalStateException("Can't get a recording from a playback session!");
+        }
+    }
 }

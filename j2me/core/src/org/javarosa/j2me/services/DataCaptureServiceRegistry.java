@@ -35,93 +35,93 @@ import org.javarosa.core.services.UnavailableServiceException;
  *
  */
 public class DataCaptureServiceRegistry {
-	
-	private static DataCaptureServiceRegistry instance;
-	private Hashtable<String, DataCaptureService> services;
-	
-	public DataCaptureServiceRegistry () {
-		services = new Hashtable<String, DataCaptureService>();
-	}
-	
-	public DataCaptureServiceRegistry (DataCaptureService[] services) {
-		this();
-		for (int i = 0; i < services.length; i++)
-			registerService(services[i]);
-	}
-	
-	public static DataCaptureServiceRegistry _() {
-		if(instance == null) {
-			instance = new DataCaptureServiceRegistry();
-		}
-		return instance;
-	}
-	
-	public void registerService (DataCaptureService service) {
-		String type = service.getType();
-		validateServiceType(type, service);
-		services.put(type, service);
-	}
-	
-	public void unregisterService (String type) {
-		if (services.get(type) == null) {
-			System.err.println("No service registered for type [" + type + "]");
-		} else {
-			services.remove(type);
-		}
-	}
-		
-	public DataCaptureService getService (String type) throws UnavailableServiceException {
-		DataCaptureService service = services.get(type);
-		if (service == null) {
-			throw new UnavailableServiceException("No service registered for type [" + type + "]");
-		} else {
-			return service; 
-		}
-	}
-	
-	private static void validateServiceType (String type, DataCaptureService service) {
-	  	if (/*
-	  		(DataCaptureService.IMAGE.equals(type) && !(service instanceof ImageCaptureService)) || */
-			(DataCaptureService.AUDIO.equals(type) && !(service instanceof AudioCaptureService)) || /*
-			(DataCaptureService.VIDEO.equals(type) && !(service instanceof VideoCaptureService)) || */
-			(DataCaptureService.BARCODE.equals(type) && !(service instanceof BarcodeCaptureService)) ||
-			(DataCaptureService.LOCATION.equals(type) && !(service instanceof LocationCaptureService))/*||
-			(DataCaptureService.RFID.equals(type) && !(service instanceof RFIDCaptureService))*/) {
-			throw new RuntimeException("Service is not of the proper type!");
-		}
-	}
+    
+    private static DataCaptureServiceRegistry instance;
+    private Hashtable<String, DataCaptureService> services;
+    
+    public DataCaptureServiceRegistry () {
+        services = new Hashtable<String, DataCaptureService>();
+    }
+    
+    public DataCaptureServiceRegistry (DataCaptureService[] services) {
+        this();
+        for (int i = 0; i < services.length; i++)
+            registerService(services[i]);
+    }
+    
+    public static DataCaptureServiceRegistry _() {
+        if(instance == null) {
+            instance = new DataCaptureServiceRegistry();
+        }
+        return instance;
+    }
+    
+    public void registerService (DataCaptureService service) {
+        String type = service.getType();
+        validateServiceType(type, service);
+        services.put(type, service);
+    }
+    
+    public void unregisterService (String type) {
+        if (services.get(type) == null) {
+            System.err.println("No service registered for type [" + type + "]");
+        } else {
+            services.remove(type);
+        }
+    }
+        
+    public DataCaptureService getService (String type) throws UnavailableServiceException {
+        DataCaptureService service = services.get(type);
+        if (service == null) {
+            throw new UnavailableServiceException("No service registered for type [" + type + "]");
+        } else {
+            return service; 
+        }
+    }
+    
+    private static void validateServiceType (String type, DataCaptureService service) {
+          if (/*
+              (DataCaptureService.IMAGE.equals(type) && !(service instanceof ImageCaptureService)) || */
+            (DataCaptureService.AUDIO.equals(type) && !(service instanceof AudioCaptureService)) || /*
+            (DataCaptureService.VIDEO.equals(type) && !(service instanceof VideoCaptureService)) || */
+            (DataCaptureService.BARCODE.equals(type) && !(service instanceof BarcodeCaptureService)) ||
+            (DataCaptureService.LOCATION.equals(type) && !(service instanceof LocationCaptureService))/*||
+            (DataCaptureService.RFID.equals(type) && !(service instanceof RFIDCaptureService))*/) {
+            throw new RuntimeException("Service is not of the proper type!");
+        }
+    }
 
-	/* convenience functions */
-	
-	/*
-	public ImageCaptureService getImageCaptureService () throws UnavailableServiceException {
-		return (ImageCaptureService)getService(DataCaptureService.IMAGE);
-	}
-	*/
-		
-	public AudioCaptureService getAudioCaptureService () throws UnavailableServiceException {
-		return (AudioCaptureService)getService(DataCaptureService.AUDIO);
-	}
+    /* convenience functions */
+    
+    /*
+    public ImageCaptureService getImageCaptureService () throws UnavailableServiceException {
+        return (ImageCaptureService)getService(DataCaptureService.IMAGE);
+    }
+    */
+        
+    public AudioCaptureService getAudioCaptureService () throws UnavailableServiceException {
+        return (AudioCaptureService)getService(DataCaptureService.AUDIO);
+    }
 
-	/*
-	public VideoCaptureService getVideoCaptureService () throws UnavailableServiceException {
-		return (VideoCaptureService)getService(DataCaptureService.VIDEO);
-	}
-	
+    /*
+    public VideoCaptureService getVideoCaptureService () throws UnavailableServiceException {
+        return (VideoCaptureService)getService(DataCaptureService.VIDEO);
+    }
+    
 
-	public BarcodeCaptureService getBarcodeCaptureService () throws UnavailableServiceException {
-		return (BarcodeCaptureService)getService(DataCaptureService.BARCODE);
-	}*/
+    public BarcodeCaptureService getBarcodeCaptureService () throws UnavailableServiceException {
+        return (BarcodeCaptureService)getService(DataCaptureService.BARCODE);
+    }*/
 
 
-	public LocationCaptureService getLocationCaptureService () throws UnavailableServiceException {
-		return (LocationCaptureService)getService(DataCaptureService.LOCATION);
-	}
+    public LocationCaptureService getLocationCaptureService () throws UnavailableServiceException {
+        return (LocationCaptureService)getService(DataCaptureService.LOCATION);
+    }
 
-	/*
-	public RFIDCaptureService getRFIDCaptureService () throws UnavailableServiceException {
-		return (RFIDCaptureService)getService(DataCaptureService.RFID);
-	}
-	 */
-	
+    /*
+    public RFIDCaptureService getRFIDCaptureService () throws UnavailableServiceException {
+        return (RFIDCaptureService)getService(DataCaptureService.RFID);
+    }
+     */
+    
 }

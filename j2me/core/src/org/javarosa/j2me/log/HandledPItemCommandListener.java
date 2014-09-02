@@ -14,6 +14,6 @@ import de.enough.polish.ui.ItemCommandListener;
  */
 public interface HandledPItemCommandListener extends ItemCommandListener {
 
-	void _commandAction (Command c, Item i);
-	
+    void _commandAction (Command c, Item i);
+    
 }

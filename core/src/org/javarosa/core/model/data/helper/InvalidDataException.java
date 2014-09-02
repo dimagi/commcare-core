@@ -11,15 +11,15 @@ import org.javarosa.core.model.data.UncastData;
  *
  */
 public class InvalidDataException extends Exception {
-	UncastData standin;
+    UncastData standin;
 
-	public InvalidDataException(String message, UncastData standin) {
-		super(message);
-		this.standin = standin;
-	}
+    public InvalidDataException(String message, UncastData standin) {
+        super(message);
+        this.standin = standin;
+    }
 
-	public IAnswerData getUncastStandin() {
-		return standin;
-	}
+    public IAnswerData getUncastStandin() {
+        return standin;
+    }
 
 }

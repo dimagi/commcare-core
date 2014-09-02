@@ -34,44 +34,44 @@ import org.javarosa.core.services.Logger;
  *
  */
 public class HandledThread extends Thread {
-	private boolean withRunnable = false;
-	
-	public HandledThread () {
-		super();
-	}
-	
-	public HandledThread (String s) {
-		super(s);
-	}
-	
-	public HandledThread (Runnable r) {
-		super(wrappedRunnable(r));
-		withRunnable = true;
-	}
-	
-	public HandledThread (Runnable r, String s) {
-		super(wrappedRunnable(r), s);
-		withRunnable = true;
-	}
-	
-	private static Runnable wrappedRunnable (final Runnable r) {
-		return new Runnable () {
-			public void run() {
-				CrashHandler.executeWrappedRunnable(r);
-			}
-		};
-	}
-	
-	public final void run(){
-		if(withRunnable) {
-			super.run();
-		} else{
-			CrashHandler.executeHandledThread(this);
-		}
-	}
-	
-	public void _run () {
-		throw new FatalException("_run method must be overwritten by child");
-	}
-	
+    private boolean withRunnable = false;
+    
+    public HandledThread () {
+        super();
+    }
+    
+    public HandledThread (String s) {
+        super(s);
+    }
+    
+    public HandledThread (Runnable r) {
+        super(wrappedRunnable(r));
+        withRunnable = true;
+    }
+    
+    public HandledThread (Runnable r, String s) {
+        super(wrappedRunnable(r), s);
+        withRunnable = true;
+    }
+    
+    private static Runnable wrappedRunnable (final Runnable r) {
+        return new Runnable () {
+            public void run() {
+                CrashHandler.executeWrappedRunnable(r);
+            }
+        };
+    }
+    
+    public final void run(){
+        if(withRunnable) {
+            super.run();
+        } else{
+            CrashHandler.executeHandledThread(this);
+        }
+    }
+    
+    public void _run () {
+        throw new FatalException("_run method must be overwritten by child");
+    }
+    
 }

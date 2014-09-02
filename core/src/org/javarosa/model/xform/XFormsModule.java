@@ -38,43 +38,43 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 
 public class XFormsModule implements IModule {
 
-	public void registerModule() {
-		String[] classes = {
-				"org.javarosa.model.xform.XPathReference",
-				"org.javarosa.xpath.XPathConditional"
-		};
-		
-		PrototypeManager.registerPrototypes(classes);
-		PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
-		RestoreUtils.xfFact = new IXFormyFactory () {
-			public TreeReference ref (String refStr) {
-				return FormInstance.unpackReference(new XPathReference(refStr));
-			}
-			
-			public IDataPayload serializeInstance (FormInstance dm) {
-				try {
-					return (new XFormSerializingVisitor()).createSerializedPayload(dm);
-				} catch (IOException e) {
-					return null;
-				}
-			}
+    public void registerModule() {
+        String[] classes = {
+                "org.javarosa.model.xform.XPathReference",
+                "org.javarosa.xpath.XPathConditional"
+        };
+        
+        PrototypeManager.registerPrototypes(classes);
+        PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
+        RestoreUtils.xfFact = new IXFormyFactory () {
+            public TreeReference ref (String refStr) {
+                return FormInstance.unpackReference(new XPathReference(refStr));
+            }
+            
+            public IDataPayload serializeInstance (FormInstance dm) {
+                try {
+                    return (new XFormSerializingVisitor()).createSerializedPayload(dm);
+                } catch (IOException e) {
+                    return null;
+                }
+            }
 
-			public FormInstance parseRestore(byte[] data, Class restorableType) {
-				return XFormParser.restoreDataModel(data, restorableType);
-			}
-			
-			public IAnswerData parseData (String textVal, int dataType, TreeReference ref, FormDef f) {
-				return AnswerDataFactory.templateByDataType(dataType).cast(new UncastData(textVal));
-			}
+            public FormInstance parseRestore(byte[] data, Class restorableType) {
+                return XFormParser.restoreDataModel(data, restorableType);
+            }
+            
+            public IAnswerData parseData (String textVal, int dataType, TreeReference ref, FormDef f) {
+                return AnswerDataFactory.templateByDataType(dataType).cast(new UncastData(textVal));
+            }
 
-			public String serializeData(IAnswerData data) {
-				return (String)(new XFormAnswerDataSerializer().serializeAnswerData(data));
-			}
+            public String serializeData(IAnswerData data) {
+                return (String)(new XFormAnswerDataSerializer().serializeAnswerData(data));
+            }
 
-			public IConditionExpr refToPathExpr(TreeReference ref) {
-				return new XPathConditional(XPathPathExpr.fromRef(ref));
-			}
-		};
-	}
+            public IConditionExpr refToPathExpr(TreeReference ref) {
+                return new XPathConditional(XPathPathExpr.fromRef(ref));
+            }
+        };
+    }
 
 }

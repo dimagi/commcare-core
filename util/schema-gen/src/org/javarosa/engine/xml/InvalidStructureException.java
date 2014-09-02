@@ -14,20 +14,20 @@ import org.kxml2.io.KXmlParser;
  *
  */
 public class InvalidStructureException extends Exception {
-	
-	/**
-	 * @param message A Message associated with the error.
-	 * @param parser The parser in the position at which the error was detected.
-	 */
-	public InvalidStructureException(String message, KXmlParser parser) {
-		super("Invalid XML Structure(" + parser.getPositionDescription() + "): " + message);
-	}
-	/**
-	 * @param message A Message associated with the error.
-	 * @param parser The parser in the position at which the error was detected.
-	 * @param file The file being parsed
-	 */
-	public InvalidStructureException(String message, String file, KXmlParser parser) {
-		super("Invalid XML Structure in document " + file + "(" + parser.getPositionDescription() + "): " + message);
-	}
+    
+    /**
+     * @param message A Message associated with the error.
+     * @param parser The parser in the position at which the error was detected.
+     */
+    public InvalidStructureException(String message, KXmlParser parser) {
+        super("Invalid XML Structure(" + parser.getPositionDescription() + "): " + message);
+    }
+    /**
+     * @param message A Message associated with the error.
+     * @param parser The parser in the position at which the error was detected.
+     * @param file The file being parsed
+     */
+    public InvalidStructureException(String message, String file, KXmlParser parser) {
+        super("Invalid XML Structure in document " + file + "(" + parser.getPositionDescription() + "): " + message);
+    }
 }

@@ -44,107 +44,107 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class ModelReferencePayload implements IDataPayload {
-	
-	int recordId;
-	IDataPayload payload;
-	String destination = null;
-	
-	IInstanceSerializingVisitor serializer;
-	
-	//NOTE: Should only be used for serializaiton.
-	public ModelReferencePayload() {
-		
-	}
-	
-	public ModelReferencePayload(int modelRecordId) {
-		this.recordId = modelRecordId;
-	}
+    
+    int recordId;
+    IDataPayload payload;
+    String destination = null;
+    
+    IInstanceSerializingVisitor serializer;
+    
+    //NOTE: Should only be used for serializaiton.
+    public ModelReferencePayload() {
+        
+    }
+    
+    public ModelReferencePayload(int modelRecordId) {
+        this.recordId = modelRecordId;
+    }
 
-	/**
-	 * @param serializer the serializer to set
-	 */
-	public void setSerializer(IInstanceSerializingVisitor serializer) {
-		this.serializer = serializer;
-	}
+    /**
+     * @param serializer the serializer to set
+     */
+    public void setSerializer(IInstanceSerializingVisitor serializer) {
+        this.serializer = serializer;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.transport.IDataPayload#accept(org.javarosa.core.services.transport.IDataPayloadVisitor)
-	 */
-	public Object accept(IDataPayloadVisitor visitor) {
-		memoize();
-		return payload.accept(visitor);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.transport.IDataPayload#accept(org.javarosa.core.services.transport.IDataPayloadVisitor)
+     */
+    public Object accept(IDataPayloadVisitor visitor) {
+        memoize();
+        return payload.accept(visitor);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.transport.IDataPayload#getLength()
-	 */
-	public long getLength() {
-		memoize();
-		return payload.getLength();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.transport.IDataPayload#getLength()
+     */
+    public long getLength() {
+        memoize();
+        return payload.getLength();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadId()
-	 */
-	public String getPayloadId() {
-		memoize();
-		return payload.getPayloadId();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadId()
+     */
+    public String getPayloadId() {
+        memoize();
+        return payload.getPayloadId();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
-	 */
-	public InputStream getPayloadStream() throws IOException {
-		memoize();
-		return payload.getPayloadStream();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
+     */
+    public InputStream getPayloadStream() throws IOException {
+        memoize();
+        return payload.getPayloadStream();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.transport.IDataPayload#getPayloadType()
-	 */
-	public int getPayloadType() {
-		memoize();
-		return payload.getPayloadType();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.transport.IDataPayload#getPayloadType()
+     */
+    public int getPayloadType() {
+        memoize();
+        return payload.getPayloadType();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		recordId = in.readInt();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        recordId = in.readInt();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		out.writeInt(recordId);
-	}
-	
-	private void memoize() {
-		if(payload == null) {
-			IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
-			try {
-				FormInstance tree = (FormInstance)instances.read(recordId);
-				payload = serializer.createSerializedPayload(tree);
-			} catch (IOException e) {
-				//Assertion, do not catch!
-				e.printStackTrace();
-				throw new RuntimeException("ModelReferencePayload failed to retrieve its model from rms [" + e.getMessage() + "]");
-			}
-		}
-	}
-	
-	public int getTransportId() {
-		return recordId;
-	}
-	
-	public void setDestination(String destination){
-		this.destination = destination;
-	}
-	
-	public String getDestination() {
-		return destination;
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        out.writeInt(recordId);
+    }
+    
+    private void memoize() {
+        if(payload == null) {
+            IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
+            try {
+                FormInstance tree = (FormInstance)instances.read(recordId);
+                payload = serializer.createSerializedPayload(tree);
+            } catch (IOException e) {
+                //Assertion, do not catch!
+                e.printStackTrace();
+                throw new RuntimeException("ModelReferencePayload failed to retrieve its model from rms [" + e.getMessage() + "]");
+            }
+        }
+    }
+    
+    public int getTransportId() {
+        return recordId;
+    }
+    
+    public void setDestination(String destination){
+        this.destination = destination;
+    }
+    
+    public String getDestination() {
+        return destination;
+    }
 }

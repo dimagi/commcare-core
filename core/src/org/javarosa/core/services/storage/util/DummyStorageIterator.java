@@ -15,53 +15,53 @@ import org.javarosa.core.util.DataUtil;
  *
  */
 public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
-	Hashtable<Integer, T> data;
-	int count;
-	Integer[] keys;
-	
+    Hashtable<Integer, T> data;
+    int count;
+    Integer[] keys;
+    
 
-	public DummyStorageIterator(Hashtable<Integer, T> data) {
-		this.data = data;
-		keys = new Integer[data.size()];
-		int i = 0;
-		for(Enumeration en = data.keys() ;en.hasMoreElements();) {
-			keys[i] = (Integer)en.nextElement();
-			++i;
-		}
-		count = 0;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
-	 */
-	public boolean hasMore() {
-		return count < keys.length;
-	}
+    public DummyStorageIterator(Hashtable<Integer, T> data) {
+        this.data = data;
+        keys = new Integer[data.size()];
+        int i = 0;
+        for(Enumeration en = data.keys() ;en.hasMoreElements();) {
+            keys[i] = (Integer)en.nextElement();
+            ++i;
+        }
+        count = 0;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
+     */
+    public boolean hasMore() {
+        return count < keys.length;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
-	 */
-	public int nextID() {
-		count++;
-		return ((Integer)keys[count -1]).intValue(); 
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
+     */
+    public int nextID() {
+        count++;
+        return ((Integer)keys[count -1]).intValue(); 
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
-	 */
-	public T nextRecord() {
-		return data.get(DataUtil.integer(nextID()));
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
+     */
+    public T nextRecord() {
+        return data.get(DataUtil.integer(nextID()));
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
-	 */
-	public int numRecords() {
-		return data.size();
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
+     */
+    public int numRecords() {
+        return data.size();
+    }
 
-	public int peekID() {
-		return (Integer)keys[count];
-	}
+    public int peekID() {
+        return (Integer)keys[count];
+    }
 
 }

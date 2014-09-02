@@ -24,13 +24,13 @@ public class OrderedHashtable<K,V> extends Hashtable<K,V> {
     private Vector<K> orderedKeys;
 
     public OrderedHashtable() {
-    	super();
-    	orderedKeys = new Vector<K>();
+        super();
+        orderedKeys = new Vector<K>();
     }
 
     public OrderedHashtable(int initialCapacity) {
-    	super(initialCapacity);
-    	orderedKeys = new Vector<K>(initialCapacity);
+        super(initialCapacity);
+        orderedKeys = new Vector<K>(initialCapacity);
     }
 
     public void clear() {
@@ -63,16 +63,16 @@ public class OrderedHashtable<K,V> extends Hashtable<K,V> {
     }
     
     public V put(K key, V value) {
-    	if (key == null) {
-    		throw new NullPointerException();
-    	}
-    	
+        if (key == null) {
+            throw new NullPointerException();
+        }
+        
         V v = super.put(key, value);
         //Check to see whether this grew after the put.
         //(We can't check for much else because this call
         //can be repeated inside of the put).
         if(super.size() > orderedKeys.size()) {
-        	orderedKeys.addElement(key);
+            orderedKeys.addElement(key);
         }
         return v;
     }
@@ -88,17 +88,17 @@ public class OrderedHashtable<K,V> extends Hashtable<K,V> {
     }
     
     public String toString () {
-    	StringBuffer sb = new StringBuffer();
-    	sb.append("[");
-    	for (Enumeration e = keys(); e.hasMoreElements(); ) {
-    		Object key = e.nextElement();
-    		sb.append(key.toString());
-    		sb.append(" => ");
-    		sb.append(get(key).toString());
-    		if (e.hasMoreElements())
-    			sb.append(", ");
-    	}
-    	sb.append("]");    	
-    	return sb.toString();
+        StringBuffer sb = new StringBuffer();
+        sb.append("[");
+        for (Enumeration e = keys(); e.hasMoreElements(); ) {
+            Object key = e.nextElement();
+            sb.append(key.toString());
+            sb.append(" => ");
+            sb.append(get(key).toString());
+            if (e.hasMoreElements())
+                sb.append(", ");
+        }
+        sb.append("]");        
+        return sb.toString();
     }
 }

@@ -32,64 +32,64 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class DateTimeData implements IAnswerData {
-	Date d;
-	
-	/**
-	 * Empty Constructor, necessary for dynamic construction during deserialization.
-	 * Shouldn't be used otherwise.
-	 */
-	public DateTimeData() {
-		
-	}
-	
-	public DateTimeData (Date d) {
-		setValue(d);
-	}
-	
-	public IAnswerData clone () {
-		return new DateTimeData(new Date(d.getTime()));
-	}
-	
-	public void setValue (Object o) {
-		//Should not ever be possible to set this to a null value
-		if(o == null) {
-			throw new NullPointerException("Attempt to set an IAnswerData class to null.");
-		}
-		d = new Date(((Date)o).getTime());
-	}
-	
-	public Object getValue () {
-		return new Date(d.getTime());
-	}
-	
-	public String getDisplayText () {
-		return DateUtils.formatDateTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
-	}
+    Date d;
+    
+    /**
+     * Empty Constructor, necessary for dynamic construction during deserialization.
+     * Shouldn't be used otherwise.
+     */
+    public DateTimeData() {
+        
+    }
+    
+    public DateTimeData (Date d) {
+        setValue(d);
+    }
+    
+    public IAnswerData clone () {
+        return new DateTimeData(new Date(d.getTime()));
+    }
+    
+    public void setValue (Object o) {
+        //Should not ever be possible to set this to a null value
+        if(o == null) {
+            throw new NullPointerException("Attempt to set an IAnswerData class to null.");
+        }
+        d = new Date(((Date)o).getTime());
+    }
+    
+    public Object getValue () {
+        return new Date(d.getTime());
+    }
+    
+    public String getDisplayText () {
+        return DateUtils.formatDateTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		setValue(ExtUtil.readDate(in));
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        setValue(ExtUtil.readDate(in));
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeDate(out, d);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeDate(out, d);
+    }
 
-	public UncastData uncast() {
-		return new UncastData(DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
-	}
-	
-	public DateTimeData cast(UncastData data) throws IllegalArgumentException {
-		Date ret = DateUtils.parseDateTime(data.value);
-		if(ret != null) {
-			return new DateTimeData(ret);
-		}
-		
-		throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type DateTime");
-	}
+    public UncastData uncast() {
+        return new UncastData(DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
+    }
+    
+    public DateTimeData cast(UncastData data) throws IllegalArgumentException {
+        Date ret = DateUtils.parseDateTime(data.value);
+        if(ret != null) {
+            return new DateTimeData(ret);
+        }
+        
+        throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type DateTime");
+    }
 }
