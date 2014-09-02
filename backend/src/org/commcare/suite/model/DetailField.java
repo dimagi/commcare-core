@@ -29,7 +29,8 @@ public class DetailField implements Externalizable {
 	
 	private Text header;
 	private Text template; 
-	private Text sort; 
+	private Text sort;
+	private Text background;
 	private int headerHint = -1; 
 	private int templateHint = -1; 
 	private String headerForm; 
@@ -210,6 +211,14 @@ public class DetailField implements Externalizable {
 		return cssID;
 	}
 
+	public Text getBackground() {
+		return background;
+	}
+
+	public void setBackground(Text background) {
+		this.background = background;
+	}
+
 	public class Builder {
 		DetailField field;
 		public Builder() {
@@ -336,6 +345,10 @@ public class DetailField implements Externalizable {
 
 		public void setCssID(String id) {
 			field.cssID = id;
+			
+		}
+		public void setBackground(Text background) {
+			field.background = background;
 			
 		}
 	}
