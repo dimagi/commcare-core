@@ -841,6 +841,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             toAdd.addElement(child.getRef().genericize());
             addChildrenOfElement(child, toAdd);
         }
+		for(int i = 0; i < el.getAttributeCount() ; ++i) {
+			AbstractTreeElement child = el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
+			toAdd.addElement(child.getRef().genericize());
+		}
     }
 
     public boolean evaluateConstraint(TreeReference ref, IAnswerData data) {
