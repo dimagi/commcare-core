@@ -14,37 +14,37 @@ import java.util.Hashtable;
  *
  */
 public class MetaDataWrapper implements IMetaData {
-	private Hashtable<String, Object> data;
-	
-	public MetaDataWrapper(Hashtable<String, Object> data) {
-		this.data = data;
-	}
+    private Hashtable<String, Object> data;
+    
+    public MetaDataWrapper(Hashtable<String, Object> data) {
+        this.data = data;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
-	 */
-	public String[] getMetaDataFields() {
-		String[] fields = new String[data.size()];
-		int count = 0;
-		for(Enumeration en = data.keys() ; en.hasMoreElements() ; ) {
-			String field = (String)en.nextElement();
-			fields[count] = field;
-		}
-		return fields;
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
+     */
+    public String[] getMetaDataFields() {
+        String[] fields = new String[data.size()];
+        int count = 0;
+        for(Enumeration en = data.keys() ; en.hasMoreElements() ; ) {
+            String field = (String)en.nextElement();
+            fields[count] = field;
+        }
+        return fields;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
-	 */
-	public Hashtable getMetaData() {
-		return data;
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
+     */
+    public Hashtable getMetaData() {
+        return data;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
-	 */
-	public Object getMetaData(String fieldName) {
-		return data.get(fieldName);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
+     */
+    public Object getMetaData(String fieldName) {
+        return data.get(fieldName);
+    }
 
 }

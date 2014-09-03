@@ -13,6 +13,6 @@ import javax.microedition.lcdui.ItemStateListener;
  */
 public interface HandledItemStateListener extends ItemStateListener {
 
-	void _itemStateChanged (Item i);
-	
+    void _itemStateChanged (Item i);
+    
 }

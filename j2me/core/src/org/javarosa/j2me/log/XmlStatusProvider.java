@@ -12,5 +12,5 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public interface XmlStatusProvider {
-	public void getStatusReport(XmlSerializer o, String namespace) throws StatusReportException, IOException;
+    public void getStatusReport(XmlSerializer o, String namespace) throws StatusReportException, IOException;
 }

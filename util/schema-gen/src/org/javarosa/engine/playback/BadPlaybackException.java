@@ -11,11 +11,11 @@ import org.javarosa.form.api.FormEntryPrompt;
  *
  */
 public class BadPlaybackException extends Exception {
-	public BadPlaybackException(String message) {
-		super(message);
-	}
+    public BadPlaybackException(String message) {
+        super(message);
+    }
 
-	public BadPlaybackException(FormEntryPrompt fep, int response, ActionResponse actionResponse) {
-		
-	}
+    public BadPlaybackException(FormEntryPrompt fep, int response, ActionResponse actionResponse) {
+        
+    }
 }

@@ -17,7 +17,7 @@
 package org.javarosa.j2me.services.exception;
 
 public class ImageProcessingException extends Exception {
-	public ImageProcessingException(String message) {
-		super(message);
-	}
+    public ImageProcessingException(String message) {
+        super(message);
+    }
 }

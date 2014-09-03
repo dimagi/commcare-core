@@ -8,11 +8,11 @@ package org.javarosa.engine.models;
  *
  */
 public class Command {
-	String command;
-	public Command(String command) {
-		this.command = command;
-	}
-	public String getCommand() {
-		return command;
-	}
+    String command;
+    public Command(String command) {
+        this.command = command;
+    }
+    public String getCommand() {
+        return command;
+    }
 }

@@ -16,57 +16,57 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class ExternalDataInstance extends DataInstance {
-	
-	String reference;
-	int recordid = -1;
-	
-	AbstractTreeElement root;
-	InstanceBase base;
-	
-	public ExternalDataInstance() {
-		
-	}
+    
+    String reference;
+    int recordid = -1;
+    
+    AbstractTreeElement root;
+    InstanceBase base;
+    
+    public ExternalDataInstance() {
+        
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.model.instance.DataInstance#isRuntimeEvaluated()
-	 */
-	public boolean isRuntimeEvaluated() {
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.model.instance.DataInstance#isRuntimeEvaluated()
+     */
+    public boolean isRuntimeEvaluated() {
+        return true;
+    }
 
-	
-	public InstanceBase getBase() {
-		return base;
-	}
-	
-	public ExternalDataInstance(String reference, String instanceid) {
-		super(instanceid);
-		this.reference = reference;
-	}
-	
-	public AbstractTreeElement getRoot() {
-		return root;
-	}
-	
-	public String getReference() {
-		return reference;
-	}
-	
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		super.readExternal(in, pf);
-		reference = ExtUtil.readString(in);
-	}
+    
+    public InstanceBase getBase() {
+        return base;
+    }
+    
+    public ExternalDataInstance(String reference, String instanceid) {
+        super(instanceid);
+        this.reference = reference;
+    }
+    
+    public AbstractTreeElement getRoot() {
+        return root;
+    }
+    
+    public String getReference() {
+        return reference;
+    }
+    
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+        reference = ExtUtil.readString(in);
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		super.writeExternal(out);
-		ExtUtil.writeString(out, reference);
-	}
-	
-	public void initialize(InstanceInitializationFactory initializer, String instanceId) {
-		base = new InstanceBase(instanceId);
-		root = initializer.generateRoot(this);
-		base.setChild(root);
-	}
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+        ExtUtil.writeString(out, reference);
+    }
+    
+    public void initialize(InstanceInitializationFactory initializer, String instanceId) {
+        base = new InstanceBase(instanceId);
+        root = initializer.generateRoot(this);
+        base.setChild(root);
+    }
 }

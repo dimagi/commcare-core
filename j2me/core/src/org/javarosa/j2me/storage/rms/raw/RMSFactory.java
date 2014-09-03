@@ -11,11 +11,11 @@ import javax.microedition.rms.RecordStoreNotFoundException;
  *
  */
 public class RMSFactory {
-	public RMS getIndexRMS(String name, boolean create) throws RecordStoreNotFoundException, RecordStoreException {
-		return new RMS(name, create);
-	}
-	
-	public RMS getDataRMS(String name, boolean create) throws RecordStoreNotFoundException, RecordStoreException{
-		return new RMS(name, create);
-	}
+    public RMS getIndexRMS(String name, boolean create) throws RecordStoreNotFoundException, RecordStoreException {
+        return new RMS(name, create);
+    }
+    
+    public RMS getDataRMS(String name, boolean create) throws RecordStoreNotFoundException, RecordStoreException{
+        return new RMS(name, create);
+    }
 }

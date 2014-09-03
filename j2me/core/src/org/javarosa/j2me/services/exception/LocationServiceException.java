@@ -17,7 +17,7 @@
 package org.javarosa.j2me.services.exception;
 
 public class LocationServiceException extends Exception {
-	public LocationServiceException(String message) {
-		super(message);
-	}
+    public LocationServiceException(String message) {
+        super(message);
+    }
 }

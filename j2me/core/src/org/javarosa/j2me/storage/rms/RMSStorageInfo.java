@@ -16,25 +16,25 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class RMSStorageInfo implements Externalizable {
-	public int numRecords;
-	public int numDataStores;
-	public int nextRecordID;
-	
-	public RMSStorageInfo () {
-		numRecords = 0;
-		numDataStores = 0;
-		nextRecordID = 1;
-	}
-	
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		numRecords = ExtUtil.readInt(in);
-		numDataStores = ExtUtil.readInt(in);
-		nextRecordID = ExtUtil.readInt(in);
-	}
+    public int numRecords;
+    public int numDataStores;
+    public int nextRecordID;
+    
+    public RMSStorageInfo () {
+        numRecords = 0;
+        numDataStores = 0;
+        nextRecordID = 1;
+    }
+    
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        numRecords = ExtUtil.readInt(in);
+        numDataStores = ExtUtil.readInt(in);
+        nextRecordID = ExtUtil.readInt(in);
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out, numRecords);
-		ExtUtil.writeNumeric(out, numDataStores);
-		ExtUtil.writeNumeric(out, nextRecordID);
-	}
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, numRecords);
+        ExtUtil.writeNumeric(out, numDataStores);
+        ExtUtil.writeNumeric(out, nextRecordID);
+    }
 }

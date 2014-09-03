@@ -44,184 +44,184 @@ import org.kxml2.kdom.Node;
  */
 public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
-	private String theSmsStr = null; // sms string to be returned
-	private String nodeSet = null; // which nodeset the sms contents are in
-	private String xmlns = null;
-	private String delimeter = null;
-	private String prefix = null;
-	private String method = null;
-	private TreeReference rootRef;
+    private String theSmsStr = null; // sms string to be returned
+    private String nodeSet = null; // which nodeset the sms contents are in
+    private String xmlns = null;
+    private String delimeter = null;
+    private String prefix = null;
+    private String method = null;
+    private TreeReference rootRef;
 
-	/** The serializer to be used in constructing XML for AnswerData elements */
-	IAnswerDataSerializer serializer;
+    /** The serializer to be used in constructing XML for AnswerData elements */
+    IAnswerDataSerializer serializer;
 
-	/** The schema to be used to serialize answer data */
-	FormDef schema; // not used
+    /** The schema to be used to serialize answer data */
+    FormDef schema; // not used
 
-	Vector dataPointers;
+    Vector dataPointers;
 
-	private void init() {
-		theSmsStr = null;
-		schema = null;
-		dataPointers = new Vector();
-		theSmsStr = "";
-	}
+    private void init() {
+        theSmsStr = null;
+        schema = null;
+        dataPointers = new Vector();
+        theSmsStr = "";
+    }
 
-	public byte[] serializeInstance(FormInstance model, FormDef formDef) throws IOException {
-		init();
-		this.schema = formDef;
-		return serializeInstance(model);
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance)
-	 */
-	public byte[] serializeInstance(FormInstance model) throws IOException {
-		return this.serializeInstance(model, new XPathReference("/"));
-	}
+    public byte[] serializeInstance(FormInstance model, FormDef formDef) throws IOException {
+        init();
+        this.schema = formDef;
+        return serializeInstance(model);
+    }
+    
+    
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance)
+     */
+    public byte[] serializeInstance(FormInstance model) throws IOException {
+        return this.serializeInstance(model, new XPathReference("/"));
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance, org.javarosa.core.model.IDataReference)
-	 */
-	public byte[] serializeInstance(FormInstance model, IDataReference ref) throws IOException {
-		init();
-		rootRef = model.unpackReference(ref);
-		if (this.serializer == null) {
-			this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
-		}
-		model.accept(this);
-		if (theSmsStr != null) {
-			//Encode in UTF-16 by default, since it's the default for complex messages
-			return theSmsStr.getBytes("UTF-16BE");
-		} else {
-			return null;
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#createSerializedPayload(org.javarosa.core.model.instance.FormInstance)
-	 */
-	public IDataPayload createSerializedPayload(FormInstance model) throws IOException {
-		return createSerializedPayload(model, new XPathReference("/"));
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance, org.javarosa.core.model.IDataReference)
+     */
+    public byte[] serializeInstance(FormInstance model, IDataReference ref) throws IOException {
+        init();
+        rootRef = model.unpackReference(ref);
+        if (this.serializer == null) {
+            this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
+        }
+        model.accept(this);
+        if (theSmsStr != null) {
+            //Encode in UTF-16 by default, since it's the default for complex messages
+            return theSmsStr.getBytes("UTF-16BE");
+        } else {
+            return null;
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#createSerializedPayload(org.javarosa.core.model.instance.FormInstance)
+     */
+    public IDataPayload createSerializedPayload(FormInstance model) throws IOException {
+        return createSerializedPayload(model, new XPathReference("/"));
+    }
 
-	public IDataPayload createSerializedPayload(FormInstance model, IDataReference ref)
-			throws IOException {
-		init();
-		rootRef = model.unpackReference(ref);
-		if (this.serializer == null) {
-			this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
-		}
-		model.accept(this);
-		if (theSmsStr != null) {
-			byte[] form = theSmsStr.getBytes("UTF-16");
-			return new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_SMS);
-		} else {
-			return null;
-		}
-	}
+    public IDataPayload createSerializedPayload(FormInstance model, IDataReference ref)
+            throws IOException {
+        init();
+        rootRef = model.unpackReference(ref);
+        if (this.serializer == null) {
+            this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
+        }
+        model.accept(this);
+        if (theSmsStr != null) {
+            byte[] form = theSmsStr.getBytes("UTF-16");
+            return new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_SMS);
+        } else {
+            return null;
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.javarosa.core.model.utils.ITreeVisitor#visit(org.javarosa.core.model
-	 * .DataModelTree)
-	 */
-	public void visit(FormInstance tree) {
-		nodeSet = new String();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.javarosa.core.model.utils.ITreeVisitor#visit(org.javarosa.core.model
+     * .DataModelTree)
+     */
+    public void visit(FormInstance tree) {
+        nodeSet = new String();
 
-		//TreeElement root = tree.getRoot();
-		TreeElement root = tree.resolveReference(rootRef);
+        //TreeElement root = tree.getRoot();
+        TreeElement root = tree.resolveReference(rootRef);
 
-		xmlns = root.getAttributeValue("", "xmlns");
-		delimeter = root.getAttributeValue("", "delimeter");
-		prefix = root.getAttributeValue("", "prefix");
+        xmlns = root.getAttributeValue("", "xmlns");
+        delimeter = root.getAttributeValue("", "delimeter");
+        prefix = root.getAttributeValue("", "prefix");
 
-		xmlns = (xmlns != null)? xmlns : " ";
-		delimeter = (delimeter != null ) ? delimeter : " ";
-		prefix = (prefix != null) ? prefix : " ";
-		
-		//Don't bother adding any delimiters, yet. Delimiters are
-		//added before tags/data
-		theSmsStr = prefix;
+        xmlns = (xmlns != null)? xmlns : " ";
+        delimeter = (delimeter != null ) ? delimeter : " ";
+        prefix = (prefix != null) ? prefix : " ";
+        
+        //Don't bother adding any delimiters, yet. Delimiters are
+        //added before tags/data
+        theSmsStr = prefix;
 
-		// serialize each node to get it's answers
-		for (int j = 0; j < root.getNumChildren(); j++) {
-			TreeElement tee = root.getChildAt(j);
-			String e = serializeNode(tee);
-			if(e != null) {
-				theSmsStr += e;
-			}
-		}
-		theSmsStr = theSmsStr.trim();
-	}
+        // serialize each node to get it's answers
+        for (int j = 0; j < root.getNumChildren(); j++) {
+            TreeElement tee = root.getChildAt(j);
+            String e = serializeNode(tee);
+            if(e != null) {
+                theSmsStr += e;
+            }
+        }
+        theSmsStr = theSmsStr.trim();
+    }
 
-	public String serializeNode(TreeElement instanceNode) {
-		String ae = "";
-		// don't serialize template nodes or non-relevant nodes
-		if (!instanceNode.isRelevant()
-				|| instanceNode.getMult() == TreeReference.INDEX_TEMPLATE)
-			return null;
+    public String serializeNode(TreeElement instanceNode) {
+        String ae = "";
+        // don't serialize template nodes or non-relevant nodes
+        if (!instanceNode.isRelevant()
+                || instanceNode.getMult() == TreeReference.INDEX_TEMPLATE)
+            return null;
 
-		if (instanceNode.getValue() != null) {
-			Object serializedAnswer = serializer.serializeAnswerData(
-					instanceNode.getValue(), instanceNode.getDataType());
+        if (instanceNode.getValue() != null) {
+            Object serializedAnswer = serializer.serializeAnswerData(
+                    instanceNode.getValue(), instanceNode.getDataType());
 
-			if (serializedAnswer instanceof Element) {
-				// DON"T handle this.
-				throw new RuntimeException("Can't handle serialized output for"
-						+ instanceNode.getValue().toString() + ", "
-						+ serializedAnswer);
-			} else if (serializedAnswer instanceof String) {
-				Element e = new Element();
-				e.addChild(Node.TEXT, (String) serializedAnswer);
+            if (serializedAnswer instanceof Element) {
+                // DON"T handle this.
+                throw new RuntimeException("Can't handle serialized output for"
+                        + instanceNode.getValue().toString() + ", "
+                        + serializedAnswer);
+            } else if (serializedAnswer instanceof String) {
+                Element e = new Element();
+                e.addChild(Node.TEXT, (String) serializedAnswer);
 
-				String tag = instanceNode.getAttributeValue("", "tag");
-				ae += ((tag != null) ? tag + delimeter : delimeter); // tag
-																		// might
-																		// be
-																		// null
+                String tag = instanceNode.getAttributeValue("", "tag");
+                ae += ((tag != null) ? tag + delimeter : delimeter); // tag
+                                                                        // might
+                                                                        // be
+                                                                        // null
 
-				for (int k = 0; k < e.getChildCount(); k++) {
-					ae += e.getChild(k).toString() + delimeter;
-				}
+                for (int k = 0; k < e.getChildCount(); k++) {
+                    ae += e.getChild(k).toString() + delimeter;
+                }
 
-			} else {
-				throw new RuntimeException("Can't handle serialized output for"
-						+ instanceNode.getValue().toString() + ", "
-						+ serializedAnswer);
-			}
+            } else {
+                throw new RuntimeException("Can't handle serialized output for"
+                        + instanceNode.getValue().toString() + ", "
+                        + serializedAnswer);
+            }
 
-			if (serializer.containsExternalData(instanceNode.getValue())
-					.booleanValue()) {
-				IDataPointer[] pointer = serializer
-						.retrieveExternalDataPointer(instanceNode.getValue());
-				for (int i = 0; i < pointer.length; ++i) {
-					dataPointers.addElement(pointer[i]);
-				}
-			}
-		}
-		return ae;
-	}
+            if (serializer.containsExternalData(instanceNode.getValue())
+                    .booleanValue()) {
+                IDataPointer[] pointer = serializer
+                        .retrieveExternalDataPointer(instanceNode.getValue());
+                for (int i = 0; i < pointer.length; ++i) {
+                    dataPointers.addElement(pointer[i]);
+                }
+            }
+        }
+        return ae;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.javarosa.core.model.utils.IInstanceSerializingVisitor#
-	 * setAnswerDataSerializer(org.javarosa.core.model.IAnswerDataSerializer)
-	 */
-	public void setAnswerDataSerializer(IAnswerDataSerializer ads) {
-		this.serializer = ads;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.javarosa.core.model.utils.IInstanceSerializingVisitor#
+     * setAnswerDataSerializer(org.javarosa.core.model.IAnswerDataSerializer)
+     */
+    public void setAnswerDataSerializer(IAnswerDataSerializer ads) {
+        this.serializer = ads;
+    }
 
-	public IInstanceSerializingVisitor newInstance() {
-		XFormSerializingVisitor modelSerializer = new XFormSerializingVisitor();
-		modelSerializer.setAnswerDataSerializer(this.serializer);
-		return modelSerializer;
-	}
+    public IInstanceSerializingVisitor newInstance() {
+        XFormSerializingVisitor modelSerializer = new XFormSerializingVisitor();
+        modelSerializer.setAnswerDataSerializer(this.serializer);
+        return modelSerializer;
+    }
 }
