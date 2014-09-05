@@ -411,34 +411,45 @@ public class TreeReference implements Externalizable {
 			TreeReference ref = (TreeReference)o;
 			
 			if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
-				for (int i = 0; i < this.size(); i++) {
-					String nameA = this.getName(i);
-					String nameB = ref.getName(i);
-					int multA = this.getMultiplicity(i);
-					int multB = ref.getMultiplicity(i);
+				
+				for(int i = 0 ; i < this.size(); i++) {
+					TreeReferenceLevel l = data.elementAt(i);
+					TreeReferenceLevel other = ref.data.elementAt(i);
 					
-					Vector<XPathExpression> predA = this.getPredicate(i);
-					Vector<XPathExpression> predB = ref.getPredicate(i);
-					
-					if (!nameA.equals(nameB)) {
-						return false;
-					} else if (multA != multB) {
-						if (i == 0 && (multA == 0 || multA == INDEX_UNBOUND) && (multB == 0 || multB == INDEX_UNBOUND)) {
-							// /data and /data[0] are functionally the same
-						} else {
-							return false;
-						}
-					} else if(predA != null && predB != null) {
-						if(predA.size() != predB.size()) { return false;}
-						for(int j = 0 ; j < predA.size() ; ++j) {
-							if(!predA.elementAt(j).equals(predB.elementAt(j))) {
-								return false;
-							}
-						}
-					} else if((predA == null && predB != null) || (predA != null && predB == null)){
-						return false;
-					}
+					//we should expect this to hit a lot due to interning
+					if(l.equals(other)) {
+						continue;
+					} else { return false;}
 				}
+				
+//				for (int i = 0; i < this.size(); i++) {
+//					String nameA = this.getName(i);
+//					String nameB = ref.getName(i);
+//					int multA = this.getMultiplicity(i);
+//					int multB = ref.getMultiplicity(i);
+//					
+//					Vector<XPathExpression> predA = this.getPredicate(i);
+//					Vector<XPathExpression> predB = ref.getPredicate(i);
+//					
+//					if (!nameA.equals(nameB)) {
+//						return false;
+//					} else if (multA != multB) {
+//						if (i == 0 && (multA == 0 || multA == INDEX_UNBOUND) && (multB == 0 || multB == INDEX_UNBOUND)) {
+//							// /data and /data[0] are functionally the same
+//						} else {
+//							return false;
+//						}
+//					} else if(predA != null && predB != null) {
+//						if(predA.size() != predB.size()) { return false;}
+//						for(int j = 0 ; j < predA.size() ; ++j) {
+//							if(!predA.elementAt(j).equals(predB.elementAt(j))) {
+//								return false;
+//							}
+//						}
+//					} else if((predA == null && predB != null) || (predA != null && predB == null)){
+//						return false;
+//					}
+//				}
 				return true;
 			} else {
 				return false;

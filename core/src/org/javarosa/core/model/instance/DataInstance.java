@@ -72,12 +72,13 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 	}
 
 	public T resolveReference(TreeReference ref) {
+		if (!ref.isAbsolute()){
+			return null;
+		}
+		
 		T t = referenceCache.retrieve(ref);
 		if(t != null) {
 			return t;
-		}
-		if (!ref.isAbsolute()){
-			return null;
 		}
 	
 		AbstractTreeElement<T> node = getBase();
