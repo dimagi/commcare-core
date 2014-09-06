@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-/**
- * 
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -152,7 +148,7 @@ public class Detail implements Externalizable {
         fields = new DetailField[theFields.size()];
         ArrayUtilities.copyIntoArray(theFields, fields);
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
-        actio = (Action)ExtUtil.read(in, new ExtWrapNullable(Action.class), pf);
+        action = (Action)ExtUtil.read(in, new ExtWrapNullable(Action.class), pf);
     }
 
     /*
