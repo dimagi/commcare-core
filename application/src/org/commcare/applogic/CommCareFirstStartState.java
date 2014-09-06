@@ -18,56 +18,56 @@ import org.javarosa.user.model.User;
  */
 public class CommCareFirstStartState implements State, FirstStartupTransitions{
 
-	FirstStartupView view;
-	
-	public CommCareFirstStartState() {
-		view = new FirstStartupView(this);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.api.State#start()
-	 */
-	public void start() {
-		J2MEDisplay.setView(view);
-	}
+    FirstStartupView view;
+    
+    public CommCareFirstStartState() {
+        view = new FirstStartupView(this);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.api.State#start()
+     */
+    public void start() {
+        J2MEDisplay.setView(view);
+    }
 
-	public void exit() {
-		CommCareContext._().exitApp();
-	}
+    public void exit() {
+        CommCareContext._().exitApp();
+    }
 
-	public void login() {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState() {
+    public void login() {
+        J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState() {
 
-			public void loggedIn(User u, String password) {
-				
-				//If they logged in as an admin user, we can assume they don't need the first start screen anymore.
-				if(!(u.getUserType().equals(User.DEMO_USER))) {
-					PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_NO);
-				}
+            public void loggedIn(User u, String password) {
+                
+                //If they logged in as an admin user, we can assume they don't need the first start screen anymore.
+                if(!(u.getUserType().equals(User.DEMO_USER))) {
+                    PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_NO);
+                }
 
-				super.loggedIn(u, password);
-			}
-			
-		});
-	}
+                super.loggedIn(u, password);
+            }
+            
+        });
+    }
 
-	public void restore() {
-		J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState() {
+    public void restore() {
+        J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState() {
 
-			public void cancel() {
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
-			}
+            public void cancel() {
+                J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
+            }
 
-			public void done(boolean errorsOccurred) {
-				PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_NO);
-				J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
-			}
+            public void done(boolean errorsOccurred) {
+                PropertyManager._().setProperty(CommCareProperties.IS_FIRST_RUN, CommCareProperties.PROPERTY_NO);
+                J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState());
+            }
 
-			public void commitSyncToken(String restoreID) {
-				//Will be set on any created users if relevant.
-			}
-			
-		});
-	}
+            public void commitSyncToken(String restoreID) {
+                //Will be set on any created users if relevant.
+            }
+            
+        });
+    }
 
 }

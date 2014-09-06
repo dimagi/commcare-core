@@ -8,7 +8,7 @@ package org.commcare.api.transitions;
  *
  */
 public interface FirstStartupTransitions {
-	public void exit();
-	public void login();
-	public void restore();
+    public void exit();
+    public void login();
+    public void restore();
 }

@@ -19,36 +19,36 @@ import org.javarosa.core.reference.Reference;
  *
  */
 public class MediaInstaller extends BasicInstaller {
-	
-	public MediaInstaller() {
-		
-	}
-	
-	public MediaInstaller(String path) {
-		
-	}
-	
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
-		boolean result = super.install(r, location, ref, table, instance, upgrade);
-		if(result) {
-			table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
-			return true;
-		}
-		return false;
-	}
+    
+    public MediaInstaller() {
+        
+    }
+    
+    public MediaInstaller(String path) {
+        
+    }
+    
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
+        boolean result = super.install(r, location, ref, table, instance, upgrade);
+        if(result) {
+            table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
+            return true;
+        }
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#initialize()
-	 */
-	public boolean initialize() throws ResourceInitializationException {
-		//Tell the login screen where to get this?
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#initialize()
+     */
+    public boolean initialize() throws ResourceInitializationException {
+        //Tell the login screen where to get this?
+        return true;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-	 */
-	public boolean requiresRuntimeInitialization() {
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
+     */
+    public boolean requiresRuntimeInitialization() {
+        return true;
+    }
 }

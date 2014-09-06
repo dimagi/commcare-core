@@ -8,5 +8,5 @@ package org.commcare.util;
  *
  */
 public interface MultimediaListener {
-	public void registerAudioTrigger(int index, String audioURI);
+    public void registerAudioTrigger(int index, String audioURI);
 }

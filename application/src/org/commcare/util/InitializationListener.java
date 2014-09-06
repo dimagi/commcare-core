@@ -10,15 +10,15 @@ import org.javarosa.j2me.log.HandledThread;
  *
  */
 public abstract class InitializationListener {
-	
-	HandledThread thread;
+    
+    HandledThread thread;
 
-	public void setInitThread(HandledThread t) {
-		this.thread = t;
-	}
+    public void setInitThread(HandledThread t) {
+        this.thread = t;
+    }
 
-	public abstract void onSuccess();
+    public abstract void onSuccess();
 
-	public abstract void onFailure();
+    public abstract void onFailure();
 
 }

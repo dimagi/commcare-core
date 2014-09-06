@@ -24,22 +24,22 @@ import org.javarosa.core.services.storage.StorageManager;
  */
 public class CommCareModule implements IModule {
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.api.IModule#registerModule()
-	 */
-	public void registerModule() {
-		String[] prototypes = new String[] {BasicInstaller.class.getName(),
-										    LocaleFileInstaller.class.getName(),
-										    SuiteInstaller.class.getName(),
-										    ProfileInstaller.class.getName(),
-										    MediaInstaller.class.getName(),
-										    XFormInstaller.class.getName(),
-										    Text.class.getName(),
-										    PropertySetter.class.getName()};
-		PrototypeManager.registerPrototypes(prototypes);
-		
-		StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
-		StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-		StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
-	}
+    /* (non-Javadoc)
+     * @see org.javarosa.core.api.IModule#registerModule()
+     */
+    public void registerModule() {
+        String[] prototypes = new String[] {BasicInstaller.class.getName(),
+                                            LocaleFileInstaller.class.getName(),
+                                            SuiteInstaller.class.getName(),
+                                            ProfileInstaller.class.getName(),
+                                            MediaInstaller.class.getName(),
+                                            XFormInstaller.class.getName(),
+                                            Text.class.getName(),
+                                            PropertySetter.class.getName()};
+        PrototypeManager.registerPrototypes(prototypes);
+        
+        StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
+        StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
+        StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
+    }
 }
