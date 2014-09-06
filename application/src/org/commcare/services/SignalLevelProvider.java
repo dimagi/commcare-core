@@ -13,5 +13,5 @@ package org.commcare.services;
  *
  */
 public interface SignalLevelProvider {
-	public boolean isDataPossible();
+    public boolean isDataPossible();
 }

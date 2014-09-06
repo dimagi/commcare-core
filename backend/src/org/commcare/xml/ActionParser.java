@@ -19,35 +19,35 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class ActionParser extends ElementParser<Action> {
-	
-	public static final String NAME_ACTION = "action";
+    
+    public static final String NAME_ACTION = "action";
 
-	public ActionParser(KXmlParser parser) {
-		super(parser);
-	}
+    public ActionParser(KXmlParser parser) {
+        super(parser);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.commcare.xml.ElementParser#parse()
-	 */
-	public Action parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		this.checkNode(NAME_ACTION);
-		
-		DisplayUnit display = null;
-		Vector<StackOperation> stackOps = new Vector<StackOperation>();
-			
-		while(nextTagInBlock(NAME_ACTION)) {
-			if(parser.getName().equals("display")){
-				display = parseDisplayBlock();
-			} else if(parser.getName().equals("stack")) {
-				StackOpParser sop = new StackOpParser(parser);
-				while(this.nextTagInBlock("stack")) {
-					stackOps.addElement(sop.parse());
-				}
-			}
-		}
-		
-		if(display == null) { throw new InvalidStructureException("<action> block must define a <display> element", parser); }
-		if(stackOps.size() == 0) { throw new InvalidStructureException("An <action> block must define at least one stack operation", parser); }
-		return new Action(display, stackOps);
-	}
+    /* (non-Javadoc)
+     * @see org.commcare.xml.ElementParser#parse()
+     */
+    public Action parse() throws InvalidStructureException, IOException, XmlPullParserException {
+        this.checkNode(NAME_ACTION);
+        
+        DisplayUnit display = null;
+        Vector<StackOperation> stackOps = new Vector<StackOperation>();
+            
+        while(nextTagInBlock(NAME_ACTION)) {
+            if(parser.getName().equals("display")){
+                display = parseDisplayBlock();
+            } else if(parser.getName().equals("stack")) {
+                StackOpParser sop = new StackOpParser(parser);
+                while(this.nextTagInBlock("stack")) {
+                    stackOps.addElement(sop.parse());
+                }
+            }
+        }
+        
+        if(display == null) { throw new InvalidStructureException("<action> block must define a <display> element", parser); }
+        if(stackOps.size() == 0) { throw new InvalidStructureException("An <action> block must define at least one stack operation", parser); }
+        return new Action(display, stackOps);
+    }
 }

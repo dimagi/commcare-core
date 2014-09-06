@@ -46,268 +46,268 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author ctsims
  *
  */
-public class Text implements Externalizable {
-	private int type;
-	private String argument;
-	
-	//Will this maintain order? I don't think so....
-	private Hashtable<String, Text> arguments;
-	
-	private XPathExpression cacheParse;
-	
-	public static final int TEXT_TYPE_FLAT = 1;
-	public static final int TEXT_TYPE_LOCALE = 2;
-	public static final int TEXT_TYPE_XPATH = 4;
-	public static final int TEXT_TYPE_COMPOSITE = 8;
-	
-	/**
-	 * For Serialization only;
-	 */
-	public Text() {
-		
-	}
-	
-	/**
-	 * @return An empty text object
-	 */
-	private static Text TextFactory() {
-		Text t = new Text();
-		t.type = -1;
-		t.argument = "";
-		t.arguments = new Hashtable<String, Text>();
-		return t;
-	}
-	
-	/**
-	 * @param id The locale key.
-	 * @return A Text object that evaluates to the 
-	 * localized value of the ID provided.
-	 */
-	public static Text LocaleText(String id) {
-		Text t = TextFactory();
-		t.argument = id;
-		t.type = TEXT_TYPE_LOCALE;
-		return t;
-	}
-	
-	/**
-	 * @param localeText A Text object which evaluates
-	 * to a locale key.
-	 * @return A Text object that evaluates to the 
-	 * localized value of the id returned by evaluating
-	 * localeText
-	 */
-	public static Text LocaleText(Text localeText) {
-		Text t = TextFactory();
-		t.arguments = new Hashtable<String, Text>();
-		t.arguments.put("id",localeText);
-		t.argument = "";
-		t.type = TEXT_TYPE_LOCALE;
-		return t;
-	}
-	
-	/**
-	 * @param text A text string.
-	 * @return A Text object that evaluates to the 
-	 * string provided.
-	 */
-	public static Text PlainText(String text) {
-		Text t = TextFactory();
-		t.argument = text;
-		t.type = TEXT_TYPE_FLAT;
-		return t;
-	}
-	
-	/**
-	 * 
-	 * @param function A valid XPath function.
-	 * @param arguments A key/value set defining arguments
-	 * which, when evaluated, will provide a value for variables
-	 * in the provided function. 
-	 * @return A Text object that evaluates to the 
-	 * resulting value of the xpath expression defined
-	 * by function when presented with a compatible data
-	 * model.
-	 * @throws XPathSyntaxException If the provided xpath function does
-	 * not have valid syntax. 
-	 */
-	public static Text XPathText(String function, Hashtable<String, Text> arguments) throws XPathSyntaxException {
-		Text t = TextFactory();
-		t.argument = function;
-		//Test parse real fast to make sure it's valid text.
-		XPathExpression expression = XPathParseTool.parseXPath("string(" + t.argument + ")");
-		t.arguments = arguments;
-		t.type = TEXT_TYPE_XPATH;
-		return t;
-	}
-	
-	/**
-	 * @param text A vector of Text objects.
-	 * @return A Text object that evaluates to the 
-	 * value of each member of the text vector.
-	 */
-	public static Text CompositeText(Vector<Text> text) {
-		Text t = TextFactory();
-		int i = 0;
-		for(Text txt : text) {
-			//TODO: Probably a more efficient way to do this...
-			t.arguments.put(Integer.toHexString(i), txt);
-			i++;
-		}
-		t.type = TEXT_TYPE_COMPOSITE;
-		return t;
-	}
-	
-	
-	/**
-	 * @return The evaluated string value for this Text object. Note
-	 * that if this string is expecting a model in order to evaluate
-	 * (like an XPath text), this will likely fail.
-	 */
-	public String evaluate() {
-		return evaluate(null);
-	}
-	
-	/**
-	 * @param context A data model which is compatible with any 
-	 * xpath functions in the underlying Text
-	 * @return The evaluated string value for this Text object.
-	 */
-	public String evaluate(EvaluationContext context) {
-		switch(type) {
-		case TEXT_TYPE_FLAT:
-			return argument;
-		case TEXT_TYPE_LOCALE:
-			String id = argument;
-			if(argument.equals("")) {
-				id = arguments.get("id").evaluate(context);
-			}
-			return Localization.get(id);
-		case TEXT_TYPE_XPATH:
-			try {
-					if(cacheParse == null) {
-					    //Do an XPath cast to a string as part of the operation.
-						cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
-					}
-					
-					//We need an EvaluatonContext in a specific sense in order to evaluate certain components
-					//like Instance references or relative references to some models, but it's valid to use
-					//XPath expressions for other things like Dates, or simply manipulating other variables,
-					//so if we don't have one, we can make one that doesn't reference any data specifically
-					EvaluationContext temp;
-					if(context == null) {
-						temp = new EvaluationContext(null);
-					} else {
-						temp = new EvaluationContext(context, context.getContextRef());
-					}
-					
-					temp.addFunctionHandler(new IFunctionHandler() {
+public class Text implements Externalizable, DetailTemplate {
+    private int type;
+    private String argument;
+    
+    //Will this maintain order? I don't think so....
+    private Hashtable<String, Text> arguments;
+    
+    private XPathExpression cacheParse;
+    
+    public static final int TEXT_TYPE_FLAT = 1;
+    public static final int TEXT_TYPE_LOCALE = 2;
+    public static final int TEXT_TYPE_XPATH = 4;
+    public static final int TEXT_TYPE_COMPOSITE = 8;
+    
+    /**
+     * For Serialization only;
+     */
+    public Text() {
+        
+    }
+    
+    /**
+     * @return An empty text object
+     */
+    private static Text TextFactory() {
+        Text t = new Text();
+        t.type = -1;
+        t.argument = "";
+        t.arguments = new Hashtable<String, Text>();
+        return t;
+    }
+    
+    /**
+     * @param id The locale key.
+     * @return A Text object that evaluates to the 
+     * localized value of the ID provided.
+     */
+    public static Text LocaleText(String id) {
+        Text t = TextFactory();
+        t.argument = id;
+        t.type = TEXT_TYPE_LOCALE;
+        return t;
+    }
+    
+    /**
+     * @param localeText A Text object which evaluates
+     * to a locale key.
+     * @return A Text object that evaluates to the 
+     * localized value of the id returned by evaluating
+     * localeText
+     */
+    public static Text LocaleText(Text localeText) {
+        Text t = TextFactory();
+        t.arguments = new Hashtable<String, Text>();
+        t.arguments.put("id",localeText);
+        t.argument = "";
+        t.type = TEXT_TYPE_LOCALE;
+        return t;
+    }
+    
+    /**
+     * @param text A text string.
+     * @return A Text object that evaluates to the 
+     * string provided.
+     */
+    public static Text PlainText(String text) {
+        Text t = TextFactory();
+        t.argument = text;
+        t.type = TEXT_TYPE_FLAT;
+        return t;
+    }
+    
+    /**
+     * 
+     * @param function A valid XPath function.
+     * @param arguments A key/value set defining arguments
+     * which, when evaluated, will provide a value for variables
+     * in the provided function. 
+     * @return A Text object that evaluates to the 
+     * resulting value of the xpath expression defined
+     * by function when presented with a compatible data
+     * model.
+     * @throws XPathSyntaxException If the provided xpath function does
+     * not have valid syntax. 
+     */
+    public static Text XPathText(String function, Hashtable<String, Text> arguments) throws XPathSyntaxException {
+        Text t = TextFactory();
+        t.argument = function;
+        //Test parse real fast to make sure it's valid text.
+        XPathExpression expression = XPathParseTool.parseXPath("string(" + t.argument + ")");
+        t.arguments = arguments;
+        t.type = TEXT_TYPE_XPATH;
+        return t;
+    }
+    
+    /**
+     * @param text A vector of Text objects.
+     * @return A Text object that evaluates to the 
+     * value of each member of the text vector.
+     */
+    public static Text CompositeText(Vector<Text> text) {
+        Text t = TextFactory();
+        int i = 0;
+        for(Text txt : text) {
+            //TODO: Probably a more efficient way to do this...
+            t.arguments.put(Integer.toHexString(i), txt);
+            i++;
+        }
+        t.type = TEXT_TYPE_COMPOSITE;
+        return t;
+    }
+    
+    
+    /**
+     * @return The evaluated string value for this Text object. Note
+     * that if this string is expecting a model in order to evaluate
+     * (like an XPath text), this will likely fail.
+     */
+    public String evaluate() {
+        return evaluate(null);
+    }
+    
+    /**
+     * @param context A data model which is compatible with any 
+     * xpath functions in the underlying Text
+     * @return The evaluated string value for this Text object.
+     */
+    public String evaluate(EvaluationContext context) {
+        switch(type) {
+        case TEXT_TYPE_FLAT:
+            return argument;
+        case TEXT_TYPE_LOCALE:
+            String id = argument;
+            if(argument.equals("")) {
+                id = arguments.get("id").evaluate(context);
+            }
+            return Localization.get(id);
+        case TEXT_TYPE_XPATH:
+            try {
+                    if(cacheParse == null) {
+                        //Do an XPath cast to a string as part of the operation.
+                        cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
+                    }
+                    
+                    //We need an EvaluatonContext in a specific sense in order to evaluate certain components
+                    //like Instance references or relative references to some models, but it's valid to use
+                    //XPath expressions for other things like Dates, or simply manipulating other variables,
+                    //so if we don't have one, we can make one that doesn't reference any data specifically
+                    EvaluationContext temp;
+                    if(context == null) {
+                        temp = new EvaluationContext(null);
+                    } else {
+                        temp = new EvaluationContext(context, context.getContextRef());
+                    }
+                    
+                    temp.addFunctionHandler(new IFunctionHandler() {
 
-						public Object eval(Object[] args, EvaluationContext ec) {
-							Object o = XPathFuncExpr.toDate(args[0]);
-							if(!(o instanceof Date)) {
-								//return null, date is null.
-								return "";
-							}
-							
-							String type = (String)args[1];
-							int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
-							if(type.equals("short")) {
-								format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
-							} else if(type.equals("long")){
-								format = DateUtils.FORMAT_ISO8601;
-							}
-							return DateUtils.formatDate((Date)o, format);
-						}
+                        public Object eval(Object[] args, EvaluationContext ec) {
+                            Object o = XPathFuncExpr.toDate(args[0]);
+                            if(!(o instanceof Date)) {
+                                //return null, date is null.
+                                return "";
+                            }
+                            
+                            String type = (String)args[1];
+                            int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
+                            if(type.equals("short")) {
+                                format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
+                            } else if(type.equals("long")){
+                                format = DateUtils.FORMAT_ISO8601;
+                            }
+                            return DateUtils.formatDate((Date)o, format);
+                        }
 
-						public String getName() {
-							return "format_date";
-						}
+                        public String getName() {
+                            return "format_date";
+                        }
 
-						public Vector getPrototypes() {
-							Vector format = new Vector();
-							Class[] prototypes = new Class[] {
-									Date.class,
-									String.class
-							};
-							format.addElement(prototypes);
-							return format;
-						}
+                        public Vector getPrototypes() {
+                            Vector format = new Vector();
+                            Class[] prototypes = new Class[] {
+                                    Date.class,
+                                    String.class
+                            };
+                            format.addElement(prototypes);
+                            return format;
+                        }
 
-						public boolean rawArgs() { return false; }
+                        public boolean rawArgs() { return false; }
 
-						public boolean realTime() { return false; }
-						
-					});
-					
-					temp.addFunctionHandler(new IFunctionHandler() {
+                        public boolean realTime() { return false; }
+                        
+                    });
+                    
+                    temp.addFunctionHandler(new IFunctionHandler() {
 
-						public Object eval(Object[] args, EvaluationContext ec) {
-							Calendar c = Calendar.getInstance();
-							c.setTime(new Date());
-							return String.valueOf(c.get(Calendar.DAY_OF_WEEK));
-						}
+                        public Object eval(Object[] args, EvaluationContext ec) {
+                            Calendar c = Calendar.getInstance();
+                            c.setTime(new Date());
+                            return String.valueOf(c.get(Calendar.DAY_OF_WEEK));
+                        }
 
-						public String getName() {
-							return "dow";
-						}
+                        public String getName() {
+                            return "dow";
+                        }
 
-						public Vector getPrototypes() {
-							Vector format = new Vector();
-							Class[] prototypes = new Class[] {};
-							format.addElement(prototypes);
-							return format;
-						}
+                        public Vector getPrototypes() {
+                            Vector format = new Vector();
+                            Class[] prototypes = new Class[] {};
+                            format.addElement(prototypes);
+                            return format;
+                        }
 
-						public boolean rawArgs() { return false; }
+                        public boolean rawArgs() { return false; }
 
-						public boolean realTime() { return false; }
-						
-					});
-					
-					
-					for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
-						String key = (String)en.nextElement();
-						String value = arguments.get(key).evaluate(context);
-						temp.setVariable(key,value);
-					}
-					
-					return (String)cacheParse.eval(temp.getMainInstance(), temp);
-				} catch (XPathSyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			//For testing;
-			return argument;
-		case TEXT_TYPE_COMPOSITE:
-			String ret = "";
-			for(int i = 0 ; i < arguments.size(); ++i) {
-				Text item = arguments.get(String.valueOf(i));
-				ret += item.evaluate(context) +"";
-			}
-			return ret;
-		default:
-			return argument;
-		}
-	}
+                        public boolean realTime() { return false; }
+                        
+                    });
+                    
+                    
+                    for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
+                        String key = (String)en.nextElement();
+                        String value = arguments.get(key).evaluate(context);
+                        temp.setVariable(key,value);
+                    }
+                    
+                    return (String)cacheParse.eval(temp.getMainInstance(), temp);
+                } catch (XPathSyntaxException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            //For testing;
+            return argument;
+        case TEXT_TYPE_COMPOSITE:
+            String ret = "";
+            for(int i = 0 ; i < arguments.size(); ++i) {
+                Text item = arguments.get(String.valueOf(i));
+                ret += item.evaluate(context) +"";
+            }
+            return ret;
+        default:
+            return argument;
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		type = ExtUtil.readInt(in);
-		argument = ExtUtil.readString(in);
-		arguments = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        type = ExtUtil.readInt(in);
+        argument = ExtUtil.readString(in);
+        arguments = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeNumeric(out,type);
-		ExtUtil.writeString(out,argument);
-		ExtUtil.write(out, new ExtWrapMap(arguments));
-	}
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out,type);
+        ExtUtil.writeString(out,argument);
+        ExtUtil.write(out, new ExtWrapMap(arguments));
+    }
 }

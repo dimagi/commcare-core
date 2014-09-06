@@ -21,38 +21,38 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class PropertySetter implements Externalizable {
-	String key;
-	String value;
-	boolean force;
-	
-	public String getKey() { return key; }
-	public String getValue() { return value; }
-	public boolean isForce() { return force; }
+    String key;
+    String value;
+    boolean force;
+    
+    public String getKey() { return key; }
+    public String getValue() { return value; }
+    public boolean isForce() { return force; }
 
-	/**
-	 * Serialization Only!!!
-	 */
-	public PropertySetter() {
-		
-	}
-	
-	protected PropertySetter(String key, String value, boolean force) {
-		this.key = key;
-		this.value = value;
-		this.force = force;
-	}
+    /**
+     * Serialization Only!!!
+     */
+    public PropertySetter() {
+        
+    }
+    
+    protected PropertySetter(String key, String value, boolean force) {
+        this.key = key;
+        this.value = value;
+        this.force = force;
+    }
 
-	public void readExternal(DataInputStream in, PrototypeFactory pf)
-			throws IOException, DeserializationException {
-		key = ExtUtil.readString(in);
-		value = ExtUtil.readString(in);
-		force = ExtUtil.readBool(in);
-	}
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        key = ExtUtil.readString(in);
+        value = ExtUtil.readString(in);
+        force = ExtUtil.readBool(in);
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.writeString(out,key);
-		ExtUtil.writeString(out,value);
-		ExtUtil.writeBool(out, force);
-	}
-	
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out,key);
+        ExtUtil.writeString(out,value);
+        ExtUtil.writeBool(out, force);
+    }
+    
 }
