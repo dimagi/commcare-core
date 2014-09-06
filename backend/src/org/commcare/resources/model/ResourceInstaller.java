@@ -28,86 +28,86 @@ import org.javarosa.core.util.externalizable.Externalizable;
  *
  */
 public interface ResourceInstaller<T extends CommCareInstance> extends Externalizable {
-	
-	/**
-	 * @return true if a resource requires an initialization at
-	 * runtime in order to work properly. False otherwise.
-	 * This method may be unnecessary.
-	 */
-	public boolean requiresRuntimeInitialization();
-	
-	/**
-	 * initializes an installed resource for use at runtime.
-	 * @return true if a resource is ready for use. False if
-	 * a problem occurred.
-	 * @throws ResourceInitializationException If the resource could not be initialized
-	 */
-	public boolean initialize(T instance) throws ResourceInitializationException;
-	
-	/**
-	 * Proceeds with the next step of installing resource r, keeping
-	 * records at current, and maintaining upgrade status against
-	 * master.
-	 * 
-	 * @param r The resource to be stepped
-	 * @param table the table where the resource is being managed
-	 * @param peer the current copy of a resource (if one exists)
-	 * @return Whether the resource was able to complete an installation
-	 * step in the current circumstances.
-	 * @throws UnresolvedResourceException If the local resource definition could not be found
-	 * @throws UnfullfilledRequirementsException If the current platform does not fullfill the needs for this resource
-	 */
-	public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, T instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
-	
-	/**
-	 * Removes the binary files and cached data associated with a resource, often in order to 
-	 * overwrite their old location with a new resource.
-	 * 
-	 * This method _should only_ be called on a resource table that will never be made ready again.
-	 */
-	public boolean uninstall(Resource r) throws UnresolvedResourceException;
-	
-	/**
-	 * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
-	 * resource from an upgrade table.
-	 * 
-	 * This method must be reversible by calling the "revert" method, so no files should be deleted or permanently removed.
-	 * 
-	 * After being unstaged, a resource's status will be set by the resource table.
-	 */
-	public boolean unstage(Resource r, int newStatus);
-	
-	/**
-	 * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
-	 * after an unsuccesful upgrade or other issue. 
-	 */
-	public boolean revert(Resource r, ResourceTable table);
-	
-	/**
-	 * Rolls back an incomplete action.
-	 * 
-	 * @return the new status of this resource
-	 */
-	public int rollback(Resource r);
-	
-	/**
-	 * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
-	 * 
-	 * This method should result in the existing resource being marked as "installed" in the
-	 * existing table and the resource being ready for use.
-	 * 
-	 * This method should be revertable.  
-	 * 
-	 * @param r The resource to be upgraded.
-	 * @return True if the upgrade step was completed successfully.
-	 * @throws UnresolvedResourceException If the local resource definition could not be found
-	 */
-	public boolean upgrade(Resource r) throws UnresolvedResourceException;
-	
-	/**
-	 * Called to clean up or close any interstitial state that was created by managing this resource.
-	 */
-	public void cleanup();
-	
-	public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
+    
+    /**
+     * @return true if a resource requires an initialization at
+     * runtime in order to work properly. False otherwise.
+     * This method may be unnecessary.
+     */
+    public boolean requiresRuntimeInitialization();
+    
+    /**
+     * initializes an installed resource for use at runtime.
+     * @return true if a resource is ready for use. False if
+     * a problem occurred.
+     * @throws ResourceInitializationException If the resource could not be initialized
+     */
+    public boolean initialize(T instance) throws ResourceInitializationException;
+    
+    /**
+     * Proceeds with the next step of installing resource r, keeping
+     * records at current, and maintaining upgrade status against
+     * master.
+     * 
+     * @param r The resource to be stepped
+     * @param table the table where the resource is being managed
+     * @param peer the current copy of a resource (if one exists)
+     * @return Whether the resource was able to complete an installation
+     * step in the current circumstances.
+     * @throws UnresolvedResourceException If the local resource definition could not be found
+     * @throws UnfullfilledRequirementsException If the current platform does not fullfill the needs for this resource
+     */
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, T instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    
+    /**
+     * Removes the binary files and cached data associated with a resource, often in order to 
+     * overwrite their old location with a new resource.
+     * 
+     * This method _should only_ be called on a resource table that will never be made ready again.
+     */
+    public boolean uninstall(Resource r) throws UnresolvedResourceException;
+    
+    /**
+     * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
+     * resource from an upgrade table.
+     * 
+     * This method must be reversible by calling the "revert" method, so no files should be deleted or permanently removed.
+     * 
+     * After being unstaged, a resource's status will be set by the resource table.
+     */
+    public boolean unstage(Resource r, int newStatus);
+    
+    /**
+     * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
+     * after an unsuccesful upgrade or other issue. 
+     */
+    public boolean revert(Resource r, ResourceTable table);
+    
+    /**
+     * Rolls back an incomplete action.
+     * 
+     * @return the new status of this resource
+     */
+    public int rollback(Resource r);
+    
+    /**
+     * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
+     * 
+     * This method should result in the existing resource being marked as "installed" in the
+     * existing table and the resource being ready for use.
+     * 
+     * This method should be revertable.  
+     * 
+     * @param r The resource to be upgraded.
+     * @return True if the upgrade step was completed successfully.
+     * @throws UnresolvedResourceException If the local resource definition could not be found
+     */
+    public boolean upgrade(Resource r) throws UnresolvedResourceException;
+    
+    /**
+     * Called to clean up or close any interstitial state that was created by managing this resource.
+     */
+    public void cleanup();
+    
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
 }

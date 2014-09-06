@@ -15,7 +15,7 @@ package org.commcare.resources.model;
  *
  */
 public class UnreliableSourceException extends UnresolvedResourceException {
-	public UnreliableSourceException(Resource r, String message) {
-		super(r, message);
-	}
+    public UnreliableSourceException(Resource r, String message) {
+        super(r, message);
+    }
 }

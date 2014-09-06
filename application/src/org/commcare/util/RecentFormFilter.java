@@ -25,50 +25,50 @@ import org.javarosa.core.services.storage.EntityFilter;
  */
 public class RecentFormFilter extends EntityFilter<FormInstance> {
 
-	private static int DEFAULT_DAYS = 7;
-	int days;
-	
-	public RecentFormFilter() {
-		days = DEFAULT_DAYS;
+    private static int DEFAULT_DAYS = 7;
+    int days;
+    
+    public RecentFormFilter() {
+        days = DEFAULT_DAYS;
 
-		//Otherwise, check to get the number of days before it is eligible for deletion
-		String daysForReview = PropertyManager._().getSingularProperty(CommCareProperties.DAYS_FOR_REVIEW);
-		if(daysForReview != null) {
-			try {
-				days = Integer.parseInt(daysForReview);
-			} catch(NumberFormatException nfe) {
-				nfe.printStackTrace();
-			}
-		}
-	}
-	
-	public RecentFormFilter(int days) {
-		this.days = days;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
-	 */
-	public boolean matches(FormInstance e) {
-		//If review isn't enabled, nothing matches.
-		if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {
-			return false;
-		}
-		
-		try {
-			//otherwise, check the number of days since the form was entered. If it has passed, the form no longer
-			//qualifies
-			if(Math.floor((((double)(new Date().getTime() - e.getDateSaved().getTime())) / DateUtils.DAY_IN_MS)) > days) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch(Exception ex) {
-			//For stability reasons, if anything goes wrong with determining a forms deletion eligibility, assume
-			//it is unreviewable
-			return false;
-		}
-	}
+        //Otherwise, check to get the number of days before it is eligible for deletion
+        String daysForReview = PropertyManager._().getSingularProperty(CommCareProperties.DAYS_FOR_REVIEW);
+        if(daysForReview != null) {
+            try {
+                days = Integer.parseInt(daysForReview);
+            } catch(NumberFormatException nfe) {
+                nfe.printStackTrace();
+            }
+        }
+    }
+    
+    public RecentFormFilter(int days) {
+        this.days = days;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
+     */
+    public boolean matches(FormInstance e) {
+        //If review isn't enabled, nothing matches.
+        if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {
+            return false;
+        }
+        
+        try {
+            //otherwise, check the number of days since the form was entered. If it has passed, the form no longer
+            //qualifies
+            if(Math.floor((((double)(new Date().getTime() - e.getDateSaved().getTime())) / DateUtils.DAY_IN_MS)) > days) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch(Exception ex) {
+            //For stability reasons, if anything goes wrong with determining a forms deletion eligibility, assume
+            //it is unreviewable
+            return false;
+        }
+    }
 
 }

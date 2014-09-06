@@ -12,8 +12,8 @@ package org.commcare.resources.model;
  *
  */
 public class ResourceInitializationException extends Exception {
-	
-	public ResourceInitializationException(String message) {
-		super(message);
-	}
+    
+    public ResourceInitializationException(String message) {
+        super(message);
+    }
 }

@@ -15,6 +15,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -150,7 +151,7 @@ public class Detail implements Externalizable {
         fields = new DetailField[theFields.size()];
         ArrayUtilities.copyIntoArray(theFields, fields);
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
-        action = (Action)ExtUtil.read(in, Action.class);
+        action = (Action)ExtUtil.read(in, new ExtWrapNullable(Action.class), pf);
     }
 
     /*
@@ -164,7 +165,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));
-        ExtUtil.write(out, action);
+        ExtUtil.write(out, new ExtWrapNullable(action));
     }
     
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
