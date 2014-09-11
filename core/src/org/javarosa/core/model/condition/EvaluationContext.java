@@ -302,9 +302,8 @@ public class EvaluationContext {
 			//init all to 0
 			for(int i = 0 ; i < positionContext.length ; ++ i) { positionContext[i] = 0; }
 			
-			for (Enumeration e = set.elements(); e.hasMoreElements();) {
-				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate
-				TreeReference treeRef = (TreeReference)e.nextElement();				
+			for (TreeReference treeRef : set) {
+				//if there are predicates then we need to see if e.nextElement meets the standard of the predicate				
 				if(predicates != null)
 				{
 					boolean passedAll = true;
