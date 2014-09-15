@@ -273,6 +273,12 @@ public class FormEntryModel {
         return form.getLocalizer().getLocale();
     }
 
+    /**
+     * Set the FormIndex for the current question.
+     * Creates any necessary models (i.e., expands repeat groups).
+     * 
+     * @param index
+     */
     public void setQuestionIndex(FormIndex index) {
         setQuestionIndex(index, true);
     }
@@ -281,12 +287,13 @@ public class FormEntryModel {
      * Set the FormIndex for the current question.
      * 
      * @param index
+     * @param expandRepeats Expand any unexpanded repeat groups
      */
-    public void setQuestionIndex(FormIndex index, boolean descendIntoRepeats) {
+    public void setQuestionIndex(FormIndex index, boolean expandRepeats) {
         if (!currentFormIndex.equals(index)) {
             // See if a hint exists that says we should have a model for this
             // already
-            if (descendIntoRepeats) {
+            if (expandRepeats) {
                 createModelIfNecessary(index);
             }
             currentFormIndex = index;
@@ -577,7 +584,7 @@ public class FormEntryModel {
         }
     }
 
-    private void incrementHelper(Vector indexes, Vector multiplicities,    Vector elements, boolean descend, boolean expandRepeats) {
+    private void incrementHelper(Vector indexes, Vector multiplicities, Vector elements, boolean descend, boolean expandRepeats) {
         int i = indexes.size() - 1;
         boolean exitRepeat = false; //if exiting a repetition? (i.e., go to next repetition instead of one level up)
 
@@ -609,12 +616,7 @@ public class FormEntryModel {
                 }
             }
 
-            IFormElement temp = (i == -1 ? form : (IFormElement) elements.elementAt(i)).getChild(0);
-            if (
-                    descend 
-                    //&& expandRepeats //|| !(temp instanceof GroupDef && ((GroupDef) temp).getRepeat()))
-                    && (i == -1  || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)
-            ) {
+            if (descend && (i == -1  || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)) {
                 indexes.addElement(new Integer(0));
                 multiplicities.addElement(new Integer(0));
                 elements.addElement((i == -1 ? form : (IFormElement) elements.elementAt(i)).getChild(0));

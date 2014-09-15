@@ -314,7 +314,7 @@ public class FormEntryCaption implements FormElementStateListener {
         int numRepetitions = getNumRepetitions();
         Vector<String> reps = new Vector<String>();
         for (int i = 0; i < numRepetitions; i++) {
-            //reps.addElement(getRepetitionText("choose", form.descendIntoRepeat(index, i), false));
+            reps.addElement(getRepetitionText("choose", form.descendIntoRepeat(index, i), false));
         }
         return reps;
     }

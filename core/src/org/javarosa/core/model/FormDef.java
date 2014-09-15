@@ -72,7 +72,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
-    public Vector children;// <IFormElement> 
+    private Vector children;// <IFormElement> 
     /** A collection of group definitions. */
     private int id;
     /** The numeric unique identifier of the form definition on the local device */
