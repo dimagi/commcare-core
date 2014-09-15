@@ -273,17 +273,22 @@ public class FormEntryModel {
         return form.getLocalizer().getLocale();
     }
 
+    public void setQuestionIndex(FormIndex index) {
+        setQuestionIndex(index, true);
+    }
 
     /**
      * Set the FormIndex for the current question.
      * 
      * @param index
      */
-    public void setQuestionIndex(FormIndex index) {
+    public void setQuestionIndex(FormIndex index, boolean descendIntoRepeats) {
         if (!currentFormIndex.equals(index)) {
             // See if a hint exists that says we should have a model for this
             // already
-            createModelIfNecessary(index);
+            if (descendIntoRepeats) {
+                createModelIfNecessary(index);
+            }
             currentFormIndex = index;
         }
     }
@@ -545,6 +550,10 @@ public class FormEntryModel {
     }
     
     public FormIndex incrementIndex(FormIndex index, boolean descend) {
+        return incrementIndex(index, descend, true);
+    }
+    
+    public FormIndex incrementIndex(FormIndex index, boolean descend, boolean expandRepeats) {
         Vector indexes = new Vector();
         Vector multiplicities = new Vector();
         Vector elements = new Vector();
@@ -559,7 +568,7 @@ public class FormEntryModel {
             form.collapseIndex(index, indexes, multiplicities, elements);
         }
 
-        incrementHelper(indexes, multiplicities, elements, descend);
+        incrementHelper(indexes, multiplicities, elements, descend, expandRepeats);
             
         if (indexes.size() == 0) {
             return FormIndex.createEndOfFormIndex();
@@ -568,7 +577,7 @@ public class FormEntryModel {
         }
     }
 
-    private void incrementHelper(Vector indexes, Vector multiplicities,    Vector elements, boolean descend) {
+    private void incrementHelper(Vector indexes, Vector multiplicities,    Vector elements, boolean descend, boolean expandRepeats) {
         int i = indexes.size() - 1;
         boolean exitRepeat = false; //if exiting a repetition? (i.e., go to next repetition instead of one level up)
 
@@ -600,7 +609,12 @@ public class FormEntryModel {
                 }
             }
 
-            if (descend && (i == -1  || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)) {
+            IFormElement temp = (i == -1 ? form : (IFormElement) elements.elementAt(i)).getChild(0);
+            if (
+                    descend 
+                    //&& expandRepeats //|| !(temp instanceof GroupDef && ((GroupDef) temp).getRepeat()))
+                    && (i == -1  || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)
+            ) {
                 indexes.addElement(new Integer(0));
                 multiplicities.addElement(new Integer(0));
                 elements.addElement((i == -1 ? form : (IFormElement) elements.elementAt(i)).getChild(0));

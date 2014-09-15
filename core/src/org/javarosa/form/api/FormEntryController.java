@@ -165,8 +165,12 @@ public class FormEntryController {
      * 
      * @return the next event that should be handled by a view.
      */
+    public int stepToNextEvent(boolean descendIntoRepeats) {
+        return stepEvent(true, descendIntoRepeats);
+    }
+    
     public int stepToNextEvent() {
-        return stepEvent(true);
+        return stepToNextEvent(true);
     }
 
 
@@ -176,7 +180,7 @@ public class FormEntryController {
      * @return the next event that should be handled by a view.
      */
     public int stepToPreviousEvent() {
-        return stepEvent(false);
+        return stepEvent(false, false);    // second false doesn't matter
     }
 
 
@@ -186,7 +190,7 @@ public class FormEntryController {
      * @param forward
      * @return
      */
-    private int stepEvent(boolean forward) {
+    private int stepEvent(boolean forward, boolean descendIntoRepeats) {
         FormIndex index = model.getFormIndex();
 
         boolean descend = true;
@@ -195,7 +199,8 @@ public class FormEntryController {
         
         do {
             if (forward) {
-                index = model.incrementIndex(index, descend);
+                //index = model.incrementIndex(index, descend && (descendIntoRepeats || model.getEvent(index) != EVENT_REPEAT));
+                index = model.incrementIndex(index, descend, descendIntoRepeats);
             } else {
                 index = model.decrementIndex(index);
             }
@@ -218,9 +223,12 @@ public class FormEntryController {
             }
         } while (inForm && !relevant);
 
-        return jumpToIndex(index);
+        return jumpToIndex(index, descendIntoRepeats);
     }
 
+    public int jumpToIndex(FormIndex index) {
+        return jumpToIndex(index, true);
+    }
 
     /**
      * Jumps to a given FormIndex.
@@ -228,8 +236,8 @@ public class FormEntryController {
      * @param index
      * @return EVENT for the specified Index.
      */
-    public int jumpToIndex(FormIndex index) {
-        model.setQuestionIndex(index);
+    public int jumpToIndex(FormIndex index, boolean descendIntoRepeats) {
+        model.setQuestionIndex(index, descendIntoRepeats);
         return model.getEvent(index);
     }
 
