@@ -74,7 +74,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 	//take up a huuuge amount of space together.
 	private Vector observers = null;
 	protected Vector<TreeElement> attributes = null;
-	protected Vector<TreeElement> children = null;
+	protected Vector children = null;
 
 	/* model properties */
 	protected int dataType = Constants.DATATYPE_NULL; //TODO
@@ -200,7 +200,8 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 			}
 			return (TreeElement) this.children.elementAt(multiplicity); //droos: i'm suspicious of this
 		} else {
-			for (TreeElement child : children) {
+			for (int i = 0; i < this.children.size(); i++) {
+				TreeElement child = (TreeElement) this.children.elementAt(i);
 				if (name.equals(child.getName()) && child.getMult() == multiplicity) {
 					return child;
 				}
@@ -487,13 +488,13 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 
 		if (isRelevant() != oldRelevancy) {
 			if(attributes != null) {
-				for(TreeElement attribute : attributes) {
-					attribute.setRelevant(isRelevant(), true);
+				for(int i = 0 ; i < attributes.size(); ++i ) {
+					attributes.elementAt(i).setRelevant(isRelevant(), true);
 				}
 			}
 			if(children != null) {
-				for (TreeElement child : children) {
-					child.setRelevant(isRelevant(),true);
+				for (int i = 0; i < children.size(); i++) {
+					((TreeElement) children.elementAt(i)).setRelevant(isRelevant(),true);
 				}
 			}
 			alertStateObservers(FormElementStateListener.CHANGE_RELEVANT);
@@ -520,8 +521,9 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 
 		if (isEnabled() != oldEnabled) {
 			if(children != null) {
-				for (TreeElement child : children) {
-					child.setEnabled(isEnabled(), true);
+				for (int i = 0; i < children.size(); i++) {
+					((TreeElement) children.elementAt(i)).setEnabled(isEnabled(),
+							true);
 				}
 			}
 			alertStateObservers(FormElementStateListener.CHANGE_ENABLED);
@@ -687,7 +689,8 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 		if (attributes == null || attributes.size() == 0)
 			return null;
 		else {
-			for (TreeElement attribute : attributes) {
+			for (int i = 0; i < this.attributes.size(); i++) {
+				TreeElement attribute = attributes.elementAt(i);
 				String value = getAttributeValue(attribute);
 				if (attribute.namespace == null || attribute.namespace.equals(""))
 					strings.addElement(new String(attribute.getName() + "=" + value));
