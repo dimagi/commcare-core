@@ -557,10 +557,6 @@ public class FormEntryModel {
     }
     
     public FormIndex incrementIndex(FormIndex index, boolean descend) {
-        return incrementIndex(index, descend, true);
-    }
-    
-    public FormIndex incrementIndex(FormIndex index, boolean descend, boolean expandRepeats) {
         Vector indexes = new Vector();
         Vector multiplicities = new Vector();
         Vector elements = new Vector();
@@ -575,7 +571,7 @@ public class FormEntryModel {
             form.collapseIndex(index, indexes, multiplicities, elements);
         }
 
-        incrementHelper(indexes, multiplicities, elements, descend, expandRepeats);
+        incrementHelper(indexes, multiplicities, elements, descend);
             
         if (indexes.size() == 0) {
             return FormIndex.createEndOfFormIndex();
@@ -584,7 +580,7 @@ public class FormEntryModel {
         }
     }
 
-    private void incrementHelper(Vector indexes, Vector multiplicities, Vector elements, boolean descend, boolean expandRepeats) {
+    private void incrementHelper(Vector indexes, Vector multiplicities, Vector elements, boolean descend) {
         int i = indexes.size() - 1;
         boolean exitRepeat = false; //if exiting a repetition? (i.e., go to next repetition instead of one level up)
 

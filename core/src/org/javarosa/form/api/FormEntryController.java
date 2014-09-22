@@ -201,7 +201,7 @@ public class FormEntryController {
         
         do {
             if (forward) {
-                index = model.incrementIndex(index, descend, expandRepeats);
+                index = model.incrementIndex(index, descend);
             } else {
                 index = model.decrementIndex(index);
             }
