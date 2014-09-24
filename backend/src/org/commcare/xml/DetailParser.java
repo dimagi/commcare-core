@@ -70,7 +70,7 @@ public class DetailParser extends ElementParser<Detail> {
             DetailField.Builder builder = new DetailField().new Builder();
             
             if (parser.getName().equals("detail")) {
-                subdetails.addElement(this.parse());
+                subdetails.addElement((new DetailParser(parser)).parse());
             }
             else {
                 checkNode("field");
