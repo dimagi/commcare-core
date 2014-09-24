@@ -37,7 +37,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 //TODO: This class needs to be immutable
 public class TreeReference implements Externalizable {
 	
-	int hashCode = -1;
+    int hashCode = -1;
 	
     public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
     public static final int INDEX_UNBOUND = -1;//multiplicity
@@ -123,6 +123,9 @@ public class TreeReference implements Externalizable {
     
     int size = -1;
     public int size () {
+    	//csims@dimagi.com - this seems unecessary but is a shocking performance
+    	//difference due to the number of high-churn circumstances where this
+    	//call is made.
         if(size == -1) {
             size = data.size();
         }
@@ -130,20 +133,20 @@ public class TreeReference implements Externalizable {
     }
     
     private void add (TreeReferenceLevel level) {
-		hashCode = -1;
-		size = -1;
+        hashCode = -1;
+        size = -1;
         data.addElement(level);
     }
     
     public void add (String name, int mult) {
-		hashCode = -1;
-		size = -1;
+        hashCode = -1;
+        size = -1;
         add(new TreeReferenceLevel(name, mult).intern());
     }
     
     public void addPredicate(int key, Vector<XPathExpression> xpe)
     {
-		hashCode = -1;
+        hashCode = -1;
         data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
     }
     
