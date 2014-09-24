@@ -408,6 +408,10 @@ public class TreeReference implements Externalizable {
     }
     
     public boolean equals (Object o) {
+    	//csims@dimagi.com - Replaced this function performing itself fully written out
+    	//rather than allowing the tree reference levels to denote equality. The only edge
+    	//case was identifying that /data and /data[0] were always the same. I don't think
+    	//that should matter, but noting in case there are issues in the future.
         if (this == o) {
             return true;
         } else if (o instanceof TreeReference) {
@@ -424,35 +428,6 @@ public class TreeReference implements Externalizable {
                         continue;
                     } else { return false;}
                 }
-				
-//				for (int i = 0; i < this.size(); i++) {
-//					String nameA = this.getName(i);
-//					String nameB = ref.getName(i);
-//					int multA = this.getMultiplicity(i);
-//					int multB = ref.getMultiplicity(i);
-//					
-//					Vector<XPathExpression> predA = this.getPredicate(i);
-//					Vector<XPathExpression> predB = ref.getPredicate(i);
-//					
-//					if (!nameA.equals(nameB)) {
-//						return false;
-//					} else if (multA != multB) {
-//						if (i == 0 && (multA == 0 || multA == INDEX_UNBOUND) && (multB == 0 || multB == INDEX_UNBOUND)) {
-//							// /data and /data[0] are functionally the same
-//						} else {
-//							return false;
-//						}
-//					} else if(predA != null && predB != null) {
-//						if(predA.size() != predB.size()) { return false;}
-//						for(int j = 0 ; j < predA.size() ; ++j) {
-//							if(!predA.elementAt(j).equals(predB.elementAt(j))) {
-//								return false;
-//							}
-//						}
-//					} else if((predA == null && predB != null) || (predA != null && predB == null)){
-//						return false;
-//					}
-//				}
                 return true;
             } else {
                 return false;
