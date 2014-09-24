@@ -27,66 +27,66 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class XPathQName implements Externalizable {
-	public String namespace;
-	public String name;
+    public String namespace;
+    public String name;
 	private int hashCode;
 
-	public XPathQName () { } //for deserialization
-	
-	public XPathQName (String qname) {
-		int sep = (qname == null ? -1 : qname.indexOf(":"));
-		if (sep == -1) {
-			init(null, qname);
-		} else {
-			init(qname.substring(0, sep), qname.substring(sep + 1));
-		}
-	}
+    public XPathQName () { } //for deserialization
+    
+    public XPathQName (String qname) {
+        int sep = (qname == null ? -1 : qname.indexOf(":"));
+        if (sep == -1) {
+            init(null, qname);
+        } else {
+            init(qname.substring(0, sep), qname.substring(sep + 1));
+        }
+    }
 
-	public XPathQName (String namespace, String name) {
-		init(namespace, name);
-	}
-	
-	public int hashCode() {
-		return hashCode;
-	}
+    public XPathQName (String namespace, String name) {
+        init(namespace, name);
+    }
+    
+    public int hashCode() {
+        return hashCode;
+    }
 
-	private void init (String namespace, String name) {
-		if (name == null ||
-				(name != null && name.length() == 0) ||
-				(namespace != null && namespace.length() == 0))
-			throw new IllegalArgumentException("Invalid QName");
+    private void init (String namespace, String name) {
+        if (name == null ||
+                (name != null && name.length() == 0) ||
+                (namespace != null && namespace.length() == 0))
+            throw new IllegalArgumentException("Invalid QName");
 
-		this.namespace = namespace;
-		this.name = name;
+        this.namespace = namespace;
+        this.name = name;
 		cacheCode();
 	}
 	
 	private void cacheCode() {
        hashCode = name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
-	}
+    }
 
-	public String toString () {
-		return (namespace == null ? name : namespace + ":" + name);
-	}
-	
-	public boolean equals (Object o) {
-		if (o instanceof XPathQName) {
-			XPathQName x = (XPathQName)o;
-			if(hashCode != o.hashCode()) { return false; }
-			return ExtUtil.equals(namespace, x.namespace, false) && name.equals(x.name);
-		} else {
-			return false;
-		}
-	}
-	
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-		name = ExtUtil.readString(in);
+    public String toString () {
+        return (namespace == null ? name : namespace + ":" + name);
+    }
+    
+    public boolean equals (Object o) {
+        if (o instanceof XPathQName) {
+            XPathQName x = (XPathQName)o;
+            if(hashCode != o.hashCode()) { return false; }
+            return ExtUtil.equals(namespace, x.namespace, false) && name.equals(x.name);
+        } else {
+            return false;
+        }
+    }
+    
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        name = ExtUtil.readString(in);
 		cacheCode();
-	}
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		ExtUtil.write(out, new ExtWrapNullable(namespace));
-		ExtUtil.writeString(out, name);
-	}
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out, new ExtWrapNullable(namespace));
+        ExtUtil.writeString(out, name);
+    }
 }

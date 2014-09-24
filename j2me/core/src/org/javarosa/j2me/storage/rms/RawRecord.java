@@ -10,31 +10,31 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class RawRecord implements Persistable {
 
-	byte[] data;
-	int id;
+    byte[] data;
+    int id;
 
-	public RawRecord () {
-		
-	}
-	
-	public RawRecord (int id, byte[] data) {
-		this.id = id;
-		this.data = data;
-	}
-	
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		throw new RuntimeException("write-only");
-	}
+    public RawRecord () {
+        
+    }
+    
+    public RawRecord (int id, byte[] data) {
+        this.id = id;
+        this.data = data;
+    }
+    
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        throw new RuntimeException("write-only");
+    }
 
-	public void writeExternal(DataOutputStream out) throws IOException {
-		out.write(data);
-	}
+    public void writeExternal(DataOutputStream out) throws IOException {
+        out.write(data);
+    }
 
-	public void setID(int ID) {
-		this.id = ID;
-	}
+    public void setID(int ID) {
+        this.id = ID;
+    }
 
-	public int getID() {
-		return this.id;
-	}
+    public int getID() {
+        return this.id;
+    }
 }

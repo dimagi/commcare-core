@@ -8,7 +8,7 @@ package org.javarosa.core.services.locale;
  *
  */
 public class LocaleTextException extends RuntimeException {
-	public LocaleTextException(String message) {
-		super(message);
-	}
+    public LocaleTextException(String message) {
+        super(message);
+    }
 }

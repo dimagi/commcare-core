@@ -28,5 +28,5 @@ import org.javarosa.core.util.externalizable.Externalizable;
  *
  */
 public interface LocaleDataSource extends Externalizable {
-	public OrderedHashtable getLocalizedText();
+    public OrderedHashtable getLocalizedText();
 }

@@ -25,7 +25,7 @@ package org.javarosa.core.util;
  *
  */
 public class UnregisteredLocaleException extends RuntimeException {
-	public UnregisteredLocaleException(String message) {
-		super(message);
-	}
+    public UnregisteredLocaleException(String message) {
+        super(message);
+    }
 }

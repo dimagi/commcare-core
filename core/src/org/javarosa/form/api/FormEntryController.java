@@ -76,7 +76,7 @@ public class FormEntryController {
      * @return OK if save was successful, error if a constraint was violated.
      */
     public int answerQuestion(FormIndex index, IAnswerData data) {
-    	QuestionDef q = model.getQuestionPrompt(index).getQuestion();
+        QuestionDef q = model.getQuestionPrompt(index).getQuestion();
         if (model.getEvent(index) != FormEntryController.EVENT_QUESTION) {
             throw new RuntimeException("Non-Question object at the form index.");
         }
@@ -95,13 +95,13 @@ public class FormEntryController {
             //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
             throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
         } else {
-        	try {
-				model.getForm().copyItemsetAnswer(q, element, data);
-			} catch (InvalidReferenceException ire) {
-				ire.printStackTrace();
-				throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
-			}
-        	return ANSWER_OK;
+            try {
+                model.getForm().copyItemsetAnswer(q, element, data);
+            } catch (InvalidReferenceException ire) {
+                ire.printStackTrace();
+                throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+            }
+            return ANSWER_OK;
         }
     }
     
@@ -208,13 +208,13 @@ public class FormEntryController {
             
             inForm = index.isInForm();
             if(inForm) {
-	            relevant = model.isIndexRelevant(index);
-	
-	            //If this the current index is a group and it is not relevant
-	            //do _not_ dig into it. 
-	            if(!relevant && model.getEvent(index) == FormEntryController.EVENT_GROUP) {
-	            	descend = false;
-	            }
+                relevant = model.isIndexRelevant(index);
+    
+                //If this the current index is a group and it is not relevant
+                //do _not_ dig into it. 
+                if(!relevant && model.getEvent(index) == FormEntryController.EVENT_GROUP) {
+                    descend = false;
+                }
             }
         } while (inForm && !relevant);
 
@@ -234,14 +234,14 @@ public class FormEntryController {
     }
 
     public FormIndex descendIntoRepeat (int n) {
-		jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
-    	return model.getFormIndex();
+        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
+        return model.getFormIndex();
     }
     
     public FormIndex descendIntoNewRepeat () {
-		jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));   				
-		newRepeat(model.getFormIndex());
-		return model.getFormIndex();
+        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));                   
+        newRepeat(model.getFormIndex());
+        return model.getFormIndex();
     }
     
     /**
@@ -251,11 +251,11 @@ public class FormEntryController {
      * @param questionIndex
      */
     public void newRepeat(FormIndex questionIndex) {
-    	try{
-    		model.getForm().createNewRepeat(questionIndex);
-    	} catch(InvalidReferenceException ire) {
-    		throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
-    	}
+        try{
+            model.getForm().createNewRepeat(questionIndex);
+        } catch(InvalidReferenceException ire) {
+            throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+        }
     }
 
 
@@ -294,7 +294,7 @@ public class FormEntryController {
     }
 
     public void deleteRepeat (int n) {
-		deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
+        deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
     }
     
     /**

@@ -29,6 +29,6 @@ import org.javarosa.j2me.services.exception.ImageProcessingException;
  */
 public interface BarcodeCaptureService extends DataCaptureService {
 
-	public IAnswerData processImage(Image image) throws ImageProcessingException;
+    public IAnswerData processImage(Image image) throws ImageProcessingException;
 
 }

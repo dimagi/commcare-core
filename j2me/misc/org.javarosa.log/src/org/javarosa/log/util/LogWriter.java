@@ -16,23 +16,23 @@ import org.javarosa.core.log.LogEntry;
  *
  */
 public class LogWriter extends StreamLogSerializer {
-	OutputStreamWriter writer;
-	
-	public LogWriter(OutputStream stream) {
-		try {
-			writer = new OutputStreamWriter(stream, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			writer = new OutputStreamWriter(stream);
-		}
-	}
-	
-	private String logToString(LogEntry log) {
-		return "[" + log.getType() + "] " +log.getTime().toString() + ": " +  log.getMessage()+ "\n"; 
-	}
-	
-	protected void serializeLog(LogEntry entry) throws IOException {
-		writer.write(logToString(entry));
-	}
+    OutputStreamWriter writer;
+    
+    public LogWriter(OutputStream stream) {
+        try {
+            writer = new OutputStreamWriter(stream, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            writer = new OutputStreamWriter(stream);
+        }
+    }
+    
+    private String logToString(LogEntry log) {
+        return "[" + log.getType() + "] " +log.getTime().toString() + ": " +  log.getMessage()+ "\n"; 
+    }
+    
+    protected void serializeLog(LogEntry entry) throws IOException {
+        writer.write(logToString(entry));
+    }
 
 }

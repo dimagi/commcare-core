@@ -36,38 +36,38 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class DateValueTuple implements Externalizable {
-	/** The date of the measurement */
-	public Date date;
-	/** The measurement's value */
-	public int value;
-	
-	public DateValueTuple(){
-		
-	}
-	
-	public DateValueTuple(Date date, int value) {
-		this.date = date;
-		this.value = value;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		date = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class));
-		value = in.readInt();
-		
-	}
+    /** The date of the measurement */
+    public Date date;
+    /** The measurement's value */
+    public int value;
+    
+    public DateValueTuple(){
+        
+    }
+    
+    public DateValueTuple(Date date, int value) {
+        this.date = date;
+        this.value = value;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        date = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class));
+        value = in.readInt();
+        
+    }
 
-	/* (non-Javadoc)
-	 * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-	 */
-	 public void writeExternal(DataOutputStream out) throws IOException {
-		 ExtUtil.write(out, new ExtWrapNullable(date));
-		 out.writeInt(value);
-	 }
-	
-	 public DateValueTuple clone() {
-		 return new DateValueTuple(date,value);
-	 }
+    /* (non-Javadoc)
+     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
+     public void writeExternal(DataOutputStream out) throws IOException {
+         ExtUtil.write(out, new ExtWrapNullable(date));
+         out.writeInt(value);
+     }
+    
+     public DateValueTuple clone() {
+         return new DateValueTuple(date,value);
+     }
 }

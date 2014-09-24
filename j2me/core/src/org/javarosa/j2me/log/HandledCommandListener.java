@@ -29,6 +29,6 @@ import javax.microedition.lcdui.Displayable;
  */
 public interface HandledCommandListener extends CommandListener {
 
-	void _commandAction (Command c, Displayable d);
-	
+    void _commandAction (Command c, Displayable d);
+    
 }

@@ -117,20 +117,20 @@ public class GeoPointData implements IAnswerData {
     }
 
 
-	public UncastData uncast() {
-		return new UncastData(getDisplayText());
-	}
-	
-	public GeoPointData cast(UncastData data) throws IllegalArgumentException {
-		double[] ret = new double[4];
-		
-		Vector<String> choices = DateUtils.split(data.value, " ", true);
-		int i = 0;
-		for(String s : choices) { 
-			double d = Double.parseDouble(s);
-			ret[i] = d;
-			++i;
-		}
-		return new GeoPointData(ret);
-	}
+    public UncastData uncast() {
+        return new UncastData(getDisplayText());
+    }
+    
+    public GeoPointData cast(UncastData data) throws IllegalArgumentException {
+        double[] ret = new double[4];
+        
+        Vector<String> choices = DateUtils.split(data.value, " ", true);
+        int i = 0;
+        for(String s : choices) { 
+            double d = Double.parseDouble(s);
+            ret[i] = d;
+            ++i;
+        }
+        return new GeoPointData(ret);
+    }
 }

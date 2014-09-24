@@ -76,385 +76,385 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  */
 public class CompactInstanceWrapper implements WrappingStorageUtility.SerializationWrapper {
-	public static final int CHOICE_VALUE = 0;	/* serialize multiple-select choices by writing out the <value> */
-	public static final int CHOICE_INDEX = 1;   /* serialize multiple-select choices by writing out only the index of the
-	                                             * choice; much more compact than CHOICE_VALUE, but the deserialized
-	                                             * instance must be explicitly re-attached to the parent FormDef (not just
-	                                             * the template data instance) before the instance can be serialized to xml
-	                                             * (otherwise the actual xml <value>s are still unknown)
-	                                             */
+    public static final int CHOICE_VALUE = 0;    /* serialize multiple-select choices by writing out the <value> */
+    public static final int CHOICE_INDEX = 1;   /* serialize multiple-select choices by writing out only the index of the
+                                                 * choice; much more compact than CHOICE_VALUE, but the deserialized
+                                                 * instance must be explicitly re-attached to the parent FormDef (not just
+                                                 * the template data instance) before the instance can be serialized to xml
+                                                 * (otherwise the actual xml <value>s are still unknown)
+                                                 */
 
-	public static final int CHOICE_MODE = CHOICE_INDEX;
-	
-	private InstanceTemplateManager templateMgr;	/* instance template provider; provides templates needed for deserialization. */
-	private FormInstance instance;					/* underlying FormInstance to serialize/deserialize */
-	
-	public CompactInstanceWrapper () {
-		this(null);
-	}
-	
-	/**
-	 * 
-	 * @param templateMgr template provider; if null, template is always fetched on-demand from RMS (slow!)
-	 */
-	public CompactInstanceWrapper (InstanceTemplateManager templateMgr) {
-		this.templateMgr = templateMgr;
-	}
-	
-	public Class baseType () {
-		return FormInstance.class;
-	}
-	
-	public void setData (Externalizable e) {
-		this.instance = (FormInstance)e;
-	}
-	
-	public Externalizable getData () {
-		return instance;
-	}
+    public static final int CHOICE_MODE = CHOICE_INDEX;
+    
+    private InstanceTemplateManager templateMgr;    /* instance template provider; provides templates needed for deserialization. */
+    private FormInstance instance;                    /* underlying FormInstance to serialize/deserialize */
+    
+    public CompactInstanceWrapper () {
+        this(null);
+    }
+    
+    /**
+     * 
+     * @param templateMgr template provider; if null, template is always fetched on-demand from RMS (slow!)
+     */
+    public CompactInstanceWrapper (InstanceTemplateManager templateMgr) {
+        this.templateMgr = templateMgr;
+    }
+    
+    public Class baseType () {
+        return FormInstance.class;
+    }
+    
+    public void setData (Externalizable e) {
+        this.instance = (FormInstance)e;
+    }
+    
+    public Externalizable getData () {
+        return instance;
+    }
 
-	/**
-	 * deserialize a compact instance. note the retrieval of the template data instance
-	 */
-	public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		int formID = ExtUtil.readInt(in);
-		instance = getTemplateInstance(formID).clone();
-		
-		instance.setID(ExtUtil.readInt(in));
-		instance.setDateSaved((Date)ExtUtil.read(in, new ExtWrapNullable(Date.class)));
-		//formID, name, schema, versions, and namespaces are all invariants of the template instance
-		
-		TreeElement root = instance.getRoot();
-		readTreeElement(root, in, pf);
-	}
-	
-	/**
-	 * serialize a compact instance
-	 */
-	public void writeExternal(DataOutputStream out) throws IOException {
-		if (instance == null) {
-			throw new RuntimeException("instance has not yet been set via setData()");
-		}
-		
-		ExtUtil.writeNumeric(out, instance.getFormId());
-		ExtUtil.writeNumeric(out, instance.getID());
-		ExtUtil.write(out, new ExtWrapNullable(instance.getDateSaved()));
-				
-		writeTreeElement(out, instance.getRoot());
-	}
-	
-	private FormInstance getTemplateInstance (int formID) {
-		if (templateMgr != null) {
-			return templateMgr.getTemplateInstance(formID);
-		} else {
-			FormInstance template = loadTemplateInstance(formID);
-			if (template == null) {
-				throw new RuntimeException("no formdef found for form id [" + formID + "]");
-			}
-			return template;
-		}
-	}
-	
-	/**
-	 * load a template instance fresh from the original FormDef, retrieved from RMS
-	 * @param formID
-	 * @return
-	 */
-	public static FormInstance loadTemplateInstance (int formID) {
-		IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
-		FormDef f = (FormDef)forms.read(formID);
-		return (f != null ? f.getMainInstance() : null);
-	}
-	
-	/**
-	 * recursively read in a node of the instance, by filling out the template instance
-	 * @param e
-	 * @param ref
-	 * @param in
-	 * @param pf
-	 * @throws IOException
-	 * @throws DeserializationException
-	 */
-	private void readTreeElement (TreeElement e, DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-		TreeElement templ = instance.getTemplatePath(e.getRef());
-		boolean isGroup = !templ.isLeaf();
-				
-		if (isGroup) {
-			Vector childTypes = new Vector();
-			for (int i = 0; i < templ.getNumChildren(); i++) {
-				String childName = templ.getChildAt(i).getName();				
-				if (!childTypes.contains(childName)) {
-					childTypes.addElement(childName);
-				}
-			}
-			
-			for (int i = 0; i < childTypes.size(); i++) {
-				String childName = (String)childTypes.elementAt(i);
-					
-				TreeReference childTemplRef = e.getRef().extendRef(childName, 0);
-				TreeElement childTempl = instance.getTemplatePath(childTemplRef);
-				
-				boolean repeatable = childTempl.isRepeatable();
-				int n = ExtUtil.readInt(in);
-				
-				boolean relevant = (n > 0);
-				if (!repeatable && n > 1) {
-					throw new DeserializationException("Detected repeated instances of a non-repeatable node");
-				}
-			
-				if (repeatable) {
-					int mult = e.getChildMultiplicity(childName);
-					for (int j = mult - 1; j >= 0; j--) {
-						e.removeChild(childName, j);
-					}
-					
-					for (int j = 0; j < n; j++) {
-						TreeReference dstRef = e.getRef().extendRef(childName, j);
-						try {
-							instance.copyNode(childTempl, dstRef);
-						} catch(InvalidReferenceException ire) {
-							//If there is an invalid reference, this is a malformed instance,
-							//so we'll throw a Deserialization exception.
-							TreeReference r = ire.getInvalidReference();
-							if(r == null) {
-								throw new DeserializationException("Null Reference while attempting to deserialize! " + ire.getMessage());
-							} else{
-								throw new DeserializationException("Invalid Reference while attemtping to deserialize! Reference: " + r.toString(true) + " | "+ ire.getMessage());
-							}
-							
-						}
-						
-						TreeElement child = e.getChild(childName, j);
-						child.setRelevant(true);
-						readTreeElement(child, in, pf);
-					}
-				} else {
-					TreeElement child = e.getChild(childName, 0);
-					child.setRelevant(relevant);
-					if (relevant) {
-						readTreeElement(child, in, pf);
-					}
-				}
-			}
-		} else {
-			e.setValue((IAnswerData)ExtUtil.read(in, new ExtWrapAnswerData(e.getDataType())));
-		}
-	}
+    /**
+     * deserialize a compact instance. note the retrieval of the template data instance
+     */
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        int formID = ExtUtil.readInt(in);
+        instance = getTemplateInstance(formID).clone();
+        
+        instance.setID(ExtUtil.readInt(in));
+        instance.setDateSaved((Date)ExtUtil.read(in, new ExtWrapNullable(Date.class)));
+        //formID, name, schema, versions, and namespaces are all invariants of the template instance
+        
+        TreeElement root = instance.getRoot();
+        readTreeElement(root, in, pf);
+    }
+    
+    /**
+     * serialize a compact instance
+     */
+    public void writeExternal(DataOutputStream out) throws IOException {
+        if (instance == null) {
+            throw new RuntimeException("instance has not yet been set via setData()");
+        }
+        
+        ExtUtil.writeNumeric(out, instance.getFormId());
+        ExtUtil.writeNumeric(out, instance.getID());
+        ExtUtil.write(out, new ExtWrapNullable(instance.getDateSaved()));
+                
+        writeTreeElement(out, instance.getRoot());
+    }
+    
+    private FormInstance getTemplateInstance (int formID) {
+        if (templateMgr != null) {
+            return templateMgr.getTemplateInstance(formID);
+        } else {
+            FormInstance template = loadTemplateInstance(formID);
+            if (template == null) {
+                throw new RuntimeException("no formdef found for form id [" + formID + "]");
+            }
+            return template;
+        }
+    }
+    
+    /**
+     * load a template instance fresh from the original FormDef, retrieved from RMS
+     * @param formID
+     * @return
+     */
+    public static FormInstance loadTemplateInstance (int formID) {
+        IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
+        FormDef f = (FormDef)forms.read(formID);
+        return (f != null ? f.getMainInstance() : null);
+    }
+    
+    /**
+     * recursively read in a node of the instance, by filling out the template instance
+     * @param e
+     * @param ref
+     * @param in
+     * @param pf
+     * @throws IOException
+     * @throws DeserializationException
+     */
+    private void readTreeElement (TreeElement e, DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        TreeElement templ = instance.getTemplatePath(e.getRef());
+        boolean isGroup = !templ.isLeaf();
+                
+        if (isGroup) {
+            Vector childTypes = new Vector();
+            for (int i = 0; i < templ.getNumChildren(); i++) {
+                String childName = templ.getChildAt(i).getName();                
+                if (!childTypes.contains(childName)) {
+                    childTypes.addElement(childName);
+                }
+            }
+            
+            for (int i = 0; i < childTypes.size(); i++) {
+                String childName = (String)childTypes.elementAt(i);
+                    
+                TreeReference childTemplRef = e.getRef().extendRef(childName, 0);
+                TreeElement childTempl = instance.getTemplatePath(childTemplRef);
+                
+                boolean repeatable = childTempl.isRepeatable();
+                int n = ExtUtil.readInt(in);
+                
+                boolean relevant = (n > 0);
+                if (!repeatable && n > 1) {
+                    throw new DeserializationException("Detected repeated instances of a non-repeatable node");
+                }
+            
+                if (repeatable) {
+                    int mult = e.getChildMultiplicity(childName);
+                    for (int j = mult - 1; j >= 0; j--) {
+                        e.removeChild(childName, j);
+                    }
+                    
+                    for (int j = 0; j < n; j++) {
+                        TreeReference dstRef = e.getRef().extendRef(childName, j);
+                        try {
+                            instance.copyNode(childTempl, dstRef);
+                        } catch(InvalidReferenceException ire) {
+                            //If there is an invalid reference, this is a malformed instance,
+                            //so we'll throw a Deserialization exception.
+                            TreeReference r = ire.getInvalidReference();
+                            if(r == null) {
+                                throw new DeserializationException("Null Reference while attempting to deserialize! " + ire.getMessage());
+                            } else{
+                                throw new DeserializationException("Invalid Reference while attemtping to deserialize! Reference: " + r.toString(true) + " | "+ ire.getMessage());
+                            }
+                            
+                        }
+                        
+                        TreeElement child = e.getChild(childName, j);
+                        child.setRelevant(true);
+                        readTreeElement(child, in, pf);
+                    }
+                } else {
+                    TreeElement child = e.getChild(childName, 0);
+                    child.setRelevant(relevant);
+                    if (relevant) {
+                        readTreeElement(child, in, pf);
+                    }
+                }
+            }
+        } else {
+            e.setValue((IAnswerData)ExtUtil.read(in, new ExtWrapAnswerData(e.getDataType())));
+        }
+    }
 
-	/**
-	 * recursively write out a node of the instance
-	 * @param out
-	 * @param e
-	 * @param ref
-	 * @throws IOException
-	 */
-	private void writeTreeElement (DataOutputStream out, TreeElement e) throws IOException {
-		TreeElement templ = instance.getTemplatePath(e.getRef());
-		boolean isGroup = !templ.isLeaf();
-				
-		if (isGroup) {
-			Vector childTypesHandled = new Vector();
-			for (int i = 0; i < templ.getNumChildren(); i++) {
-				String childName = templ.getChildAt(i).getName();
-				if (!childTypesHandled.contains(childName)) {
-					childTypesHandled.addElement(childName);
-					
-					int mult = e.getChildMultiplicity(childName);
-					if (mult > 0 && !e.getChild(childName, 0).isRelevant()) {
-						mult = 0;
-					}
-					
-					ExtUtil.writeNumeric(out, mult);
-					for (int j = 0; j < mult; j++) {
-						writeTreeElement(out, e.getChild(childName, j));
-					}
-				}
-			}
-		} else {
-			ExtUtil.write(out, new ExtWrapAnswerData(e.getDataType(), e.getValue()));
-		}
-	}
+    /**
+     * recursively write out a node of the instance
+     * @param out
+     * @param e
+     * @param ref
+     * @throws IOException
+     */
+    private void writeTreeElement (DataOutputStream out, TreeElement e) throws IOException {
+        TreeElement templ = instance.getTemplatePath(e.getRef());
+        boolean isGroup = !templ.isLeaf();
+                
+        if (isGroup) {
+            Vector childTypesHandled = new Vector();
+            for (int i = 0; i < templ.getNumChildren(); i++) {
+                String childName = templ.getChildAt(i).getName();
+                if (!childTypesHandled.contains(childName)) {
+                    childTypesHandled.addElement(childName);
+                    
+                    int mult = e.getChildMultiplicity(childName);
+                    if (mult > 0 && !e.getChild(childName, 0).isRelevant()) {
+                        mult = 0;
+                    }
+                    
+                    ExtUtil.writeNumeric(out, mult);
+                    for (int j = 0; j < mult; j++) {
+                        writeTreeElement(out, e.getChild(childName, j));
+                    }
+                }
+            }
+        } else {
+            ExtUtil.write(out, new ExtWrapAnswerData(e.getDataType(), e.getValue()));
+        }
+    }
 
-	/**
-	 * ExternalizableWrapper to handle writing out a node's data. In particular, handles:
-	 *   * empty nodes
-	 *   * ultra-compact serialization of multiple-choice answers
-	 *   * tagging with extra type information when the template alone will not contain sufficient information
-	 * 
-	 * @author Drew Roos
-	 *
-	 */
-	private class ExtWrapAnswerData extends ExternalizableWrapper {
-		int dataType;
-		
-		public ExtWrapAnswerData (int dataType, IAnswerData val) {
-			this.val = val;
-			this.dataType = dataType;
-		}
-		
-		public ExtWrapAnswerData (int dataType) {
-			this.dataType = dataType;
-		}
-		
-		public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-			byte flag = in.readByte();
-			if (flag == 0x00) {
-				val = null;
-			} else {
-				Class answerType = AnswerDataFactory.templateByDataType(dataType).getClass();
+    /**
+     * ExternalizableWrapper to handle writing out a node's data. In particular, handles:
+     *   * empty nodes
+     *   * ultra-compact serialization of multiple-choice answers
+     *   * tagging with extra type information when the template alone will not contain sufficient information
+     * 
+     * @author Drew Roos
+     *
+     */
+    private class ExtWrapAnswerData extends ExternalizableWrapper {
+        int dataType;
+        
+        public ExtWrapAnswerData (int dataType, IAnswerData val) {
+            this.val = val;
+            this.dataType = dataType;
+        }
+        
+        public ExtWrapAnswerData (int dataType) {
+            this.dataType = dataType;
+        }
+        
+        public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+            byte flag = in.readByte();
+            if (flag == 0x00) {
+                val = null;
+            } else {
+                Class answerType = AnswerDataFactory.templateByDataType(dataType).getClass();
 
-				if (answerType == null) {
-					//custom data types
-					val = ExtUtil.read(in, new ExtWrapTagged(), pf);
-				} else if (answerType == SelectOneData.class) {
-					val = getSelectOne(ExtUtil.read(in, CHOICE_MODE == CHOICE_VALUE ? String.class : Integer.class));
-				} else if (answerType == SelectMultiData.class) {
-					val = getSelectMulti((Vector)ExtUtil.read(in, new ExtWrapList(CHOICE_MODE == CHOICE_VALUE ? String.class : Integer.class)));
-				} else {
-					switch (flag) {
-					case 0x40: answerType = StringData.class; break;
-					case 0x41: answerType = IntegerData.class; break;
-					case 0x42: answerType = DecimalData.class; break;
-					case 0x43: answerType = DateData.class; break;
-					case 0x44: answerType = BooleanData.class; break;
-					}
-					
-					val = (IAnswerData)ExtUtil.read(in, answerType);
-				}					
-			}
-		}
+                if (answerType == null) {
+                    //custom data types
+                    val = ExtUtil.read(in, new ExtWrapTagged(), pf);
+                } else if (answerType == SelectOneData.class) {
+                    val = getSelectOne(ExtUtil.read(in, CHOICE_MODE == CHOICE_VALUE ? String.class : Integer.class));
+                } else if (answerType == SelectMultiData.class) {
+                    val = getSelectMulti((Vector)ExtUtil.read(in, new ExtWrapList(CHOICE_MODE == CHOICE_VALUE ? String.class : Integer.class)));
+                } else {
+                    switch (flag) {
+                    case 0x40: answerType = StringData.class; break;
+                    case 0x41: answerType = IntegerData.class; break;
+                    case 0x42: answerType = DecimalData.class; break;
+                    case 0x43: answerType = DateData.class; break;
+                    case 0x44: answerType = BooleanData.class; break;
+                    }
+                    
+                    val = (IAnswerData)ExtUtil.read(in, answerType);
+                }                    
+            }
+        }
 
-		public void writeExternal(DataOutputStream out) throws IOException {
-			if (val == null) {
-				out.writeByte(0x00);
-			} else {
-				byte prefix = 0x01;
-				Externalizable serEntity;
-				
-				if (dataType < 0 || dataType >= 100) {
-					//custom data types
-					serEntity = new ExtWrapTagged(val);
-				} else if (val instanceof SelectOneData) {
-					serEntity = new ExtWrapBase(compactSelectOne((SelectOneData)val));
-				} else if (val instanceof SelectMultiData) {
-					serEntity = new ExtWrapList(compactSelectMulti((SelectMultiData)val));
-				} else {
-					serEntity = (IAnswerData)val;
-					
-					//flag when data type differs from the default data type in the <bind> (can happen with 'calculate's)
-					if (val.getClass() != AnswerDataFactory.templateByDataType(dataType).getClass()) {
-						if (val instanceof StringData) {
-							prefix = 0x40;
-						} else if (val instanceof IntegerData) {
-							prefix = 0x41;
-						} else if (val instanceof DecimalData) {
-							prefix = 0x42;
-						} else if (val instanceof DateData) {
-							prefix = 0x43;
-						} else if (val instanceof BooleanData) {
-							prefix = 0x44;
-						} else {
-							throw new RuntimeException("divergent data type not allowed");
-						}
-					}
-				}
+        public void writeExternal(DataOutputStream out) throws IOException {
+            if (val == null) {
+                out.writeByte(0x00);
+            } else {
+                byte prefix = 0x01;
+                Externalizable serEntity;
+                
+                if (dataType < 0 || dataType >= 100) {
+                    //custom data types
+                    serEntity = new ExtWrapTagged(val);
+                } else if (val instanceof SelectOneData) {
+                    serEntity = new ExtWrapBase(compactSelectOne((SelectOneData)val));
+                } else if (val instanceof SelectMultiData) {
+                    serEntity = new ExtWrapList(compactSelectMulti((SelectMultiData)val));
+                } else {
+                    serEntity = (IAnswerData)val;
+                    
+                    //flag when data type differs from the default data type in the <bind> (can happen with 'calculate's)
+                    if (val.getClass() != AnswerDataFactory.templateByDataType(dataType).getClass()) {
+                        if (val instanceof StringData) {
+                            prefix = 0x40;
+                        } else if (val instanceof IntegerData) {
+                            prefix = 0x41;
+                        } else if (val instanceof DecimalData) {
+                            prefix = 0x42;
+                        } else if (val instanceof DateData) {
+                            prefix = 0x43;
+                        } else if (val instanceof BooleanData) {
+                            prefix = 0x44;
+                        } else {
+                            throw new RuntimeException("divergent data type not allowed");
+                        }
+                    }
+                }
 
-				out.writeByte(prefix);
-				ExtUtil.write(out, serEntity);
-			}
-		}
+                out.writeByte(prefix);
+                ExtUtil.write(out, serEntity);
+            }
+        }
 
-		public ExternalizableWrapper clone(Object val) {
-			throw new RuntimeException("not supported");				
-		}
+        public ExternalizableWrapper clone(Object val) {
+            throw new RuntimeException("not supported");                
+        }
 
-		public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-			throw new RuntimeException("not supported");	
-		}
+        public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+            throw new RuntimeException("not supported");    
+        }
 
-		public void metaWriteExternal(DataOutputStream out) throws IOException {
-			throw new RuntimeException("not supported");			
-		}		
-	}
+        public void metaWriteExternal(DataOutputStream out) throws IOException {
+            throw new RuntimeException("not supported");            
+        }        
+    }
 
-	/**
-	 * reduce a SelectOneData to an integer (index mode) or string (value mode)
-	 * @param data
-	 * @return Integer or String
-	 */
-	private Object compactSelectOne (SelectOneData data) {
-		Selection val = (Selection)data.getValue();
-		return extractSelection(val);
-	}
-	
-	/**
-	 * reduce a SelectMultiData to a vector of integers (index mode) or strings (value mode)
-	 * @param data
-	 * @return
-	 */
-	private Vector compactSelectMulti (SelectMultiData data) {
-		Vector val = (Vector)data.getValue();
-		Vector choices = new Vector();
-		for (int i = 0; i < val.size(); i++) {
-			choices.addElement(extractSelection((Selection)val.elementAt(i)));
-		}
-		return choices;
-	}
+    /**
+     * reduce a SelectOneData to an integer (index mode) or string (value mode)
+     * @param data
+     * @return Integer or String
+     */
+    private Object compactSelectOne (SelectOneData data) {
+        Selection val = (Selection)data.getValue();
+        return extractSelection(val);
+    }
+    
+    /**
+     * reduce a SelectMultiData to a vector of integers (index mode) or strings (value mode)
+     * @param data
+     * @return
+     */
+    private Vector compactSelectMulti (SelectMultiData data) {
+        Vector val = (Vector)data.getValue();
+        Vector choices = new Vector();
+        for (int i = 0; i < val.size(); i++) {
+            choices.addElement(extractSelection((Selection)val.elementAt(i)));
+        }
+        return choices;
+    }
 
-	/**
-	 * create a SelectOneData from an integer (index mode) or string (value mode)
-	 */
-	private SelectOneData getSelectOne (Object o) {
-		return new SelectOneData(makeSelection(o));
-	}
-	
-	/**
-	 * create a SelectMultiData from a vector of integers (index mode) or strings (value mode)
-	 */
-	private SelectMultiData getSelectMulti (Vector v) {
-		Vector choices = new Vector();
-		for (int i = 0; i < v.size(); i++) {
-			choices.addElement(makeSelection(v.elementAt(i)));
-		}
-		return new SelectMultiData(choices);
-	}
-	
-	/**
-	 * extract the value out of a Selection according to the current CHOICE_MODE
-	 * @param s
-	 * @return Integer or String
-	 */
-	private Object extractSelection (Selection s) {
-		switch (CHOICE_MODE) {
-		case CHOICE_VALUE:
-			return s.getValue();
-		case CHOICE_INDEX:
-			if (s.index == -1) {
-				throw new RuntimeException("trying to serialize in choice-index mode but selections do not have indexes set!");
-			}
-			return new Integer(s.index);
-		default: throw new IllegalArgumentException();
-		}
-	}
-	
-	/**
-	 * build a Selection from an integer or string, according to the current CHOICE_MODE
-	 * @param o
-	 * @return
-	 */
-	private Selection makeSelection (Object o) {
-		if (o instanceof String) {
-			return new Selection((String)o);
-		} else if (o instanceof Integer) {
-			return new Selection(((Integer)o).intValue());
-		} else {
-			throw new RuntimeException();
-		}
-	}
+    /**
+     * create a SelectOneData from an integer (index mode) or string (value mode)
+     */
+    private SelectOneData getSelectOne (Object o) {
+        return new SelectOneData(makeSelection(o));
+    }
+    
+    /**
+     * create a SelectMultiData from a vector of integers (index mode) or strings (value mode)
+     */
+    private SelectMultiData getSelectMulti (Vector v) {
+        Vector choices = new Vector();
+        for (int i = 0; i < v.size(); i++) {
+            choices.addElement(makeSelection(v.elementAt(i)));
+        }
+        return new SelectMultiData(choices);
+    }
+    
+    /**
+     * extract the value out of a Selection according to the current CHOICE_MODE
+     * @param s
+     * @return Integer or String
+     */
+    private Object extractSelection (Selection s) {
+        switch (CHOICE_MODE) {
+        case CHOICE_VALUE:
+            return s.getValue();
+        case CHOICE_INDEX:
+            if (s.index == -1) {
+                throw new RuntimeException("trying to serialize in choice-index mode but selections do not have indexes set!");
+            }
+            return new Integer(s.index);
+        default: throw new IllegalArgumentException();
+        }
+    }
+    
+    /**
+     * build a Selection from an integer or string, according to the current CHOICE_MODE
+     * @param o
+     * @return
+     */
+    private Selection makeSelection (Object o) {
+        if (o instanceof String) {
+            return new Selection((String)o);
+        } else if (o instanceof Integer) {
+            return new Selection(((Integer)o).intValue());
+        } else {
+            throw new RuntimeException();
+        }
+    }
 
-	public void clean() {
-		// TODO Auto-generated method stub
-		
-	}
-	
+    public void clean() {
+        // TODO Auto-generated method stub
+        
+    }
+    
 }

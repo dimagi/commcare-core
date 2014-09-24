@@ -17,30 +17,30 @@ import org.javarosa.core.model.instance.TreeElement;
  *
  */
 public class MockupProviderFactory extends InstanceInitializationFactory {
-	Hashtable<String, FormInstance> instances;
-	
-	public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
-		this.instances = instances;
-	}
-	
-	public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
-		String ref = instance.getReference();
-		
-		if(instances.containsKey(ref)) {
-			FormInstance stored = instances.get(ref);
-			
-			TreeElement root = stored.getRoot();
-			root.setInstanceName(instance.getInstanceId());
-			
-			root.setParent(instance.getBase());
-			
-			return root;
-		} else if(ref.equals("jr://session")) {
-			throw new IllegalArgumentException("Session instances not yet supported"); 
-		} else {
-			throw new IllegalArgumentException("There is no instance data registered in this mockup to: " + ref);
-		}
+    Hashtable<String, FormInstance> instances;
+    
+    public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
+        this.instances = instances;
+    }
+    
+    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+        String ref = instance.getReference();
+        
+        if(instances.containsKey(ref)) {
+            FormInstance stored = instances.get(ref);
+            
+            TreeElement root = stored.getRoot();
+            root.setInstanceName(instance.getInstanceId());
+            
+            root.setParent(instance.getBase());
+            
+            return root;
+        } else if(ref.equals("jr://session")) {
+            throw new IllegalArgumentException("Session instances not yet supported"); 
+        } else {
+            throw new IllegalArgumentException("There is no instance data registered in this mockup to: " + ref);
+        }
 
-	}
+    }
 
 }
