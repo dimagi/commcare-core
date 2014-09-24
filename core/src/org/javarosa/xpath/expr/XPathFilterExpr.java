@@ -66,14 +66,7 @@ public class XPathFilterExpr extends XPathExpression {
 		if (o instanceof XPathFilterExpr) {
 			XPathFilterExpr fe = (XPathFilterExpr)o;
 
-			Vector a = new Vector();
-			for (int i = 0; i < predicates.length; i++)
-				a.addElement(predicates[i]);
-			Vector b = new Vector();
-			for (int i = 0; i < fe.predicates.length; i++)
-				b.addElement(fe.predicates[i]);
-			
-			return x.equals(fe.x) && ExtUtil.vectorEquals(a, b);
+			return x.equals(fe.x) && ExtUtil.arrayEquals(predicates, fe.predicates, false);
 		} else {
 			return false;
 		}

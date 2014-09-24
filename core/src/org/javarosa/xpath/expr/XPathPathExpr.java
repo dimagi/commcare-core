@@ -347,7 +347,7 @@ public class XPathPathExpr extends XPathExpression {
 				return false;
 			}
 			
-			return ExtUtil.arrayEquals(steps, x.steps) && (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
+			return ExtUtil.arrayEquals(steps, x.steps, false) && (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
 		} else {
 			return false;
 		}

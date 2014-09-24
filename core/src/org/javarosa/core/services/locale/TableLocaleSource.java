@@ -86,7 +86,7 @@ public class TableLocaleSource implements LocaleDataSource {
 			return false;
 		}
 		TableLocaleSource l = (TableLocaleSource)o;
-		return ExtUtil.equals(localeData, l.localeData);
+		return ExtUtil.equals(localeData, l.localeData, true);
 	}
 
 	public OrderedHashtable getLocalizedText() {

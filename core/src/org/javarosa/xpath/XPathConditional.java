@@ -142,6 +142,10 @@ public class XPathConditional implements IConditionExpr {
 		}
 	}
 	
+	public int hashCode() {
+	    return expr.hashCode();
+	}
+	
 	public boolean equals (Object o) {
 		if (o instanceof XPathConditional) {
 			XPathConditional cond = (XPathConditional)o;

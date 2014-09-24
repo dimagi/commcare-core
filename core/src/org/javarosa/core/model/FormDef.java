@@ -259,6 +259,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 	}
 
 	/**
+	 * Return a tree reference which follows the path down the concrete elements provided
+	 * along with the multiplicities provided.
 	 * @param elements
 	 * @param multiplicities
 	 * @return
