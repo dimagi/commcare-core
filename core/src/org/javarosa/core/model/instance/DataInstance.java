@@ -3,17 +3,15 @@ package org.javarosa.core.model.instance;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Vector;
 
 import org.javarosa.core.model.IDataReference;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * A data instance represents a tree structure of abstract tree
@@ -37,13 +35,16 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     
     protected String instanceid;
     
-    public DataInstance() {
+    private CacheTable<TreeReference, T> referenceCache;
     
+    public DataInstance() {
+        referenceCache = new CacheTable<TreeReference, T>();
     }
 
     
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
+        referenceCache = new CacheTable<TreeReference, T>();
     }
 
     public static TreeReference unpackReference(IDataReference ref) {
@@ -74,6 +75,11 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         if (!ref.isAbsolute()){
             return null;
         }
+        
+        T t = referenceCache.retrieve(ref);
+        if(t != null) {
+            return t;
+        }
     
         AbstractTreeElement<T> node = getBase();
         T result = null;
@@ -103,7 +109,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
             }
         }
         
-        return (node == getBase() ? null : result); // never return a reference to '/'
+        t = (node == getBase() ? null : result); // never return a reference to '/'
+        referenceCache.register(ref, t);
+        return t;
     }
 
     public Vector explodeReference(TreeReference ref) {
@@ -156,8 +164,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public T getTemplatePath(TreeReference ref) {
-        if (!ref.isAbsolute())
+        if (!ref.isAbsolute()) {
             return null;
+        }
     
         T walker = null;
         AbstractTreeElement<T> node = getBase();
@@ -178,7 +187,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
                 node = walker = newNode;
             }
         }
-    
         return walker;
     }
 

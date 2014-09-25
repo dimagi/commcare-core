@@ -104,7 +104,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return false;
             }
             
-            return ExtUtil.arrayEquals(args, x.args);
+            return ExtUtil.arrayEquals(args, x.args, false);
         } else {
             return false;
         }

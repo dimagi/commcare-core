@@ -29,6 +29,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathQName implements Externalizable {
     public String namespace;
     public String name;
+	private int hashCode;
 
     public XPathQName () { } //for deserialization
     
@@ -46,7 +47,7 @@ public class XPathQName implements Externalizable {
     }
     
     public int hashCode() {
-        return name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
+        return hashCode;
     }
 
     private void init (String namespace, String name) {
@@ -57,6 +58,11 @@ public class XPathQName implements Externalizable {
 
         this.namespace = namespace;
         this.name = name;
+		cacheCode();
+	}
+	
+	private void cacheCode() {
+       hashCode = name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
     }
 
     public String toString () {
@@ -66,7 +72,8 @@ public class XPathQName implements Externalizable {
     public boolean equals (Object o) {
         if (o instanceof XPathQName) {
             XPathQName x = (XPathQName)o;
-            return ExtUtil.equals(namespace, x.namespace) && name.equals(x.name);
+            if(hashCode != o.hashCode()) { return false; }
+            return ExtUtil.equals(namespace, x.namespace, false) && name.equals(x.name);
         } else {
             return false;
         }
@@ -75,6 +82,7 @@ public class XPathQName implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         name = ExtUtil.readString(in);
+		cacheCode();
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {

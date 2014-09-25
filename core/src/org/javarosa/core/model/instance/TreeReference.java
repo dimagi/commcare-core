@@ -36,6 +36,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 //TODO: This class needs to be immutable
 public class TreeReference implements Externalizable {
+	
+    int hashCode = -1;
+	
     public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
     public static final int INDEX_UNBOUND = -1;//multiplicity
     public static final int INDEX_TEMPLATE = -2;//multiplicity
@@ -84,6 +87,7 @@ public class TreeReference implements Externalizable {
 
     //TODO: This should be constructed I think
     public void setInstanceName(String instanceName) {
+		hashCode = -1;
         if(instanceName == null) {
             if(this.refLevel == REF_ABSOLUTE) {
                 this.contextType = CONTEXT_ABSOLUTE;
@@ -113,23 +117,36 @@ public class TreeReference implements Externalizable {
     }
     
     public void setMultiplicity (int i, int mult) {
+		hashCode = -1;
         data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
     }
     
+    int size = -1;
     public int size () {
-        return data.size();
+    	//csims@dimagi.com - this seems unecessary but is a shocking performance
+    	//difference due to the number of high-churn circumstances where this
+    	//call is made.
+        if(size == -1) {
+            size = data.size();
+        }
+        return size;
     }
     
     private void add (TreeReferenceLevel level) {
+        hashCode = -1;
+        size = -1;
         data.addElement(level);
     }
     
     public void add (String name, int mult) {
+        hashCode = -1;
+        size = -1;
         add(new TreeReferenceLevel(name, mult).intern());
     }
     
     public void addPredicate(int key, Vector<XPathExpression> xpe)
     {
+        hashCode = -1;
         data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
     }
     
@@ -143,6 +160,7 @@ public class TreeReference implements Externalizable {
     }
     
     public void setRefLevel (int refLevel) {
+		hashCode = -1;
         this.refLevel = refLevel;
     }
     
@@ -193,6 +211,8 @@ public class TreeReference implements Externalizable {
      */
     public boolean removeLastLevel () {
         int size = size();
+		hashCode = -1;
+		this.size = -1;
         if (size == 0) {
             if (isAbsolute()) {
                 return false;
@@ -388,39 +408,25 @@ public class TreeReference implements Externalizable {
     }
     
     public boolean equals (Object o) {
+    	//csims@dimagi.com - Replaced this function performing itself fully written out
+    	//rather than allowing the tree reference levels to denote equality. The only edge
+    	//case was identifying that /data and /data[0] were always the same. I don't think
+    	//that should matter, but noting in case there are issues in the future.
         if (this == o) {
             return true;
         } else if (o instanceof TreeReference) {
             TreeReference ref = (TreeReference)o;
             
             if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
-                for (int i = 0; i < this.size(); i++) {
-                    String nameA = this.getName(i);
-                    String nameB = ref.getName(i);
-                    int multA = this.getMultiplicity(i);
-                    int multB = ref.getMultiplicity(i);
+                
+                for(int i = 0 ; i < this.size(); i++) {
+                    TreeReferenceLevel l = data.elementAt(i);
+                    TreeReferenceLevel other = ref.data.elementAt(i);
                     
-                    Vector<XPathExpression> predA = this.getPredicate(i);
-                    Vector<XPathExpression> predB = ref.getPredicate(i);
-                    
-                    if (!nameA.equals(nameB)) {
-                        return false;
-                    } else if (multA != multB) {
-                        if (i == 0 && (multA == 0 || multA == INDEX_UNBOUND) && (multB == 0 || multB == INDEX_UNBOUND)) {
-                            // /data and /data[0] are functionally the same
-                        } else {
-                            return false;
-                        }
-                    } else if(predA != null && predB != null) {
-                        if(predA.size() != predB.size()) { return false;}
-                        for(int j = 0 ; j < predA.size() ; ++j) {
-                            if(!predA.elementAt(j).equals(predB.elementAt(j))) {
-                                return false;
-                            }
-                        }
-                    } else if((predA == null && predB != null) || (predA != null && predB == null)){
-                        return false;
-                    }
+                    //we should expect this to hit a lot due to interning
+                    if(l.equals(other)) {
+                        continue;
+                    } else { return false;}
                 }
                 return true;
             } else {
@@ -432,7 +438,10 @@ public class TreeReference implements Externalizable {
     }
     
     public int hashCode () {
-        int hash = (new Integer(refLevel)).hashCode();
+        if(hashCode != -1 ) {
+            return hashCode;
+        }
+        int hash = (DataUtil.integer(refLevel)).hashCode();
         for (int i = 0; i < size(); i++) {
             //NOTE(ctsims): It looks like this is only using Integer to
             //get the hashcode method, but that method
@@ -456,6 +465,7 @@ public class TreeReference implements Externalizable {
                 ++val;
             }
         }
+		hashCode = hash;
         return hash;
     }
     
@@ -576,6 +586,7 @@ public class TreeReference implements Externalizable {
 
     //TODO: This should be in construction
     public void setContext(int context) {
+		hashCode = -1;
         this.contextType = context;
     }
 
@@ -618,6 +629,7 @@ public class TreeReference implements Externalizable {
     }
 
     public TreeReference removePredicates() {
+		hashCode = -1;
         TreeReference predicateless = clone();
         for(int i = 0; i < predicateless.data.size(); ++i) {
             predicateless.data.setElementAt(predicateless.data.elementAt(i).setPredicates(null), i    );

@@ -349,27 +349,32 @@ public class ExtUtil {
         return (o instanceof ExternalizableWrapper ? ((ExternalizableWrapper)o).baseValue() : o);
     }
     
-    public static boolean equals (Object a, Object b) {
-        a = unwrap(a);
-        b = unwrap(b);
+    public static boolean equals (Object a, Object b, boolean unwrap) {
+        if(unwrap) {
+            a = unwrap(a);
+            b = unwrap(b);
+        }
         
         if (a == null) {
             return b == null;
-        } else if (a instanceof Vector) {
-            return (b instanceof Vector && vectorEquals((Vector)a, (Vector)b));
-        } else if (a instanceof Hashtable) {
-            return (b instanceof Hashtable && hashtableEquals((Hashtable)a, (Hashtable)b));
-        } else {
+        } else { 
+            if(unwrap) {
+                if (a instanceof Vector) {
+                return (b instanceof Vector && vectorEquals((Vector)a, (Vector)b, unwrap));
+            } else if (a instanceof Hashtable) {
+                return (b instanceof Hashtable && hashtableEquals((Hashtable)a, (Hashtable)b, unwrap));
+            }
+        }
             return a.equals(b);
-        }        
+        }
     }
     
-    public static boolean vectorEquals (Vector a, Vector b) {
+    public static boolean vectorEquals (Vector a, Vector b, boolean unwrap) {
         if (a.size() != b.size()) {
             return false;
         } else {
             for (int i = 0; i < a.size(); i++) {
-                if (!equals(a.elementAt(i), b.elementAt(i))) {
+                if (!equals(a.elementAt(i), b.elementAt(i), unwrap)) {
                     return false;
                 }
             }
@@ -378,12 +383,12 @@ public class ExtUtil {
         }
     }
     
-    public static boolean arrayEquals (Object[] a, Object[] b) {
+    public static boolean arrayEquals (Object[] a, Object[] b, boolean unwrap) {
         if (a.length != b.length) {
             return false;
         } else {
             for (int i = 0; i < a.length; i++) {
-                if (!equals(a[i], b[i])) {
+                if (!equals(a[i], b[i], unwrap)) {
                     return false;
                 }
             }
@@ -392,7 +397,7 @@ public class ExtUtil {
         }
     }
     
-    public static boolean hashtableEquals (Hashtable a, Hashtable b) {
+    public static boolean hashtableEquals (Hashtable a, Hashtable b, boolean unwrap) {
         if (a.size() != b.size()) {
             return false;
         } else if (a instanceof OrderedHashtable != b instanceof OrderedHashtable) {
@@ -401,7 +406,7 @@ public class ExtUtil {
             for (Enumeration ea = a.keys(); ea.hasMoreElements(); ) {
                 Object keyA = ea.nextElement();
 
-                if (!equals(a.get(keyA), b.get(keyA))) {
+                if (!equals(a.get(keyA), b.get(keyA), unwrap)) {
                     return false;
                 }
             }

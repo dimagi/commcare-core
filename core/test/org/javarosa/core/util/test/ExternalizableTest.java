@@ -92,7 +92,7 @@ public class ExternalizableTest extends TestCase {
             
             print("Reconstituted: " + printObj(deser));
             
-            if (ExtUtil.equals(orig, deser)) {
+            if (ExtUtil.equals(orig, deser, true)) {
                 print("SUCCESS");
             } else {
                 print("FAILURE");

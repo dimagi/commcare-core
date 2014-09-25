@@ -88,10 +88,10 @@ public class Localizer implements Externalizable {
             Localizer l = (Localizer)o;
             
             //TODO: Compare all resources
-            return (ExtUtil.equals(locales, locales) &&
-                    ExtUtil.equals(localeResources, l.localeResources) &&
-                    ExtUtil.equals(defaultLocale, l.defaultLocale) &&
-                    ExtUtil.equals(currentLocale, l.currentLocale) &&
+            return (ExtUtil.equals(locales, l.locales, false) &&
+                    ExtUtil.equals(localeResources, l.localeResources, true) &&
+                    ExtUtil.equals(defaultLocale, l.defaultLocale, false) &&
+                    ExtUtil.equals(currentLocale, l.currentLocale, true) &&
                     fallbackDefaultLocale == l.fallbackDefaultLocale &&
                     fallbackDefaultForm == l.fallbackDefaultForm);
         } else {

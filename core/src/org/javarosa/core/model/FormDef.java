@@ -50,6 +50,7 @@ import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -258,6 +259,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
+	 * Return a tree reference which follows the path down the concrete elements provided
+	 * along with the multiplicities provided.
      * @param elements
      * @param multiplicities
      * @return
@@ -1335,8 +1338,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             int i = index.getLocalIndex();
             element = element.getChild(i);
 
-            indexes.addElement(new Integer(i));
-            multiplicities.addElement(new Integer(index.getInstanceIndex() == -1 ? 0 : index.getInstanceIndex()));
+            indexes.addElement(DataUtil.integer(i));
+            multiplicities.addElement(DataUtil.integer(index.getInstanceIndex() == -1 ? 0 : index.getInstanceIndex()));
             elements.addElement(element);
 
             index = index.getNextLevel();
@@ -1411,7 +1414,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
         
-        multiplicities.setElementAt(new Integer(repIndex), multiplicities.size() - 1);
+        multiplicities.setElementAt(DataUtil.integer(repIndex), multiplicities.size() - 1);
         
         return buildIndex(indexes, multiplicities, elements);
     }
