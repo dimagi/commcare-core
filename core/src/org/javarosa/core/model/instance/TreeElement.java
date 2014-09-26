@@ -202,7 +202,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
         } else {
             for (int i = 0; i < this.children.size(); i++) {
                 TreeElement child = (TreeElement) this.children.elementAt(i);
-                if ((name.hashCode() == child.getName().hashCode()) || name.equals(child.getName()) && child.getMult() == multiplicity) {
+                if (((name.hashCode() == child.getName().hashCode()) || name.equals(child.getName())) && child.getMult() == multiplicity) {
                     return child;
                 }
             }
