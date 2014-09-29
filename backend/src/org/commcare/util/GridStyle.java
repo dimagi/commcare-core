@@ -1,5 +1,12 @@
 package org.commcare.util;
 
+/***
+ * Represents the stylistic attributes of an Entity
+ * in a GridEntityView
+ * @author wspride
+ *
+ */
+
 public class GridStyle {
 	private String fontSize;
 	private String horzAlign;

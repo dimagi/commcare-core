@@ -1,5 +1,12 @@
 package org.commcare.util;
 
+/***
+ * @author wspride
+ * Represents a rectangle in a GridView via the coordinate of the top
+ * left corner (gridX and gridY) and the height down (gridHeight) and 
+ * width right (gridWidth) from there.
+ */
+
 public class GridCoordinate {
 	private int gridX;
 	private int gridY;

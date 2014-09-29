@@ -11,6 +11,13 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+/***
+ * Parser used by the DetailParser class to parse the style attributes of a 
+ * GridEntityView entry
+ * @author wspride
+ *
+ */
+
 public class StyleParser extends ElementParser<Void> {
 	
 	Builder builder;

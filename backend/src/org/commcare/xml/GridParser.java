@@ -11,6 +11,12 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+/***
+ * Parser used in DetailParser to parse the Grid attributes for a GridEntityView
+ * @author wspride
+ *
+ */
+
 public class GridParser extends ElementParser<Void> {
 	
 	Builder builder;

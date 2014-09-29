@@ -291,45 +291,45 @@ public class Detail implements Externalizable {
         }.go();
     }
     
-	public boolean usesGridView(){
-		
-		boolean usesGrid = false;
-		
-		for(int i=0; i< fields.length; i++){
-			DetailField currentField = fields[i];
-			if(currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
-					currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0){
-				usesGrid = true;
-			}
-		}
-		
-		return usesGrid;
-	}
-	
-	public GridCoordinate[] getGridCoordinates(){
-		GridCoordinate [] mGC = new GridCoordinate[fields.length];
-		
-		for(int i=0; i< fields.length; i++){
-			DetailField currentField = fields[i];
-			mGC[i] = new GridCoordinate(currentField.getGridX(), currentField.getGridY(),
-											currentField.getGridWidth(), currentField.getGridHeight());
-		}
-		
-		return mGC;
-	}
-	
-	public GridStyle[] getGridStyles(){
-		GridStyle [] mGC = new GridStyle[fields.length];
-		
-		for(int i=0; i< fields.length; i++){
-			DetailField currentField = fields[i];
-			mGC[i] = new GridStyle(currentField.getFontSize(), currentField.getHorizontalAlign(), 
-											currentField.getVerticalAlign(), currentField.getCssId());
-		}
-		
-		return mGC;
-	}
-	
+ public boolean usesGridView(){
+  
+  boolean usesGrid = false;
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   if(currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
+     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0){
+    usesGrid = true;
+   }
+  }
+  
+  return usesGrid;
+ }
+ 
+ public GridCoordinate[] getGridCoordinates(){
+  GridCoordinate [] mGC = new GridCoordinate[fields.length];
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   mGC[i] = new GridCoordinate(currentField.getGridX(), currentField.getGridY(),
+           currentField.getGridWidth(), currentField.getGridHeight());
+  }
+  
+  return mGC;
+ }
+ 
+ public GridStyle[] getGridStyles(){
+  GridStyle [] mGC = new GridStyle[fields.length];
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   mGC[i] = new GridStyle(currentField.getFontSize(), currentField.getHorizontalAlign(), 
+           currentField.getVerticalAlign(), currentField.getCssId());
+  }
+  
+  return mGC;
+ }
+ 
     private abstract class Map<E> {
         private E a;
         private Map(E a) { this.a = a; }  
