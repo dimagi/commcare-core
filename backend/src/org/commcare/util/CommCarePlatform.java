@@ -70,6 +70,9 @@ public class CommCarePlatform implements CommCareInstance {
                 //We need a way to identify this version...
                 Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
                 
+                
+               System.out.println("adding profile resource");
+                
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, this);
             } else{
