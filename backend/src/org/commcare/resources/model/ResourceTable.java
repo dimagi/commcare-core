@@ -304,11 +304,8 @@ public class ResourceTable {
         int round = -1;
         while (!v.isEmpty() && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
             round++;
-            System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
             while(!v.isEmpty()) {
-                System.out.println("top inner loop ");
                 Resource r = v.pop();
-                System.out.println("inner loop preparing resource: " + r.descriptor);
                 boolean upgrade = false;
                 //Make a reference set for all invalid references (this will get filled in for us)
                 Vector<Reference> invalid = new Vector<Reference>();
@@ -346,27 +343,20 @@ public class ResourceTable {
                         break;
                     }
                     if (location.isRelative()) {
-                        System.out.println("location is relative");
                         for (Reference ref : explodeReferences(location, r,this, master)) {
-                            System.out.println("exploded ref: " + ref);
                             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
-                                System.out.println("Invalid (Stale) local reference attempt for: " + location.getLocation());
                             } else {
                                 try {
-                                    System.out.println("trying install of resoruce: " + r.descriptor);
                                     handled = installResource(r, location, ref, this, instance, upgrade);
-                                    System.out.println("returned handled: " + handled);
                                 } catch(UnreliableSourceException use) {
                                     theFailure = use;
                                 }
                                 if(handled) {
-                                    System.out.println("handled");
                                     break;
                                 }
                             }
                         }
                     } else {
-                        System.out.println("else");
                         try {
                             handled = installResource(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
                             if(handled) {
@@ -380,9 +370,7 @@ public class ResourceTable {
                         }
                     }
                 }
-                System.out.println("out here");
                 if(!handled) {
-                    System.out.println("not handled");
                     //If there wasn't a particular failure to point our finger at...
                     if(theFailure == null) {
                         throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId());
@@ -391,14 +379,11 @@ public class ResourceTable {
                         throw theFailure;
                     }
                 }
-                if(stateListener != null) { 
-                    System.out.println("state listener null"); 
+                if(stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
             }
-            System.out.println("gettingu nready resources");
             v = GetUnreadyResources();
-            System.out.println("got resources: " + v.size());
         }
         
         if(toInitialize != null) {
@@ -410,7 +395,6 @@ public class ResourceTable {
         //Wipe out any resources which are still pending. If they weren't updated by their 
         //parent, they aren't relevant.
         for(Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
-            System.out.println("in still pending: " + stillPending.descriptor + " " + stillPending.guid);
             this.removeResource(stillPending);
         }
     }
@@ -420,11 +404,8 @@ public class ResourceTable {
     private boolean installResource(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         UnreliableSourceException aFailure = null;
         for(int i = 0 ; i < 1 + this.numberOfLossyRetries ; ++i ) {
-            System.out.println("install resource with resource: " + r.descriptor + " ref: " + ref);
             try {
-                System.out.println("installer type: " + r.getInstaller().getClass().getName());
                 boolean result =  r.getInstaller().install(r, location, ref, table, instance, upgrade);
-                System.out.println("returned boolean: " + result);
                 return result;
             } catch(UnreliableSourceException use) {
                 aFailure = use;

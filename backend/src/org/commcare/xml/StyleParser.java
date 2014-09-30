@@ -19,31 +19,31 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 
 public class StyleParser extends ElementParser<Void> {
-	
-	Builder builder;
-	
-	public StyleParser(Builder builder, KXmlParser parser) {
-		super(parser);
-		this.builder = builder;
-	}	
-	
-	public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		
-		String fontSize = parser.getAttributeValue(null, "font-size");
-		builder.setFontSize(fontSize);
+ 
+ Builder builder;
+ 
+ public StyleParser(Builder builder, KXmlParser parser) {
+  super(parser);
+  this.builder = builder;
+ } 
+ 
+ public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
+  
+  String fontSize = parser.getAttributeValue(null, "font-size");
+  builder.setFontSize(fontSize);
 
-		String horzAlign = parser.getAttributeValue(null, "horz-align");
-		builder.setHorizontalAlign(horzAlign);
+  String horzAlign = parser.getAttributeValue(null, "horz-align");
+  builder.setHorizontalAlign(horzAlign);
 
-		String vertAlign = parser.getAttributeValue(null, "vert-align");
-		builder.setVerticalAlign(vertAlign);
-		//exit style block
-		
-		String cssID = parser.getAttributeValue(null, "css-id");
-		builder.setCssID(cssID);
-		
-		parser.nextTag();
-		
-		return element;
-	}
+  String vertAlign = parser.getAttributeValue(null, "vert-align");
+  builder.setVerticalAlign(vertAlign);
+  //exit style block
+  
+  String cssID = parser.getAttributeValue(null, "css-id");
+  builder.setCssID(cssID);
+  
+  parser.nextTag();
+  
+  return element;
+ }
 }

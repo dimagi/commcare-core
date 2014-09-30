@@ -12,25 +12,25 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class MarkupParser extends ElementParser<Void> {
-	
-	Builder builder;
-	
-	public MarkupParser(Builder builder, KXmlParser parser) {
-		super(parser);
-		this.builder = builder;
-	}	
-	
-	public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
-		
-		parser.nextTag();
-		
-		checkNode("css");
-		String id = parser.getAttributeValue(null, "id");
-		builder.setCssID(id);
-		
-		//exit grid block
-		parser.nextTag();
-		
-		return element;
-	}
+ 
+ Builder builder;
+ 
+ public MarkupParser(Builder builder, KXmlParser parser) {
+  super(parser);
+  this.builder = builder;
+ } 
+ 
+ public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
+  
+  parser.nextTag();
+  
+  checkNode("css");
+  String id = parser.getAttributeValue(null, "id");
+  builder.setCssID(id);
+  
+  //exit grid block
+  parser.nextTag();
+  
+  return element;
+ }
 }
