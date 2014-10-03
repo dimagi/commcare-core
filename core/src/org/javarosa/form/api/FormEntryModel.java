@@ -273,17 +273,29 @@ public class FormEntryModel {
         return form.getLocalizer().getLocale();
     }
 
+    /**
+     * Set the FormIndex for the current question.
+     * Creates any necessary models (i.e., expands repeat groups).
+     * 
+     * @param index
+     */
+    public void setQuestionIndex(FormIndex index) {
+        setQuestionIndex(index, true);
+    }
 
     /**
      * Set the FormIndex for the current question.
      * 
      * @param index
+     * @param expandRepeats Expand any unexpanded repeat groups
      */
-    public void setQuestionIndex(FormIndex index) {
+    public void setQuestionIndex(FormIndex index, boolean expandRepeats) {
         if (!currentFormIndex.equals(index)) {
             // See if a hint exists that says we should have a model for this
             // already
-            createModelIfNecessary(index);
+            if (expandRepeats) {
+                createModelIfNecessary(index);
+            }
             currentFormIndex = index;
         }
     }
@@ -568,7 +580,7 @@ public class FormEntryModel {
         }
     }
 
-    private void incrementHelper(Vector indexes, Vector multiplicities,    Vector elements, boolean descend) {
+    private void incrementHelper(Vector indexes, Vector multiplicities, Vector elements, boolean descend) {
         int i = indexes.size() - 1;
         boolean exitRepeat = false; //if exiting a repetition? (i.e., go to next repetition instead of one level up)
 
