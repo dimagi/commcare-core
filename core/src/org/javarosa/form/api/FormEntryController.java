@@ -165,8 +165,12 @@ public class FormEntryController {
      * 
      * @return the next event that should be handled by a view.
      */
+    public int stepToNextEvent(boolean expandRepeats) {
+        return stepEvent(true, expandRepeats);
+    }
+    
     public int stepToNextEvent() {
-        return stepEvent(true);
+        return stepToNextEvent(true);
     }
 
 
@@ -176,7 +180,8 @@ public class FormEntryController {
      * @return the next event that should be handled by a view.
      */
     public int stepToPreviousEvent() {
-        return stepEvent(false);
+        // second parameter doesn't matter because stepping backwards never involves descending into repeats 
+        return stepEvent(false, false);
     }
 
 
@@ -184,9 +189,10 @@ public class FormEntryController {
      * Moves the current FormIndex to the next/previous relevant position.
      * 
      * @param forward
+     * @param expandRepeats Expand any unexpanded repeat groups
      * @return
      */
-    private int stepEvent(boolean forward) {
+    private int stepEvent(boolean forward, boolean expandRepeats) {
         FormIndex index = model.getFormIndex();
 
         boolean descend = true;
@@ -218,18 +224,28 @@ public class FormEntryController {
             }
         } while (inForm && !relevant);
 
-        return jumpToIndex(index);
+        return jumpToIndex(index, expandRepeats);
     }
 
-
     /**
-     * Jumps to a given FormIndex.
+     * Jumps to a given FormIndex. Expands any repeat groups.
      * 
      * @param index
      * @return EVENT for the specified Index.
      */
     public int jumpToIndex(FormIndex index) {
-        model.setQuestionIndex(index);
+        return jumpToIndex(index, true);
+    }
+
+    /**
+     * Jumps to a given FormIndex.
+     * 
+     * @param index
+     * @param expandRepeats Expand any unexpanded repeat groups
+     * @return EVENT for the specified Index.
+     */
+    public int jumpToIndex(FormIndex index, boolean expandRepeats) {
+        model.setQuestionIndex(index, expandRepeats);
         return model.getEvent(index);
     }
 
