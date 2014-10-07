@@ -97,7 +97,7 @@ public class XPathNodeset {
         if (size() == 0) {
             return XPathPathExpr.unpackValue(null);
         } else if (size() > 1) {
-            throw new XPathTypeMismatchException("nodeset has more than one node [" + nodeContents() + "]; cannot convert to value");
+            throw new XPathTypeMismatchException("XPath nodeset has more than one node [" + nodeContents() + "]; cannot convert multiple nodes to a raw value. Refine path expression to match only one node.");
         } else {
             return getValAt(0);
         }
