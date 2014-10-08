@@ -140,11 +140,11 @@ public class DetailParser extends ElementParser<Detail> {
                         checkNode("text");
                         try{
                             template = new TextParser(parser).parse();
-                            builder.setTemplate(template);
                         } catch(InvalidStructureException ise){
                             throw new InvalidStructureException("Error in suite detail with id " + id + " : " + ise.getMessage(), parser);
                         }
                     }
+                    builder.setTemplate(template);
                 } else {
                     throw new InvalidStructureException("detail <field> with no <template>!", parser);
                 } if(nextTagInBlock("field")) {
