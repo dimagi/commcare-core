@@ -145,7 +145,8 @@ public class XPathNodeset {
     
     protected XPathTypeMismatchException getInvalidNodesetException() {
         if(!pathEvaluated.equals(originalPath)) {
-            if(!originalPath.contains("/data")){
+            // use indexOf instead of contains due to not having 1.5
+            if(originalPath.indexOf("/data") < 0){
                 throw new XPathTypeMismatchException("It looks like this question contains a reference to path " + originalPath + " which evaluated to " + pathEvaluated + " which was not found. This often means you forgot to include the full path to the question -- e.g. /data/[node]");
             } 
             else{
