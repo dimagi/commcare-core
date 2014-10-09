@@ -462,6 +462,7 @@ public class ResourceTable {
                         if(r.getInstaller().upgrade(r)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
+                            System.out.println("Failed to upgrade resource: " + r.getDescriptor());
                             //REVERT!
                             return false;
                         }

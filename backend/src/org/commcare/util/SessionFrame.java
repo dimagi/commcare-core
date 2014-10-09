@@ -6,6 +6,16 @@ package org.commcare.util;
 import java.util.Vector;
 
 /**
+ * A Session Frame contains the actions that a user has taken while
+ * navigating through a CommCare application. Each action is represented
+ * as a Step, which is a String array with between 2 and 3 components
+ * 
+ * STEP_TYPE STEP_VALUE
+ * 
+ * or
+ * 
+ * STEP_TYPE STEP_KEY STEP_VALUE
+ * 
  * @author ctsims
  *
  */
@@ -43,7 +53,7 @@ public class SessionFrame {
 
 
 
-    public Vector<String[]>  getSteps() {
+    public Vector<String[]> getSteps() {
         return steps;
     }
 
