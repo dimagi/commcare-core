@@ -9,8 +9,8 @@ import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.commcare.suite.model.graph.Graph;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
@@ -38,11 +38,16 @@ public class DetailParser extends ElementParser<Detail> {
 
         //First fetch the title
         getNextTagInBlock("detail");
-        //inside title, should be a text node as the child
+        //inside title, should be a text node or a display node as the child
         checkNode("title");
-        String titleForm = parser.getAttributeValue(null, "form");
         getNextTagInBlock("title");
-        Text title = new TextParser(parser).parse();
+        DisplayUnit title;
+        if ("text".equals(parser.getName().toLowerCase())) {
+            title = new DisplayUnit(new TextParser(parser).parse(), "", "");
+        }
+        else {
+            title = parseDisplayBlock();
+        }
         Action action = null;
 
         //Now get the headers and templates.
@@ -214,7 +219,7 @@ public class DetailParser extends ElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, titleForm, subdetails, fields, variables, action);
+        Detail d = new Detail(id, title, subdetails, fields, variables, action);
         return d;
     }
 
