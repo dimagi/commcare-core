@@ -42,8 +42,7 @@ public class Detail implements Externalizable {
     
     private String id;
     
-    private Text title;
-    private String titleForm;
+    private DisplayUnit title;
     
     Detail[] details;
     DetailField[] fields;
@@ -62,13 +61,13 @@ public class Detail implements Externalizable {
     }
     
     public Detail(
-        String id, Text title, String titleForm, 
+        String id, DisplayUnit title, 
         Vector<Detail> details, 
         Vector<DetailField> fields, 
         OrderedHashtable<String, String> variables, Action action
     ) {
         this(
-            id, title, titleForm,
+            id, title, 
             ArrayUtilities.copyIntoArray(details, new Detail[details.size()]), 
             ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), 
             variables, action
@@ -76,7 +75,7 @@ public class Detail implements Externalizable {
     }
     
     public Detail(
-        String id, Text title, String titleForm, 
+        String id, DisplayUnit title,
         Detail[] details, 
         DetailField[] fields, 
         OrderedHashtable<String, String> variables, Action action
@@ -87,7 +86,6 @@ public class Detail implements Externalizable {
         
         this.id = id;
         this.title = title;
-        this.titleForm = titleForm;
         this.details = details;
         this.fields = fields;
         this.variables = variables;
@@ -105,16 +103,8 @@ public class Detail implements Externalizable {
      * @return A title to be displayed to users regarding
      * the type of content being described.
      */
-    public Text getTitle() {
+    public DisplayUnit getTitle() {
         return title;
-    }
-    
-    /**
-     * @return The title's form, either null or from MediaUtil.
-     * Note that form is relevant only if this detail is the child of another detail.
-     */
-    public String getTitleForm() {
-        return titleForm;
     }
     
     /**
@@ -144,8 +134,7 @@ public class Detail implements Externalizable {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
-        title = (Text)ExtUtil.read(in, Text.class, pf);
-        titleForm = ExtUtil.readString(in);
+        title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
         details = new Detail[theDetails.size()];
         ArrayUtilities.copyIntoArray(theDetails, details);
@@ -163,7 +152,6 @@ public class Detail implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out,id);
         ExtUtil.write(out, title);
-        ExtUtil.writeString(out, titleForm);
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));
