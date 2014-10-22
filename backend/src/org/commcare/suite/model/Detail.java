@@ -145,7 +145,7 @@ public class Detail implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
         title = (Text)ExtUtil.read(in, Text.class, pf);
-        titleForm = ExtUtil.readString(in);
+        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
         details = new Detail[theDetails.size()];
         ArrayUtilities.copyIntoArray(theDetails, details);
@@ -163,7 +163,7 @@ public class Detail implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out,id);
         ExtUtil.write(out, title);
-        ExtUtil.writeString(out, titleForm);
+        ExtUtil.write(out, new ExtWrapNullable(titleForm));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));
