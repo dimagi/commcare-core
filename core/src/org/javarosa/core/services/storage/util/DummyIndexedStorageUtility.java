@@ -3,7 +3,9 @@
  */
 package org.javarosa.core.services.storage.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -11,6 +13,9 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+import javax.naming.NamingException;
+
+import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -19,6 +24,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
+import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
@@ -33,10 +39,13 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     
     int curCount;
     
-    public DummyIndexedStorageUtility() {
+    Class<T> prototype;
+    
+    public DummyIndexedStorageUtility(Class<T> prototype) {
         meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
         data = new Hashtable<Integer, T>();
         curCount = 0;
+        this.prototype = prototype;
     }
     
 
@@ -164,7 +173,20 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
      */
     public T read(int id) {
-        return data.get(DataUtil.integer(id));
+        //return data.get(DataUtil.integer(id));
+        try {
+        T t = prototype.newInstance();
+        t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), PrototypeManager.getDefault());
+        return t;
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (DeserializationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /* (non-Javadoc)
