@@ -9,33 +9,44 @@ import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.commcare.cases.CaseManagementModule;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.resources.model.installers.BasicInstaller;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
+import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
+import org.commcare.resources.model.installers.SuiteInstaller;
+import org.commcare.resources.model.installers.XFormInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.ResourceFileDataSource;
+import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
 /**
@@ -50,6 +61,27 @@ public class CommCareConfigEngine {
     private Vector<Suite> suites;
     private Profile profile;
     private int fileuricount = 0;
+    
+    private void initModules()
+    { 
+        new CoreModelModule().registerModule();
+        new XFormsModule().registerModule();
+        new CaseManagementModule().registerModule();
+        String[] prototypes = new String[] {
+                ResourceFileDataSource.class.getName(),
+                TableLocaleSource.class.getName(),
+
+                BasicInstaller.class.getName(),
+                LocaleFileInstaller.class.getName(),
+                SuiteInstaller.class.getName(),
+                ProfileInstaller.class.getName(),
+                MediaInstaller.class.getName(),
+                XFormInstaller.class.getName(),
+                Text.class.getName(),
+                PropertySetter.class.getName()};
+        PrototypeManager.registerPrototypes(prototypes);
+
+    }
     
     public CommCareConfigEngine() {
         this(System.out);
@@ -80,7 +112,7 @@ public class CommCareConfigEngine {
         
         setRoots();
         
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility());
+        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(ResourceTable.class));
         
         
         //All of the below is on account of the fact that the installers 
@@ -89,10 +121,13 @@ public class CommCareConfigEngine {
         StorageManager.setStorageFactory(new IStorageFactory() {
 
             public IStorageUtility newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility();
+                return new DummyIndexedStorageUtility(type);
             }
             
         });
+        
+        initModules();
+
         
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
