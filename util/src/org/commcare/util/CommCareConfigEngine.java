@@ -278,7 +278,7 @@ public class CommCareConfigEngine {
             } else {
                 Detail d = s.getDetail(datum.getShortDetail());
                 try {
-                    print.println(emptyhead + "|Select: " + d.getTitle().evaluate(new EvaluationContext(null)));
+                    print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
                 } catch(XPathMissingInstanceException ex) {
                     print.println(emptyhead + "|Select: " + "(dynamic title)");
                 }

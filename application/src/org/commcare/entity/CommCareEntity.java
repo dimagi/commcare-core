@@ -51,7 +51,7 @@ public class CommCareEntity extends Entity<TreeReference> {
      * @see org.javarosa.entity.model.Entity#entityType()
      */
     public String entityType() {
-        return Localizer.clearArguments(shortDetail.getTitle().evaluate(context));
+        return Localizer.clearArguments(shortDetail.getTitle().getText().evaluate(context));
     }
 
     /* (non-Javadoc)
