@@ -202,7 +202,7 @@ public class DetailParser extends ElementParser<Detail> {
                             builder.setSort(sort);
                         }
                     } else if(name.equals("background")){
-                        if(nextTagInBlock("sort")) {
+                        if(nextTagInBlock("background")) {
                             checkNode("text");
                             //Get it if so
                             background = new TextParser(parser).parse();
