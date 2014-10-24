@@ -158,8 +158,10 @@ public class CommCarePlatform implements CommCareInstance {
         try {
             Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
             //Try to stage the upgrade table to replace the incoming table
-            if(!global.upgradeTable(incoming) || incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-                throw new RuntimeException("Implement me!!!");
+            if(!global.upgradeTable(incoming)) {
+                throw new RuntimeException("global table failed to upgrade!");
+            } else if(incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+                throw new RuntimeException("not all incoming resources were installed!!");
             } else {
                 //otherwise keep going
                 Logger.log("Resource", "Global table unstaged, upgrade table ready");
