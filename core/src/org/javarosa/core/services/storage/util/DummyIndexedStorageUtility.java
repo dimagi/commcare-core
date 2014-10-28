@@ -179,13 +179,17 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), PrototypeManager.getDefault());
         return t;
         } catch (InstantiationException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         } catch (DeserializationException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
