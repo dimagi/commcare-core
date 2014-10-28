@@ -23,7 +23,8 @@ public class SessionDatum implements Externalizable {
     private String id;
     private TreeReference nodeset;
     private String shortDetail; 
-    private String longDetail; 
+    private String longDetail;
+    private String inlineDetail;
     private String value;
     
     private int type;
@@ -35,12 +36,13 @@ public class SessionDatum implements Externalizable {
         
     }
 
-    public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String value) {
+    public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String inlineDetail, String value) {
         type = DATUM_TYPE_NORMAL;
         this.id = id;
         this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
         this.shortDetail = shortDetail;
         this.longDetail = longDetail;
+        this.inlineDetail = inlineDetail;
         this.value = value;
     }
     
@@ -79,6 +81,13 @@ public class SessionDatum implements Externalizable {
     public String getLongDetail() {
         return longDetail;
     }
+    
+    /**
+     * @return the inlineDetail
+     */
+    public String getInlineDetail() {
+        return inlineDetail;
+    }
 
     /**
      * @return the value
@@ -105,6 +114,7 @@ public class SessionDatum implements Externalizable {
         }
         shortDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         longDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        inlineDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
@@ -121,6 +131,7 @@ public class SessionDatum implements Externalizable {
         }
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(shortDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(longDetail));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(inlineDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
     }
 
