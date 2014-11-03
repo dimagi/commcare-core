@@ -92,7 +92,7 @@ public class CaseDBUtilsTests extends TestCase {
     }
     
     public void testCaseDigest() {
-        DummyIndexedStorageUtility<Case> testStorage =  new DummyIndexedStorageUtility<Case>();
+        DummyIndexedStorageUtility<Case> testStorage =  new DummyIndexedStorageUtility<Case>(Case.class);
         Case[] dc = genDummyCases();
         try {
             testStorage.write(dc[0]);
@@ -106,7 +106,7 @@ public class CaseDBUtilsTests extends TestCase {
     }
     
     public void testOrderInvariance() {
-        DummyIndexedStorageUtility<Case> testStorage =  new DummyIndexedStorageUtility<Case>();
+        DummyIndexedStorageUtility<Case> testStorage =  new DummyIndexedStorageUtility<Case>(Case.class);
         Case[] dc = genDummyCases();
         try {
             //NOTE: Depends on the implementation of the testStorage! badbadbad;
