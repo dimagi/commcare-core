@@ -49,7 +49,7 @@ public class CasePurgeFilterTests extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         
-        storage =  new DummyIndexedStorageUtility<Case>();
+        storage =  new DummyIndexedStorageUtility<Case>(Case.class);
         
         owner ="owner";
         otherOwner = "otherowner";
