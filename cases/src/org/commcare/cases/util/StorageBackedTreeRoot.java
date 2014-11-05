@@ -26,7 +26,6 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> implements AbstractTreeElement<T> {
     
     protected Hashtable<Integer, Integer> objectIdMapping;
-
     
     protected abstract String getChildHintName();
     
@@ -42,6 +41,19 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
         return indices.get(expressionTemplate);
+    }
+    
+    /**
+     * Gets a potential cached mapping from a storage key that could be queried
+     * on this tree to the storage ID of that element, rather than querying for
+     * that through I/O.
+     * 
+     * @param keyId The ID of a storage metadata key.
+     * @return A table mapping the metadata key (must be unique) to the id of a 
+     * record in the storage backing this tree root.
+     */
+    protected Hashtable<String, Integer> getKeyMapping(String keyId) {
+        return null;
     }
     
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
@@ -72,26 +84,46 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //to resolve in a certain area?
                             Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
                             
-                            Vector<Integer> cases = null;
-                            try{
-                                //Get all of the cases that meet this criteria
-                                cases = storage.getIDsForValue(filterIndex, o);
-                            } catch(IllegalArgumentException IAE) {
-                                //We can only get this if we have a new index type
-                                storage.registerIndex(filterIndex);
-                                try{
-                                    cases = storage.getIDsForValue(filterIndex, o);
-                                } catch(IllegalArgumentException iaeagain) {
-                                    //Still didn't work, platform can't expand indices
-                                    break predicate;
+                            //Some storage roots will collect common iterative mappings ahead of time,
+                            //go check whether this key is loaded into cached memory.
+                            Hashtable<String, Integer> keyMapping = getKeyMapping(filterIndex);
+                            if(keyMapping != null) {
+                                //If so, go fetch that element's record id and skip the storage
+                                //lookup
+                                Integer uniqueValue = keyMapping.get(XPathFuncExpr.toString(o));
+                                
+                                if(uniqueValue != null) {
+                                    if(selectedElements == null) {
+                                        selectedElements = new Vector<Integer>();
+                                        selectedElements.addElement(uniqueValue);
+                                    } else {
+                                        if(!selectedElements.contains(uniqueValue)) {
+                                            selectedElements.addElement(uniqueValue);
+                                        }
+                                    }
                                 }
-                            }
-                            
-                            // merge with any other sets of cases
-                            if(selectedElements == null) {
-                                selectedElements = cases;
                             } else {
-                                selectedElements = union(selectedElements, cases);
+                                Vector<Integer> cases = null;
+
+                                try{
+                                    //Get all of the cases that meet this criteria
+                                    cases = storage.getIDsForValue(filterIndex, o);
+                                } catch(IllegalArgumentException IAE) {
+                                    //We can only get this if we have a new index type
+                                    storage.registerIndex(filterIndex);
+                                    try{
+                                        cases = storage.getIDsForValue(filterIndex, o);
+                                    } catch(IllegalArgumentException iaeagain) {
+                                        //Still didn't work, platform can't expand indices
+                                        break predicate;
+                                    }
+                                }
+                                // merge with any other sets of cases
+                                if(selectedElements == null) {
+                                    selectedElements = cases;
+                                } else {
+                                    selectedElements = union(selectedElements, cases);
+                                }
                             }
                             
                             //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
