@@ -95,10 +95,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                                 if(uniqueValue != null) {
                                     if(selectedElements == null) {
                                         selectedElements = new Vector<Integer>();
-                                        selectedElements.add(uniqueValue);
+                                        selectedElements.addElement(uniqueValue);
                                     } else {
                                         if(!selectedElements.contains(uniqueValue)) {
-                                            selectedElements.add(uniqueValue);
+                                            selectedElements.addElement(uniqueValue);
                                         }
                                     }
                                 }
