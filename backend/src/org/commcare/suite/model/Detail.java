@@ -43,6 +43,7 @@ public class Detail implements Externalizable {
     private String id;
     
     private DisplayUnit title;
+    private String titleForm;
     
     Detail[] details;
     DetailField[] fields;
