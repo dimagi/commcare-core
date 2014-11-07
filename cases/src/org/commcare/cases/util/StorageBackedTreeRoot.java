@@ -66,6 +66,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         IStorageUtilityIndexed<?> storage= getStorage();
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
         
+        Vector<String> previousFetchKeys = new Vector<String>();
+        Vector<Object> previousFetchValues = new Vector<Object>();
+        
         predicate:
         for(int i = 0 ; i < predicates.size() ; ++i) {
             XPathExpression xpe = predicates.elementAt(i);
@@ -107,17 +110,21 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
                                 try{
                                     //Get all of the cases that meet this criteria
-                                    cases = storage.getIDsForValue(filterIndex, o);
+                                    cases = this.getMatchesForValue(filterIndex, o, storage, previousFetchKeys, previousFetchValues);
                                 } catch(IllegalArgumentException IAE) {
                                     //We can only get this if we have a new index type
                                     storage.registerIndex(filterIndex);
                                     try{
-                                        cases = storage.getIDsForValue(filterIndex, o);
+                                        cases = this.getMatchesForValue(filterIndex, o, storage, previousFetchKeys, previousFetchValues);
                                     } catch(IllegalArgumentException iaeagain) {
                                         //Still didn't work, platform can't expand indices
                                         break predicate;
                                     }
                                 }
+                                
+                                previousFetchKeys.addElement(filterIndex);
+                                previousFetchValues.addElement(o);
+                                
                                 // merge with any other sets of cases
                                 if(selectedElements == null) {
                                     selectedElements = cases;
@@ -162,5 +169,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return filtered;
     }
     
-
+    protected Vector<Integer> getMatchesForValue(String filterIndex, Object o, IStorageUtilityIndexed<?> storage, Vector<String> previousFetchKeys, Vector<Object> previousFetchValues) {
+        return storage.getIDsForValue(filterIndex, o);
+    }
 }
