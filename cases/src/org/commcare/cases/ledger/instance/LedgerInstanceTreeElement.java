@@ -160,7 +160,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return ledgers.elementAt(i);
     }
     
-    private synchronized void getLedgers() {
+    protected synchronized void getLedgers() {
         if(ledgers != null) {
             return;
         }
