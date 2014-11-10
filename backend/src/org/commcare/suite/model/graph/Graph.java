@@ -3,6 +3,7 @@ package org.commcare.suite.model.graph;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -29,6 +30,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class Graph implements Externalizable, DetailTemplate, Configurable {
     public static final String TYPE_XY = "xy";
     public static final String TYPE_BUBBLE = "bubble";
+    public static final String TYPE_TIME = "time";
 
     private String mType;
     private Vector<XYSeries> mSeries;
@@ -139,15 +141,22 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 evaluateConfiguration(s, seriesData, context);
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(context, ref);
-                    Double x = s.evaluateX(refContext);
-                    Double y = s.evaluateY(refContext);
+                    String x = s.evaluateX(refContext);
+                    String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
                         if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
-                            Double radius = ((BubbleSeries) s).evaluateRadius(refContext);
-                            seriesData.addPoint(new BubblePointData(x, y, radius));
+                            Double radius = Double.valueOf(((BubbleSeries) s).evaluateRadius(refContext));
+                            seriesData.addPoint(new BubblePointData(Double.valueOf(x), Double.valueOf(y), radius));
+                        }
+                        else if (graphData.getType().equals(Graph.TYPE_TIME)) {
+                            Calendar c = Calendar.getInstance();
+                            c.set(Calendar.YEAR, Integer.valueOf(x.substring(0, 4)));
+                            c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(x.substring(5, 7)) - 1);
+                            c.set(Calendar.DATE, Integer.valueOf(x.substring(8)));
+                            seriesData.addPoint(new TimePointData(c.getTime(), Double.valueOf(y)));
                         }
                         else {
-                            seriesData.addPoint(new XYPointData(x, y));
+                            seriesData.addPoint(new XYPointData(Double.valueOf(x), Double.valueOf(y)));
                         }
                     }
                 }

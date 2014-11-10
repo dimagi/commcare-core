@@ -5,12 +5,16 @@ package org.commcare.suite.model.graph;
  * @author jschweers
  */
 public class XYPointData {
-    private Double mX;
-    private Double mY;
+    private Double mX = null;
+    private Double mY = null;
 
     public XYPointData(Double x, Double y) {
-        mX = new Double(x);
-        mY = new Double(y);
+        if (x != null) {
+            mX = new Double(x);
+        }
+        if (y != null) {
+            mY = new Double(y);
+        }
     }
     
     public Double getX() {
