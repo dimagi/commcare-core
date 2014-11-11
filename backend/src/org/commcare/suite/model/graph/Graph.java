@@ -3,7 +3,6 @@ package org.commcare.suite.model.graph;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -142,23 +141,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
                         if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
-                            Double radius = Double.valueOf(((BubbleSeries) s).evaluateRadius(refContext));
+                            String radius = ((BubbleSeries) s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
-                        }
-                        else if (graphData.getType().equals(Graph.TYPE_TIME)) {
-                            Calendar c = Calendar.getInstance();
-                            c.set(Calendar.YEAR, Integer.valueOf(x.substring(0, 4)));
-                            c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(x.substring(5, 7)) - 1);
-                            c.set(Calendar.DATE, Integer.valueOf(x.substring(8, 10)));
-                            if (x.length() >= "YYYY-MM-DD HH:MM:SS".length()) {
-                                c.set(Calendar.HOUR_OF_DAY, Integer.valueOf(x.substring(11, 13)));
-                                c.set(Calendar.MINUTE, Integer.valueOf(x.substring(14, 16)));
-                                c.set(Calendar.SECOND, Integer.valueOf(x.substring(17, 19)));
-                                if (x.length() >= "YYYY-MM-DD HH:MM:SS.SSS".length()) {
-                                    c.set(Calendar.MILLISECOND, Integer.valueOf(x.substring(20, 23)));
-                                }
-                            }
-                            seriesData.addPoint(new TimePointData(c.getTime(), Double.valueOf(y)));
                         }
                         else {
                             seriesData.addPoint(new XYPointData(x, y));

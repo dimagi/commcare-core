@@ -5,14 +5,14 @@ package org.commcare.suite.model.graph;
  * @author jschweers
  */
 public class BubblePointData extends XYPointData {
-    private Double mRadius = null;
+    private String mRadius = null;
 
-    public BubblePointData(String x, String y, Double radius) {
+    public BubblePointData(String x, String y, String radius) {
         super(x, y);
         mRadius = radius;
     }
 
-    public Double getRadius() {
+    public String getRadius() {
         return mRadius;
     }
 
