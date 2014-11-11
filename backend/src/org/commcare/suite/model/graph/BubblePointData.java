@@ -7,7 +7,7 @@ package org.commcare.suite.model.graph;
 public class BubblePointData extends XYPointData {
     private Double mRadius = null;
 
-    public BubblePointData(Double x, Double y, Double radius) {
+    public BubblePointData(String x, String y, Double radius) {
         super(x, y);
         mRadius = radius;
     }

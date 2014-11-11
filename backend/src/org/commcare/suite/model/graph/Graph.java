@@ -11,7 +11,6 @@ import java.util.Vector;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -19,8 +18,6 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
@@ -112,8 +109,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
         for (Annotation a : mAnnotations) {
             graphData.addAnnotation(new AnnotationData(
-                Double.valueOf(a.getX().evaluate(context)), 
-                Double.valueOf(a.getY().evaluate(context)), 
+                a.getX().evaluate(context), 
+                a.getY().evaluate(context), 
                 a.getAnnotation().evaluate(context)
             ));
         }
@@ -146,7 +143,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     if (x != null && y != null) {
                         if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
                             Double radius = Double.valueOf(((BubbleSeries) s).evaluateRadius(refContext));
-                            seriesData.addPoint(new BubblePointData(Double.valueOf(x), Double.valueOf(y), radius));
+                            seriesData.addPoint(new BubblePointData(x, y, radius));
                         }
                         else if (graphData.getType().equals(Graph.TYPE_TIME)) {
                             Calendar c = Calendar.getInstance();
@@ -164,7 +161,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                             seriesData.addPoint(new TimePointData(c.getTime(), Double.valueOf(y)));
                         }
                         else {
-                            seriesData.addPoint(new XYPointData(Double.valueOf(x), Double.valueOf(y)));
+                            seriesData.addPoint(new XYPointData(x, y));
                         }
                     }
                 }

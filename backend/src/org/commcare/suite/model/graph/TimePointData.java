@@ -6,7 +6,7 @@ public class TimePointData extends XYPointData {
     private Date mTime;
 
     public TimePointData(Date time, Double y) {
-        super(null, y);
+        super(null, y.toString());
         mTime = time;
     }
     
