@@ -149,7 +149,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                             seriesData.addPoint(new BubblePointData(Double.valueOf(x), Double.valueOf(y), radius));
                         }
                         else if (graphData.getType().equals(Graph.TYPE_TIME)) {
-                            System.out.println("[jls] time = " + x + ", length=" + x.length());
                             Calendar c = Calendar.getInstance();
                             c.set(Calendar.YEAR, Integer.valueOf(x.substring(0, 4)));
                             c.set(Calendar.MONTH, Calendar.JANUARY + Integer.valueOf(x.substring(5, 7)) - 1);
