@@ -991,8 +991,12 @@ public class XPathFuncExpr extends XPathExpression {
      * @return Natural log of value
      */
     private Double log(Object o) {
+        //#if polish.cldc
+        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
+        //#else 
         double value = toDouble(o).doubleValue();
         return Math.log(value);
+        //#endif
     }
 
     /**
@@ -1001,8 +1005,12 @@ public class XPathFuncExpr extends XPathExpression {
      * @return Base ten log of value
      */
     private Double log10(Object o) {
+        //#if polish.cldc
+        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
+        //#else 
         double value = toDouble(o).doubleValue();
         return Math.log10(value);
+        //#endif
     }
     
     /**
