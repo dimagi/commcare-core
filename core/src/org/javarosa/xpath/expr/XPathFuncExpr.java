@@ -277,6 +277,10 @@ public class XPathFuncExpr extends XPathExpression {
                 return PropertyUtils.genGUID(len);
             } else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
                 return power(argVals[0], argVals[1]);
+            } else if (name.equals("log") && (args.length == 1)) { //XPath 3.0
+                return log(argVals[0]);
+            } else if (name.equals("log10") && (args.length == 1)) { //XPath 3.0
+                return log10(argVals[0]);
             }  else {
                 //check for custom handler
                 IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
@@ -980,6 +984,35 @@ public class XPathFuncExpr extends XPathExpression {
         return eval(model, evalContext);
         
     }
+    
+    /**
+     * Implementation of natural logarithm
+     * @param o Value
+     * @return Natural log of value
+     */
+    private Double log(Object o) {
+        //#if polish.cldc
+        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
+        //#else 
+        double value = toDouble(o).doubleValue();
+        return Math.log(value);
+        //#endif
+    }
+
+    /**
+     * Implementation of logarithm with base ten 
+     * @param o Value
+     * @return Base ten log of value
+     */
+    private Double log10(Object o) {
+        //#if polish.cldc
+        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
+        //#else 
+        double value = toDouble(o).doubleValue();
+        return Math.log10(value);
+        //#endif
+    }
+    
     /**
      * Best faith effort at getting a result for math.pow 
      * 
