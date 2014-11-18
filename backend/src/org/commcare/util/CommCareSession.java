@@ -696,8 +696,14 @@ public class CommCareSession {
         //Get root nodeset 
         TreeReference nodesetRef = datum.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
-        predicates.addElement(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(elementId)));
-        nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
+        
+        //It's generally the case that we just got a universal reference, so first we're gonna try a specific one
+        //TODO: If we fail the universal ref, try a qualified one with the other predicates included.
+        XPathEqExpr hopefullyGlobalPredicate = new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(elementId));
+        Vector<XPathExpression> globalPredOnly = new Vector<XPathExpression>();
+        globalPredOnly.addElement(hopefullyGlobalPredicate);
+        
+        nodesetRef.addPredicate(nodesetRef.size() - 1, globalPredOnly);
         
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
         if(elements.size() == 1) {
