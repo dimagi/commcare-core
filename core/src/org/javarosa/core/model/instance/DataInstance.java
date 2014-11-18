@@ -72,7 +72,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public T resolveReference(TreeReference ref) {
-        
         if (!ref.isAbsolute()){
             return null;
         }

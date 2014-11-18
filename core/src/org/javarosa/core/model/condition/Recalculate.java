@@ -52,9 +52,6 @@ public class Recalculate extends Triggerable {
     
     public Object eval (FormInstance model, EvaluationContext ec) {
         try {
-            
-            System.out.println("1117 recalculate ref: " + model + " ec: " + ec + " result: " + expr.evalRaw(model, ec));
-            
             return expr.evalRaw(model, ec);
         } catch(XPathException e) {
             e.setSource("calculate expression for " + contextRef.toString(true));
@@ -63,11 +60,7 @@ public class Recalculate extends Triggerable {
     }
     
     public void apply (TreeReference ref, Object result, FormInstance model, FormDef f) {
-        
-        System.out.println("11173456 recalculate ref: " + ref + " result: " + result + " model: " + model);
-        
         int dataType = f.getMainInstance().resolveReference(ref).getDataType();
-        
         f.setAnswer(wrapData(result, dataType), ref);
     }
         
