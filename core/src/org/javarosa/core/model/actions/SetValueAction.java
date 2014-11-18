@@ -37,17 +37,21 @@ public class SetValueAction extends Action {
     
     public SetValueAction(TreeReference target, XPathExpression value) {
         super("setvalue");
+        System.out.println("1117 setvalue: target: " + target + " value : " + value);
         this.target = target;
         this.value = value;
     }
     
     public SetValueAction(TreeReference target, String explicitValue) {
         super("setvalue");
+        System.out.println("1117 setvalue: target: " + target + " exvalue : " + explicitValue);
         this.target = target;
         this.explicitValue = explicitValue;
     }
     
     public void processAction(FormDef model, TreeReference contextRef) {
+        
+        System.out.println("1117 process action: ref: " + contextRef);
         
         //Qualify the reference if necessary
         TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);

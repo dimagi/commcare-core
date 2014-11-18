@@ -181,6 +181,7 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
      * @see org.javarosa.core.model.instance.AbstractTreeElement#setValue(org.javarosa.core.model.data.IAnswerData)
      */
     public void setValue(IAnswerData value) {
+        
         if (isLeaf()) {
             this.value = value;
         } else {
@@ -440,11 +441,18 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
      * @see org.javarosa.core.model.instance.AbstractTreeElement#setAnswer(org.javarosa.core.model.data.IAnswerData)
      */
     public boolean setAnswer(IAnswerData answer) {
+        System.out.println("11173456 setting answer");
         if (value != null || answer != null) {
+            if(answer != null){
+                System.out.println("11173456 setting answer: " + answer.getDisplayText() + " value: " + value);
+            } else{
+                System.out.println("11173456 setting value: " + value);
+            }
             setValue(answer);
             alertStateObservers(FormElementStateListener.CHANGE_DATA);
             return true;
         } else {
+            System.out.println("111734567 setting answer false!!!");
             return false;
         }
     }
@@ -1004,6 +1012,24 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
                 
                 this.setAttribute(ns, name, value);
             }
+        }
+    }
+    
+    public void willPrint(){
+        System.out.println("111734: " +" | name: " + this.name + " | value: " + this.getValue() +
+                " | toString: " + this.toString() + " | parent: " + this.getParent() + 
+                " | grandparent " + " parent: " + this.getParent().getParent());
+        try{
+            System.out.println("111734 display value: " + this.getValue().getDisplayText());
+        } catch(NullPointerException npe){
+               System.out.println("111734 value was null");
+        }
+        for(int i=0;i<this.getNumChildren();i++){
+            this.getChildAt(i).willPrint();
+        }
+        
+        for(int i=0;i<this.getAttributeCount();i++){
+            this.getAttribute(this.getAttributeNamespace(i), this.getAttributeName(i)).willPrint();
         }
     }
     

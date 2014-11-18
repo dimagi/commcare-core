@@ -303,7 +303,8 @@ public class EvaluationContext {
             for(int i = 0 ; i < positionContext.length ; ++ i) { positionContext[i] = 0; }
             
             for (TreeReference treeRef : set) {
-                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate				
+                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
+                
                 if(predicates != null)
                 {
                     boolean passedAll = true;
@@ -318,6 +319,7 @@ public class EvaluationContext {
                         //test the predicate on the treeElement
                         //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
                         EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
+                        
                         Object o = xpe.eval(instance, evalContext);
                         
                         //There's a special case here that can't be handled by syntactic sugar.

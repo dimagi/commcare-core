@@ -159,11 +159,12 @@ public class FormEntryPrompt extends FormEntryCaption {
    
 
     public String getAnswerText() {
+        
         IAnswerData data = this.getAnswerValue();
         
-        if (data == null)
+        if (data == null) {
             return null;
-        else {
+        } else {
             String text;
             
             //csims@dimagi.com - Aug 11, 2010 - Added special logic to

@@ -317,6 +317,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     public void setValue(IAnswerData data, TreeReference ref, TreeElement node) {
+        System.out.println("1117345 setting value:  " + ref);
         setAnswer(data, node);
         triggerTriggerables(ref);
         //TODO: pre-populate fix-count repeats here?
@@ -324,6 +325,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     public void setAnswer(IAnswerData data, TreeReference ref) {
         setAnswer(data, mainInstance.resolveReference(ref));
+        try{
+            System.out.println("11173456 set answer:  " + data.getDisplayText());
+        } catch(NullPointerException npe){
+            System.out.println("11173456 answer null");
+        }
+        System.out.println("11173456 ref:  " + ref);
+        System.out.println("11173456 resolved ref: " + mainInstance.resolveReference(ref));
+        
     }
     
     public void setAnswer(IAnswerData data, TreeElement node) {
@@ -724,6 +733,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * current context.
      */
     private void initializeTriggerables(TreeReference rootRef) {
+        
+        System.out.println("1117345 initializing trgigerables");
+        
         TreeReference genericRoot = rootRef.genericize();
 
         Vector applicable = new Vector();
@@ -783,9 +795,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     private void evaluateTriggerables(Vector tv, TreeReference anchorRef) {
         //add all cascaded triggerables to queue
         
+        System.out.println("11173456 evaluate triggerables");
+        
         //Iterate through all of the currently known triggerables to be triggered
         for (int i = 0; i < tv.size(); i++) {
             Triggerable t = (Triggerable)tv.elementAt(i);
+            System.out.println("11173456 filling triggerable: " + t);
             fillTriggeredElements(t, tv);
         }
         
@@ -795,7 +810,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         //in the order they appear in 'triggerables'
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
+            
+            System.out.println("11173456 thinking about triggerable: " + t);
+            
             if (tv.contains(t)) {
+                System.out.println("11173456 evaluating trigglerable: " + t);
                 evaluateTriggerable(t, anchorRef);
             }
         }
@@ -810,8 +829,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      */
     private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
         
+        System.out.println("1117345 evaluate triggerable step 3: " + t);
+        
         //Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = t.contextRef.contextualize(anchorRef);
+        
+        System.out.println("1117345 contextRef : " + contextRef);
         
         //Now identify all of the fully qualified nodes which this triggerable
         //updates. (Multiple nodes can be updated by the same trigger)
@@ -820,6 +843,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         //Go through each one and evaluate the trigger expresion
         for (int i = 0; i < v.size(); i++) {
             try {
+                System.out.println("1117345 v element: " + v.elementAt(i));
                 t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
             }catch(RuntimeException e) {
                 throw e;
