@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 import org.javarosa.core.model.IDataReference;
+import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -34,6 +35,8 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     protected int formId;
     
     protected String instanceid;
+    
+    protected CacheHost mCacheHost; 
     
     private CacheTable<TreeReference, T> referenceCache;
     
@@ -244,8 +247,13 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.recordid = recordid;
     }
 
-
-    
     public abstract void initialize(InstanceInitializationFactory initializer, String instanceId);
-
+    
+    public CacheHost getCacheHost() {
+        return mCacheHost;
+    }
+    
+    public void setCacheHost(CacheHost cacheHost) {
+        this.mCacheHost = cacheHost;
+    }
 }
