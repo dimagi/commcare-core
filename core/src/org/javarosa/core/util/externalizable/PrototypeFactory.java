@@ -25,6 +25,8 @@ import org.javarosa.core.util.PrefixTree;
 public class PrototypeFactory {
     public final static int CLASS_HASH_SIZE = 4;
     
+    static Hasher mStaticHasher;
+    
     private Vector classes;
     private Vector hashes;
     
@@ -133,6 +135,7 @@ public class PrototypeFactory {
     }
     
     public static byte[] getClassHash (Class type) {
+        if(mStaticHasher != null) { return mStaticHasher.getClassHashValue(type); }
         byte[] hash = new byte[CLASS_HASH_SIZE];
         byte[] md5 = MD5.hash(type.getName().getBytes()); //add support for a salt, in case of collision?
         
@@ -157,5 +160,9 @@ public class PrototypeFactory {
         }
         
         return true;
+    }
+    
+    public static void setStaticHasher(Hasher staticHasher) {
+        mStaticHasher = staticHasher;
     }
 }
