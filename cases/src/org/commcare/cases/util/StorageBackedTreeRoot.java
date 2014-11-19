@@ -5,11 +5,11 @@ package org.commcare.cases.util;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Stack;
 import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
@@ -66,9 +66,10 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         IStorageUtilityIndexed<?> storage= getStorage();
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
         
-        Vector<String> previousFetchKeys = new Vector<String>();
-        Vector<Object> previousFetchValues = new Vector<Object>();
+        Vector<String> keysToFetch = new Stack<String>();
+        Vector<Object> valuesToFetch = new Stack<Object>();
         
+        //First, go get a list of predicates that we _might_be able to evaluate 
         predicate:
         for(int i = 0 ; i < predicates.size() ; ++i) {
             XPathExpression xpe = predicates.elementAt(i);
@@ -87,54 +88,9 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                             //to resolve in a certain area?
                             Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));
                             
-                            //Some storage roots will collect common iterative mappings ahead of time,
-                            //go check whether this key is loaded into cached memory.
-                            Hashtable<String, Integer> keyMapping = getKeyMapping(filterIndex);
-                            if(keyMapping != null) {
-                                //If so, go fetch that element's record id and skip the storage
-                                //lookup
-                                Integer uniqueValue = keyMapping.get(XPathFuncExpr.toString(o));
-                                
-                                if(uniqueValue != null) {
-                                    if(selectedElements == null) {
-                                        selectedElements = new Vector<Integer>();
-                                        selectedElements.addElement(uniqueValue);
-                                    } else {
-                                        if(!selectedElements.contains(uniqueValue)) {
-                                            selectedElements.addElement(uniqueValue);
-                                        }
-                                    }
-                                }
-                            } else {
-                                Vector<Integer> cases = null;
-
-                                try{
-                                    //Get all of the cases that meet this criteria
-                                    cases = this.getMatchesForValue(filterIndex, o, storage, previousFetchKeys, previousFetchValues);
-                                } catch(IllegalArgumentException IAE) {
-                                    //We can only get this if we have a new index type
-                                    storage.registerIndex(filterIndex);
-                                    try{
-                                        cases = this.getMatchesForValue(filterIndex, o, storage, previousFetchKeys, previousFetchValues);
-                                    } catch(IllegalArgumentException iaeagain) {
-                                        //Still didn't work, platform can't expand indices
-                                        break predicate;
-                                    }
-                                }
-                                
-                                previousFetchKeys.addElement(filterIndex);
-                                previousFetchValues.addElement(o);
-                                
-                                // merge with any other sets of cases
-                                if(selectedElements == null) {
-                                    selectedElements = cases;
-                                } else {
-                                    selectedElements = union(selectedElements, cases);
-                                }
-                            }
+                            keysToFetch.addElement(filterIndex);
+                            valuesToFetch.addElement(o);
                             
-                            //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-                            toRemove.addElement(DataUtil.integer(i));
                             continue predicate;
                         }
                     }
@@ -144,6 +100,72 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
             //so otherwise, just get outta here.
             break;
         }
+        
+        int predicatesProcessed = 0;
+        
+        //Now go through each of the key/value pairs and try to evaluate them, we'll
+        //break if we can't process one
+        while(keysToFetch.size() > 0) {
+            //Get the first set of values.
+            String key = keysToFetch.elementAt(0);
+            Object o = valuesToFetch.elementAt(0);
+            int startCount = keysToFetch.size();
+
+            //Some storage roots will collect common iterative mappings ahead of time,
+            //go check whether this key is loaded into cached memory.
+            Hashtable<String, Integer> keyMapping = getKeyMapping(key);
+            if(keyMapping != null) {
+                //If so, go fetch that element's record id and skip the storage
+                //lookup
+                Integer uniqueValue = keyMapping.get(XPathFuncExpr.toString(o));
+                
+                //Merge into the selected elements
+                if(uniqueValue != null) {
+                    if(selectedElements == null) {
+                        selectedElements = new Vector<Integer>();
+                        selectedElements.addElement(uniqueValue);
+                    } else {
+                        if(!selectedElements.contains(uniqueValue)) {
+                            selectedElements.addElement(uniqueValue);
+                        }
+                    }
+                }
+                
+                //Ok, so we've successfully processed this predicate.
+                keysToFetch.removeElementAt(0);
+                valuesToFetch.removeElementAt(0);
+            } else {
+                Vector<Integer> cases = null;
+                try{
+                    //Get all of the cases that meet this criteria
+                    cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
+                } catch(IllegalArgumentException IAE) {
+                    //We can only get this if we have a new index type
+                    storage.registerIndex(key);
+                    try{
+                        cases = this.getNextIndexMatch(keysToFetch, valuesToFetch, storage);
+                    } catch(IllegalArgumentException iaeagain) {
+                        //Still didn't work, platform can't expand indices
+                        break;
+                    }
+                }
+                
+                // merge with any other sets of cases
+                if(selectedElements == null) {
+                    selectedElements = cases;
+                } else {
+                    selectedElements = union(selectedElements, cases);
+                }
+            }
+            
+            int numPredicatesRemoved = startCount - keysToFetch.size();
+            for(int i = 0 ; i < numPredicatesRemoved ; ++i) {
+                //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                toRemove.addElement(DataUtil.integer(predicatesProcessed));
+                predicatesProcessed++;
+            }
+        }
+        
         
         //if we weren't able to evaluate any predicates, signal that.
         if(selectedElements == null) { return null; }
@@ -169,7 +191,26 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return filtered;
     }
     
-    protected Vector<Integer> getMatchesForValue(String filterIndex, Object o, IStorageUtilityIndexed<?> storage, Vector<String> previousFetchKeys, Vector<Object> previousFetchValues) {
-        return storage.getIDsForValue(filterIndex, o);
+    /**
+     * Attempt to process one or more of the elements from the heads of the key/value vector, and return the 
+     * matching ID's. If an argument is processed, they should be removed from the key/value vector 
+     * 
+     * @param keys A vector of pending index keys to be evaluated. The keys should be processed left->right
+     * @param values A vector of the values associated with the indexed keys to be evaluated
+     * @param storage The storage to be processed
+     * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
+     */
+    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
+        String key = keys.elementAt(0);
+        Object o = values.elementAt(0);
+
+        //Get matches if it works
+        Vector<Integer> returnValue = storage.getIDsForValue(key, o);
+        
+        //If we processed this, pop it off the queue
+        keys.removeElementAt(0);
+        values.removeElementAt(0);
+        
+        return returnValue;
     }
 }
