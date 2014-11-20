@@ -307,6 +307,33 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     }
 
+    // TODO: DRYer
+    public String getPlehText() {
+        if(!(element instanceof QuestionDef)){
+            throw new RuntimeException("Can't get PlehText for Elements that are not Questions!");
+        }
+
+        String textID = ((QuestionDef)element).getPlehTextID();
+        String text = ((QuestionDef)element).getPlehText();
+        String innerText = ((QuestionDef)element).getPlehInnerText();
+        
+        try{
+            if (textID != null) {
+                text=localizer().getLocalizedText(textID);
+            } else {
+                text=substituteStringArgs(innerText);
+            }
+        }catch(NoLocalizedTextException nlt){
+            //use fallback
+        }catch(UnregisteredLocaleException ule){
+            System.err.println("Warning: No Locale set yet (while attempting to getPlehText())");
+        }catch(Exception e){
+            Logger.exception("FormEntryPrompt.getPlehText", e);
+            e.printStackTrace();
+        }
+        
+        return text;
+    }
 
     
     /**

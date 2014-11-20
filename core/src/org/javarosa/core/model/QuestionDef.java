@@ -52,10 +52,13 @@ public class QuestionDef implements IFormElement, Localizable {
     private int controlType;  /* The type of widget. eg TextInput,Slider,List etc. */
     private String appearanceAttr;    
     private String helpTextID;
+    private String plehTextID;
     private String labelInnerText;
     private String helpText;
+    private String plehText;
     private String textID; /* The id (ref) pointing to the localized values of (pic-URIs,audio-URIs,text) */
     private String helpInnerText;
+    private String plehInnerText;
 
 
 
@@ -107,29 +110,42 @@ public class QuestionDef implements IFormElement, Localizable {
     }    
 
     /**
-     * Only if there is no localizable version of the &lthint&gt available should this method be used
+     * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
      */
     public String getHelpText () {
         return helpText;
     }
 
+    public String getPlehText () {
+        return plehText;
+    }
+
     /**
-     * Only if there is no localizable version of the &lthint&gtavailable should this method be used
+     * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
      */
     public void setHelpText (String helpText) {
         this.helpText = helpText;
     }
-    
 
+    public void setPlehText (String plehText) {
+        this.plehText = plehText;
+    }
+    
     public String getHelpTextID () {
         return helpTextID;
     }
     
-    public void setHelpTextID (String textID) {
-        this.helpTextID = textID;
-
+    public String getPlehTextID () {
+        return plehTextID;
     }
     
+    public void setHelpTextID (String textID) {
+        this.helpTextID = textID;
+    }
+
+    public void setPlehTextID (String textID) {
+        this.plehTextID = textID;
+    }
 
     public void addSelectChoice (SelectChoice choice) {
         if (choices == null) {
@@ -239,6 +255,9 @@ public class QuestionDef implements IFormElement, Localizable {
         setHelpText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHelpTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHelpInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setPlehText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setPlehTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setPlehInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 
         setControlType(ExtUtil.readInt(dis));
         choices = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(dis, new ExtWrapList(SelectChoice.class), pf));
@@ -261,6 +280,9 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapNullable(getHelpText()));
         ExtUtil.write(dos, new ExtWrapNullable(getHelpTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getHelpInnerText()));
+        ExtUtil.write(dos, new ExtWrapNullable(getPlehText()));
+        ExtUtil.write(dos, new ExtWrapNullable(getPlehTextID()));
+        ExtUtil.write(dos, new ExtWrapNullable(getPlehInnerText()));
 
         ExtUtil.writeNumeric(dos, getControlType());
         
@@ -305,12 +327,20 @@ public class QuestionDef implements IFormElement, Localizable {
         return labelInnerText;
     }
     
-    public void setHelpInnerText(String helpInnerText) {
-        this.helpInnerText = helpInnerText;
+    public void setHelpInnerText(String innerText) {
+        this.helpInnerText = innerText;
+    }
+
+    public void setPlehInnerText(String innerText) {
+        this.plehInnerText = innerText;
     }
 
     public String getHelpInnerText() {
         return helpInnerText;
+    }
+
+    public String getPlehInnerText() {
+        return plehInnerText;
     }
     
     public String getTextID() {
