@@ -51,13 +51,13 @@ public class QuestionDef implements IFormElement, Localizable {
     
     private int controlType;  /* The type of widget. eg TextInput,Slider,List etc. */
     private String appearanceAttr;    
-    private String helpTextID;
+    private String hintTextID;
     private String plehTextID;
     private String labelInnerText;
-    private String helpText;
+    private String hintText;
     private String plehText;
     private String textID; /* The id (ref) pointing to the localized values of (pic-URIs,audio-URIs,text) */
-    private String helpInnerText;
+    private String hintInnerText;
     private String plehInnerText;
 
 
@@ -112,8 +112,8 @@ public class QuestionDef implements IFormElement, Localizable {
     /**
      * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
      */
-    public String getHelpText () {
-        return helpText;
+    public String getHintText () {
+        return hintText;
     }
 
     public String getPlehText () {
@@ -123,24 +123,24 @@ public class QuestionDef implements IFormElement, Localizable {
     /**
      * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
      */
-    public void setHelpText (String helpText) {
-        this.helpText = helpText;
+    public void setHintText (String hintText) {
+        this.hintText = hintText;
     }
 
     public void setPlehText (String plehText) {
         this.plehText = plehText;
     }
     
-    public String getHelpTextID () {
-        return helpTextID;
+    public String getHintTextID () {
+        return hintTextID;
     }
     
     public String getPlehTextID () {
         return plehTextID;
     }
     
-    public void setHelpTextID (String textID) {
-        this.helpTextID = textID;
+    public void setHintTextID (String textID) {
+        this.hintTextID = textID;
     }
 
     public void setPlehTextID (String textID) {
@@ -252,9 +252,9 @@ public class QuestionDef implements IFormElement, Localizable {
         setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setPlehText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setPlehTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setPlehInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -277,9 +277,9 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));
         ExtUtil.write(dos, new ExtWrapNullable(getTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getLabelInnerText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpTextID()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpInnerText()));
+        ExtUtil.write(dos, new ExtWrapNullable(getHintText()));
+        ExtUtil.write(dos, new ExtWrapNullable(getHintTextID()));
+        ExtUtil.write(dos, new ExtWrapNullable(getHintInnerText()));
         ExtUtil.write(dos, new ExtWrapNullable(getPlehText()));
         ExtUtil.write(dos, new ExtWrapNullable(getPlehTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getPlehInnerText()));
@@ -327,16 +327,16 @@ public class QuestionDef implements IFormElement, Localizable {
         return labelInnerText;
     }
     
-    public void setHelpInnerText(String innerText) {
-        this.helpInnerText = innerText;
+    public void setHintInnerText(String innerText) {
+        this.hintInnerText = innerText;
     }
 
     public void setPlehInnerText(String innerText) {
         this.plehInnerText = innerText;
     }
 
-    public String getHelpInnerText() {
-        return helpInnerText;
+    public String getHintInnerText() {
+        return hintInnerText;
     }
 
     public String getPlehInnerText() {

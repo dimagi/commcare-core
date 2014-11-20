@@ -1041,7 +1041,7 @@ public class XFormParser {
 
                 verifyTextMappings(textRef, "<" + name + ">", false);
                 if (name.equals("hint")) {
-                    q.setHelpTextID(textRef);
+                    q.setHintTextID(textRef);
                 } else {
                     q.setPlehTextID(textRef);
                 }
@@ -1049,8 +1049,8 @@ public class XFormParser {
                 throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
             }
         } else if (name.equals("hint")) {
-            q.setHelpInnerText(innerText);
-            q.setHelpText(XMLText);
+            q.setHintInnerText(innerText);
+            q.setHintText(XMLText);
         } else {
             q.setPlehInnerText(innerText);
             q.setPlehText(XMLText);
