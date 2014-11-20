@@ -120,7 +120,7 @@ public class XYSeries implements Externalizable, Configurable {
     /*
      * Get the actual x value within a given EvaluationContext.
      */
-    public Double evaluateX(EvaluationContext context) throws XPathSyntaxException {
+    public String evaluateX(EvaluationContext context) throws XPathSyntaxException {
         parse();
         return evaluateExpression(mXParse, context);
     }
@@ -128,7 +128,7 @@ public class XYSeries implements Externalizable, Configurable {
     /*
      * Get the actual y value within a given EvaluationContext.
      */
-    public Double evaluateY(EvaluationContext context) throws XPathSyntaxException {
+    public String evaluateY(EvaluationContext context) throws XPathSyntaxException {
         parse();
         return evaluateExpression(mYParse, context);
     }
@@ -136,11 +136,11 @@ public class XYSeries implements Externalizable, Configurable {
     /*
      * Helper for evaluateX and evaluateY.
      */
-    protected Double evaluateExpression(XPathExpression expression, EvaluationContext context) {
+    protected String evaluateExpression(XPathExpression expression, EvaluationContext context) {
         if (expression != null) {
             String value = (String) expression.eval(context.getMainInstance(), context);
             if (value.length() > 0) {
-                return Double.valueOf(value);
+                return value;
             }
         }
         return null;

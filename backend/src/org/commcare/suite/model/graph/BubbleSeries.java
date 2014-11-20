@@ -46,7 +46,7 @@ public class BubbleSeries extends XYSeries {
     /*
      * Get actual value for radius in a given EvaluationContext.
      */
-    public Double evaluateRadius(EvaluationContext context) throws XPathSyntaxException {
+    public String evaluateRadius(EvaluationContext context) throws XPathSyntaxException {
         parse();
         return evaluateExpression(mRadiusParse, context);
     }
