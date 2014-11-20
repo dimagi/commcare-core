@@ -1043,7 +1043,7 @@ public class XFormParser {
                 if (name.equals("hint")) {
                     q.setHintTextID(textRef);
                 } else {
-                    q.setPlehTextID(textRef);
+                    q.setHelpTextID(textRef);
                 }
             } else {
                 throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
@@ -1052,8 +1052,8 @@ public class XFormParser {
             q.setHintInnerText(innerText);
             q.setHintText(XMLText);
         } else {
-            q.setPlehInnerText(innerText);
-            q.setPlehText(XMLText);
+            q.setHelpInnerText(innerText);
+            q.setHelpText(XMLText);
             // TODO jls: set multimedia
         }
         

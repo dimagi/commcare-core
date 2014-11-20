@@ -308,14 +308,14 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
 
     // TODO: DRYer
-    public String getPlehText() {
+    public String getHelpText() {
         if(!(element instanceof QuestionDef)){
-            throw new RuntimeException("Can't get PlehText for Elements that are not Questions!");
+            throw new RuntimeException("Can't get HelpText for Elements that are not Questions!");
         }
 
-        String textID = ((QuestionDef)element).getPlehTextID();
-        String text = ((QuestionDef)element).getPlehText();
-        String innerText = ((QuestionDef)element).getPlehInnerText();
+        String textID = ((QuestionDef)element).getHelpTextID();
+        String text = ((QuestionDef)element).getHelpText();
+        String innerText = ((QuestionDef)element).getHelpInnerText();
         
         try{
             if (textID != null) {
@@ -326,9 +326,9 @@ public class FormEntryPrompt extends FormEntryCaption {
         }catch(NoLocalizedTextException nlt){
             //use fallback
         }catch(UnregisteredLocaleException ule){
-            System.err.println("Warning: No Locale set yet (while attempting to getPlehText())");
+            System.err.println("Warning: No Locale set yet (while attempting to getHelpText())");
         }catch(Exception e){
-            Logger.exception("FormEntryPrompt.getPlehText", e);
+            Logger.exception("FormEntryPrompt.getHelpText", e);
             e.printStackTrace();
         }
         
