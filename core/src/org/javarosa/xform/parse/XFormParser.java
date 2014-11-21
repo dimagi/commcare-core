@@ -1053,7 +1053,7 @@ public class XFormParser {
             q.setHintText(XMLText);
         } else {
             q.setHelpInnerText(innerText);
-            q.setHelpText(XMLText);
+            q.setHelp(XMLText, null, null, null);
             // TODO jls: set multimedia
         }
         
