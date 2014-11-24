@@ -55,14 +55,10 @@ public class QuestionDef implements IFormElement, Localizable {
     private String helpTextID;
     private String labelInnerText;
     private String hintText;
-    private String helpText;
     private String textID; /* The id (ref) pointing to the localized values of (pic-URIs,audio-URIs,text) */
     private String hintInnerText;
     private String helpInnerText;
-    
-    private String helpAudioURI;
-    private String helpImageURI;
-    private String helpVideoURI;
+    private String helpText;
 
     private Vector<SelectChoice> choices;
     private ItemsetBinding dynamicChoices;
@@ -118,34 +114,19 @@ public class QuestionDef implements IFormElement, Localizable {
         return hintText;
     }
 
-    public String getHelpText () {
+    public String getHelpText() {
         return helpText;
     }
-    
-    public String getHelpAudioURI () {
-        return helpAudioURI;
-    }
-    
-    public String getHelpImageURI () {
-        return helpImageURI;
-    }
-    
-    public String getHelpVideoURI () {
-        return helpVideoURI;
-    }
 
+    public void setHelpText(String text) {
+        helpText = text;
+    }
+    
     /**
      * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
      */
     public void setHintText (String hintText) {
         this.hintText = hintText;
-    }
-
-    public void setHelp (String helpText, String audioURI, String imageURI, String videoURI) {
-        this.helpText = helpText;
-        this.helpAudioURI = audioURI;
-        this.helpImageURI = imageURI;
-        this.helpVideoURI = videoURI;
     }
     
     public String getHintTextID () {
@@ -272,11 +253,7 @@ public class QuestionDef implements IFormElement, Localizable {
         setHintText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHintTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHintInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        String helpText = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);
-        String helpAudio = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);
-        String helpImage = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);
-        String helpVideo = (String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf);
-        setHelp(helpText, helpAudio, helpImage, helpVideo);
+        setHelpText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHelpTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setHelpInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 
@@ -302,9 +279,6 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapNullable(getHintTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getHintInnerText()));
         ExtUtil.write(dos, new ExtWrapNullable(getHelpText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpAudioURI()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpImageURI()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpVideoURI()));
         ExtUtil.write(dos, new ExtWrapNullable(getHelpTextID()));
         ExtUtil.write(dos, new ExtWrapNullable(getHelpInnerText()));
 

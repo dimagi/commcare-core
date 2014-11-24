@@ -1053,7 +1053,7 @@ public class XFormParser {
             q.setHintText(XMLText);
         } else {
             q.setHelpInnerText(innerText);
-            q.setHelp(XMLText, null, null, null);
+            q.setHelpText(XMLText);
         }
         
         if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){

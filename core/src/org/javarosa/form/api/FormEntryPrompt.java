@@ -288,6 +288,30 @@ public class FormEntryPrompt extends FormEntryCaption {
         QuestionDef qd = (QuestionDef) element;
         return localizeText(qd.getHintText(), qd.getHintTextID(), qd.getHintInnerText());
     }
+    
+    /**
+     * Determine if this prompt has any help, whether text or multimedia.
+     * @return
+     */
+    public boolean hasHelp() {
+        String text = getHelpText();
+        if (text != null && !"".equals(text)) {
+            return true;
+        }
+        
+        Vector<String> forms = new Vector<String>();
+        forms.add(TEXT_FORM_AUDIO);
+        forms.add(TEXT_FORM_IMAGE);
+        forms.add(TEXT_FORM_VIDEO);
+        for (String form : forms) {
+            String media = getHelpMultimedia(form);
+            if (media != null && !"".equals(media)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * Get help text (helper text displayed when requested by user).
