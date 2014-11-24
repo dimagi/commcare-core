@@ -355,6 +355,11 @@ public class FormEntryPrompt extends FormEntryCaption {
         return fallbackText;
     }
     
+    /**
+     * Get a particular type of multimedia help associated with this question.
+     * @param form TEXT_FORM_AUDIO, etc.
+     * @return
+     */
     public String getHelpMultimedia(String form) {
         if(!(element instanceof QuestionDef)){
             throw new RuntimeException("Can't get HelpText for Elements that are not Questions!");
