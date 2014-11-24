@@ -274,6 +274,7 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
     
     /**
+     * Get hint text (helper text displayed along with question).
      * ONLY RELEVANT to Question elements!
      * Will throw runTimeException if this is called for anything that isn't a Question.
      * Returns null if no hint text is available
@@ -284,55 +285,50 @@ public class FormEntryPrompt extends FormEntryCaption {
             throw new RuntimeException("Can't get HintText for Elements that are not Questions!");
         }
 
-        String textID = ((QuestionDef)element).getHintTextID();
-        String hintText = ((QuestionDef)element).getHintText();
-        String hintInnerText = ((QuestionDef)element).getHintInnerText();
-        
-        try{
-            if (textID != null) {
-                hintText=localizer().getLocalizedText(textID);
-            } else {
-                hintText=substituteStringArgs(((QuestionDef)element).getHintInnerText());
-            }
-        }catch(NoLocalizedTextException nlt){
-            //use fallback
-        }catch(UnregisteredLocaleException ule){
-            System.err.println("Warning: No Locale set yet (while attempting to getHintText())");
-        }catch(Exception e){
-            Logger.exception("FormEntryPrompt.getHintText", e);
-            e.printStackTrace();
-        }
-        
-        return hintText;
-
+        QuestionDef qd = (QuestionDef) element;
+        return localizeText(qd.getHintText(), qd.getHintTextID(), qd.getHintInnerText());
     }
 
-    // TODO jls: DRYer
+    /**
+     * Get help text (helper text displayed when requested by user).
+     * ONLY RELEVANT to Question elements!
+     * Will throw runTimeException if this is called for anything that isn't a Question.
+     * Returns null if no hint text is available
+     * @return
+     */
     public String getHelpText() {
         if(!(element instanceof QuestionDef)){
             throw new RuntimeException("Can't get HelpText for Elements that are not Questions!");
         }
 
-        String textID = ((QuestionDef)element).getHelpTextID();
-        String text = ((QuestionDef)element).getHelpText();
-        String innerText = ((QuestionDef)element).getHelpInnerText();
-        
-        try{
+        QuestionDef qd = (QuestionDef) element;
+        return localizeText(qd.getHelpText(), qd.getHelpTextID(), qd.getHelpInnerText());
+    }
+    
+    /**
+     * Helper for getHintText and getHelpText.
+     * @param fallbackText
+     * @param textID
+     * @param innerText
+     * @return
+     */
+    private String localizeText(String fallbackText, String textID, String innerText) {
+        try {
             if (textID != null) {
-                text=localizer().getLocalizedText(textID);
+                fallbackText = localizer().getLocalizedText(textID);
             } else {
-                text=substituteStringArgs(innerText);
+                fallbackText = substituteStringArgs(((QuestionDef)element).getHelpInnerText());
             }
-        }catch(NoLocalizedTextException nlt){
+        } catch(NoLocalizedTextException nlt){
             //use fallback
-        }catch(UnregisteredLocaleException ule){
-            System.err.println("Warning: No Locale set yet (while attempting to getHelpText())");
-        }catch(Exception e){
-            Logger.exception("FormEntryPrompt.getHelpText", e);
+        } catch(UnregisteredLocaleException ule){
+            System.err.println("Warning: No Locale set yet (while attempting to localizeText())");
+        } catch(Exception e){
+            Logger.exception("FormEntryPrompt.localizeText", e);
             e.printStackTrace();
         }
         
-        return text;
+        return fallbackText;
     }
     
     public String getHelpMultimedia(String form) {
