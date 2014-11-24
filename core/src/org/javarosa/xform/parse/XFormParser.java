@@ -1054,7 +1054,6 @@ public class XFormParser {
         } else {
             q.setHelpInnerText(innerText);
             q.setHelp(XMLText, null, null, null);
-            // TODO jls: set multimedia
         }
         
         if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){

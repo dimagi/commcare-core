@@ -307,7 +307,7 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     }
 
-    // TODO: DRYer
+    // TODO jls: DRYer
     public String getHelpText() {
         if(!(element instanceof QuestionDef)){
             throw new RuntimeException("Can't get HelpText for Elements that are not Questions!");
@@ -333,6 +333,17 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
         
         return text;
+    }
+    
+    public String getHelpMultimedia(String form) {
+        if(!(element instanceof QuestionDef)){
+            throw new RuntimeException("Can't get HelpText for Elements that are not Questions!");
+        }
+        String textID = ((QuestionDef)element).getHelpTextID();
+        if (textID == null) {
+            return null;
+        }
+        return this.getSpecialFormQuestionText(textID, form);
     }
 
     
