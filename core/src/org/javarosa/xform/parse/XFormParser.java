@@ -1052,6 +1052,7 @@ public class XFormParser {
             q.setHintInnerText(innerText);
             q.setHintText(XMLText);
         } else {
+            // Help may have multimedia, but only if it's specified as itext
             q.setHelpInnerText(innerText);
             q.setHelpText(XMLText);
         }
