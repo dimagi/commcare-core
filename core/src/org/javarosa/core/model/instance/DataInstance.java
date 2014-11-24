@@ -34,17 +34,13 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     protected int formId;
     
     protected String instanceid;
-    
-    private CacheTable<TreeReference, T> referenceCache;
-    
-    public DataInstance() {
-        referenceCache = new CacheTable<TreeReference, T>();
-    }
 
+    public DataInstance(){
+        
+    }
     
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
-        referenceCache = new CacheTable<TreeReference, T>();
     }
 
     public static TreeReference unpackReference(IDataReference ref) {
@@ -109,10 +105,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
                 break;
             }
         }
-        
-        t = (node == getBase() ? null : result); // never return a reference to '/'
-        referenceCache.register(ref, t);
-        return t;
+        return (node == getBase() ? null : result); // never return a reference to '/'
     }
 
     public Vector explodeReference(TreeReference ref) {

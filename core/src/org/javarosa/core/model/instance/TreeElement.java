@@ -19,6 +19,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.Constants;
@@ -30,8 +31,7 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
-import org.javarosa.core.util.CacheTable;
-import org.javarosa.core.util.DataUtil;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -39,11 +39,8 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
-import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
  * An element of a FormInstance.
@@ -1259,116 +1256,39 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
     public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
-
-    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        //This method builds a predictive model for quick queries that prevents the need to fully flesh out 
-        //full walks of the tree.
-        
-        //TODO:
-        //We build a bunch of models here, it's not clear whether we should be retaining them for multiple queries in the future
-        //rather than letting it rebuild the same caches a couple of times
-        
-        //We also need to figure out exactly how to determine whether this "worked" more or less and potentially preventing this attempt
-        //from proceeding in the future, since it's not exactly free...
-        
-        
-        //Only do for predicates
-        if(mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
-        
-        Vector<Integer> toRemove = new Vector<Integer>();
-        Vector<TreeReference> selectedChildren = null;
-        
-        //Lazy init these until we've determined that our predicate is hintable
-        
-        //These two are basically a map, but we dont' have a great datatype for this
-        Vector<String> attributes = null;
-        Vector<XPathPathExpr> indices = null;
-        
-        Vector<TreeElement> kids = null;
-        
-        predicate:
-        for(int i = 0 ; i < predicates.size() ; ++i) {
-            XPathExpression xpe = predicates.elementAt(i);
-            //what we want here is a static evaluation of the expression to see if it consists of evaluating 
-            //something we index with something static.
-            if(xpe instanceof XPathEqExpr) {
-                XPathExpression left = ((XPathEqExpr)xpe).a;
-                XPathExpression right = ((XPathEqExpr)xpe).b;
-                
-                //For now, only cheat when this is a string literal (this basically just means that we're
-                //handling attribute based referencing with very reasonable timing, but it's complex otherwise)
-                if(left instanceof XPathPathExpr && right instanceof XPathStringLiteral) {
-                    
-                    //We're lazily initializing this, since it might actually take a while, and we 
-                    //don't want the overhead if our predicate is too complex anyway
-                    if(attributes == null) {
-                        attributes = new Vector<String>();
-                        indices = new Vector<XPathPathExpr>();
-                        kids = this.getChildrenWithName(name);
-                         
-                        if(kids.size() == 0 ) { return null; }
-                        
-                        //Anything that we're going to use across elements should be on all of them 
-                        TreeElement kid = kids.elementAt(0);
-                        for(int j = 0 ; j < kid.getAttributeCount(); ++j) {
-                            String attribute = kid.getAttributeName(j);
-                            XPathPathExpr path = getXPathAttrExpression(attribute);
-                            attributes.addElement(attribute);
-                            indices.addElement(path);
-                        }
-                    }
-                    
-                    for(int j = 0 ; j < indices.size() ; ++j) {
-                        XPathPathExpr expr = indices.elementAt(j);
-                        if(expr.equals(left)) {
-                            String attributeName = attributes.elementAt(j);
- 
-                            for(int kidI = 0 ; kidI < kids.size() ; ++kidI) {
-                                if(kids.elementAt(kidI).getAttributeValue(null, attributeName).equals(((XPathStringLiteral)right).s)) {
-                                    if(selectedChildren == null) {
-                                        selectedChildren = new Vector<TreeReference>();
-                                    }
-                                    selectedChildren.addElement(kids.elementAt(kidI).getRef());
-                                }
-                            }
-                            
-                            
-                            //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-                            toRemove.addElement(DataUtil.integer(i));
-                            continue predicate;
-                        }
-                    }
-                }
-            }
-            //There's only one case where we want to keep moving along, and we would have triggered it if it were going to happen,
-            //so otherwise, just get outta here.
-            break;
-        }
-        
-        //if we weren't able to evaluate any predicates, signal that.
-        if(selectedChildren == null) { return null; }
-        
-        //otherwise, remove all of the predicates we've already evaluated
-        for(int i = toRemove.size() - 1; i >= 0 ; i--)  {
-            predicates.removeElementAt(toRemove.elementAt(i).intValue());
-        }
-        
-        return selectedChildren;
+    
+    /** An optional mapping of this element's children based on a path step result that can be used to quickly index child nodes **/
+    Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
+    
+    /**
+     * Adds a hint mapping which can be used to directly index this node's children. This is used
+     * when performing batch child fetches through static evaluation.
+     * 
+     * This map should contain a table of cannonical XPath path expression steps which can be optimized
+     * (like "@someattr") along with a table of which values of that attribute correspond with which
+     * of tihs element's children.
+     * 
+     * Notes:
+     * 1) The table of string -> child elements must be _comprehensive_, but this is not checked by
+     * this method, so the caller is responsible for ensuring that the map is valid
+     * 
+     * 2) TreeElements also do not automatically expire their attribute maps, so this method
+     * should only be used on static tree structures.
+     * 
+     * 3) The path steps matched must be direct, ie: @someattr = 'value', no other operations are supported.
+     * 
+     * @param childAttributeHintMap A table of Path Steps which can be indexed during batch fetch, along with
+     * a mapping of which values of those steps match which children
+     */
+    public void addAttributeMap(Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap) {
+        this.mChildStepMapping = childAttributeHintMap;
     }
     
-    //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest. 
-    static CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
-
-    private XPathPathExpr getXPathAttrExpression(String attribute) {
-        //Cache tables can only take in integers due to some terrible 1.3 design issues
-        //so we have to manually cache our attribute string's hash and follow from there.
-        XPathPathExpr cached = table.retrieve(attribute);
-        
-        if(cached == null) {
-            cached = XPathReference.getPathExpr("@" + attribute);
-            table.register(attribute, cached);
-        }
-        return cached;
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.model.instance.AbstractTreeElement#tryBatchChildFetch(java.lang.String, int, java.util.Vector, org.javarosa.core.model.condition.EvaluationContext)
+     */
+    public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+        return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext);
     }
-
 }
