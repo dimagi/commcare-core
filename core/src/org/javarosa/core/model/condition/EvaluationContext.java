@@ -60,7 +60,12 @@ public class EvaluationContext {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = base.formInstances;
-        this.variables = base.variables;
+        this.variables = new Hashtable();
+        
+        //TODO: this is actually potentially much slower than 
+        //our old strategy (but is needed for this object to
+        //be threadsafe). We should evaluate the potential impact.
+        this.setVariables(base.variables);
         
         this.contextNode = base.contextNode;
         this.instance = base.instance;
