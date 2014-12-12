@@ -145,7 +145,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 evaluateConfiguration(s, seriesData, seriesContext);
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
-System.out.println("[jls] fd = " + refContext.getVariable("fd"));
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
