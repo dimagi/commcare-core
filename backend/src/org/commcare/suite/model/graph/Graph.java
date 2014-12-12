@@ -96,9 +96,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     public GraphData evaluate(EvaluationContext context) {
         GraphData data = new GraphData();
         data.setType(mType);
+        evaluateConfiguration(this, data, context);
         evaluateSeries(data, context);
         evaluateAnnotations(data, context);
-        evaluateConfiguration(this, data, context);
         return data;
     }
     
@@ -122,7 +122,14 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         Enumeration e = template.getConfigurationKeys();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
-            data.setConfiguration(key, template.getConfiguration(key).evaluate(context));
+            String value = template.getConfiguration(key).evaluate(context);
+            String prefix = "var-";
+            if (key.startsWith(prefix)) {
+                context.setVariable(key.substring(prefix.length()), value);
+            }
+            else {
+                data.setConfiguration(key, value);
+            }
         }
     }
     
@@ -134,9 +141,10 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
             for (XYSeries s : mSeries) {
                 Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
-                evaluateConfiguration(s, seriesData, context);
+                EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
+                evaluateConfiguration(s, seriesData, seriesContext);
                 for (TreeReference ref : refList) {
-                    EvaluationContext refContext = new EvaluationContext(context, ref);
+                    EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
