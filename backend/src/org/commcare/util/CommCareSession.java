@@ -678,35 +678,4 @@ public class CommCareSession {
     public void markCurrentFrameForDeath() {
         frame.kill();
     }
-    
-    /**
-     * Takes in a datum and identifies a reference in the provided context which corresponds
-     * to the provided element.
-     * 
-     * TODO: Figure out where this goes, I don't think this is likely to be the right place...
-     * 
-     * NOT GUARANTEED TO WORK! May return an entity if one exists
-     * 
-     * @param uniqueid
-     * @return
-     */
-    public TreeReference getEntityFromID(EvaluationContext ec, SessionDatum datum, String elementId) {
-        //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
-        
-        //Get root nodeset 
-        TreeReference nodesetRef = datum.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
-        predicates.addElement(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(elementId)));
-        nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
-        
-        Vector<TreeReference> elements = ec.expandReference(nodesetRef);
-        if(elements.size() == 1) {
-            return elements.firstElement();
-        } else if(elements.size() > 1) {
-            //Lots of nodes. Can't really choose one yet.
-            return null;
-        } else {
-            return null;
-        }
-    }
 }

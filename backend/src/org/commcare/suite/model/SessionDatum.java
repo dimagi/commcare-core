@@ -6,13 +6,18 @@ package org.commcare.suite.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Vector;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
  * @author ctsims
@@ -144,5 +149,34 @@ public class SessionDatum implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(persistentDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
     }
+    
 
+    /**
+     * Takes an ID and identifies a reference in the provided context which corresponds
+     * to that element if one can be found. 
+     * 
+     * NOT GUARANTEED TO WORK! May return an entity if one exists
+     * 
+     * @param uniqueid
+     * @return
+     */
+    public TreeReference getEntityFromID(EvaluationContext ec, String elementId) {
+        //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
+        
+        //Get root nodeset 
+        TreeReference nodesetRef = this.getNodeset().clone();
+        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
+        predicates.addElement(new XPathEqExpr(true, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId)));
+        nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
+        
+        Vector<TreeReference> elements = ec.expandReference(nodesetRef);
+        if(elements.size() == 1) {
+            return elements.firstElement();
+        } else if(elements.size() > 1) {
+            //Lots of nodes. Can't really choose one yet.
+            return null;
+        } else {
+            return null;
+        }
+    }
 }
