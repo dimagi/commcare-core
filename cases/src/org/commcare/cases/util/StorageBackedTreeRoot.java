@@ -66,8 +66,8 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         IStorageUtilityIndexed<?> storage= getStorage();
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
         
-        Vector<String> keysToFetch = new Stack<String>();
-        Vector<Object> valuesToFetch = new Stack<Object>();
+        Vector<String> keysToFetch = new Vector<String>();
+        Vector<Object> valuesToFetch = new Vector<Object>();
         
         //First, go get a list of predicates that we _might_be able to evaluate 
         predicate:
@@ -195,12 +195,19 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
      * Attempt to process one or more of the elements from the heads of the key/value vector, and return the 
      * matching ID's. If an argument is processed, they should be removed from the key/value vector 
      * 
+     * <b>Important:</b> This method and any re-implementations <i>must remove at least one key/value pair
+     * from the incoming Vectors</i>, or must throw an IllegalArgumentException to denote that the provided
+     * key can't be processed in the current context. The method can optionally remove/process more than one
+     * key at a time, but is expected to process at least the first.
+     * 
      * @param keys A vector of pending index keys to be evaluated. The keys should be processed left->right
      * @param values A vector of the values associated with the indexed keys to be evaluated
      * @param storage The storage to be processed
      * @return A Vector of integer ID's for records in the provided storage which match one or more of the keys provided.
+     * @throws IllegalArgumentException If there was no index matching possible on the provided key and the key/value vectors
+     * won't be shortened.
      */
-    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
+    protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) throws IllegalArgumentException {
         String key = keys.elementAt(0);
         Object o = values.elementAt(0);
 
