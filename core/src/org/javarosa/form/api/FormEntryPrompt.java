@@ -300,9 +300,9 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
         
         Vector<String> forms = new Vector<String>();
-        forms.add(TEXT_FORM_AUDIO);
-        forms.add(TEXT_FORM_IMAGE);
-        forms.add(TEXT_FORM_VIDEO);
+        forms.addElement(TEXT_FORM_AUDIO);
+        forms.addElement(TEXT_FORM_IMAGE);
+        forms.addElement(TEXT_FORM_VIDEO);
         for (String form : forms) {
             String media = getHelpMultimedia(form);
             if (media != null && !"".equals(media)) {
