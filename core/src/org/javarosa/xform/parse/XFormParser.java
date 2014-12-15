@@ -848,8 +848,8 @@ public class XFormParser {
 
             if (LABEL_ELEMENT.equals(childName)) {
                 parseQuestionLabel(question, child);
-            } else if ("hint".equals(childName)) {
-                parseHint(question, child);
+            } else if ("hint".equals(childName) || "help".equals(childName)) {
+                parseHelperText(question, child);
             } else if (isSelect && "item".equals(childName)) {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
@@ -1022,25 +1022,39 @@ public class XFormParser {
         return String.valueOf(index);
     }
     
-    private void parseHint (QuestionDef q, Element e) {
+    /**
+     * Handles hint elements (text-only) and help elements (similar, but may include multimedia)
+     * @param q The QuestionDef object to augment with the hint/help
+     * @param e The Element to parse
+     */
+    private void parseHelperText (QuestionDef q, Element e) {
         Vector usedAtts = new Vector();
         usedAtts.addElement(REF_ATTR);
-        String hint = getXMLText(e, true);
-        String hintInnerText = getLabel(e);
+        String XMLText = getXMLText(e, true);
+        String innerText = getLabel(e);
         String ref = e.getAttributeValue("", REF_ATTR);
+        String name = e.getName();
 
         if (ref != null) {
             if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
                 String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
 
-                verifyTextMappings(textRef, "<hint>", false);
-                q.setHelpTextID(textRef);
+                verifyTextMappings(textRef, "<" + name + ">", false);
+                if (name.equals("hint")) {
+                    q.setHintTextID(textRef);
+                } else {
+                    q.setHelpTextID(textRef);
+                }
             } else {
-                throw new RuntimeException("malformed ref [" + ref + "] for <hint>");
+                throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
             }
+        } else if (name.equals("hint")) {
+            q.setHintInnerText(innerText);
+            q.setHintText(XMLText);
         } else {
-            q.setHelpInnerText(hintInnerText);
-            q.setHelpText(hint);
+            // Help may have multimedia, but only if it's specified as itext
+            q.setHelpInnerText(innerText);
+            q.setHelpText(XMLText);
         }
         
         if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
