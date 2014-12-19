@@ -129,6 +129,22 @@ public class Detail implements Externalizable {
         return details.length > 0;
     }
     
+    /**
+     * Whether this detail is expected to be so huge in scope that 
+     * the platform should limit its strategy for loading it to be asynchronous
+     * and cached on special keys.
+     * 
+     * @return
+     */
+    public boolean useAsyncStrategy() {
+        for(DetailField f : getFields()) {
+            if(f.getSortOrder() == DetailField.SORT_ORDER_CACHABLE) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)

@@ -32,6 +32,12 @@ public class DetailField implements Externalizable {
     public static final int DIRECTION_ASCENDING = 1;
     public static final int DIRECTION_DESCENDING = 2;
     
+    /**
+     * A special flag that signals that this "Sort" should actually be 
+     * a cached, asynchronous key
+     */
+    public static final int SORT_ORDER_CACHABLE = -2;
+    
     private Text header;
     private DetailTemplate template; // Text or Graph
  private Text sort; 
