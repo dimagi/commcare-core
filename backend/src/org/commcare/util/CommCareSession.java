@@ -21,8 +21,13 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -603,6 +608,13 @@ public class CommCareSession {
         }
     }
 
+    /**
+     * Retrieve the single valid entry for the current session, should be called only
+     * when the current request is fully built
+     * 
+     * @return The unique valid entry built on this session. Will throw an exception if there isn't
+     * a unique entry.
+     */
     public Entry getCurrentEntry() {
         Vector<Entry> e = getEntriesForCommand(getCommand());
         if(e.size() > 1) {
@@ -611,6 +623,56 @@ public class CommCareSession {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);
+    }
+    
+    /**
+     * Retrieves a valid datum definition in the current session's history 
+     * which contains a selector for the datum Id provided.
+     * 
+     * Can be used to resolve the context about an item that
+     * has been selected in this session. 
+     *  
+     * @param datumId The ID of a session datum in the session history
+     * @return An Entry object which contains a selector for that datum
+     * which is in this session history
+     */
+    public SessionDatum findDatumDefinition(String datumId) {
+        //We're performing a walk down the entities in this session here,
+        //we should likely generalize this to make it easier to do it for other
+        //operations
+        
+        Vector<String[]> steps =  frame.getSteps();
+        
+        int stepId = -1;
+        //walk to our datum
+        for(int i = 0 ; i < steps.size(); ++i) {
+            if(steps.elementAt(i)[0] == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i)[1].equals(datumId)) {
+               stepId = i;
+               break;
+            }
+        }
+        if(stepId == -1) {
+            System.out.println("I don't think this should be possible...");
+            return null;
+        }
+        
+        //ok, so now we have our step, we want to walk backwards until we find the entity
+        //associated with our ID
+        for(int i = stepId; i >= 0 ; i--) {
+            if(steps.elementAt(i)[0].equals(SessionFrame.STATE_COMMAND_ID)) {
+                Vector<Entry> entries = this.getEntriesForCommand(steps.elementAt(i)[1]);
+                
+                //TODO: Don't we know the right entry? What if our last command is an actual entry?
+                for(Entry entry : entries) {
+                    for(SessionDatum datum : entry.getSessionDataReqs()) {
+                        if(datum.getDataId().equals(datumId)) {
+                            return datum;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public void markCurrentFrameForDeath() {
