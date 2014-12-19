@@ -27,6 +27,7 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -59,7 +60,12 @@ public class EvaluationContext {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = base.formInstances;
-        this.variables = base.variables;
+        this.variables = new Hashtable();
+        
+        //TODO: this is actually potentially much slower than 
+        //our old strategy (but is needed for this object to
+        //be threadsafe). We should evaluate the potential impact.
+        this.setVariables(base.variables);
         
         this.contextNode = base.contextNode;
         this.instance = base.instance;
@@ -200,19 +206,20 @@ public class EvaluationContext {
             return null;
         }
         
-        AbstractTreeElement base;
-        DataInstance baseInstance;
-        if(ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
-            baseInstance = formInstances.get(ref.getInstanceName());
-        } else if(instance != null) {
-            baseInstance = instance;
-        } else {
-            throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
-        }
-
+        DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<TreeReference>();
         expandReference(ref,baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
+    }
+    
+    protected DataInstance retrieveInstance(TreeReference ref) {
+        if(ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
+            return formInstances.get(ref.getInstanceName());
+        } else if(instance != null) {
+            return instance;
+        } else {
+            throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
+        }
     }
 
     // recursive helper function for expandReference
@@ -405,5 +412,20 @@ public class EvaluationContext {
         if(loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;
         }
+    }
+    
+    //Dunno what to do about the fact that these two calls are mirrored down...
+    
+    /**
+     * Get the relevant cache host for the provided ref, if one exists.
+     * 
+     * @param ref 
+     * @return
+     */
+    public CacheHost getCacheHost(TreeReference ref) {
+        DataInstance instance = retrieveInstance(ref);
+        if(instance == null) { return null; }
+        CacheHost host = instance.getCacheHost();
+        return host;
     }
 }
