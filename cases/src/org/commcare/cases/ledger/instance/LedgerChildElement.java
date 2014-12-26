@@ -3,23 +3,21 @@
  */
 package org.commcare.cases.ledger.instance;
 
-import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
-import org.javarosa.core.model.utils.PreloadUtils;
+import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 /**
  * @author ctsims
@@ -318,13 +316,20 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
             cacheBuilder.setAttribute(null, NAME_ID, ledger.getEntiyId());
             
             TreeElement ledgerElement;
+            
+            childAttributeHintMap = new Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> ();
+            Hashtable<String, TreeElement[]> sectionIdMap = new Hashtable<String, TreeElement[]>();
+            
             String[] sectionList = ledger.getSectionList();
             for(int i = 0 ; i < sectionList.length ; ++i) {
                 ledgerElement = new TreeElement(SUBNAME, i); 
                 ledgerElement.setAttribute(null, SUBNAME_ID, sectionList[i]);
                 cacheBuilder.addChild(ledgerElement);
+                sectionIdMap.put(sectionList[i], new TreeElement[] {ledgerElement});
 
                 TreeElement entry;
+                Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> hintMap = new Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> ();
+                Hashtable<String, TreeElement[]> idMap = new Hashtable<String, TreeElement[]>();
     
                 String[] entryList =  ledger.getListOfEntries(sectionList[i]);
                 for(int j = 0 ; j < entryList.length ; ++j) {
@@ -332,8 +337,14 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
                     entry.setAttribute(null, FINALNAME_ID, entryList[j]);
                     entry.setValue(new IntegerData(ledger.getEntry(sectionList[i], entryList[j])));
                     ledgerElement.addChild(entry);
+                    idMap.put(entryList[j], new TreeElement[] {entry});
                 }
+                
+                hintMap.put(TreeUtilities.getXPathAttrExpression(FINALNAME_ID), idMap);
+                ledgerElement.addAttributeMap(hintMap);
             }
+            childAttributeHintMap.put(TreeUtilities.getXPathAttrExpression(SUBNAME_ID), sectionIdMap);
+            cacheBuilder.addAttributeMap(childAttributeHintMap);
             
             cacheBuilder.setParent(this.parent);
             
@@ -352,9 +363,9 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return template;
     }
 
+    Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap = null;
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        //TODO: We should be able to catch the index case here?
-        return null;
+        return TreeUtilities.tryBatchChildFetch(this, childAttributeHintMap, name, mult, predicates, evalContext);
     }
 
     public String getNamespace() {

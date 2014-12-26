@@ -10,7 +10,6 @@ import java.util.Vector;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -18,8 +17,6 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
@@ -29,6 +26,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class Graph implements Externalizable, DetailTemplate, Configurable {
     public static final String TYPE_XY = "xy";
     public static final String TYPE_BUBBLE = "bubble";
+    public static final String TYPE_TIME = "time";
 
     private String mType;
     private Vector<XYSeries> mSeries;
@@ -98,9 +96,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     public GraphData evaluate(EvaluationContext context) {
         GraphData data = new GraphData();
         data.setType(mType);
+        evaluateConfiguration(this, data, context);
         evaluateSeries(data, context);
         evaluateAnnotations(data, context);
-        evaluateConfiguration(this, data, context);
         return data;
     }
     
@@ -110,8 +108,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
         for (Annotation a : mAnnotations) {
             graphData.addAnnotation(new AnnotationData(
-                Double.valueOf(a.getX().evaluate(context)), 
-                Double.valueOf(a.getY().evaluate(context)), 
+                a.getX().evaluate(context), 
+                a.getY().evaluate(context), 
                 a.getAnnotation().evaluate(context)
             ));
         }
@@ -124,7 +122,14 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         Enumeration e = template.getConfigurationKeys();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
-            data.setConfiguration(key, template.getConfiguration(key).evaluate(context));
+            String value = template.getConfiguration(key).evaluate(context);
+            String prefix = "var-";
+            if (key.startsWith(prefix)) {
+                context.setVariable(key.substring(prefix.length()), value);
+            }
+            else {
+                data.setConfiguration(key, value);
+            }
         }
     }
     
@@ -136,14 +141,15 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
             for (XYSeries s : mSeries) {
                 Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
-                evaluateConfiguration(s, seriesData, context);
+                EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
+                evaluateConfiguration(s, seriesData, seriesContext);
                 for (TreeReference ref : refList) {
-                    EvaluationContext refContext = new EvaluationContext(context, ref);
-                    Double x = s.evaluateX(refContext);
-                    Double y = s.evaluateY(refContext);
+                    EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
+                    String x = s.evaluateX(refContext);
+                    String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
                         if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
-                            Double radius = ((BubbleSeries) s).evaluateRadius(refContext);
+                            String radius = ((BubbleSeries) s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
                         }
                         else {

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.commcare.util.GridCoordinate;
+import org.commcare.util.GridStyle;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -40,8 +42,10 @@ public class Detail implements Externalizable {
     
     private String id;
     
-    private Text title;
+    private DisplayUnit title;
+    private String titleForm;
     
+    Detail[] details;
     DetailField[] fields;
     
     OrderedHashtable<String, String> variables;
@@ -57,24 +61,36 @@ public class Detail implements Externalizable {
         
     }
     
-    public Detail(String id, Text title, Vector<DetailField> fields, OrderedHashtable<String, String> variables, Action action) {
-        this(id, title, ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), variables, action);
+    public Detail(
+        String id, DisplayUnit title, 
+        Vector<Detail> details, 
+        Vector<DetailField> fields, 
+        OrderedHashtable<String, String> variables, Action action
+    ) {
+        this(
+            id, title, 
+            ArrayUtilities.copyIntoArray(details, new Detail[details.size()]), 
+            ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]), 
+            variables, action
+        );
     }
     
-    public Detail(String id, Text title, DetailField[] fields, OrderedHashtable<String, String> variables, Action action) {
+    public Detail(
+        String id, DisplayUnit title,
+        Detail[] details, 
+        DetailField[] fields, 
+        OrderedHashtable<String, String> variables, Action action
+    ) {
+        if (details.length > 0 && fields.length > 0) {
+            throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
+        }
+        
         this.id = id;
         this.title = title;
+        this.details = details;
         this.fields = fields;
         this.variables = variables;
         this.action = action;
-    }
-    
-    private int[] initBlank(int size) {
-        int[] blank = new int[size];
-        for(int i = 0; i < size ; ++i) {
-            blank[i] = -1;
-        }
-        return blank;
     }
     
     /**
@@ -88,11 +104,45 @@ public class Detail implements Externalizable {
      * @return A title to be displayed to users regarding
      * the type of content being described.
      */
-    public Text getTitle() {
+    public DisplayUnit getTitle() {
         return title;
     }
+    
+    /**
+     * @return Any child details of this detail.
+     */
+    public Detail[] getDetails() {
+        return details;
+    }
+    
+    /**
+     * @return Any fields belonging to this detail.
+     */
     public DetailField[] getFields() {
         return fields;
+    }
+    
+    /**
+     * @return True iff this detail has child details.
+     */
+    public boolean isCompound() {
+        return details.length > 0;
+    }
+    
+    /**
+     * Whether this detail is expected to be so huge in scope that 
+     * the platform should limit its strategy for loading it to be asynchronous
+     * and cached on special keys.
+     * 
+     * @return
+     */
+    public boolean useAsyncStrategy() {
+        for(DetailField f : getFields()) {
+            if(f.getSortOrder() == DetailField.SORT_ORDER_CACHABLE) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /*
@@ -101,7 +151,11 @@ public class Detail implements Externalizable {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
-        title = (Text)ExtUtil.read(in, Text.class, pf);
+        title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
+        titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
+        details = new Detail[theDetails.size()];
+        ArrayUtilities.copyIntoArray(theDetails, details);
         Vector<DetailField> theFields  = (Vector<DetailField>)ExtUtil.read(in, new ExtWrapList(DetailField.class), pf);
         fields = new DetailField[theFields.size()];
         ArrayUtilities.copyIntoArray(theFields, fields);
@@ -116,6 +170,8 @@ public class Detail implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out,id);
         ExtUtil.write(out, title);
+        ExtUtil.write(out, new ExtWrapNullable(titleForm));
+        ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));
         ExtUtil.write(out, new ExtWrapNullable(action));
@@ -242,6 +298,45 @@ public class Detail implements Externalizable {
         }.go();
     }
     
+ public boolean usesGridView(){
+  
+  boolean usesGrid = false;
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   if(currentField.getGridX() >= 0 && currentField.getGridY() >= 0 &&
+     currentField.getGridWidth() >= 0 && currentField.getGridHeight() > 0){
+    usesGrid = true;
+   }
+  }
+  
+  return usesGrid;
+ }
+ 
+ public GridCoordinate[] getGridCoordinates(){
+  GridCoordinate [] mGC = new GridCoordinate[fields.length];
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   mGC[i] = new GridCoordinate(currentField.getGridX(), currentField.getGridY(),
+           currentField.getGridWidth(), currentField.getGridHeight());
+  }
+  
+  return mGC;
+ }
+ 
+ public GridStyle[] getGridStyles(){
+  GridStyle [] mGC = new GridStyle[fields.length];
+  
+  for(int i=0; i< fields.length; i++){
+   DetailField currentField = fields[i];
+   mGC[i] = new GridStyle(currentField.getFontSize(), currentField.getHorizontalAlign(), 
+           currentField.getVerticalAlign(), currentField.getCssId());
+  }
+  
+  return mGC;
+ }
+ 
     private abstract class Map<E> {
         private E a;
         private Map(E a) { this.a = a; }  

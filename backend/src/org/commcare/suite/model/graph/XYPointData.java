@@ -5,19 +5,19 @@ package org.commcare.suite.model.graph;
  * @author jschweers
  */
 public class XYPointData {
-    private Double mX;
-    private Double mY;
+    private String mX = null;
+    private String mY = null;
 
-    public XYPointData(Double x, Double y) {
-        mX = new Double(x);
-        mY = new Double(y);
+    public XYPointData(String x, String y) {
+        mX = x;
+        mY = y;
     }
     
-    public Double getX() {
+    public String getX() {
         return mX;
     }
     
-    public Double getY() {
+    public String getY() {
         return mY;
     }
     

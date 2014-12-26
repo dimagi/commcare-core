@@ -304,7 +304,6 @@ public class ResourceTable {
         int round = -1;
         while (!v.isEmpty() && (toInitialize == null || this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
             round++;
-            System.out.println("Preparing resources round " + round + ". " + v.size() + " resources remain");
             while(!v.isEmpty()) {
                 Resource r = v.pop();
                 boolean upgrade = false;
@@ -346,7 +345,6 @@ public class ResourceTable {
                     if (location.isRelative()) {
                         for (Reference ref : explodeReferences(location, r,this, master)) {
                             if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
-                                System.out.println("Invalid (Stale) local reference attempt for: " + location.getLocation());
                             } else {
                                 try {
                                     handled = installResource(r, location, ref, this, instance, upgrade);
@@ -381,7 +379,9 @@ public class ResourceTable {
                         throw theFailure;
                     }
                 }
-                if(stateListener != null) { stateListener.resourceStateUpdated(this);}
+                if(stateListener != null) {
+                    stateListener.resourceStateUpdated(this);
+                }
             }
             v = GetUnreadyResources();
         }
@@ -405,7 +405,8 @@ public class ResourceTable {
         UnreliableSourceException aFailure = null;
         for(int i = 0 ; i < 1 + this.numberOfLossyRetries ; ++i ) {
             try {
-                return r.getInstaller().install(r, location, ref, table, instance, upgrade);
+                boolean result =  r.getInstaller().install(r, location, ref, table, instance, upgrade);
+                return result;
             } catch(UnreliableSourceException use) {
                 aFailure = use;
                 Logger.log("install", "Potentially lossy install attempt # " + (i+1) + " of " + (numberOfLossyRetries+1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
@@ -461,6 +462,7 @@ public class ResourceTable {
                         if(r.getInstaller().upgrade(r)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
+                            System.out.println("Failed to upgrade resource: " + r.getDescriptor());
                             //REVERT!
                             return false;
                         }
