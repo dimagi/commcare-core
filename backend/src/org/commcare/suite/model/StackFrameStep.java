@@ -39,6 +39,28 @@ public class StackFrameStep implements Externalizable {
         
     }
     
+    public String getType() {
+        return elementType;
+    }
+    
+    public String getId() {
+        return id;
+    }
+    
+    public String getValue() {
+        return value;
+    }
+    
+    public boolean getValueIsXPath() {
+        return valueIsXpath;
+    }
+    
+    public StackFrameStep(String type, String id, String value) {
+        this.elementType = type;
+        this.id = id;
+        this.value = value;
+    }
+    
     public StackFrameStep(String type, String id, String value, boolean valueIsXpath) throws XPathSyntaxException {
         this.elementType = type;
         this.id = id;
@@ -58,7 +80,7 @@ public class StackFrameStep implements Externalizable {
      * @param ec Context to evaluate any parameters with
      * @return A step that can be added to a session frame
      */
-    public String[] defineStep(EvaluationContext ec) {
+    public StackFrameStep defineStep(EvaluationContext ec) {
         String finalValue;
         if(!valueIsXpath) {
             finalValue = value;
@@ -74,9 +96,9 @@ public class StackFrameStep implements Externalizable {
         
         //figure out how to structure the step
         if(elementType.equals(SessionFrame.STATE_DATUM_VAL)) {
-            return new String[] {SessionFrame.STATE_DATUM_VAL, id, finalValue};
+            return new StackFrameStep(SessionFrame.STATE_DATUM_VAL, id, finalValue);
         } else if(elementType.equals(SessionFrame.STATE_COMMAND_ID)) {
-            return new String[] {SessionFrame.STATE_COMMAND_ID, finalValue};
+            return new StackFrameStep(SessionFrame.STATE_COMMAND_ID, finalValue, null);
         } else if(elementType.equals(SessionFrame.STATE_FORM_XMLNS)) {
             throw new RuntimeException("Form Definitions in Steps are not yet supported!");
         } else {
@@ -102,6 +124,40 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
+    }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof StackFrameStep)) {
+            return false;
+        }
+        
+        StackFrameStep that = (StackFrameStep) o;
+
+        if (!propertiesEqual(this.getType(), that.getType())) {
+            return false;
+        }
+
+        if (!propertiesEqual(this.getId(), that.getId())) {
+            return false;
+        }
+        
+        if (!propertiesEqual(this.getValue(), that.getValue())) {
+            return false;
+        }
+        
+        if (this.getValueIsXPath() != that.getValueIsXPath()) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private boolean propertiesEqual(String a, String b) {
+        return
+            a == null && b != null
+            || a != null && b == null
+            || a != null && b!= null && !a.equals(b)
+        ;
     }
 
 }

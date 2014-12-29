@@ -5,6 +5,8 @@ package org.commcare.util;
 
 import java.util.Vector;
 
+import org.commcare.suite.model.StackFrameStep;
+
 /**
  * A Session Frame contains the actions that a user has taken while
  * navigating through a CommCare application. Each action is represented
@@ -32,9 +34,9 @@ public class SessionFrame {
     public static final String ENTITY_NONE = "NONE";
     
     private String frameId;
-    protected Vector<String[]> steps = new Vector<String[]>();
+    protected Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
     
-    protected Vector<String[]> snapshot;
+    protected Vector<StackFrameStep> snapshot;
     
     /** A Frame is dead if it's execution path has finished and it shouldn't be considered part of the stack **/
     boolean dead = false;
@@ -53,14 +55,14 @@ public class SessionFrame {
 
 
 
-    public Vector<String[]> getSteps() {
+    public Vector<StackFrameStep> getSteps() {
         return steps;
     }
 
 
 
-    public String[] popStep() {
-        String[] recentPop = null;
+    public StackFrameStep popStep() {
+        StackFrameStep recentPop = null;
         
         if(steps.size() > 0) {
             recentPop = steps.elementAt(steps.size() -1);
@@ -71,7 +73,7 @@ public class SessionFrame {
 
 
 
-    public void pushStep(String[] step) {
+    public void pushStep(StackFrameStep step) {
         steps.addElement(step);
     }
 
@@ -88,8 +90,8 @@ public class SessionFrame {
      */
     public void captureSnapshot() {
         synchronized(steps) {
-            snapshot = new Vector<String[]>();
-            for(String[] s : steps) {
+            snapshot = new Vector<StackFrameStep>();
+            for(StackFrameStep s : steps) {
                 snapshot.addElement(s);
             }
         }
@@ -114,23 +116,15 @@ public class SessionFrame {
             
             //Go through each step in the snapshot
             for(int i = 0 ; i < snapshot.size() ; ++i ) {
-                String[] snapStep = snapshot.elementAt(i);
-                String[] curStep = steps.elementAt(i);
-                
-                //Make sure they're the same length, otherwise they can't be equal
-                if(snapStep.length != curStep.length) { return true; }
-                
-                //Make sure it's the same step, otherwise the snapshot is incompatible
-                for(int j = 0 ; j < snapStep.length ; ++j) {
-                    if(!snapStep[j].equals(curStep[j])) { return true; }
+                if (!snapshot.elementAt(i).equals(steps.elementAt(i))) {
+                    return true;
                 }
             }
             
-            //Id we didn't find anything wrong, we're good to go!
+            //If we didn't find anything wrong, we're good to go!
             return false;
         }
     }
-
 
     public void clearSnapshot() {
         synchronized(steps) {

@@ -47,7 +47,7 @@ public class CommCareSession {
     
     CommCarePlatform platform;
         
-    protected String[] popped;
+    protected StackFrameStep popped;
     
     protected String currentCmd;
     protected OrderedHashtable data;
@@ -182,23 +182,23 @@ public class CommCareSession {
             }
         }
         
-        Vector<String[]> steps = frame.getSteps();
+        Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
         
         
         Hashtable<String, Entry> entries = platform.getMenuMap();
         int i = 0;
-        for(String[] step : steps) {
-            if(step[0] == SessionFrame.STATE_COMMAND_ID) {
+        for(StackFrameStep step : steps) {
+            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
                 //Menu or form. 
-                if(menus.containsKey(step[1])) {
-                    returnVal[i] = menus.get(step[1]);
-                } else if(entries.containsKey(step[1])) {
-                    returnVal[i] = entries.get(step[1]).getText().evaluate();
+                if(menus.containsKey(step.getId())) {
+                    returnVal[i] = menus.get(step.getId());
+                } else if(entries.containsKey(step.getId())) {
+                    returnVal[i] = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step[0] == SessionFrame.STATE_DATUM_VAL) {
+            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL) {
                 //TODO: Grab the name of the case
-            }  else if(step[0] == SessionFrame.STATE_DATUM_COMPUTED) {
+            }  else if(step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
                 //Nothing to do here
             }
             
@@ -276,7 +276,7 @@ public class CommCareSession {
     }
     
     public void stepBack() {
-        String[] recentPop = frame.popStep();
+        StackFrameStep recentPop = frame.popStep();
         //TODO: Check the "base state" of the frame
         //after popping to see if we invalidated the
         //stack
@@ -291,17 +291,17 @@ public class CommCareSession {
     }
 
     public void setDatum(String keyId, String value) {
-        frame.pushStep(new String[] {SessionFrame.STATE_DATUM_VAL, keyId, value});
+        frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
         syncState();
     }
     
     public void setXmlns(String xmlns) {
-        frame.pushStep(new String[] {SessionFrame.STATE_FORM_XMLNS, xmlns});
+        frame.pushStep(new StackFrameStep(SessionFrame.STATE_FORM_XMLNS, xmlns, null));
         syncState();
     }
     
     public void setCommand(String commandId) {
-        frame.pushStep(new String[] {SessionFrame.STATE_COMMAND_ID, commandId});
+        frame.pushStep(new StackFrameStep(SessionFrame.STATE_COMMAND_ID, commandId, null));
         syncState();
     }
     
@@ -311,20 +311,20 @@ public class CommCareSession {
         this.currentXmlns = null;
         this.popped = null;
         
-        for(String[] step : frame.getSteps()) {
-            if(SessionFrame.STATE_DATUM_VAL.equals(step[0])) {
-                String key = step[1];
-                String value = step[2];
+        for(StackFrameStep step : frame.getSteps()) {
+            if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+                String key = step.getId();
+                String value = step.getValue();
                 data.put(key, value);
-            } else if(SessionFrame.STATE_COMMAND_ID.equals(step[0])) {
-                this.currentCmd = step[1];
-            }  else if(SessionFrame.STATE_FORM_XMLNS.equals(step[0])) {
-                this.currentXmlns = step[1];
+            } else if(SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
+                this.currentCmd = step.getId();
+            }  else if(SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {
+                this.currentXmlns = step.getId();
             }
         }
     }
     
-    public String[] getPoppedStep() {
+    public StackFrameStep getPoppedStep() {
         return popped;
     }
     
@@ -360,10 +360,10 @@ public class CommCareSession {
         
         sessionRoot.addChild(sessionData);
         
-        for(String[] step : frame.getSteps()) {
-            if(step[0] == SessionFrame.STATE_DATUM_VAL) {
-                TreeElement datum = new TreeElement(step[1]);
-                datum.setValue(new UncastData(step[2]));
+        for(StackFrameStep step : frame.getSteps()) {
+            if(step.getType() == SessionFrame.STATE_DATUM_VAL) {
+                TreeElement datum = new TreeElement(step.getId());
+                datum.setValue(new UncastData(step.getValue()));
                 sessionData.addChild(datum);
             }
         }
@@ -641,12 +641,12 @@ public class CommCareSession {
         //we should likely generalize this to make it easier to do it for other
         //operations
         
-        Vector<String[]> steps =  frame.getSteps();
+        Vector<StackFrameStep> steps =  frame.getSteps();
         
         int stepId = -1;
         //walk to our datum
         for(int i = 0 ; i < steps.size(); ++i) {
-            if(steps.elementAt(i)[0] == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i)[1].equals(datumId)) {
+            if(steps.elementAt(i).getType() == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i).getId().equals(datumId)) {
                stepId = i;
                break;
             }
@@ -659,8 +659,8 @@ public class CommCareSession {
         //ok, so now we have our step, we want to walk backwards until we find the entity
         //associated with our ID
         for(int i = stepId; i >= 0 ; i--) {
-            if(steps.elementAt(i)[0].equals(SessionFrame.STATE_COMMAND_ID)) {
-                Vector<Entry> entries = this.getEntriesForCommand(steps.elementAt(i)[1]);
+            if(steps.elementAt(i).getType().equals(SessionFrame.STATE_COMMAND_ID)) {
+                Vector<Entry> entries = this.getEntriesForCommand(steps.elementAt(i).getId());
                 
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
                 for(Entry entry : entries) {
