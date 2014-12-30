@@ -158,6 +158,10 @@ public class FormEntryController {
             return false;
         }
     }
+    
+    public void expandRepeats(FormIndex index) {
+        model.createModelIfNecessary(index);
+    }
 
 
     /**
@@ -173,6 +177,13 @@ public class FormEntryController {
         return stepToNextEvent(true);
     }
 
+    public FormIndex getNextIndex(FormIndex index, boolean expandRepeats) {
+        return getAdjacentIndex(index, true, expandRepeats);
+    }
+
+    public FormIndex getNextIndex(FormIndex index) {
+        return getAdjacentIndex(index, true, true);
+    }
 
     /**
      * Navigates backward in the form.
@@ -184,6 +195,9 @@ public class FormEntryController {
         return stepEvent(false, false);
     }
 
+    public FormIndex getPreviousIndex(FormIndex index, boolean expandRepeats) {
+        return getAdjacentIndex(index, false, expandRepeats);
+    }
 
     /**
      * Moves the current FormIndex to the next/previous relevant position.
@@ -194,7 +208,11 @@ public class FormEntryController {
      */
     private int stepEvent(boolean forward, boolean expandRepeats) {
         FormIndex index = model.getFormIndex();
-
+        index = getAdjacentIndex(index, forward, expandRepeats);
+        return jumpToIndex(index, expandRepeats);
+    }
+    
+    private FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
         boolean relevant = true;
         boolean inForm = true;
@@ -224,7 +242,11 @@ public class FormEntryController {
             }
         } while (inForm && !relevant);
 
-        return jumpToIndex(index, expandRepeats);
+        if (expandRepeats) {
+            model.createModelIfNecessary(index);
+        }
+        
+        return index;
     }
 
     /**
