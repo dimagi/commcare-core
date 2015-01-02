@@ -243,6 +243,10 @@ public class XPathFuncExpr extends XPathExpression {
                 return substring(argVals[0], argVals[1], args.length == 3 ? argVals[2] : null);
             } else if (name.equals("string-length") && args.length == 1) {
                 return stringLength(argVals[0]);
+            } else if (name.equals("upper-case") && args.length == 1) {
+                return normalizeCase(argVals[0], true);
+            } else if (name.equals("lower-case") && args.length == 1) {
+                return normalizeCase(argVals[0], false);
             } else if (name.equals("checklist") && args.length >= 2) { //non-standard
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
                     return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
@@ -820,6 +824,20 @@ public class XPathFuncExpr extends XPathExpression {
         end = Math.min(Math.max(0, end), end);
         
         return ((start <= end && end <= len) ? s.substring(start, end) : "");
+    }
+
+    /**
+     * Perform toUpperCase or toLowerCase on given object.
+     * @param o
+     * @param toUpper
+     * @return
+     */
+    private String normalizeCase (Object o, boolean toUpper) {
+        String s = toString(o);
+        if (toUpper) {
+            return s.toUpperCase();
+        }
+        return s.toLowerCase();
     }
     
     /**
