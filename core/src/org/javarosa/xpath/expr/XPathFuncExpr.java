@@ -834,9 +834,6 @@ public class XPathFuncExpr extends XPathExpression {
      */
     private String normalizeCase (Object o, boolean toUpper) {
         String s = toString(o);
-        if (s == null) {
-            return "";
-        }
         if (toUpper) {
             return s.toUpperCase();
         }
