@@ -248,7 +248,7 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("lower-case") && args.length == 1) {
                 return normalizeCase(argVals[0], false);
             } else if (name.equals("contains") && args.length == 2) {
-                return toString(argVals[0]).contains(toString(argVals[1]));
+                return toString(argVals[0]).indexOf(toString(argVals[1])) != -1;
             } else if (name.equals("starts-with") && args.length == 2) {
                 return toString(argVals[0]).startsWith(toString(argVals[1]));
             } else if (name.equals("ends-with") && args.length == 2) {
