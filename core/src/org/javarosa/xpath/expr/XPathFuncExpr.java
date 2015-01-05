@@ -255,6 +255,8 @@ public class XPathFuncExpr extends XPathExpression {
                 return toString(argVals[0]).endsWith(toString(argVals[1]));
             } else if (name.equals("translate") && args.length == 3) {
                 return translate(argVals[0], argVals[1], argVals[2]);
+            } else if (name.equals("replace") && args.length == 3) {
+                return replace(argVals[0], argVals[1], argVals[2]);
             } else if (name.equals("checklist") && args.length >= 2) { //non-standard
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
                     return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
@@ -868,7 +870,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o1 String to manipulate
      * @param o2 String of characters to replace
      * @param o3 String of replacement characters
-     * @return
+     * @return String
      */
     private String translate(Object o1, Object o2, Object o3) {
         String source = toString(o1);
@@ -895,6 +897,21 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         return returnValue;
+    }
+
+    /**
+     * Regex-based replacement.
+     * @param o1 String to manipulate
+     * @param o2 Pattern to search for
+     * @param o3 Replacement string. Contrary to the XPath spec, this function does NOT 
+     * support backreferences (e.g., replace("abbc", "a(.*)c", "$1") will return "a$1c", not "bb").
+     * @return String
+     */
+    private String replace(Object o1, Object o2, Object o3) {
+        String source = toString(o1);
+        RE pattern = new RE(toString(o2));
+        String replacement = toString(o3);
+        return pattern.subst(source, replacement);
     }
     
     /**
