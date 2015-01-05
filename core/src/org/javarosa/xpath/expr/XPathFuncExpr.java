@@ -253,6 +253,8 @@ public class XPathFuncExpr extends XPathExpression {
                 return toString(argVals[0]).startsWith(toString(argVals[1]));
             } else if (name.equals("ends-with") && args.length == 2) {
                 return toString(argVals[0]).endsWith(toString(argVals[1]));
+            } else if (name.equals("translate") && args.length == 3) {
+                return translate(argVals[0], argVals[1], argVals[2]);
             } else if (name.equals("checklist") && args.length >= 2) { //non-standard
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
                     return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
@@ -852,6 +854,47 @@ public class XPathFuncExpr extends XPathExpression {
             return s.toUpperCase();
         }
         return s.toLowerCase();
+    }
+    
+    /**
+     * Replace each of a given set of characters with another set of characters.
+     * If the characters to replace are "abc" and the replacement string is "def",
+     * each "a" in the source string will be replaced with "d", each "b" with "e", etc.
+     * If a character appears multiple times in the string of characters to replace, the
+     * first occurrence is the one that will be used.
+     * 
+     * Any extra characters in the string of characters to replace will be deleted from the source.
+     * Any extra characters in the string of replacement characters will be ignored.
+     * @param o1 String to manipulate
+     * @param o2 String of characters to replace
+     * @param o3 String of replacement characters
+     * @return
+     */
+    private String translate(Object o1, Object o2, Object o3) {
+        String source = toString(o1);
+        String from = toString(o2);
+        String to = toString(o3);
+        
+        Hashtable<Character, Character> map = new Hashtable<Character, Character>();
+        for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
+            if (!map.containsKey(from.charAt(i))) {
+                map.put(from.charAt(i), to.charAt(i));
+            }
+        }
+        String toDelete = from.substring(Math.min(from.length(), to.length()));
+        
+        String returnValue = "";
+        for (int i = 0; i < source.length(); i++) {
+            Character current = source.charAt(i);
+            if (!toDelete.contains(String.valueOf(current))) {
+                if (map.containsKey(current)) {
+                    current = map.get(current);
+                }
+                returnValue += current;
+            }
+        }
+
+        return returnValue;
     }
     
     /**
