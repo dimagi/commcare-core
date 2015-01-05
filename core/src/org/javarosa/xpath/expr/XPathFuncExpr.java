@@ -247,6 +247,12 @@ public class XPathFuncExpr extends XPathExpression {
                 return normalizeCase(argVals[0], true);
             } else if (name.equals("lower-case") && args.length == 1) {
                 return normalizeCase(argVals[0], false);
+            } else if (name.equals("contains") && args.length == 2) {
+                return toString(argVals[0]).contains(toString(argVals[1]));
+            } else if (name.equals("starts-with") && args.length == 2) {
+                return toString(argVals[0]).startsWith(toString(argVals[1]));
+            } else if (name.equals("ends-with") && args.length == 2) {
+                return toString(argVals[0]).endsWith(toString(argVals[1]));
             } else if (name.equals("checklist") && args.length >= 2) { //non-standard
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
                     return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
