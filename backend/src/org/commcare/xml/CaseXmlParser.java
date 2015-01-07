@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -167,9 +166,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     String indexName = parser.getName();
                     String caseType = parser.getAttributeValue(null, "case_type");
                     String value = parser.nextText().trim();
-                    String relationship = parser.getAttributeValue(null, "relationship");
                     
-                    caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
+                    caseForBlock.setIndex(indexName, caseType, value);
                 }
             } else if(action.equals("attachment")) {
                 if(caseForBlock == null) {

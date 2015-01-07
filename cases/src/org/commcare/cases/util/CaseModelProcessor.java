@@ -9,7 +9,6 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -242,15 +241,11 @@ public class CaseModelProcessor implements ICaseModelProcessor {
             if(!child.isRelevant()) { continue; }
             String indexName = child.getName();
             String indexType = child.getAttributeValue(null, "case_type");
-            String relationship = child.getAttributeValue(null, "relationship");
-            if(relationship == null) {
-                relationship = CaseIndex.RELATIONSHIP_CHILD;
-            }
             IAnswerData data = child.getValue();
             if(data == null) {
                 throw new MalformedCaseModelException("Invalid <index> child, supplied index doesn't have a value. at " + child.getRef().toString(true),"<create>");
             }
-            c.setIndex(new CaseIndex(indexName, indexType, data.uncast().getString(), relationship));
+            c.setIndex(indexName, indexType, data.uncast().getString());
             modified = true;
         }
         if(modified) {
