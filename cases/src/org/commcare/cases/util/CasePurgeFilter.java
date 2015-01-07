@@ -3,6 +3,7 @@
  */
 package org.commcare.cases.util;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
@@ -13,6 +14,7 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DAG;
+import org.javarosa.core.util.DAG.Edge;
 import org.javarosa.core.util.DataUtil;
 
 /**
@@ -25,8 +27,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private static final String STATUS_LIVE = "L";
     /** Purgable **/
     private static final String STATUS_DEAD = "D";
-    /** Closed or not owned**/
+    /** Closed or not owned (NOTE: No longer used) **/
     private static final String STATUS_CLOSED = "C";
+    /** Not currently alive, and dependent on another case **/
+    private static final String STATUS_ABANDONED = "A";
     
     Vector<Integer> idsToRemove = new Vector<Integer>();
 
@@ -47,70 +51,134 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * 
      */
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        
+        setIdsToRemoveNew(caseStorage, owners);
+    }
+    
+    private void setIdsToRemoveNew(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
         //Create a DAG. The Index will be the case GUID. The Nodes will be a string array containing
         //[CASE_STATUS, string(storageid)]
-        //CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_CLOSED, STATUS_DEAD 
-        DAG<String, String[]> g = new DAG<String,String[]>();
+        //CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_DEAD, or STATUS_ABANDONED 
+        DAG<String, String[], String> g = new DAG<String,String[], String>();
         
+        Vector<CaseIndex> indexHolder = new Vector<CaseIndex>(); 
+        
+        //Pass 1:
         //Create a DAG which contains all of the cases on the phone as nodes, and has a directed
-        //edge for each index (from the 'child' case pointing to the 'parent' case)
+        //edge for each index (from the 'child' case pointing to the 'parent' case) with the 
+        //appropriate relationship tagged
         for(IStorageIterator<Case> i = caseStorage.iterate() ; i.hasMore() ; ) {
             Case c = i.nextRecord();
             boolean owned = true;
             if(owners != null) {
                 owned = owners.contains(c.getUserId());
             }
-             
-            g.addNode(c.getCaseId(), new String[] {c.isClosed() ? STATUS_CLOSED : (owned ? STATUS_LIVE : STATUS_CLOSED), String.valueOf(c.getID())});
+            
+            //In order to deal with multiple indices pointing to the same case
+            //with different relationships, we'll need to traverse once to eliminate any
+            //ambiguity (TODO: How do we speed this up? Do we need to?)
             for(CaseIndex index : c.getIndices()) {
-                g.setEdge(c.getCaseId(), index.getTarget());
+                CaseIndex toReplace = null;
+                boolean skip = false;
+                for(CaseIndex existing : indexHolder) {
+                    if(existing.getTarget().equals(index.getTarget())) {
+                        if(existing.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION) && !index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+                            toReplace = existing;
+                        } else {
+                            skip = true;
+                        }
+                        break;
+                    }
+                }
+                if(toReplace != null) { 
+                    indexHolder.removeElement(toReplace);
+                }
+                if(!skip) { 
+                    indexHolder.addElement(index);
+                }
+            }
+            String nodeStatus;
+            //Four cases, applied in order. One and two: closed or unowned it starts life dead
+            if(!owned || c.isClosed()) {
+                nodeStatus = STATUS_DEAD;
+            } else {
+                //Otherwise we need to see whether this case maintains any extension indices,
+                //if so, it's abandoned. Otherwise it's Alive
+                boolean abandoned = false;
+                for(CaseIndex index : indexHolder) {
+                    if(index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+                        abandoned = true;
+                        break;
+                    }
+                }
+                if(abandoned) {
+                    nodeStatus = STATUS_ABANDONED;
+                } else {
+                    nodeStatus = STATUS_LIVE;
+                }
+            }
+            
+             
+            g.addNode(c.getCaseId(), new String[] {nodeStatus, String.valueOf(c.getID())});
+            
+            for(CaseIndex index : indexHolder) {
+                g.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
+            }
+            indexHolder.removeAllElements();
+        }
+        
+        //Pass 2: Start at Sources (nodes which only produce edges) and walk up
+        //the tree, marking relevant nodes as alive
+        Stack<String> toProcess = g.getSources();
+        while(!toProcess.isEmpty()) {
+            //current node
+            String index = toProcess.pop();
+            String[] node = g.getNode(index);
+            
+            //Walk all indexed nodes, adding them to the process stack.
+            //and update their liveness if necessary.
+            for(Edge<String, String> edge : g.getChildren(index) ) {
+                if(node[0].equals(STATUS_LIVE)) {
+                    g.getNode(edge.i)[0] = STATUS_LIVE;
+                }
+                //add this to the process stack
+                //TODO: We're going to walk stuff redundantly this
+                //way. Can we optimize? 
+                //If parent is already live, does 
+                //that necessarily denote that its ancestors are alive?
+                toProcess.addElement(edge.i);
             }
         }
         
-        //We now have our graph. The only nodes which are self-determined are those
-        //which are not pointed to by any indexes (the leaves).
-        Stack<String> selfDetermined = g.getSources();
-        while(!selfDetermined.isEmpty()) {
-            
+        //Pass 2: Start at Sinks (nodes which only receive edges) and walk down the 
+        //graphs, marking necessary nodes as alive
+        toProcess = g.getSinks();
+        while(!toProcess.isEmpty()) {
             //current node
-            String index = selfDetermined.pop();
+            String index = toProcess.pop();
             String[] node = g.getNode(index);
             
-            
-            if(node[0] == STATUS_LIVE) {
-                //If it's alive, just remove it from the queue, none of its dependents can
-                //be dead
-                continue;
-            } else {
-                //the only option should be closed (dead nodes shouldn't be in the stack), verify.
-                if(node[0] != STATUS_CLOSED) {
-                    throw new RuntimeException("Node " + index + " is somehow dead while in stack");
+            //Walk all indexing nodes.
+            for(Edge<String, String> edge : g.getParents(index) ) {
+                if(g.getNode(edge.i)[0].equals(STATUS_ABANDONED)   && 
+                   edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION) &&
+                   node[0].equals(STATUS_LIVE)) {
+                    
+                    g.getNode(edge.i)[0] = STATUS_LIVE;
                 }
-                //Set the node to the appropriate status
-                node[0] = STATUS_DEAD;
-                //put it in our purge queue
-                idsToRemove.addElement(Integer.valueOf(node[1]));
                 
-                //Now find all children and add any which are now in charge of their own fate to the stack.
-                Vector<String> descendents = g.getChildren(index);
-                if(descendents == null) {
-                    continue;
-                }
-                for(String dependentIndex : descendents) {
-                    //This node is now self-determined if all of its parents are dead (it must have at 
-                    //last one parent, the node current at issue)
-                    boolean nodeIsSelfDetermined = true;
-                    for(String parent : g.getParents(dependentIndex)) {
-                        if(g.getNode(parent)[0] != STATUS_DEAD) {
-                            nodeIsSelfDetermined = false;
-                            break;
-                        }
-                    }
-                    if(nodeIsSelfDetermined) {
-                        selfDetermined.push(dependentIndex);
-                    }
-                }
+                //add this to the process stack
+                //TODO: We're going to walk stuff redundantly this
+                //way. Can we optimize? 
+                toProcess.addElement(edge.i);
+            }
+        }
+        
+        //Ok, so now just go through all nodes and signal that we need to remove anything
+        //that isn't live!
+        for(Enumeration iterator = g.getNodes(); iterator.hasMoreElements() ; ) {
+            String[] node = (String[])iterator.nextElement();
+            if(!node[0].equals(STATUS_LIVE)) {
+                idsToRemove.addElement(Integer.valueOf(node[1]));
             }
         }
     }

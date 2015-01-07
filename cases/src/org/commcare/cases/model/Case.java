@@ -56,19 +56,19 @@ public class Case implements Persistable, IMetaData, Secure {
     public static String INDEX_CASE_STATUS = "case-status";
     public static String INDEX_CASE_INDEX_PRE = "case-in-";
     
-    private String typeId;
-    private String id;
-    private String name;
+    protected String typeId;
+    protected String id;
+    protected String name;
     
-    private boolean closed = false;
+    protected boolean closed = false;
     
-    private Date dateOpened;
+    protected Date dateOpened;
     
-    int recordId;
+    protected int recordId;
 
-    Hashtable data = new Hashtable();
+    protected Hashtable data = new Hashtable();
     
-    Vector<CaseIndex> indices = new Vector<CaseIndex>();
+    protected Vector<CaseIndex> indices = new Vector<CaseIndex>();
     
     /**
      * NOTE: This constructor is for serialization only.
@@ -268,11 +268,17 @@ public class Case implements Persistable, IMetaData, Secure {
         return new String[] {INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
     }
 
+    /**
+     * Deprecated, use setIndex(CaseIndex) in the future.
+     */
     public void setIndex(String indexName, String caseType, String indexValue) {
-        CaseIndex index = new CaseIndex(indexName, caseType, indexValue);
+        setIndex(new CaseIndex(indexName, caseType, indexValue));
+    }
+    
+    public void setIndex(CaseIndex index) {
         //remove existing indices at this name
         for(CaseIndex i : this.indices) {
-            if(i.getName().equals(indexName)) {
+            if(i.getName().equals(index.getName())) {
                 this.indices.removeElement(i);
                 break;
             }
