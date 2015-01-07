@@ -21,7 +21,6 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
-import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -60,11 +59,9 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.formmanager.FormManagerModule;
 import org.javarosa.formmanager.properties.FormManagerProperties;
 import org.javarosa.j2me.J2MEModule;
-import org.javarosa.j2me.crypto.util.CryptoSession;
 import org.javarosa.j2me.file.J2meFileReference;
 import org.javarosa.j2me.file.J2meFileRoot;
 import org.javarosa.j2me.file.J2meFileSystemProperties;
@@ -132,8 +129,6 @@ public class CommCareContext {
     public CommCarePlatform getManager() {
         return manager;
     }
-    
-    CryptoSession crypt;
     
     public void configureApp(MIDlet m, InitializationListener listener) {
         //Application Entry point should be considered to be here
