@@ -294,11 +294,11 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("abs") && (args.length == 1)) {
                 return new Double(Math.abs(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("ceiling") && (args.length == 1)) {
-                return Math.ceil(toDouble(argVals[0]).doubleValue());
+                return new Double(Math.ceil(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("floor") && (args.length == 1)) {
-                return Math.floor(toDouble(argVals[0]).doubleValue());
+                return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round") && (args.length == 1)) {
-                return (double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
+                return new Double((double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
             } else if (name.equals("log") && (args.length == 1)) { //XPath 3.0
                 return log(argVals[0]);
             } else if (name.equals("log10") && (args.length == 1)) { //XPath 3.0
