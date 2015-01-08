@@ -880,7 +880,7 @@ public class XPathFuncExpr extends XPathExpression {
         Hashtable<Character, Character> map = new Hashtable<Character, Character>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
             if (!map.containsKey(new Character(from.charAt(i)))) {
-                map.put(from.charAt(i), to.charAt(i));
+                map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));
             }
         }
         String toDelete = from.substring(Math.min(from.length(), to.length()));
