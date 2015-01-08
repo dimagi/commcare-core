@@ -11,6 +11,11 @@ public class Localization {
         return get(key, new String[]{});
     }
     
+    public static String get(String key, String arg) {
+        checkRep();
+        return globalLocalizer.getText(key, new String[] {arg});
+    }
+    
     public static String get(String key, String[] args) {
         checkRep();
         return globalLocalizer.getText(key, args);

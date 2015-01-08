@@ -458,7 +458,7 @@ public class FormEntryModel {
      * @param The index to be evaluated as to whether the underlying model is
      *        hinted to exist
      */
-    private void createModelIfNecessary(FormIndex index) {
+    public void createModelIfNecessary(FormIndex index) {
         if (index.isInForm()) {
             IFormElement e = getForm().getChild(index);
             if (e instanceof GroupDef) {
