@@ -291,8 +291,6 @@ public class XPathFuncExpr extends XPathExpression {
                 return PropertyUtils.genGUID(len);
             } else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
                 return power(argVals[0], argVals[1]);
-            } else if (name.equals("abs") && (args.length == 1)) {
-                return Math.abs(toDouble(argVals[0]).doubleValue());
             } else if (name.equals("ceiling") && (args.length == 1)) {
                 return Math.ceil(toDouble(argVals[0]).doubleValue());
             } else if (name.equals("floor") && (args.length == 1)) {
