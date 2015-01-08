@@ -879,7 +879,7 @@ public class XPathFuncExpr extends XPathExpression {
         
         Hashtable<Character, Character> map = new Hashtable<Character, Character>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
-            if (!map.containsKey(from.charAt(i))) {
+            if (!map.containsKey(new Character(from.charAt(i)))) {
                 map.put(from.charAt(i), to.charAt(i));
             }
         }
@@ -887,7 +887,7 @@ public class XPathFuncExpr extends XPathExpression {
         
         String returnValue = "";
         for (int i = 0; i < source.length(); i++) {
-            Character current = source.charAt(i);
+            Character current = new Character(source.charAt(i));
             if (toDelete.indexOf(current) == -1) {
                 if (map.containsKey(current)) {
                     current = map.get(current);
