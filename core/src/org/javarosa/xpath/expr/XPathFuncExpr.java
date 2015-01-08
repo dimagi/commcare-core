@@ -292,13 +292,13 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
                 return power(argVals[0], argVals[1]);
             } else if (name.equals("abs") && (args.length == 1)) {
-                return Math.abs(toDouble(argVals[0]).doubleValue());
+                return new Double(Math.abs(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("ceiling") && (args.length == 1)) {
-                return Math.ceil(toDouble(argVals[0]).doubleValue());
+                return new Double(Math.ceil(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("floor") && (args.length == 1)) {
-                return Math.floor(toDouble(argVals[0]).doubleValue());
+                return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round") && (args.length == 1)) {
-                return (double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
+                return new Double((double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
             } else if (name.equals("log") && (args.length == 1)) { //XPath 3.0
                 return log(argVals[0]);
             } else if (name.equals("log10") && (args.length == 1)) { //XPath 3.0
@@ -879,15 +879,15 @@ public class XPathFuncExpr extends XPathExpression {
         
         Hashtable<Character, Character> map = new Hashtable<Character, Character>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
-            if (!map.containsKey(from.charAt(i))) {
-                map.put(from.charAt(i), to.charAt(i));
+            if (!map.containsKey(new Character(from.charAt(i)))) {
+                map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));
             }
         }
         String toDelete = from.substring(Math.min(from.length(), to.length()));
         
         String returnValue = "";
         for (int i = 0; i < source.length(); i++) {
-            Character current = source.charAt(i);
+            Character current = new Character(source.charAt(i));
             if (toDelete.indexOf(current) == -1) {
                 if (map.containsKey(current)) {
                     current = map.get(current);
