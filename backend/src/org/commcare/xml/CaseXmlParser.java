@@ -168,6 +168,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     String caseType = parser.getAttributeValue(null, "case_type");
                     String value = parser.nextText().trim();
                     String relationship = parser.getAttributeValue(null, "relationship");
+                    if(relationship == null) {
+                        relationship = CaseIndex.RELATIONSHIP_CHILD;
+                    }
                     
                     caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
                 }
