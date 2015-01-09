@@ -158,6 +158,14 @@ public class FormEntryController {
             return false;
         }
     }
+    
+    /**
+     * Expand any unexpanded repeats at the given FormIndex.
+     * @param index
+     */
+    public void expandRepeats(FormIndex index) {
+        model.createModelIfNecessary(index);
+    }
 
 
     /**
@@ -173,6 +181,24 @@ public class FormEntryController {
         return stepToNextEvent(true);
     }
 
+    /**
+     * Find the FormIndex that comes after the given one.
+     * @param index
+     * @param expandRepeats
+     * @return FormIndex
+     */
+    public FormIndex getNextIndex(FormIndex index, boolean expandRepeats) {
+        return getAdjacentIndex(index, true, expandRepeats);
+    }
+
+    /**
+     * Find the FormIndex that comes after the given one, expanding any repeats encountered.
+     * @param index
+     * @return FormIndex
+     */
+    public FormIndex getNextIndex(FormIndex index) {
+        return getAdjacentIndex(index, true, true);
+    }
 
     /**
      * Navigates backward in the form.
@@ -184,17 +210,37 @@ public class FormEntryController {
         return stepEvent(false, false);
     }
 
+    /**
+     * Find the FormIndex that comes before the given one.
+     * @param index
+     * @param expandRepeats
+     * @return FormIndex
+     */
+    public FormIndex getPreviousIndex(FormIndex index, boolean expandRepeats) {
+        return getAdjacentIndex(index, false, expandRepeats);
+    }
 
     /**
      * Moves the current FormIndex to the next/previous relevant position.
      * 
      * @param forward
      * @param expandRepeats Expand any unexpanded repeat groups
-     * @return
+     * @return event associated with the new position
      */
     private int stepEvent(boolean forward, boolean expandRepeats) {
         FormIndex index = model.getFormIndex();
-
+        index = getAdjacentIndex(index, forward, expandRepeats);
+        return jumpToIndex(index, expandRepeats);
+    }
+    
+    /**
+     * Find a FormIndex next to the given one. 
+     * @param index
+     * @param forward If true, get the next FormIndex, else get the previous one.
+     * @param expandRepeats
+     * @return
+     */
+    private FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
         boolean relevant = true;
         boolean inForm = true;
@@ -224,7 +270,11 @@ public class FormEntryController {
             }
         } while (inForm && !relevant);
 
-        return jumpToIndex(index, expandRepeats);
+        if (expandRepeats) {
+            expandRepeats(index);
+        }
+        
+        return index;
     }
 
     /**
