@@ -597,6 +597,10 @@ public class TreeReference implements Externalizable {
     /**
      * Returns the subreference of this reference up to the level specified.
      * 
+     * For instance, for the reference:
+     * 
+     *   (/data/path/to/node).getSubreference(2) => /data/path/to
+     * 
      * Used to identify the reference context for a predicate at the same level
      * 
      * Must be an absolute reference, otherwise will throw IllegalArgumentException
