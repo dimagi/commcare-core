@@ -206,19 +206,19 @@ public class XPathFuncExpr extends XPathExpression {
             }  else if (name.equals("count") && args.length == 1) {
                 return count(argVals[0]);
             } else if (name.equals("sum") && args.length == 1) {
-                if (argVals[0] instanceof XPathNodeset) {
+                if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
                     return sum(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     throw new XPathTypeMismatchException("not a nodeset");                
                 }
             } else if (name.equals("max")) {
-                if (argVals[0] instanceof XPathNodeset) {
+                if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
                     return max(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     return max(argVals);                
                 }
             }  else if (name.equals("min")) {
-                if (argVals[0] instanceof XPathNodeset) {
+                if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
                     return min(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     return min(argVals);                
