@@ -10,6 +10,8 @@ import sys
 
 def submit_build(environ, host):
     target_url= host + "/builds/post/"
+	
+	print environ
 
     command =  (
         'curl -v '
@@ -39,6 +41,9 @@ if __name__ == "__main__":
     environ = None
     try:
         environ = dict([(var, os.environ[var]) for var in variables])
+		
+		print environ
+		
     except KeyError:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
