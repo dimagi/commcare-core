@@ -44,6 +44,6 @@ public class StyleParser extends ElementParser<Integer> {
   
   parser.nextTag();
   
-  return 1;
+  return new Integer(1);
  }
 }
