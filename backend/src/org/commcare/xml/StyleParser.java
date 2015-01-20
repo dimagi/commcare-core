@@ -18,7 +18,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 
-public class StyleParser extends ElementParser<Void> {
+public class StyleParser extends ElementParser<Integer> {
  
  Builder builder;
  
@@ -27,7 +27,7 @@ public class StyleParser extends ElementParser<Void> {
   this.builder = builder;
  } 
  
- public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
+ public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
   
   String fontSize = parser.getAttributeValue(null, "font-size");
   builder.setFontSize(fontSize);
@@ -44,6 +44,6 @@ public class StyleParser extends ElementParser<Void> {
   
   parser.nextTag();
   
-  return element;
+  return new Integer(1);
  }
 }
