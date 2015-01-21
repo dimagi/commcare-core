@@ -33,12 +33,12 @@ if __name__ == "__main__":
     print os.environ
 
     variables = [
-        "username",
-        "password",
-        "artifacts",
-        "remote_host",
-        "version",
-        "build_number",
+        "USERNAME",
+        "PASSWORD",
+        "ARTIFACTS",
+        "REMOTE_HOST",
+        "VERSION",
+        "BUILD_NUMBER",
     ]
     args = sys.argv[1:]
     environ = None
