@@ -30,6 +30,7 @@ def submit_build(environ, host):
 if __name__ == "__main__":
 
     print "main"
+    print os.environ
 
     variables = [
         "username",
