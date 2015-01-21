@@ -15,11 +15,11 @@ def submit_build(environ, host):
     command =  (
         'curl -v '
         '-H "Expect:" '
-        '-F "artifacts=@{artifacts}" '
-        '-F "username={username}" '
-        '-F "password={password}" '
-        '-F "build_number={build_number}" '
-        '-F "version={version}" '
+        '-F "artifacts=@{ARTIFACTS}" '
+        '-F "username={USERNAME}" '
+        '-F "password={PASSWORD}" '
+        '-F "build_number={BUILD_NUMBER}" '
+        '-F "version={VERSION}" '
         '{target_url}'
     ).format(target_url=target_url, **environ)
 
