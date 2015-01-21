@@ -49,7 +49,7 @@ if __name__ == "__main__":
     except KeyError:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
-			print environ
+            print environ
 
     if environ:
     	hosts = environ['remote_host'].split("+")
