@@ -44,14 +44,15 @@ if __name__ == "__main__":
     try:
         environ = dict([(var, os.environ[var]) for var in variables])
 		
-        print environ
+        print os.environ
 		
     except KeyError:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
-            print environ
+            print os.environ
 
     if environ:
+        print os.environ
     	hosts = environ['remote_host'].split("+")
     	for host in hosts:
 	        command, out, err = submit_build(environ, host)
