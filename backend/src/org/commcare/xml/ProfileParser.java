@@ -5,11 +5,10 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.installers.LoginImageInstaller;
-import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.util.InvalidStructureException;
@@ -52,7 +51,6 @@ public class ProfileParser extends ElementParser<Profile> {
 		String sMinor = parser.getAttributeValue(null,"requiredMinor");
 		
 		String uniqueId = parser.getAttributeValue(null, "uniqueId");
-		String appName = parser.getAttributeValue(null, "displayName");
 		
 		int major = -1;
 		int minor = -1;
@@ -92,12 +90,14 @@ public class ProfileParser extends ElementParser<Profile> {
 		
 		//If this is an old version of the profile file and is therefore missing uniqueId 
 		//and displayName, use the resourceId for both for now
+		boolean fromOld = false;
 		if (uniqueId == null) {
 		    System.out.println("AAAAAAAAAAAAAAA profile was old version");
-		    uniqueId = resourceId;
-		    appName = resourceId;
+		    fromOld = true;
+		    uniqueId = UUID.randomUUID().toString();
+		    System.out.println("generated uniqueId: " + uniqueId);
 		}
-		Profile profile = new Profile(version, authRef, uniqueId, appName);
+		Profile profile = new Profile(version, authRef, uniqueId, fromOld);
 		try {
 
 			// Now that we've covered being inside of the profile,

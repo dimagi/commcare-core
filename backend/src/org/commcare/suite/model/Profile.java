@@ -40,10 +40,10 @@ public class Profile implements Persistable {
     int recordId = -1;
     int version;
     String uniqueId;
-    String displayName;
     String authRef;
     Vector<PropertySetter> properties;
     Vector<RootTranslator> roots;
+    boolean fromOld; //whether it is from an old version of the profile file (pre-multiple apps changes)
     
     Hashtable<String,Boolean> featureStatus;
     
@@ -68,11 +68,11 @@ public class Profile implements Persistable {
      * is obsoleted by it. 
      * 
      */
-    public Profile(int version, String authRef, String uniqueId, String displayName) {
+    public Profile(int version, String authRef, String uniqueId, boolean fromOld) {
         this.version = version;
         this.authRef = authRef;
         this.uniqueId = uniqueId;
-        this.displayName = displayName;
+        this.fromOld = fromOld;
         properties = new Vector<PropertySetter>();
         roots = new Vector<RootTranslator>();
         featureStatus = new Hashtable<String, Boolean>();
@@ -97,10 +97,11 @@ public class Profile implements Persistable {
 	}
 	
 	/*
-	 * Return the app name assigned to this app from HQ
+	 * Return whether this Profile was generated from an old version of profile.ccpr
+	 * (i.e. does not have a uniqueId or displayName)
 	 */
-	public String getDisplayName() {
-		return this.displayName;
+	public boolean fromOld() {
+	    return this.fromOld;
 	}
 
     /*
