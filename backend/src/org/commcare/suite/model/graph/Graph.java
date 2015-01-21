@@ -14,6 +14,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -74,7 +75,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
-        mSeries = (Vector<XYSeries>)ExtUtil.read(in, new ExtWrapList(XYSeries.class), pf);
+        mSeries = (Vector<XYSeries>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         mAnnotations = (Vector<Annotation>)ExtUtil.read(in,  new ExtWrapList(Annotation.class), pf);
     }
 
@@ -85,7 +86,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mType);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
-        ExtUtil.write(out, new ExtWrapList(mSeries));
+        ExtUtil.write(out, new ExtWrapListPoly(mSeries));
         ExtUtil.write(out, new ExtWrapList(mAnnotations));
     }
 

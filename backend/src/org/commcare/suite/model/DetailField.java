@@ -12,6 +12,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -185,7 +186,7 @@ public class DetailField implements Externalizable {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         header = (Text)ExtUtil.read(in, Text.class);
-        template = (Text)ExtUtil.read(in, Text.class);
+        template = (DetailTemplate)ExtUtil.read(in, new ExtWrapTagged(DetailTemplate.class));
         sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
         
         //Unfortunately I don't think there's a clean way to do this
@@ -206,7 +207,7 @@ public class DetailField implements Externalizable {
      */
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, header);
-        ExtUtil.write(out, template);
+        ExtUtil.write(out, new ExtWrapTagged(template));
         ExtUtil.write(out, new ExtWrapNullable(sort));
         
         boolean relevantSet = relevancy != null;
