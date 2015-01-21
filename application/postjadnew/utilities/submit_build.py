@@ -46,7 +46,6 @@ if __name__ == "__main__":
             environ = dict(zip(variables, args))
 
     if environ:
-        print os.environ
     	hosts = environ['REMOTE_HOST'].split("+")
     	for host in hosts:
 	        command, out, err = submit_build(environ, host)
