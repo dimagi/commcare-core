@@ -18,6 +18,13 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class BubbleSeries extends XYSeries {
     private String mRadius;
     private XPathExpression mRadiusParse;
+    
+    /*
+     * Deserialization Only!
+     */
+    public BubbleSeries() {
+        
+    }
 
     public BubbleSeries(String nodeSet) {
         super(nodeSet);
