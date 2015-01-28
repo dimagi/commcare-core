@@ -5,7 +5,6 @@ package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -88,14 +87,14 @@ public class ProfileParser extends ElementParser<Profile> {
 
 		String registrationNamespace = null;
 		
-		//If this is an old version of the profile file and is therefore missing uniqueId 
-		//and displayName, use the resourceId for both for now
+		//If this is an old version of the profile file and is therefore missing uniqueId,
+		//get it from the update URL
 		boolean fromOld = false;
 		if (uniqueId == null) {
-		    System.out.println("AAAAAAAAAAAAAAA profile was old version");
 		    fromOld = true;
-		    uniqueId = UUID.randomUUID().toString();
-		    System.out.println("generated uniqueId: " + uniqueId);
+		    int startIndex = authRef.indexOf("download") + 9;
+            int endIndex = authRef.indexOf("profile") - 1;
+            uniqueId = authRef.substring(startIndex, endIndex);
 		}
 		Profile profile = new Profile(version, authRef, uniqueId, fromOld);
 		try {
