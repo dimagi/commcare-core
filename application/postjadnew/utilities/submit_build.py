@@ -14,11 +14,11 @@ def submit_build(environ, host):
     command =  (
         'curl -v '
         '-H "Expect:" '
-        '-F "artifacts=@{artifacts}" '
-        '-F "username={username}" '
-        '-F "password={password}" '
-        '-F "build_number={build_number}" '
-        '-F "version={version}" '
+        '-F "artifacts=@{ARTIFACTS}" '
+        '-F "username={USERNAME}" '
+        '-F "password={PASSWORD}" '
+        '-F "build_number={BUILD_NUMBER}" '
+        '-F "version={VERSION}" '
         '{target_url}'
     ).format(target_url=target_url, **environ)
 
@@ -27,24 +27,26 @@ def submit_build(environ, host):
 
 
 if __name__ == "__main__":
+
     variables = [
-        "username",
-        "password",
-        "artifacts",
-        "remote_host",
-        "version",
-        "build_number",
+        "USERNAME",
+        "PASSWORD",
+        "ARTIFACTS",
+        "REMOTE_HOST",
+        "VERSION",
+        "BUILD_NUMBER",
     ]
     args = sys.argv[1:]
     environ = None
     try:
         environ = dict([(var, os.environ[var]) for var in variables])
+		
     except KeyError:
         if len(args) == len(variables):
             environ = dict(zip(variables, args))
 
     if environ:
-    	hosts = environ['remote_host'].split("+")
+    	hosts = environ['REMOTE_HOST'].split("+")
     	for host in hosts:
 	        command, out, err = submit_build(environ, host)
 	        print command

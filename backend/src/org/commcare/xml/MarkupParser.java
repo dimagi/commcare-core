@@ -11,7 +11,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class MarkupParser extends ElementParser<Void> {
+public class MarkupParser extends ElementParser<Integer> {
  
  Builder builder;
  
@@ -20,7 +20,7 @@ public class MarkupParser extends ElementParser<Void> {
   this.builder = builder;
  } 
  
- public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
+ public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
   
   parser.nextTag();
   
@@ -31,6 +31,6 @@ public class MarkupParser extends ElementParser<Void> {
   //exit grid block
   parser.nextTag();
   
-  return element;
+  return new Integer(1);
  }
 }

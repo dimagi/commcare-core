@@ -18,6 +18,10 @@ public class Annotation implements Externalizable {
     private Text mX;
     private Text mY;
     private Text mAnnotation;
+    
+    public Annotation() {
+        
+    }
 
     public Annotation(Text x, Text y, Text annotation) {
         mX = x;

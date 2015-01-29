@@ -33,6 +33,13 @@ public class XYSeries implements Externalizable, Configurable {
     private XPathExpression mXParse;
     private XPathExpression mYParse;
     
+    /*
+     * Deserialization only!
+     */
+    public XYSeries() {
+        
+    }
+    
     public XYSeries(String nodeSet) {
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
         mConfiguration = new Hashtable<String, Text>();

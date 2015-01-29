@@ -17,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 
-public class GridParser extends ElementParser<Void> {
+public class GridParser extends ElementParser<Integer> {
  
  Builder builder;
  
@@ -26,7 +26,7 @@ public class GridParser extends ElementParser<Void> {
   this.builder = builder;
  } 
  
- public Void parse() throws InvalidStructureException, IOException, XmlPullParserException {
+ public Integer parse() throws InvalidStructureException, IOException, XmlPullParserException {
   
   checkNode("grid");
   String gridx = parser.getAttributeValue(null, "grid-x");
@@ -44,6 +44,6 @@ public class GridParser extends ElementParser<Void> {
   //exit grid block
   parser.nextTag();
   
-  return element;
+  return new Integer(1);
  }
 }

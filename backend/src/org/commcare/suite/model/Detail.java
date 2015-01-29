@@ -150,7 +150,7 @@ public class Detail implements Externalizable {
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = ExtUtil.readString(in);
+        id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
@@ -168,7 +168,7 @@ public class Detail implements Externalizable {
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out,id);
+        ExtUtil.write(out,new ExtWrapNullable(id));
         ExtUtil.write(out, title);
         ExtUtil.write(out, new ExtWrapNullable(titleForm));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));

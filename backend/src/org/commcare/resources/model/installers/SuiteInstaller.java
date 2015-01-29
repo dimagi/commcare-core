@@ -106,6 +106,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
         try {
             mSuite = (Suite)storage().read(cacheLocation);
         } catch(Exception e) {
+            e.printStackTrace();
             sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage"));
             return true;
         }
