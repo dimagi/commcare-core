@@ -39,8 +39,7 @@ public class ProfileParser extends ElementParser<Profile> {
         this.forceVersion = forceVersion;
     }
 
-    public Profile parse() throws InvalidStructureException, IOException,  XmlPullParserException, 
-    UnfullfilledRequirementsException {
+    public Profile parse() throws InvalidStructureException, IOException,  XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("profile");
 
         String sVersion = parser.getAttributeValue(null, "version");
