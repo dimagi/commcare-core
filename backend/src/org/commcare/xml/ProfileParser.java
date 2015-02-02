@@ -65,35 +65,27 @@ public class ProfileParser extends ElementParser<Profile> {
         }
 
         // If version information is available, check valid versions
-        if ((!forceVersion && this.instance != null) && (major != -1)
-                && (minor != -1)) {
+        if ((!forceVersion && this.instance != null) && (major != -1) && (minor != -1)) {
 
             // For the major version, only a matching number is valid, 2.0
             // cannot be run on either 1.0 or 3.0
             if (this.instance.getMajorVersion() != -1
-                    && this.instance.getMajorVersion() != major) { // changed <
-                                                                   // to !=
+                    && this.instance.getMajorVersion() != major) { //changed < to !=
+                
                 throw new UnfullfilledRequirementsException(
-                        "Major Version Mismatch (Required: " + major
-                                + " | Available: "
-                                + this.instance.getMajorVersion() + ")",
+                        "Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
                         UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,
-                        major, minor, this.instance.getMajorVersion(),
-                        this.instance.getMinorVersion());
+                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
 
             // For the minor version, anything greater than the profile's
             // version is valid
-            if (this.instance.getMinorVersion() != -1 && this.instance.getMinorVersion() < minor) {
+            if (this.instance.getMinorVersion() != -1 
+                    && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
-                        "Minor Version Mismatch (Required: " + minor
-                                + " | Available: "
-                                + this.instance.getMinorVersion() + ")",
+                        "Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
                         UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,
-                        major, minor, this.instance.getMajorVersion(),
-                        this.instance.getMinorVersion());
+                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
         }
 
@@ -136,8 +128,7 @@ public class ProfileParser extends ElementParser<Profile> {
                             profile.addPropertySetter(key, value);
                         }
                     } else if (parser.getName().toLowerCase().equals("root")) {
-                        RootTranslator root = new RootParser(this.parser)
-                                .parse();
+                        RootTranslator root = new RootParser(this.parser).parse();
                         profile.addRoot(root);
                     } else if (parser.getName().toLowerCase().equals("login")) {
                         // Get the resource block or fail out
