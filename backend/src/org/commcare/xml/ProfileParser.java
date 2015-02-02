@@ -29,9 +29,8 @@ public class ProfileParser extends ElementParser<Profile> {
     CommCareInstance instance;
     boolean forceVersion = false;
 
-    public ProfileParser(InputStream suiteStream, CommCareInstance instance,
-            ResourceTable table, String resourceId, int initialResourceStatus,
-            boolean forceVersion) throws IOException {
+    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table, 
+            String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
         super(suiteStream);
         this.table = table;
         this.resourceId = resourceId;
@@ -40,8 +39,8 @@ public class ProfileParser extends ElementParser<Profile> {
         this.forceVersion = forceVersion;
     }
 
-    public Profile parse() throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException {
+    public Profile parse() throws InvalidStructureException, IOException,  XmlPullParserException, 
+    UnfullfilledRequirementsException {
         checkNode("profile");
 
         String sVersion = parser.getAttributeValue(null, "version");
@@ -74,7 +73,6 @@ public class ProfileParser extends ElementParser<Profile> {
             if (this.instance.getMajorVersion() != -1
                     && this.instance.getMajorVersion() != major) { // changed <
                                                                    // to !=
-
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major
                                 + " | Available: "
@@ -87,8 +85,7 @@ public class ProfileParser extends ElementParser<Profile> {
 
             // For the minor version, anything greater than the profile's
             // version is valid
-            if (this.instance.getMinorVersion() != -1
-                    && this.instance.getMinorVersion() < minor) {
+            if (this.instance.getMinorVersion() != -1 && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor
                                 + " | Available: "
@@ -123,7 +120,7 @@ public class ProfileParser extends ElementParser<Profile> {
             eventType = parser.getEventType();
             do {
                 if (eventType == KXmlParser.END_DOCUMENT) {
-
+                    
                 } else if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("property")) {
                         String key = parser.getAttributeValue(null, "key");
@@ -145,20 +142,14 @@ public class ProfileParser extends ElementParser<Profile> {
                     } else if (parser.getName().toLowerCase().equals("login")) {
                         // Get the resource block or fail out
                         getNextTagInBlock("login");
-                        Resource resource = new ResourceParser(parser,
-                                maximumResourceAuthority).parse();
-                        table.addResource(resource, table.getInstallers()
-                                .getLoginImageInstaller(), resourceId,
-                                initialResourceStatus);
-                    } else if (parser.getName().toLowerCase()
-                            .equals("features")) {
+                        Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                        table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId, initialResourceStatus);
+                    } else if (parser.getName().toLowerCase().equals("features")) {
                         while (nextTagInBlock("features")) {
                             String tag = parser.getName().toLowerCase();
-                            String active = parser.getAttributeValue(null,
-                                    "active");
+                            String active = parser.getAttributeValue(null, "active");
                             boolean isActive = false;
-                            if (active != null
-                                    && active.toLowerCase().equals("true")) {
+                            if (active != null && active.toLowerCase().equals("true")) {
                                 isActive = true;
                             }
                             if (tag.equals("checkoff")) {
@@ -170,48 +161,34 @@ public class ProfileParser extends ElementParser<Profile> {
                                     int days = this.parseInt(reminderTime);
                                 }
                             } else if (tag.equals("package")) {
-                                // nothing (yet)
+                                //nothing (yet)
                             } else if (tag.equals("users")) {
-                                while (nextTagInBlock("users")) {
-                                    if (parser.getName().toLowerCase()
-                                            .equals("registration")) {
-                                        registrationNamespace = parser
-                                                .nextText();
-                                        profile.addPropertySetter(
-                                                "user_reg_namespace",
-                                                registrationNamespace, true);
-                                    } else if (parser.getName().toLowerCase()
-                                            .equals("logo")) {
+                                while(nextTagInBlock("users")) {
+                                    if(parser.getName().toLowerCase().equals("registration")) {                                    
+                                        registrationNamespace = parser.nextText();
+                                        profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
+                                    } else if(parser.getName().toLowerCase().equals("logo")) {
                                         String logo = parser.nextText();
-                                        profile.addPropertySetter(
-                                                "cc_login_image", logo, true);
+                                        profile.addPropertySetter("cc_login_image", logo, true);
                                     } else {
-                                        throw new InvalidStructureException(
-                                                "Unrecognized tag "
-                                                        + parser.getName()
-                                                        + " inside of users feature block",
-                                                parser);
+                                        throw new InvalidStructureException("Unrecognized tag " + parser.getName() + " inside of users feature block", parser);
                                     }
                                 }
                             } else if (tag.equals("sense")) {
-
+                                
                             }
-
+                            
                             profile.setFeatureActive(tag, isActive);
-
-                            // TODO: set feature activation in profile
+                            
+                            //TODO: set feature activation in profile
                         }
                     } else if (parser.getName().toLowerCase().equals("suite")) {
                         // Get the resource block or fail out
                         getNextTagInBlock("suite");
-                        Resource resource = new ResourceParser(parser,
-                                maximumResourceAuthority).parse();
-
-                        // TODO: Possibly add a real parent reference if we
-                        // decide these go in the table
-                        table.addResource(resource, table.getInstallers()
-                                .getSuiteInstaller(), resourceId,
-                                initialResourceStatus);
+                        Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
+                        
+                        //TODO: Possibly add a real parent reference if we decide these go in the table
+                        table.addResource(resource, table.getInstallers().getSuiteInstaller(), resourceId, initialResourceStatus);
                     } else {
                         System.out.println("Unrecognized Tag: "
                                 + parser.getName());
@@ -224,22 +201,18 @@ public class ProfileParser extends ElementParser<Profile> {
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
-
-            return profile;
+    
+        return profile;
 
         } catch (XmlPullParserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new InvalidStructureException(
-                    "Pull Parse Exception, malformed XML.", parser);
+            throw new InvalidStructureException("Pull Parse Exception, malformed XML.",parser);
         } catch (StorageFullException e) {
             e.printStackTrace();
-            // BUT not really! This should maybe be added to the high level
-            // declaration
-            // instead? Or maybe there should be a more general Resource
-            // Management Exception?
-            throw new InvalidStructureException(
-                    "Problem storing parser suite XML", parser);
+            //BUT not really! This should maybe be added to the high level declaration
+            //instead? Or maybe there should be a more general Resource Management Exception?
+            throw new InvalidStructureException("Problem storing parser suite XML",parser);
         }
     }
 
