@@ -39,7 +39,7 @@ public class ProfileParser extends ElementParser<Profile> {
         this.forceVersion = forceVersion;
     }
 
-    public Profile parse() throws InvalidStructureException, IOException,  XmlPullParserException, UnfullfilledRequirementsException {
+    public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("profile");
 
         String sVersion = parser.getAttributeValue(null, "version");
@@ -54,18 +54,18 @@ public class ProfileParser extends ElementParser<Profile> {
 
         int major = -1;
         int minor = -1;
-
+        
         if (sMajor != null) {
             major = parseInt(sMajor);
         }
-
+        
         if (sMinor != null) {
             minor = parseInt(sMinor);
         }
 
         // If version information is available, check valid versions
         if ((!forceVersion && this.instance != null) && (major != -1) && (minor != -1)) {
-
+            
             // For the major version, only a matching number is valid, 2.0 cannot be run on either 1.0 or 3.0
             if (this.instance.getMajorVersion() != -1
                     && this.instance.getMajorVersion() != major) {    //changed < to !=
@@ -75,7 +75,7 @@ public class ProfileParser extends ElementParser<Profile> {
                         UnfullfilledRequirementsException.SEVERITY_PROMPT,
                         UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
-
+            
             // For the minor version, anything greater than the profile's version is valid
             if (this.instance.getMinorVersion() != -1 
                     && this.instance.getMinorVersion() < minor) {
@@ -188,7 +188,7 @@ public class ProfileParser extends ElementParser<Profile> {
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
-    
+            
         return profile;
 
         } catch (XmlPullParserException e) {
