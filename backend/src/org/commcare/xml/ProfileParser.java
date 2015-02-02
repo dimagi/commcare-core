@@ -204,7 +204,6 @@ public class ProfileParser extends ElementParser<Profile> {
     }
 
     int maximumResourceAuthority = -1;
-
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
     }
