@@ -19,10 +19,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- * 
+ *
  */
 public class ProfileParser extends ElementParser<Profile> {
-
+    
     ResourceTable table;
     String resourceId;
     int initialResourceStatus;
@@ -77,7 +77,7 @@ public class ProfileParser extends ElementParser<Profile> {
             }
             
             // For the minor version, anything greater than the profile's version is valid
-            if (this.instance.getMinorVersion() != -1 
+            if (this.instance.getMinorVersion() != -1
                     && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
