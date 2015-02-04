@@ -76,38 +76,52 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     public T resolveReference(TreeReference ref) {
         if (!ref.isAbsolute()){
+            System.out.println("2415 ret not absolute, return null");
             return null;
         }
         
         T t = referenceCache.retrieve(ref);
         
         if(t != null && (t.getValue() != null)){
+            System.out.println("2415 return t short circuit not null: " + t.getValue());
             return t;
         } 
     
+        System.out.println("24152 resolving ref: " + ref.toString());
+        
         AbstractTreeElement<T> node = getBase();
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
             String name = ref.getName(i);
+            
+            System.out.println("24152 name: " + i + " is: " + name);
+            
             int mult = ref.getMultiplicity(i);
+            
+            System.out.println("24152 mult is: " + mult);
             
             if(mult == TreeReference.INDEX_ATTRIBUTE) {
                 //Should we possibly just return here? 
                 //I guess technically we could step back...
+                
+                System.out.println("24152 result is: " + node.getAttribute(null, name));
+                
                 node = result = node.getAttribute(null, name);
                 continue;
             }
             if (mult == TreeReference.INDEX_UNBOUND) {
                 if (node.getChildMultiplicity(name) == 1) {
+                    System.out.println("24152 mult is 0");
                     mult = 0;
                 } else {
                     // reference is not unambiguous
+                    System.out.println("24152 result is null, ambiguous");
                     node = result = null;
                     break;
                 }
             } 
-    
             node = result = node.getChild(name, mult);
+            System.out.println("24152 end result is: " + result);
             if (node == null) {
                 break;
             }
@@ -115,6 +129,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         
         t = (node == getBase() ? null : result); // never return a reference to '/'
         referenceCache.register(ref, t);
+        System.out.println("2415 return t : " + t);
         return t;
     }
 

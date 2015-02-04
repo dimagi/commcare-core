@@ -189,21 +189,31 @@ import org.javarosa.xpath.expr.XPathPathExpr;
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public TreeElement getChild(String name, int multiplicity) {
+        
+        System.out.println("24152 get child: " + name+  " mult: " + multiplicity);
+        
         if(this.children == null) { return null; }
         
         if (name.equals(TreeReference.NAME_WILDCARD)) {
             if(multiplicity == TreeReference.INDEX_TEMPLATE || this.children.size() < multiplicity + 1) {
+                System.out.println("24152 returning first null");
                 return null;
             }
+            System.out.println("24152 returning tree lement at multiplicity");
             return (TreeElement) this.children.elementAt(multiplicity); //droos: i'm suspicious of this
         } else {
+            System.out.println("24152 else size: " + this.children.size());
             for (int i = 0; i < this.children.size(); i++) {
                 TreeElement child = (TreeElement) this.children.elementAt(i);
+                System.out.println("24152 child: " + child.toString());
                 if (((name.hashCode() == child.getName().hashCode()) || name.equals(child.getName())) && child.getMult() == multiplicity) {
+                    System.out.println("24152 returning last child");
                     return child;
                 }
             }
         }
+        
+        System.out.println("24152 returning end null");
 
         return null;
     }
