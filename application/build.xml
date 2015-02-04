@@ -363,7 +363,6 @@
 		</zip>
 		<taskdef name="py-run" onerror="report" classname="org.pyant.tasks.PythonRunTask" classpath="${dir.tools}/pyAntTasks-1.3.jar"/>
 		<py-run script="${dir.postjad.new}/utilities/submit_build.py"/>
-		<delete dir="${build.zip.dir}"/>
 	</target>
 
     <target name="BuildAndPostJad" depends="BuildClean,PostJad10" description="Build the jad and post it."/>
