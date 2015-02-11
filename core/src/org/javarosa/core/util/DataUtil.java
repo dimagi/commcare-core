@@ -15,7 +15,7 @@ public class DataUtil {
     static final  int high = 400;
     static Integer[] iarray;
     
-    static UnionLambda unionLambda = new UnionLambda();;
+    static UnionLambda unionLambda = new UnionLambda();
     
     public static Integer integer(int ivalue) {
         if(iarray == null) {
