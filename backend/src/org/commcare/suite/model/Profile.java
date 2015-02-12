@@ -97,11 +97,11 @@ public class Profile implements Persistable {
 	}
 	
 	/*
-	 * Return whether this Profile was generated from an old version of profile.ccpr
-	 * (i.e. does not have a uniqueId or displayName)
+	 * Return true if this Profile contains the information necessary for multiple
+	 * apps to work properly (uniqueId and displayName)
 	 */
-	public boolean fromOld() {
-	    return this.fromOld;
+	public boolean preparedForMultipleApps() {
+	    return !this.fromOld;
 	}
 
     /*

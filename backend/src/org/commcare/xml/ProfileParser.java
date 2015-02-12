@@ -94,7 +94,7 @@ public class ProfileParser extends ElementParser<Profile> {
         if (uniqueId == null) {
             fromOld = true;
             int startIndex = authRef.indexOf("download") + 9;
-            int endIndex = authRef.indexOf("profile") - 1;
+            int endIndex = authRef.indexOf("profile", startIndex) - 1;
             uniqueId = authRef.substring(startIndex, endIndex);
         }
         Profile profile = new Profile(version, authRef, uniqueId, fromOld);
