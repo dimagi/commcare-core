@@ -50,7 +50,8 @@ public class ProfileParser extends ElementParser<Profile> {
         String sMajor = parser.getAttributeValue(null, "requiredMajor");
         String sMinor = parser.getAttributeValue(null, "requiredMinor");
 
-        String uniqueId = parser.getAttributeValue(null, "uniqueId");
+        String uniqueId = parser.getAttributeValue(null, "uniqueid");
+        String displayName = parser.getAttributeValue(null, "name");
 
         int major = -1;
         int minor = -1;
