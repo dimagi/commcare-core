@@ -98,7 +98,7 @@ public class ProfileParser extends ElementParser<Profile> {
             int endIndex = authRef.indexOf("profile", startIndex) - 1;
             uniqueId = authRef.substring(startIndex, endIndex);
         }
-        Profile profile = new Profile(version, authRef, uniqueId, fromOld);
+        Profile profile = new Profile(version, authRef, uniqueId, displayName, fromOld);
         try {
 
             // Now that we've covered being inside of the profile,
