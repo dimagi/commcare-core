@@ -60,7 +60,7 @@ public class TreeUtilities {
         if(mult != TreeReference.INDEX_UNBOUND || predicates == null) { return null; }
         
         Vector<Integer> toRemove = new Vector<Integer>();
-        Vector<TreeReference> selectedChildren = null;
+        Vector<TreeReference> allSelectedChildren = null;
         
         //Lazy init these until we've determined that our predicate is hintable
         
@@ -72,6 +72,7 @@ public class TreeUtilities {
         
         predicate:
         for(int i = 0 ; i < predicates.size() ; ++i) {
+            Vector<TreeReference> predicateMatches = new Vector<TreeReference>();
             XPathExpression xpe = predicates.elementAt(i);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating 
             //something we index with something static.
@@ -116,16 +117,13 @@ public class TreeUtilities {
                             
                             //Retrieve the list of children which match our literal
                             TreeElement[] children = childAttributeHintMap.get(left).get(literalMatch);
-                            if(selectedChildren == null) {
-                                selectedChildren = new Vector<TreeReference>();
-                            }
                             if(children != null) {
                                 for(TreeElement element : children) {
-                                    selectedChildren.addElement(element.getRef());
+                                    predicateMatches.addElement(element.getRef());
                                 }
                             }
-                            //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-                            toRemove.addElement(DataUtil.integer(i));
+                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
                     }
@@ -161,16 +159,12 @@ public class TreeUtilities {
  
                             for(int kidI = 0 ; kidI < kids.size() ; ++kidI) {
                                 if(kids.elementAt(kidI).getAttributeValue(null, attributeName).equals(literalMatch)) {
-                                    if(selectedChildren == null) {
-                                        selectedChildren = new Vector<TreeReference>();
-                                    }
-                                    selectedChildren.addElement(kids.elementAt(kidI).getRef());
+                                    predicateMatches.addElement(kids.elementAt(kidI).getRef());
                                 }
                             }
                             
-                            
-                            //Note that this predicate is evaluated and doesn't need to be evaluated in the future.
-                            toRemove.addElement(DataUtil.integer(i));
+                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
                     }
@@ -182,17 +176,27 @@ public class TreeUtilities {
         }
         
         //if we weren't able to evaluate any predicates, signal that.
-        if(selectedChildren == null) { return null; }
+        if(allSelectedChildren == null) { return null; }
         
         //otherwise, remove all of the predicates we've already evaluated
         for(int i = toRemove.size() - 1; i >= 0 ; i--)  {
             predicates.removeElementAt(toRemove.elementAt(i).intValue());
         }
         
-        return selectedChildren;
+        return allSelectedChildren;
     }
     
     
+    private static Vector<TreeReference> merge(Vector<TreeReference> allSelectedChildren,Vector<TreeReference> predicateMatches, int i,Vector<Integer> toRemove) {
+        toRemove.addElement(DataUtil.integer(i));
+        if(allSelectedChildren == null) {
+            return predicateMatches;
+        }
+        DataUtil.union(allSelectedChildren, predicateMatches);
+        return allSelectedChildren;
+    }
+
+
     //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest. 
     static CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
 

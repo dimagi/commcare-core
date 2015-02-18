@@ -15,6 +15,7 @@ public class DataUtil {
     static final  int high = 400;
     static Integer[] iarray;
     
+    static UnionLambda unionLambda = new UnionLambda();
     
     public static Integer integer(int ivalue) {
         if(iarray == null) {
@@ -27,14 +28,24 @@ public class DataUtil {
     }
 
 
-    public static Vector<Integer> union(Vector<Integer> a, Vector<Integer> b) {
-        Vector<Integer> u = new Vector<Integer>();
-        //Efficiency?
-        for(Integer i : a) {
-            if(b.contains(i)) {
-                u.addElement(i);
+    public static <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+        return unionLambda.union(a, b);
+    }
+    
+    public static void setUnionLambda(UnionLambda newUnionLambda) {
+        unionLambda = newUnionLambda;
+    }
+    
+    public static class UnionLambda {
+        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+            Vector<T> u = new Vector<T>();
+            //Efficiency?
+            for(T i : a) {
+                if(b.contains(i)) {
+                    u.addElement(i);
+                }
             }
+            return u;
         }
-        return u;
     }
 }
