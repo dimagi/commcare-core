@@ -153,7 +153,6 @@ public class XPathNodeset {
                 throw new XPathTypeMismatchException("There was a problem with the path " + originalPath + " which refers to the location " + pathEvaluated + " which was not found. This often means you made a typo in the question reference, or the question no longer exists in the form.");
             }
         } else {
-            System.out.println("112 original path: " + originalPath);
             throw new XPathTypeMismatchException("Location " + pathEvaluated + " was not found");
         }
     }
