@@ -35,7 +35,7 @@ public class Menu implements Externalizable {
     String[] commandExprs;
     String id;
     String root;
-    XPathExpression relevantExpr;
+    String relevant;
     
     /**
      * Serialization only!!!
@@ -44,13 +44,14 @@ public class Menu implements Externalizable {
         
     }
     
-    public Menu(String id, String root, XPathExpression relevantExpr, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
+    public Menu(String id, String root, String relevant, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
         this.id = id;
         this.root = root;
-        this.relevantExpr = relevantExpr;
+        this.relevant = relevant;
         this.display = display;
         this.commandIds = commandIds;
         this.commandExprs = commandExprs;
+//Logger.log("construct", this.id + this.relevantExpr);
     }
     
     /**
@@ -77,15 +78,15 @@ public class Menu implements Externalizable {
     public String getId() {
         return id;
     }
-
+    
     /**
      * @return A string representing an XPath expression to determine
      * whether or not to display this menu.
      */
-    public XPathExpression getRelevantExpr() {
-        return relevantExpr;
+    public String getRelevancyCondition() {
+        return relevant;
     }
-    
+
     /**
      * @return The ID of what command actions should be available
      * when viewing this menu.
@@ -116,6 +117,7 @@ public class Menu implements Externalizable {
             throws IOException, DeserializationException {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         root = ExtUtil.readString(in);
+        relevant = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
         commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
         commandExprs =  new String[ExtUtil.readInt(in)];
@@ -133,6 +135,7 @@ public class Menu implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out,ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out,root);
+        ExtUtil.writeString(out,ExtUtil.emptyIfNull(relevant));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
         ExtUtil.writeNumeric(out, commandExprs.length);

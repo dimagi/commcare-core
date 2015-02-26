@@ -37,12 +37,13 @@ public class MenuParser extends ElementParser<Menu> {
         root = root == null? "root" : root;
 
         String relevant = parser.getAttributeValue(null, "relevant");
-        XPathExpression relevantExpression = null;
-        try {
-            relevantExpression = relevant == null ? null : XPathParseTool.parseXPath(relevant);
-        } catch (XPathSyntaxException e) {
-            e.printStackTrace();
-            throw new InvalidStructureException("Bad module filtering expression {" + relevant + "}", parser);
+        if (relevant != null) {
+            try {
+                XPathParseTool.parseXPath(relevant);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new InvalidStructureException("Bad module filtering expression {" + relevant + "}", parser);
+            }
         }
 
         getNextTagInBlock("menu");
@@ -84,7 +85,7 @@ public class MenuParser extends ElementParser<Menu> {
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 
-        Menu m = new Menu(id, root, relevantExpression, display, commandIds, expressions);
+        Menu m = new Menu(id, root, relevant, display, commandIds, expressions);
         return m;
 
     }
