@@ -74,19 +74,7 @@ public class CommCareSessionController {
         EvaluationContext ec  = session.getEvaluationContext(getIif());
         while(en.hasMoreElements()) {
             Suite suite = (Suite)en.nextElement();
-            for(Menu m : suite.getMenus()) {
-                String menuRelevant = m.getRelevancyCondition();
-                if (menuRelevant != null) {
-                    XPathExpression parsed;
-                    try {
-                        parsed = XPathParseTool.parseXPath(menuRelevant);
-                        if(XPathFuncExpr.toBoolean(parsed.eval(ec)).booleanValue() == false) {
-                            continue;
-                        }
-                    } catch (XPathSyntaxException xpse) {
-                        throw new RuntimeException(xpse.getMessage());
-                    }
-                }
+            for(Menu m : suite.getMenus(ec)) {
                 if(menu.equals(m.getId())){
                     for(int i = 0; i < m.getCommandIds().size(); ++i) {
                         try {
