@@ -35,7 +35,7 @@ import org.javarosa.core.services.storage.StorageManager;
  *
  */
 public class CommCarePlatform implements CommCareInstance {
-    //TODO: We should make this unique using the parser to invalidate this ID or something
+    // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
 
     private Vector<Integer> suites;
@@ -51,9 +51,8 @@ public class CommCarePlatform implements CommCareInstance {
         this.minorVersion = minorVersion;
     }
 
-    public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException,  UnresolvedResourceException{
+    public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException, UnresolvedResourceException {
         try {
-
             if (!global.isReady()) {
                 global.prepareResources(null, this);
             }
@@ -61,23 +60,21 @@ public class CommCarePlatform implements CommCareInstance {
             // First, see if the appropriate profile exists
             Resource profile = global.getResourceWithId(APP_PROFILE_RESOURCE_ID);
 
-            //If it does not, we need to grab it locally, and get parsing...
+            // If it does not, we need to grab it locally, and get parsing...
             if (profile == null) {
-
                 Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
                 locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 
-                //We need a way to identify this version...
+                // We need a way to identify this version...
                 Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
-
 
                System.out.println("adding profile resource");
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, this);
             } else{
-                //Assuming it does exist, we might want to do an automatic
-                //upgrade here, leaving that for a future date....
+                // Assuming it does exist, we might want to do an automatic
+                // upgrade here, leaving that for a future date....
             }
         } catch (StorageFullException e) {
             // TODO Auto-generated catch block
@@ -108,7 +105,7 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
 
-        /*TODO:
+        /* TODO:
          * -KEY: This is the flag that determines whether the incoming table gets cleared away
          * -incoming always represents the last ResourceTable that was attempted to be installed
          * -if the last install was successful, then incoming will just be empty
@@ -121,37 +118,38 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
         locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 
-        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
+        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
 
         incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
 
         incoming.prepareResources(global, this, APP_PROFILE_RESOURCE_ID);
 
         return incoming;
-
     }
 
     public void upgrade(ResourceTable global, ResourceTable incoming, ResourceTable recovery) throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
 
-        if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+        if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair(global, incoming, recovery);
 
-            if(global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new IllegalArgumentException("Global resource table was not ready for upgrading");
             }
         }
 
-        //TODO: Figure out more cleanly what the acceptable states are here
+        // TODO: Figure out more cleanly what the acceptable states are here
         int incomingState = incoming.getTableReadiness();
-        if(incomingState == ResourceTable.RESOURCE_TABLE_UNCOMMITED || incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED || incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
+        if (incomingState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
+            incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
+            incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
             throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
         }
 
-        //Wipe out any existing records in the recovery table. If there's _anything_ in there and
-        //the app isn't in the install state, that's a signal to recover.
+        // Wipe out any existing records in the recovery table. If there's _anything_ in there and
+        // the app isn't in the install state, that's a signal to recover.
         recovery.destroy();
 
-        //Fetch and prepare all resources (Likely exit point here if a resource can't be found)
+        // Fetch and prepare all resources (Likely exit point here if a resource can't be found)
         incoming.prepareResources(global, this);
 
         boolean upgradeSuccess = false;
