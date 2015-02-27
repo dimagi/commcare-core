@@ -1002,15 +1002,36 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public String fillTemplateString(String template, TreeReference contextRef) {
         return fillTemplateString(template, contextRef, new Hashtable());
     }
-    
+
+    /**
+     * Performs substitutions on place-holder template from form text by
+     * evaluating args in template using the current context.
+     *
+     * @param template String
+     * @param contextRef TreeReference
+     * @param variables Hashtable<String, ?>
+     *
+     * @return String with the all args in the template filled with appropriate
+     * context values.
+     */
     public String fillTemplateString(String template, TreeReference contextRef, Hashtable<String, ?> variables) {
-        Hashtable args = new Hashtable();
+        // argument to value mapping
+        Hashtable<String, String> args = new Hashtable<String, String>();
 
         int depth = 0;
+        // grab all template arguments that need to have substitutions performed
         Vector outstandingArgs = Localizer.getArgs(template);
+
+        String templateAfterSubstitution;
+
+        // Step through outstandingArgs from the template, looking up the value
+        // they map to, evaluating that under the evaluation context and
+        // storing in the local args mapping.
+        // Then perform substitutions over the template until a fixpoint is found
         while (outstandingArgs.size() > 0) {
             for (int i = 0; i < outstandingArgs.size(); i++) {
                 String argName = (String) outstandingArgs.elementAt(i);
+                // lookup value an arg points to if it isn't in our local mapping
                 if (!args.containsKey(argName)) {
                     int ix = -1;
                     try {
@@ -1019,8 +1040,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                         System.err.println("Warning: expect arguments to be numeric [" + argName + "]");
                     }
 
-                    if (ix < 0 || ix >= outputFragments.size())
+                    if (ix < 0 || ix >= outputFragments.size()) {
                         continue;
+                    }
 
                     IConditionExpr expr = (IConditionExpr) outputFragments.elementAt(ix);
                     EvaluationContext ec = new EvaluationContext(exprEvalContext, contextRef);
@@ -1031,11 +1053,23 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 }
             }
 
-            template = Localizer.processArguments(template, args);
+            templateAfterSubstitution = Localizer.processArguments(template, args);
+
+            // The last substitution made no progress, probably because the
+            // argument isn't in outputFragments, so stop looping and
+            // attempting more subs!
+            if (template.equals(templateAfterSubstitution)) {
+                return template;
+            }
+
+            template = templateAfterSubstitution;
+
+            // Since strings being substituted might themselves have arguments that
+            // need to be further substituted, we must recompute the unperformed
+            // substitutions and continue to loop.
             outstandingArgs = Localizer.getArgs(template);
 
-            depth++;
-            if (depth >= TEMPLATING_RECURSION_LIMIT) {
+            if (depth++ >= TEMPLATING_RECURSION_LIMIT) {
                 throw new RuntimeException("Dependency cycle in <output>s; recursion limit exceeded!!");
             }
         }
