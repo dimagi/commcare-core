@@ -619,48 +619,68 @@ public class Localizer implements Externalizable {
         }
         return args;
     }
-    
+
+    /**
+     * Replace all arguments in 'text', of form ${x}, with the value 'x' maps
+     * to in 'args'.
+     *
+     * @param text String that potentially contains arguments to be evaluated
+     * in the 'args' context.
+     * @param args Hashtable from string keys to values that can be cast to
+     * String.
+     * @return String with all arguments from 'text' present in 'args' context
+     * replaced with their values.
+     */
     public static String processArguments(String text, Hashtable args) {
         int i = text.indexOf("${");
+
+        // find every instance of ${some_key} in text and replace it with the
+        // value that some_key maps to in args.
         while (i != -1) {
             int j = text.indexOf("}", i);
+
+            // abort if no closing bracket
             if (j == -1) {
                 System.err.println("Warning: unterminated ${...} arg");
                 break;
             }
 
             String argName = text.substring(i + 2, j);
-            String argVal = (String)args.get(argName);
+            String argVal = (String) args.get(argName);
+            // if we found a mapping in the args table, perform text substitution
             if (argVal != null) {
                 text = text.substring(0, i) + argVal + text.substring(j + 1);
                 j = i + argVal.length() - 1;
             }
-            
+
             i = text.indexOf("${", j + 1);
         }
         return text;
     }
-    
+
     public static String processArguments(String text, String[] args) {
-        return processArguments(text, args, 0); 
+        return processArguments(text, args, 0);
     }
-    
+
     public static String processArguments(String text, String[] args, int currentArg) {
         String working = text;
-        if(working.indexOf("${") != -1 && args.length > currentArg) {
+
+        if (working.indexOf("${") != -1 && args.length > currentArg) {
             int index = extractNextIndex(working, args);
+
             if(index == -1) {
                 index = currentArg;
                 currentArg++;
             }
+
             String value = args[index];
             String[] replaced = replaceFirstValue(working, value);
-            return replaced[0] + processArguments(replaced[1], args, currentArg); 
+            return replaced[0] + processArguments(replaced[1], args, currentArg);
         } else {
             return working;
         }
     }
-    
+
 
     public static String clearArguments(String text) {
         Vector v = getArgs(text);

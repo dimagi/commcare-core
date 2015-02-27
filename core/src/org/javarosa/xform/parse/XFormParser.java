@@ -317,6 +317,9 @@ public class XFormParser {
             } else if (_instDoc != null) {
                 loadXmlInstance(_f, _instDoc);
             }
+            // TODO: to enable parsing that doesn't fail on first error found,
+            // but rather continues, we need to check if report.errors isn't
+            // empty and if so throw xpath parse exception here
         }
         return _f;
     }
@@ -985,40 +988,61 @@ public class XFormParser {
             }
         }
     }
-        
+
+    /**
+     * Parse output tag
+     * @param e Element with output tag to be parsed
+     * @return String representation of int index into the local FormDef's
+     * output fragment vector, which that maps indices to IConditionExpr
+     */
     private String parseOutput (Element e) {
-        Vector<String> usedAtts = new Vector<String>();
-        usedAtts.addElement(REF_ATTR);
-        usedAtts.addElement(VALUE);
-        
+        // Since the xpath expression that is being parsed can either be stored
+        // in ref attribute or value attribute check which one it is in,
+        // favoring ref attribute
         String xpath = e.getAttributeValue(null, REF_ATTR);
+        String attr = REF_ATTR;
         if (xpath == null) {
+            attr = VALUE;
             xpath = e.getAttributeValue(null, VALUE);
         }
         if (xpath == null) {
-            throw new XFormParseException("XForm Parse: <output> without 'ref' or 'value'",e);    
+            throw new XFormParseException("XForm Parse: <output> without 'ref' or 'value'", e);
         }
-        
+
         XPathConditional expr = null;
         try {
             expr = new XPathConditional(xpath);
         } catch (XPathSyntaxException xse) {
-            reporter.error("Invalid XPath expression in <output> [" + xpath + "]! " + xse.getMessage());
-            return "";
+            throw new XFormParseException("Output tag has malformed " + attr + " attribute: " + xpath, e);
+
+            // NOTE: Use the below code if we want to only fail at the end of
+            // parsing we would add the error to the reporter and then throw an
+            // exception in parse given a non-empty reporter. This isn't done
+            // yet elsewhere in the code, so we avoid it for now.
+            //
+            // reporter.error("Invalid XPath expression in <output> [" + xpath + "]! " + xse.getMessage());
+            // return "-1";
         }
 
         int index = -1;
+        // test whether the vector contains parsed xpath expr, grabbing its index if so,
         if (_f.getOutputFragments().contains(expr)) {
             index = _f.getOutputFragments().indexOf(expr);
         } else {
+            // otherwise set index and store in output vector
             index = _f.getOutputFragments().size();
             _f.getOutputFragments().addElement(expr);
         }
-        
-        if(XFormUtils.showUnusedAttributeWarning(e, usedAtts)){
+
+        // create a vector with the attributes we expect to see
+        Vector<String> usedAtts = new Vector<String>();
+        usedAtts.addElement(REF_ATTR);
+        usedAtts.addElement(VALUE);
+        // warn if those attributes aren't present in the element
+        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
-        
+
         return String.valueOf(index);
     }
     
@@ -1046,6 +1070,7 @@ public class XFormParser {
                     q.setHelpTextID(textRef);
                 }
             } else {
+                // TODO: shouldn't this raise an XFormParseException?
                 throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
             }
         } else if (name.equals("hint")) {
@@ -1783,9 +1808,9 @@ public class XFormParser {
         } catch (XPathSyntaxException xse) {
             
             String errorMessage = "Encountered a problem with " + prettyType + " for node ["  + contextRef.getReference().toString() + "] at line: " + xpath + ", " +  xse.getMessage();
-            
+
             reporter.error(errorMessage);
-            
+
             throw new XFormParseException(errorMessage);
         }
                 
