@@ -114,56 +114,82 @@ public class XFormUtils {
         }
         return returnForm;
     }
-    
-    
-    /////Parser Attribute warning stuff
-    
-    public static Vector getAttributeList(Element e){
+
+
+    // -------------------------------------------------
+    // Attribute parsing validation functions
+    // -------------------------------------------------
+
+    /**
+     * Get the list of attributes in an element
+     * @param e Element that potentially has attributes in it
+     * @return Vector (of String) attributes inside of element
+     */
+    public static Vector getAttributeList(Element e) {
         Vector atts = new Vector();
-        for(int i=0;i<e.getAttributeCount();i++){
+
+        for(int i=0; i < e.getAttributeCount(); i++){
             atts.addElement(e.getAttributeName(i));
         }
-        
+
         return atts;
     }
-    
-    public static Vector getUnusedAttributes(Element e,Vector usedAtts){
+
+    /**
+     * @param e an Element with attributes
+     * @param usedAtts Vector (of String) attributes
+     * @return Vector (of String) attributes from 'e' that aren't in 'usedAtts'
+     */
+    public static Vector getUnusedAttributes(Element e, Vector usedAtts) {
         Vector unusedAtts = getAttributeList(e);
-        for(int i=0;i<usedAtts.size();i++){
-            if(unusedAtts.contains(usedAtts.elementAt(i))){
+        for(int i=0; i < usedAtts.size(); i++){
+            if (unusedAtts.contains(usedAtts.elementAt(i))) {
                 unusedAtts.removeElement(usedAtts.elementAt(i));
             }
         }
-        
+
         return unusedAtts;
     }
-    
-    public static String unusedAttWarning(Element e, Vector usedAtts){
+
+    /**
+     * @param e an Element with attributes
+     * @param usedAtts Vector (of String) attributes
+     * @return String warning about which attributes from 'e' aren't in 'usedAtts'
+     */
+    public static String unusedAttWarning(Element e, Vector usedAtts) {
         String warning = "";
-        Vector ua = getUnusedAttributes(e,usedAtts);
-        warning+=ua.size()+" Unrecognized attributes found in Element ["+e.getName()+"] and will be ignored: ";
-        warning+="[";
-        for(int i=0;i<ua.size();i++){
-            warning+=ua.elementAt(i);
-            if(i!=ua.size()-1) warning+=",";
+        Vector unusedAtts = getUnusedAttributes(e, usedAtts);
+
+        warning += unusedAtts.size() + " unrecognized attributes found in Element [" +
+                   e.getName() + "] and will be ignored: ";
+        warning += "[";
+        for(int i=0; i < unusedAtts.size(); i++){
+            warning += unusedAtts.elementAt(i);
+            if (i != unusedAtts.size() - 1) {
+              warning += ",";
+            }
         }
-        warning+="] ";
-        
+        warning += "] ";
+
         return warning;
     }
-    
+
+    /**
+     * @param e an Element with attributes
+     * @param usedAtts Vector (of String) attributes
+     * @return boolean representing whether there are any attributes in 'e' not
+     * in 'usedAtts'
+     */
     public static boolean showUnusedAttributeWarning(Element e, Vector usedAtts){
-        return getUnusedAttributes(e,usedAtts).size()>0;
+        return getUnusedAttributes(e, usedAtts).size() > 0;
     }
-    
+
     /**
      * Is this element an Output tag?
-     * @param e
-     * @return
+     * @param e Element
+     * @return boolean
      */
-    public static boolean isOutput(Element e){
-        if(e.getName().toLowerCase().equals("output")) return true;
-        else return false;
+    public static boolean isOutput(Element e) {
+        return e.getName().toLowerCase().equals("output");
     }
-    
 }
