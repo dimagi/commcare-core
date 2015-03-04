@@ -9,17 +9,12 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * <p>Suites are containers for a set of actions,
@@ -83,32 +78,6 @@ public class Suite implements Persistable {
         return menus;
     }
 
-    /**
-     * @return This suite's menus, limited to those
-     * relevant in the given EvaluationContext. 
-     */
-    public Vector<Menu> getMenus(EvaluationContext context) {
-        Vector<Menu> relevant = new Vector<Menu>();
-        for(Menu m : menus) {
-            String condition = m.getRelevancyCondition();
-            if (condition == null) {
-                relevant.addElement(m);
-            }
-            else {
-                XPathExpression parsed;
-                try {
-                    parsed = XPathParseTool.parseXPath(condition);
-                    if (XPathFuncExpr.toBoolean(parsed.eval(context)).booleanValue() == true) {
-                        relevant.addElement(m);
-                    }
-                } catch (XPathSyntaxException xpse) {
-                    throw new RuntimeException(xpse.getMessage());
-                }
-            }
-        }
-        return relevant;
-    }
-    
     /**
      * WOAH! UNSAFE! Copy, maybe? But this is _wicked_ dangerous.
      * 

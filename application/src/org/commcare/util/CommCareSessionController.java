@@ -71,16 +71,32 @@ public class CommCareSessionController {
         entryTable.clear();
         menuTable.clear();
         Enumeration en = session.platform.getInstalledSuites().elements();
-        EvaluationContext ec  = session.getEvaluationContext(getIif());
+        EvaluationContext ec  = null;
         while(en.hasMoreElements()) {
             Suite suite = (Suite)en.nextElement();
-            for(Menu m : suite.getMenus(ec)) {
+            for(Menu m : suite.getMenus()) {
+                try {
+                    XPathExpression relevance = m.getMenuRelevance();
+                    if (relevance != null) {
+                        if (ec == null) {
+                            ec = session.getEvaluationContext(getIif());
+                        }
+                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                            continue;
+                        }
+                    }
+                } catch (XPathSyntaxException e) {
+                    e.printStackTrace();
+                }
                 if(menu.equals(m.getId())){
                     for(int i = 0; i < m.getCommandIds().size(); ++i) {
                         try {
                             String id = m.getCommandIds().elementAt(i);
-                            XPathExpression relevant = m.getRelevantCondition(i);
+                            XPathExpression relevant = m.getCommandRelevance(i);
                             if(relevant != null) {
+                                if (ec == null) {
+                                    ec = session.getEvaluationContext(getIif());
+                                }
                                 if(XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
                                     continue;
                                 }
