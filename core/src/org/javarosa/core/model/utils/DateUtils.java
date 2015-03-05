@@ -107,22 +107,54 @@ public class DateUtils {
         return fields;
     }
 
-    public static Date getDate(DateFields f) {
-        return getDate(f, null);
+    /**
+     * Turn year, month, date into Date object.
+     *
+     * @return Date or null, depending if arguments are in the valid date range
+     */
+    public static Date getDate(int year, int month, int day) {
+        DateFields f = new DateFields();
+        f.year = year;
+        f.month = month;
+        f.day = day;
+        return (f.check() ? getDate(f) : null);
     }
 
-    public static Date getDate(DateFields f, String timezone) {
+    /**
+     * Turn DateField information into Date object, using default
+     * timezone.
+     *
+     * @param df representation of a datetime
+     *
+     * @return Date interpretation of DateFields at given default timezone
+     */
+    public static Date getDate(DateFields df) {
+        return getDate(df, null);
+    }
+
+    /**
+     * Turn DateField information into Date object, taking default or inputted
+     * timezone into account.
+     *
+     * @param df representation of a datetime
+     * @param timezone use this timezone, but if null, use default timezone
+     *
+     * @return Date interpretation of DateFields at given timezone
+     */
+    public static Date getDate(DateFields df, String timezone) {
         Calendar cd = Calendar.getInstance();
+
         if (timezone != null) {
             cd.setTimeZone(TimeZone.getTimeZone(timezone));
         }
-        cd.set(Calendar.YEAR, f.year);
-        cd.set(Calendar.MONTH, f.month - MONTH_OFFSET);
-        cd.set(Calendar.DAY_OF_MONTH, f.day);
-        cd.set(Calendar.HOUR_OF_DAY, f.hour);
-        cd.set(Calendar.MINUTE, f.minute);
-        cd.set(Calendar.SECOND, f.second);
-        cd.set(Calendar.MILLISECOND, f.secTicks);
+
+        cd.set(Calendar.YEAR, df.year);
+        cd.set(Calendar.MONTH, df.month - MONTH_OFFSET);
+        cd.set(Calendar.DAY_OF_MONTH, df.day);
+        cd.set(Calendar.HOUR_OF_DAY, df.hour);
+        cd.set(Calendar.MINUTE, df.minute);
+        cd.set(Calendar.SECOND, df.second);
+        cd.set(Calendar.MILLISECOND, df.secTicks);
 
         return cd.getTime();
     }
@@ -324,11 +356,11 @@ public class DateUtils {
         DateFields fields = new DateFields();
         int i = str.indexOf("T");
         if (i != -1) {
-            if (!parseDate(str.substring(0, i), fields) || !parseTime(str.substring(i + 1), fields)) {
+            if (!parseDateAndStore(str.substring(0, i), fields) || !parseTimeAndStore(str.substring(i + 1), fields)) {
                 return null;
             }
         } else {
-            if (!parseDate(str, fields)) {
+            if (!parseDateAndStore(str, fields)) {
                 return null;
             }
         }
@@ -337,37 +369,46 @@ public class DateUtils {
 
     public static Date parseDate(String str) {
         DateFields fields = new DateFields();
-        if (!parseDate(str, fields)) {
+        if (!parseDateAndStore(str, fields)) {
             return null;
         }
         return getDate(fields);
     }
 
-    private static boolean parseDate(String dateStr, DateFields f) {
+    /**
+     * Parse string into date, save result to DateFields argument, and return
+     * true if it was successfully parsed into a valid date.
+     *
+     * @param dateStr
+     * @param df
+     * @return Was the string successfully parsed into a valid date
+     */
+    private static boolean parseDateAndStore(String dateStr, DateFields df) {
         Vector pieces = split(dateStr, "-", false);
-        if (pieces.size() != 3)
+        if (pieces.size() != 3) {
             return false;
+        }
 
         try {
-            f.year = Integer.parseInt((String) pieces.elementAt(0));
-            f.month = Integer.parseInt((String) pieces.elementAt(1));
-            f.day = Integer.parseInt((String) pieces.elementAt(2));
+            df.year = Integer.parseInt((String) pieces.elementAt(0));
+            df.month = Integer.parseInt((String) pieces.elementAt(1));
+            df.day = Integer.parseInt((String) pieces.elementAt(2));
         } catch (NumberFormatException nfe) {
             return false;
         }
 
-        return f.check();
+        return df.check();
     }
 
     public static Date parseTime(String str) {
         DateFields fields = new DateFields();
-        if (!parseTime(str, fields)) {
+        if (!parseTimeAndStore(str, fields)) {
             return null;
         }
         return getDate(fields);
     }
 
-    private static boolean parseTime(String timeStr, DateFields f) {
+    private static boolean parseTimeAndStore(String timeStr, DateFields df) {
         // get timezone information first. Make a Datefields set for the possible offset
         // NOTE: DO NOT DO DIRECT COMPUTATIONS AGAINST THIS. It's a holder for hour/minute
         // data only, but has data in other fields
@@ -408,11 +449,11 @@ public class DateUtils {
         }
 
         // Do the actual parse for the real time values;
-        if (!parseRawTime(timeStr, f)) {
+        if (!parseRawTime(timeStr, df)) {
             return false;
         }
 
-        if (!(f.check())) {
+        if (!(df.check())) {
             return false;
         }
 
@@ -424,7 +465,7 @@ public class DateUtils {
         // Now apply any relevant offsets from the timezone.
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
-        c.setTime(new Date(DateUtils.getDate(f, "UTC").getTime() + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000)));
+        c.setTime(new Date(DateUtils.getDate(df, "UTC").getTime() + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000)));
 
         // c is now in the timezone of the parsed value, so put
         // it in the local timezone.
@@ -434,12 +475,12 @@ public class DateUtils {
 
         DateFields adjusted = getFields(c.getTime());
 
-        f.hour = adjusted.hour;
-        f.minute = adjusted.minute;
-        f.second = adjusted.second;
-        f.secTicks = adjusted.secTicks;
+        df.hour = adjusted.hour;
+        df.minute = adjusted.minute;
+        df.second = adjusted.second;
+        df.secTicks = adjusted.secTicks;
 
-        return f.check();
+        return df.check();
     }
 
     /**
@@ -481,14 +522,6 @@ public class DateUtils {
 
 
     /* ==== DATE UTILITY FUNCTIONS ==== */
-
-    public static Date getDate(int year, int month, int day) {
-        DateFields f = new DateFields();
-        f.year = year;
-        f.month = month;
-        f.day = day;
-        return (f.check() ? getDate(f) : null);
-    }
 
     /**
      * @return new Date object with same date but time set to midnight (in current timezone)
@@ -712,6 +745,9 @@ public class DateUtils {
      *
      * @param original  The string to be split
      * @param delimiter The delimeter to be used
+     * @param combineMultipleDelimiters If two delimiters occur in a row,
+     * remove the empty strings created by their split
+     *
      * @return An array of strings contained in original which were
      * seperated by the delimeter
      */
@@ -719,6 +755,7 @@ public class DateUtils {
         Vector<String> pieces = new Vector<String>();
 
         int index = str.indexOf(delimiter);
+        // add all substrings, split by delimiter, to pieces.
         while (index >= 0) {
             pieces.addElement(str.substring(0, index));
             str = str.substring(index + delimiter.length());
@@ -726,6 +763,7 @@ public class DateUtils {
         }
         pieces.addElement(str);
 
+        // remove all pieces that are empty string
         if (combineMultipleDelimiters) {
             for (int i = 0; i < pieces.size(); i++) {
                 if (((String) pieces.elementAt(i)).length() == 0) {
