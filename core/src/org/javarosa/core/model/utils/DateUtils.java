@@ -343,14 +343,6 @@ public class DateUtils {
         return getDate(fields);
     }
 
-    public static Date parseTime(String str) {
-        DateFields fields = new DateFields();
-        if (!parseTime(str, fields)) {
-            return null;
-        }
-        return getDate(fields);
-    }
-
     private static boolean parseDate(String dateStr, DateFields f) {
         Vector pieces = split(dateStr, "-", false);
         if (pieces.size() != 3)
@@ -367,16 +359,23 @@ public class DateUtils {
         return f.check();
     }
 
+    public static Date parseTime(String str) {
+        DateFields fields = new DateFields();
+        if (!parseTime(str, fields)) {
+            return null;
+        }
+        return getDate(fields);
+    }
+
     private static boolean parseTime(String timeStr, DateFields f) {
-        //get timezone information first. Make a Datefields set for the possible offset
-        //NOTE: DO NOT DO DIRECT COMPUTATIONS AGAINST THIS. It's a holder for hour/minute
-        //data only, but has data in other fields
+        // get timezone information first. Make a Datefields set for the possible offset
+        // NOTE: DO NOT DO DIRECT COMPUTATIONS AGAINST THIS. It's a holder for hour/minute
+        // data only, but has data in other fields
         DateFields timeOffset = null;
 
         if (timeStr.charAt(timeStr.length() - 1) == 'Z') {
-            //UTC!
-
-            //Clean up string for later processing
+            // UTC!
+            // Clean up string for later processing
             timeStr = timeStr.substring(0, timeStr.length() - 1);
             timeOffset = new DateFields();
         } else if (timeStr.indexOf("+") != -1 || timeStr.indexOf("-") != -1) {
@@ -384,12 +383,12 @@ public class DateUtils {
 
             Vector<String> pieces = split(timeStr, "+", false);
 
-            //We're going to add the Offset straight up to get UTC
-            //so we need to invert the sign on the offset string
+            // We're going to add the Offset straight up to get UTC
+            // so we need to invert the sign on the offset string
             int offsetSign = -1;
 
             if (pieces.size() > 1) {
-                //offsetSign is already correct
+                // offsetSign is already correct
             } else {
                 pieces = split(timeStr, "-", false);
                 offsetSign = 1;
@@ -408,7 +407,7 @@ public class DateUtils {
             timeOffset.hour = Integer.parseInt(hours) * offsetSign;
         }
 
-        //Do the actual parse for the real time values;
+        // Do the actual parse for the real time values;
         if (!parseRawTime(timeStr, f)) {
             return false;
         }
@@ -417,18 +416,18 @@ public class DateUtils {
             return false;
         }
 
-        //Time is good, if there was no timezone info, just return that;
+        // Time is good, if there was no timezone info, just return that;
         if (timeOffset == null) {
             return true;
         }
 
-        //Now apply any relevant offsets from the timezone.
+        // Now apply any relevant offsets from the timezone.
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
         c.setTime(new Date(DateUtils.getDate(f, "UTC").getTime() + (((60 * timeOffset.hour) + timeOffset.minute) * 60 * 1000)));
 
-        //c is now in the timezone of the parsed value, so put
-        //it in the local timezone.
+        // c is now in the timezone of the parsed value, so put
+        // it in the local timezone.
 
         c.setTimeZone(TimeZone.getDefault());
         long four = c.get(Calendar.HOUR);
