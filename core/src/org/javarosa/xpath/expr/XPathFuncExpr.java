@@ -1186,7 +1186,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     public static Object InferType(String attrValue) {
         try{
-            return Double.parseDouble(attrValue);
+            return new Double(Double.parseDouble(attrValue));
         } catch(NumberFormatException ife) {
             //Not a double
         }
