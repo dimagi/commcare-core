@@ -106,7 +106,7 @@ public class Menu implements Externalizable {
      * @return the raw xpath string for a relevant condition (if available). Largely for
      * displaying to the user in the event of a failure
      */
-    public String getRelevantConditionRaw(int index) {
+    public String getCommandRelevanceRaw(int index) {
         return commandExprs[index];
     }
 
