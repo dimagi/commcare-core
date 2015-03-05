@@ -125,7 +125,6 @@ public class DateUtils {
      * timezone.
      *
      * @param df representation of a datetime
-     *
      * @return Date interpretation of DateFields at given default timezone
      */
     public static Date getDate(DateFields df) {
@@ -136,9 +135,8 @@ public class DateUtils {
      * Turn DateField information into Date object, taking default or inputted
      * timezone into account.
      *
-     * @param df representation of a datetime
+     * @param df       representation of a datetime
      * @param timezone use this timezone, but if null, use default timezone
-     *
      * @return Date interpretation of DateFields at given timezone
      */
     public static Date getDate(DateFields df, String timezone) {
@@ -484,40 +482,45 @@ public class DateUtils {
     }
 
     /**
-     * Parse the raw components of time (hh:mm:ss) with no timezone information
+     * Parse the raw components of time (hh:mm:ss or hh:mm) with no timezone information
      *
-     * @param timeStr
-     * @param f
-     * @return
+     * @param timeStr expects to be a String representing time of format
+     *                hh:mm:ss or hh:mm
+     * @param df      where the parsed time information is stored
+     * @return Was the string successfully interpreted as valid time?
      */
-    private static boolean parseRawTime(String timeStr, DateFields f) {
+    private static boolean parseRawTime(String timeStr, DateFields df) {
         Vector pieces = split(timeStr, ":", false);
-        if (pieces.size() != 2 && pieces.size() != 3)
+
+        if (pieces.size() != 2 && pieces.size() != 3) {
             return false;
+        }
 
         try {
-            f.hour = Integer.parseInt((String) pieces.elementAt(0));
-            f.minute = Integer.parseInt((String) pieces.elementAt(1));
+            df.hour = Integer.parseInt((String) pieces.elementAt(0));
+            df.minute = Integer.parseInt((String) pieces.elementAt(1));
 
+            // if seconds part present, parse it
             if (pieces.size() == 3) {
                 String secStr = (String) pieces.elementAt(2);
                 int i;
+                // only grab prefix of seconds piece that includes digits and decimal(s)
                 for (i = 0; i < secStr.length(); i++) {
                     char c = secStr.charAt(i);
                     if (!Character.isDigit(c) && c != '.')
                         break;
                 }
                 secStr = secStr.substring(0, i);
-
                 double fsec = Double.parseDouble(secStr);
-                f.second = (int) fsec;
-                f.secTicks = (int) (1000.0 * (fsec - f.second));
+                // split seconds into whole and decimal components
+                df.second = (int) fsec;
+                df.secTicks = (int) (1000.0 * (fsec - df.second));
             }
         } catch (NumberFormatException nfe) {
             return false;
         }
 
-        return f.check();
+        return df.check();
     }
 
 
@@ -547,7 +550,10 @@ public class DateUtils {
      * year.
      */
     public static int daysInMonth(int month, int year) {
-        if (month == Calendar.APRIL || month == Calendar.JUNE || month == Calendar.SEPTEMBER || month == Calendar.NOVEMBER) {
+        if (month == Calendar.APRIL ||
+                month == Calendar.JUNE ||
+                month == Calendar.SEPTEMBER ||
+                month == Calendar.NOVEMBER) {
             return 30;
         } else if (month == Calendar.FEBRUARY) {
             return 28 + (isLeap(year) ? 1 : 0);
@@ -619,25 +625,34 @@ public class DateUtils {
         Date d = null;
 
         if (type.equals("week")) {
-            //1 week period
-            //start: day of week that starts period
-            //beginning: true=return first day of period, false=return last day of period
-            //includeToday: whether today's date can count as the last day of the period
-            //nAgo: how many periods ago; 1=most recent period, 0=period in progress
+            // 1 week period
+            // start: day of week that starts period
+            // beginning: true=return first day of period, false=return last day of period
+            // includeToday: whether today's date can count as the last day of the period
+            // nAgo: how many periods ago; 1=most recent period, 0=period in progress
 
             int target_dow = -1, current_dow = -1, diff;
             int offset = (includeToday ? 1 : 0);
 
-            if (start.equals("sun")) target_dow = 0;
-            else if (start.equals("mon")) target_dow = 1;
-            else if (start.equals("tue")) target_dow = 2;
-            else if (start.equals("wed")) target_dow = 3;
-            else if (start.equals("thu")) target_dow = 4;
-            else if (start.equals("fri")) target_dow = 5;
-            else if (start.equals("sat")) target_dow = 6;
+            if (start.equals("sun")) {
+                target_dow = 0;
+            } else if (start.equals("mon")) {
+                target_dow = 1;
+            } else if (start.equals("tue")) {
+                target_dow = 2;
+            } else if (start.equals("wed")) {
+                target_dow = 3;
+            } else if (start.equals("thu")) {
+                target_dow = 4;
+            } else if (start.equals("fri")) {
+                target_dow = 5;
+            } else if (start.equals("sat")) {
+                target_dow = 6;
+            }
 
-            if (target_dow == -1)
+            if (target_dow == -1) {
                 throw new RuntimeException();
+            }
 
             Calendar cd = Calendar.getInstance();
             cd.setTime(ref);
@@ -743,11 +758,10 @@ public class DateUtils {
     /**
      * Tokenizes a string based on the given delimiter string
      *
-     * @param original  The string to be split
-     * @param delimiter The delimeter to be used
+     * @param original                  The string to be split
+     * @param delimiter                 The delimeter to be used
      * @param combineMultipleDelimiters If two delimiters occur in a row,
-     * remove the empty strings created by their split
-     *
+     *                                  remove the empty strings created by their split
      * @return An array of strings contained in original which were
      * seperated by the delimeter
      */
@@ -832,5 +846,4 @@ public class DateUtils {
             return true;
         }
     }
-
 }
