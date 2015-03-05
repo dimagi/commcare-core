@@ -1174,4 +1174,24 @@ public class XPathFuncExpr extends XPathExpression {
     }
     
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
+
+    /**
+     * Take in a value (only a string for now, TODO: Extend?) that doesn't
+     * have any type information and attempt to infer a more specific type
+     * that may assist in equality or comparison operations
+     * 
+     * @param attrValue A typeless data object
+     * @return The passed in object in as specific of a type as was able to
+     * be identified.
+     */
+    public static Object InferType(String attrValue) {
+        try{
+            return Double.parseDouble(attrValue);
+        } catch(NumberFormatException ife) {
+            //Not a double
+        }
+        //TODO: What about dates? That is a _super_ expensive
+        //operation to be testing, though...
+        return attrValue;
+    }
 }

@@ -158,7 +158,14 @@ public class TreeUtilities {
                             String attributeName = attributes.elementAt(j);
  
                             for(int kidI = 0 ; kidI < kids.size() ; ++kidI) {
-                                if(kids.elementAt(kidI).getAttributeValue(null, attributeName).equals(literalMatch)) {
+                                String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
+                                
+                                //We don't necessarily having typing information for these attributes (and if we did
+                                //it's not available here) so we will try to do some _very basic_ type inference
+                                //on this value before performing the match
+                                Object value = XPathFuncExpr.InferType(attrValue);
+                                
+                                if(XPathEqExpr.testEquality(value, literalMatch)) {
                                     predicateMatches.addElement(kids.elementAt(kidI).getRef());
                                 }
                             }
