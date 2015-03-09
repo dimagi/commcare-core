@@ -82,7 +82,6 @@ public class FormEntryController {
         }
         TreeElement element = model.getTreeElement(index);
         boolean complexQuestion = q.isComplex();
-        
         boolean hasConstraints = false;
         if (element.isRequired() && data == null) {
             return ANSWER_REQUIRED_BUT_EMPTY;
@@ -121,6 +120,7 @@ public class FormEntryController {
             throw new RuntimeException("Non-Question object at the form index.");
         }
         TreeElement element = model.getTreeElement(index);
+
         return commitAnswer(element, index, data);
     }
 
@@ -240,7 +240,7 @@ public class FormEntryController {
      * @param expandRepeats
      * @return
      */
-    private FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
+    public FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
         boolean relevant = true;
         boolean inForm = true;
