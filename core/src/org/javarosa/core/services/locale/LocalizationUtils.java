@@ -3,12 +3,12 @@
  */
 package org.javarosa.core.services.locale;
 
+import org.javarosa.core.util.Map;
+import org.javarosa.core.util.OrderedHashtable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import org.javarosa.core.util.Map;
-import org.javarosa.core.util.OrderedHashtable;
 
 /**
  * @author ctsims
@@ -16,7 +16,7 @@ import org.javarosa.core.util.OrderedHashtable;
  */
 public class LocalizationUtils {
     /**
-     * @param resourceName A path to a resource file provided in the current environment
+     * @param is A path to a resource file provided in the current environment
      *
      * @return a dictionary of key/value locale pairs from a file in the resource directory 
      * @throws IOException 
@@ -72,10 +72,12 @@ public class LocalizationUtils {
 
             //trim whitespace.
             line = line.trim();
+
+            int i = 0;
             
-            //clear comments - require space before them to differentiate from markdown '#'
-            while(line.indexOf(" #") != -1) {
-                line = line.substring(0, line.indexOf(" #"));
+            //clear comments except if they have backslash before them (markdown '#'s)
+            while((i = line.indexOf("#")) != -1 && !(line.charAt(i-1) == '\\')) {
+                line = line.substring(0, i);
             }
             if(line.indexOf('=') == -1) {
                 // TODO: Invalid line. Empty lines are fine, especially with comments,
