@@ -77,30 +77,39 @@ public class FormEntryController {
      */
     public int answerQuestion(FormIndex index, IAnswerData data) {
         QuestionDef q = model.getQuestionPrompt(index).getQuestion();
+
         if (model.getEvent(index) != FormEntryController.EVENT_QUESTION) {
             throw new RuntimeException("Non-Question object at the form index.");
         }
+
         TreeElement element = model.getTreeElement(index);
         boolean complexQuestion = q.isComplex();
-        
+
         boolean hasConstraints = false;
+
         if (element.isRequired() && data == null) {
             return ANSWER_REQUIRED_BUT_EMPTY;
-        } else if (!complexQuestion && !model.getForm().evaluateConstraint(index.getReference(), data)) {
-            return ANSWER_CONSTRAINT_VIOLATED;
-        } else if (!complexQuestion) {
-            commitAnswer(element, index, data);
-            return ANSWER_OK; 
-        } else if (complexQuestion && hasConstraints) {
-            //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
-            throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
-        } else {
-            try {
-                model.getForm().copyItemsetAnswer(q, element, data);
-            } catch (InvalidReferenceException ire) {
-                ire.printStackTrace();
-                throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+        }
+
+        if (complexQuestion) {
+            if (hasConstraints) {
+                //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
+                throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
+            } else {
+                try {
+                    model.getForm().copyItemsetAnswer(q, element, data);
+                } catch (InvalidReferenceException ire) {
+                    ire.printStackTrace();
+                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+                }
+                return ANSWER_OK;
             }
+        } else {
+            if (!model.getForm().evaluateConstraint(index.getReference(), data)) {
+                // constraint checking failed
+                return ANSWER_CONSTRAINT_VIOLATED;
+            }
+            commitAnswer(element, index, data);
             return ANSWER_OK;
         }
     }
