@@ -205,7 +205,9 @@ public class QuestionDef implements IFormElement, Localizable {
     }
 
     /**
-     * true if the answer to this question yields xml tree data, not a simple string value
+     * Determine if a question's answer is xml tree data.
+     *
+     * @return does the answer to this question yields xml tree data, and not a simple string value?
      */
     public boolean isComplex() {
         return (dynamicChoices != null && dynamicChoices.copyMode);
