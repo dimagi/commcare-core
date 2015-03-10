@@ -83,6 +83,11 @@ public class FormEntryController {
         }
 
         TreeElement element = model.getTreeElement(index);
+
+        // A question is complex when it has a copy tag that needs to be
+        // evaluated by copying in the correct xml subtree.  XXX: The code to
+        // answer complex questions is incomplete, but luckily this feature is
+        // rarely used.
         boolean complexQuestion = q.isComplex();
 
         boolean hasConstraints = false;
@@ -93,7 +98,8 @@ public class FormEntryController {
 
         if (complexQuestion) {
             if (hasConstraints) {
-                //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
+                //TODO: itemsets: don't currently evaluate constraints for
+                //itemset/copy -- haven't figured out how handle it yet
                 throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
             } else {
                 try {
