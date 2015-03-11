@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.engine;
 
@@ -22,7 +22,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class Harness {
-    
+
     public static void main(String[] args) {
         if(args.length == 0) {
             System.out.println("Usage: java -jar Player");
@@ -37,48 +37,48 @@ public class Harness {
                 System.out.println("File not found at " + args[0]+ "!!!!");
             }
         } else {
-            
-            //Setup: 
+
+            //Setup:
             try {
                 if(args[0].equals("add")) {
                     Mockup m = getMockup(args[1]);
-                    
+
                     XFormPlayer xfp = new XFormPlayer(System.in, System.out, m);
                     xfp.start(args[2]);
-                    
+
                     Session s = xfp.environment.getSessionRecording();
                     MockupEditor e = m.getEditor();
                     e.addSession(s);
                     e.commit();
-                    
+
                     updateMockup(args[1], m);
                 }
-                
+
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
         System.exit(0);
     }
-    
+
     private static void updateMockup(String file, Mockup m) throws IOException {
         File dest = new File(file);
         File temp = File.createTempFile(dest.getName(), "tmp");
-        
+
         FileOutputStream fos = new FileOutputStream(temp);
         new MockupSerializer(fos, m).serialize();
         try {
             fos.close();
         } catch(IOException e){
-            
+
         }
-        
+
         boolean atomicSuccess = temp.renameTo(dest);
-        
-        
-        //*sigh*, ok, so on Windows, you can't do this atomically (read: Correctly), 
+
+
+        //*sigh*, ok, so on Windows, you can't do this atomically (read: Correctly),
         //so we have to do some terrible voodoo.
-        
+
         if(!atomicSuccess) {
             File oldFile = new File(dest.getCanonicalFile() + ".bak");
             int count = 0;
@@ -86,11 +86,11 @@ public class Harness {
                 oldFile = new File(dest.getCanonicalFile() + ".bak." + count);
                 count++;
             }
-            
+
             if(!dest.renameTo(oldFile)) {
                 throw new IOException("Can't save file at " + oldFile.getAbsolutePath());
             }
-            
+
             if(!temp.renameTo(dest)) {
                 if(!oldFile.renameTo(dest)) {
                     throw new IOException("Windows sucks and won't let us save the file! Your old file is safe, though, at: " + oldFile.getAbsolutePath());
@@ -108,7 +108,7 @@ public class Harness {
             try {
                 fis.close();
             } catch(IOException e) {
-                
+
             }
             return m;
         } catch (FileNotFoundException e) {
@@ -123,5 +123,5 @@ public class Harness {
             throw new RuntimeException("Invalid Mockup file: " + e.getMessage());
         }
     }
-    
+
 }

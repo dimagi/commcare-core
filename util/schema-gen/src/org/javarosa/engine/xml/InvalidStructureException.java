@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.engine.xml;
 
@@ -9,12 +9,12 @@ import org.kxml2.io.KXmlParser;
  * Invalid Structure Exceptions are thrown when an invalid
  * definition is found while parsing XML defining CommCare
  * Models.
- * 
+ *
  * @author ctsims
  *
  */
 public class InvalidStructureException extends Exception {
-    
+
     /**
      * @param message A Message associated with the error.
      * @param parser The parser in the position at which the error was detected.

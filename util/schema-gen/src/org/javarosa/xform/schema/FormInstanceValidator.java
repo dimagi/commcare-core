@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.xform.schema;
 
@@ -37,13 +37,13 @@ import org.javarosa.xform.util.XFormUtils;
 public class FormInstanceValidator {
     FormDef theForm;
     FormInstance savedModel;
-    
+
     FormEntryModel model;
     FormEntryController controller;
-    
+
     public FormInstanceValidator(InputStream formInput, InputStream instanceInput) throws Exception {
         theForm = XFormUtils.getFormFromInputStream(formInput);
-        
+
         savedModel = XFormParser.restoreDataModel(instanceInput, null);
         TreeElement templateRoot = theForm.getInstance().getRoot().deepCopy(true);
 
@@ -53,26 +53,26 @@ public class FormInstanceValidator {
             System.out.println("Instance: " + savedModel.getName() + " Xform: " + templateRoot.getName());
             System.exit(1);
         }
-        
+
         model = new FormEntryModel(theForm);
         controller = new FormEntryController(model);
 
-        
-        //Populate XForm Model 
+
+        //Populate XForm Model
 //        TreeReference tr = TreeReference.rootRef();
 //        tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
 //        templateRoot.populate(savedRoot, f);
 //
 //        f.getInstance().setRoot(templateRoot);
     }
-    
+
     public void simulateEntryTest() throws Exception {
         while(model.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event = controller.stepToNextEvent();
             deal(event);
         }
     }
-    
+
     private void deal(int event) throws Exception {
         switch(event) {
         //Events which we can just skip
@@ -83,28 +83,28 @@ public class FormInstanceValidator {
         case FormEntryController.EVENT_REPEAT:
         case FormEntryController.EVENT_REPEAT_JUNCTURE:
             return;
-            
+
         case FormEntryController.EVENT_QUESTION:
             //Get the index for this question
             FormIndex index = model.getFormIndex();
-            
+
             TreeReference ref = theForm.getChildInstanceRef(index);
-            
+
             TreeElement element = savedModel.resolveReference(ref);
-            
+
             FormEntryPrompt prompt = model.getQuestionPrompt(index);
-            
+
             if(element == null) {
                 //If an element doesn't exist, that is indicative that its model was not relevant,
                 //so the question shouldn't have been asked in the first place
                 System.out.println("Saved model is missing valid node for question " + ref.toString(true));
                 throw new Exception("Model Missing Element");
             }
-            
+
             IAnswerData answerValue = element.getValue();
-            
+
             answerValue = cast(answerValue, prompt.getDataType());
-            
+
             int result = controller.answerQuestion(index, answerValue);
             switch(result) {
             case FormEntryController.ANSWER_OK:
@@ -119,22 +119,22 @@ public class FormInstanceValidator {
                 System.out.println("Constraint Message: " + prompt.getConstraintText(answerValue));
                 throw new Exception("Invalid data");
             }
-            
+
             //One more thing to evalute: multi/single select values are in the valid range.
             Vector<SelectChoice> choices = prompt.getSelectChoices();
             if(choices ==null) {
                 //Not the right kind of question!
                 return;
             }
-            
+
             //Otherwise we need to make sure that any available IAnswerData's are legit.
-            
+
             if(answerValue == null) {
                 //Would have caught required stuff earlier, and null is always valid
                 //unless the question is required, so we're fine
                 return;
             }
-            
+
             //Check for one or multi
             if (prompt.getControlType() == Constants.CONTROL_SELECT_MULTI) {
                 SelectMultiData data = new SelectMultiData().cast(answerValue.uncast());
@@ -145,7 +145,7 @@ public class FormInstanceValidator {
                         throw new Exception("Invalid Selection");
                     }
                 }
-                
+
             } else {
                 SelectOneData data = new SelectOneData().cast(answerValue.uncast());
                 if(!(validChoice(((Selection)data.getValue()).xmlValue, choices))) {
@@ -155,14 +155,14 @@ public class FormInstanceValidator {
             }
         }
     }
-    
+
     public boolean validChoice(String choice, Vector<SelectChoice> choices) {
         for(SelectChoice c : choices) {
             if(c.getValue().equals(choice)) {return true;}
         }
         return false;
     }
-    
+
     /**
      * Duplicated everywhere I'm sure.
      * @param data
@@ -171,7 +171,7 @@ public class FormInstanceValidator {
      */
     private IAnswerData cast(IAnswerData data, int dataType) {
         if(data == null) { return null; }
-        
+
         IAnswerData prototype = new UncastData();
         switch(dataType) {
         case Constants.DATATYPE_DATE:
