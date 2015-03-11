@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.xform.schema;
 
@@ -16,25 +16,25 @@ import org.json.simple.JSONObject;
  */
 public class JSONReporter extends XFormParserReporter {
     ArrayList<JSONObject> problems = new ArrayList<JSONObject>();
-    
+
     boolean passedValidation = false;
     private String failureReason;
     private boolean failureExpected;
-    
+
     public JSONReporter() {
-        
+
     }
-    
+
     public void setPassed() {
         passedValidation = true;
     }
-    
+
     public void setFailed(XFormParseException e) {
          this.passedValidation = false;
          this.failureExpected = true;
          this.failureReason = e.getMessage();
     }
-    
+
     public void setFailed(Exception e) {
         this.passedValidation = false;
         this.failureExpected =false;
@@ -67,7 +67,7 @@ public class JSONReporter extends XFormParserReporter {
         problem.put("fatal", false);
         problems.add(problem);
     }
-    
+
     public String generateJSONReport() {
         JSONObject report = new JSONObject();
         report.put("validated", passedValidation);
@@ -75,14 +75,14 @@ public class JSONReporter extends XFormParserReporter {
             report.put("fatal_error", failureReason);
             report.put("fatal_error_expected", failureExpected);
         }
-        
+
         JSONArray problem = new JSONArray();
         for(JSONObject error : problems) {
             problem.add(error);
         }
-        
+
         report.put("problems", problems);
-        
+
         return report.toJSONString();
     }
 }

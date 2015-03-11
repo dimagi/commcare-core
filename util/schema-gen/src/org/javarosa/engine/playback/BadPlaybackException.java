@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.engine.playback;
 
@@ -16,6 +16,6 @@ public class BadPlaybackException extends Exception {
     }
 
     public BadPlaybackException(FormEntryPrompt fep, int response, ActionResponse actionResponse) {
-        
+
     }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.engine.xml;
 
@@ -33,7 +33,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
         for(int i = 0 ; i < parser.getAttributeCount(); ++i) {
             element.setAttribute(parser.getAttributeNamespace(i), parser.getAttributeName(i), parser.getAttributeValue(i));
         }
-        
+
         Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
         //NOTE: We never expect this to be the exit condition
         while(parser.getDepth() >= depth) {
@@ -47,7 +47,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                     val = 0;
                 }
                 multiplicities.put(name,  new Integer(val));
-                    
+
                 TreeElement kid = new TreeElementParser(parser, val, instanceId).parse();
                 element.addChild(kid);
                 break;
@@ -60,7 +60,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                 throw new InvalidStructureException("Exception while trying to parse an XML Tree, got something other than tags and text", parser);
             }
         }
-        
+
         return element;
     }
 
