@@ -22,25 +22,25 @@ import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xpath.expr.XPathQName;
 
 public class Lexer {
-    
+
     private static final int CONTEXT_LENGTH = 15;
-    
+
     public static final int LEX_CONTEXT_VAL = 1;
-    public static final int LEX_CONTEXT_OP = 2;    
-    
-    public static Vector lex (String expr) throws XPathSyntaxException {
+    public static final int LEX_CONTEXT_OP = 2;
+
+    public static Vector lex(String expr) throws XPathSyntaxException {
         Vector tokens = new Vector();
-        
+
         int i = 0;
         int context = LEX_CONTEXT_VAL;
-        
+
         while (i < expr.length()) {
             int c = expr.charAt(i);
             int d = getChar(expr, i + 1);
-            
+
             Token token = null;
             int skip = 1;
-            
+
             if (" \n\t\f\r".indexOf(c) >= 0) {
                 /* whitespace; do nothing */
             } else if (c == '=') {
@@ -93,7 +93,7 @@ public class Lexer {
                     skip = matchNumeric(expr, i);
                     token = new Token(Token.NUM, Double.valueOf(expr.substring(i, i + skip)));
                 } else {
-                    token = new Token(Token.DOT);                    
+                    token = new Token(Token.DOT);
                 }
             } else if (c == '@') {
                 token = new Token(Token.AT);
@@ -113,7 +113,7 @@ public class Lexer {
                 skip = 3;
             } else if (context == LEX_CONTEXT_OP && i + 3 <= expr.length() && "mod".equals(expr.substring(i, i + 3))) {
                 token = new Token(Token.MOD);
-                skip = 3;                
+                skip = 3;
             } else if (c == '$') {
                 int len = matchQName(expr, i + 1);
                 if (len == 0) {
@@ -148,20 +148,20 @@ public class Lexer {
             }
             if (token != null) {
                 if (token.type == Token.WILDCARD ||
-                    token.type == Token.NSWILDCARD ||
-                    token.type == Token.QNAME ||
-                    token.type == Token.VAR ||
-                    token.type == Token.NUM ||
-                    token.type == Token.STR ||
-                    token.type == Token.RBRACK ||
-                    token.type == Token.RPAREN ||
-                    token.type == Token.DOT ||
-                    token.type == Token.DBL_DOT) {
+                        token.type == Token.NSWILDCARD ||
+                        token.type == Token.QNAME ||
+                        token.type == Token.VAR ||
+                        token.type == Token.NUM ||
+                        token.type == Token.STR ||
+                        token.type == Token.RBRACK ||
+                        token.type == Token.RPAREN ||
+                        token.type == Token.DOT ||
+                        token.type == Token.DBL_DOT) {
                     context = LEX_CONTEXT_OP;
                 } else {
                     context = LEX_CONTEXT_VAL;
-                }        
-                
+                }
+
                 tokens.addElement(token);
             }
             i += skip;
@@ -169,72 +169,72 @@ public class Lexer {
 
         return tokens;
     }
-    
+
     private static void badParse(String expr, int i, char c) throws XPathSyntaxException {
-        
+
         String start = "\u034E" + c;
-        String preContext =  (Math.max(0, i - CONTEXT_LENGTH) != 0 ? "..." : "") + expr.substring(Math.max(0, i - CONTEXT_LENGTH), Math.max(0, i)).trim();
-        String postcontext = i == expr.length() - 1 ? "" : 
+        String preContext = (Math.max(0, i - CONTEXT_LENGTH) != 0 ? "..." : "") + expr.substring(Math.max(0, i - CONTEXT_LENGTH), Math.max(0, i)).trim();
+        String postcontext = i == expr.length() - 1 ? "" :
                 expr.substring(Math.min(i + 1, expr.length() - 1), Math.min(i + CONTEXT_LENGTH, expr.length())).trim() + (Math.min(i + CONTEXT_LENGTH, expr.length()) != expr.length() ? "..." : "");
-        
+
         throw new XPathSyntaxException("Couldn't understand the expression starting at this point: " + (preContext + start + postcontext));
     }
 
-    private static int matchNumeric (String expr, int i) {
+    private static int matchNumeric(String expr, int i) {
         boolean seenDecimalPoint = false;
         int start = i;
         int c;
-        
+
         for (; i < expr.length(); i++) {
             c = expr.charAt(i);
-            
+
             if (!(isDigit(c) || (!seenDecimalPoint && c == '.')))
                 break;
-            
+
             if (c == '.')
                 seenDecimalPoint = true;
         }
-                
+
         return i - start;
     }
 
-    private static int matchQName (String expr, int i) {
+    private static int matchQName(String expr, int i) {
         int len = matchNCName(expr, i);
 
         if (len > 0 && getChar(expr, i + len) == ':') {
             int len2 = matchNCName(expr, i + len + 1);
-            
+
             if (len2 > 0)
                 len += len2 + 1;
         }
-        
+
         return len;
     }
-    
-    private static int matchNCName (String expr, int i) {
+
+    private static int matchNCName(String expr, int i) {
         int start = i;
         int c;
-        
+
         for (; i < expr.length(); i++) {
             c = expr.charAt(i);
-            
+
             if (!(isAlpha(c) || c == '_' || (i > start && (isDigit(c) || c == '.' || c == '-'))))
                 break;
         }
-        
+
         return i - start;
     }
-    
+
     //get char from string, return -1 for EOF
-    private static int getChar (String expr, int i) {
+    private static int getChar(String expr, int i) {
         return (i < expr.length() ? expr.charAt(i) : -1);
     }
-    
-    private static boolean isDigit (int c) {
+
+    private static boolean isDigit(int c) {
         return (c < 0 ? false : Character.isDigit((char)c));
     }
-    
-    private static boolean isAlpha (int c) {
+
+    private static boolean isAlpha(int c) {
         return (c < 0 ? false : Character.isLowerCase((char)c) || Character.isUpperCase((char)c));
     }
 }

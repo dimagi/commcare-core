@@ -25,7 +25,7 @@ import java.io.IOException;
  * Gives objects control over serialization. A replacement for the interfaces
  * <code>Externalizable</code> and <code>Serializable</code>, which are
  * missing in CLDC.
- * 
+ *
  * @author <a href="mailto:m.nuessler@gmail.com">Matthias Nuessler</a>
  */
 public interface Externalizable {

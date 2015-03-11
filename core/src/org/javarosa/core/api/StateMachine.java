@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.api;
 
@@ -8,16 +8,15 @@ import java.util.Stack;
 
 /**
  * @author ctsims
- *
  */
 public class StateMachine {
     private static Stack statesToReturnTo = new Stack();
-    
-    public static void setStateToReturnTo (State st) {
+
+    public static void setStateToReturnTo(State st) {
         statesToReturnTo.push(st);
     }
-    
-    public static State getStateToReturnTo () {
+
+    public static State getStateToReturnTo() {
         try {
             return (State)statesToReturnTo.pop();
         } catch (EmptyStackException e) {

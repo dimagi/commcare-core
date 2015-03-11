@@ -37,10 +37,10 @@ public class XPathParseTool {
             "org.javarosa.xpath.expr.XPathVariableReference"
     };
 
-    public static XPathExpression parseXPath (String xpath) throws XPathSyntaxException {
+    public static XPathExpression parseXPath(String xpath) throws XPathSyntaxException {
         return Parser.parse(Lexer.lex(xpath));
     }
-    
+
     //for running from command line
 //    public static void main (String[] args) {
 //        String expr = args[0];

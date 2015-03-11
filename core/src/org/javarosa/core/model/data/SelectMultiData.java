@@ -33,53 +33,52 @@ import org.javarosa.xform.util.XFormAnswerDataSerializer;
 /**
  * A response to a question requesting a selection of
  * any number of items from a list.
- * 
- * @author Drew Roos
  *
+ * @author Drew Roos
  */
 public class SelectMultiData implements IAnswerData {
     Vector vs; //vector of Selection
-    
+
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
      * Shouldn't be used otherwise.
      */
     public SelectMultiData() {
-        
+
     }
-    
-    public SelectMultiData (Vector vs) {
+
+    public SelectMultiData(Vector vs) {
         setValue(vs);
     }
-    
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         Vector v = new Vector();
         for (int i = 0; i < vs.size(); i++) {
             v.addElement(((Selection)vs.elementAt(i)).clone());
         }
         return new SelectMultiData(v);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#setValue(java.lang.Object)
      */
-    public void setValue (Object o) {
-        if(o == null) {
+    public void setValue(Object o) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
-        
+
         vs = vectorCopy((Vector)o);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
-    public Object getValue () {
+    public Object getValue() {
         return vectorCopy(vs);
     }
-    
+
     /**
      * @return A type checked vector containing all of the elements
      * contained in the vector input
@@ -94,6 +93,7 @@ public class SelectMultiData implements IAnswerData {
         }
         return output;
     }
+
     /**
      * @return THE XMLVALUE!!
      */
@@ -101,18 +101,19 @@ public class SelectMultiData implements IAnswerData {
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
-    public String getDisplayText () {
+    public String getDisplayText() {
         String str = "";
-        
+
         for (int i = 0; i < vs.size(); i++) {
             Selection s = (Selection)vs.elementAt(i);
             str += s.getValue();
             if (i < vs.size() - 1)
                 str += ", ";
         }
-        
+
         return str;
     }
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
@@ -130,8 +131,8 @@ public class SelectMultiData implements IAnswerData {
     public UncastData uncast() {
         Enumeration en = vs.elements();
         StringBuffer selectString = new StringBuffer();
-        
-        while(en.hasMoreElements()) {
+
+        while (en.hasMoreElements()) {
             Selection selection = (Selection)en.nextElement();
             if (selectString.length() > 0)
                 selectString.append(" ");
@@ -141,12 +142,12 @@ public class SelectMultiData implements IAnswerData {
         //for storing multiple selections.    
         return new UncastData(selectString.toString());
     }
-    
+
     public SelectMultiData cast(UncastData data) throws IllegalArgumentException {
         Vector v = new Vector();
-        
+
         Vector<String> choices = DateUtils.split(data.value, " ", true);
-        for(String s : choices) { 
+        for (String s : choices) {
             v.addElement(new Selection(s));
         }
         return new SelectMultiData(v);

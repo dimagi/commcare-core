@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.model.utils;
 
@@ -32,27 +32,27 @@ import org.javarosa.core.model.data.StringData;
 
 /**
  * @author Clayton Sims
- * @date Mar 30, 2009 
- *
+ * @date Mar 30, 2009
  */
 public class PreloadUtils {
-    
+
     /**
      * Note: This method is a hack to fix the problem that we don't know what
-     * data type we're using when we have a preloader. That should get fixed, 
+     * data type we're using when we have a preloader. That should get fixed,
      * and this method should be removed.
+     *
      * @param o
      * @return
      */
     public static IAnswerData wrapIndeterminedObject(Object o) {
-        if(o == null) {
+        if (o == null) {
             return null;
         }
-        
+
         //TODO: Replace this all with an uncast data
-        if(o instanceof String) {
+        if (o instanceof String) {
             return new StringData((String)o);
-        } else if(o instanceof Date) {
+        } else if (o instanceof Date) {
             return new DateData((Date)o);
         } else if (o instanceof Integer) {
             return new IntegerData((Integer)o);
@@ -60,9 +60,9 @@ public class PreloadUtils {
             return new LongData((Long)o);
         } else if (o instanceof Double) {
             return new DecimalData((Double)o);
-        } else if(o instanceof Vector) {
+        } else if (o instanceof Vector) {
             return new SelectMultiData((Vector)o);
-        } else if(o instanceof IAnswerData) {
+        } else if (o instanceof IAnswerData) {
             return (IAnswerData)o;
         }
         return new StringData(o.toString());

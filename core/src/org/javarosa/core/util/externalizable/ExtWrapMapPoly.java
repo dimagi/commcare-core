@@ -31,52 +31,52 @@ public class ExtWrapMapPoly extends ExternalizableWrapper {
     public boolean ordered;
     
     /* serialization */
-    
-    public ExtWrapMapPoly (Hashtable val) {
+
+    public ExtWrapMapPoly(Hashtable val) {
         this(val, null);
     }
-    
-    public ExtWrapMapPoly (Hashtable val, ExternalizableWrapper keyType) {
+
+    public ExtWrapMapPoly(Hashtable val, ExternalizableWrapper keyType) {
         if (val == null) {
             throw new NullPointerException();
         }
-        
+
         this.val = val;
         this.keyType = keyType;
         this.ordered = (val instanceof OrderedHashtable);
     }
 
     /* deserialization */
-    
-    public ExtWrapMapPoly () {
-        
+
+    public ExtWrapMapPoly() {
+
     }
 
-    public ExtWrapMapPoly (Class keyType) {
+    public ExtWrapMapPoly(Class keyType) {
         this(keyType, false);
     }
-    
-    public ExtWrapMapPoly (ExternalizableWrapper keyType) {
+
+    public ExtWrapMapPoly(ExternalizableWrapper keyType) {
         this(keyType, false);
     }
-    
-    public ExtWrapMapPoly (Class keyType, boolean ordered) {
+
+    public ExtWrapMapPoly(Class keyType, boolean ordered) {
         this(new ExtWrapBase(keyType), ordered);
     }
-    
-    public ExtWrapMapPoly (ExternalizableWrapper keyType, boolean ordered) {
+
+    public ExtWrapMapPoly(ExternalizableWrapper keyType, boolean ordered) {
         if (keyType == null) {
             throw new NullPointerException();
         }
-        
+
         this.keyType = keyType;
         this.ordered = ordered;
     }
-    
-    public ExternalizableWrapper clone (Object val) {
+
+    public ExternalizableWrapper clone(Object val) {
         return new ExtWrapMapPoly((Hashtable)val, keyType);
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         long size = ExtUtil.readNumeric(in);
         Hashtable h = ordered ? new OrderedHashtable((int)size) : new Hashtable((int)size);
@@ -85,7 +85,7 @@ public class ExtWrapMapPoly extends ExternalizableWrapper {
             Object elem = ExtUtil.read(in, new ExtWrapTagged(), pf);
             h.put(key, elem);
         }
-        
+
         val = h;
     }
 
@@ -96,24 +96,24 @@ public class ExtWrapMapPoly extends ExternalizableWrapper {
         for (Enumeration e = h.keys(); e.hasMoreElements(); ) {
             Object key = e.nextElement();
             Object elem = h.get(key);
-            
+
             ExtUtil.write(out, keyType == null ? key : keyType.clone(key));
-            ExtUtil.write(out, new ExtWrapTagged(elem));            
-        }        
+            ExtUtil.write(out, new ExtWrapTagged(elem));
+        }
     }
 
-    public void metaReadExternal (DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         ordered = ExtUtil.readBool(in);
         keyType = ExtWrapTagged.readTag(in, pf);
     }
 
-    public void metaWriteExternal (DataOutputStream out) throws IOException {
+    public void metaWriteExternal(DataOutputStream out) throws IOException {
         Hashtable h = (Hashtable)val;
         Object keyTagObj;
-        
+
         ExtUtil.writeBool(out, ordered);
-        
-        keyTagObj = (keyType == null ? (h.size() == 0 ? new Object() : h.keys().nextElement()) : keyType);        
+
+        keyTagObj = (keyType == null ? (h.size() == 0 ? new Object() : h.keys().nextElement()) : keyType);
         ExtWrapTagged.writeTag(out, keyTagObj);
     }
 }

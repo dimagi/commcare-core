@@ -31,7 +31,7 @@ import org.kxml2.kdom.Element;
 /* basically, anything that didn't belong in XFormParser */
 
 public class XFormSerializer {
-    
+
     public static ByteArrayOutputStream getStream(Document doc) {
         KXmlSerializer serializer = new KXmlSerializer();
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -46,28 +46,28 @@ public class XFormSerializer {
             return null;
         }
     }
-    
-    public static String elementToString(Element e){
+
+    public static String elementToString(Element e) {
         KXmlSerializer serializer = new KXmlSerializer();
-        
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
-        String s=null;
+        String s = null;
         try {
             serializer.setOutput(dos, null);
             e.write(serializer);
             serializer.flush();
-            s = new String(bos.toByteArray(),"UTF-8");
+            s = new String(bos.toByteArray(), "UTF-8");
             return s;
-        }catch (UnsupportedEncodingException uce){
+        } catch (UnsupportedEncodingException uce) {
             uce.printStackTrace();
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
-        
+
         return null;
-        
+
     }
 
     public static String getString(Document doc) {
@@ -76,7 +76,7 @@ public class XFormSerializer {
         byte[] byteArr = bos.toByteArray();
         char[] charArray = new char[byteArr.length];
         for (int i = 0; i < byteArr.length; i++)
-            charArray[i] = (char) byteArr[i];
+            charArray[i] = (char)byteArr[i];
 
         return String.valueOf(charArray);
     }

@@ -29,20 +29,20 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class ASTNodeLocPath extends ASTNode {
     public Vector clauses;
     public Vector separators;
-    
-    public ASTNodeLocPath () {
+
+    public ASTNodeLocPath() {
         clauses = new Vector();
         separators = new Vector();
     }
-    
+
     public Vector getChildren() {
         return clauses;
     }
-    
-    public boolean isAbsolute () {
+
+    public boolean isAbsolute() {
         return (clauses.size() == separators.size()) || (clauses.size() == 0 && separators.size() == 1);
     }
-    
+
     public XPathExpression build() throws XPathSyntaxException {
         Vector steps = new Vector();
         XPathExpression filtExpr = null;
@@ -55,7 +55,7 @@ public class ASTNodeLocPath extends ASTNode {
                     filtExpr = ((ASTNode)clauses.elementAt(i - offset)).build();
                 }
             }
-                
+
             if (i < separators.size()) {
                 if (Parser.vectInt(separators, i) == Token.DBL_SLASH) {
                     steps.addElement(XPathStep.ABBR_DESCENDANTS());
@@ -66,7 +66,7 @@ public class ASTNodeLocPath extends ASTNode {
         XPathStep[] stepArr = new XPathStep[steps.size()];
         for (int i = 0; i < stepArr.length; i++)
             stepArr[i] = (XPathStep)steps.elementAt(i);
-        
+
         if (filtExpr == null) {
             return new XPathPathExpr(isAbsolute() ? XPathPathExpr.INIT_CONTEXT_ROOT : XPathPathExpr.INIT_CONTEXT_RELATIVE, stepArr);
         } else {
@@ -75,6 +75,6 @@ public class ASTNodeLocPath extends ASTNode {
             } else {
                 return new XPathPathExpr(new XPathFilterExpr(filtExpr, new XPathExpression[0]), stepArr);
             }
-        }        
+        }
     }
 }

@@ -12,11 +12,9 @@ public class StreamsUtil {
     }
 
     /**
-     * 
      * Write everything from input stream to output stream, byte by byte then
      * close the streams
-     * 
-     * 
+     *
      * @param in
      * @param out
      * @throws IOException
@@ -25,29 +23,29 @@ public class StreamsUtil {
         //TODO: God this is naive
         int val;
         try {
-            val= in.read();
-        } catch(IOException e) {
+            val = in.read();
+        } catch (IOException e) {
             throw new StreamsUtil().new InputIOException(e);
         }
         while (val != -1) {
             try {
                 out.write(val);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new StreamsUtil().new OutputIOException(e);
             }
             incr(tally);
             try {
                 val = in.read();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new StreamsUtil().new InputIOException(e);
             }
         }
     }
-    
+
     public static void writeFromInputToOutputSpecific(InputStream in, OutputStream out) throws InputIOException, OutputIOException {
         writeFromInputToOutput(in, out, null);
     }
-    
+
     public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
         try {
             writeFromInputToOutput(in, out, null);
@@ -57,13 +55,12 @@ public class StreamsUtil {
             throw e.internal;
         }
     }
-    
+
     private static final int CHUNK_SIZE = 2048;
-    
+
     /**
-     * 
      * Write the byte array to the output stream
-     * 
+     *
      * @param bytes
      * @param out
      * @throws IOException
@@ -71,13 +68,13 @@ public class StreamsUtil {
     public static void writeToOutput(byte[] bytes, OutputStream out, long[] tally) throws IOException {
         int offset = 0;
         int remain = bytes.length;
-        
-        while(remain > 0) {
+
+        while (remain > 0) {
             int toRead = (remain < CHUNK_SIZE) ? remain : CHUNK_SIZE;
             out.write(bytes, offset, toRead);
             remain -= toRead;
             offset += toRead;
-            if(tally != null) {
+            if (tally != null) {
                 tally[0] += toRead;
             }
         }
@@ -86,18 +83,17 @@ public class StreamsUtil {
     public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
         writeToOutput(bytes, out, null);
     }
-    
-    private static void incr (long[] tally) {
+
+    private static void incr(long[] tally) {
         if (tally != null) {
             tally[0]++;
         }
     }
-    
+
     /**
-     * 
      * Read bytes from an input stream into a byte array then close the input
      * stream
-     * 
+     *
      * @param in
      * @param len
      * @return
@@ -140,36 +136,36 @@ public class StreamsUtil {
 
         return data;
     }
-    
-    
+
+
     //Unify the functional aspects here
-    
-    private abstract class DirectionalIOException extends IOException{
+
+    private abstract class DirectionalIOException extends IOException {
         IOException internal;
 
         public DirectionalIOException(IOException internal) {
             super(internal.getMessage());
             this.internal = internal;
         }
-        
+
         public IOException getWrapped() {
             return internal;
         }
-        
-        public void printStackTrace()  {
+
+        public void printStackTrace() {
             internal.printStackTrace();
         }
-        
+
         //TODO: Override all common methodss
     }
-    
-    public class InputIOException extends DirectionalIOException{
+
+    public class InputIOException extends DirectionalIOException {
         public InputIOException(IOException internal) {
             super(internal);
         }
     }
-    
-    public class OutputIOException extends DirectionalIOException{
+
+    public class OutputIOException extends DirectionalIOException {
         public OutputIOException(IOException internal) {
             super(internal);
         }

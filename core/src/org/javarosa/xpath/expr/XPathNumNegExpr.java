@@ -26,29 +26,30 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class XPathNumNegExpr extends XPathUnaryOpExpr {
-    public XPathNumNegExpr () { } //for deserialization
+    public XPathNumNegExpr() {
+    } //for deserialization
 
-    public XPathNumNegExpr (XPathExpression a) {
+    public XPathNumNegExpr(XPathExpression a) {
         super(a);
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         double aval = XPathFuncExpr.toNumeric(a.eval(model, evalContext)).doubleValue();
         return new Double(-aval);
     }
 
-    public String toString () {
+    public String toString() {
         return "{unop-expr:num-neg," + a.toString() + "}";
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathNumNegExpr) {
             return super.equals(o);
         } else {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
     }

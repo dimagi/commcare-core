@@ -28,50 +28,50 @@ public class ExtWrapList extends ExternalizableWrapper {
     private boolean sealed;
     
     /* serialization */
-    
-    public ExtWrapList (Vector val) {
+
+    public ExtWrapList(Vector val) {
         this(val, null);
     }
-    
-    public ExtWrapList (Vector val, ExternalizableWrapper type) {
+
+    public ExtWrapList(Vector val, ExternalizableWrapper type) {
         if (val == null) {
             throw new NullPointerException();
         }
-        
+
         this.val = val;
         this.type = type;
     }
 
     /* deserialization */
-    
-    public ExtWrapList () {
-        
+
+    public ExtWrapList() {
+
     }
-    
-    public ExtWrapList (Class type) {
+
+    public ExtWrapList(Class type) {
         this(type, false);
     }
-    
-    public ExtWrapList (Class type, boolean sealed) {
+
+    public ExtWrapList(Class type, boolean sealed) {
         this.type = new ExtWrapBase(type);
         this.sealed = sealed;
     }
 
-    public ExtWrapList (ExternalizableWrapper type) {
+    public ExtWrapList(ExternalizableWrapper type) {
         if (type == null) {
             throw new NullPointerException();
         }
-        
+
         this.type = type;
     }
-    
-    public ExternalizableWrapper clone (Object val) {
+
+    public ExternalizableWrapper clone(Object val) {
         return new ExtWrapList((Vector)val, type);
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        if(!sealed) {
-    
+        if (!sealed) {
+
             int size = (int)ExtUtil.readNumeric(in);
             Vector v = new Vector(size);
             for (int i = 0; i < size; i++) {
@@ -97,14 +97,14 @@ public class ExtWrapList extends ExternalizableWrapper {
         }
     }
 
-    public void metaReadExternal (DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void metaReadExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         type = ExtWrapTagged.readTag(in, pf);
     }
 
-    public void metaWriteExternal (DataOutputStream out) throws IOException {
+    public void metaWriteExternal(DataOutputStream out) throws IOException {
         Vector v = (Vector)val;
         Object tagObj;
-        
+
         if (type == null) {
             if (v.size() == 0) {
                 tagObj = new Object();
@@ -114,7 +114,7 @@ public class ExtWrapList extends ExternalizableWrapper {
         } else {
             tagObj = type;
         }
-        
+
         ExtWrapTagged.writeTag(out, tagObj);
     }
 }

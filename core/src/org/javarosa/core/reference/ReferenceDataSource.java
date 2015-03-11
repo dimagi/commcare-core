@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.reference;
 
@@ -34,30 +34,29 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 /**
  * The ReferenceDataSource is a source of locale data which
  * is located at a location which is defined by a ReferenceURI.
- * 
- * @author Clayton Sims
- * @date Jun 1, 2009 
  *
+ * @author Clayton Sims
+ * @date Jun 1, 2009
  */
 public class ReferenceDataSource implements LocaleDataSource {
-    
+
     String referenceURI;
-    
+
     /**
      * NOTE: FOR SERIALIZATION ONLY!
      */
     public ReferenceDataSource() {
-        
+
     }
-    
+
     /**
      * Creates a new Data Source for Locale data with the given resource URI.
-     * 
+     *
      * @param resourceURI a URI to the resource file from which data should be loaded
      * @throws NullPointerException if resourceURI is null
      */
     public ReferenceDataSource(String referenceURI) {
-        if(referenceURI == null) {
+        if (referenceURI == null) {
             throw new NullPointerException("Reference URI cannot be null when creating a Resource File Data Source");
         }
         this.referenceURI = referenceURI;
@@ -78,8 +77,11 @@ public class ReferenceDataSource implements LocaleDataSource {
             e.printStackTrace();
             throw new RuntimeException("Invalid Reference! " + referenceURI);
         } finally {
-            if(is != null) {
-                try { is.close(); } catch(IOException e) { }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
             }
         }
     }

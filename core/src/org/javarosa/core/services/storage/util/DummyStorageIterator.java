@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.services.storage.util;
 
@@ -12,25 +12,24 @@ import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
- *
  */
 public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
     Hashtable<Integer, T> data;
     int count;
     Integer[] keys;
-    
+
 
     public DummyStorageIterator(Hashtable<Integer, T> data) {
         this.data = data;
         keys = new Integer[data.size()];
         int i = 0;
-        for(Enumeration en = data.keys() ;en.hasMoreElements();) {
+        for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             keys[i] = (Integer)en.nextElement();
             ++i;
         }
         count = 0;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
      */
@@ -43,7 +42,7 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
      */
     public int nextID() {
         count++;
-        return ((Integer)keys[count -1]).intValue(); 
+        return ((Integer)keys[count - 1]).intValue();
     }
 
     /* (non-Javadoc)

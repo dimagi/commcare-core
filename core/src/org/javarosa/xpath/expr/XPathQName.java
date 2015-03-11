@@ -29,11 +29,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathQName implements Externalizable {
     public String namespace;
     public String name;
-	private int hashCode;
+    private int hashCode;
 
-    public XPathQName () { } //for deserialization
-    
-    public XPathQName (String qname) {
+    public XPathQName() {
+    } //for deserialization
+
+    public XPathQName(String qname) {
         int sep = (qname == null ? -1 : qname.indexOf(":"));
         if (sep == -1) {
             init(null, qname);
@@ -42,15 +43,15 @@ public class XPathQName implements Externalizable {
         }
     }
 
-    public XPathQName (String namespace, String name) {
+    public XPathQName(String namespace, String name) {
         init(namespace, name);
     }
-    
+
     public int hashCode() {
         return hashCode;
     }
 
-    private void init (String namespace, String name) {
+    private void init(String namespace, String name) {
         if (name == null ||
                 (name != null && name.length() == 0) ||
                 (namespace != null && namespace.length() == 0))
@@ -58,31 +59,33 @@ public class XPathQName implements Externalizable {
 
         this.namespace = namespace;
         this.name = name;
-		cacheCode();
-	}
-	
-	private void cacheCode() {
-       hashCode = name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
+        cacheCode();
     }
 
-    public String toString () {
+    private void cacheCode() {
+        hashCode = name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
+    }
+
+    public String toString() {
         return (namespace == null ? name : namespace + ":" + name);
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathQName) {
             XPathQName x = (XPathQName)o;
-            if(hashCode != o.hashCode()) { return false; }
+            if (hashCode != o.hashCode()) {
+                return false;
+            }
             return ExtUtil.equals(namespace, x.namespace, false) && name.equals(x.name);
         } else {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         name = ExtUtil.readString(in);
-		cacheCode();
+        cacheCode();
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {

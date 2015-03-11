@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.model.xform;
 
@@ -36,32 +36,32 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
- * 
+ *
  */
 public class XPathReference implements IDataReference {
     private TreeReference ref;
     private String nodeset;
-    
-    public XPathReference () {
+
+    public XPathReference() {
 
     }
-    
-    public XPathReference (String nodeset) {
+
+    public XPathReference(String nodeset) {
         ref = getPathExpr(nodeset).getReference();
         this.nodeset = nodeset;
     }
-    
-    public static XPathPathExpr getPathExpr (String nodeset) {
+
+    public static XPathPathExpr getPathExpr(String nodeset) {
         XPathExpression path;
         boolean validNonPathExpr = false;
-        
+
         try {
-        path = XPathParseTool.parseXPath(nodeset);
-        if (!(path instanceof XPathPathExpr)) {
-            validNonPathExpr = true;
-            throw new XPathSyntaxException();
-        }
-        
+            path = XPathParseTool.parseXPath(nodeset);
+            if (!(path instanceof XPathPathExpr)) {
+                validNonPathExpr = true;
+                throw new XPathSyntaxException();
+            }
+
         } catch (XPathSyntaxException xse) {
             //make these checked exceptions?
             if (validNonPathExpr) {
@@ -74,32 +74,32 @@ public class XPathReference implements IDataReference {
 
         return (XPathPathExpr)path;
     }
-    
-    public XPathReference (XPathPathExpr path) {
+
+    public XPathReference(XPathPathExpr path) {
         ref = path.getReference();
     }
 
-    public XPathReference (TreeReference ref) {
+    public XPathReference(TreeReference ref) {
         this.ref = ref;
     }
-    
-    public Object getReference () {
+
+    public Object getReference() {
         return ref;
     }
-    
-    public void setReference (Object o) {
+
+    public void setReference(Object o) {
         //do nothing
     }
-        
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathReference) {
             return ref.equals(((XPathReference)o).ref);
         } else {
             return false;
         }
     }
-    
-    public int hashCode () {
+
+    public int hashCode() {
         return ref.hashCode();
     }
 

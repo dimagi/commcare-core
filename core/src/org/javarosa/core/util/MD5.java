@@ -50,7 +50,7 @@ package org.javarosa.core.util;
  * should be named "MD5.so" and on Windows it should be named "MD5.dll". The
  * code will attempt to locate the library in the following locations in the
  * order given:
- * 
+ *
  * <ol>
  * <li>The path specified by the system property
  * "com.twmacinta.util.MD5.NATIVE_LIB_FILE" (be sure to include "MD5.so" or
@@ -61,7 +61,7 @@ package org.javarosa.core.util;
  * <li>Within the "lib/" directory.
  * <li>Within the current directory.
  * </ol>
- * 
+ *
  * <p>
  * If the library is not found, the code will fall back to the default (slower)
  * Java code.
@@ -84,24 +84,24 @@ package org.javarosa.core.util;
  * <p>
  * The second option is to call com.twmacinta.util.MD5.initNativeLibrary(true)
  * before any MD5 objects are constructed.
- * 
+ *
  * @author Santeri Paavolainen <sjpaavol@cc.helsinki.fi>
  * @author Timothy W Macinta (twm@alum.mit.edu) (optimizations and bug fixes)
  */
 
 public class MD5 {
     public static final int length = 16;
-    private static final char[]    HEX_CHARS    = { 
-        '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' 
+    private static final char[] HEX_CHARS = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
-    
-    private MD5State    state;
-    private MD5State    finals;
 
-    private static final byte    padding[]    = { (byte) 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    private MD5State state;
+    private MD5State finals;
+
+    private static final byte padding[] = {(byte)0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0 };
+            0, 0, 0, 0, 0, 0, 0, 0};
 
     /*
      * len += shift; for (int i = 0; shift < len; i++, shift += 4) { out[i] =
@@ -109,7 +109,7 @@ public class MD5 {
      * 8) | (((int) (buffer[shift + 2] & 0xff)) << 16) | (((int)
      * buffer[shift + 3]) << 24); }
      */
-    private final void decode( final byte buffer[], final int shift, final int[] out) {
+    private final void decode(final byte buffer[], final int shift, final int[] out) {
         out[0] = (buffer[shift] & 0xff) | ((buffer[shift + 1] & 0xff) << 8)
                 | ((buffer[shift + 2] & 0xff) << 16)
                 | (buffer[shift + 3] << 24);
@@ -330,7 +330,7 @@ public class MD5 {
         state.state[1] += b;
         state.state[2] += c;
         state.state[3] += d;
-        
+
         //ctsims - Dec 1. 2008
         //This call doesn't play well with others, and doesn't have a reason to be here.
         //It makes serialization super slow, so I took it out.
@@ -340,16 +340,12 @@ public class MD5 {
     /**
      * Updates hash with the bytebuffer given (using at maximum length bytes
      * from that buffer)
-     * 
-     * @param stat
-     *            Which state is updated
-     * @param buffer
-     *            Array of bytes to be hashed
-     * @param offset
-     *            Offset to buffer array
-     * @param length
-     *            Use at maximum `length' bytes (absolute maximum is
-     *            buffer.length)
+     *
+     * @param stat   Which state is updated
+     * @param buffer Array of bytes to be hashed
+     * @param offset Offset to buffer array
+     * @param length Use at maximum `length' bytes (absolute maximum is
+     *               buffer.length)
      */
     private final void update(MD5State stat, byte buffer[], int offset, int length) {
         int index, partlen, i, start;
@@ -360,7 +356,7 @@ public class MD5 {
 
         /* compute number of bytes mod 64 */
 
-        index = (int) (stat.count & 0x3f);
+        index = (int)(stat.count & 0x3f);
         stat.count += length;
 
         partlen = 64 - index;
@@ -389,49 +385,48 @@ public class MD5 {
             }
         }
     }
-    
-    private static final byte[] encode( final int input[], final int len) {
+
+    private static final byte[] encode(final int input[], final int len) {
         int i, j;
         byte out[];
         out = new byte[len];
         for (i = j = 0; j < len; i++, j += 4) {
-            out[j] = (byte) (input[i] & 0xff);
-            out[j + 1] = (byte) ((input[i] >>> 8) & 0xff);
-            out[j + 2] = (byte) ((input[i] >>> 16) & 0xff);
-            out[j + 3] = (byte) ((input[i] >>> 24) & 0xff);
+            out[j] = (byte)(input[i] & 0xff);
+            out[j + 1] = (byte)((input[i] >>> 8) & 0xff);
+            out[j + 2] = (byte)((input[i] >>> 16) & 0xff);
+            out[j + 3] = (byte)((input[i] >>> 24) & 0xff);
         }
         return out;
     }
 
-    public MD5( byte[] data ) {
+    public MD5(byte[] data) {
         state = new MD5State();
         finals = null;
-        update( data );
-    }
-    
-    /**
-     * Updates hash with given array of bytes
-     * 
-     * @param buffer
-     *            Array of bytes to use for updating the hash
-     */
-    public final void update( final byte buffer[]) {
-        if( buffer == null )
-            return;
-        update(buffer,0,buffer.length);
+        update(data);
     }
 
-    public final void update( final byte buffer[], int offset, int length) {
-        if( buffer == null )
+    /**
+     * Updates hash with given array of bytes
+     *
+     * @param buffer Array of bytes to use for updating the hash
+     */
+    public final void update(final byte buffer[]) {
+        if (buffer == null)
             return;
-        update( state, buffer, offset, length );
+        update(buffer, 0, buffer.length);
     }
-    
+
+    public final void update(final byte buffer[], int offset, int length) {
+        if (buffer == null)
+            return;
+        update(state, buffer, offset, length);
+    }
+
     /**
      * Returns array of bytes (16 bytes) representing hash as of the current
      * state of this object. Note: getting a hash does not invalidate the hash
      * object, it only creates a copy of the real state which is finalized.
-     * 
+     *
      * @return Array of 16 bytes, the hash of all updated bytes
      */
     public synchronized final byte[] doFinal() {
@@ -440,9 +435,9 @@ public class MD5 {
         MD5State fin;
         if (finals == null) {
             fin = new MD5State(state);
-            int[] count_ints = { (int) (fin.count << 3),(int) (fin.count >> 29) };
+            int[] count_ints = {(int)(fin.count << 3), (int)(fin.count >> 29)};
             bits = encode(count_ints, 8);
-            index = (int) (fin.count & 0x3f);
+            index = (int)(fin.count & 0x3f);
             padlen = (index < 56) ? (56 - index) : (120 - index);
             update(fin, padding, 0, padlen);
             update(fin, bits, 0, 8);
@@ -455,10 +450,10 @@ public class MD5 {
 
     /**
      * Returns 32-character hex representation of this objects hash
-     * 
+     *
      * @return String of this object's hash
      */
-    public static final String toHex( final byte[] hash ) {
+    public static final String toHex(final byte[] hash) {
         char buf[] = new char[hash.length * 2];
         for (int i = 0, x = 0; i < hash.length; i++) {
             buf[x++] = HEX_CHARS[(hash[i] >>> 4) & 0xf];
@@ -467,52 +462,52 @@ public class MD5 {
         return new String(buf);
     }
 
-    public static final String toBase64( final byte[] data ) {
+    public static final String toBase64(final byte[] data) {
         char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".toCharArray();
         char[] out = new char[((data.length + 2) / 3) * 4];
-        for (int i=0, index=0; i<data.length; i+=3, index+=4) {
+        for (int i = 0, index = 0; i < data.length; i += 3, index += 4) {
             boolean quad = false;
             boolean trip = false;
 
             int val = (0xFF & data[i]);
             val <<= 8;
-            if ((i+1) < data.length) {
-                val |= (0xFF & data[i+1]);
+            if ((i + 1) < data.length) {
+                val |= (0xFF & data[i + 1]);
                 trip = true;
             }
             val <<= 8;
-            if ((i+2) < data.length) {
-                val |= (0xFF & data[i+2]);
+            if ((i + 2) < data.length) {
+                val |= (0xFF & data[i + 2]);
                 quad = true;
             }
-            out[index+3] = alphabet[(quad? (val & 0x3F): 64)];
+            out[index + 3] = alphabet[(quad ? (val & 0x3F) : 64)];
             val >>= 6;
-            out[index+2] = alphabet[(trip? (val & 0x3F): 64)];
+            out[index + 2] = alphabet[(trip ? (val & 0x3F) : 64)];
             val >>= 6;
-            out[index+1] = alphabet[val & 0x3F];
+            out[index + 1] = alphabet[val & 0x3F];
             val >>= 6;
-            out[index+0] = alphabet[val & 0x3F];
+            out[index + 0] = alphabet[val & 0x3F];
         }
-        return new String( out );
+        return new String(out);
     }
 
-    public static byte[] hash (byte[] data) {
+    public static byte[] hash(byte[] data) {
         return (new MD5(data)).doFinal();
     }
-    
+
     /**
      * Calculates and returns the hash of the contents of the given file.
      */
     public final byte[] fingerprint(final byte[] data) {
-        update( data ); 
+        update(data);
         return doFinal();
     }
 
     /**
      * @return true iff the first 16 bytes of both hash1 and hash2 are equal;
-     *         both hash1 and hash2 are null; or either hash array is less than
-     *         16 bytes in length and their lengths and all of their bytes are
-     *         equal.
+     * both hash1 and hash2 are null; or either hash array is less than
+     * 16 bytes in length and their lengths and all of their bytes are
+     * equal.
      */
     public static final boolean equals(byte[] hash1, byte[] hash2) {
         if (hash1 == null)

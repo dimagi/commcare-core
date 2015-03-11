@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.formmanager;
 
@@ -23,8 +23,7 @@ import org.javarosa.core.api.IModule;
 
 /**
  * @author Clayton Sims
- * @date Feb 5, 2009 
- *
+ * @date Feb 5, 2009
  */
 public class FormModule implements IModule {
 

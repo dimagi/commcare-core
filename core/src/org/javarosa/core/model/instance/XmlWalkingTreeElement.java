@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.instance;
 
@@ -19,27 +19,26 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * The root element for the <casedb> abstract type. All children are
  * nodes in the case database. Depending on instantiation, the <casedb>
- * may include only a subset of the full db. 
- * 
- * @author ctsims
+ * may include only a subset of the full db.
  *
+ * @author ctsims
  */
 public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTreeElement> {
 
     private AbstractTreeElement instanceRoot;
     private KXmlParser parser;
     InputStreamReader reader;
-    
+
     public XmlWalkingTreeElement(AbstractTreeElement instanceRoot, Reference ref) {
         this.instanceRoot = instanceRoot;
-        
+
         parser = new KXmlParser();
-        try {        
+        try {
             InputStream stream = ref.getStream();
             reader = new InputStreamReader(stream);
             parser.setInput(reader);
-            
-            
+
+
         } catch (XmlPullParserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -48,7 +47,7 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
             e.printStackTrace();
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
      */
@@ -63,8 +62,9 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
         // TODO Auto-generated method stub
         return false;
     }
+
     public boolean hasChildren() {
-        if(getNumChildren() > 0) {
+        if (getNumChildren() > 0) {
             return true;
         }
         return false;
@@ -81,7 +81,7 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public XmlWalkingTreeElement getChild(String name, int multiplicity) {
-        if(multiplicity == TreeReference.INDEX_TEMPLATE) {
+        if (multiplicity == TreeReference.INDEX_TEMPLATE) {
             return null;
         }
         //Implement
@@ -108,7 +108,7 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
     public XmlWalkingTreeElement getChildAt(int i) {
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
      */
@@ -142,7 +142,7 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
      */
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-        
+
     }
 
     /* (non-Javadoc)
@@ -186,7 +186,7 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
     public String getAttributeValue(String namespace, String name) {
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
      */
@@ -239,11 +239,11 @@ public class XmlWalkingTreeElement implements AbstractTreeElement<XmlWalkingTree
 
     public void clearCaches() {
         // TODO Auto-generated method stub
-        
+
     }
 
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-            Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+                                                    Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return null;
     }
 

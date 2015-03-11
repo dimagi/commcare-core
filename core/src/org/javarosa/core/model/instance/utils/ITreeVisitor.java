@@ -21,15 +21,15 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.IInstanceVisitor;
 
 /**
- * ITreeVisitor is a visitor interface for the elements of the 
+ * ITreeVisitor is a visitor interface for the elements of the
  * FormInstance tree elements. In the case of composite elements,
  * method dispatch for composite members occurs following dispatch
  * for the composing member.
- * 
- * @author Clayton Sims
  *
+ * @author Clayton Sims
  */
 public interface ITreeVisitor extends IInstanceVisitor {
     public void visit(FormInstance tree);
+
     public void visit(AbstractTreeElement element);
 }

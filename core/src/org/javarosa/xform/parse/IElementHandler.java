@@ -22,10 +22,9 @@ import org.kxml2.kdom.Element;
 /**
  * An IElementHandler is responsible for handling the parsing of a particular
  * XForms node.
- *  
- * @author Drew Roos
  *
+ * @author Drew Roos
  */
 public interface IElementHandler {
-    /*Object*/ void handle (XFormParser p, Element e, Object parent);
+    /*Object*/ void handle(XFormParser p, Element e, Object parent);
 }

@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.log;
 
@@ -31,29 +31,28 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author Clayton Sims
- * @date Apr 10, 2009 
- *
+ * @date Apr 10, 2009
  */
 public class LogEntry implements Externalizable {
-    
+
     public static final String STORAGE_KEY = "LOG";
-    
+
     public static String LOG_TYPE_APPLICATION = "APP";
     public static String LOG_TYPE_ACTIVITY = "ACTIVITY";
-    
+
     Date time;
-    
+
     String type;
-    
+
     String message;
-    
-    /** 
+
+    /**
      * NOTE: For serialization purposes only
      */
     public LogEntry() {
-        
+
     }
-    
+
     public LogEntry(String type, String message, Date time) {
         this.time = time;
         this.type = type;

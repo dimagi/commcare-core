@@ -30,9 +30,8 @@ import java.util.Vector;
 
 /**
  * A response to a question requesting an GeoPoint Value.
- * 
+ *
  * @author Yaw Anokwa
- * 
  */
 public class GeoPointData implements IAnswerData {
 
@@ -96,13 +95,13 @@ public class GeoPointData implements IAnswerData {
         if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
-        this.fillArray((double[]) o);
+        this.fillArray((double[])o);
     }
 
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException,
             DeserializationException {
-        len = (int) ExtUtil.readNumeric(in);
+        len = (int)ExtUtil.readNumeric(in);
         for (int i = 0; i < len; i++) {
             gp[i] = ExtUtil.readDecimal(in);
         }
@@ -120,13 +119,13 @@ public class GeoPointData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(getDisplayText());
     }
-    
+
     public GeoPointData cast(UncastData data) throws IllegalArgumentException {
         double[] ret = new double[4];
-        
+
         Vector<String> choices = DateUtils.split(data.value, " ", true);
         int i = 0;
-        for(String s : choices) { 
+        for (String s : choices) {
             double d = Double.parseDouble(s);
             ret[i] = d;
             ++i;

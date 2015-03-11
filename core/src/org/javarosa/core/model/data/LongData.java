@@ -27,8 +27,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A response to a question requesting an Long Numeric Value
- * @author Clayton Sims
  *
+ * @author Clayton Sims
  */
 public class LongData implements IAnswerData {
     long n;
@@ -38,20 +38,21 @@ public class LongData implements IAnswerData {
      * Shouldn't be used otherwise.
      */
     public LongData() {
-        
+
     }
-    
+
     public LongData(long n) {
         this.n = n;
     }
+
     public LongData(Long n) {
         setValue(n);
     }
-    
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         return new LongData(n);
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
@@ -63,16 +64,16 @@ public class LongData implements IAnswerData {
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
     public Object getValue() {
-        return new Long(n); 
+        return new Long(n);
     }
-    
+
     public void setValue(Object o) {
-        if(o == null) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         n = ((Long)o).longValue();
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
@@ -90,11 +91,11 @@ public class LongData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(new Long(n).toString());
     }
-    
+
     public LongData cast(UncastData data) throws IllegalArgumentException {
         try {
             return new LongData(Long.parseLong(data.value));
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Long");
         }
     }

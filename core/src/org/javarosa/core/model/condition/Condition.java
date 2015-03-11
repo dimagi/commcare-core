@@ -40,85 +40,102 @@ public class Condition extends Triggerable {
     public static final int ACTION_UNLOCK = 6;
     public static final int ACTION_REQUIRE = 7;
     public static final int ACTION_DONT_REQUIRE = 8;
-    
+
     public int trueAction;
     public int falseAction;
-        
-    public Condition () {
+
+    public Condition() {
 
     }
-    
-    public Condition (IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef) {
+
+    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef) {
         this(expr, trueAction, falseAction, contextRef, new Vector());
     }
-    
-    public Condition (IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef, Vector targets) {
+
+    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef, Vector targets) {
         super(expr, contextRef);
         this.trueAction = trueAction;
         this.falseAction = falseAction;
         this.targets = targets;
     }
-    
-    public Object eval (FormInstance model, EvaluationContext evalContext) {
+
+    public Object eval(FormInstance model, EvaluationContext evalContext) {
         try {
             return new Boolean(expr.eval(model, evalContext));
-        } catch(XPathException e) {
+        } catch (XPathException e) {
             e.setSource("Relevant expression for " + contextRef.toString(true));
             throw e;
         }
     }
-    
-    public boolean evalBool (FormInstance model, EvaluationContext evalContext) {
+
+    public boolean evalBool(FormInstance model, EvaluationContext evalContext) {
         return ((Boolean)eval(model, evalContext)).booleanValue();
     }
-    
-    public void apply (TreeReference ref, Object rawResult, FormInstance model, FormDef f) {
+
+    public void apply(TreeReference ref, Object rawResult, FormInstance model, FormDef f) {
         boolean result = ((Boolean)rawResult).booleanValue();
         performAction(model.resolveReference(ref), result ? trueAction : falseAction);
     }
 
-    public boolean canCascade () {
+    public boolean canCascade() {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
-    
+
     public boolean isCascadingToChildren() {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
 
-    
-    private void performAction (TreeElement node, int action) {
+
+    private void performAction(TreeElement node, int action) {
         switch (action) {
-        case ACTION_NULL: break;
-        case ACTION_SHOW:         node.setRelevant(true); break;
-        case ACTION_HIDE:         node.setRelevant(false); break;
-        case ACTION_ENABLE:       node.setEnabled(true); break;
-        case ACTION_DISABLE:      node.setEnabled(false); break;
-        case ACTION_LOCK:         /* not supported */; break;
-        case ACTION_UNLOCK:       /* not supported */; break;
-        case ACTION_REQUIRE:      node.setRequired(true); break;
-        case ACTION_DONT_REQUIRE: node.setRequired(false); break;
+            case ACTION_NULL:
+                break;
+            case ACTION_SHOW:
+                node.setRelevant(true);
+                break;
+            case ACTION_HIDE:
+                node.setRelevant(false);
+                break;
+            case ACTION_ENABLE:
+                node.setEnabled(true);
+                break;
+            case ACTION_DISABLE:
+                node.setEnabled(false);
+                break;
+            case ACTION_LOCK:         /* not supported */
+                ;
+                break;
+            case ACTION_UNLOCK:       /* not supported */
+                ;
+                break;
+            case ACTION_REQUIRE:
+                node.setRequired(true);
+                break;
+            case ACTION_DONT_REQUIRE:
+                node.setRequired(false);
+                break;
         }
     }
-        
+
     //conditions are equal if they have the same actions, expression, and triggers, but NOT targets or context ref
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (o instanceof Condition) {
             Condition c = (Condition)o;
             if (this == c)
                 return true;
-            
+
             return (this.trueAction == c.trueAction && this.falseAction == c.falseAction && super.equals(c));
         } else {
             return false;
-        }            
+        }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         trueAction = ExtUtil.readInt(in);
         falseAction = ExtUtil.readInt(in);
     }
-    
+
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeNumeric(out, trueAction);

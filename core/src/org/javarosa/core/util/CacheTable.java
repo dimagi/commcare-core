@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.util;
 
@@ -11,57 +11,56 @@ import java.util.Vector;
 /**
  * A Cache Table is a self-purging weak reference store that can be used
  * to maintain a cache of objects keyed by a dynamic type.
- * 
+ *
  * Cache tables will automatically clean up references to freed week references
  * on an internal schedule, and compact the table size to maintain as small
  * of a footprint as possible.
- * 
+ *
  * Cache tables are only available with Weak References to maintain compatibility
  * with j2me runtimes.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class CacheTable<T, K> {
     int totalAdditions = 0;
-    
+
     private Hashtable<T, WeakReference> currentTable;
-    
+
     private static Vector<WeakReference> caches = new Vector<WeakReference>();
-    
+
     private static Thread cleaner = new Thread(new Runnable() {
         public void run() {
-            Vector<Integer> toRemove = new Vector<Integer>();            
-            while(true) {
+            Vector<Integer> toRemove = new Vector<Integer>();
+            while (true) {
                 try {
                     toRemove.removeAllElements();
                     for (int i = 0; i < caches.size(); ++i) {
-                        CacheTable cache = (CacheTable) caches.elementAt(i).get();
+                        CacheTable cache = (CacheTable)caches.elementAt(i).get();
                         if (cache == null) {
                             toRemove.addElement(DataUtil.integer(i));
                         } else {
                             Hashtable<Object, WeakReference> table = cache.currentTable;
-                            for (Enumeration en = table.keys(); en.hasMoreElements();) {
+                            for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
                                 Object key = en.nextElement();
-                                
-                                synchronized(cache) {
+
+                                synchronized (cache) {
                                     //See whether or not the cached reference has been cleared by the GC
-                                    if (((WeakReference) table.get(key)).get() == null) {
-                                            //If so, remove the entry, it's no longer useful.
-                                            table.remove(key);
+                                    if (((WeakReference)table.get(key)).get() == null) {
+                                        //If so, remove the entry, it's no longer useful.
+                                        table.remove(key);
                                     }
                                 }
                             }
-                            
-                            synchronized(cache) {
+
+                            synchronized (cache) {
                                 //See if our current size is 25% the size of the largest size we've been
                                 //and compact (clone to a new table) if so, since the table maintains the
                                 //largest size it has ever been.
                                 //TODO: 50 is a super arbitrary upper bound
-                                if(cache.totalAdditions > 50 && cache.totalAdditions - cache.currentTable.size() > (cache.currentTable.size() >> 2) ) {
+                                if (cache.totalAdditions > 50 && cache.totalAdditions - cache.currentTable.size() > (cache.currentTable.size() >> 2)) {
                                     Hashtable newTable = new Hashtable(cache.currentTable.size());
-                                    int oldMax = cache.totalAdditions; 
-                                    for (Enumeration en = table.keys(); en.hasMoreElements();) {
+                                    int oldMax = cache.totalAdditions;
+                                    for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
                                         Object key = en.nextElement();
                                         newTable.put(key, cache.currentTable.get(key));
                                     }
@@ -69,7 +68,7 @@ public class CacheTable<T, K> {
                                     cache.totalAdditions = cache.currentTable.size();
                                 }
                             }
-                            
+
                         }
                     }
                     for (int id = toRemove.size() - 1; id >= 0; --id) {
@@ -88,16 +87,16 @@ public class CacheTable<T, K> {
 
         }
     });
-    
+
     private static void registerCache(CacheTable table) {
         caches.addElement(new WeakReference(table));
-        synchronized(cleaner) {
-            if(!cleaner.isAlive()) {
+        synchronized (cleaner) {
+            if (!cleaner.isAlive()) {
                 cleaner.start();
             }
         }
     }
-    
+
     public CacheTable() {
         super();
         currentTable = new Hashtable<T, WeakReference>();
@@ -106,16 +105,20 @@ public class CacheTable<T, K> {
 
 
     public K retrieve(T key) {
-        synchronized(this) {
-            if(!currentTable.containsKey(key)) { return null; }
+        synchronized (this) {
+            if (!currentTable.containsKey(key)) {
+                return null;
+            }
             K retVal = (K)currentTable.get(key).get();
-            if(retVal == null) { currentTable.remove(key); }
+            if (retVal == null) {
+                currentTable.remove(key);
+            }
             return retVal;
         }
     }
 
     public void register(T key, K item) {
-        synchronized(this) {
+        synchronized (this) {
             currentTable.put(key, new WeakReference(item));
             totalAdditions++;
         }
