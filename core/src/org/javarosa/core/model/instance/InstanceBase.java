@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.instance;
 
@@ -12,21 +12,20 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
- *
  */
 public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
-    
+
     String instanceName;
     AbstractTreeElement child;
 
     public InstanceBase(String instanceName) {
         this.instanceName = instanceName;
     }
-    
+
     public void setChild(AbstractTreeElement child) {
         this.child = child;
     }
-    
+
     public boolean isLeaf() {
         // TODO Auto-generated method stub
         return false;
@@ -40,16 +39,16 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     public String getInstanceName() {
         return instanceName;
     }
-    
+
     public boolean hasChildren() {
-        if(getNumChildren() > 0) {
+        if (getNumChildren() > 0) {
             return true;
         }
         return false;
     }
 
     public AbstractTreeElement getChild(String name, int multiplicity) {
-        if(name.equals(child.getName()) && multiplicity == 0) {
+        if (name.equals(child.getName()) && multiplicity == 0) {
             return child;
         }
         return null;
@@ -57,7 +56,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
     public Vector<AbstractTreeElement> getChildrenWithName(String name) {
         Vector<AbstractTreeElement> children = new Vector<AbstractTreeElement>();
-        if(name.equals(child.getName())) {
+        if (name.equals(child.getName())) {
             children.addElement(child);
         }
         return children;
@@ -68,7 +67,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     public AbstractTreeElement getChildAt(int i) {
-        if(i == 0) { 
+        if (i == 0) {
             return child;
         }
         return null;
@@ -85,7 +84,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     public int getChildMultiplicity(String name) {
-        if(name.equals(child.getName())) {
+        if (name.equals(child.getName())) {
             return 1;
         }
         return 0;
@@ -157,7 +156,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
     public void clearCaches() {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean isRelevant() {
@@ -165,7 +164,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult,
-            Vector<XPathExpression> predicates, EvaluationContext evalContext) {
+                                                    Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return null;
     }
 
@@ -173,5 +172,5 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
 }

@@ -29,36 +29,36 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * Basic implementor of the IDataPointer interface that keeps everything in memory
- * @author Cory Zue
  *
+ * @author Cory Zue
  */
 public class BasicDataPointer implements IDataPointer {
 
     private byte[] data;
     private String name;
-    
+
     /**
      * NOTE: Only for serialization use.
      */
     public BasicDataPointer() {
         //You shouldn't be calling this unless you are deserializing.
     }
-    
+
     public BasicDataPointer(String name, byte[] data) {
         this.name = name;
         this.data = data;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IDataPointer#deleteData()
      */
     public boolean deleteData() {
-        
+
         this.data = null;
         return true;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IDataPointer#getData()
@@ -66,7 +66,7 @@ public class BasicDataPointer implements IDataPointer {
     public byte[] getData() {
         return data;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IDataPointer#getDisplayText()
@@ -87,7 +87,7 @@ public class BasicDataPointer implements IDataPointer {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         int size = in.readInt();
-        if(size != -1) {
+        if (size != -1) {
             data = new byte[size];
             in.read(data);
         }
@@ -95,7 +95,7 @@ public class BasicDataPointer implements IDataPointer {
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
-        if(data == null || data.length < 0) {
+        if (data == null || data.length < 0) {
             out.writeInt(-1);
         } else {
             out.writeInt(data.length);
@@ -107,7 +107,7 @@ public class BasicDataPointer implements IDataPointer {
     public long getLength() {
         // TODO Auto-generated method stub
         return data.length;
-    } 
+    }
 
 
 }

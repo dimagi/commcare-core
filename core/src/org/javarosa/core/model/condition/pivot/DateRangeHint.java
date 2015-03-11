@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.condition.pivot;
 
@@ -10,7 +10,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /**
  * @author ctsims
- *
  */
 public class DateRangeHint extends RangeHint<DateData> {
 

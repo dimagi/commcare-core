@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.services.locale;
 
@@ -33,56 +33,55 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author Clayton Sims
- * @date May 26, 2009 
- *
+ * @date May 26, 2009
  */
 public class TableLocaleSource implements LocaleDataSource {
-    private OrderedHashtable<String,String> localeData; /*{ String -> String } */
-    
+    private OrderedHashtable<String, String> localeData; /*{ String -> String } */
+
     public TableLocaleSource() {
         localeData = new Map<String, String>();
     }
-    
+
     public TableLocaleSource(OrderedHashtable<String, String> localeData) {
         this.localeData = localeData;
     }
-    
-    
+
+
     /**
      * Set a text mapping for a single text handle for a given locale.
-     * 
+     *
      * @param textID Text handle. Must not be null. Need not be previously defined for this locale.
-     * @param text Localized text for this text handle and locale. Will overwrite any previous mapping, if one existed.
-     * If null, will remove any previous mapping for this text handle, if one existed.
+     * @param text   Localized text for this text handle and locale. Will overwrite any previous mapping, if one existed.
+     *               If null, will remove any previous mapping for this text handle, if one existed.
      * @throws UnregisteredLocaleException If locale is not defined or null.
-     * @throws NullPointerException if textID is null
+     * @throws NullPointerException        if textID is null
      */
-    public void setLocaleMapping (String textID, String text) {
-        if(textID == null) {
+    public void setLocaleMapping(String textID, String text) {
+        if (textID == null) {
             throw new NullPointerException("Null textID when attempting to register " + text + " in locale table");
         }
         if (text == null) {
-            localeData.remove(textID);            
+            localeData.remove(textID);
         } else {
             localeData.put(textID, text);
         }
     }
-    
+
     /**
      * Determine whether a locale has a mapping for a given text handle. Only tests the specified locale and form; does
      * not fallback to any default locale or text form.
-     * 
+     *
      * @param textID Text handle.
      * @return True if a mapping exists for the text handle in the given locale.
      * @throws UnregisteredLocaleException If locale is not defined.
      */
-    public boolean hasMapping (String textID) {
+    public boolean hasMapping(String textID) {
         return (textID == null ? false : localeData.get(textID) != null);
     }
-    
-    
+
+
     public boolean equals(Object o) {
-        if(!(o instanceof TableLocaleSource)) {
+        if (!(o instanceof TableLocaleSource)) {
             return false;
         }
         TableLocaleSource l = (TableLocaleSource)o;

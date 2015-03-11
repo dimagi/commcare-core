@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.services.storage;
 
@@ -9,13 +9,12 @@ import java.util.Hashtable;
 /**
  * An internal-use class to keep track of metadata records without requiring
  * the original object to remain in memory
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class MetaDataWrapper implements IMetaData {
     private Hashtable<String, Object> data;
-    
+
     public MetaDataWrapper(Hashtable<String, Object> data) {
         this.data = data;
     }
@@ -26,7 +25,7 @@ public class MetaDataWrapper implements IMetaData {
     public String[] getMetaDataFields() {
         String[] fields = new String[data.size()];
         int count = 0;
-        for(Enumeration en = data.keys() ; en.hasMoreElements() ; ) {
+        for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             String field = (String)en.nextElement();
             fields[count] = field;
         }

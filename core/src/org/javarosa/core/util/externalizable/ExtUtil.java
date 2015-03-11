@@ -36,7 +36,8 @@ import org.javarosa.core.util.OrderedHashtable;
 public class ExtUtil {
     public static boolean interning = true;
     public static Interner<String> stringCache;
-    public static byte[] serialize (Object o) {
+
+    public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             write(new DataOutputStream(baos), o);
@@ -46,14 +47,14 @@ public class ExtUtil {
         return baos.toByteArray();
     }
 
-    public static Object deserialize (byte[] data, Class type) throws DeserializationException {
+    public static Object deserialize(byte[] data, Class type) throws DeserializationException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         try {
             return read(new DataInputStream(bais), type);
         } catch (EOFException eofe) {
             throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");            
+            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (IOException e) {
             throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
         } finally {
@@ -64,15 +65,15 @@ public class ExtUtil {
             }
         }
     }
-    
-    public static Object deserialize (byte[] data, ExternalizableWrapper ew) throws DeserializationException {
+
+    public static Object deserialize(byte[] data, ExternalizableWrapper ew) throws DeserializationException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         try {
             return read(new DataInputStream(bais), ew);
         } catch (EOFException eofe) {
             throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (UTFDataFormatException udfe) {
-            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");            
+            throw new DeserializationException("Unexpectedly reached end of stream when deserializing");
         } catch (IOException e) {
             throw new RuntimeException("Unknown IOException reading from ByteArrayInputStream; shouldn't happen!");
         } finally {
@@ -83,16 +84,16 @@ public class ExtUtil {
             }
         }
     }
-    
-    public static int getSize (Object o) {
+
+    public static int getSize(Object o) {
         return serialize(o).length;
     }
-    
-    public static PrototypeFactory defaultPrototypes () {
+
+    public static PrototypeFactory defaultPrototypes() {
         return PrototypeManager.getDefault();
     }
-    
-    public static void write (DataOutputStream out, Object data) throws IOException {
+
+    public static void write(DataOutputStream out, Object data) throws IOException {
         if (data instanceof Externalizable) {
             ((Externalizable)data).writeExternal(out);
         } else if (data instanceof Byte) {
@@ -121,56 +122,56 @@ public class ExtUtil {
             throw new ClassCastException("Not a serializable datatype: " + data.getClass().getName());
         }
     }
-    
-    public static void writeNumeric (DataOutputStream out, long val) throws IOException {
+
+    public static void writeNumeric(DataOutputStream out, long val) throws IOException {
         writeNumeric(out, val, new ExtWrapIntEncodingUniform());
     }
-    
-    public static void writeNumeric (DataOutputStream out, long val, ExtWrapIntEncoding encoding) throws IOException {
+
+    public static void writeNumeric(DataOutputStream out, long val, ExtWrapIntEncoding encoding) throws IOException {
         write(out, encoding.clone(new Long(val)));
     }
-    
-    public static void writeChar (DataOutputStream out, char val) throws IOException {
+
+    public static void writeChar(DataOutputStream out, char val) throws IOException {
         out.writeChar(val);
     }
-    
-    public static void writeDecimal (DataOutputStream out, double val) throws IOException {
+
+    public static void writeDecimal(DataOutputStream out, double val) throws IOException {
         out.writeDouble(val);
     }
-    
-    public static void writeBool (DataOutputStream out, boolean val) throws IOException {
+
+    public static void writeBool(DataOutputStream out, boolean val) throws IOException {
         out.writeBoolean(val);
     }
-    
-    public static void writeString (DataOutputStream out, String val) throws IOException {
+
+    public static void writeString(DataOutputStream out, String val) throws IOException {
         out.writeUTF(val);
         //we could easily come up with more efficient default encoding for string
     }
-    
-    public static void writeDate (DataOutputStream out, Date val) throws IOException {
+
+    public static void writeDate(DataOutputStream out, Date val) throws IOException {
         writeNumeric(out, val.getTime());
         //time zone?
     }
-    
+
     public static void writeBytes(DataOutputStream out, byte[] bytes) throws IOException {
         ExtUtil.writeNumeric(out, bytes.length);
         if (bytes.length > 0) //i think writing zero-length array might close the stream
             out.write(bytes);
     }
-    
+
     //functions like these are bad; they should use the built-in list serialization facilities
     public static void writeInts(DataOutputStream out, int[] ints) throws IOException {
         ExtUtil.writeNumeric(out, ints.length);
-        for(int i : ints) {
+        for (int i : ints) {
             ExtUtil.writeNumeric(out, i);
         }
     }
-    
-    public static Object read (DataInputStream in, Class type) throws IOException, DeserializationException {
+
+    public static Object read(DataInputStream in, Class type) throws IOException, DeserializationException {
         return read(in, type, null);
     }
-    
-    public static Object read (DataInputStream in, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
+
+    public static Object read(DataInputStream in, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
         if (Externalizable.class.isAssignableFrom(type)) {
             Externalizable ext = (Externalizable)PrototypeFactory.getInstance(type);
             ext.readExternal(in, pf == null ? defaultPrototypes() : pf);
@@ -201,103 +202,103 @@ public class ExtUtil {
             throw new ClassCastException("Not a deserializable datatype: " + type.getName());
         }
     }
-    
-    public static Object read (DataInputStream in, ExternalizableWrapper ew) throws    IOException, DeserializationException {
+
+    public static Object read(DataInputStream in, ExternalizableWrapper ew) throws IOException, DeserializationException {
         return read(in, ew, null);
     }
-    
-    public static Object read (DataInputStream in, ExternalizableWrapper ew, PrototypeFactory pf) throws IOException, DeserializationException {
+
+    public static Object read(DataInputStream in, ExternalizableWrapper ew, PrototypeFactory pf) throws IOException, DeserializationException {
         ew.readExternal(in, pf == null ? defaultPrototypes() : pf);
         return ew.val;
     }
-    
-    public static long readNumeric (DataInputStream in) throws IOException {
+
+    public static long readNumeric(DataInputStream in) throws IOException {
         return readNumeric(in, new ExtWrapIntEncodingUniform());
     }
 
-    public static long readNumeric (DataInputStream in, ExtWrapIntEncoding encoding) throws IOException {
+    public static long readNumeric(DataInputStream in, ExtWrapIntEncoding encoding) throws IOException {
         try {
             return ((Long)read(in, encoding)).longValue();
         } catch (DeserializationException de) {
             throw new RuntimeException("Shouldn't happen: Base-type encoding wrappers should never touch prototypes");
         }
-    }    
-    
-    public static int readInt (DataInputStream in) throws IOException {
+    }
+
+    public static int readInt(DataInputStream in) throws IOException {
         return toInt(readNumeric(in));
     }
 
-    public static short readShort (DataInputStream in) throws IOException {
+    public static short readShort(DataInputStream in) throws IOException {
         return toShort(readNumeric(in));
     }
 
-    public static byte readByte (DataInputStream in) throws    IOException {
+    public static byte readByte(DataInputStream in) throws IOException {
         return toByte(readNumeric(in));
     }
-    
-    public static char readChar (DataInputStream in) throws IOException {
+
+    public static char readChar(DataInputStream in) throws IOException {
         return in.readChar();
     }
-    
-    public static double readDecimal (DataInputStream in) throws IOException {
+
+    public static double readDecimal(DataInputStream in) throws IOException {
         return in.readDouble();
     }
-    
-    public static boolean readBool (DataInputStream in) throws IOException {
+
+    public static boolean readBool(DataInputStream in) throws IOException {
         return in.readBoolean();
     }
-    
-    public static String readString (DataInputStream in) throws IOException {
+
+    public static String readString(DataInputStream in) throws IOException {
         String s = in.readUTF();
         return (interning && stringCache != null) ? stringCache.intern(s) : s;
     }
-    
-    public static Date readDate (DataInputStream in) throws    IOException {
+
+    public static Date readDate(DataInputStream in) throws IOException {
         return new Date(readNumeric(in));
         //time zone?
     }
-    
+
     public static byte[] readBytes(DataInputStream in) throws IOException {
         int size = (int)ExtUtil.readNumeric(in);
         byte[] bytes = new byte[size];
         int read = 0;
         int toread = size;
-        while(read != size) {
+        while (read != size) {
             read = in.read(bytes, 0, toread);
             toread -= read;
         }
         return bytes;
     }
-    
+
     //bad
     public static int[] readInts(DataInputStream in) throws IOException {
         int size = (int)ExtUtil.readNumeric(in);
         int[] ints = new int[size];
-        for(int i = 0 ; i < size ; ++i ) {
+        for (int i = 0; i < size; ++i) {
             ints[i] = (int)ExtUtil.readNumeric(in);
         }
         return ints;
     }
-    
-    public static int toInt (long l) {
+
+    public static int toInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE)
             throw new ArithmeticException("Value (" + l + ") cannot fit into int");
         return (int)l;
     }
 
-    public static short toShort (long l) {
+    public static short toShort(long l) {
         if (l < Short.MIN_VALUE || l > Short.MAX_VALUE)
             throw new ArithmeticException("Value (" + l + ") cannot fit into short");
         return (short)l;
     }
 
-    public static byte toByte (long l) {
+    public static byte toByte(long l) {
         if (l < Byte.MIN_VALUE || l > Byte.MAX_VALUE)
             throw new ArithmeticException("Value (" + l + ") cannot fit into byte");
         return (byte)l;
     }
-    
-    public static long toLong (Object o) {
+
+    public static long toLong(Object o) {
         if (o instanceof Byte) {
             return ((Byte)o).byteValue();
         } else if (o instanceof Short) {
@@ -313,63 +314,63 @@ public class ExtUtil {
         }
     }
 
-    public static byte[] nullIfEmpty (byte[] ba) {
+    public static byte[] nullIfEmpty(byte[] ba) {
         return (ba == null ? null : (ba.length == 0 ? null : ba));
     }
-    
-    public static String nullIfEmpty (String s) {
+
+    public static String nullIfEmpty(String s) {
         return (s == null ? null : (s.length() == 0 ? null : s));
     }
-    
-    public static Vector nullIfEmpty (Vector v) {
+
+    public static Vector nullIfEmpty(Vector v) {
         return (v == null ? null : (v.size() == 0 ? null : v));
     }
-    
-    public static Hashtable nullIfEmpty (Hashtable h) {
+
+    public static Hashtable nullIfEmpty(Hashtable h) {
         return (h == null ? null : (h.size() == 0 ? null : h));
     }
-    
-    public static byte[] emptyIfNull (byte[] ba) {
+
+    public static byte[] emptyIfNull(byte[] ba) {
         return ba == null ? new byte[0] : ba;
     }
-    
-    public static String emptyIfNull (String s) {
+
+    public static String emptyIfNull(String s) {
         return s == null ? "" : s;
     }
-    
-    public static Vector emptyIfNull (Vector v) {
+
+    public static Vector emptyIfNull(Vector v) {
         return v == null ? new Vector() : v;
     }
 
-    public static Hashtable emptyIfNull (Hashtable h) {
+    public static Hashtable emptyIfNull(Hashtable h) {
         return h == null ? new Hashtable() : h;
-    }    
-    
-    public static Object unwrap (Object o) {
+    }
+
+    public static Object unwrap(Object o) {
         return (o instanceof ExternalizableWrapper ? ((ExternalizableWrapper)o).baseValue() : o);
     }
-    
-    public static boolean equals (Object a, Object b, boolean unwrap) {
-        if(unwrap) {
+
+    public static boolean equals(Object a, Object b, boolean unwrap) {
+        if (unwrap) {
             a = unwrap(a);
             b = unwrap(b);
         }
-        
+
         if (a == null) {
             return b == null;
-        } else { 
-            if(unwrap) {
+        } else {
+            if (unwrap) {
                 if (a instanceof Vector) {
-                return (b instanceof Vector && vectorEquals((Vector)a, (Vector)b, unwrap));
-            } else if (a instanceof Hashtable) {
-                return (b instanceof Hashtable && hashtableEquals((Hashtable)a, (Hashtable)b, unwrap));
+                    return (b instanceof Vector && vectorEquals((Vector)a, (Vector)b, unwrap));
+                } else if (a instanceof Hashtable) {
+                    return (b instanceof Hashtable && hashtableEquals((Hashtable)a, (Hashtable)b, unwrap));
+                }
             }
-        }
             return a.equals(b);
         }
     }
-    
-    public static boolean vectorEquals (Vector a, Vector b, boolean unwrap) {
+
+    public static boolean vectorEquals(Vector a, Vector b, boolean unwrap) {
         if (a.size() != b.size()) {
             return false;
         } else {
@@ -378,12 +379,12 @@ public class ExtUtil {
                     return false;
                 }
             }
-            
+
             return true;
         }
     }
-    
-    public static boolean arrayEquals (Object[] a, Object[] b, boolean unwrap) {
+
+    public static boolean arrayEquals(Object[] a, Object[] b, boolean unwrap) {
         if (a.length != b.length) {
             return false;
         } else {
@@ -392,12 +393,12 @@ public class ExtUtil {
                     return false;
                 }
             }
-            
+
             return true;
         }
     }
-    
-    public static boolean hashtableEquals (Hashtable a, Hashtable b, boolean unwrap) {
+
+    public static boolean hashtableEquals(Hashtable a, Hashtable b, boolean unwrap) {
         if (a.size() != b.size()) {
             return false;
         } else if (a instanceof OrderedHashtable != b instanceof OrderedHashtable) {
@@ -410,26 +411,26 @@ public class ExtUtil {
                     return false;
                 }
             }
-            
+
             if (a instanceof OrderedHashtable && b instanceof OrderedHashtable) {
                 Enumeration ea = a.keys();
                 Enumeration eb = b.keys();
-                
+
                 while (ea.hasMoreElements()) {
                     Object keyA = ea.nextElement();
                     Object keyB = eb.nextElement();
-                    
+
                     if (!keyA.equals(keyB)) { //must use built-in equals for keys, as that's what hashtable uses
                         return false;
                     }
                 }
             }
-            
+
             return true;
         }
     }
-    
-    public static String printBytes (byte[] data) {
+
+    public static String printBytes(byte[] data) {
         StringBuffer sb = new StringBuffer();
         sb.append("[");
         for (int i = 0; i < data.length; i++) {
@@ -451,17 +452,15 @@ public class ExtUtil {
         sb.append("]");
         return sb.toString();
     }
-    
-    
-    
-    
-    
+
+
     //**REMOVE THESE TWO FUNCTIONS//
     //original deserialization API (whose limits made us make this whole new framework!); here for backwards compatibility
-    public static void deserialize (byte[] data, Externalizable ext) throws IOException, DeserializationException {
+    public static void deserialize(byte[] data, Externalizable ext) throws IOException, DeserializationException {
         ext.readExternal(new DataInputStream(new ByteArrayInputStream(data)), defaultPrototypes());
     }
-    public static Object deserialize (byte[] data, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
+
+    public static Object deserialize(byte[] data, Class type, PrototypeFactory pf) throws IOException, DeserializationException {
         return read(new DataInputStream(new ByteArrayInputStream(data)), type, pf);
     }
     ////

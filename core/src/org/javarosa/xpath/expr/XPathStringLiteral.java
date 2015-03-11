@@ -29,21 +29,22 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathStringLiteral extends XPathExpression {
     public String s;
 
-    public XPathStringLiteral () { } //for deserialization
+    public XPathStringLiteral() {
+    } //for deserialization
 
-    public XPathStringLiteral (String s) {
+    public XPathStringLiteral(String s) {
         this.s = s;
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         return s;
     }
 
-    public String toString () {
+    public String toString() {
         return "{str:\'" + s + "\'}"; //TODO: s needs to be escaped (' -> \'; \ -> \\)
     }
 
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (o instanceof XPathStringLiteral) {
             XPathStringLiteral x = (XPathStringLiteral)o;
             return s.equals(x.s);

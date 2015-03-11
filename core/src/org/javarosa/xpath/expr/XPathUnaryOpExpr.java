@@ -32,13 +32,14 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     public XPathExpression a;
 
-    public XPathUnaryOpExpr () { } //for deserialization of children
+    public XPathUnaryOpExpr() {
+    } //for deserialization of children
 
-    public XPathUnaryOpExpr (XPathExpression a) {
+    public XPathUnaryOpExpr(XPathExpression a) {
         this.a = a;
     }
 
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (o instanceof XPathUnaryOpExpr) {
             XPathUnaryOpExpr x = (XPathUnaryOpExpr)o;
             return a.equals(x.a);
@@ -50,7 +51,7 @@ public abstract class XPathUnaryOpExpr extends XPathOpExpr {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
-    
+
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
     }

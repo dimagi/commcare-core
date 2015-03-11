@@ -32,43 +32,52 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
 
     public int op;
 
-    public XPathBoolExpr () { } //for deserialization
+    public XPathBoolExpr() {
+    } //for deserialization
 
-    public XPathBoolExpr (int op, XPathExpression a, XPathExpression b) {
-        super (a, b);
+    public XPathBoolExpr(int op, XPathExpression a, XPathExpression b) {
+        super(a, b);
         this.op = op;
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         boolean aval = XPathFuncExpr.toBoolean(a.eval(model, evalContext)).booleanValue();
-        
+
         //short-circuiting
         if ((!aval && op == AND) || (aval && op == OR)) {
             return new Boolean(aval);
         }
 
         boolean bval = XPathFuncExpr.toBoolean(b.eval(model, evalContext)).booleanValue();
-        
+
         boolean result = false;
         switch (op) {
-        case AND: result = aval && bval; break;
-        case OR: result = aval || bval; break;
+            case AND:
+                result = aval && bval;
+                break;
+            case OR:
+                result = aval || bval;
+                break;
         }
         return new Boolean(result);
     }
 
-    public String toString () {
+    public String toString() {
         String sOp = null;
-        
+
         switch (op) {
-        case AND: sOp = "and"; break;
-        case OR: sOp = "or"; break;
+            case AND:
+                sOp = "and";
+                break;
+            case OR:
+                sOp = "or";
+                break;
         }
-        
+
         return super.toString(sOp);
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathBoolExpr) {
             XPathBoolExpr x = (XPathBoolExpr)o;
             return super.equals(o) && op == x.op;
@@ -76,7 +85,7 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         op = ExtUtil.readInt(in);
         super.readExternal(in, pf);

@@ -28,41 +28,41 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A response to a question requesting a DateTime Value
- * @author Clayton Sims
  *
+ * @author Clayton Sims
  */
 public class DateTimeData implements IAnswerData {
     Date d;
-    
+
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
      * Shouldn't be used otherwise.
      */
     public DateTimeData() {
-        
+
     }
-    
-    public DateTimeData (Date d) {
+
+    public DateTimeData(Date d) {
         setValue(d);
     }
-    
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         return new DateTimeData(new Date(d.getTime()));
     }
-    
-    public void setValue (Object o) {
+
+    public void setValue(Object o) {
         //Should not ever be possible to set this to a null value
-        if(o == null) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         d = new Date(((Date)o).getTime());
     }
-    
-    public Object getValue () {
+
+    public Object getValue() {
         return new Date(d.getTime());
     }
-    
-    public String getDisplayText () {
+
+    public String getDisplayText() {
         return DateUtils.formatDateTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
     }
 
@@ -83,13 +83,13 @@ public class DateTimeData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(DateUtils.formatDateTime(d, DateUtils.FORMAT_ISO8601));
     }
-    
+
     public DateTimeData cast(UncastData data) throws IllegalArgumentException {
         Date ret = DateUtils.parseDateTime(data.value);
-        if(ret != null) {
+        if (ret != null) {
             return new DateTimeData(ret);
         }
-        
+
         throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type DateTime");
     }
 }

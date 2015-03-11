@@ -25,37 +25,37 @@ public class ItemsetBinding implements Externalizable, Localizable {
      * to since it's nearly impossible to convert between the two w/o having access to the underlying
      * xform/xpath classes, which we don't from the core model project
      */
-    
+
     public TreeReference nodesetRef;   //absolute ref of itemset source nodes
     public IConditionExpr nodesetExpr; //path expression for source nodes; may be relative, may contain predicates
     public TreeReference contextRef;   //context ref for nodesetExpr; ref of the control parent (group/formdef) of itemset question
-       //note: this is only here because its currently impossible to both (a) get a form control's parent, and (b)
-       //convert expressions into refs while preserving predicates. once these are fixed, this field can go away
-    
+    //note: this is only here because its currently impossible to both (a) get a form control's parent, and (b)
+    //convert expressions into refs while preserving predicates. once these are fixed, this field can go away
+
     public TreeReference labelRef;     //absolute ref of label
     public IConditionExpr labelExpr;   //path expression for label; may be relative, no predicates  
     public boolean labelIsItext;       //if true, content of 'label' is an itext id
-    
+
     public boolean copyMode;           //true = copy subtree; false = copy string value
     public TreeReference copyRef;      //absolute ref to copy
     public TreeReference valueRef;     //absolute ref to value
     public IConditionExpr valueExpr;   //path expression for value; may be relative, no predicates (must be relative if copy mode)
 
     private TreeReference destRef; //ref that identifies the repeated nodes resulting from this itemset
-                                   //not serialized -- set by QuestionDef.setDynamicChoices()
+    //not serialized -- set by QuestionDef.setDynamicChoices()
     private Vector<SelectChoice> choices; //dynamic choices -- not serialized, obviously
-    
-    public Vector<SelectChoice> getChoices () {
+
+    public Vector<SelectChoice> getChoices() {
         return choices;
     }
-    
-    public void setChoices (Vector<SelectChoice> choices, Localizer localizer) {
+
+    public void setChoices(Vector<SelectChoice> choices, Localizer localizer) {
         if (this.choices != null) {
             System.out.println("warning: previous choices not cleared out");
             clearChoices();
         }
         this.choices = choices;
-        
+
         //init localization
         if (localizer != null) {
             String curLocale = localizer.getLocale();
@@ -64,11 +64,11 @@ public class ItemsetBinding implements Externalizable, Localizable {
             }
         }
     }
-    
-    public void clearChoices () {
+
+    public void clearChoices() {
         this.choices = null;
     }
-    
+
     public void localeChanged(String locale, Localizer localizer) {
         if (choices != null) {
             for (int i = 0; i < choices.size(); i++) {
@@ -76,30 +76,30 @@ public class ItemsetBinding implements Externalizable, Localizable {
             }
         }
     }
-    
-    public void setDestRef (QuestionDef q) {
+
+    public void setDestRef(QuestionDef q) {
         destRef = FormInstance.unpackReference(q.getBind()).clone();
         if (copyMode) {
             destRef.add(copyRef.getNameLast(), TreeReference.INDEX_UNBOUND);
         }
     }
-    
-    public TreeReference getDestRef () {
+
+    public TreeReference getDestRef() {
         return destRef;
     }
-    
-    public IConditionExpr getRelativeValue () {
+
+    public IConditionExpr getRelativeValue() {
         TreeReference relRef = null;
-        
+
         if (copyRef == null) {
             relRef = valueRef; //must be absolute in this case
         } else if (valueRef != null) {
             relRef = valueRef.relativize(copyRef);
         }
-        
+
         return relRef != null ? RestoreUtils.xfFact.refToPathExpr(relRef) : null;
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         nodesetRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         nodesetExpr = (IConditionExpr)ExtUtil.read(in, new ExtWrapTagged(), pf);

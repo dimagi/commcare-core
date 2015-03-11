@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.instance;
 
@@ -19,25 +19,24 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
- *
  */
 public class TreeReferenceLevel implements Externalizable {
     public static final int MULT_UNINIT = -16;
-    
+
     private String name;
     private int multiplicity = MULT_UNINIT;
     private Vector<XPathExpression> predicates;
-    
+
     private static Interner<TreeReferenceLevel> refs;
-    
+
     public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
-        TreeReferenceLevel.refs = refs; 
+        TreeReferenceLevel.refs = refs;
     }
 
     public TreeReferenceLevel() {
     }
-    
-    
+
+
     public TreeReferenceLevel(String name, int multiplicity, Vector<XPathExpression> predicates) {
         this.name = name;
         this.multiplicity = multiplicity;
@@ -68,7 +67,7 @@ public class TreeReferenceLevel implements Externalizable {
     public Vector<XPathExpression> getPredicates() {
         return this.predicates;
     }
-    
+
     public TreeReferenceLevel shallowCopy() {
         return new TreeReferenceLevel(name, multiplicity, ArrayUtilities.vectorCopy(predicates)).intern();
     }
@@ -82,7 +81,7 @@ public class TreeReferenceLevel implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         multiplicity = ExtUtil.readInt(in);
-        predicates = ExtUtil.nullIfEmpty((Vector<XPathExpression>)ExtUtil.read(in,new ExtWrapListPoly()));
+        predicates = ExtUtil.nullIfEmpty((Vector<XPathExpression>)ExtUtil.read(in, new ExtWrapListPoly()));
     }
 
 
@@ -91,41 +90,56 @@ public class TreeReferenceLevel implements Externalizable {
         ExtUtil.writeNumeric(out, multiplicity);
         ExtUtil.write(out, new ExtWrapListPoly(ExtUtil.emptyIfNull(predicates)));
     }
-    
+
     public int hashCode() {
         int predPart = 0;
-        if(predicates != null) {
-            for(XPathExpression xpe : predicates) {
+        if (predicates != null) {
+            for (XPathExpression xpe : predicates) {
                 predPart ^= xpe.hashCode();
             }
         }
-        
-        return name.hashCode() ^ multiplicity ^ predPart; 
+
+        return name.hashCode() ^ multiplicity ^ predPart;
     }
-    
+
     public boolean equals(Object o) {
-        if(!(o instanceof TreeReferenceLevel)) {
+        if (!(o instanceof TreeReferenceLevel)) {
             return false;
         }
         TreeReferenceLevel l = (TreeReferenceLevel)o;
-        if(multiplicity != l.multiplicity) { return false;}
-        if(name == null && l.name != null) { return false;}
-        if(!name.equals(l.name)) { return false;}
-        if(predicates == null && l.predicates == null) { return true; }
-        
-        if((predicates == null && l.predicates != null) || (l.predicates == null && predicates != null)) { return false; }
-        if(predicates.size() != l.predicates.size()) { return false;}
-        for(int i = 0 ; i < predicates.size() ; ++i) {
-            if(!predicates.elementAt(i).equals(l.predicates.elementAt(i))) { return false; }
+        if (multiplicity != l.multiplicity) {
+            return false;
+        }
+        if (name == null && l.name != null) {
+            return false;
+        }
+        if (!name.equals(l.name)) {
+            return false;
+        }
+        if (predicates == null && l.predicates == null) {
+            return true;
+        }
+
+        if ((predicates == null && l.predicates != null) || (l.predicates == null && predicates != null)) {
+            return false;
+        }
+        if (predicates.size() != l.predicates.size()) {
+            return false;
+        }
+        for (int i = 0; i < predicates.size(); ++i) {
+            if (!predicates.elementAt(i).equals(l.predicates.elementAt(i))) {
+                return false;
+            }
         }
         return true;
     }
-    
+
     public static boolean treeRefLevelInterningEnabled = true;
+
     public TreeReferenceLevel intern() {
-        if(!treeRefLevelInterningEnabled || refs == null) {
+        if (!treeRefLevelInterningEnabled || refs == null) {
             return this;
-        } else{
+        } else {
             return refs.intern(this);
         }
     }
