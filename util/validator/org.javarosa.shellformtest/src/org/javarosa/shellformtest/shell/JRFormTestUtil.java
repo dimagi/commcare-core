@@ -24,13 +24,13 @@ import org.javarosa.xform.util.XFormUtils;
 public class JRFormTestUtil {
 
     private static MIDlet midlet;
-    
+
     public static void init (MIDlet m) {
         J2MEDisplay.init(m);
         midlet = m;
-        
+
         loadModules();
-        
+
         IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
         try {
             forms.write(XFormUtils.getFormFromResource("/a.xhtml"));
@@ -40,7 +40,7 @@ public class JRFormTestUtil {
 
         setProperties();
     }
-        
+
     private static void loadModules() {
         new J2MEModule().registerModule();
         new JavaRosaCoreModule().registerModule();
@@ -49,20 +49,20 @@ public class JRFormTestUtil {
         new LanguagePackModule().registerModule();
         new FormManagerModule().registerModule();
     }
-        
+
     private static void setProperties() {
         PropertyManager._().addRules(new JavaRosaPropertyRules());
         PropertyUtils.initializeProperty("DeviceID", PropertyUtils.genGUID(25));
     }
-        
+
     public static Vector<IPreloadHandler> getPreloaders() {
         Vector<IPreloadHandler> handlers = new Vector<IPreloadHandler>();
-        return handlers;    
+        return handlers;
     }
 
     public static void exit () {
         System.out.println("quitting...");
         midlet.notifyDestroyed();
     }
-    
+
 }

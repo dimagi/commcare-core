@@ -72,7 +72,7 @@ public class BufferLogger extends OutputStream {
      * The byte to be written is the eight low-order bits of the argument
      * <code>b</code>. The 24 high-order bits of <code>b</code> are
      * ignored.
-     * 
+     *
      * @param b
      *            the <code>byte</code> to write
      * @throws IOException
@@ -146,7 +146,7 @@ public class BufferLogger extends OutputStream {
         System.arraycopy(buf, 0, theBytes, 0, count);
         String output = new String(theBytes);
         reset();
-        
+
         return output;
 
     }

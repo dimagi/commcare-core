@@ -6,6 +6,6 @@ import org.javarosa.core.util.externalizable.Externalizable;
 /**
  * Interface for iterating through a set of records from an IStorageUtility
  */
-public interface IStorageIterator<E extends Externalizable> extends Iterator<E>{
+public interface IStorageIterator<E extends Externalizable> extends Iterator<E> {
 
 }

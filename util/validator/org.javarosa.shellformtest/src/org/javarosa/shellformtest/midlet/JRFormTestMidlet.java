@@ -28,7 +28,7 @@ import org.javarosa.shellformtest.shell.JRFormTestUtil;
  *
  */
 public class JRFormTestMidlet extends MIDlet {
-    
+
     protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
         // TODO Auto-generated method stub
 

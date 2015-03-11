@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model;
 
@@ -18,28 +18,27 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 /**
  * A Submission Profile is a class which is responsible for
  * holding and processing the details of how a submission
- * should be handled. 
- * 
- * @author ctsims
+ * should be handled.
  *
+ * @author ctsims
  */
 public class SubmissionProfile implements Externalizable {
-    
+
     IDataReference ref;
     String method;
     String action;
     String mediaType;
-    Hashtable<String,String> attributeMap;
-    
+    Hashtable<String, String> attributeMap;
+
     public SubmissionProfile() {
-        
+
     }
-    
+
     public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
         this(ref, method, action, mediatype, new Hashtable<String, String>());
     }
-    
-    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String,String> attributeMap) {
+
+    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String, String> attributeMap) {
         this.method = method;
         this.ref = ref;
         this.action = action;
@@ -62,11 +61,11 @@ public class SubmissionProfile implements Externalizable {
     public String getMediaType() {
         return mediaType;
     }
-    
+
     public String getAttribute(String name) {
         return attributeMap.get(name);
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
         method = ExtUtil.readString(in);
@@ -83,5 +82,5 @@ public class SubmissionProfile implements Externalizable {
         ExtUtil.write(out, new ExtWrapMap(attributeMap));
     }
 
-    
+
 }

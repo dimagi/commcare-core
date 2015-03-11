@@ -29,21 +29,22 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathNumericLiteral extends XPathExpression {
     public double d;
 
-    public XPathNumericLiteral () { } //for deserialization
+    public XPathNumericLiteral() {
+    } //for deserialization
 
-    public XPathNumericLiteral (Double d) {
+    public XPathNumericLiteral(Double d) {
         this.d = d.doubleValue();
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         return new Double(d);
     }
 
-    public String toString () {
+    public String toString() {
         return "{num:" + Double.toString(d) + "}";
     }
-        
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathNumericLiteral) {
             XPathNumericLiteral x = (XPathNumericLiteral)o;
             return (Double.isNaN(d) ? Double.isNaN(x.d) : d == x.d);
@@ -51,7 +52,7 @@ public class XPathNumericLiteral extends XPathExpression {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         if (in.readByte() == (byte)0x00) {
             d = ExtUtil.readNumeric(in);

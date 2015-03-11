@@ -22,9 +22,9 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 public class JRFormTestState extends FormEntryState {
 
     protected JrFormEntryController getController() {
-        
+
         int formID = 1;
-        
+
         Vector<IPreloadHandler> preloaders = JRFormTestUtil.getPreloaders();
         FormDefFetcher fetcher = new FormDefFetcher(new RMSRetreivalMethod(formID), preloaders, null, new InstanceInitializationFactory());
         FormDef form = fetcher.getFormDef();
@@ -41,7 +41,7 @@ public class JRFormTestState extends FormEntryState {
 
     public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
         if (formWasCompleted) {
-            
+
             ByteArrayPayload payload = null;
             try {
                 payload = (ByteArrayPayload)(new XFormSerializingVisitor()).createSerializedPayload(instanceData);
@@ -50,14 +50,14 @@ public class JRFormTestState extends FormEntryState {
             }
             InputStream is = payload.getPayloadStream();
             int len = (int)(payload.getLength());
-            
+
             byte[] data = new byte[len];
             try {
                 is.read(data, 0, len);
             } catch (IOException e) {
                 throw new RuntimeException("b");
             }
-            
+
             System.out.println("BEGINXMLOUTPUT");
             try {
                 System.out.println(new String(data, "UTF-8"));
@@ -65,7 +65,7 @@ public class JRFormTestState extends FormEntryState {
                 throw new RuntimeException("c");
             }
             System.out.println("ENDXMLOUTPUT");
-            
+
         }
 
         JRFormTestUtil.exit();

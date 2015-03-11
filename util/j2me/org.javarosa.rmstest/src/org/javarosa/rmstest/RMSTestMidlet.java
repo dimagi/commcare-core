@@ -41,7 +41,7 @@ import javax.microedition.rms.RecordStoreNotOpenException;
  */
 public class RMSTestMidlet extends MIDlet implements CommandListener {
     public Random rand;
-    
+
     protected void destroyApp(boolean arg0) throws MIDletStateChangeException {
         deleteRecordStores();
     }
@@ -54,47 +54,47 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
     protected void startApp() throws MIDletStateChangeException {
         rand = new Random();
         deleteRecordStores();
-        
+
         initView();
     }
 
     private void initView () {
         List list = new List("RMS Tests", List.IMPLICIT);
         list.setCommandListener(this);
-        
+
         list.append("Fill RMS; small records", null);
         list.append("Fill RMS; med records", null);
         list.append("Fill RMS; big records", null);
         list.append("Fill many RMSes", null);
-        
+
         Display.getDisplay(this).setCurrent(list);
     }
-    
+
     private void showResults (Vector log) {
         String[] lines = new String[log.size()];
         for (int i = 0; i < lines.length; i++) {
             lines[i] = (String)log.elementAt(i);
         }
-        
+
         Form f = new Form("Test Result");
-        
+
         for (int i = 0; i < lines.length; i++) {
-            f.append(new StringItem(null, lines[i]));            
+            f.append(new StringItem(null, lines[i]));
         }
 
         Display.getDisplay(this).setCurrent(f);
     }
-    
+
     private void deleteRecordStores () {
         String[] rmses = RecordStore.listRecordStores();
         if (rmses == null)
             rmses = new String[0];
-        
+
         for (int i = 0; i < rmses.length; i++) {
             deleteRecordStore(rmses[i]);
         }
     }
-    
+
     private void deleteRecordStore (String rms) {
         try {
             RecordStore.deleteRecordStore(rms);
@@ -104,7 +104,7 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
             fail("deleteRecordStores", e);
         }
     }
-    
+
     private boolean addRecord (RecordStore rms, byte[] data) {
         try {
             rms.addRecord(data, 0, data.length);
@@ -117,7 +117,7 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
         }
         return true;
     }
-    
+
     private int getRMSSize (RecordStore rms) {
         int n = -1;
         try {
@@ -127,7 +127,7 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
         }
         return n;
     }
-    
+
     private int getRMSAvailSpace (RecordStore rms) {
         int n = -1;
         try {
@@ -137,25 +137,25 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
         }
         return n;
     }
-    
+
     private void fail (String prefix, Exception e) {
         throw new RuntimeException(prefix + ": " + e.getClass().getName());
     }
-    
+
     public byte[] getData (int n) {
         byte[] data = new byte[n];
-        
+
         int k = 0;
         for (int i = 0; i < data.length; i++) {
             if (i % 4 == 0)
                 k = rand.nextInt();
-                
+
             data[i] = (byte)((k >> (8 * (i % 4))) & 0xFF);
         }
-        
+
         return data;
     }
-    
+
     private boolean testFillRMS (int recSize, Vector log) {
         RecordStore rms = null;
         try {
@@ -168,12 +168,12 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
             fail("testFillRMS", e);
         }
         log.addElement("created RMS; cur size: " + getRMSSize(rms) + " avail size: " + getRMSAvailSpace(rms));
-        
+
         boolean full = false;
         while (!full) {
             full = !addRecord(rms, getData(recSize));
         }
-        
+
         log.addElement("RMS full; cur size: " + getRMSSize(rms) + " avail size: " + getRMSAvailSpace(rms));
         return true;
     }
@@ -181,26 +181,26 @@ public class RMSTestMidlet extends MIDlet implements CommandListener {
     private void testFillRMSes (Vector log) {
         while (testFillRMS(200, log))
             ;
-        
+
         for (int i = 0; i < log.size(); i++) {
             log.setElementAt("" + (i / 2 + 1) + ": " + (String)log.elementAt(i), i);
         }
     }
-    
+
     public void commandAction(Command c, Displayable d) {
         int choice = ((List)d).getSelectedIndex();
-        
+
         Vector log = new Vector();
         d.setTitle("Working...");
-        
+
         switch (choice) {
         case 0: testFillRMS(20, log); break;
         case 1: testFillRMS(200, log); break;
         case 2: testFillRMS(2000, log); break;
         case 3: testFillRMSes(log); break;
         }
-        
+
         showResults(log);
     }
-    
+
 }

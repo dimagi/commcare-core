@@ -42,33 +42,36 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class FormInstance extends DataInstance<TreeElement> implements Persistable, IMetaData {
 
     public static final String STORAGE_KEY = "FORMDATA";
-    
-    /** The date that this model was taken and recorded */
+
+    /**
+     * The date that this model was taken and recorded
+     */
     Date dateSaved;
 
     public String schema;
     public String formVersion;
     public String uiVersion;
-    
+
     Hashtable namespaces = new Hashtable();
-    
-    
-    /** The root of this tree */
+
+
+    /**
+     * The root of this tree
+     */
     protected TreeElement root = new TreeElement();
 
     public FormInstance() {
-        
+
     }
-    
+
     public FormInstance(TreeElement root) {
         this(root, null);
     }
 
     /**
      * Creates a new data model using the root given.
-     * 
-     * @param root
-     *            The root of the tree for this data model.
+     *
+     * @param root The root of the tree for this data model.
      */
     public FormInstance(TreeElement root, String id) {
         super(id);
@@ -76,37 +79,35 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         setFormId(-1);
         setRoot(root);
     }
-    
+
     public TreeElement getBase() {
         return root;
     }
 
     public TreeElement getRoot() {
-    
+
         if (root.getNumChildren() == 0)
             throw new RuntimeException("root node has no children");
-    
+
         return root.getChildAt(0);
     }
-    
-    
+
 
     /**
      * Sets the root element of this Model's tree
-     * 
-     * @param root
-     *            The root of the tree for this data model.
+     *
+     * @param root The root of the tree for this data model.
      */
     public void setRoot(TreeElement topLevel) {
         root = new TreeElement();
-        if(this.getInstanceId() != null) {
+        if (this.getInstanceId() != null) {
             root.setInstanceName(this.getInstanceId());
         }
         if (topLevel != null) {
             root.addChild(topLevel);
         }
     }
-    
+
     public TreeReference copyNode(TreeReference from, TreeReference to) throws InvalidReferenceException {
         if (!from.isAbsolute()) {
             throw new InvalidReferenceException("Source reference must be absolute for copying", from);
@@ -242,7 +243,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
 
                     // create new
                     child = new TreeElement(name, count);
-                    node.addChild(child);                    
+                    node.addChild(child);
                     ref.setMultiplicity(k, count);
                 } else {
                     return null; // final node must be a newly-created node
@@ -254,27 +255,27 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
 
         return node;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.FormInstanceAdapter#addNamespace(java.lang.String, java.lang.String)
      */
     public void addNamespace(String prefix, String URI) {
         namespaces.put(prefix, URI);
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.FormInstanceAdapter#getNamespacePrefixes()
      */
     public String[] getNamespacePrefixes() {
         String[] prefixes = new String[namespaces.size()];
         int i = 0;
-        for(Enumeration en = namespaces.keys() ; en.hasMoreElements(); ) {
+        for (Enumeration en = namespaces.keys(); en.hasMoreElements(); ) {
             prefixes[i] = (String)en.nextElement();
             ++i;
         }
         return prefixes;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.FormInstanceAdapter#getNamespaceURI(java.lang.String)
      */
@@ -293,11 +294,11 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         fixedInstanceRoot.populate(incomingRoot, f);
         return fixedInstanceRoot;
     }
-    
+
 
     public FormInstance clone() {
         FormInstance cloned = new FormInstance(this.getRoot().deepCopy(true));
-        
+
         cloned.setID(this.getID());
         cloned.setFormId(this.getFormId());
         cloned.setName(this.getName());
@@ -310,19 +311,19 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             Object key = e.nextElement();
             cloned.namespaces.put(key, this.namespaces.get(key));
         }
-        
+
         return cloned;
     }
-    
+
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
-        schema = (String) ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        dateSaved = (Date) ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
-        
+        schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+
         namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
-        setRoot((TreeElement) ExtUtil.read(in, TreeElement.class, pf));
-    
+        setRoot((TreeElement)ExtUtil.read(in, TreeElement.class, pf));
+
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -330,31 +331,31 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         ExtUtil.write(out, new ExtWrapNullable(schema));
         ExtUtil.write(out, new ExtWrapNullable(dateSaved));
         ExtUtil.write(out, new ExtWrapMap(namespaces));
-        
-        ExtUtil.write(out, getRoot());    
+
+        ExtUtil.write(out, getRoot());
     }
-    
+
 
     public void setDateSaved(Date dateSaved) {
         this.dateSaved = dateSaved;
     }
-    
+
     public void copyItemsetNode(TreeElement copyNode, TreeReference destRef, FormDef f)
             throws InvalidReferenceException {
-                TreeElement templateNode = getTemplate(destRef);
-                TreeElement newNode = copyNode(templateNode, destRef);
-                newNode.populateTemplate(copyNode, f);
+        TreeElement templateNode = getTemplate(destRef);
+        TreeElement newNode = copyNode(templateNode, destRef);
+        newNode.populateTemplate(copyNode, f);
     }
-    
+
     public void accept(IInstanceVisitor visitor) {
         visitor.visit(this);
-    
+
         if (visitor instanceof ITreeVisitor) {
-            root.accept((ITreeVisitor) visitor);
+            root.accept((ITreeVisitor)visitor);
         }
-    
+
     }
-    
+
     public static boolean isHomogeneous(TreeElement a, TreeElement b) {
         if (a.isLeaf() && b.isLeaf()) {
             return true;
@@ -364,7 +365,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             for (int k = 0; k < 2; k++) {
                 TreeElement n1 = (k == 0 ? a : b);
                 TreeElement n2 = (k == 0 ? b : a);
-    
+
                 for (int i = 0; i < n1.getNumChildren(); i++) {
                     TreeElement child1 = n1.getChildAt(i);
                     if (child1.isRepeatable())
@@ -376,7 +377,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
                         throw new RuntimeException("shouldn't happen");
                 }
             }
-    
+
             // compare children
             for (int i = 0; i < a.getNumChildren(); i++) {
                 TreeElement childA = a.getChildAt(i);
@@ -386,7 +387,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
                 if (!isHomogeneous(childA, childB))
                     return false;
             }
-    
+
             return true;
         } else {
             return false;
@@ -397,28 +398,28 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         this.instanceid = instanceId;
         root.setInstanceName(instanceId);
     }
-    
+
     public static final String META_XMLNS = "XMLNS";
     public static final String META_ID = "instance_id";
 
     public String[] getMetaDataFields() {
-        return new String[] { META_XMLNS, META_ID };
+        return new String[]{META_XMLNS, META_ID};
     }
 
     public Hashtable getMetaData() {
         Hashtable data = new Hashtable();
-        for(String key : getMetaDataFields()) {
+        for (String key : getMetaDataFields()) {
             data.put(key, getMetaData(key));
         }
         return data;
     }
 
     public Object getMetaData(String fieldName) {
-        if(META_XMLNS.equals(fieldName)) {
+        if (META_XMLNS.equals(fieldName)) {
             return ExtUtil.emptyIfNull(schema);
-        } else if(META_ID.equals(fieldName)) {
+        } else if (META_ID.equals(fieldName)) {
             return ExtUtil.emptyIfNull(this.getInstanceId());
         }
-        throw new IllegalArgumentException("No metadata field " + fieldName  + " in the form instance storage system");
+        throw new IllegalArgumentException("No metadata field " + fieldName + " in the form instance storage system");
     }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.actions;
 
@@ -16,16 +16,15 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
- *
  */
 public class ActionWrapper extends Action {
-    
+
     Vector<Action> listOfActions = new Vector<Action>();
-    
+
     public ActionWrapper() {
         super("action");
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.Action#processAction(org.javarosa.core.model.FormDef)
      */

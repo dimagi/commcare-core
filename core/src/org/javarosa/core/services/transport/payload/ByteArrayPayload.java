@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.services.transport.payload;
 
@@ -32,38 +32,35 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 /**
  * A ByteArrayPayload is a simple payload consisting of a
  * byte array.
- * 
- * @author Clayton Sims
- * @date Dec 18, 2008 
  *
+ * @author Clayton Sims
+ * @date Dec 18, 2008
  */
 public class ByteArrayPayload implements IDataPayload {
     byte[] payload;
-    
+
     String id;
-    
+
     int type;
-    
+
     /**
      * Note: Only useful for serialization.
      */
     public ByteArrayPayload() {
     }
-    
+
     /**
-     * 
      * @param payload The byte array for this payload.
-     * @param id An optional id identifying the payload
-     * @param type The type of data for this byte array
+     * @param id      An optional id identifying the payload
+     * @param type    The type of data for this byte array
      */
     public ByteArrayPayload(byte[] payload, String id, int type) {
         this.payload = payload;
         this.id = id;
         this.type = type;
     }
-    
+
     /**
-     * 
      * @param payload The byte array for this payload.
      */
     public ByteArrayPayload(byte[] payload) {
@@ -76,7 +73,7 @@ public class ByteArrayPayload implements IDataPayload {
      * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
      */
     public InputStream getPayloadStream() {
-        
+
         return new ByteArrayInputStream(payload);
     }
 
@@ -86,7 +83,7 @@ public class ByteArrayPayload implements IDataPayload {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         int length = in.readInt();
-        if(length > 0) {
+        if (length > 0) {
             this.payload = new byte[length];
             in.read(this.payload);
         }
@@ -98,12 +95,12 @@ public class ByteArrayPayload implements IDataPayload {
      */
     public void writeExternal(DataOutputStream out) throws IOException {
         out.writeInt(payload.length);
-        if(payload.length > 0) {
+        if (payload.length > 0) {
             out.write(payload);
         }
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.transport.IDataPayload#accept(org.javarosa.core.services.transport.IDataPayloadVisitor)
@@ -119,7 +116,7 @@ public class ByteArrayPayload implements IDataPayload {
     public String getPayloadId() {
         return id;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.transport.IDataPayload#getPayloadType()
@@ -131,7 +128,7 @@ public class ByteArrayPayload implements IDataPayload {
     public long getLength() {
         return payload.length;
     }
-    
+
     public int getTransportId() {
         //TODO: Most messages can include this data
         return -1;

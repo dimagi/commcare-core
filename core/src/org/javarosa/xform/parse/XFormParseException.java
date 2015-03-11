@@ -20,30 +20,30 @@ import org.kxml2.kdom.Element;
 
 /**
  * Exception thrown when an XForms Parsing error occurs.
- * 
- * @author Drew Roos
  *
+ * @author Drew Roos
  */
 // Clayton Sims - Aug 18, 2008 : This doesn't actually seem
 // to be a RuntimeException to me. Is there justification
 // as to why it is?
 public class XFormParseException extends RuntimeException {
     Element element;
-    
-    public XFormParseException () { }
-    
-    public XFormParseException (String msg) {
+
+    public XFormParseException() {
+    }
+
+    public XFormParseException(String msg) {
         super(msg);
         element = null;
     }
-    
-    public XFormParseException (String msg, Element e) {
+
+    public XFormParseException(String msg, Element e) {
         super(msg);
         element = e;
     }
-    
+
     public String getMessage() {
-        if(element == null) {
+        if (element == null) {
             return super.getMessage();
         }
         return super.getMessage() + XFormParser.getVagueLocation(element);

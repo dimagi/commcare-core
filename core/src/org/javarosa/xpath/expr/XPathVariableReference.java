@@ -29,21 +29,22 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathVariableReference extends XPathExpression {
     public XPathQName id;
 
-    public XPathVariableReference () { } //for deserialization
+    public XPathVariableReference() {
+    } //for deserialization
 
-    public XPathVariableReference (XPathQName id) {
+    public XPathVariableReference(XPathQName id) {
         this.id = id;
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         return evalContext.getVariable(id.toString());
     }
 
-    public String toString () {
+    public String toString() {
         return "{var:" + id.toString() + "}";
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathVariableReference) {
             XPathVariableReference x = (XPathVariableReference)o;
             return id.equals(x.id);
@@ -51,7 +52,7 @@ public class XPathVariableReference extends XPathExpression {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class);
     }

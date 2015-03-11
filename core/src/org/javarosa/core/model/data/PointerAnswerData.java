@@ -27,16 +27,15 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * Answer data representing a pointer object.  The pointer is a reference to some 
+ * Answer data representing a pointer object.  The pointer is a reference to some
  * other object that it knows how to get out of memory.
- * 
- * @author Cory Zue
  *
+ * @author Cory Zue
  */
 public class PointerAnswerData implements IAnswerData {
 
     private IDataPointer data;
-    
+
 
     /**
      * NOTE: Only for serialization/deserialization
@@ -44,15 +43,15 @@ public class PointerAnswerData implements IAnswerData {
     public PointerAnswerData() {
         //Only for serialization/deserialization
     }
-    
+
     public PointerAnswerData(IDataPointer data) {
         this.data = data;
     }
-        
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         return null; //not cloneable
     }
-    
+
     public String getDisplayText() {
         return data.getDisplayText();
     }
@@ -62,7 +61,7 @@ public class PointerAnswerData implements IAnswerData {
     }
 
     public void setValue(Object o) {
-        if(o == null) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         data = ((IDataPointer)o);
@@ -80,7 +79,7 @@ public class PointerAnswerData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(data.getDisplayText());
     }
-    
+
     public PointerAnswerData cast(UncastData data) throws IllegalArgumentException {
         return null;
     }

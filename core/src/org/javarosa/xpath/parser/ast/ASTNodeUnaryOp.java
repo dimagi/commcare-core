@@ -27,8 +27,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class ASTNodeUnaryOp extends ASTNode {
     public ASTNode expr;
     public int op;
-        
-    public Vector getChildren () {
+
+    public Vector getChildren() {
         Vector v = new Vector();
         v.addElement(expr);
         return v;

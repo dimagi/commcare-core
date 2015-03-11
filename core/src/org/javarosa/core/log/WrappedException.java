@@ -4,22 +4,22 @@ public class WrappedException extends RuntimeException {
 
     String message;
     Exception child;
-    
-    public WrappedException (String message) {
+
+    public WrappedException(String message) {
         this(message, null);
     }
-    
-    public WrappedException (Exception child) {
+
+    public WrappedException(Exception child) {
         this(null, child);
     }
-    
-    public WrappedException (String message, Exception child) {
+
+    public WrappedException(String message, Exception child) {
         super(constructMessage(message, child));
         this.message = message;
         this.child = child;
     }
 
-    public static String constructMessage (String message, Exception child) {
+    public static String constructMessage(String message, Exception child) {
         String str = "";
         if (message != null) {
             str += message;
@@ -27,18 +27,18 @@ public class WrappedException extends RuntimeException {
         if (child != null) {
             str += (message != null ? " => " : "") + printException(child);
         }
-        
+
         if (str.equals(""))
-            str = "[exception]";        
+            str = "[exception]";
         return str;
     }
-    
-    public static String printException (Exception e) {
+
+    public static String printException(Exception e) {
         if (e instanceof WrappedException) {
             return (e instanceof FatalException ? "FATAL: " : "") + e.getMessage();
         } else {
             return e.getClass().getName() + "[" + e.getMessage() + "]";
         }
     }
-    
+
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model.data.helper;
 
@@ -8,7 +8,6 @@ import org.javarosa.core.model.data.UncastData;
 
 /**
  * @author ctsims
- *
  */
 public class InvalidDataException extends Exception {
     UncastData standin;

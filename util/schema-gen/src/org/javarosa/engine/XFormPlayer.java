@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.engine;
 
@@ -37,60 +37,60 @@ import org.javarosa.xform.util.XFormUtils;
  *
  */
 public class XFormPlayer {
-    
+
     XFormEnvironment environment;
     FormEntryController fec;
     //FormIndex current;
-    
+
     PrintStream out;
     InputStream in;
-    
+
     BufferedReader reader;
-    
+
     boolean forward = true;
-    
+
     private Step current;
-    
+
     Mockup mockup;
-    
+
     public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
         this.in = in;
         this.out = out;
         this.mockup = mockup;
     }
-    
+
 //    public XFormPlayer(Console console, PrintStream out) {
 //        this.console = console;
 //        this.out = out;
 //    }
-//    
-    
+//
+
     public void start(String formPath)  throws FileNotFoundException {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)));
     }
-    
+
 
     public void start(String formPath, Session session) throws FileNotFoundException {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)), session);
     }
-    
-    
+
+
     public void start(FormDef form, Session session) {
         this.environment = new XFormEnvironment(form, session);
         fec = environment.setup();
         reader = new BufferedReader(new InputStreamReader(in));
         processLoop();
     }
-    
+
     public void start(FormDef form) {
         this.environment = new XFormEnvironment(form, mockup);
         fec = environment.setup();
         reader = new BufferedReader(new InputStreamReader(in));
         processLoop();
-    }    
-    
+    }
+
     private static final int BLANKLINES = 10;
-    
+
     private void clear() {
         String bl = "";
         for(int i = 0 ; i < BLANKLINES; ++i) {
@@ -98,10 +98,10 @@ public class XFormPlayer {
         }
         out.print(bl);
     }
-    
+
     private void show(boolean forward) {
         clear();
-        
+
         switch(fec.getModel().getEvent()) {
         case FormEntryController.EVENT_BEGINNING_OF_FORM:
             out.print("Form Start: Press Return to proceed");
@@ -136,7 +136,7 @@ public class XFormPlayer {
             break;
         }
     }
-    
+
     /**
      * Actually runs the app, performs blocking input, etc.
      */
@@ -147,7 +147,7 @@ public class XFormPlayer {
                 show(forward);
                 forward = true;
                 String input = blockForInput();
-    
+
                 //Command!
                 if(input.startsWith(":")) {
                     exit = command(input.substring(1));
@@ -163,7 +163,7 @@ public class XFormPlayer {
             out.println("There was a problem with playing back the file! " + bpe.getMessage());
             return;
         }
-        
+
         XFormSerializingVisitor visitor = new XFormSerializingVisitor();
         try {
             byte[] data = visitor.serializeInstance(fec.getModel().getForm().getInstance());
@@ -173,7 +173,7 @@ public class XFormPlayer {
             out.println("Error Serializing XForm Data! " + e.getMessage());
         }
     }
-    
+
     private boolean command(String command) throws BadPlaybackException {
         environment.recordAction(new Action(new Command(command)));
         if("next".equalsIgnoreCase(command)) {
@@ -197,7 +197,7 @@ public class XFormPlayer {
             return false;
         }
     }
-    
+
     public static void printInstance(PrintStream out, FormInstance instance) {
         XFormSerializingVisitor visitor = new XFormSerializingVisitor();
         try {
@@ -207,7 +207,7 @@ public class XFormPlayer {
             out.println("Error Serializing XForm Data! " + e.getMessage());
         }
     }
-    
+
     private boolean input(String input) throws BadPlaybackException {
         switch(fec.getModel().getEvent()) {
         case FormEntryController.EVENT_BEGINNING_OF_FORM:
@@ -240,17 +240,17 @@ public class XFormPlayer {
                     }
                 }
             }
-            
+
             try {
                 IAnswerData value = actualInput.equals("") ? null : AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(new UncastData(actualInput));
                 int response = fec.answerQuestion(value);
-                
+
                 if(environment.isModePlayback()) {
                     ActionResponse actionResponse = current.getAction().getActionResponse();
                     actionResponse.validate(response, actualInput, fep);
                 }
-                
-                
+
+
                 if(response == FormEntryController.ANSWER_OK) {
                     environment.recordAction(new Action(actualInput));
                     fec.stepToNextEvent();
@@ -281,21 +281,21 @@ public class XFormPlayer {
         out.println("Bad state! Quitting...");
         return true;
     }
-    
+
     private void badInput(String input) throws BadPlaybackException {
         badInput(input, null);
     }
-    
-    private void badInput(String input, String msg) throws BadPlaybackException {        
+
+    private void badInput(String input, String msg) throws BadPlaybackException {
         String message = "Input " + input + " is invalid!";
         if(msg != null) {
             message += " " + msg;
-        }        
-        
+        }
+
         if(environment.isModePlayback()) {
             throw new BadPlaybackException("Invalid input during playback: " +message);
         }
-        
+
         out.println(message);
         out.println("Press Return to Try Again");
         blockForInput();
@@ -319,14 +319,14 @@ public class XFormPlayer {
         FormEntryPrompt fep = fec.getModel().getQuestionPrompt();
         String text = fep.getQuestionText();
         out.println(text);
-        
+
         Vector<SelectChoice> choices = fep.getSelectChoices();
         if(choices != null) {
             for(int i = 0 ; i < choices.size() ; ++i) {
                 System.out.println((i+1) + ") " + fep.getSelectChoiceText(choices.elementAt(i)));
             }
         }
-        
+
         if(fep.getControlType() == Constants.CONTROL_TRIGGER) {
             System.out.println("Press Return to Proceed");
         }

@@ -40,10 +40,10 @@ public class FormEntryController {
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
     FormEntryModel model;
-    
+
     /**
      * Creates a new form entry controller for the model provided
-     * 
+     *
      * @param model
      */
     public FormEntryController(FormEntryModel model) {
@@ -58,7 +58,7 @@ public class FormEntryController {
 
     /**
      * Attempts to save answer at the current FormIndex into the datamodel.
-     * 
+     *
      * @param data
      * @return
      */
@@ -70,48 +70,57 @@ public class FormEntryController {
     /**
      * Attempts to save the answer at the specified FormIndex into the
      * datamodel.
-     * 
+     *
      * @param index
      * @param data
      * @return OK if save was successful, error if a constraint was violated.
      */
     public int answerQuestion(FormIndex index, IAnswerData data) {
         QuestionDef q = model.getQuestionPrompt(index).getQuestion();
+
         if (model.getEvent(index) != FormEntryController.EVENT_QUESTION) {
             throw new RuntimeException("Non-Question object at the form index.");
         }
+
         TreeElement element = model.getTreeElement(index);
         boolean complexQuestion = q.isComplex();
 
         boolean hasConstraints = false;
+
         if (element.isRequired() && data == null) {
             return ANSWER_REQUIRED_BUT_EMPTY;
-        } else if (!complexQuestion && !model.getForm().evaluateConstraint(index.getReference(), data)) {
-            return ANSWER_CONSTRAINT_VIOLATED;
-        } else if (!complexQuestion) {
-            commitAnswer(element, index, data);
-            return ANSWER_OK; 
-        } else if (complexQuestion && hasConstraints) {
-            //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
-            throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
-        } else {
-            try {
-                model.getForm().copyItemsetAnswer(q, element, data);
-            } catch (InvalidReferenceException ire) {
-                ire.printStackTrace();
-                throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+        }
+
+        if (complexQuestion) {
+            if (hasConstraints) {
+                //TODO: itemsets: don't currently evaluate constraints for itemset/copy -- haven't figured out how handle it yet
+                throw new RuntimeException("Itemsets do not currently evaluate constraints. Your constraint will not work, please remove it before proceeding.");
+            } else {
+                try {
+                    model.getForm().copyItemsetAnswer(q, element, data);
+                } catch (InvalidReferenceException ire) {
+                    ire.printStackTrace();
+                    throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
+                }
+                return ANSWER_OK;
             }
+        } else {
+            if (!model.getForm().evaluateConstraint(index.getReference(), data)) {
+                // constraint checking failed
+                return ANSWER_CONSTRAINT_VIOLATED;
+            }
+            commitAnswer(element, index, data);
             return ANSWER_OK;
         }
     }
-    
+
 
     /**
      * saveAnswer attempts to save the current answer into the data model
      * without doing any constraint checking. Only use this if you know what
      * you're doing. For normal form filling you should always use
      * answerQuestion or answerCurrentQuestion.
-     * 
+     *
      * @param index
      * @param data
      * @return true if saved successfully, false otherwise.
@@ -130,7 +139,7 @@ public class FormEntryController {
      * without doing any constraint checking. Only use this if you know what
      * you're doing. For normal form filling you should always use
      * answerQuestion().
-     * 
+     *
      * @param index
      * @param data
      * @return true if saved successfully, false otherwise.
@@ -142,7 +151,7 @@ public class FormEntryController {
 
     /**
      * commitAnswer actually saves the data into the datamodel.
-     * 
+     *
      * @param element
      * @param index
      * @param data
@@ -158,9 +167,10 @@ public class FormEntryController {
             return false;
         }
     }
-    
+
     /**
      * Expand any unexpanded repeats at the given FormIndex.
+     *
      * @param index
      */
     public void expandRepeats(FormIndex index) {
@@ -170,19 +180,20 @@ public class FormEntryController {
 
     /**
      * Navigates forward in the form.
-     * 
+     *
      * @return the next event that should be handled by a view.
      */
     public int stepToNextEvent(boolean expandRepeats) {
         return stepEvent(true, expandRepeats);
     }
-    
+
     public int stepToNextEvent() {
         return stepToNextEvent(true);
     }
 
     /**
      * Find the FormIndex that comes after the given one.
+     *
      * @param index
      * @param expandRepeats
      * @return FormIndex
@@ -193,6 +204,7 @@ public class FormEntryController {
 
     /**
      * Find the FormIndex that comes after the given one, expanding any repeats encountered.
+     *
      * @param index
      * @return FormIndex
      */
@@ -202,7 +214,7 @@ public class FormEntryController {
 
     /**
      * Navigates backward in the form.
-     * 
+     *
      * @return the next event that should be handled by a view.
      */
     public int stepToPreviousEvent() {
@@ -212,6 +224,7 @@ public class FormEntryController {
 
     /**
      * Find the FormIndex that comes before the given one.
+     *
      * @param index
      * @param expandRepeats
      * @return FormIndex
@@ -222,7 +235,7 @@ public class FormEntryController {
 
     /**
      * Moves the current FormIndex to the next/previous relevant position.
-     * 
+     *
      * @param forward
      * @param expandRepeats Expand any unexpanded repeat groups
      * @return event associated with the new position
@@ -232,11 +245,12 @@ public class FormEntryController {
         index = getAdjacentIndex(index, forward, expandRepeats);
         return jumpToIndex(index, expandRepeats);
     }
-    
+
     /**
-     * Find a FormIndex next to the given one. 
+     * Find a FormIndex next to the given one.
+     *
      * @param index
-     * @param forward If true, get the next FormIndex, else get the previous one.
+     * @param forward       If true, get the next FormIndex, else get the previous one.
      * @param expandRepeats
      * @return
      */
@@ -244,27 +258,27 @@ public class FormEntryController {
         boolean descend = true;
         boolean relevant = true;
         boolean inForm = true;
-        
+
         do {
             if (forward) {
                 index = model.incrementIndex(index, descend);
             } else {
                 index = model.decrementIndex(index);
             }
-            
+
             //reset all step rules
             descend = true;
             relevant = true;
             inForm = true;
-            
-            
+
+
             inForm = index.isInForm();
-            if(inForm) {
+            if (inForm) {
                 relevant = model.isIndexRelevant(index);
-    
+
                 //If this the current index is a group and it is not relevant
                 //do _not_ dig into it. 
-                if(!relevant && model.getEvent(index) == FormEntryController.EVENT_GROUP) {
+                if (!relevant && model.getEvent(index) == FormEntryController.EVENT_GROUP) {
                     descend = false;
                 }
             }
@@ -273,13 +287,13 @@ public class FormEntryController {
         if (expandRepeats) {
             expandRepeats(index);
         }
-        
+
         return index;
     }
 
     /**
      * Jumps to a given FormIndex. Expands any repeat groups.
-     * 
+     *
      * @param index
      * @return EVENT for the specified Index.
      */
@@ -289,7 +303,7 @@ public class FormEntryController {
 
     /**
      * Jumps to a given FormIndex.
-     * 
+     *
      * @param index
      * @param expandRepeats Expand any unexpanded repeat groups
      * @return EVENT for the specified Index.
@@ -299,27 +313,27 @@ public class FormEntryController {
         return model.getEvent(index);
     }
 
-    public FormIndex descendIntoRepeat (int n) {
+    public FormIndex descendIntoRepeat(int n) {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
         return model.getFormIndex();
     }
-    
-    public FormIndex descendIntoNewRepeat () {
-        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));                   
+
+    public FormIndex descendIntoNewRepeat() {
+        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));
         newRepeat(model.getFormIndex());
         return model.getFormIndex();
     }
-    
+
     /**
      * Creates a new repeated instance of the group referenced by the specified
      * FormIndex.
-     * 
+     *
      * @param questionIndex
      */
     public void newRepeat(FormIndex questionIndex) {
-        try{
+        try {
             model.getForm().createNewRepeat(questionIndex);
-        } catch(InvalidReferenceException ire) {
+        } catch (InvalidReferenceException ire) {
             throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
         }
     }
@@ -328,7 +342,7 @@ public class FormEntryController {
     /**
      * Creates a new repeated instance of the group referenced by the current
      * FormIndex.
-     * 
+     *
      * @param questionIndex
      */
     public void newRepeat() {
@@ -339,7 +353,7 @@ public class FormEntryController {
     /**
      * Deletes a repeated instance of a group referenced by the specified
      * FormIndex.
-     * 
+     *
      * @param questionIndex
      * @return
      */
@@ -351,7 +365,7 @@ public class FormEntryController {
     /**
      * Deletes a repeated instance of a group referenced by the current
      * FormIndex.
-     * 
+     *
      * @param questionIndex
      * @return
      */
@@ -359,12 +373,13 @@ public class FormEntryController {
         return deleteRepeat(model.getFormIndex());
     }
 
-    public void deleteRepeat (int n) {
+    public void deleteRepeat(int n) {
         deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
     }
-    
+
     /**
      * Sets the current language.
+     *
      * @param language
      */
     public void setLanguage(String language) {

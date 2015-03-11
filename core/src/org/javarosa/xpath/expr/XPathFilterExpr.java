@@ -34,22 +34,23 @@ import org.javarosa.xpath.XPathUnsupportedException;
 public class XPathFilterExpr extends XPathExpression {
     public XPathExpression x;
     public XPathExpression[] predicates;
-    
-    public XPathFilterExpr () { } //for deserialization
-    
-    public XPathFilterExpr (XPathExpression x, XPathExpression[] predicates) {
+
+    public XPathFilterExpr() {
+    } //for deserialization
+
+    public XPathFilterExpr(XPathExpression x, XPathExpression[] predicates) {
         this.x = x;
         this.predicates = predicates;
     }
-    
+
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("filter expression");
     }
-        
-    public String toString () {
+
+    public String toString() {
         StringBuffer sb = new StringBuffer();
-        
-        sb.append("{filt-expr:");    
+
+        sb.append("{filt-expr:");
         sb.append(x.toString());
         sb.append(",{");
         for (int i = 0; i < predicates.length; i++) {
@@ -58,11 +59,11 @@ public class XPathFilterExpr extends XPathExpression {
                 sb.append(",");
         }
         sb.append("}}");
-        
+
         return sb.toString();
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathFilterExpr) {
             XPathFilterExpr fe = (XPathFilterExpr)o;
 
@@ -71,14 +72,14 @@ public class XPathFilterExpr extends XPathExpression {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         x = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
-        
+
         predicates = new XPathExpression[v.size()];
         for (int i = 0; i < predicates.length; i++)
-            predicates[i] = (XPathExpression)v.elementAt(i);        
+            predicates[i] = (XPathExpression)v.elementAt(i);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -89,8 +90,8 @@ public class XPathFilterExpr extends XPathExpression {
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
-    
-    public Object pivot (DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
+
+    public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         throw new UnpivotableExpressionException();
     }
 }

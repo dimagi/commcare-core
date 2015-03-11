@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.model.instance.utils;
 
@@ -38,24 +38,23 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * around a ModelTree to allow it to be used as a payload, but only to
  * actually perform the various computationally expensive functions
  * of serialization when required.
- * 
- * @author Clayton Sims
- * @date Apr 27, 2009 
  *
+ * @author Clayton Sims
+ * @date Apr 27, 2009
  */
 public class ModelReferencePayload implements IDataPayload {
-    
+
     int recordId;
     IDataPayload payload;
     String destination = null;
-    
+
     IInstanceSerializingVisitor serializer;
-    
+
     //NOTE: Should only be used for serializaiton.
     public ModelReferencePayload() {
-        
+
     }
-    
+
     public ModelReferencePayload(int modelRecordId) {
         this.recordId = modelRecordId;
     }
@@ -121,9 +120,9 @@ public class ModelReferencePayload implements IDataPayload {
     public void writeExternal(DataOutputStream out) throws IOException {
         out.writeInt(recordId);
     }
-    
+
     private void memoize() {
-        if(payload == null) {
+        if (payload == null) {
             IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
             try {
                 FormInstance tree = (FormInstance)instances.read(recordId);
@@ -135,15 +134,15 @@ public class ModelReferencePayload implements IDataPayload {
             }
         }
     }
-    
+
     public int getTransportId() {
         return recordId;
     }
-    
-    public void setDestination(String destination){
+
+    public void setDestination(String destination) {
         this.destination = destination;
     }
-    
+
     public String getDestination() {
         return destination;
     }
