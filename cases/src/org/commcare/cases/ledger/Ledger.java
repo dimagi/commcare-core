@@ -27,7 +27,7 @@ public class Ledger implements Persistable, IMetaData {
 
     //NOTE: Right now this is (lazily) implemented assuming that each ledger
     //object tracks _all_ of the sections for an entity, which will likely be a terrible way
-    //to do things long-term. 
+    //to do things long-term.
 
 
     public static final String STORAGE_KEY = "ledger";

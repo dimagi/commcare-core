@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -16,9 +16,9 @@ import org.xmlpull.v1.XmlSerializer;
  *
  */
 public class ResourceTableSubreport implements DeviceReportElement {
-    
+
     private ResourceTable table;
-    
+
     public ResourceTableSubreport(ResourceTable table) {
         this.table = table;
     }
@@ -27,7 +27,7 @@ public class ResourceTableSubreport implements DeviceReportElement {
      * @see org.javarosa.log.util.DeviceReportElement#writeToDeviceReport(org.xmlpull.v1.XmlSerializer)
      */
     public void writeToDeviceReport(XmlSerializer o) throws IOException {
-        
+
         o.startTag(DeviceReportState.XMLNS, "globaltable_subreport");
         try {
             for(Resource r : CommCarePlatform.getResourceListFromProfile(table)) {

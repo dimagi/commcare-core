@@ -63,14 +63,14 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private void setIdsToRemoveNew(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
         //Create a DAG. The Index will be the case GUID. The Nodes will be a string array containing
         //[CASE_STATUS, string(storageid)]
-        //CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_DEAD, or STATUS_ABANDONED 
+        //CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_DEAD, or STATUS_ABANDONED
         DAG<String, String[], String> g = new DAG<String, String[], String>();
 
         Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
 
         //Pass 1:
         //Create a DAG which contains all of the cases on the phone as nodes, and has a directed
-        //edge for each index (from the 'child' case pointing to the 'parent' case) with the 
+        //edge for each index (from the 'child' case pointing to the 'parent' case) with the
         //appropriate relationship tagged
         for (IStorageIterator<Case> i = caseStorage.iterate(); i.hasMore(); ) {
             Case c = i.nextRecord();
@@ -148,14 +148,14 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 }
                 //add this to the process stack
                 //TODO: We're going to walk stuff redundantly this
-                //way. Can we optimize? 
-                //If parent is already live, does 
+                //way. Can we optimize?
+                //If parent is already live, does
                 //that necessarily denote that its ancestors are alive?
                 toProcess.addElement(edge.i);
             }
         }
 
-        //Pass 2: Start at Sinks (nodes which only receive edges) and walk down the 
+        //Pass 2: Start at Sinks (nodes which only receive edges) and walk down the
         //graphs, marking necessary nodes as alive
         toProcess = g.getSinks();
         while (!toProcess.isEmpty()) {
@@ -174,7 +174,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
                 //add this to the process stack
                 //TODO: We're going to walk stuff redundantly this
-                //way. Can we optimize? 
+                //way. Can we optimize?
                 toProcess.addElement(edge.i);
             }
         }

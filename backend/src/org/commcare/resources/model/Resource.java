@@ -94,7 +94,7 @@ public class Resource implements Persistable, IMetaData {
     public static final int RESOURCE_STATUS_DELETE = 16;
 
 
-    // TODO: We can probably encode this more sanely. 
+    // TODO: We can probably encode this more sanely.
 
     // Abandoning binary numbering.
 

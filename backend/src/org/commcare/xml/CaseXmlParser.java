@@ -205,7 +205,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         if (caseForBlock != null) {
             caseForBlock.setLastModified(modified);
 
-            //Now that we've gotten any relevant transactions, commit this case 
+            //Now that we've gotten any relevant transactions, commit this case
             commit(caseForBlock);
         }
 

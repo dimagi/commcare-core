@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util.time;
 
@@ -17,17 +17,17 @@ import de.enough.polish.ui.Displayable;
 /**
  * A time message event displays a message to the user instructing them that
  * their device's time is probably incorrect.
- * 
+ *
  * It is a scheduled, daily event, meaning it should only occur when the system
  * explicitly schedules one, and should not occur more than once a day.
- * 
+ *
  * @author ctsims
  *
  */
 public class TimeMessageEvent extends PeriodicEvent implements CommandListener {
-    
+
     public static final String EVENT_KEY = "time_sync";
-    
+
     public final static Command BACK = new Command(Localization.get("command.ok"), Command.OK, 0);
 
 
@@ -39,7 +39,7 @@ public class TimeMessageEvent extends PeriodicEvent implements CommandListener {
         display.addCommand(BACK);
         display.append(Localization.get("message.timesync"));
         display.setCommandListener(this);
-        
+
         J2MEDisplay.setView(display);
         Logger.log("time message", "Displayed incorrect time message to user");
     }

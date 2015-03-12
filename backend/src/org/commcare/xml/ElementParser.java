@@ -353,7 +353,7 @@ public abstract class ElementParser<T> {
             else if (parser.getName().equals("media")) {
                 info[1] = parser.getAttributeValue(null, "image");
                 info[2] = parser.getAttributeValue(null, "audio");
-                //only ends up grabbing the last entries with 
+                //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
             }
         }

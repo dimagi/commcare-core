@@ -178,7 +178,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                     //Local location doesn't exist, put this in the cache
                     return cache(ref.getStream(), r, table, upgrade);
                 } catch (IOException e) {
-                    //This is a catch-all for local references failing in unexpected ways. 
+                    //This is a catch-all for local references failing in unexpected ways.
                     return cache(ref.getStream(), r, table, upgrade);
                 }
             } catch (IOException e) {
@@ -199,7 +199,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     }
 
     private boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
-        //NOTE: Incoming here needs to be _fresh_. It's extremely important that 
+        //NOTE: Incoming here needs to be _fresh_. It's extremely important that
         //nothing have gotten the stream first
 
         try {
@@ -251,7 +251,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
             if (!reference.isReadOnly()) {
                 reference.remove();
             }
-            //CTS: The table should take care of this for the installer 
+            //CTS: The table should take care of this for the installer
             //table.removeResource(r);
             return true;
         } catch (InvalidReferenceException e) {

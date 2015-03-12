@@ -196,7 +196,7 @@ public class CommCareSession {
         int i = 0;
         for (StackFrameStep step : steps) {
             if (step.getType() == SessionFrame.STATE_COMMAND_ID) {
-                //Menu or form. 
+                //Menu or form.
                 if (menus.containsKey(step.getId())) {
                     returnVal[i] = menus.get(step.getId());
                 } else if (entries.containsKey(step.getId())) {
@@ -209,7 +209,7 @@ public class CommCareSession {
             }
 
             if (returnVal[i] != null) {
-                //Menus contain a potential argument listing where that value is on the screen, 
+                //Menus contain a potential argument listing where that value is on the screen,
                 //clear it out if it exists
                 returnVal[i] = Localizer.processArguments(returnVal[i], new String[]{""}).trim();
             }
@@ -610,7 +610,7 @@ public class CommCareSession {
         } else {
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
-            //stack members, we need to be careful about making sure 
+            //stack members, we need to be careful about making sure
             //that they won't get triggered if we abandon the current
             //frame
             if (!frameStack.isEmpty()) {

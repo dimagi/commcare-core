@@ -36,11 +36,11 @@ public class GraphParser extends ElementParser<Graph> {
 
         int entryLevel = parser.getDepth();
         do {
-            // <graph> contains an optional <configuration>, 0 to many <series>, 
+            // <graph> contains an optional <configuration>, 0 to many <series>,
             // and 0 to many <annotation>, in any order.
             parser.nextTag();
             if (parser.getName().equals("configuration")) {
-                // There's no reason for a graph to have multiple <configuration> elements, 
+                // There's no reason for a graph to have multiple <configuration> elements,
                 // but if it does, any later configuration settings will override earlier ones.
                 parseConfiguration(graph);
             }
@@ -56,8 +56,8 @@ public class GraphParser extends ElementParser<Graph> {
     }
 
     /*
-     * Helper for parse; handles a single annotation, which must contain an x 
-     * (which contains a single <text>), y (also contains a single <text>), 
+     * Helper for parse; handles a single annotation, which must contain an x
+     * (which contains a single <text>), y (also contains a single <text>),
      * and then another <text> for the annotation's actual text.
      */
     private void parseAnnotation(Graph graph) throws InvalidStructureException, IOException, XmlPullParserException {

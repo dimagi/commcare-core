@@ -117,7 +117,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
             destination = STAGING_EXT;
         }
 
-        //Make sure that this form's 
+        //Make sure that this form's
         FormDef form = (FormDef)storage().read(cacheLocation);
         String tempString = form.getInstance().schema;
 

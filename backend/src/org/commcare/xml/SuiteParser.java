@@ -54,7 +54,7 @@ public class SuiteParser extends ElementParser<Suite> {
         Vector<Menu> menus = new Vector<Menu>();
 
         try {
-            //Now that we've covered being inside of a suite, 
+            //Now that we've covered being inside of a suite,
             //start traversing.
             parser.next();
 

@@ -14,44 +14,44 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A periodic event record is a database model for maintaining the
- * execution scheduling of periodic events. There should be one or 
+ * execution scheduling of periodic events. There should be one or
  * zero records for each type of periodic event, maintaining a record
  * of the next and previous occurrences of that event.
- * 
+ *
  * TODO: Add general functionality for maintaining other state for
- * these records: Disabled, etc. 
- * 
+ * these records: Disabled, etc.
+ *
  * @author ctsims
  *
  */
 public class PeriodicEventRecord implements Persistable, IMetaData {
-    
+
     public static final String STORAGE_KEY = "periodic_e_r";
-    
+
     /** The type of event that this record is maintaining */
     public static final String META_EVENT_KEY = "event_key";
-    
+
     private int recordId = -1;
-        
+
     private Date nextOccurance;
-    
+
     private Date lastOccurance;
-    
+
     private String key;
-    
+
     /**
      * DO NOT CALL. FOR SERIALIZATION ONLY.
-     * 
-     * Records will be created by the scheduler. 
+     *
+     * Records will be created by the scheduler.
      */
     public PeriodicEventRecord() {
         //FOR SERIALIZATION ONLY!!!
     }
-    
+
     /**
      * Creates a record for a periodic event. Should only be called by the
-     * package. 
-     * 
+     * package.
+     *
      * @param key
      * @param nextOccurance
      */
@@ -76,7 +76,7 @@ public class PeriodicEventRecord implements Persistable, IMetaData {
         // TODO Auto-generated method stub
         return recordId;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
@@ -103,13 +103,13 @@ public class PeriodicEventRecord implements Persistable, IMetaData {
      */
     public Hashtable getMetaData() {
         Hashtable ret = new Hashtable();
-        
+
         for(String field : getMetaDataFields()) {
             ret.put(field, getMetaData(field));
         }
         return ret;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
@@ -117,7 +117,7 @@ public class PeriodicEventRecord implements Persistable, IMetaData {
     public String[] getMetaDataFields() {
         return new String[] {META_EVENT_KEY};
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaData()

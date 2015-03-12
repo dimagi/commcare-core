@@ -54,7 +54,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 //can't support editing saved forms; for new forms only
 public abstract class CommCareFormEntryState extends FormEntryState {
-    
+
     public static final String METHOD_SMS = "smspush";
     public static final String METHOD_POST = "post";
     private String formName;
@@ -64,22 +64,22 @@ public abstract class CommCareFormEntryState extends FormEntryState {
     String title;
     //Keep this alive for the lifecycle of the state.
     private CommCareHandledExceptionState cches;
-        
+
     public CommCareFormEntryState (String title,String formName,
             Vector<IPreloadHandler> preloaders, Vector<IFunctionHandler> funcHandlers, InstanceInitializationFactory iif) {
-        
+
         this.title = title;
         this.formName = formName;
         this.preloaders = preloaders;
         this.funcHandlers = funcHandlers;
         this.iif = iif;
-        
+
         cches = new CommCareHandledExceptionState() {
 
             public boolean handlesException(Exception e) {
                 return ((e instanceof XPathMissingInstanceException) || (e instanceof XPathTypeMismatchException));
             }
-            
+
             public String getExplanationMessage(String e){
                 return Localization.get("xpath.fail.runtime", new String[] {e});
             }
@@ -88,27 +88,27 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                 CommCareFormEntryState.this.abort();
             }
         };
-        
+
         CrashHandler.setExceptionHandler(cches);
     }
-    
+
     protected JrFormEntryController getController() {
         FormDefFetcher fetcher = new FormDefFetcher(new NamespaceRetrievalMethod(formName), preloaders, funcHandlers,iif);
 
         boolean supportsNewRepeats = false;
-        String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);        
-        
+        String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);
+
         if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
-            supportsNewRepeats = true;    
+            supportsNewRepeats = true;
         }
-        
+
         JrFormEntryController controller = CommCareUtil.createFormEntryController(fetcher, supportsNewRepeats);
         controller.setView(loadView(title,controller));
         return controller;
     }
-    
+
     private IFormEntryView loadView(String title, JrFormEntryController controller) {
-        
+
         String viewType = PropertyManager._().getSingularProperty(FormManagerProperties.VIEW_TYPE_PROPERTY);
 
         if (FormManagerProperties.VIEW_CHATTERBOX.equals(viewType)) {
@@ -119,43 +119,43 @@ public abstract class CommCareFormEntryState extends FormEntryState {
             return new Chatterbox(title, controller);
         }
     }
-    
+
     public void abort () {
         goHome();
     }
-    
-    
-    
+
+
+
     /* (non-Javadoc)
      * @see org.javarosa.formmanager.api.transitions.FormEntryTransitions#formEntrySaved(org.javarosa.core.model.FormDef, org.javarosa.core.model.instance.FormInstance, boolean)
      */
     public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
         if(formWasCompleted) {
-            
+
             form.seal();
-            
+
             logCompleted(instanceData);
-            
+
             // This process will take place in three parts, in order to ensure that the server and client don't get
-            // out of sync. 
-            
-            
+            // out of sync.
+
+
             // 1) First we'll ensure that a transport message or other off-line element can be created and
-            // saved. This should establish that it will be sent from the device no matter what.        
-            
+            // saved. This should establish that it will be sent from the device no matter what.
+
             //First, figure out what the submission action is
             SubmissionProfile profile = CommCareFormEntryState.getSubmissionProfile(form, instanceData);
-            
+
             // Get the workflow that will be responsible for managing the flow of form sending
             FormTransportWorkflow workflow = getWorkflowFactory(profile);
-            
+
             //Let the workflow perform its first action
             workflow.preProcessing(instanceData);
-            
-            
+
+
             // 2) Next we'll post process the data and manage any local information that should be handled on
             // the local device
-            
+
             boolean save = postProcess(instanceData);
             if (save) {
                 IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
@@ -175,10 +175,10 @@ public abstract class CommCareFormEntryState extends FormEntryState {
     }
 
     protected static SubmissionProfile getSubmissionProfile(FormDef form, FormInstance instanceData) {
-        
+
         // See if the form wants to force a specific submission type
         SubmissionProfile profile = form.getSubmissionProfile();
-        
+
         //TODO: Are there any circumstances in which the phone's send type should override the phone's options?
         if(profile == null) {
             String style = PropertyManager._().getSingularProperty(CommCareProperties.SEND_STYLE);
@@ -191,23 +191,23 @@ public abstract class CommCareFormEntryState extends FormEntryState {
             }
 
         }
-        
+
         //See if the action is actually a reference into the form.
         String action = profile.getAction();
         try {
             String newAction = (String)XPathParseTool.parseXPath("string(" + action + ")").eval(instanceData, new EvaluationContext(form.exprEvalContext, instanceData.getRoot().getRef()));
-            
+
             profile = new SubmissionProfile(profile.getRef(), profile.getMethod(), newAction, profile.getMediaType());
         } catch(Exception e) {
             //Expected use case for most static #'s.
             e.printStackTrace();
         }
-        
+
         return profile;
     }
-    
+
     public void suspendForMediaCapture (int captureType) throws UnavailableServiceException {
-        if(captureType ==FormEntryTransitions.MEDIA_IMAGE){ 
+        if(captureType ==FormEntryTransitions.MEDIA_IMAGE){
             ImageCaptureState ics = new ImageCaptureState() {
 
                 public void cancel() {
@@ -219,13 +219,13 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                 }
 
                 public void captured(IDataPointer[] data) {
-                    
+
                 }
 
                 public void noCapture() {
                     controller.start();
                 }
-                
+
             };
             J2MEDisplay.startStateWithLoadingScreen(ics);
         } else {
@@ -234,7 +234,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
     }
 
     /**
-     * 
+     *
      * @param instanceData
      * @return true if instance should be saved in persistent storage
      */
@@ -242,13 +242,13 @@ public abstract class CommCareFormEntryState extends FormEntryState {
         CaseModelProcessor processor = new CaseModelProcessor();
         processor.processInstance(instanceData);
         //If we're doing reviews, we need to save instances!
-        if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {            
+        if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {
             return true;
         } else{
             return false;
         }
     }
-    
+
     /**
      * post-processing to be done after (and only if) form is saved
      * @param instanceData
@@ -257,9 +257,9 @@ public abstract class CommCareFormEntryState extends FormEntryState {
     protected void postSaveProcess (FormInstance instanceData) {
         //do nothing
     }
-    
+
     protected abstract void goHome();
-    
+
     protected void logCompleted (FormInstance instanceData) {
         String guid;
         try {
@@ -267,20 +267,20 @@ public abstract class CommCareFormEntryState extends FormEntryState {
         } catch (RuntimeException e) {
             guid = "?";
         }
-        
+
         Logger.log("form-completed", instanceData.getFormId() + ":" + PropertyUtils.trim(guid, 12));
     }
-    
+
     /**
      *  Get the workflow for how to manage each step in the pre/post processing workflow.
-     *  
+     *
      *  TODO: This can/should be shared with JavaRosa core, probably. Safest way to stay in sync
      *  WRT SMS transport, etc.
      */
     private FormTransportWorkflow getWorkflowFactory(final SubmissionProfile profile) {
         if(CommCareProperties.SEND_STYLE_NONE.equals(profile.getMethod())) {
             return new FormTransportWorkflow() {
-                
+
                 public void preProcessing(FormInstance instance) {
                     // Nothing
                 }
@@ -297,12 +297,12 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                     CommCareFormEntryState.this.goHome();
                 }
             };
-                
+
         } else {
             return new FormTransportWorkflow() {
                 TransportMessage message;
                 boolean cacheable;
-                
+
                 public void preProcessing(FormInstance instance) {
                     //HTTP or Fallback(Nothing)
                     //This actually won't send anything just yet. It'll just put it straight in the cache
@@ -315,7 +315,7 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                                 ((SimpleHttpTransportMessage)message).setHeader("X-CommCareHQ-LastSyncToken", CommCareContext._().getUser().getLastSyncToken());
                             }
                         }
-                        
+
                         if(cacheable) {
                             //cache it
                             TransportService.send(message, 0, 0);
@@ -325,10 +325,10 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                             //send it
                             TransportService.send(message, 3, 0);
                         }
-                        
+
                         // If there is a failure building or caching the transport message, we don't want to further process data.
                         // Otherwise the phone will have data that can never get to the server.
-                    } catch (IOException e) { 
+                    } catch (IOException e) {
                         e.printStackTrace();
                         Logger.die("create-form-message", e);
                         return;
@@ -336,9 +336,9 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                         e.printStackTrace();
                         Logger.die("create-form-message", e);
                         return;
-                    } 
+                    }
                 }
-                
+
                 public void postProcessing() {
                     CommCarePostFormEntryState httpAskSendState = new CommCarePostFormEntryState(message.getCacheIdentifier(), CommCareSense.isAutoSendEnabled() || !cacheable) {
 
@@ -348,9 +348,9 @@ public abstract class CommCareFormEntryState extends FormEntryState {
                         public void goHome() {
                             CommCareFormEntryState.this.goHome();
                         }
-                        
+
                     };
-                    
+
                     J2MEDisplay.startStateWithLoadingScreen(httpAskSendState);
                 }
             };

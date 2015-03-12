@@ -70,11 +70,11 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         Vector<String> keysToFetch = new Vector<String>();
         Vector<Object> valuesToFetch = new Vector<Object>();
 
-        //First, go get a list of predicates that we _might_be able to evaluate 
+        //First, go get a list of predicates that we _might_be able to evaluate
         predicate:
         for (int i = 0; i < predicates.size(); ++i) {
             XPathExpression xpe = predicates.elementAt(i);
-            //what we want here is a static evaluation of the expression to see if it consists of evaluating 
+            //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
             if (xpe instanceof XPathEqExpr) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
@@ -84,7 +84,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                         if (expr.matches(left)) {
                             String filterIndex = translateFilterExpr(expr, (XPathPathExpr)left, indices);
 
-                            //TODO: We need a way to determine that this value does not also depend on anything in the current context, not 
+                            //TODO: We need a way to determine that this value does not also depend on anything in the current context, not
                             //sure the best way to do that....? Maybe tell the evaluation context to skip out here if it detects a request
                             //to resolve in a certain area?
                             Object o = XPathFuncExpr.unpack(((XPathEqExpr)xpe).b.eval(evalContext));

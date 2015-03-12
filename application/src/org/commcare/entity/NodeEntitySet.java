@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.entity;
 
@@ -15,16 +15,16 @@ import org.javarosa.model.xform.XPathReference;
 
 /**
  * NOTE: Definitely not thread-safe.
- * 
+ *
  * @author ctsims
  *
  */
 public class NodeEntitySet implements EntitySet<TreeReference>, ProgressIndicator {
-    
+
     private Vector<TreeReference> set = null;
     private TreeReference path;
     private EvaluationContext context;
-    
+
     public NodeEntitySet(TreeReference path, EvaluationContext context) {
         this.path = path;
         this.context = context;
@@ -68,7 +68,7 @@ public class NodeEntitySet implements EntitySet<TreeReference>, ProgressIndicato
     public int getIndicatorsProvided() {
         return ProgressIndicator.INDICATOR_PROGRESS | ProgressIndicator.INDICATOR_STATUS;
     }
-    
+
     int[] loadingDetails;
     private void load() {
         if(set == null) {
@@ -81,7 +81,7 @@ public class NodeEntitySet implements EntitySet<TreeReference>, ProgressIndicato
             loadingDetails = null;
         }
     }
-    
+
     public boolean loaded() {
         return set != null;
     }

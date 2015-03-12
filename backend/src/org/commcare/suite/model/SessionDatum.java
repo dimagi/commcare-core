@@ -163,7 +163,7 @@ public class SessionDatum implements Externalizable {
     public TreeReference getEntityFromID(EvaluationContext ec, String elementId) {
         //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
 
-        //Get root nodeset 
+        //Get root nodeset
         TreeReference nodesetRef = this.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
         predicates.addElement(new XPathEqExpr(true, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId)));

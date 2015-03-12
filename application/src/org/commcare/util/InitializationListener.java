@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -10,7 +10,7 @@ import org.javarosa.j2me.log.HandledThread;
  *
  */
 public abstract class InitializationListener {
-    
+
     HandledThread thread;
 
     public void setInitThread(HandledThread t) {

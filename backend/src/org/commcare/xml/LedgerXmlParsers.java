@@ -82,7 +82,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                 //Complex case: we need to update multiple sections on a per-entry basis
                 while (this.nextTagInBlock(TAG_BALANCE)) {
 
-                    //We need to capture some of the state (IE: Depth, etc) to parse recursively, 
+                    //We need to capture some of the state (IE: Depth, etc) to parse recursively,
                     //so create a new anonymous parser.
                     new ElementParser<Ledger[]>(this.parser) {
                         public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -99,7 +99,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                                 }
                                 int quantity = this.parseInt(quantityString);
 
-                                //This performs the actual modification. This entity will be written outside of the loop 
+                                //This performs the actual modification. This entity will be written outside of the loop
                                 ledger.setEntry(sectionId, productId, quantity);
                             }
                             return null;
@@ -108,7 +108,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                     }.parse();
                 }
             } else {
-                //Simple case - Updating one section                
+                //Simple case - Updating one section
                 while (this.nextTagInBlock(TAG_BALANCE)) {
                     this.checkNode(FINAL_NAME);
                     String id = parser.getAttributeValue(null, ENTRY_ID);
@@ -125,7 +125,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
             toWrite.addElement(ledger);
         } else if (name.equals(TRANSFER)) {
 
-            //First, figure out where we're reading/writing and load the ledgers 
+            //First, figure out where we're reading/writing and load the ledgers
             String source = parser.getAttributeValue(null, "src");
             String destination = parser.getAttributeValue(null, "dest");
 
@@ -143,13 +143,13 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
             if (sectionId == null) {
                 while (this.nextTagInBlock(TRANSFER)) {
-                    //We need to capture some of the state (IE: Depth, etc) to parse recursively, 
+                    //We need to capture some of the state (IE: Depth, etc) to parse recursively,
                     //so create a new anonymous parser.
                     new ElementParser<Ledger[]>(this.parser) {
                         public Ledger[] parse() throws InvalidStructureException, IOException, XmlPullParserException {
                             String productId = parser.getAttributeValue(null, ENTRY_ID);
 
-                            //Walk through and find what sections to update for this entry 
+                            //Walk through and find what sections to update for this entry
                             while (this.nextTagInBlock(FINAL_NAME)) {
                                 this.checkNode(TAG_VALUE);
 

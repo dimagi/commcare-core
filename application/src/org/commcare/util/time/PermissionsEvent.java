@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util.time;
 
@@ -16,17 +16,17 @@ import de.enough.polish.ui.Displayable;
 /**
  * A time message event displays a message to the user instructing them that
  * their device permissions are set incorrectly.
- * 
+ *
  * It is a scheduled, daily event, meaning it should only occur when the system
  * explicitly schedules one, and should not occur more than once a day.
- * 
+ *
  * @author ctsims
  *
  */
 public class PermissionsEvent extends PeriodicEvent implements CommandListener {
-    
+
     public static final String EVENT_KEY = "permission_event";
-    
+
     public static Command BACK;
 
 
@@ -39,7 +39,7 @@ public class PermissionsEvent extends PeriodicEvent implements CommandListener {
         display.addCommand(BACK);
         display.append(Localization.get("message.permissions"));
         display.setCommandListener(this);
-        
+
         J2MEDisplay.setView(display);
         Logger.log("permissions_notify", "Displayed permissions message");
     }

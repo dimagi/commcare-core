@@ -214,7 +214,7 @@ public class Case implements Persistable, IMetaData, Secure {
         if (o instanceof String) {
             return (String)o;
         } else {
-            //This is not good, but it's also the uniform matching that's used in the 
+            //This is not good, but it's also the uniform matching that's used in the
             //xml transform, essentially.
             return PreloadUtils.wrapIndeterminedObject(o).uncast().getString();
         }

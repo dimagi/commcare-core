@@ -67,7 +67,7 @@ public class StackFrameStep implements Externalizable {
         this.valueIsXpath = valueIsXpath;
 
         if (valueIsXpath) {
-            //Run the parser to ensure that we will fail fast when _creating_ the step, not when 
+            //Run the parser to ensure that we will fail fast when _creating_ the step, not when
             //running it
             XPathParseTool.parseXPath(value);
         }
