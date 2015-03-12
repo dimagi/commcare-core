@@ -68,17 +68,25 @@ public class LocalizationUtils {
             return locale;
         }
 
-        private static void parseAndAdd(OrderedHashtable locale, String line, int curline) {
+        public static void parseAndAdd(OrderedHashtable locale, String line, int curline) {
 
             //trim whitespace.
             line = line.trim();
 
             int i = 0;
-            
+            int dec = line.length();
+
             //clear comments except if they have backslash before them (markdown '#'s)
-            while((i = line.indexOf("#")) != -1 && !(line.charAt(i-1) == '\\')) {
-                line = line.substring(0, i);
+            while((i = line.substring(0, dec).lastIndexOf("#")) != -1) {
+
+                if((i != 0) && !(line.charAt(i-1) == '\\')){
+                    line = line.substring(0, i);
+                    dec = line.length();
+                } else {
+                    dec = i;
+                }
             }
+
             if(line.indexOf('=') == -1) {
                 // TODO: Invalid line. Empty lines are fine, especially with comments,
                 // but it might be hard to get all of those.
@@ -104,7 +112,7 @@ public class LocalizationUtils {
          * Helper to replace our markdown encodings with what we want
          */
         
-        private static String parseValue(String value){
+        public static String parseValue(String value){
             String ret = value.replace("\\#", "#");
             ret = ret.replace("\\n", "\n");
             return ret;
