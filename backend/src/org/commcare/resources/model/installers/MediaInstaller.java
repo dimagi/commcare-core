@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.resources.model.installers;
 
@@ -14,23 +14,22 @@ import org.javarosa.core.reference.Reference;
 /**
  * TODO: This should possibly just be replaced by a basic file installer along
  * with a reference for the login screen. We'll see.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class MediaInstaller extends BasicInstaller {
-    
+
     public MediaInstaller() {
-        
+
     }
-    
+
     public MediaInstaller(String path) {
-        
+
     }
-    
+
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         boolean result = super.install(r, location, ref, table, instance, upgrade);
-        if(result) {
+        if (result) {
             table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
             return true;
         }

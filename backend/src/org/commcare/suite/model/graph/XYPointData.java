@@ -2,6 +2,7 @@ package org.commcare.suite.model.graph;
 
 /**
  * Representation of a point on an x, y plane.
+ *
  * @author jschweers
  */
 public class XYPointData {
@@ -12,13 +13,13 @@ public class XYPointData {
         mX = x;
         mY = y;
     }
-    
+
     public String getX() {
         return mX;
     }
-    
+
     public String getY() {
         return mY;
     }
-    
+
 }

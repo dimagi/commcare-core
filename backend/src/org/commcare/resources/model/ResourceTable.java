@@ -80,7 +80,7 @@ public class ResourceTable {
         boolean dirty = false;
 
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
                 isFullyInstalled = false;
             }
@@ -139,7 +139,7 @@ public class ResourceTable {
     public void addResource(Resource resource, int status) throws StorageFullException {
         Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
         for (Integer i : existing) {
-            Resource r = (Resource) storage.read(i.intValue());
+            Resource r = (Resource)storage.read(i.intValue());
             // this resource is already here! No worries
             return;
         }
@@ -166,7 +166,7 @@ public class ResourceTable {
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<Resource>();
         for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements(); en.hasMoreElements(); ) {
-            Resource r = (Resource) storage.read(((Integer) en.nextElement()).intValue());
+            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
             v.addElement(r);
         }
         return v;
@@ -174,7 +174,7 @@ public class ResourceTable {
 
     public Resource getResourceWithId(String id) {
         try {
-            return (Resource) storage.getRecordForValue(Resource.META_INDEX_RESOURCE_ID, id);
+            return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_ID, id);
         } catch (NoSuchElementException nsee) {
             return null;
         }
@@ -182,7 +182,7 @@ public class ResourceTable {
 
     public Resource getResourceWithGuid(String guid) {
         try {
-            return (Resource) storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, guid);
+            return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, guid);
         } catch (NoSuchElementException nsee) {
             return null;
         }
@@ -191,7 +191,7 @@ public class ResourceTable {
     private Vector<Resource> GetResources() {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             v.addElement(r);
         }
         return v;
@@ -200,7 +200,7 @@ public class ResourceTable {
     private Vector<Resource> GetResources(int status) {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             if (r.getStatus() == status) {
                 v.addElement(r);
             }
@@ -211,7 +211,7 @@ public class ResourceTable {
     private Stack<Resource> GetResourceStack() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             v.push(r);
         }
         return v;
@@ -220,7 +220,7 @@ public class ResourceTable {
     private Stack<Resource> GetResourceStack(int status) {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             if (r.getStatus() == status) {
                 v.push(r);
             }
@@ -232,7 +232,7 @@ public class ResourceTable {
     private Stack<Resource> GetUnreadyResources() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
-            Resource r = (Resource) it.nextRecord();
+            Resource r = (Resource)it.nextRecord();
             // If the resource is installed, it doesn't need anything
             // If the resource is marked as ready for upgrade, it's ready
             // If the resource is marked as pending, it isn't capable of installation yet

@@ -32,7 +32,6 @@ import org.javarosa.core.services.storage.StorageManager;
  * some of that in.
  *
  * @author ctsims
- *
  */
 public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
@@ -66,13 +65,13 @@ public class CommCarePlatform implements CommCareInstance {
                 locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 
                 // We need a way to identify this version...
-                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID , locations, "Application Descriptor");
+                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
 
-               System.out.println("adding profile resource");
+                System.out.println("adding profile resource");
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, this);
-            } else{
+            } else {
                 // Assuming it does exist, we might want to do an automatic
                 // upgrade here, leaving that for a future date....
             }
@@ -140,8 +139,8 @@ public class CommCarePlatform implements CommCareInstance {
         // TODO: Figure out more cleanly what the acceptable states are here
         int incomingState = incoming.getTableReadiness();
         if (incomingState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
-            incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
-            incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
+                incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
+                incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
             throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
         }
 
@@ -156,9 +155,9 @@ public class CommCarePlatform implements CommCareInstance {
         try {
             Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
             //Try to stage the upgrade table to replace the incoming table
-            if(!global.upgradeTable(incoming)) {
+            if (!global.upgradeTable(incoming)) {
                 throw new RuntimeException("global table failed to upgrade!");
-            } else if(incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            } else if (incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new RuntimeException("not all incoming resources were installed!!");
             } else {
                 //otherwise keep going
@@ -173,7 +172,7 @@ public class CommCarePlatform implements CommCareInstance {
             Logger.log("Resource", "Copying global resources to recovery area");
             try {
                 global.copyToTable(recovery);
-            } catch(RuntimeException e) {
+            } catch (RuntimeException e) {
                 //The _only_ time the recovery table should have data is if
                 //we were in the middle of an install. Since global hasn't been
                 //modified if there is a problem here we want to wipe out the
@@ -212,7 +211,7 @@ public class CommCarePlatform implements CommCareInstance {
             //good to go.
 
         } finally {
-            if(!upgradeSuccess) {
+            if (!upgradeSuccess) {
                 repair(global, incoming, recovery);
             }
             //Clear out any app state
@@ -244,11 +243,11 @@ public class CommCarePlatform implements CommCareInstance {
         //not empty
 
         //First possibility is needing to restore from the recovery table.
-        if(!recovery.isEmpty()) {
+        if (!recovery.isEmpty()) {
             //If the recovery table isn't empty, we're likely restoring from there. We need to check first whether
             //the global table has the same profile, or the recovery table simply doesn't have one in which case
             //the recovery table didn't get copied correctly.
-            if(recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID) == null || (global.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion() == recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion())) {
+            if (recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID) == null || (global.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion() == recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion())) {
                 Logger.log("resource", "Invalid recovery table detected. Wiping recovery table");
                 //This means the recovery table should be empty. Invalid copy.
                 recovery.destroy();
@@ -266,12 +265,12 @@ public class CommCarePlatform implements CommCareInstance {
 
         //Ok, so global and incoming are now in the right places. Make sure we have no uncommitted resources
 
-        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             global.rollbackCommits();
         }
 
 
-        if(incoming.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+        if (incoming.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             incoming.rollbackCommits();
         }
 
@@ -280,10 +279,10 @@ public class CommCarePlatform implements CommCareInstance {
         //now two states: Either the global table is fully installed (no conflicts with the upgrade table)
         //or it has unstaged resources to restage
 
-        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
+        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
             Logger.log("resource", "Global table in fully installed mode. Repair complete");
             //We're actually just good to go, here.
-        } else if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED){
+        } else if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             //The global table needs to restage itself.
             Logger.log("resource", "Global table needs to restage some resources");
             global.repairTable(incoming);
@@ -298,7 +297,7 @@ public class CommCarePlatform implements CommCareInstance {
     public Vector<Suite> getInstalledSuites() {
         Vector<Suite> installedSuites = new Vector<Suite>();
         IStorageUtility utility = StorageManager.getStorage(Suite.STORAGE_KEY);
-        for(Integer i : suites) {
+        for (Integer i : suites) {
             installedSuites.addElement((Suite)(utility.read(i.intValue())));
         }
         return installedSuites;
@@ -318,7 +317,7 @@ public class CommCarePlatform implements CommCareInstance {
             global.initializeResources(this);
         } catch (ResourceInitializationException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error initializing Resource! "+ e.getMessage());
+            throw new RuntimeException("Error initializing Resource! " + e.getMessage());
         }
     }
 
@@ -326,9 +325,9 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<Suite> installed = getInstalledSuites();
         Hashtable<String, Entry> merged = new Hashtable<String, Entry>();
 
-        for(Suite s : installed) {
+        for (Suite s : installed) {
             Hashtable<String, Entry> table = s.getEntries();
-            for(Enumeration en = table.keys() ; en.hasMoreElements() ; ) {
+            for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 merged.put(key, table.get(key));
             }
@@ -340,16 +339,16 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<Resource> unresolved = new Vector<Resource>();
         Vector<Resource> resolved = new Vector<Resource>();
         Resource r = master.getResourceWithId(APP_PROFILE_RESOURCE_ID);
-        if(r == null) {
+        if (r == null) {
             return resolved;
         }
         unresolved.addElement(r);
-        while(unresolved.size() > 0) {
+        while (unresolved.size() > 0) {
             Resource current = unresolved.firstElement();
             unresolved.removeElement(current);
             resolved.addElement(current);
             Vector<Resource> children = master.getResourcesForParent(current.getRecordGuid());
-            for(Resource child : children) {
+            for (Resource child : children) {
                 unresolved.addElement(child);
             }
         }

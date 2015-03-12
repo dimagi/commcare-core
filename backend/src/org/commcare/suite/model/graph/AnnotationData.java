@@ -2,6 +2,7 @@ package org.commcare.suite.model.graph;
 
 /**
  * Data for an annotation, which is text drawn at a specified x, y coordinate on a graph.
+ *
  * @author jschweers
  */
 public class AnnotationData extends XYPointData {

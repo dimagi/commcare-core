@@ -141,11 +141,11 @@ public class Resource implements Persistable, IMetaData {
      * Creates a resource record identifying where a specific version of a resource
      * can be located.
      *
-     * @param version   The version of the resource being defined.
-     * @param id        A unique string identifying the abstract resource
-     * @param locations A set of locations from which this resource's definition
-     *                  can be retrieved. Note that this vector is copied and should not be changed
-     *                  after being passed in here.
+     * @param version    The version of the resource being defined.
+     * @param id         A unique string identifying the abstract resource
+     * @param locations  A set of locations from which this resource's definition
+     *                   can be retrieved. Note that this vector is copied and should not be changed
+     *                   after being passed in here.
      * @param descriptor
      */
     public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
@@ -330,8 +330,8 @@ public class Resource implements Persistable, IMetaData {
         this.status = ExtUtil.readInt(in);
         this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 
-        locations = (Vector<ResourceLocation>) ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
-        this.initializer = (ResourceInstaller) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
+        this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
         this.descriptor = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
