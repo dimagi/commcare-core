@@ -77,7 +77,7 @@ public class Suite implements Persistable {
     public Vector<Menu> getMenus() {
         return menus;
     }
-    
+
     /**
      * WOAH! UNSAFE! Copy, maybe? But this is _wicked_ dangerous.
      * 

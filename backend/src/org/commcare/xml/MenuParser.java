@@ -11,6 +11,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -34,6 +35,18 @@ public class MenuParser extends ElementParser<Menu> {
         String id = parser.getAttributeValue(null, "id");
         String root = parser.getAttributeValue(null, "root");
         root = root == null? "root" : root;
+
+        String relevant = parser.getAttributeValue(null, "relevant");
+        XPathExpression relevantExpression = null;
+        if (relevant != null) {
+            try {
+                relevantExpression = XPathParseTool.parseXPath(relevant);
+            } catch (XPathSyntaxException e) {
+                e.printStackTrace();
+                throw new InvalidStructureException("Bad module filtering expression {" + relevant + "}", parser);
+            }
+        }
+
         getNextTagInBlock("menu");
         
         DisplayUnit display;
@@ -73,7 +86,7 @@ public class MenuParser extends ElementParser<Menu> {
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 
-        Menu m = new Menu(id, root, display, commandIds, expressions);
+        Menu m = new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions);
         return m;
 
     }

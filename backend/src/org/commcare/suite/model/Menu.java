@@ -8,13 +8,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapListPoly;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -32,10 +28,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 public class Menu implements Externalizable {
     DisplayUnit display;
     Vector<String> commandIds;
-    String[] commandExprsRaw;
-    XPathExpression[] commandExprsCompiled;
+    String[] commandExprs;
     String id;
     String root;
+    String rawRelevance;
+    XPathExpression relevance;
     
     /**
      * Serialization only!!!
@@ -44,12 +41,14 @@ public class Menu implements Externalizable {
         
     }
     
-    public Menu(String id, String root, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
+    public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
         this.id = id;
         this.root = root;
+        this.rawRelevance = rawRelevance;
+        this.relevance = relevance;
         this.display = display;
         this.commandIds = commandIds;
-        this.commandExprsRaw = commandExprs;
+        this.commandExprs = commandExprs;
     }
     
     /**
@@ -78,6 +77,17 @@ public class Menu implements Externalizable {
     }
     
     /**
+     * @return A string representing an XPath expression to determine
+     * whether or not to display this menu.
+     */
+    public XPathExpression getMenuRelevance() throws XPathSyntaxException {
+        if (relevance == null && rawRelevance != null) {
+            relevance = XPathParseTool.parseXPath(rawRelevance);
+        }
+        return relevance;
+    }
+
+    /**
      * @return The ID of what command actions should be available
      * when viewing this menu.
      */
@@ -86,9 +96,9 @@ public class Menu implements Externalizable {
         return commandIds;
     }
     
-    public XPathExpression getRelevantCondition(int index) throws XPathSyntaxException {
+    public XPathExpression getCommandRelevance(int index) throws XPathSyntaxException {
         //Don't cache this for now at all
-        return commandExprsRaw[index] == null ? null : XPathParseTool.parseXPath(commandExprsRaw[index]);
+        return commandExprs[index] == null ? null : XPathParseTool.parseXPath(commandExprs[index]);
     }
     
     /**
@@ -96,8 +106,8 @@ public class Menu implements Externalizable {
      * @return the raw xpath string for a relevant condition (if available). Largely for
      * displaying to the user in the event of a failure
      */
-    public String getRelevantConditionRaw(int index) {
-        return commandExprsRaw[index];
+    public String getCommandRelevanceRaw(int index) {
+        return commandExprs[index];
     }
 
     /* (non-Javadoc)
@@ -107,12 +117,13 @@ public class Menu implements Externalizable {
             throws IOException, DeserializationException {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         root = ExtUtil.readString(in);
+        rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
         commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
-        commandExprsRaw =  new String[ExtUtil.readInt(in)];
-        for(int i = 0 ; i < commandExprsRaw.length; ++i) {
+        commandExprs =  new String[ExtUtil.readInt(in)];
+        for(int i = 0 ; i < commandExprs.length; ++i) {
             if(ExtUtil.readBool(in)) {
-                commandExprsRaw[i] = ExtUtil.readString(in);
+                commandExprs[i] = ExtUtil.readString(in);
             }
         }
         
@@ -124,15 +135,16 @@ public class Menu implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out,ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out,root);
+        ExtUtil.writeString(out,ExtUtil.emptyIfNull(rawRelevance));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
-        ExtUtil.writeNumeric(out, commandExprsRaw.length);
-        for(int i = 0 ; i < commandExprsRaw.length ; ++i) {
-            if(commandExprsRaw[i] == null) {
+        ExtUtil.writeNumeric(out, commandExprs.length);
+        for(int i = 0 ; i < commandExprs.length ; ++i) {
+            if(commandExprs[i] == null) {
                 ExtUtil.writeBool(out, false);
             } else{
                 ExtUtil.writeBool(out, true);
-                ExtUtil.writeString(out, commandExprsRaw[i]);
+                ExtUtil.writeString(out, commandExprs[i]);
             }
         }
     }
