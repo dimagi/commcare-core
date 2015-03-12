@@ -25,7 +25,7 @@ import org.javarosa.core.util.externalizable.ExtWrapIntEncoding;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingSmall;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingUniform;
 
-public class NumericEncodingTest extends TestCase  {
+public class NumericEncodingTest extends TestCase {
     public NumericEncodingTest(String name, TestMethod rTestMethod) {
         super(name, rTestMethod);
     }
@@ -36,7 +36,7 @@ public class NumericEncodingTest extends TestCase  {
 
     public NumericEncodingTest() {
         super();
-    }    
+    }
 
     public Test suite() {
         TestSuite aSuite = new TestSuite();
@@ -49,16 +49,16 @@ public class NumericEncodingTest extends TestCase  {
         return aSuite;
     }
 
-    public void testNumericEncoding (long val, ExtWrapIntEncoding encoding) {
+    public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {
         ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, this, null);
     }
 
-    public void testIntEncodingUniform () {
+    public void testIntEncodingUniform() {
         ExtWrapIntEncoding enc = new ExtWrapIntEncodingUniform();
 
         testNumericEncoding(0, enc);
         testNumericEncoding(-1, enc);
-        testNumericEncoding(1, enc);            
+        testNumericEncoding(1, enc);
         testNumericEncoding(-2, enc);
 
         for (int i = 3; i <= 64; i++) {
@@ -72,18 +72,18 @@ public class NumericEncodingTest extends TestCase  {
             testNumericEncoding(min + 1, enc);
             testNumericEncoding(min, enc);
             if (i < 64)
-                testNumericEncoding(min - 1, enc);                    
+                testNumericEncoding(min - 1, enc);
         }
     }
-    
-    public void testIntEncodingSmall () {
+
+    public void testIntEncodingSmall() {
         int[] biases = {0, 1, 30, 128, 254};
         int[] smallTests = {0, 1, 126, 127, 128, 129, 253, 254, 255, 256, -1, -2, -127, -128, -129};
         int[] largeTests = {3750, -3750, 33947015, -33947015, Integer.MAX_VALUE, Integer.MAX_VALUE - 1, Integer.MIN_VALUE, Integer.MIN_VALUE + 1};
-        
+
         for (int i = -1; i < biases.length; i++) {
             int bias;
-            
+
             if (i == -1) {
                 bias = ExtWrapIntEncodingSmall.DEFAULT_BIAS;
             } else {
@@ -91,9 +91,9 @@ public class NumericEncodingTest extends TestCase  {
                 if (bias == ExtWrapIntEncodingSmall.DEFAULT_BIAS)
                     continue;
             }
-            
+
             ExtWrapIntEncoding enc = new ExtWrapIntEncodingSmall(bias);
-            
+
             for (int j = 0; j < smallTests.length; j++) {
                 testNumericEncoding(smallTests[j], enc);
                 if (bias != 0)

@@ -26,65 +26,64 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 public abstract class XPathExpression implements Externalizable {
-    
-    public Object eval (EvaluationContext evalContext) {
+
+    public Object eval(EvaluationContext evalContext) {
         return this.eval(evalContext.getMainInstance(), evalContext);
     }
-    
-    public abstract Object eval (DataInstance model, EvaluationContext evalContext);
-    
+
+    public abstract Object eval(DataInstance model, EvaluationContext evalContext);
+
     public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         try {
             Vector<Object> pivots = new Vector<Object>();
             this.pivot(model, evalContext, pivots, evalContext.getContextRef());
             return pivots;
-        } catch(UnpivotableExpressionException uee) {
+        } catch (UnpivotableExpressionException uee) {
             //Rethrow unpivotable (expected)
             throw uee;
-        } catch(Exception e) {
+        } catch (Exception e) {
             //Pivots aren't critical, if there was a problem getting one, log the exception 
             //so we can fix it, and then just report that.
             Logger.exception(e);
             throw new UnpivotableExpressionException(e.getMessage());
         }
     }
-    
+
     /**
-     * Pivot this expression, returning values if appropriate, and adding any pivots to the list. 
-     * 
-     * @param model The model to evaluate the current expression against
+     * Pivot this expression, returning values if appropriate, and adding any pivots to the list.
+     *
+     * @param model       The model to evaluate the current expression against
      * @param evalContext The evaluation context to evaluate against
-     * @param pivots The list of pivot points in the xpath being evaluated. Pivots should be added to this list.
-     * @param sentinal The value which is being pivoted around.
-     * @return 
-     *          null - If a pivot was identified in this expression
-     *          sentinal - If the current expression represents the sentinal being pivoted
-     *          any other value - The result of the expression if no pivots are detected
+     * @param pivots      The list of pivot points in the xpath being evaluated. Pivots should be added to this list.
+     * @param sentinal    The value which is being pivoted around.
+     * @return null - If a pivot was identified in this expression
+     * sentinal - If the current expression represents the sentinal being pivoted
+     * any other value - The result of the expression if no pivots are detected
      * @throws UnpivotableExpressionException If the expression is too complex to pivot
      */
-    public Object pivot (DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
-        return eval(model,evalContext);
+    public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
+        return eval(model, evalContext);
     }
     
     /*======= DEBUGGING ========*/
     // should not compile onto phone
 
     /* print out formatted expression tree */
-    
+
     int indent;
 
-    private void printStr (String s) {
+    private void printStr(String s) {
         for (int i = 0; i < 2 * indent; i++)
             System.out.print(" ");
         System.out.println(s);
     }
 
-    public void printParseTree () {
+    public void printParseTree() {
         indent = -1;
         print(this);
     }
 
-    public void print (Object o) {
+    public void print(Object o) {
         indent += 1;
 
         if (o instanceof XPathStringLiteral) {
@@ -99,12 +98,22 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathArithExpr) {
             XPathArithExpr x = (XPathArithExpr)o;
             String op = null;
-            switch(x.op) {
-            case XPathArithExpr.ADD: op = "add"; break;
-            case XPathArithExpr.SUBTRACT: op = "subtr"; break;
-            case XPathArithExpr.MULTIPLY: op = "mult"; break;
-            case XPathArithExpr.DIVIDE: op = "div"; break;
-            case XPathArithExpr.MODULO: op = "mod"; break;
+            switch (x.op) {
+                case XPathArithExpr.ADD:
+                    op = "add";
+                    break;
+                case XPathArithExpr.SUBTRACT:
+                    op = "subtr";
+                    break;
+                case XPathArithExpr.MULTIPLY:
+                    op = "mult";
+                    break;
+                case XPathArithExpr.DIVIDE:
+                    op = "div";
+                    break;
+                case XPathArithExpr.MODULO:
+                    op = "mod";
+                    break;
             }
             printStr(op + " {{");
             print(x.a);
@@ -114,9 +123,13 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathBoolExpr) {
             XPathBoolExpr x = (XPathBoolExpr)o;
             String op = null;
-            switch(x.op) {
-            case XPathBoolExpr.AND: op = "and"; break;
-            case XPathBoolExpr.OR: op = "or"; break;
+            switch (x.op) {
+                case XPathBoolExpr.AND:
+                    op = "and";
+                    break;
+                case XPathBoolExpr.OR:
+                    op = "or";
+                    break;
             }
             printStr(op + " {{");
             print(x.a);
@@ -126,11 +139,19 @@ public abstract class XPathExpression implements Externalizable {
         } else if (o instanceof XPathCmpExpr) {
             XPathCmpExpr x = (XPathCmpExpr)o;
             String op = null;
-            switch(x.op) {
-            case XPathCmpExpr.LT: op = "lt"; break;
-            case XPathCmpExpr.LTE: op = "lte"; break;
-            case XPathCmpExpr.GT: op = "gt"; break;
-            case XPathCmpExpr.GTE: op = "gte"; break;
+            switch (x.op) {
+                case XPathCmpExpr.LT:
+                    op = "lt";
+                    break;
+                case XPathCmpExpr.LTE:
+                    op = "lte";
+                    break;
+                case XPathCmpExpr.GT:
+                    op = "gt";
+                    break;
+                case XPathCmpExpr.GTE:
+                    op = "gte";
+                    break;
             }
             printStr(op + " {{");
             print(x.a);
@@ -175,9 +196,15 @@ public abstract class XPathExpression implements Externalizable {
             String init = null;
 
             switch (x.init_context) {
-            case XPathPathExpr.INIT_CONTEXT_ROOT: init = "root"; break;
-            case XPathPathExpr.INIT_CONTEXT_RELATIVE: init = "relative"; break;
-            case XPathPathExpr.INIT_CONTEXT_EXPR: init = "expr"; break;
+                case XPathPathExpr.INIT_CONTEXT_ROOT:
+                    init = "root";
+                    break;
+                case XPathPathExpr.INIT_CONTEXT_RELATIVE:
+                    init = "relative";
+                    break;
+                case XPathPathExpr.INIT_CONTEXT_EXPR:
+                    init = "expr";
+                    break;
             }
 
             printStr("path {init-context:" + init + ",");
@@ -202,7 +229,7 @@ public abstract class XPathExpression implements Externalizable {
             }
         } else if (o instanceof XPathFilterExpr) {
             XPathFilterExpr x = (XPathFilterExpr)o;
-            
+
             printStr("filter-expr:{{");
             print(x.x);
 
@@ -224,7 +251,7 @@ public abstract class XPathExpression implements Externalizable {
 
             axis = XPathStep.axisStr(x.axis);
             test = x.testStr();
-            
+
             if (x.predicates.length == 0) {
                 printStr("step {axis:" + axis + " test:" + test + " predicates {none}}");
             } else {
@@ -240,8 +267,8 @@ public abstract class XPathExpression implements Externalizable {
 
         indent -= 1;
     }
-    
-    public int hashCode () {
+
+    public int hashCode() {
         return this.toString().hashCode();
     }
 }

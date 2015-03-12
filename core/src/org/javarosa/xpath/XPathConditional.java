@@ -43,96 +43,98 @@ public class XPathConditional implements IConditionExpr {
     private XPathExpression expr;
     public String xpath; //not serialized!
     public boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
-    
-    public XPathConditional (String xpath) throws XPathSyntaxException {
+
+    public XPathConditional(String xpath) throws XPathSyntaxException {
         hasNow = false;
-        if(xpath.indexOf("now()") > -1) {
+        if (xpath.indexOf("now()") > -1) {
             hasNow = true;
         }
         this.expr = XPathParseTool.parseXPath(xpath);
         this.xpath = xpath;
     }
-    
-    public XPathConditional (XPathExpression expr) {
+
+    public XPathConditional(XPathExpression expr) {
         this.expr = expr;
     }
-    
-    public XPathConditional () {
-        
+
+    public XPathConditional() {
+
     }
-    
-    public XPathExpression getExpr () {
+
+    public XPathExpression getExpr() {
         return expr;
     }
-    
-    public Object evalRaw (DataInstance model, EvaluationContext evalContext) {
-        try{
+
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
+        try {
             return XPathFuncExpr.unpack(expr.eval(model, evalContext));
-        } catch(XPathUnsupportedException e){
-            if(xpath != null){
+        } catch (XPathUnsupportedException e) {
+            if (xpath != null) {
                 throw new XPathUnsupportedException(xpath);
-            }else{
+            } else {
                 throw e;
             }
-                
-        
+
+
         }
     }
-    
-    public boolean eval (DataInstance model, EvaluationContext evalContext) {
+
+    public boolean eval(DataInstance model, EvaluationContext evalContext) {
         return XPathFuncExpr.toBoolean(evalRaw(model, evalContext)).booleanValue();
     }
-    
-    public String evalReadable (DataInstance model, EvaluationContext evalContext) {
+
+    public String evalReadable(DataInstance model, EvaluationContext evalContext) {
         return XPathFuncExpr.toString(evalRaw(model, evalContext));
     }
-    
-    public Vector<TreeReference> evalNodeset (DataInstance model, EvaluationContext evalContext) {
+
+    public Vector<TreeReference> evalNodeset(DataInstance model, EvaluationContext evalContext) {
         if (expr instanceof XPathPathExpr) {
             return ((XPathPathExpr)expr).eval(model, evalContext).getReferences();
         } else {
             throw new FatalException("evalNodeset: must be path expression");
         }
     }
-    
-    public Vector<TreeReference> getTriggers () {
+
+    public Vector<TreeReference> getTriggers() {
         Vector triggers = new Vector();
         getTriggers(expr, triggers, null);
         return triggers;
     }
-    
-    private static void getTriggers (XPathExpression x, Vector<TreeReference> v, TreeReference contextRef) {
+
+    private static void getTriggers(XPathExpression x, Vector<TreeReference> v, TreeReference contextRef) {
         if (x instanceof XPathPathExpr) {
             TreeReference ref = ((XPathPathExpr)x).getReference();
             TreeReference contextualized = ref;
-            if(contextRef != null) { 
+            if (contextRef != null) {
                 contextualized = ref.contextualize(contextRef);
             }
-            
+
             //TODO: It's possible we should just handle this the same way as "genericize". Not entirely clear.
-            if(contextualized.hasPredicates()) {
+            if (contextualized.hasPredicates()) {
                 contextualized = contextualized.removePredicates();
             }
-            if (!v.contains(contextualized)) { 
+            if (!v.contains(contextualized)) {
                 v.addElement(contextualized);
-            } 
-            for(int i = 0; i < ref.size() ; i++) {
+            }
+            for (int i = 0; i < ref.size(); i++) {
                 Vector<XPathExpression> predicates = ref.getPredicate(i);
-                if(predicates == null) {
+                if (predicates == null) {
                     continue;
                 }
-                
+
                 //we can't generate this properly without an absolute reference
-                if(!ref.isAbsolute()) { throw new IllegalArgumentException("can't get triggers for relative references");}
+                if (!ref.isAbsolute()) {
+                    throw new IllegalArgumentException("can't get triggers for relative references");
+                }
                 TreeReference predicateContext = ref.getSubReference(i);
-                
-                for(XPathExpression predicate : predicates) {
+
+                for (XPathExpression predicate : predicates) {
                     getTriggers(predicate, v, predicateContext);
                 }
             }
         } else if (x instanceof XPathBinaryOpExpr) {
             getTriggers(((XPathBinaryOpExpr)x).a, v, contextRef);
-            getTriggers(((XPathBinaryOpExpr)x).b, v, contextRef);            
+            getTriggers(((XPathBinaryOpExpr)x).b, v, contextRef);
         } else if (x instanceof XPathUnaryOpExpr) {
             getTriggers(((XPathUnaryOpExpr)x).a, v, contextRef);
         } else if (x instanceof XPathFuncExpr) {
@@ -141,12 +143,12 @@ public class XPathConditional implements IConditionExpr {
                 getTriggers(fx.args[i], v, contextRef);
         }
     }
-    
-	public int hashCode() {
-	    return expr.hashCode();
-	}
-	
-    public boolean equals (Object o) {
+
+    public int hashCode() {
+        return expr.hashCode();
+    }
+
+    public boolean equals(Object o) {
         if (o instanceof XPathConditional) {
             XPathConditional cond = (XPathConditional)o;
             return expr.equals(cond.expr);
@@ -164,8 +166,8 @@ public class XPathConditional implements IConditionExpr {
         ExtUtil.write(out, new ExtWrapTagged(expr));
         ExtUtil.writeBool(out, hasNow);
     }
-    
-    public String toString () {
+
+    public String toString() {
         return "xpath[" + expr.toString() + "]";
     }
 

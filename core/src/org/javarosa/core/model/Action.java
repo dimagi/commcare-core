@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.model;
 
@@ -15,32 +15,31 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
- *
  */
 public class Action implements Externalizable {
     //Some named events
     public static final String EVENT_XFORMS_READY = "xforms-ready";
 
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
-    
+
     public static final String EVENT_JR_INSERT = "jr-insert";
     private String name;
-    
+
     public Action() {
-        
+
     }
-    
+
     public Action(String name) {
         this.name = name;
     }
-    
+
     /**
-     * Process actions that were triggered in the form. 
-     * 
-     * NOTE: Currently actions are only processed on nodes that are 
+     * Process actions that were triggered in the form.
+     *
+     * NOTE: Currently actions are only processed on nodes that are
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
-     * 
+     *
      * @param model
      * @param context
      */
@@ -53,6 +52,6 @@ public class Action implements Externalizable {
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out,  name);
+        ExtUtil.writeString(out, name);
     }
 }

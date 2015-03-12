@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.reference;
 
@@ -19,30 +19,29 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * which don't describe any real raw accessor like "jr://media/",
  * which could access a file reference (jr://file/) on one platform,
  * but a resource reference (jr://resource/) on another.
- * 
- * Root Translators can be externalized and used as a dynamically 
- * configured object.
- * 
- * @author ctsims
  *
+ * Root Translators can be externalized and used as a dynamically
+ * configured object.
+ *
+ * @author ctsims
  */
 public class RootTranslator implements ReferenceFactory, Externalizable {
-    
+
     public String prefix;
     public String translatedPrefix;
-    
+
     /**
      * Serialization only!
      */
     public RootTranslator() {
-        
+
     }
-    
+
     /**
-     * Creates a translator which will create references of the 
+     * Creates a translator which will create references of the
      * type described by translatedPrefix whenever references of
      * the type prefix are being derived.
-     *  
+     *
      * @param prefix
      * @param translatedPrefix
      */
@@ -70,9 +69,9 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
      * @see org.commcare.reference.Root#derives(java.lang.String)
      */
     public boolean derives(String URI) {
-        if(URI.startsWith(prefix)) {
+        if (URI.startsWith(prefix)) {
             return true;
-        } else{
+        } else {
             return false;
         }
     }
@@ -83,7 +82,7 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
         translatedPrefix = ExtUtil.readString(in);
     }
 
-    public void writeExternal(DataOutputStream out) throws IOException {        
+    public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, prefix);
         ExtUtil.writeString(out, translatedPrefix);
     }

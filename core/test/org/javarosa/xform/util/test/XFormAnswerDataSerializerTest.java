@@ -34,32 +34,31 @@ import org.javarosa.xform.util.XFormAnswerDataSerializer;
 /**
  * Note that this is just a start and doesn't cover direct comparisons
  * for most values.
- * 
- * @author Clayton Sims
  *
+ * @author Clayton Sims
  */
 public class XFormAnswerDataSerializerTest extends TestCase {
     final String stringDataValue = "String Data Value";
     final Integer integerDataValue = new Integer(5);
     final Date dateDataValue = new Date();
     final Date timeDataValue = new Date();
-    
+
     StringData stringData;
     IntegerData integerData;
     DateData dateData;
     SelectOneData selectData;
     TimeData timeData;
-    
+
     TreeElement stringElement = new TreeElement();
     TreeElement intElement = new TreeElement();
     TreeElement dateElement = new TreeElement();
     TreeElement selectElement = new TreeElement();
     TreeElement timeElement = new TreeElement();
-    
+
     XFormAnswerDataSerializer serializer;
-    
+
     private static int NUM_TESTS = 5;
-    
+
     /* (non-Javadoc)
      * @see j2meunit.framework.TestCase#setUp()
      */
@@ -67,18 +66,19 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         super.setUp();
         stringData = new StringData(stringDataValue);
         stringElement.setValue(stringData);
-        
+
         integerData = new IntegerData(integerDataValue);
         intElement.setValue(integerData);
-        
-        dateData = new DateData(dateDataValue); 
+
+        dateData = new DateData(dateDataValue);
         dateElement.setValue(dateData);
-        
-        timeData = new TimeData(timeDataValue); 
+
+        timeData = new TimeData(timeDataValue);
         timeElement.setValue(timeData);
-        
+
         serializer = new XFormAnswerDataSerializer();
     }
+
     public XFormAnswerDataSerializerTest(String name, TestMethod rTestMethod) {
         super(name, rTestMethod);
     }
@@ -89,7 +89,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
     public XFormAnswerDataSerializerTest() {
         super();
-    }    
+    }
 
     public Test suite() {
         TestSuite aSuite = new TestSuite();
@@ -98,7 +98,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
             final int testID = i;
 
             aSuite.addTest(new XFormAnswerDataSerializerTest("XFormAnswerDataSerializer Test " + i, new TestMethod() {
-                public void run (TestCase tc) {
+                public void run(TestCase tc) {
                     ((XFormAnswerDataSerializerTest)tc).testMaster(testID);
                 }
             }));
@@ -106,42 +106,53 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
         return aSuite;
     }
-    public void testMaster (int testID) {
+
+    public void testMaster(int testID) {
         switch (testID) {
-            case 1: testString(); break;
-            case 2: testInteger(); break;
-            case 3: testDate(); break;
-            case 4: testTime(); break;
-            case 5: testSelect(); break;
+            case 1:
+                testString();
+                break;
+            case 2:
+                testInteger();
+                break;
+            case 3:
+                testDate();
+                break;
+            case 4:
+                testTime();
+                break;
+            case 5:
+                testSelect();
+                break;
         }
     }
-    
+
     public void testString() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer String", serializer.canSerialize(stringElement.getValue()));
         Object answerData = serializer.serializeAnswerData(stringData);
         assertNotNull("Serializer returns Null for valid String Data", answerData);
         assertEquals("Serializer returns incorrect string serialization", answerData, stringDataValue);
     }
-    
+
     public void testInteger() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Integer", serializer.canSerialize(intElement.getValue()));
         Object answerData = serializer.serializeAnswerData(integerData);
         assertNotNull("Serializer returns Null for valid Integer Data", answerData);
         //assertEquals("Serializer returns incorrect Integer serialization", answerData, integerDataValue);
     }
-    
+
     public void testDate() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Date", serializer.canSerialize(dateElement.getValue()));
         Object answerData = serializer.serializeAnswerData(dateData);
         assertNotNull("Serializer returns Null for valid Date Data", answerData);
     }
-    
+
     public void testTime() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Time", serializer.canSerialize(timeElement.getValue()));
         Object answerData = serializer.serializeAnswerData(timeData);
         assertNotNull("Serializer returns Null for valid Time Data", answerData);
     }
-    
+
     public void testSelect() {
         //No select tests yet.
     }

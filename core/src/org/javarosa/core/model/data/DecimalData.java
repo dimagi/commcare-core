@@ -29,8 +29,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A response to a question requesting an Decimal Value.  Adapted from IntegerData
- * @author Brian DeRenzi
  *
+ * @author Brian DeRenzi
  */
 public class DecimalData implements IAnswerData {
     double d;
@@ -40,20 +40,21 @@ public class DecimalData implements IAnswerData {
      * Shouldn't be used otherwise.
      */
     public DecimalData() {
-        
+
     }
-    
+
     public DecimalData(double d) {
         this.d = d;
     }
+
     public DecimalData(Double d) {
         setValue(d);
     }
-    
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         return new DecimalData(d);
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
@@ -65,16 +66,16 @@ public class DecimalData implements IAnswerData {
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
     public Object getValue() {
-        return new Double(d); 
+        return new Double(d);
     }
-    
+
     public void setValue(Object o) {
-        if(o == null) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         d = ((Double)o).doubleValue();
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
@@ -92,11 +93,11 @@ public class DecimalData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(((Double)getValue()).toString());
     }
-    
+
     public DecimalData cast(UncastData data) throws IllegalArgumentException {
         try {
             return new DecimalData(Double.parseDouble(data.value));
-        } catch(NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {
             throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Decimal");
         }
     }

@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.services.transport.payload;
 
@@ -34,37 +34,39 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author Clayton Sims
- * @date Dec 18, 2008 
- *
+ * @date Dec 18, 2008
  */
 public class MultiMessagePayload implements IDataPayload {
-    /** IDataPayload **/
+    /**
+     * IDataPayload *
+     */
     Vector payloads = new Vector();
-    
+
     /**
      * Note: Only useful for serialization.
      */
     public MultiMessagePayload() {
         //ONLY FOR SERIALIZATION
     }
-    
+
     /**
      * Adds a payload that should be sent as part of this
      * payload.
+     *
      * @param payload A payload that will be transmitted
-     * after all previously added payloads.
+     *                after all previously added payloads.
      */
     public void addPayload(IDataPayload payload) {
         payloads.addElement(payload);
     }
-    
+
     /**
-     *  @return A vector object containing each IDataPayload in this payload.
+     * @return A vector object containing each IDataPayload in this payload.
      */
     public Vector getPayloads() {
         return payloads;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.transport.IDataPayload#getPayloadStream()
@@ -72,7 +74,7 @@ public class MultiMessagePayload implements IDataPayload {
     public InputStream getPayloadStream() throws IOException {
         MultiInputStream bigStream = new MultiInputStream();
         Enumeration en = payloads.elements();
-        while(en.hasMoreElements()) {
+        while (en.hasMoreElements()) {
             IDataPayload payload = (IDataPayload)en.nextElement();
             bigStream.addStream(payload.getPayloadStream());
         }
@@ -96,7 +98,7 @@ public class MultiMessagePayload implements IDataPayload {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapListPoly(payloads));
     }
-    
+
     public Object accept(IDataPayloadVisitor visitor) {
         return visitor.visit(this);
     }
@@ -108,7 +110,7 @@ public class MultiMessagePayload implements IDataPayload {
     public int getPayloadType() {
         return IDataPayload.PAYLOAD_TYPE_MULTI;
     }
-    
+
     public int getTransportId() {
         return -1;
     }
@@ -116,7 +118,7 @@ public class MultiMessagePayload implements IDataPayload {
     public long getLength() {
         int len = 0;
         Enumeration en = payloads.elements();
-        while(en.hasMoreElements()) {
+        while (en.hasMoreElements()) {
             IDataPayload payload = (IDataPayload)en.nextElement();
             len += payload.getLength();
         }

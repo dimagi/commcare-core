@@ -26,24 +26,25 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public abstract class ASTNode {
     public abstract Vector getChildren();
+
     public abstract XPathExpression build() throws XPathSyntaxException;
-    
+
     //horrible debugging code
-    
+
     int indent;
-    
-    private void printStr (String s) {
+
+    private void printStr(String s) {
         for (int i = 0; i < 2 * indent; i++)
             System.out.print(" ");
         System.out.println(s);
     }
 
-    public void print () {
+    public void print() {
         indent = -1;
         print(this);
     }
 
-    public void print (Object o) {
+    public void print(Object o) {
         indent += 1;
 
         if (o instanceof ASTNodeAbstractExpr) {
@@ -81,20 +82,48 @@ public abstract class ASTNode {
                 print(x.exprs.elementAt(i));
                 if (i < x.exprs.size() - 1) {
                     switch (Parser.vectInt(x.ops, i)) {
-                    case Token.AND: printStr("and:"); break;
-                    case Token.OR: printStr("or:"); break;
-                    case Token.EQ: printStr("eq:"); break;
-                    case Token.NEQ: printStr("neq:"); break;
-                    case Token.LT: printStr("lt:"); break;
-                    case Token.LTE: printStr("lte:"); break;
-                    case Token.GT: printStr("gt:"); break;
-                    case Token.GTE: printStr("gte:"); break;
-                    case Token.PLUS: printStr("plus:"); break;
-                    case Token.MINUS: printStr("minus:"); break;
-                    case Token.DIV: printStr("div:"); break;
-                    case Token.MOD: printStr("mod:"); break;
-                    case Token.MULT: printStr("mult:"); break;
-                    case Token.UNION: printStr("union:"); break;                    
+                        case Token.AND:
+                            printStr("and:");
+                            break;
+                        case Token.OR:
+                            printStr("or:");
+                            break;
+                        case Token.EQ:
+                            printStr("eq:");
+                            break;
+                        case Token.NEQ:
+                            printStr("neq:");
+                            break;
+                        case Token.LT:
+                            printStr("lt:");
+                            break;
+                        case Token.LTE:
+                            printStr("lte:");
+                            break;
+                        case Token.GT:
+                            printStr("gt:");
+                            break;
+                        case Token.GTE:
+                            printStr("gte:");
+                            break;
+                        case Token.PLUS:
+                            printStr("plus:");
+                            break;
+                        case Token.MINUS:
+                            printStr("minus:");
+                            break;
+                        case Token.DIV:
+                            printStr("div:");
+                            break;
+                        case Token.MOD:
+                            printStr("mod:");
+                            break;
+                        case Token.MULT:
+                            printStr("mult:");
+                            break;
+                        case Token.UNION:
+                            printStr("union:");
+                            break;
                     }
                 }
             }
@@ -103,7 +132,9 @@ public abstract class ASTNode {
             ASTNodeUnaryOp x = (ASTNodeUnaryOp)o;
             printStr("opexpr {");
             switch (x.op) {
-            case Token.UMINUS: printStr("num-neg:"); break;
+                case Token.UMINUS:
+                    printStr("num-neg:");
+                    break;
             }
             print(x.expr);
             printStr("}");
@@ -116,8 +147,12 @@ public abstract class ASTNode {
                     print(x.clauses.elementAt(i - offset));
                 if (i < x.separators.size()) {
                     switch (Parser.vectInt(x.separators, i)) {
-                    case Token.DBL_SLASH: printStr("dbl-slash:"); break;
-                    case Token.SLASH: printStr("slash:"); break;
+                        case Token.DBL_SLASH:
+                            printStr("dbl-slash:");
+                            break;
+                        case Token.SLASH:
+                            printStr("slash:");
+                            break;
                     }
                 }
             }
@@ -126,13 +161,15 @@ public abstract class ASTNode {
         } else if (o instanceof ASTNodePathStep) {
             ASTNodePathStep x = (ASTNodePathStep)o;
             printStr("step {axis: " + x.axisType + " node test type: " + x.nodeTestType);
-            if (x.axisType == ASTNodePathStep.AXIS_TYPE_EXPLICIT) printStr("  axis type: " + x.axisVal); 
-            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_QNAME) printStr("  node test name: " + x.nodeTestQName.toString()); 
-            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_FUNC) print(x.nodeTestFunc); 
+            if (x.axisType == ASTNodePathStep.AXIS_TYPE_EXPLICIT)
+                printStr("  axis type: " + x.axisVal);
+            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_QNAME)
+                printStr("  node test name: " + x.nodeTestQName.toString());
+            if (x.nodeTestType == ASTNodePathStep.NODE_TEST_TYPE_FUNC) print(x.nodeTestFunc);
             printStr("predicates...");
             for (Enumeration e = x.predicates.elements(); e.hasMoreElements(); )
                 print(e.nextElement());
-            printStr("}");            
+            printStr("}");
         } else if (o instanceof ASTNodeFilterExpr) {
             ASTNodeFilterExpr x = (ASTNodeFilterExpr)o;
             printStr("filter expr {");

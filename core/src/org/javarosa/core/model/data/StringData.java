@@ -26,8 +26,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A response to a question requesting a String Value
- * @author Drew Roos
  *
+ * @author Drew Roos
  */
 public class StringData implements IAnswerData {
     private String s;
@@ -37,40 +37,41 @@ public class StringData implements IAnswerData {
      * Shouldn't be used otherwise.
      */
     public StringData() {
-        
+
     }
-    
-    public StringData (String s) {
+
+    public StringData(String s) {
         setValue(s);
     }
 
-    public IAnswerData clone () {
+    public IAnswerData clone() {
         return new StringData(s);
     }
-    
+
     //string should not be null or empty; the entire StringData reference should be null in this case
-    public void setValue (Object o) {
-        if(o == null) {
+    public void setValue(Object o) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         s = (String)o;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
-    public Object getValue () {
+    public Object getValue() {
         return s;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
-    public String getDisplayText () {
+    public String getDisplayText() {
         return s;
     }
+
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
@@ -88,7 +89,7 @@ public class StringData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(s);
     }
-    
+
     public StringData cast(UncastData data) throws IllegalArgumentException {
         return new StringData(data.value);
     }

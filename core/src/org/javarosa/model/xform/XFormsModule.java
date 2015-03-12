@@ -43,15 +43,15 @@ public class XFormsModule implements IModule {
                 "org.javarosa.model.xform.XPathReference",
                 "org.javarosa.xpath.XPathConditional"
         };
-        
+
         PrototypeManager.registerPrototypes(classes);
         PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
-        RestoreUtils.xfFact = new IXFormyFactory () {
-            public TreeReference ref (String refStr) {
+        RestoreUtils.xfFact = new IXFormyFactory() {
+            public TreeReference ref(String refStr) {
                 return FormInstance.unpackReference(new XPathReference(refStr));
             }
-            
-            public IDataPayload serializeInstance (FormInstance dm) {
+
+            public IDataPayload serializeInstance(FormInstance dm) {
                 try {
                     return (new XFormSerializingVisitor()).createSerializedPayload(dm);
                 } catch (IOException e) {
@@ -62,8 +62,8 @@ public class XFormsModule implements IModule {
             public FormInstance parseRestore(byte[] data, Class restorableType) {
                 return XFormParser.restoreDataModel(data, restorableType);
             }
-            
-            public IAnswerData parseData (String textVal, int dataType, TreeReference ref, FormDef f) {
+
+            public IAnswerData parseData(String textVal, int dataType, TreeReference ref, FormDef f) {
                 return AnswerDataFactory.templateByDataType(dataType).cast(new UncastData(textVal));
             }
 

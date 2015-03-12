@@ -19,41 +19,46 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * elements which can be accessed and read with tree references. It is
  * a supertype of different types of concrete models which may or may not
  * be read only.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public abstract class DataInstance<T extends AbstractTreeElement<T>> implements Persistable {
 
-    
-    /** The integer Id of the model */
+
+    /**
+     * The integer Id of the model
+     */
     private int recordid = -1;
-    
-    /** The name for this data model */
+
+    /**
+     * The name for this data model
+     */
     protected String name;
-    /** The ID of the form that this is a model for */
+    /**
+     * The ID of the form that this is a model for
+     */
     protected int formId;
-    
+
     protected String instanceid;
-    
-    protected CacheHost mCacheHost; 
-    
+
+    protected CacheHost mCacheHost;
+
     private CacheTable<TreeReference, T> referenceCache;
-    
+
     public DataInstance() {
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
-    
+
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
     public static TreeReference unpackReference(IDataReference ref) {
-        return (TreeReference) ref.getReference();
+        return (TreeReference)ref.getReference();
     }
-    
+
     public abstract AbstractTreeElement<T> getBase();
 
     public abstract T getRoot();
@@ -61,37 +66,36 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     public String getInstanceId() {
         return instanceid;
     }
-    
+
     /**
-     * Whether the structure of this instance is only available at runtime. 
-     * 
+     * Whether the structure of this instance is only available at runtime.
+     *
      * @return true if the instance structure is available and runtime and can't
      * be checked for consistency until the reference is made available. False
      * otherwise.
-     * 
      */
     public boolean isRuntimeEvaluated() {
         return false;
     }
 
     public T resolveReference(TreeReference ref) {
-        if (!ref.isAbsolute()){
+        if (!ref.isAbsolute()) {
             return null;
         }
-        
+
         T t = referenceCache.retrieve(ref);
-        
-        if(t != null && (t.getValue() != null)){
+
+        if (t != null && (t.getValue() != null)) {
             return t;
-        } 
-    
+        }
+
         AbstractTreeElement<T> node = getBase();
         T result = null;
         for (int i = 0; i < ref.size(); i++) {
             String name = ref.getName(i);
             int mult = ref.getMultiplicity(i);
-            
-            if(mult == TreeReference.INDEX_ATTRIBUTE) {
+
+            if (mult == TreeReference.INDEX_ATTRIBUTE) {
                 //Should we possibly just return here? 
                 //I guess technically we could step back...
                 node = result = node.getAttribute(null, name);
@@ -105,14 +109,14 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
                     node = result = null;
                     break;
                 }
-            } 
-    
+            }
+
             node = result = node.getChild(name, mult);
             if (node == null) {
                 break;
             }
         }
-        
+
         t = (node == getBase() ? null : result); // never return a reference to '/'
         referenceCache.register(ref, t);
         return t;
@@ -121,23 +125,23 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     public Vector explodeReference(TreeReference ref) {
         if (!ref.isAbsolute())
             return null;
-    
+
         Vector nodes = new Vector();
         AbstractTreeElement<T> cur = getBase();
         for (int i = 0; i < ref.size(); i++) {
             String name = ref.getName(i);
             int mult = ref.getMultiplicity(i);
-            
+
             //If the next node down the line is an attribute
-            if(mult == TreeReference.INDEX_ATTRIBUTE) {
+            if (mult == TreeReference.INDEX_ATTRIBUTE) {
                 //This is not the attribute we're testing
-                if(cur != getBase()) {
+                if (cur != getBase()) {
                     //Add the current node
                     nodes.addElement(cur);
                 }
                 cur = cur.getAttribute(null, name);
             }
-            
+
             //Otherwise, it's another child element
             else {
                 if (mult == TreeReference.INDEX_UNBOUND) {
@@ -148,11 +152,11 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
                         return null;
                     }
                 }
-    
+
                 if (cur != getBase()) {
                     nodes.addElement(cur);
                 }
-    
+
                 cur = cur.getChild(name, mult);
                 if (cur == null) {
                     return null;
@@ -171,20 +175,20 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         if (!ref.isAbsolute()) {
             return null;
         }
-    
+
         T walker = null;
         AbstractTreeElement<T> node = getBase();
         for (int i = 0; i < ref.size(); i++) {
             String name = ref.getName(i);
-            
-            if(ref.getMultiplicity(i) == TreeReference.INDEX_ATTRIBUTE) {
+
+            if (ref.getMultiplicity(i) == TreeReference.INDEX_ATTRIBUTE) {
                 node = walker = node.getAttribute(null, name);
             } else {
-    
+
                 T newNode = node.getChild(name, TreeReference.INDEX_TEMPLATE);
                 if (newNode == null) {
                     newNode = node.getChild(name, 0);
-                } 
+                }
                 if (newNode == null) {
                     return null;
                 }
@@ -217,19 +221,18 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     public String toString() {
         String name = "NULL";
-        if(this.name != null)
-        {
+        if (this.name != null) {
             name = this.name;
         }
         return name;
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordid = ExtUtil.readInt(in);
         formId = ExtUtil.readInt(in);
-        name = (String) ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        instanceid = (String) ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-    
+        name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        instanceid = (String)ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -238,7 +241,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         ExtUtil.write(out, new ExtWrapNullable(name));
         ExtUtil.write(out, ExtUtil.emptyIfNull(instanceid));
     }
-    
+
 
     public int getID() {
         return recordid;
@@ -249,11 +252,11 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public abstract void initialize(InstanceInitializationFactory initializer, String instanceId);
-    
+
     public CacheHost getCacheHost() {
         return mCacheHost;
     }
-    
+
     public void setCacheHost(CacheHost cacheHost) {
         this.mCacheHost = cacheHost;
     }

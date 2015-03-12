@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.core.model.data;
 
@@ -28,20 +28,19 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author Clayton Sims
- * @date May 19, 2009 
- *
+ * @date May 19, 2009
  */
 public class BooleanData implements IAnswerData {
-    
+
     boolean data;
-    
+
     /**
      * NOTE: ONLY FOR SERIALIZATION
      */
     public BooleanData() {
-        
+
     }
-    
+
     public BooleanData(boolean data) {
         this.data = data;
     }
@@ -57,7 +56,7 @@ public class BooleanData implements IAnswerData {
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
     public String getDisplayText() {
-        if(data) {
+        if (data) {
             return "True";
         } else {
             return "False";
@@ -70,7 +69,7 @@ public class BooleanData implements IAnswerData {
     public Object getValue() {
         return new Boolean(data);
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#setValue(java.lang.Object)
@@ -97,16 +96,16 @@ public class BooleanData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(data ? "1" : "0");
     }
-    
+
     public BooleanData cast(UncastData data) throws IllegalArgumentException {
-        if("1".equals(data)) {
+        if ("1".equals(data)) {
             return new BooleanData(true);
         }
-        
-        if("0".equals(data)) {
+
+        if ("0".equals(data)) {
             return new BooleanData(false);
         }
-        
+
         throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Boolean");
     }
 }

@@ -26,23 +26,23 @@ public class ExtWrapNullable extends ExternalizableWrapper {
     
     /* serialization */
 
-    public ExtWrapNullable (Object val) {
+    public ExtWrapNullable(Object val) {
         this.val = val;
     }
 
     /* deserialization */
-    
-    public ExtWrapNullable () {
-        
+
+    public ExtWrapNullable() {
+
     }
-    
-    public ExtWrapNullable (Class type) {
+
+    public ExtWrapNullable(Class type) {
         this.type = new ExtWrapBase(type);
     }
 
     /* serialization or deserialization, depending on context */
-    
-    public ExtWrapNullable (ExternalizableWrapper type) {
+
+    public ExtWrapNullable(ExternalizableWrapper type) {
         if (type instanceof ExtWrapNullable) {
             throw new IllegalArgumentException("Wrapping nullable with nullable is redundant");
         } else if (type != null && type.isEmpty()) {
@@ -51,11 +51,11 @@ public class ExtWrapNullable extends ExternalizableWrapper {
             this.val = type;
         }
     }
-    
-    public ExternalizableWrapper clone (Object val) {
+
+    public ExternalizableWrapper clone(Object val) {
         return new ExtWrapNullable(val);
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         if (in.readBoolean()) {
             val = ExtUtil.read(in, type, pf);

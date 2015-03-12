@@ -23,13 +23,13 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 public class ASTNodePredicate extends ASTNode {
     public ASTNode expr;
-    
-    public Vector getChildren () {
+
+    public Vector getChildren() {
         Vector v = new Vector();
         v.addElement(expr);
         return v;
     }
-    
+
     public XPathExpression build() throws XPathSyntaxException {
         return expr.build();
     }

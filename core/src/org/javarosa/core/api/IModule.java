@@ -21,9 +21,8 @@ package org.javarosa.core.api;
  * for an extensible set of JavaRosa code. A Module is
  * used to configure a set of components with any application
  * which might use them.
- *  
- * @author Clayton Sims
  *
+ * @author Clayton Sims
  */
 public interface IModule {
     /**

@@ -29,35 +29,35 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class TimeData implements IAnswerData {
     Date d;
-    
+
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
      * Shouldn't be used otherwise.
      */
     public TimeData() {
     }
-    
-    public TimeData (Date d) {
+
+    public TimeData(Date d) {
         setValue(d);
     }
-    
-    public IAnswerData clone () {
+
+    public IAnswerData clone() {
         return new TimeData(new Date(d.getTime()));
     }
-    
-    public void setValue (Object o) {
-        if(o == null) {
+
+    public void setValue(Object o) {
+        if (o == null) {
             throw new NullPointerException("Attempt to set an IAnswerData class to null.");
         }
         d = new Date(((Date)o).getTime());
-        
+
     }
-    
-    public Object getValue () {
+
+    public Object getValue() {
         return new Date(d.getTime());
     }
-    
-    public String getDisplayText () {
+
+    public String getDisplayText() {
         return DateUtils.formatTime(d, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
     }
 
@@ -78,13 +78,13 @@ public class TimeData implements IAnswerData {
     public UncastData uncast() {
         return new UncastData(DateUtils.formatTime(d, DateUtils.FORMAT_ISO8601));
     }
-    
+
     public TimeData cast(UncastData data) throws IllegalArgumentException {
         Date ret = DateUtils.parseTime(data.value);
-        if(ret != null) {
+        if (ret != null) {
             return new TimeData(ret);
         }
-        
+
         throw new IllegalArgumentException("Invalid cast of data [" + data.value + "] to type Time");
     }
 }

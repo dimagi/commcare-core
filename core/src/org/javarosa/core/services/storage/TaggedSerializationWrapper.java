@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.core.services.storage;
 
@@ -16,12 +16,11 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
- *
  */
 public class TaggedSerializationWrapper implements SerializationWrapper {
 
     Externalizable e;
-    
+
     public TaggedSerializationWrapper() {
     }
 

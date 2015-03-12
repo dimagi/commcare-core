@@ -15,6 +15,7 @@ package org.javarosa.model.xform;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -38,9 +39,8 @@ import org.kxml2.kdom.Node;
 /**
  * A modified version of Clayton's XFormSerializingVisitor that constructs
  * SMS's.
- * 
+ *
  * @author Munaf Sheikh, Cell-Life
- * 
  */
 public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
@@ -52,10 +52,14 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
     private String method = null;
     private TreeReference rootRef;
 
-    /** The serializer to be used in constructing XML for AnswerData elements */
+    /**
+     * The serializer to be used in constructing XML for AnswerData elements
+     */
     IAnswerDataSerializer serializer;
 
-    /** The schema to be used to serialize answer data */
+    /**
+     * The schema to be used to serialize answer data
+     */
     FormDef schema; // not used
 
     Vector dataPointers;
@@ -72,8 +76,8 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
         this.schema = formDef;
         return serializeInstance(model);
     }
-    
-    
+
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance)
@@ -100,7 +104,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
             return null;
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#createSerializedPayload(org.javarosa.core.model.instance.FormInstance)
@@ -142,10 +146,10 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
         delimeter = root.getAttributeValue("", "delimeter");
         prefix = root.getAttributeValue("", "prefix");
 
-        xmlns = (xmlns != null)? xmlns : " ";
-        delimeter = (delimeter != null ) ? delimeter : " ";
+        xmlns = (xmlns != null) ? xmlns : " ";
+        delimeter = (delimeter != null) ? delimeter : " ";
         prefix = (prefix != null) ? prefix : " ";
-        
+
         //Don't bother adding any delimiters, yet. Delimiters are
         //added before tags/data
         theSmsStr = prefix;
@@ -154,7 +158,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
         for (int j = 0; j < root.getNumChildren(); j++) {
             TreeElement tee = root.getChildAt(j);
             String e = serializeNode(tee);
-            if(e != null) {
+            if (e != null) {
                 theSmsStr += e;
             }
         }
@@ -179,13 +183,13 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
                         + serializedAnswer);
             } else if (serializedAnswer instanceof String) {
                 Element e = new Element();
-                e.addChild(Node.TEXT, (String) serializedAnswer);
+                e.addChild(Node.TEXT, (String)serializedAnswer);
 
                 String tag = instanceNode.getAttributeValue("", "tag");
                 ae += ((tag != null) ? tag + delimeter : delimeter); // tag
-                                                                        // might
-                                                                        // be
-                                                                        // null
+                // might
+                // be
+                // null
 
                 for (int k = 0; k < e.getChildCount(); k++) {
                     ae += e.getChild(k).toString() + delimeter;
