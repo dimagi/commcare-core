@@ -36,10 +36,12 @@ import java.math.BigDecimal;
  */
 public class GeoPointData implements IAnswerData {
 
+    // latitude, longitude, and potentially altitude and accuracy data
     private double[] gp = new double[4];
     private int len = 2;
 
-    // data points stored will contain this many decimal points:
+    // accuracy and altitude data points stored will contain this many decimal
+    // points:
     private final int MAX_DECIMAL_ACCURACY = 1;
 
 
@@ -64,7 +66,13 @@ public class GeoPointData implements IAnswerData {
     private void fillArray(double[] gp) {
         len = gp.length;
         for (int i = 0; i < len; i++) {
-            this.gp[i] = truncateDecimal(gp[i], MAX_DECIMAL_ACCURACY);
+            if (i < 2) {
+                // don't truncate lat & lng decimal values
+                this.gp[i] = gp[i];
+            } else {
+                // accuracy & altitude should have their decimal values truncated
+                this.gp[i] = truncateDecimal(gp[i], MAX_DECIMAL_ACCURACY);
+            }
         }
     }
 
