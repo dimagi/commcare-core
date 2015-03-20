@@ -26,6 +26,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.math.BigDecimal;
 
 
 /**
@@ -37,6 +38,9 @@ public class GeoPointData implements IAnswerData {
 
     private double[] gp = new double[4];
     private int len = 2;
+
+    // data points stored will contain this many decimal points:
+    private final int MAX_DECIMAL_ACCURACY = 1;
 
 
     /**
@@ -53,10 +57,14 @@ public class GeoPointData implements IAnswerData {
     }
 
 
+    /**
+     * Copy data in argument array into local geopoint array.
+     * @param gp double array of max size 4 representing geopoints
+     */
     private void fillArray(double[] gp) {
         len = gp.length;
         for (int i = 0; i < len; i++) {
-            this.gp[i] = gp[i];
+            this.gp[i] = truncateDecimal(gp[i], MAX_DECIMAL_ACCURACY);
         }
     }
 
@@ -131,5 +139,22 @@ public class GeoPointData implements IAnswerData {
             ++i;
         }
         return new GeoPointData(ret);
+    }
+
+    /**
+     * Truncate double to have the given number of decimals.
+     * @param x double to be truncated
+     * @param numberofDecimals number of decimals that should present in result
+     */
+    private static double truncateDecimal(double x, int numberofDecimals) {
+        // via:
+        // https://stackoverflow.com/questions/7747469/how-can-i-truncate-a-double-to-only-two-decimal-places-in-java/21468258#21468258
+        BigDecimal decimal;
+        if (x > 0) {
+            decimal = new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_FLOOR);
+        } else {
+            decimal = new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_CEILING);
+        }
+        return decimal.doubleValue();
     }
 }
