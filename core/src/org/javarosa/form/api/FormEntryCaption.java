@@ -47,6 +47,7 @@ public class FormEntryCaption implements FormElementStateListener {
     public static final String TEXT_FORM_AUDIO = "audio";
     public static final String TEXT_FORM_IMAGE = "image";
     public static final String TEXT_FORM_VIDEO = "video";
+    public static final String TEXT_FORM_MARKDOWN = "markdown";
 
     protected IQuestionWidget viewWidget;
 
@@ -117,7 +118,14 @@ public class FormEntryCaption implements FormElementStateListener {
         return getSpecialFormQuestionText(getTextID(), TEXT_FORM_IMAGE);
     }
     
-    
+    /**
+     * Convenience method
+     * Get the markdown styled text (if available)
+     * @return Text with MarkDown styling
+     */
+    public String getMarkdownText() {
+        return getSpecialFormQuestionText(getTextID(), TEXT_FORM_MARKDOWN);
+    }
 
     /**
      * Attempts to return question text for this element.
