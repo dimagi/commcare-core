@@ -76,7 +76,7 @@ public class LocalizationUtils {
         int dec = line.length();
 
         //clear comments except if they have backslash before them (markdown '#'s)
-        while ((i = lastIndexOf(line.substring(0, dec), "#")) != -1) {
+        while ((i = LocalizationUtils.lastIndexOf(line.substring(0, dec), "#")) != -1) {
 
             if ((i != 0) && !(line.charAt(i - 1) == '\\')) {
                 line = line.substring(0, i);
@@ -111,8 +111,8 @@ public class LocalizationUtils {
          */
 
     public static String parseValue(String value) {
-        String ret = replace(value, "\\#", "#");
-        ret = replace(ret, "\\n", "\n");
+        String ret = LocalizationUtils.replace(value, "\\#", "#");
+        ret = LocalizationUtils.replace(ret, "\\n", "\n");
         return ret;
     }
 
