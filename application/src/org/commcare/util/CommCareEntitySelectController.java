@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -14,26 +14,26 @@ import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * Wrapper entity select controller to handle telephone callouts
- * 
+ *
  * @author ctsims
  *
  */
 public class CommCareEntitySelectController<E> extends EntitySelectController<E> {
-    
+
     public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype) {
         super(title, set,entityPrototype);
     }
-    
+
     public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype, int newMode, boolean immediatelySelectNewlyCreated) {
         super(title, set, entityPrototype, newMode, immediatelySelectNewlyCreated);
     }
 
-    
+
     public CommCareEntitySelectController (String title, EntitySet<E> set, Entity<E> entityPrototype,
             int newMode, boolean immediatelySelectNewlyCreated, boolean bailOnEmpty) {
         super(title, set, entityPrototype, newMode, immediatelySelectNewlyCreated, bailOnEmpty);
     }
-    
+
     public void attemptCallout(String number) {
         try {
             String scrubbed = "";

@@ -21,11 +21,11 @@ import org.javarosa.user.model.User;
 public abstract class ServerSyncState implements State {
     SendAllUnsentState send;
     CommCareOTARestoreState pull;
-    
+
     public ServerSyncState () {
         this(CommCareContext._().getCurrentUserCredentials());
     }
-    
+
     public ServerSyncState (HttpCredentialProvider currentUserCredentials) {
         send = new SendAllUnsentState () {
             protected SendAllUnsentController getController () {
@@ -35,7 +35,7 @@ public abstract class ServerSyncState implements State {
             public void done () {
                 throw new RuntimeException("method not applicable");
             }
-            
+
             public void done(boolean errorsOccurred) {
                 if (errorsOccurred) {
                     System.out.println("debug: server sync: errors occurred during send-all-unsent");
@@ -50,13 +50,13 @@ public abstract class ServerSyncState implements State {
             }
         };
 
-        
+
         String syncToken = null;
         User u = CommCareContext._().getUser();
         if(u != null) {
             syncToken = u.getLastSyncToken();
         }
-        
+
         HttpAuthenticator auth = new HttpAuthenticator(CommCareUtil.wrapCredentialProvider(currentUserCredentials));
         pull = new CommCareOTARestoreState (syncToken, auth, u.getUsername()) {
             public void cancel() {
@@ -64,7 +64,7 @@ public abstract class ServerSyncState implements State {
                 //do need to support canceling here.
                 ServerSyncState.this.onError(Localization.get("sync.cancelled"));
             }
-            
+
             public void commitSyncToken(String token) {
                 if(token != null) {
                     User u = CommCareContext._().getUser();
@@ -76,7 +76,7 @@ public abstract class ServerSyncState implements State {
                     }
                 }
             }
-            
+
             public void done(boolean errorsOccurred) {
                 if (errorsOccurred) {
                     System.out.println("debug: server sync: errors occurred during pull-down");
@@ -84,44 +84,44 @@ public abstract class ServerSyncState implements State {
                 } else {
                     onSuccess(restoreDetailMsg(controller.getCaseTallies()));
                 }
-            }                        
+            }
         };
     }
-    
+
     public void start() {
         User u = CommCareContext._().getUser();
-        
+
         //Don't even trigger the sync stuff if we're logged in as a magic user
         //("admin" or the demo user).
         if(CommCareUtil.isMagicAdmin(u)) {
             onSuccess(Localization.get("sync.pull.admin"));
             return;
         }
-        
+
         else if(User.DEMO_USER.equals(u.getUserType())) {
             onSuccess(Localization.get("sync.pull.demo"));
             return;
         }
         //This involves the global context, and thus should really be occurring in the constructor, but
-        //also takes a long time, and thus is more important to not occur until starting. 
+        //also takes a long time, and thus is more important to not occur until starting.
         CommCareContext._().purgeScheduler(true);
-        
+
         send.start();
     }
-    
+
     public void launchPull() {
         J2MEDisplay.startStateWithLoadingScreen(pull);
     }
-    
+
     public abstract void onError (String detailMsg);
     public abstract void onSuccess (String detailMsg);
-        
+
     //TODO: customize me
     public String restoreDetailMsg (Hashtable<String, Integer> tallies) {
         int created = tallies.get("create").intValue();
         int updated = tallies.get("update").intValue();
         int closed = tallies.get("close").intValue();
-        
+
         if (created + updated + closed == 0) {
             return Localization.get("sync.done.noupdate");
         } else {
@@ -138,5 +138,5 @@ public abstract class ServerSyncState implements State {
             return msg + ".";
         }
     }
-    
+
 }

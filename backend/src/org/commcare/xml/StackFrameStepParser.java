@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.xml;
 
@@ -14,10 +14,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class StackFrameStepParser extends ElementParser<StackFrameStep> {
-    
+
     public StackFrameStepParser(KXmlParser parser) {
         super(parser);
     }
@@ -27,11 +26,11 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
      */
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
-        
-        if("datum".equals(operation)) {
+
+        if ("datum".equals(operation)) {
             String id = parser.getAttributeValue(null, "id");
             return parseValue(SessionFrame.STATE_DATUM_VAL, id);
-        } else if("command".equals(operation)) {
+        } else if ("command".equals(operation)) {
             return parseValue(SessionFrame.STATE_COMMAND_ID, null);
         } else {
             throw new InvalidStructureException("<" + operation + "> is not a valid stack frame element!", this.parser);
@@ -42,11 +41,11 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
         //TODO: ... require this to have a value!!!! It's not processing this properly
         String value = parser.getAttributeValue(null, "value");
         boolean valueIsXpath = false;
-        if(value == null) {
+        if (value == null) {
             //must have a child
             value = parser.nextText().trim();
             //Can we get here, or would this have caused an exception?
-            if(value ==null) {
+            if (value == null) {
                 throw new InvalidStructureException("Stack frame element must define a value expression or have a direct value", parser);
             }
             valueIsXpath = false;
@@ -59,6 +58,6 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
         } catch (XPathSyntaxException e) {
             throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
         }
-        
+
     }
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.services;
 
@@ -17,21 +17,21 @@ import org.javarosa.services.transport.TransportService;
  */
 public class AutomatedTransportListener implements TransportListener {
     private static final int FAILURE_THRESHOLD = 2;
-    
+
     private int failureCount = 0;
     private int successCount = 0;
     private boolean engaged = false;
     CommCareHQResponder responder;
     TransportListener repeater;
-    
+
     public AutomatedTransportListener() {
         responder = new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL));
     }
-    
+
     public boolean engaged() {
         return engaged;
     }
-    
+
     public void reinit() {
         synchronized(this) {
             failureCount = 0;
@@ -39,12 +39,12 @@ public class AutomatedTransportListener implements TransportListener {
             engaged = true;
         }
     }
-    
+
     public void expire() {
         engaged = false;
         repeater = null;
     }
-    
+
 
     /* (non-Javadoc)
      * @see org.javarosa.services.transport.TransportListener#onChange(org.javarosa.services.transport.TransportMessage, java.lang.String)
@@ -66,10 +66,10 @@ public class AutomatedTransportListener implements TransportListener {
                 failureCount++;
             } else {
                 successCount++;
-                
+
                 //Process the response for any relevant information
                 responder.getResponseMessage(message);
-                
+
                 //TODO: Log?
             }
             if(failureCount > FAILURE_THRESHOLD) {
@@ -78,12 +78,12 @@ public class AutomatedTransportListener implements TransportListener {
             }
         }
     }
-    
+
     /**
-     * Note: Only valid after not engaged. 
-     * 
+     * Note: Only valid after not engaged.
+     *
      * @return True if the sender has failed to send successfully, false
-     * otherwise. 
+     * otherwise.
      */
     public boolean failed() {
         return failureCount > FAILURE_THRESHOLD || successCount ==0;

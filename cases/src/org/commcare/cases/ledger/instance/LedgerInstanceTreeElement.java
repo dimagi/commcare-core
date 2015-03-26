@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.cases.ledger.instance;
 
@@ -29,38 +29,37 @@ import org.javarosa.xpath.expr.XPathPathExpr;
 /**
  * The root element for the <casedb> abstract type. All children are
  * nodes in the case database. Depending on instantiation, the <casedb>
- * may include only a subset of the full db. 
- * 
- * @author ctsims
+ * may include only a subset of the full db.
  *
+ * @author ctsims
  */
 public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChildElement> {
 
-    public static final String MODEL_NAME = "ledgerdb"; 
-    
+    public static final String MODEL_NAME = "ledgerdb";
+
     private AbstractTreeElement instanceRoot;
-    
+
     IStorageUtilityIndexed<Ledger> storage;
     private String[] ledgerRecords;
-    
+
     //TODO: much of this is still shared w/the casedb and should be centralized there
     protected Vector<LedgerChildElement> ledgers;
-    
+
     protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
-    
+
     protected Interner<String> stringCache;
-    
+
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
-        this.instanceRoot= instanceRoot;
+        this.instanceRoot = instanceRoot;
         this.storage = storage;
         storage.setReadOnly();
     }
-    
+
     /**
-     * Rebase assigns this tree element to a new root instance node. 
-     * 
+     * Rebase assigns this tree element to a new root instance node.
+     *
      * Used to migrate the already created tree structure to a new instance connector.
-     * 
+     *
      * @param instanceRoot The root of the new tree that this element should be a part of
      */
     public void rebase(AbstractTreeElement instanceRoot) {
@@ -90,7 +89,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
     }
-    
+
     public void attachStringCache(Interner<String> stringCache) {
         this.stringCache = stringCache;
     }
@@ -99,14 +98,14 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public LedgerChildElement getChild(String name, int multiplicity) {
-        if(multiplicity == TreeReference.INDEX_TEMPLATE) {
+        if (multiplicity == TreeReference.INDEX_TEMPLATE) {
             return null;
         }
-        
+
         //name is always the same, so multiplicities are the only relevant component here
-        if(name.equals(LedgerChildElement.NAME)) { 
+        if (name.equals(LedgerChildElement.NAME)) {
             getLedgers();
-            if(ledgers.size() == 0) {
+            if (ledgers.size() == 0) {
                 //If we have no ledgers, we still need to be able to return a template element so as to not
                 //break xpath evaluation
                 return LedgerChildElement.TemplateElement(this);
@@ -120,32 +119,32 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
      */
     public Vector getChildrenWithName(String name) {
-        if(name.equals(LedgerChildElement.NAME)) {
+        if (name.equals(LedgerChildElement.NAME)) {
             getLedgers();
             return ledgers;
         } else {
             return new Vector();
         }
-        
+
     }
-    
+
     int numRecords = -1;
 
     public boolean hasChildren() {
-        if(getNumChildren() > 0) {
+        if (getNumChildren() > 0) {
             return true;
         }
         return false;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
      */
     public int getNumChildren() {
-        if(ledgerRecords != null) {
+        if (ledgerRecords != null) {
             return ledgerRecords.length;
         } else {
-            if(numRecords == -1) {
+            if (numRecords == -1) {
                 numRecords = storage.getNumRecords();
             }
             return numRecords;
@@ -159,28 +158,28 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         getLedgers();
         return ledgers.elementAt(i);
     }
-    
+
     protected synchronized void getLedgers() {
-        if(ledgers != null) {
+        if (ledgers != null) {
             return;
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         ledgers = new Vector<LedgerChildElement>();
-        if(ledgerRecords != null) {
+        if (ledgerRecords != null) {
             int i = 0;
-            for(String id : ledgerRecords) {
+            for (String id : ledgerRecords) {
                 ledgers.addElement(new LedgerChildElement(this, -1, id, i));
                 ++i;
             }
         } else {
             int mult = 0;
-            for(IStorageIterator i = storage.iterate(); i.hasMore();) {
+            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
                 int id = i.nextID();
                 ledgers.addElement(new LedgerChildElement(this, id, null, mult));
                 objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
                 mult++;
             }
-            
+
         }
     }
 
@@ -205,7 +204,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      */
     public int getChildMultiplicity(String name) {
         //All children have the same name;
-        if(name.equals(LedgerChildElement.NAME)) {
+        if (name.equals(LedgerChildElement.NAME)) {
             return this.getNumChildren();
         } else {
             return 0;
@@ -224,7 +223,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      */
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-        
+
     }
 
     /* (non-Javadoc)
@@ -269,18 +268,19 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public String getAttributeValue(String namespace, String name) {
         return null;
     }
-    
+
     TreeReference cachedRef = null;
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
      */
     public TreeReference getRef() {
-        if(cachedRef ==null) {
+        if (cachedRef == null) {
             cachedRef = TreeElement.BuildRef(this);
         }
         return cachedRef;
     }
-    
+
     private void expireCachedRef() {
         cachedRef = null;
     }
@@ -338,7 +338,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     public String intern(String s) {
-        if(stringCache == null) {
+        if (stringCache == null) {
             return s;
         } else {
             return stringCache.intern(s);
@@ -348,20 +348,19 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     protected String getChildHintName() {
         return "ledger";
     }
-    
+
     final static private XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
     final static private XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
 
 
-
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
-        Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
-        
+        Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
+
         //TODO: Much better matching
         indices.put(ENTITY_ID_EXPR, Ledger.INDEX_ENTITY_ID);
         indices.put(ENTITY_ID_EXPR_TWO, Ledger.INDEX_ENTITY_ID);
-        
-        return indices; 
+
+        return indices;
     }
 
     protected IStorageUtilityIndexed<?> getStorage() {

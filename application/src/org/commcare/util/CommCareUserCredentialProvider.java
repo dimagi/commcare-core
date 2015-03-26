@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -13,12 +13,12 @@ public class CommCareUserCredentialProvider implements HttpCredentialProvider {
 
     HttpCredentialProvider derived;
     String domain;
-    
+
     public CommCareUserCredentialProvider(HttpCredentialProvider derived, String domain) {
         this.derived = derived;
         this.domain = domain;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.service.transport.securehttp.HttpCredentialProvider#acquireCredentials()
      */

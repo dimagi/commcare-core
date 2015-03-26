@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -23,28 +23,28 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * The CommCare Transaction Parser Factory (whew!) wraps all of the current 
+ * The CommCare Transaction Parser Factory (whew!) wraps all of the current
  * transactions that CommCare knows about, and provides the appropriate hooks for
  * parsing through XML and dispatching the right handler for each transaction.
- * 
+ *
  * It should be the central point of processing for transactions (eliminating the
  * use of the old datamodel based processors) and should be used in any situation where
  * a transaction is expected to be present.
- * 
+ *
  * It is expected to behave more or less as a black box, in that it directly creates/modifies
  * the data models on the system, rather than producing them for another layer or processing.
- * 
+ *
  * @author ctsims
  *
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
-    
+
     private int[] caseTallies;
     private String restoreId;
     private boolean tolerant;
     private String message;
     private OrderedHashtable<String, String> messages = new OrderedHashtable<String,String>();
-    
+
     /**
      * Creates a new factory for processing incoming XML.
      * @param tolerant True if processing should fail in the event of conflicting data,
@@ -64,7 +64,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         if(name.toLowerCase().equals("case")) {
             return new AttachableCaseXMLParser(parser, caseTallies, tolerant, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
         } else if(name.toLowerCase().equals("registration")) {
-            //TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the 
+            //TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the
             //restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
             return new UserXmlParser(parser, restoreId);
         }  else if(namespace.toLowerCase().equals(LedgerXmlParsers.STOCK_XML_NAMESPACE)) {
@@ -75,11 +75,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             String nature = parser.getAttributeValue(null, "nature");
 
             public void commit(String parsed) throws IOException {
-                
+
             }
 
             public String parse() throws InvalidStructureException,IOException, XmlPullParserException, UnfullfilledRequirementsException {
-                
+
                     message = parser.nextText();
                     if(nature != null) {
                         if(message != null) {
@@ -89,13 +89,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                     return message;
                 }
             };
-            
+
         } else if (name.equalsIgnoreCase("Sync")) {
             return new TransactionParser<String> (parser, "Sync", null) {
                 public void commit(String parsed) throws IOException {
                     //do nothing
                 }
-                
+
                 public String parse() throws XmlPullParserException, IOException, InvalidStructureException {
                     if(this.nextTagInBlock("Sync")){
                         this.checkNode("restore_id");
@@ -115,27 +115,27 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         }
         return null;
     }
-    
+
     /**
      * @return An int[3] array containing a count of Cases
      * int[0]: created
      * int[1]: updated
      * int[2]: closed
-     * 
+     *
      * after processing has completed.
      */
     public int[] getCaseTallies() {
         return caseTallies;
     }
-    
+
     /**
      * @return After processing is completed, if a restore ID was present in the payload
-     * it will be returned here. 
+     * it will be returned here.
      */
     public String getRestoreId() {
         return restoreId;
     }
-    
+
     /**
      * @return After processing is completed, if a message to the user was present, it
      * will be returned here.

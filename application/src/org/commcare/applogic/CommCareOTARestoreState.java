@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.applogic;
 
@@ -24,12 +24,12 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
     private String syncToken;
     private HttpAuthenticator authenticator;
     private String sampleUsername;
-    
+
     public CommCareOTARestoreState() {
         this(null, null, null);
         isSync = false;
     }
-    
+
     /*
      * For a sync state
      */
@@ -40,7 +40,7 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
         this.partial = getPartialRestoreSetting();
         this.sampleUsername = sampleUsername;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.api.State#start()
      */
@@ -48,7 +48,7 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
         controller = getController();
         controller.start();
     }
-    
+
     protected CommCareOTARestoreController getController() {
         return new CommCareOTARestoreController(
             this,
@@ -62,7 +62,7 @@ public abstract class CommCareOTARestoreState implements State, CommCareOTAResto
             sampleUsername
         );
     }
-    
+
     private boolean getPartialRestoreSetting () {
         return CommCareUtil.partialRestoreEnabled();
     }

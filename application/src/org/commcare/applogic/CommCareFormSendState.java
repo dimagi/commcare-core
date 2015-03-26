@@ -12,7 +12,7 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.services.transport.TransportMessage;
 
 public abstract class CommCareFormSendState extends FormTransportState {
-    
+
     public CommCareFormSendState (TransportMessage message) throws IOException {
         super(message,new CommCareHQResponder(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
     }

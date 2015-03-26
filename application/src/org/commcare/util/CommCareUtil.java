@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -51,8 +51,8 @@ import de.enough.polish.ui.UiAccess;
  *
  */
 public class CommCareUtil {
-    
-    
+
+
     private static final String COMMCARE_RELEASE_PROPERTY = "CommCare-Release";
     private final static String PROP_APP_VERSION = "App-Version";
     private final static String PROP_CC_APP_VERSION = "CommCare-Version";
@@ -65,19 +65,19 @@ public class CommCareUtil {
     private final static String PROP_RELEASE_DATE = "Released-on";
     private final static String PROP_BUILD_NUM = "Build-Number";
     private final static String PROP_PROFILE_REFERENCE = "Profile";
-    
+
     public final static int VERSION_SHORT = 1;
     public final static int VERSION_MED = 2;
     public final static int VERSION_LONG = 3;
-    
+
     public static int getNumberUnsent() {
         return TransportService.getCachedMessagesSize();
     }
-    
+
     public static String getProfileReference() {
         return getAppProperty(PROP_PROFILE_REFERENCE);
     }
-        
+
     public static String getAppProperty (String key) {
         return CommCareContext._().getMidlet().getAppProperty(key);
     }
@@ -86,11 +86,11 @@ public class CommCareUtil {
         String prop = getAppProperty(key);
         return (prop != null ? prop : defaultValue);
     }
-    
+
     public static String getVersion () {
         return getVersion(VERSION_LONG);
     }
-    
+
     public static String getVersion (int type) {
         final int hashLength = 6;
         String vApp = getAppProperty(PROP_APP_VERSION, "??");
@@ -104,21 +104,21 @@ public class CommCareUtil {
         String releaseDate = getAppProperty(PROP_RELEASE_DATE, "--");
         String binaryNum = getAppProperty(PROP_BUILD_NUM, "custom");
         boolean released = !isTestingMode();
-        
+
         String profileVersion = null;
-        
+
         Profile p = CommCareContext._().getManager() == null ? null : CommCareContext._().getManager().getCurrentProfile();
         if(p != null) {
             profileVersion = " App #" + p.getVersion();
         }
-        
+
         vBuildJR = PropertyUtils.trim(vBuildJR, hashLength);
         vBuildCC = PropertyUtils.trim(vBuildCC, hashLength);
         vContent = PropertyUtils.trim(vContent, hashLength);
         vPolish = (String)DateUtils.split(vPolish, " ", true).elementAt(0);
         buildDate = (String)DateUtils.split(buildDate, " ", true).elementAt(0);
         releaseDate = (String)DateUtils.split(releaseDate, " ", true).elementAt(0);
-        
+
         switch (type) {
         case VERSION_LONG:
             return vHumanApp + " (" + vBuildJR + "-" + vBuildCC + "-" + vContent + "-" + vPolish + "-" + vDevice +
@@ -130,22 +130,22 @@ public class CommCareUtil {
         default: throw new RuntimeException("unknown version type");
         }
     }
-        
+
     public static Case getCase (int recordId) {
         IStorageUtility cases = StorageManager.getStorage(Case.STORAGE_KEY);
         return (Case)cases.read(recordId);
     }
-    
+
     public static Case getCase (String caseId) {
         IStorageUtilityIndexed cases = (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY);
         return (Case)cases.getRecordForValue("case-id", caseId);
     }
-     
+
     public static FormDef getForm (int id) {
         IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
         return (FormDef)forms.read(id);
     }
-        
+
     public static boolean isTestingMode() {
         String mode = PropertyManager._().getSingularProperty(CommCareProperties.DEPLOYMENT_MODE);
         if (mode == null || mode.equals(CommCareProperties.DEPLOY_DEFAULT)) {
@@ -154,29 +154,29 @@ public class CommCareUtil {
             return mode.equals(CommCareProperties.DEPLOY_TESTING);
         }
     }
-            
+
     public static void exit () {
         Logger.log("app-close", "");
         CommCareContext._().getMidlet().notifyDestroyed();
     }
-    
+
     public static void launchHomeState() {
         J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
     }
-        
+
     public static int countEntities(Entry entry, Suite suite) {
         final Entry e = entry;
         return 0;
-        
+
 //        Hashtable<String, String> references = entry.getReferences();
 //        if(references.size() == 0) {
 //            throw new RuntimeException("Attempt to count entities for an entry with no references!");
 //        }
 //        else {
-//            //this will be revisited and rewritten 
+//            //this will be revisited and rewritten
 //            boolean referral = false;
 //            int count = 0;
-//            // Need to do some reference gathering... 
+//            // Need to do some reference gathering...
 //            for(Enumeration en = references.keys() ; en.hasMoreElements() ; ) {
 //                String key = (String)en.nextElement();
 //                String refType = references.get(key);
@@ -192,7 +192,7 @@ public class CommCareUtil {
 //                        count++;
 //                    }
 //                }
-//                
+//
 //                return count;
 //            } else {
 //                Entity<Case> entity = new CommCareEntity<Case>(suite.getDetail(entry.getShortDetailId()), suite.getDetail(entry.getLongDetailId()), new CaseInstanceLoader(e.getReferences()));
@@ -202,12 +202,12 @@ public class CommCareUtil {
 //                        count++;
 //                    }
 //                }
-//                
+//
 //                return count;
 //            }
 //        }
     }
-    
+
     private static int[] getVersions() {
         try {
             String vApp = getAppProperty(PROP_APP_VERSION, "blank");
@@ -229,7 +229,7 @@ public class CommCareUtil {
             return null;
         }
     }
-    
+
     public static int getMajorVersion() {
         int[] versions = getVersions();
         if(versions != null) {
@@ -238,7 +238,7 @@ public class CommCareUtil {
             return -1;
         }
     }
-    
+
     public static int getMinorVersion() {
         int[] versions = getVersions();
         if(versions != null) {
@@ -247,9 +247,9 @@ public class CommCareUtil {
             return -1;
         }
     }
-    
+
     public static void launchFirstState() {
-        if(CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN)) && 
+        if(CommCareProperties.PROPERTY_YES.equals(PropertyManager._().getSingularProperty(CommCareProperties.IS_FIRST_RUN)) &&
                 CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users")) {
             J2MEDisplay.startStateWithLoadingScreen(new CommCareFirstStartState());
         } else {
@@ -258,7 +258,7 @@ public class CommCareUtil {
     }
 
     public static void exitMain() {
-        if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && 
+        if(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") &&
                 (!CommCareSense.isAutoLoginEnabled() || !User.STANDARD.equals(CommCareContext._().getUser().getUserType()))) {
             J2MEDisplay.startStateWithLoadingScreen(new CommCareLoginState(true));
         } else{
@@ -268,18 +268,18 @@ public class CommCareUtil {
 
     public static JrFormEntryController createFormEntryController(FormDefFetcher fetcher, boolean supportsNewRepeats) {
         return createFormEntryController(new JrFormEntryModel(fetcher.getFormDef(), false, supportsNewRepeats? FormEntryModel.REPEAT_STRUCTURE_NON_LINEAR : FormEntryModel.REPEAT_STRUCTURE_LINEAR));
-    }    
-    
+    }
+
     public static JrFormEntryController createFormEntryController(JrFormEntryModel model) {
         return new JrFormEntryController(model, CommCareSense.formEntryExtraKey(), true, CommCareSense.formEntryQuick());
     }
 
-    
+
     /**
      * Gets the text associated with this entry, while dynamically evaluating
-     * and resolving any necessary count arguments that might need to be 
-     * included. 
-     * 
+     * and resolving any necessary count arguments that might need to be
+     * included.
+     *
      * @param entry
      * @return
      */
@@ -292,9 +292,9 @@ public class CommCareUtil {
             //We really don't know how to deal with this yet. Shouldn't happen!
             return text;
         } else {
-            
+
             String arg = Localization.get("commcare.menu.count.wrapper", new String[] {String.valueOf(location + 1)});
-            
+
             //Sweet spot! This argument should be the count of all entities
             //which are possible inside of its selection.
             return Localizer.processArguments(text, new String[] {arg} );
@@ -308,22 +308,22 @@ public class CommCareUtil {
             }
         };
     }
-    
+
     public static boolean demoEnabled() {
         return !CommCareProperties.DEMO_DISABLED.equals(PropertyManager._().getSingularProperty(CommCareProperties.DEMO_MODE));
     }
-    
+
     public static boolean loginImagesEnabled(){
-        
+
         boolean sense = CommCareSense.sense();
         String loginImages = PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGES);
-        
+
         if(!sense){
             return CommCareProperties.PROPERTY_YES.equals(loginImages);
         }
         return (!CommCareProperties.PROPERTY_NO.equals(loginImages));
     }
-    
+
     public static boolean partialRestoreEnabled() {
         return !CommCareProperties.REST_TOL_STRICT.equals(PropertyManager._().getSingularProperty(CommCareProperties.RESTORE_TOLERANCE));
     }
@@ -336,7 +336,7 @@ public class CommCareUtil {
             return new CommCareUserCredentialProvider(credentialProvider, domain);
         }
     }
-    
+
     public static void cycleDemoStyles(boolean demo) {
         try{
         //Below exists to make the style pop into code if it exists.
@@ -344,13 +344,13 @@ public class CommCareUtil {
         UiAccess.setStyle(new StringItem("test","test"));
         //#style normaltitle?
         UiAccess.setStyle(new StringItem("test","test"));
-        
+
         Style title = StyleSheet.getStyle("title");
         Style demotitle = StyleSheet.getStyle("demotitle");
         Style normaltitle = StyleSheet.getStyle("normaltitle");
         if(title == null || demotitle == null || normaltitle ==null) {
             return;
-        } 
+        }
         if(demo) {
             title.background = demotitle.background;
         } else {
@@ -364,10 +364,10 @@ public class CommCareUtil {
 
     public static FormInstance loadFixtureForUser(String refId, String userId) {
         IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
-        
+
         FormInstance fixture = null;
         Vector<Integer> relevantFixtures = storage.getIDsForValue(FormInstance.META_ID, refId);
-        
+
         ///... Nooooot so clean.
         if(relevantFixtures.size() == 1) {
             //easy case, one fixture, use it
@@ -376,9 +376,9 @@ public class CommCareUtil {
         } else if(relevantFixtures.size() > 1){
             //intersect userid and fixtureid set.
             //TODO: Replace context call here with something from the session, need to stop relying on that coupling
-            
+
             Vector<Integer> relevantUserFixtures = storage.getIDsForValue(FormInstance.META_XMLNS, userId);
-            
+
             if(relevantUserFixtures.size() != 0) {
                 Integer userFixture = ArrayUtilities.intersectSingle(relevantFixtures, relevantUserFixtures);
                 if(userFixture != null) {
@@ -386,7 +386,7 @@ public class CommCareUtil {
                 }
             }
             if(fixture == null) {
-                //Oooookay, so there aren't any fixtures for this user, see if there's a global fixture.                
+                //Oooookay, so there aren't any fixtures for this user, see if there's a global fixture.
                 Integer globalFixture = ArrayUtilities.intersectSingle(storage.getIDsForValue(FormInstance.META_XMLNS, ""), relevantFixtures);
                 if(globalFixture == null) {
                     //No fixtures?! What is this. Fail somehow. This method should really have an exception contract.
@@ -399,12 +399,12 @@ public class CommCareUtil {
         }
         return fixture;
     }
-    
+
     public static void printInstance(String instanceRef) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
-            
+
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
             System.out.println(new String(bos.toByteArray()));
         } catch (IOException e) {

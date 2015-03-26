@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -21,25 +21,24 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
  * @author ctsims
- *
  */
 public class SessionDatum implements Externalizable {
-    
+
     private String id;
     private TreeReference nodeset;
-    private String shortDetail; 
+    private String shortDetail;
     private String longDetail;
     private String inlineDetail;
     private String persistentDetail;
     private String value;
-    
+
     private int type;
-    
+
     public static final int DATUM_TYPE_NORMAL = 0;
     public static final int DATUM_TYPE_FORM = 1;
-    
+
     public SessionDatum() {
-        
+
     }
 
     public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String inlineDetail, String persistentDetail, String value) {
@@ -52,13 +51,13 @@ public class SessionDatum implements Externalizable {
         this.persistentDetail = persistentDetail;
         this.value = value;
     }
-    
+
     public SessionDatum(String id, String value) {
         type = DATUM_TYPE_NORMAL;
         this.id = id;
         this.value = value;
     }
-    
+
     public static SessionDatum FormIdDatum(String calculate) {
         SessionDatum ret = new SessionDatum();
         ret.id = "";
@@ -66,11 +65,11 @@ public class SessionDatum implements Externalizable {
         ret.value = calculate;
         return ret;
     }
-    
+
     public String getDataId() {
         return id;
     }
-    
+
     public TreeReference getNodeset() {
         return nodeset;
     }
@@ -88,13 +87,14 @@ public class SessionDatum implements Externalizable {
     public String getLongDetail() {
         return longDetail;
     }
-    
+
     /**
      * @return the inlineDetail
      */
     public String getInlineDetail() {
         return inlineDetail;
     }
+
     /**
      * @return the inlineDetail
      */
@@ -108,7 +108,7 @@ public class SessionDatum implements Externalizable {
     public String getValue() {
         return value;
     }
-    
+
     public int getType() {
         return type;
     }
@@ -119,8 +119,8 @@ public class SessionDatum implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = ExtUtil.readString(in);
         type = ExtUtil.readInt(in);
-        
-        if(ExtUtil.readBool(in)) {
+
+        if (ExtUtil.readBool(in)) {
             nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class);
         } else {
             nodeset = null;
@@ -138,9 +138,9 @@ public class SessionDatum implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, id);
         ExtUtil.writeNumeric(out, type);
-        
+
         ExtUtil.writeBool(out, nodeset != null);
-        if(nodeset != null) {
+        if (nodeset != null) {
             ExtUtil.write(out, nodeset);
         }
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(shortDetail));
@@ -149,30 +149,30 @@ public class SessionDatum implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(persistentDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
     }
-    
+
 
     /**
      * Takes an ID and identifies a reference in the provided context which corresponds
-     * to that element if one can be found. 
-     * 
+     * to that element if one can be found.
+     *
      * NOT GUARANTEED TO WORK! May return an entity if one exists
-     * 
+     *
      * @param uniqueid
      * @return
      */
     public TreeReference getEntityFromID(EvaluationContext ec, String elementId) {
         //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.
-        
-        //Get root nodeset 
+
+        //Get root nodeset
         TreeReference nodesetRef = this.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() -1);
+        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
         predicates.addElement(new XPathEqExpr(true, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId)));
         nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
-        
+
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
-        if(elements.size() == 1) {
+        if (elements.size() == 1) {
             return elements.firstElement();
-        } else if(elements.size() > 1) {
+        } else if (elements.size() > 1) {
             //Lots of nodes. Can't really choose one yet.
             return null;
         } else {

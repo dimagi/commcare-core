@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.applogic;
 
@@ -31,55 +31,55 @@ public class SendAllUnsentController implements HandledCommandListener {
     private TrivialTransitionsWithErrors transitions;
     private MultiSubmitStatusScreen screen;
     private boolean shortcircuit;
-    
+
     public SendAllUnsentController() {
         this(null);
     }
-    
+
      public SendAllUnsentController(TransportResponseProcessor responder) {
          this(responder, true, false, null);
      }
-         
+
      public SendAllUnsentController(TransportResponseProcessor responder, boolean silenceable, boolean shortcircuit, String cancelText) {
          screen = new MultiSubmitStatusScreen(this, responder, silenceable, cancelText);
          this.shortcircuit = shortcircuit;
      }
-    
+
     public void setTransitions (TrivialTransitionsWithErrors transitions) {
         this.transitions = transitions;
     }
 
     public void start() {
-        
+
         AutomatedTransportListener listener = AutomatedSenderService.RetrieveActiveTransportListener();
         Object lock = listener == null ? new Object() : listener;
-        
+
         synchronized(lock) {
-            //This block is all vaguely hacky. We should reengineer this process from scratch through the 
+            //This block is all vaguely hacky. We should reengineer this process from scratch through the
             //thread we currently use for send all unsent
             Vector messages = TransportService.getCachedMessages();
             String[] ids = new String[messages.size()];
-    
+
             if (ids.length == 0 && this.shortcircuit) {
                 transitions.done(false);
                 return;
             }
-            
+
             for (int i = 0; i < ids.length; ++i) {
                 ids[i] = ((TransportMessage) messages.elementAt(i)).getCacheIdentifier();
             }
-    
+
             screen.reinit(ids);
-            J2MEDisplay.setView(screen);        
+            J2MEDisplay.setView(screen);
             //end dumb stuff
-            
+
             //Ok. So if there's already a thread going, we want to hijack it. Otherwise, we want to start a new one.
             if(listener != null && listener.engaged()) {
                 listener.attachRepeater(screen);
             } else  {
-                
-                //TODO: Technically still a race condition, here. sendCached needs to be called before the 
-                //lock to the automated service can be released, but since it is blocking, we don't 
+
+                //TODO: Technically still a race condition, here. sendCached needs to be called before the
+                //lock to the automated service can be released, but since it is blocking, we don't
                 //really have a way to control that?
                 new HandledThread(new Runnable() {
                     public void run() {
@@ -100,7 +100,7 @@ public class SendAllUnsentController implements HandledCommandListener {
 
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
-    }  
+    }
 
     public void _commandAction(Command c, Displayable d) {
         transitions.done(screen.hasErrors());

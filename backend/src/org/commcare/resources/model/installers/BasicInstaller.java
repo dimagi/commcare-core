@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.resources.model.installers;
 
@@ -22,15 +22,13 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * 
  * TODO: This is... not useful
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     ResourceLocation installed;
-    
+
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
      */
@@ -50,9 +48,9 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
      */
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
-        if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
+        if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {
-                if(ref.doesBinaryExist()) {
+                if (ref.doesBinaryExist()) {
                     return true;
                 } else {
                     //If the file isn't there, not much we can do about it.
@@ -62,7 +60,7 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
                 e.printStackTrace();
                 return false;
             }
-        } else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
+        } else if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
             //We need to download the resource, and store it locally. Either in the cache
             //(if no resource location is available) or in a local reference if one exists.
             InputStream incoming;
@@ -70,9 +68,9 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
                 incoming = ref.getStream();
             } catch (IOException e) {
                 e.printStackTrace();
-                return false; 
+                return false;
             }
-            if(incoming == null) {
+            if (incoming == null) {
                 //if it turns out there isn't actually a remote resource, bail.
                 return false;
             }
@@ -81,7 +79,7 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
         }
         return false;
     }
-    
+
 
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         throw new RuntimeException("Basic Installer resources can't be marked as upgradable");
@@ -90,7 +88,7 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         return true;
     }
-    
+
     public boolean unstage(Resource r, int newStatus) {
         return true;
     }
@@ -98,23 +96,23 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
     public boolean revert(Resource r, ResourceTable table) {
         return true;
     }
-    
+
     public int rollback(Resource r) {
         throw new RuntimeException("Basic Installer resources can't rolled back");
     }
-    
+
     public void cleanup() {
-        
+
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        
+
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
         // TODO Auto-generated method stub
-        
+
     }
 
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {

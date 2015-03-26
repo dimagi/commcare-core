@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.applogic;
 
@@ -53,7 +53,7 @@ import org.javarosa.user.utility.UserEntity;
 public class CommCareHomeState implements CommCareHomeTransitions, State {
 
     CommCareSessionController sessionController;
-    
+
     public void start () {
         MemoryUtils.printMemoryTest("Home Screen");
         sessionController = new CommCareSessionController(new CommCareSession(CommCareContext._().getManager()));
@@ -68,7 +68,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
     public void logout() {
         CommCareUtil.exitMain();
     }
-    
+
 
     public void sessionItemChosen(int item) {
         //this hands off control to the session until it returns here.
@@ -87,18 +87,18 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             }
         });
     }
-    
 
-    
+
+
     public void serverSync () {
         J2MEDisplay.startStateWithLoadingScreen(new ServerSyncState (CommCareContext._().getCurrentUserCredentials()) {
             public void onSuccess (String detail) {
                 J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Update", detail));
             }
-            
+
             public void onError (String detail) {
                 J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("Failed to update", detail));
-            }    
+            }
         }, new ProgressIndicator() {
 
             public double getProgress() {
@@ -112,10 +112,10 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             public int getIndicatorsProvided() {
                 return ProgressIndicator.INDICATOR_STATUS;
             }
-            
+
         });
     }
-    
+
     public void settings() {
         J2MEDisplay.startStateWithLoadingScreen(new PropertyUpdateState () {
             public void done () {
@@ -123,7 +123,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             }
         });
     }
-    
+
     public void restoreUserData() {
         J2MEDisplay.startStateWithLoadingScreen(new CommCareOTARestoreState() {
 
@@ -139,18 +139,18 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                 //Since we're restoring users with no specific start point, they should be assigned
                 //the sync token when their user model is created.
             }
-            
+
         });
     }
-    
+
     private void clearUserData() {
         StorageManager.getStorage(User.STORAGE_KEY).removeAll(new EntityFilter<User>() {
 
             public boolean matches(User e) {
-                if(e.isAdminUser()) { return false;} 
+                if(e.isAdminUser()) { return false;}
                 return true;
             }
-            
+
         });
         StorageManager.getStorage(Case.STORAGE_KEY).removeAll();
     }
@@ -160,21 +160,21 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                 !CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
                 PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
     }
-    
+
     public void editUsers() {
-        //2012-10-22 - ctsims - Disabling this for now unless you're in completely offline user mode. 
+        //2012-10-22 - ctsims - Disabling this for now unless you're in completely offline user mode.
         //There's no way to do it without an intermediate authentication otherwise.
-        
+
         if(CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE))) {
             J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<User>(new UserEntity(), User.STORAGE_KEY) {
-    
+
                 public void cancel() {
                     CommCareUtil.launchHomeState();
                 }
-    
+
                 public void entitySelected(int id) {
                     User u = (User)StorageManager.getStorage(User.STORAGE_KEY).read(id);
-                    J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u,    
+                    J2MEDisplay.startStateWithLoadingScreen(new CommCareEditUserState(u,
                             !CommCareProperties.USER_REG_SKIP.equals(PropertyManager._().getSingularProperty(CommCareProperties.USER_REG_TYPE)),
                             PropertyManager._().getSingularProperty(JavaRosaPropertyRules.OPENROSA_API_LEVEL)));
                 }
@@ -183,7 +183,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             J2MEDisplay.showError("Can't edit users", "User edit is disabled when using a server. Please edit the user online.");
         }
     }
-    
+
     public void reloadForms() {
         throw new RuntimeException("not hooked up yet");
     }
@@ -192,11 +192,11 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
         //CommCareContext._().autoPurge();
         CommCareContext._().resetDemoData();
     }
-    
+
     public void review() {
         final RecentFormEntity prototype = new RecentFormEntity(CommCareContext._().getManager().getInstalledSuites());
         J2MEDisplay.startStateWithLoadingScreen(new CommCareSelectState<FormInstance>(prototype, FormInstance.STORAGE_KEY) {
-            
+
             public void entitySelected(final int instanceID) {
                 //Man this is dumb....
                 FormInstance instance = (FormInstance)StorageManager.getStorage(FormInstance.STORAGE_KEY).read(instanceID);
@@ -208,15 +208,15 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                         controller.setView(new Chatterbox(title, controller));
                         return controller;
                     }
-                        
+
                     public void abort() {
                         CommCareUtil.launchHomeState();
                     }
-    
+
                     public void formEntrySaved(FormDef form, FormInstance instanceData, boolean formWasCompleted) {
                         CommCareUtil.launchHomeState();
                     }
-    
+
                     public void suspendForMediaCapture(int captureType) {
                         throw new RuntimeException("not applicable");
                     }
@@ -249,7 +249,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             }
         });
     }
-    
+
     public void rmsdump () {
         try {
             DumpRMS.dumpRMS(CommCareContext._().getMidlet().getAppProperty("RMS-Image-Path"));
@@ -259,24 +259,24 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             J2MEDisplay.startStateWithLoadingScreen(CommCareUtil.alertFactory("RMS Dump Failed!", WrappedException.printException(e)));
         }
     }
-    
+
     public void viewLogs () {
         J2MEDisplay.startStateWithLoadingScreen(new LogViewerState () {
             public void done() {
                 new CommCareHomeState().start();
-            }            
-            
+            }
+
             public boolean submitSupported() {
                 return true;
             }
-            
+
             /**
              * happens in its own thread
              */
             public void submit() {
                 this.append("Attempting to submit logs to HQ...", true);
                 DeviceReportState logSubmit = new DeviceReportState(LogReportUtils.REPORT_FORMAT_FULL) {
-                    
+
                     public String getDestURL() {
                         String url = PropertyManager._().getSingularProperty(LogPropertyRules.LOG_SUBMIT_URL);
                         if(url == null) {
@@ -284,7 +284,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                         }
                         return url;
                     }
-                    
+
                     public void done() {
                         String localFile = null;
                         //See if we dumped to a file
@@ -292,11 +292,11 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                             try {
                                 localFile = ReferenceManager._().DeriveReference(fileNameWrittenTo).getLocalURI();
                                 append("Dumped logs onto DeviceSD card due to network difficulties. Log is at: " + localFile, false);
-                            } catch(Exception e){ 
+                            } catch(Exception e){
                                 //Guess not...
                             }
                         }
-                        
+
                         if(errors == null || errors.size() != 0) {
                             append("Error while submitting logs!", false);
                             if(errors != null ) {
@@ -315,13 +315,13 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
                         }
                     }
                 };
-                
+
                 logSubmit.start();
             }
 
         });
     }
-    
+
     public void gprsTest () {
         new GPRSTestState () {
             public void done () {
@@ -329,7 +329,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             }
         }.start();
     }
-    
+
     public void adminLogin() {
         new CommCareLoginState(true) {
             public void exit() {
@@ -337,7 +337,7 @@ public class CommCareHomeState implements CommCareHomeTransitions, State {
             }
         }.start();
     }
-    
+
     public void forceSend() {
         J2MEDisplay.startStateWithLoadingScreen(new SendAllUnsentState () {
             protected SendAllUnsentController getController () {
