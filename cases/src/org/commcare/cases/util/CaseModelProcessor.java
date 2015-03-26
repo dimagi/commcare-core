@@ -248,8 +248,9 @@ public class CaseModelProcessor implements ICaseModelProcessor {
             IAnswerData data = child.getValue();
             if (data == null) {
                 c.removeIndex(indexName);
+            } else {
+                c.setIndex(new CaseIndex(indexName, indexType, data.uncast().getString(), relationship));
             }
-            c.setIndex(new CaseIndex(indexName, indexType, data.uncast().getString(), relationship));
             modified = true;
         }
         if (modified) {
