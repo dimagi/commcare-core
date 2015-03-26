@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -18,12 +18,12 @@ import org.javarosa.core.reference.Reference;
 public class JavaHttpReference implements Reference {
 
     private String uri;
-    
+
     public JavaHttpReference(String uri) {
         this.uri = uri;
     }
-    
-    
+
+
     /* (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#doesBinaryExist()
      */

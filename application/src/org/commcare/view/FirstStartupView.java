@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.view;
 
@@ -19,31 +19,31 @@ import de.enough.polish.ui.StringItem;
  *
  */
 public class FirstStartupView extends Form implements HandledCommandListener {
-    
+
     private static final Command RESTORE = new Command(Localization.get("intro.restore"), Command.ITEM, 1);
     private static final Command LOGIN = new Command(Localization.get("intro.start"),Command.ITEM, 1);
     private static final Command EXIT = new Command(Localization.get("polish.command.exit"),Command.EXIT, 1);
-    
+
     StringItem intro;
-    
+
     StringItem restore;
     StringItem login;
-    
+
     FirstStartupTransitions transitions;
 
     public FirstStartupView(FirstStartupTransitions transitions) {
         super(Localization.get("intro.title"));
         intro = new StringItem("", Localization.get("intro.text"));
         this.append(intro);
-        
-        //#style button        
+
+        //#style button
         restore = new StringItem("", Localization.get("intro.restore"));
         restore.setDefaultCommand(RESTORE);
-        
+
         //#style button
         login = new StringItem("", Localization.get("intro.start"));
         login.setDefaultCommand(LOGIN);
-        
+
         this.append(login);
         this.append(restore);
         this.transitions = transitions;

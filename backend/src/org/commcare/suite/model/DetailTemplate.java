@@ -4,7 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 
 /**
  * Interface for any class that can be used as a template in a detail field.
- * 
+ *
  * @author jschweers
  */
 public interface DetailTemplate {

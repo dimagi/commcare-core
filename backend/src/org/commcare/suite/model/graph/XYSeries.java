@@ -21,56 +21,57 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * Single series (line) on an xy graph.
+ *
  * @author jschweers
  */
 public class XYSeries implements Externalizable, Configurable {
     private TreeReference mNodeSet;
     private Hashtable<String, Text> mConfiguration;
-    
+
     private String mX;
     private String mY;
-    
+
     private XPathExpression mXParse;
     private XPathExpression mYParse;
-    
+
     /*
      * Deserialization only!
      */
     public XYSeries() {
-        
+
     }
-    
+
     public XYSeries(String nodeSet) {
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
         mConfiguration = new Hashtable<String, Text>();
     }
-    
+
     public TreeReference getNodeSet() {
         return mNodeSet;
     }
-    
+
     public String getX() {
         return mX;
     }
-    
+
     public void setX(String x) {
         mX = x;
         mXParse = null;
     }
-    
+
     public String getY() {
         return mY;
     }
-    
+
     public void setY(String y) {
         mY = y;
         mYParse = null;
     }
-    
+
     public void setConfiguration(String key, Text value) {
         mConfiguration.put(key, value);
     }
-    
+
     public Text getConfiguration(String key) {
         return mConfiguration.get(key);
     }
@@ -87,7 +88,7 @@ public class XYSeries implements Externalizable, Configurable {
             throws IOException, DeserializationException {
         mX = ExtUtil.readString(in);
         mY = ExtUtil.readString(in);
-        mNodeSet = (TreeReference) ExtUtil.read(in, TreeReference.class, pf);
+        mNodeSet = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
     }
 
@@ -101,7 +102,7 @@ public class XYSeries implements Externalizable, Configurable {
         ExtUtil.write(out, mNodeSet);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
     }
-    
+
     /*
      * Parse all not-yet-parsed functions in this object.
      */
@@ -123,7 +124,7 @@ public class XYSeries implements Externalizable, Configurable {
         }
         return XPathParseTool.parseXPath("string(" + function + ")");
     }
-    
+
     /*
      * Get the actual x value within a given EvaluationContext.
      */
@@ -131,7 +132,7 @@ public class XYSeries implements Externalizable, Configurable {
         parse();
         return evaluateExpression(mXParse, context);
     }
-    
+
     /*
      * Get the actual y value within a given EvaluationContext.
      */
@@ -139,13 +140,13 @@ public class XYSeries implements Externalizable, Configurable {
         parse();
         return evaluateExpression(mYParse, context);
     }
-    
+
     /*
      * Helper for evaluateX and evaluateY.
      */
     protected String evaluateExpression(XPathExpression expression, EvaluationContext context) {
         if (expression != null) {
-            String value = (String) expression.eval(context.getMainInstance(), context);
+            String value = (String)expression.eval(context.getMainInstance(), context);
             if (value.length() > 0) {
                 return value;
             }

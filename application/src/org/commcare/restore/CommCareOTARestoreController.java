@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.restore;
 
@@ -28,32 +28,32 @@ import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.user.model.User;
 
 /**
- * 
+ *
  * This class is a huge quagmire of interlinking completely coupled method stacks. Rewrite to have clear
  * workflow v. functional chunks
  * @author ctsims
- * 
+ *
  * This class now handles requests for restoring, passing them into the asynchronous class
  * CommCareRestorer, acting as the listener, and updating the CommCareOTARestoreView
  *
  *@author wspride
  */
 public class CommCareOTARestoreController implements HandledCommandListener, CommCareOTARestoreListener {
-    
+
     CommCareOTACredentialEntry entry;
     CommCareOTARestoreView view;
     CommCareOTAFailView fView;
     CommCareRestorer mRestorer;
-    
+
     CommCareOTARestoreTransitions transitions;
-    
+
     int authAttempts = 0;
     String restoreURI;
     boolean noPartial;
     boolean isSync;
     int[] caseTallies;
     int totalItemCount = -1;
-    
+
     HttpAuthenticator authenticator;
     boolean errorsOccurred;
     boolean senseMode;
@@ -61,31 +61,31 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
     String originalRestoreURI;
     String logSubmitURI;
     String stateHash;
-    
+
     boolean isUpdatingUser = false;
-    
+
     public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI) {
         this(transitions, restoreURI, null);
     }
-    
+
     public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI, HttpAuthenticator authenticator) {
         this(transitions, restoreURI, authenticator, false, false, null, null, false, null);
     }
-                
+
     public CommCareOTARestoreController(CommCareOTARestoreTransitions transitions, String restoreURI,
             HttpAuthenticator authenticator, boolean isSync, boolean noPartial, String syncToken, String logSubmitURI, boolean senseMode, String sampleUsername) {
 
         view = new CommCareOTARestoreView(Localization.get("intro.restore"));
         view.setCommandListener(this);
-        
+
         fView = new CommCareOTAFailView(Localization.get("intro.restore"));
         fView.setCommandListener(this);
-        
+
         entry = new CommCareOTACredentialEntry(Localization.get("intro.restore"));
         entry.setCommandListener(this);
-        
+
         mRestorer = new CommCareRestorer();
-        
+
         this.transitions = transitions;
         this.restoreURI = restoreURI;
         this.authenticator = authenticator;
@@ -94,22 +94,22 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
         this.syncToken = syncToken;
         this.logSubmitURI = logSubmitURI;
         this.senseMode = senseMode;
-        
+
         if(sampleUsername != null) {
             entry.setUsername(sampleUsername);
         }
     }
-    
+
     public void start() {
         entry.setInteractive(false);
         fView.setInteractive(false);
         mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
     }
-    
+
     protected String getCacheRef() {
         return "jr://file/commcare_ota_backup.xml";
     }
-    
+
 
     public void _commandAction(Command c, Displayable d) {
         if(c.equals(CommCareOTACredentialEntry.DOWNLOAD)) {
@@ -121,11 +121,11 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
             entry.setInteractive(false);
             fView.setInteractive(false);
             mRestorer.initialize(this, transitions, restoreURI, authenticator, isSync, noPartial, syncToken, logSubmitURI);
-            
+
             if(isSync) {
                 isUpdatingUser = true;
             }
-            
+
             //tryDownload(getClientMessage());
         } else if(d == entry && c.equals(CommCareOTACredentialEntry.CANCEL)) {
             transitions.cancel();
@@ -141,7 +141,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
             transitions.cancel();
         }
     }
-    
+
     private boolean userExists(String username) {
         int attempts = 0;
         //An absurd number of tries
@@ -170,17 +170,17 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this,c,d);
     }
-    
+
     public Hashtable<String, Integer> getCaseTallies() {
         return mRestorer.getCaseTallies();
     }
-    
+
     private void done() {
         view.setFinished();
         System.out.println("405 done");
         view.addToMessage(Localization.get("restore.key.continue"));
     }
-    
+
     private void doneFail(String msg) {
         if (msg != null) {
             Logger.log("restore", "fatal error: " + msg);
@@ -191,41 +191,41 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
             markDoneAndExit();
         }
     }
-    
+
     private void markDoneAndExit() {
         PeriodicEvent.markTriggered(new AutoSyncEvent());
         transitions.done(errorsOccurred);
     }
-    
+
     private void fail(String message, Exception e, String logmsg) {
         view.addToMessage(message);
-        
+
         if (logmsg == null) {
             logmsg = (e != null ? WrappedException.printException(e) : "no message");
         }
         Logger.log("restore", "fatal error: " + logmsg);
-        
+
         if (e != null) {
             e.printStackTrace();
         }
-        
-        //Retry/Cancel from scratch or by 
+
+        //Retry/Cancel from scratch or by
     }
-    
+
     public void setView(){
         J2MEDisplay.setView(view);
     }
-    
+
     public void getCredentials() {
         entry.setInteractive(true);
         J2MEDisplay.setView(entry);
     }
-    
+
     public void setFailView(){
         fView.setInteractive(true);
         J2MEDisplay.setView(fView);
     }
-    
+
     public void setFailView(String msg){
         fView.setMessage(msg);
         setFailView();
@@ -234,25 +234,25 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
     public void onUpdate(int numberCompleted) {
         view.updateProgress(numberCompleted);
     }
-    
+
     public void statusUpdate(int statusNumber) {
         switch(statusNumber){
             case CommCareOTARestoreListener.REGULAR_START:
                 entry.sendMessage("");
                 return;
-            case CommCareOTARestoreListener.BYPASS_START:    
+            case CommCareOTARestoreListener.BYPASS_START:
                 view.addToMessage(Localization.get("restore.bypass.start", new String [] {mRestorer.getBypassRef().getLocalURI()}));
                 break;
-            case CommCareOTARestoreListener.BYPASS_CLEAN:    
+            case CommCareOTARestoreListener.BYPASS_CLEAN:
                 view.addToMessage(Localization.get("restore.bypass.clean"));
                 break;
-            case CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS:    
+            case CommCareOTARestoreListener.BYPASS_CLEAN_SUCCESS:
                 view.addToMessage(Localization.get("restore.bypass.clean.success"));
                 return;
-            case CommCareOTARestoreListener.BYPASS_CLEANFAIL:    
+            case CommCareOTARestoreListener.BYPASS_CLEANFAIL:
                 view.addToMessage(Localization.get("restore.bypass.cleanfail", new String[] {mRestorer.getBypassRef().getLocalURI()}));
                 break;
-            case CommCareOTARestoreListener.BYPASS_FAIL:    
+            case CommCareOTARestoreListener.BYPASS_FAIL:
                 view.addToMessage(Localization.get("restore.bypass.fail"));
                 entry.sendMessage(Localization.get("restore.bypass.instructions"));
                 break;
@@ -260,20 +260,20 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
                 view.addToMessage(Localization.get("restore.badcredentials"));
                 entry.sendMessage(Localization.get("restore.badcredentials"));
                 break;
-            case CommCareOTARestoreListener.RESTORE_CONNECTION_FAILED:    
+            case CommCareOTARestoreListener.RESTORE_CONNECTION_FAILED:
                 //Connection failed; could be for any number of reasons, add to message and proceed
                 view.addToMessage(Localization.get("restore.message.connection.failed"));
                 entry.sendMessage(Localization.get("restore.message.connection.failed"));
                 break;
-            case CommCareOTARestoreListener.RESTORE_BAD_DB:    
+            case CommCareOTARestoreListener.RESTORE_BAD_DB:
                 entry.sendMessage(Localization.get("restore.bad.db"));
                 view.setMessage(Localization.get("restore.bad.db"));
                 break;
-            case CommCareOTARestoreListener.RESTORE_DB_BUSY:    
+            case CommCareOTARestoreListener.RESTORE_DB_BUSY:
                 view.addToMessage(Localization.get("restore.db.busy"));
                 entry.sendMessage(Localization.get("restore.db.busy"));
                 break;
-            case CommCareOTARestoreListener.RESTORE_CONNECTION_MADE:    
+            case CommCareOTARestoreListener.RESTORE_CONNECTION_MADE:
                 view.addToMessage(Localization.get("restore.message.connectionmade"));
                 entry.sendMessage(Localization.get("restore.message.connectionmade"));
                 break;
@@ -321,10 +321,10 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
             case CommCareOTARestoreListener.RESTORE_CONNECTION_FAIL_ENTRY:
                 entry.sendMessage(Localization.get("restore.message.connection.failed"));
                 break;
-            default: 
+            default:
         }
     }
-    
+
     public void setTotalForms(int totalItemCount){
         this.totalItemCount = totalItemCount;
         view.setTotalItems(totalItemCount);
@@ -340,7 +340,7 @@ public class CommCareOTARestoreController implements HandledCommandListener, Com
         fView.setInteractive(true);
         doneFail(failMessage);
     }
-    
+
     public void promptRetry(String msg){
         view.stopGauge();
         entry.setInteractive(true);

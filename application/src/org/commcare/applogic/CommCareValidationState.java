@@ -3,7 +3,7 @@ package org.commcare.applogic;
 /**
  * State class that handles validation, interaction, and message output. Only called by
  * the CommCareToolsState - initial validation is handled in the CommCareContext class.
- * 
+ *
  * @author wspride
  */
 
@@ -26,7 +26,7 @@ import de.enough.polish.ui.CommandListener;
 import de.enough.polish.ui.Displayable;
 
 public abstract class CommCareValidationState implements State, CommandListener, TrivialTransitions{
-    
+
     CommCareStartupInteraction view;
     public Command cmdRetry = new Command("Retry", Command.OK, 1);
     public Command cmdExit = new Command("Exit", Command.CANCEL, 1);
@@ -46,11 +46,11 @@ public abstract class CommCareValidationState implements State, CommandListener,
         String results = CommCareStatic.validate(CommCareContext.RetrieveGlobalResourceTable());
         view.setMessage(results,false);
     }
-    
+
     private void validationHelper(){
         view.setMessage(CommCareStartupInteraction.failSafeText("validation.start","Validating media..."));
         String validationResult = CommCareStatic.validate(CommCareContext.RetrieveGlobalResourceTable());
-        
+
         if(validationResult == null){
             view.removeCommand(cmdRetry);
             view.setMessage(CommCareStartupInteraction.failSafeText("validation.success","Validation successful!"), false);
@@ -58,7 +58,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
             view.setMessage(validationResult, false);
         }
     }
-    
+
     public void commandAction(Command c, Displayable d) {
         if(c==cmdRetry){
             validationHelper();
@@ -67,7 +67,7 @@ public abstract class CommCareValidationState implements State, CommandListener,
             done();
         }
     }
-    
+
     public abstract void done();
 
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.view;
 
@@ -29,13 +29,13 @@ public class CommCareHomeController implements HandledCommandListener {
     Profile profile;
     CommCareSessionController session;
     User current;
-    
+
     public CommCareHomeController (Profile profile, CommCareSessionController session) {
         this.profile = profile;
         this.session = session;
         current = CommCareContext._().getUser();
     }
-    
+
     public void setTransitions (CommCareHomeTransitions transitions) {
         this.transitions = transitions;
     }
@@ -49,7 +49,7 @@ public class CommCareHomeController implements HandledCommandListener {
 
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
-    }  
+    }
 
     public void _commandAction(Command c, Displayable d) {
         if (c == view.select) {
@@ -61,7 +61,7 @@ public class CommCareHomeController implements HandledCommandListener {
             } else if(view.getCurrentItem() == view.reviewRecent) {
                 transitions.review();
             } else {
-                transitions.sessionItemChosen(view.getSelectedIndex()); 
+                transitions.sessionItemChosen(view.getSelectedIndex());
             }
         } else if (c == view.exit) {
             transitions.logout();
@@ -69,7 +69,7 @@ public class CommCareHomeController implements HandledCommandListener {
             transitions.settings();
         } else if (c == view.admNewUser) {
             transitions.newUser();
-        } else if (c == view.admEditUsers) {        
+        } else if (c == view.admEditUsers) {
             transitions.editUsers();
         } else if (c == view.admDownload) {
             transitions.restoreUserData();

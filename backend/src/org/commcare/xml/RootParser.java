@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.xml;
 
@@ -12,7 +12,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class RootParser extends ElementParser<RootTranslator> {
 
@@ -25,24 +24,23 @@ public class RootParser extends ElementParser<RootTranslator> {
      */
     public RootTranslator parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("root");
-        
+
         String id = parser.getAttributeValue(null, "prefix");
         String readonly = parser.getAttributeValue(null, "readonly");
-        
+
         //Get the child or error out if none exists
         getNextTagInBlock("root");
-        
+
         String referenceType = parser.getName().toLowerCase();
-        String path = parser.getAttributeValue(null,"path"); 
-        if(referenceType.equals("filesystem")) {
-            return new RootTranslator("jr://" + id + "/","jr://file" + path);
-        } else if(referenceType.equals("resource")) {
+        String path = parser.getAttributeValue(null, "path");
+        if (referenceType.equals("filesystem")) {
+            return new RootTranslator("jr://" + id + "/", "jr://file" + path);
+        } else if (referenceType.equals("resource")) {
             return new RootTranslator("jr://" + id + "/", "jr://resource" + path);
-        } else if(referenceType.equals("absolute")) {
+        } else if (referenceType.equals("absolute")) {
             return new RootTranslator("jr://" + id + "/", path);
-        }
-        else {
-            throw new InvalidStructureException("No available reference types to parse out reference root " + referenceType,parser);
+        } else {
+            throw new InvalidStructureException("No available reference types to parse out reference root " + referenceType, parser);
         }
     }
 

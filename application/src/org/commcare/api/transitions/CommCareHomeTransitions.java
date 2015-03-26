@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.api.transitions;
 
@@ -15,7 +15,7 @@ public interface CommCareHomeTransitions  extends MenuTransitions {
     void sendAllUnsent();
     void serverSync();
     void logout();
-    
+
     void settings ();
     void newUser ();
     void editUsers ();
@@ -25,7 +25,7 @@ public interface CommCareHomeTransitions  extends MenuTransitions {
     void review ();
     void adminLogin ();
     void forceSend ();
-    
+
     // dev / debugging
     void rmsdump ();
     void viewLogs ();

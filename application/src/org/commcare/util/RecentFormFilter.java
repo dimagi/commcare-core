@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -16,10 +16,10 @@ import org.javarosa.core.services.storage.EntityFilter;
 /**
  * The RecentFormFilter specifies whether a form is currently
  * needed for review.
- * 
+ *
  * It returns true for any form which should be listed for review
  * and false for any form not needing review.
- * 
+ *
  * @author ctsims
  *
  */
@@ -27,7 +27,7 @@ public class RecentFormFilter extends EntityFilter<FormInstance> {
 
     private static int DEFAULT_DAYS = 7;
     int days;
-    
+
     public RecentFormFilter() {
         days = DEFAULT_DAYS;
 
@@ -41,11 +41,11 @@ public class RecentFormFilter extends EntityFilter<FormInstance> {
             }
         }
     }
-    
+
     public RecentFormFilter(int days) {
         this.days = days;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
@@ -55,7 +55,7 @@ public class RecentFormFilter extends EntityFilter<FormInstance> {
         if(!CommCareContext._().getManager().getCurrentProfile().isFeatureActive(Profile.FEATURE_REVIEW)) {
             return false;
         }
-        
+
         try {
             //otherwise, check the number of days since the form was entered. If it has passed, the form no longer
             //qualifies

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.applogic;
 
@@ -17,13 +17,13 @@ import org.javarosa.core.api.State;
  *
  */
 public abstract class MenuHomeState implements MenuTransitions, State {
-    
+
     private CommCareSuiteController controller;
-    
+
     public MenuHomeState(CommCareSessionController controller, Menu m) {
         this.controller = getController(controller, m);
     }
-    
+
     public CommCareSuiteController getController(CommCareSessionController controller, Menu m) {
         return new CommCareSuiteController(controller, m);
     }

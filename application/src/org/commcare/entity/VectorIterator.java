@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.entity;
 
@@ -12,17 +12,17 @@ import org.javarosa.core.util.Iterator;
  *
  */
 public class VectorIterator<E> implements Iterator<E> {
-    
+
     Vector<E> set;
     final int[] count = new int[] { 0 };
-    
+
     public VectorIterator(Vector<E> set) {
         //TODO: Safety: Is this ever going to change?
         this.set = set;
     }
 
     public int numRecords() {
-        return set.size(); 
+        return set.size();
     }
 
     public int peekID() {
@@ -49,7 +49,7 @@ public class VectorIterator<E> implements Iterator<E> {
 
     public boolean hasMore() {
         synchronized(count) {
-            return peekID() < set.size(); 
+            return peekID() < set.size();
         }
     }
 
