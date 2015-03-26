@@ -157,7 +157,6 @@ public class CaseModelProcessor implements ICaseModelProcessor {
             try {
                 if (kid.getName().equals("case_type")) {
                     caseTypeId = kid.getValue().uncast().getString();
-                    ;
                     continue;
                 }
                 if (kid.getName().equals("owner_id")) {
@@ -166,7 +165,6 @@ public class CaseModelProcessor implements ICaseModelProcessor {
                 }
                 if (kid.getName().equals("case_name")) {
                     caseName = kid.getValue().uncast().getString();
-                    ;
                     continue;
                 }
             } catch (NullPointerException npe) {
