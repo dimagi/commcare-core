@@ -122,16 +122,22 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
      */
     private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {
         Enumeration e = template.getConfigurationKeys();
-        while (e.hasMoreElements()) {
-            String key = (String)e.nextElement();
-            String value = template.getConfiguration(key).evaluate(context);
-            String prefix = "var-";
-            if (key.startsWith(prefix)) {
-                context.setVariable(key.substring(prefix.length()), value);
-            } else {
+        Vector<String> nonvariables = new Vector<String>();
+        String prefix = "var-";
+            while (e.hasMoreElements()) {
+                String key = (String)e.nextElement();
+                if (key.startsWith(prefix)) {
+                    String value = template.getConfiguration(key).evaluate(context);
+                    context.setVariable(key.substring(prefix.length()), value);
+                }
+                else {
+                    nonvariables.addElement(key);
+                }
+            }
+            for (String key : nonvariables) {
+                String value = template.getConfiguration(key).evaluate(context);
                 data.setConfiguration(key, value);
             }
-        }
     }
 
     /*
