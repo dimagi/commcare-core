@@ -336,4 +336,26 @@ public class Case implements Persistable, IMetaData, Secure {
         }
         return (Date)data.get(LAST_MODIFIED);
     }
+
+    /**
+     * Removes any potential indices with the provided index name.
+     * 
+     * If the index doesn't currently exist, nothing is changed.
+     *  
+     * @param indexName The name of a case index that should be removed.
+     */
+    public void removeIndex(String indexName) {
+        CaseIndex toRemove = null;
+        
+        for(CaseIndex index : indices) {
+            if(index.mName.equals(indexName)) {
+                toRemove = index;
+                break;
+            }
+        }
+        
+        if(toRemove != null) {
+            indices.remove(toRemove);
+        }
+    }
 }

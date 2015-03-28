@@ -247,9 +247,10 @@ public class CaseModelProcessor implements ICaseModelProcessor {
             }
             IAnswerData data = child.getValue();
             if (data == null) {
-                throw new MalformedCaseModelException("Invalid <index> child, supplied index doesn't have a value. at " + child.getRef().toString(true), "<create>");
+                c.removeIndex(indexName);
+            } else {
+                c.setIndex(new CaseIndex(indexName, indexType, data.uncast().getString(), relationship));
             }
-            c.setIndex(new CaseIndex(indexName, indexType, data.uncast().getString(), relationship));
             modified = true;
         }
         if (modified) {
