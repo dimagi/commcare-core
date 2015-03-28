@@ -16,16 +16,6 @@
 
 package org.javarosa.xpath.expr;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import me.regexp.RE;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
@@ -39,12 +29,23 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import me.regexp.RE;
 
 /**
  * Representation of an xpath function expression.
@@ -185,8 +186,12 @@ public class XPathFuncExpr extends XPathExpression {
                 return boolNot(argVals[0]);
             } else if (name.equals("boolean-from-string") && args.length == 1) {
                 return boolStr(argVals[0]);
-            } else if (name.equals("format-date") && args.length == 2) {
-                return dateStr(argVals[0], argVals[1]);
+            } else if (name.equals("format-date")) {
+                if( args.length == 2) {
+                    return dateStr(argVals[0], argVals[1]);
+                } else{
+                    throw new XPathArityException("function \'" + name + "\'", 2, args.length);
+                }
             } else if ((name.equals("selected") || name.equals("is-selected")) && args.length == 2) { //non-standard
                 return multiSelected(argVals[0], argVals[1]);
             } else if (name.equals("count-selected") && args.length == 1) { //non-standard
