@@ -355,7 +355,7 @@ public class Case implements Persistable, IMetaData, Secure {
         }
         
         if(toRemove != null) {
-            indices.remove(toRemove);
+            indices.removeElement(toRemove);
         }
     }
 }
