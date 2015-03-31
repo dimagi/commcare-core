@@ -223,7 +223,7 @@ public class XPathPathExpr extends XPathExpression {
                 cachedTemplate = m.getTemplatePath(ref);
             }
             if (cachedTemplate == null) {
-                return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
+                return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
             }
         }
 

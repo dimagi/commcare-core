@@ -66,7 +66,7 @@ public class XPathNodeset {
         this.ec = ec;
     }
 
-    public static XPathNodeset ConstructInvalidPathNodeset(String pathEvaluated, String originalPath) {
+    public static XPathNodeset constructInvalidPathNodeset(String pathEvaluated, String originalPath) {
         XPathNodeset nodeset = new XPathNodeset();
         nodeset.nodes = null;
         nodeset.instance = null;
