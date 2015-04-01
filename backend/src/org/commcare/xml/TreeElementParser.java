@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import java.io.IOException;

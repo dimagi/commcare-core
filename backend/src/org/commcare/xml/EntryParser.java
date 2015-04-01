@@ -22,7 +22,7 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * @author ctsims
  */
-public class EntryParser extends ElementParser<Entry> {
+public class EntryParser extends CommCareElementParser<Entry> {
     boolean isEntry = true;
 
     public EntryParser(KXmlParser parser) {

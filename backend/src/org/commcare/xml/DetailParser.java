@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -23,7 +20,7 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * @author ctsims
  */
-public class DetailParser extends ElementParser<Detail> {
+public class DetailParser extends CommCareElementParser<Detail> {
 
     public DetailParser(KXmlParser parser) {
         super(parser);

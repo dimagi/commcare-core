@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -17,7 +14,7 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * @author ctsims
  */
-public class ActionParser extends ElementParser<Action> {
+public class ActionParser extends CommCareElementParser<Action> {
 
     public static final String NAME_ACTION = "action";
 

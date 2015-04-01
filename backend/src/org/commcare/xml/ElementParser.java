@@ -1,14 +1,9 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.Text;
 import org.commcare.xml.util.InvalidStructureException;
 import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -42,7 +37,7 @@ public abstract class ElementParser<T> {
     /**
      * Produces a new element parser for the appropriate datatype.
      *
-     * @param suiteStream A stream which is reading the XML content
+     * @param stream A stream which is reading the XML content
      *                    of the document.
      * @throws IOException If the stream cannot be read for any reason
      *                     other than invalid CommCare XML Structures.
@@ -92,7 +87,7 @@ public abstract class ElementParser<T> {
      * Evaluates whether the current node is of an appropriate name
      * and throws the proper exception if not.
      *
-     * @param name A list of names which are valid during this step
+     * @param names A list of names which are valid during this step
      *             of parsing
      * @throws InvalidStructureException If the node at the current
      *                                   position is not the one expected.
@@ -283,7 +278,7 @@ public abstract class ElementParser<T> {
      * value isn't a date, or is null (if not tolerated) an invalid
      * structure exception is thrown
      *
-     * @param value A string containing an date value
+     * @param attributeName attribute name pointing to date value
      * @return The date represented
      * @throws InvalidStructureException If the string does not contain
      *                                   a valid date.
@@ -340,25 +335,6 @@ public abstract class ElementParser<T> {
 
             }
         }
-    }
-
-    //This is, er, kind of not the best place for this. Should possibly be its own parser?
-    public DisplayUnit parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException {
-        Object[] info = new Object[3];
-        while (nextTagInBlock("display")) {
-            if (parser.getName().equals("text")) {
-                info[0] = new TextParser(parser).parse();
-            }
-            //check and parse media stuff
-            else if (parser.getName().equals("media")) {
-                info[1] = parser.getAttributeValue(null, "image");
-                info[2] = parser.getAttributeValue(null, "audio");
-                //only ends up grabbing the last entries with
-                //each attribute, but we can only use one of each anyway.
-            }
-        }
-
-        return new DisplayUnit((Text)info[0], (String)info[1], (String)info[2]);
     }
 
     protected int nextNonWhitespace() throws XmlPullParserException, IOException {
