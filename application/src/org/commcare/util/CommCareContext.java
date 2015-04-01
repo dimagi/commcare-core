@@ -31,6 +31,7 @@ import org.commcare.util.time.AutoUpdateEvent;
 import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
+import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -264,9 +265,9 @@ public class CommCareContext {
                     updateProgress(60);
 
                 } catch (UnfullfilledRequirementsException e) {
-                    if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
+                    if(e.getSeverity() == CommCareElementParser.SEVERITY_PROMPT) {
                         String message = e.getMessage();
-                        if(e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION) {
+                        if(e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION) {
                             message = CommCareStartupInteraction.failSafeText("commcare.badversion",
                                     "The application requires a newer version of CommCare than is installed. It may not work correctly. Should installation be attempted anyway?");
                         }

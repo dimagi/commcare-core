@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -75,7 +76,7 @@ public class OpenRosaApiResponseProcessor {
             }
         }
         //throw some exception
-        throw new UnfullfilledRequirementsException("Unrecognized response type", UnfullfilledRequirementsException.SEVERITY_ENVIRONMENT);
+        throw new UnfullfilledRequirementsException("Unrecognized response type", CommCareElementParser.SEVERITY_ENVIRONMENT);
     }
 
     public String[] getCompiledResponses() {
