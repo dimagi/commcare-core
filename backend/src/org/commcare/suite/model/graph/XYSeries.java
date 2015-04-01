@@ -104,18 +104,6 @@ public class XYSeries implements Externalizable, Configurable {
     }
 
     /*
-     * Parse all not-yet-parsed functions in this object.
-     */
-    protected void parse() throws XPathSyntaxException {
-        if (mXParse == null) {
-            mXParse = parse(mX);
-        }
-        if (mYParse == null) {
-            mYParse = parse(mY);
-        }
-    }
-
-    /*
      * Helper function to parse a single piece of XPath.
      */
     protected XPathExpression parse(String function) throws XPathSyntaxException {
@@ -129,7 +117,9 @@ public class XYSeries implements Externalizable, Configurable {
      * Get the actual x value within a given EvaluationContext.
      */
     public String evaluateX(EvaluationContext context) throws XPathSyntaxException {
-        parse();
+        if (mXParse == null) {
+            mXParse = parse(mX);
+        }
         return evaluateExpression(mXParse, context);
     }
 
@@ -137,7 +127,9 @@ public class XYSeries implements Externalizable, Configurable {
      * Get the actual y value within a given EvaluationContext.
      */
     public String evaluateY(EvaluationContext context) throws XPathSyntaxException {
-        parse();
+        if (mYParse == null) {
+            mYParse = parse(mY);
+        }
         return evaluateExpression(mYParse, context);
     }
 

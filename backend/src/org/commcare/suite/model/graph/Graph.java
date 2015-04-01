@@ -95,7 +95,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
      * (non-Javadoc)
      * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
      */
-    public GraphData evaluate(EvaluationContext context) {
+    public GraphData evaluate(EvaluationContext context) throws XPathSyntaxException {
         GraphData data = new GraphData();
         data.setType(mType);
         evaluateConfiguration(this, data, context);
@@ -143,30 +143,43 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     /*
      * Helper for evaluate. Looks at a single series.
      */
-    private void evaluateSeries(GraphData graphData, EvaluationContext context) {
-        try {
-            for (XYSeries s : mSeries) {
-                Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
-                SeriesData seriesData = new SeriesData();
-                EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
-                evaluateConfiguration(s, seriesData, seriesContext);
-                for (TreeReference ref : refList) {
-                    EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
-                    String x = s.evaluateX(refContext);
-                    String y = s.evaluateY(refContext);
-                    if (x != null && y != null) {
-                        if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
+    private void evaluateSeries(GraphData graphData, EvaluationContext context) throws XPathSyntaxException {
+        for (XYSeries s : mSeries) {
+            Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
+            SeriesData seriesData = new SeriesData();
+            EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
+            evaluateConfiguration(s, seriesData, seriesContext);
+            for (TreeReference ref : refList) {
+                EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
+                String x = null;
+                String y = null;
+                try {
+                    x = s.evaluateX(refContext);
+                }
+                catch (XPathSyntaxException xse) {
+                    throw new XPathSyntaxException("x function: " + xse.getMessage());
+                }
+                try {
+                    y = s.evaluateY(refContext);
+                }
+                catch (XPathSyntaxException xse) {
+                    throw new XPathSyntaxException("y function: " + xse.getMessage());
+                }
+                if (x != null && y != null) {
+                    if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
+                        try {
                             String radius = ((BubbleSeries)s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
-                        } else {
-                            seriesData.addPoint(new XYPointData(x, y));
                         }
+                        catch (XPathSyntaxException xse) {
+                            throw new XPathSyntaxException("radius function: " + xse.getMessage());
+                        }
+                    } else {
+                        seriesData.addPoint(new XYPointData(x, y));
                     }
                 }
-                graphData.addSeries(seriesData);
             }
-        } catch (XPathSyntaxException e) {
-            e.printStackTrace();
+            graphData.addSeries(seriesData);
         }
     }
 
