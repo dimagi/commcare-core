@@ -7,8 +7,6 @@ import java.util.TimeZone;
 
 import org.commcare.model.PeriodicEvent;
 import org.commcare.util.time.TimeMessageEvent;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -17,6 +15,8 @@ import org.javarosa.services.transport.CommUtil;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.user.transport.HttpUserRegistrationTranslator;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParserException;

@@ -17,8 +17,6 @@ import org.commcare.model.PeriodicEvent;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.restore.CommCareOTARestoreTransitions;
 import org.commcare.util.time.PermissionsEvent;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
@@ -43,6 +41,8 @@ import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
 import org.javarosa.services.transport.impl.simplehttp.StreamingHTTPMessage;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 

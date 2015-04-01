@@ -7,10 +7,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
