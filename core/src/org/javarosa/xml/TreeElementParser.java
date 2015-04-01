@@ -1,10 +1,10 @@
-package org.javarosa.xform.parse;
+package org.javarosa.xml;
 
 import java.io.IOException;
 import java.util.Hashtable;
 
-import org.javarosa.xform.util.InvalidStructureException;
-import org.javarosa.xform.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.kxml2.io.KXmlParser;

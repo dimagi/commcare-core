@@ -1,11 +1,11 @@
-package org.javarosa.xform.parse;
+package org.javarosa.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.javarosa.xform.util.InvalidStructureException;
-import org.javarosa.xform.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.kxml2.io.KXmlParser;

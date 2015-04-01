@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.javarosa.xform.util;
+package org.javarosa.xml.util;
 
 /**
  * @author ctsims
