@@ -12,18 +12,13 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * <p>Element Parser is the core parsing element
- * for CommCare XML files. It is implemented for
- * each CommCare data type to encapsulate all of
- * the parsing rules for that type's XML definition.
- * </p>
+ * <p>Element Parser is the core parsing element for XML files. Implementations
+ * can be made for data types, encapsulating all of the parsing rules for that
+ * type's XML definition.</p>
  *
- * <p>
- * A number of helper methods are provided in the
- * parser which are intended to standardize the
- * techniques used for validation and pull-parsing
- * through the XML Document.
- * </p>
+ * <p>A number of helper methods are provided in the parser which are intended
+ * to standardize the techniques used for validation and pull-parsing through
+ * the XML Document.</p>
  *
  * @author ctsims
  */
@@ -38,9 +33,9 @@ public abstract class ElementParser<T> {
      * Produces a new element parser for the appropriate datatype.
      *
      * @param stream A stream which is reading the XML content
-     *                    of the document.
+     *               of the document.
      * @throws IOException If the stream cannot be read for any reason
-     *                     other than invalid CommCare XML Structures.
+     *                     other than invalid XML Structures.
      */
     public ElementParser(InputStream stream) throws IOException {
         parser = new KXmlParser();
@@ -88,7 +83,7 @@ public abstract class ElementParser<T> {
      * and throws the proper exception if not.
      *
      * @param names A list of names which are valid during this step
-     *             of parsing
+     *              of parsing
      * @throws InvalidStructureException If the node at the current
      *                                   position is not the one expected.
      */
@@ -147,7 +142,7 @@ public abstract class ElementParser<T> {
      * @param terminal The name of the tag which the next tag expected
      *                 should be inside of.
      * @throws InvalidStructureException If no further tags inside of terminal
-     *                                   are available or if any other invalid CommCare XML structures are
+     *                                   are available or if any other invalid XML structures are
      *                                   detected.
      * @throws IOException               If the parser has a problem reading the document
      * @throws XmlPullParserException    If the stream does not contain well-formed
@@ -166,7 +161,7 @@ public abstract class ElementParser<T> {
      *
      * @param terminal The name of the tag which the next tag expected
      *                 should be inside of.
-     * @throws InvalidStructureException If any invalid CommCare XML structures are
+     * @throws InvalidStructureException If any invalid XML structures are
      *                                   detected.
      * @throws IOException               If the parser has a problem reading the document
      * @throws XmlPullParserException    If the stream does not contain well-formed
@@ -241,7 +236,7 @@ public abstract class ElementParser<T> {
      * exception is thrown.
      *
      * @throws InvalidStructureException If no further tags
-     *                                   are available or if any other invalid CommCare XML structures are
+     *                                   are available or if any other invalid XML structures are
      *                                   detected.
      * @throws IOException               If the parser has a problem reading the document
      * @throws XmlPullParserException    If the stream does not contain well-formed
@@ -307,7 +302,7 @@ public abstract class ElementParser<T> {
      * @return The datatype which is described by the appropriate XML
      * definition.
      * @throws InvalidStructureException If the XML does not contain properly
-     *                                   structured CommCare XML
+     *                                   structured XML
      * @throws IOException               If there is a problem retrieving the document
      * @throws XmlPullParserException    If the document does not contain well-
      *                                   formed XML.
