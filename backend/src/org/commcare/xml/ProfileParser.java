@@ -70,8 +70,8 @@ public class ProfileParser extends ElementParser<Profile> {
                 
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
             }
             
             //For the minor version, anything greater than the profile's version is valid
@@ -79,8 +79,8 @@ public class ProfileParser extends ElementParser<Profile> {
                     && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
             }
         }
 
