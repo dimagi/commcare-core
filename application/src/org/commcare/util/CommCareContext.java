@@ -31,7 +31,6 @@ import org.commcare.util.time.AutoUpdateEvent;
 import org.commcare.util.time.PermissionsEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.commcare.view.CommCareStartupInteraction;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -90,6 +89,7 @@ import org.javarosa.user.model.User;
 import org.javarosa.user.utility.UserPreloadHandler;
 import org.javarosa.user.utility.UserUtility;
 import org.javarosa.xform.util.XFormUtils;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import de.enough.polish.ui.Display;
 

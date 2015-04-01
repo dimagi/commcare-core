@@ -17,7 +17,6 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.InitializationListener;
 import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.api.State;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.reference.ReferenceManager;
@@ -27,6 +26,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import de.enough.polish.util.StreamUtil;
 

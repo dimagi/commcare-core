@@ -30,7 +30,6 @@ import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -48,6 +47,7 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * @author ctsims

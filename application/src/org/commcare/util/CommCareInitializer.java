@@ -4,13 +4,13 @@
 package org.commcare.util;
 
 import org.commcare.view.CommCareStartupInteraction;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.j2me.log.HandledThread;
 import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.properties.LogPropertyRules;
 import org.javarosa.log.util.LogReportUtils;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 
 /**
