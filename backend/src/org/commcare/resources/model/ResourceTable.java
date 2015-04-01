@@ -7,7 +7,7 @@ import java.util.Vector;
 
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCareInstance;
-import org.javarosa.xform.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;

@@ -9,7 +9,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathParseTool;

@@ -8,8 +8,8 @@ import java.util.Vector;
 
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
-import org.javarosa.xform.parse.ElementParser;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -24,7 +24,7 @@ public class StackOpParser extends ElementParser<StackOperation> {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.xform.parse.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public StackOperation parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();

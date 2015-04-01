@@ -8,8 +8,8 @@ import org.commcare.suite.model.graph.BubbleSeries;
 import org.commcare.suite.model.graph.Configurable;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.XYSeries;
-import org.javarosa.xform.parse.ElementParser;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -24,7 +24,7 @@ public class GraphParser extends ElementParser<Graph> {
 
     /*
      * (non-Javadoc)
-     * @see org.javarosa.xform.parse.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
         Graph graph = new Graph();

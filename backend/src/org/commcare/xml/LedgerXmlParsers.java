@@ -10,8 +10,8 @@ import java.util.Vector;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xform.parse.ElementParser;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;

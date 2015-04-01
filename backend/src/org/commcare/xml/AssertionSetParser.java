@@ -8,8 +8,8 @@ import java.util.Vector;
 
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Text;
-import org.javarosa.xform.parse.ElementParser;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
@@ -25,7 +25,7 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.xform.parse.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("assertions");

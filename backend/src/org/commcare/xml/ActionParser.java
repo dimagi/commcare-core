@@ -6,7 +6,7 @@ import java.util.Vector;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.StackOperation;
-import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -22,7 +22,7 @@ public class ActionParser extends CommCareElementParser<Action> {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.xform.parse.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Action parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode(NAME_ACTION);
