@@ -8,29 +8,6 @@ package org.javarosa.xml.util;
  */
 public class UnfullfilledRequirementsException extends Exception {
 
-    /**
-     * This requirement may be ignorable, but the user should be prompted *
-     */
-    public static int SEVERITY_PROMPT = 1;
-    /**
-     * Something is missing from the environment, but it should be able to be provided *
-     */
-    public static int SEVERITY_ENVIRONMENT = 2;
-    /**
-     * It isn't clear how to correct the problem, and probably is a programmer error *
-     */
-    public static int SEVERITY_UNKOWN = 4;
-
-    /**
-     * The profile is incompatible with the major version of the current CommCare installation *
-     */
-    public static int REQUIREMENT_MAJOR_APP_VERSION = 1;
-
-    /**
-     * The profile is incompatible with the minor version of the current CommCare installation *
-     */
-    public static int REQUIREMENT_MINOR_APP_VERSION = 2;
-
     private int severity;
     private int requirement;
 
