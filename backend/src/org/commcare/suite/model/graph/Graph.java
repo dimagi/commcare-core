@@ -7,8 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.suite.model.DetailTemplate;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.DetailTemplate;
+import org.javarosa.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -93,7 +93,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
+     * @see org.javarosa.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
      */
     public GraphData evaluate(EvaluationContext context) {
         GraphData data = new GraphData();

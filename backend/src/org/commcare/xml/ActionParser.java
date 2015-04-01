@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.Vector;
 
 import org.commcare.suite.model.Action;
-import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.Entry;
+import org.javarosa.model.DisplayUnit;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -26,7 +26,7 @@ public class ActionParser extends ElementParser<Action> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Action parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode(NAME_ACTION);

@@ -20,6 +20,8 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.DisplayUnit;
+import org.javarosa.model.Text;
 
 /**
  * <p>An Entry definition describes a user

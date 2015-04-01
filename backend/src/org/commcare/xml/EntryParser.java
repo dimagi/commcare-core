@@ -8,12 +8,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.AssertionSet;
-import org.commcare.suite.model.DisplayUnit;
+import org.javarosa.model.DisplayUnit;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.TextParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.kxml2.io.KXmlParser;
@@ -35,7 +36,7 @@ public class EntryParser extends ElementParser<Entry> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String block = isEntry ? "entry" : "view";

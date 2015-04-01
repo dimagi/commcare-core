@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.util.Vector;
 
 import org.commcare.resources.model.CommCareOTARestoreListener;
-import org.commcare.xml.ElementParser;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.log.WrappedException;
 import org.xmlpull.v1.XmlPullParserException;
 
