@@ -8,12 +8,11 @@ import java.io.InputStream;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.installers.LoginImageInstaller;
-import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
+import org.javarosa.xform.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;

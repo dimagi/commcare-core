@@ -7,7 +7,8 @@ import java.io.IOException;
 
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -22,7 +23,7 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xform.parse.ElementParser#parse()
      */
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();

@@ -1,13 +1,10 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.commcare.suite.model.DetailField.Builder;
-import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
-import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 

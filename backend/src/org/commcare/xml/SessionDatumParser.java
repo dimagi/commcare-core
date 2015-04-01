@@ -6,7 +6,8 @@ package org.commcare.xml;
 import java.io.IOException;
 
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 

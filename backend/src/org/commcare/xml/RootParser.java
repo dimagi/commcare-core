@@ -5,7 +5,8 @@ package org.commcare.xml;
 
 import java.io.IOException;
 
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.javarosa.core.reference.RootTranslator;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -20,7 +21,7 @@ public class RootParser extends ElementParser<RootTranslator> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xform.parse.ElementParser#parse()
      */
     public RootTranslator parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("root");

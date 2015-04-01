@@ -2,7 +2,8 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xform.parse.ElementParser;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 

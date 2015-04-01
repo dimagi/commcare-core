@@ -6,7 +6,7 @@ package org.commcare.resources.model;
 import java.util.Vector;
 
 import org.commcare.util.CommCareInstance;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xform.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
 

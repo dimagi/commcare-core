@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xform.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -23,7 +23,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xform.parse.ElementParser#parse()
      */
     public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("menu");
