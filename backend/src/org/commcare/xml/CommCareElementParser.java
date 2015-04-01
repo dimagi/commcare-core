@@ -25,9 +25,9 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
      * Build a DisplayUnit object by parsing the contents of a display tag.
      */
     public DisplayUnit parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException {
-        String imageValue;
-        String audioValue;
-        Text displayText;
+        String imageValue = null;
+        String audioValue = null;
+        Text displayText = null;
 
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
