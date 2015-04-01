@@ -5,7 +5,7 @@ package org.commcare.data.xml;
 
 import java.io.IOException;
 
-import org.commcare.xml.ElementParser;
+import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
 
 /**

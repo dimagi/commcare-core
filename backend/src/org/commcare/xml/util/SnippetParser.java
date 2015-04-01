@@ -10,12 +10,14 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.suite.model.Text;
+import org.javarosa.model.Text;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
-import org.commcare.xml.TextParser;
+import org.javarosa.xml.TextParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
