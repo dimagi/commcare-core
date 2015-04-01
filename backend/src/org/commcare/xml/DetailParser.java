@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -12,7 +9,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathParseTool;
@@ -23,7 +20,7 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * @author ctsims
  */
-public class DetailParser extends ElementParser<Detail> {
+public class DetailParser extends CommCareElementParser<Detail> {
 
     public DetailParser(KXmlParser parser) {
         super(parser);

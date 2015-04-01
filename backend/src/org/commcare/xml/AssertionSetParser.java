@@ -4,17 +4,12 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.AssertionSet;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
@@ -30,7 +25,7 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("assertions");

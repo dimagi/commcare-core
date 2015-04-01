@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -63,7 +60,6 @@ public class DisplayUnit implements Externalizable {
         name = (Text)ExtUtil.read(in, Text.class, pf);
         imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-
     }
 
     /* (non-Javadoc)
@@ -81,7 +77,6 @@ public class DisplayUnit implements Externalizable {
     }
 
     public String getAudioURI() {
-        // TODO Auto-generated method stub
         return audioReference;
     }
 }

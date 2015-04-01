@@ -8,12 +8,11 @@ import java.io.InputStream;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.installers.LoginImageInstaller;
-import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
@@ -71,8 +70,8 @@ public class ProfileParser extends ElementParser<Profile> {
                 
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
             }
             
             //For the minor version, anything greater than the profile's version is valid
@@ -80,8 +79,8 @@ public class ProfileParser extends ElementParser<Profile> {
                     && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MINOR_APP_VERSION,major,minor,this.instance.getMajorVersion(),this.instance.getMinorVersion());
             }
         }
 

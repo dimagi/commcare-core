@@ -1,7 +1,6 @@
 package org.commcare.xml;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 import org.commcare.suite.model.Text;
 import org.commcare.suite.model.graph.Annotation;
@@ -9,7 +8,8 @@ import org.commcare.suite.model.graph.BubbleSeries;
 import org.commcare.suite.model.graph.Configurable;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.XYSeries;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -24,7 +24,7 @@ public class GraphParser extends ElementParser<Graph> {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
         Graph graph = new Graph();

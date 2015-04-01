@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.xml;
 
 import java.io.IOException;
@@ -8,8 +5,7 @@ import java.util.Vector;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -20,14 +16,14 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author ctsims
  *
  */
-public class MenuParser extends ElementParser<Menu> {
+public class MenuParser extends CommCareElementParser<Menu> {
     
     public MenuParser(KXmlParser parser) {
         super(parser);
     }
 
     /* (non-Javadoc)
-     * @see org.commcare.xml.ElementParser#parse()
+     * @see org.javarosa.xml.ElementParser#parse()
      */
     public Menu parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("menu");
