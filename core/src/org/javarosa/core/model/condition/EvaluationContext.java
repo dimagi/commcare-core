@@ -199,13 +199,20 @@ public class EvaluationContext {
         return expandReference(ref, false);
     }
 
-    // take in a potentially-ambiguous ref, and return a vector of refs for all nodes that match the passed-in ref
-    // meaning, search out all repeated nodes that match the pattern of the passed-in ref
-    // every ref in the returned vector will be unambiguous (no index will ever be INDEX_UNBOUND)
-    // does not return template nodes when matching INDEX_UNBOUND, but will match templates when INDEX_TEMPLATE is explicitly set
-    // return null if ref is relative, otherwise return vector of refs (but vector will be empty is no refs match)
-    // '/' returns {'/'}
-    // can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
+    /**
+    * search for all repeated nodes that match the pattern of the 'ref' argument
+    *
+    * '/' returns {'/'} 
+    * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
+    *
+    * @param ref Potentially ambiguous reference
+    * @param includeTemplates
+    * @return Null if 'ref' is relative reference. Otherwise, returns a vector
+    * of references that point to nodes that match 'ref' argument. These
+    * references are unambiguous (no index will ever be INDEX_UNBOUND) template
+    * nodes won't be included when matching INDEX_UNBOUND, but will be when
+    * INDEX_TEMPLATE is explicitly set.
+    */
     public Vector<TreeReference> expandReference(TreeReference ref, boolean includeTemplates) {
         if (!ref.isAbsolute()) {
             return null;
@@ -227,13 +234,18 @@ public class EvaluationContext {
         }
     }
 
-    // recursive helper function for expandReference
-    // sourceRef: original path we're matching against
-    // node: current node that has matched the sourceRef thus far
-    // workingRef: explicit path that refers to the current node
-    // refs: Vector to collect matching paths; if 'node' is a target node that
-    // matches sourceRef, templateRef is added to refs
-    private void expandReference(TreeReference sourceRef, DataInstance instance, TreeReference workingRef, Vector<TreeReference> refs, boolean includeTemplates) {
+    /**
+     * recursive helper function for expandReference
+     *
+     * @param sourceRef original path we're matching against
+     * @param instance current node that has matched the sourceRef thus far
+     * @param workingRef explicit path that refers to the current node
+     * @param refs Accumulator vector to collect matching paths; if 'instance' is
+     * a target node that matches sourceRef, workingRef is added to refs
+     * @param includeTemplates
+     */
+    private void expandReference(TreeReference sourceRef, DataInstance instance,
+            TreeReference workingRef, Vector<TreeReference> refs, boolean includeTemplates) {
         int depth = workingRef.size();
         Vector<XPathExpression> predicates = null;
 
