@@ -34,7 +34,8 @@ public class TreeElementParser extends ElementParser<TreeElement> {
         }
 
         Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
-        //NOTE: We never expect this to be the exit condition
+
+        // loop parses all siblings at a given depth
         while (parser.getDepth() >= depth) {
             switch (this.nextNonWhitespace()) {
                 case KXmlParser.START_TAG:
@@ -55,6 +56,9 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                 case KXmlParser.TEXT:
                     element.setValue(new UncastData(parser.getText().trim()));
                     break;
+                case KXmlParser.END_DOCUMENT:
+                    // top-level escape, when the parser has reached the end of the document
+                    return element;
                 default:
                     throw new InvalidStructureException("Exception while trying to parse an XML Tree, got something other than tags and text", parser);
             }
