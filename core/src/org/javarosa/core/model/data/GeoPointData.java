@@ -71,7 +71,7 @@ public class GeoPointData implements IAnswerData {
                 this.gp[i] = gp[i];
             } else {
                 // accuracy & altitude should have their decimal values truncated
-                this.gp[i] = truncateDecimal(gp[i], MAX_DECIMAL_ACCURACY);
+                this.gp[i] = formatDouble(gp[i], MAX_DECIMAL_ACCURACY);
             }
         }
     }
@@ -151,6 +151,7 @@ public class GeoPointData implements IAnswerData {
 
     /**
      * Truncate double to have the given number of decimals.
+     *
      * @param x double to be truncated
      * @param numberofDecimals number of decimals that should present in result
      */
@@ -164,5 +165,40 @@ public class GeoPointData implements IAnswerData {
             decimal = new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_CEILING);
         }
         return decimal.doubleValue();
+    }
+
+    /**
+     * Jenky J2ME-compatible decimal truncate for doubles.
+     *
+     * @param x double to be truncated
+     * @param numberOfDecimals number of decimals that should present in result
+     */
+    private static double formatDouble(double x, int numberOfDecimals) {
+        int index;
+        String doubleStr = "" + x;
+
+        // find the period (or comma)
+        if (doubleStr.indexOf(".") != -1) {
+            index = doubleStr.indexOf(".");
+        } else {
+            index = doubleStr.indexOf(",");
+        }
+
+        // Number doesn't have a decimal point, just return it.
+        if (index == -1) {
+            return x;
+        }
+
+        // We want to truncate all decimals
+        if (numberOfDecimals == 0) {
+            return Double.parseDouble(doubleStr.substring(0, index));
+        }
+
+        int len = index + numberOfDecimals + 1;
+        if (len >= doubleStr.length()) {
+            len = doubleStr.length();
+        }
+
+        return Double.parseDouble(doubleStr.substring(0, len));
     }
 }
