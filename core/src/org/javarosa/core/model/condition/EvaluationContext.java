@@ -31,8 +31,9 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
-/* a collection of objects that affect the evaluation of an expression, like function handlers
- * and (not supported) variable bindings
+/**
+ * A collection of objects that affect the evaluation of an expression, like
+ * function handlers and (not supported) variable bindings.
  */
 public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
@@ -297,7 +298,7 @@ public class EvaluationContext {
                             if (child != null) {
                                 set.addElement(child.getRef());
                             } else {
-                                throw new IllegalStateException("Missing or non-sequntial nodes expanding a reference");
+                                throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
                             }
                         }
                         if (includeTemplates) {
