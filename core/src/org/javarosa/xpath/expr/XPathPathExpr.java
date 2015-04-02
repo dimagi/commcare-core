@@ -217,7 +217,8 @@ public class XPathPathExpr extends XPathExpression {
         //TODO: This causes problems when the paths are heterogeneous. IE: If the path is looking for an attribute that 
         //doesn't exist on the first node, there is no template path
 
-
+        // Error out if main DataInstance doesn't match template path of reference.
+        // Cache the check, so it is only performed once.
         if (ref.isAbsolute()) {
             if (cachedTemplate == null) {
                 cachedTemplate = m.getTemplatePath(ref);

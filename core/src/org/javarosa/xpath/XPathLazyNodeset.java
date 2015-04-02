@@ -81,7 +81,7 @@ public class XPathLazyNodeset extends XPathNodeset {
             //first, see if this treeref is usable without expansion
             int size = unExpandedRef.size();
             boolean safe = true;
-            ;
+
             for (int i = 0; i < size; ++i) {
                 //We can't evaluated any predicates for sure
                 if (unExpandedRef.getPredicate(i) != null) {
