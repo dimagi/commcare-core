@@ -42,7 +42,7 @@ public class GeoPointData implements IAnswerData {
 
     // accuracy and altitude data points stored will contain this many decimal
     // points:
-    private final int MAX_DECIMAL_ACCURACY = 1;
+    private final int MAX_DECIMAL_ACCURACY = 2;
 
 
     /**
@@ -67,11 +67,11 @@ public class GeoPointData implements IAnswerData {
         len = gp.length;
         for (int i = 0; i < len; i++) {
             if (i < 2) {
-                // don't truncate lat & lng decimal values
+                // don't round lat & lng decimal values
                 this.gp[i] = gp[i];
             } else {
-                // accuracy & altitude should have their decimal values truncated
-                this.gp[i] = formatDouble(gp[i], MAX_DECIMAL_ACCURACY);
+                // accuracy & altitude should have their decimal values rounded
+                this.gp[i] = roundDecimalUp(gp[i], MAX_DECIMAL_ACCURACY);
             }
         }
     }
@@ -150,55 +150,18 @@ public class GeoPointData implements IAnswerData {
     }
 
     /**
-     * Truncate double to have the given number of decimals.
+     * Jenky (but J2ME-compatible) decimal rounding (up) of doubles.
      *
-     * @param x double to be truncated
-     * @param numberofDecimals number of decimals that should present in result
-     */
-    private static double truncateDecimal(double x, int numberofDecimals) {
-        // via:
-        // https://stackoverflow.com/questions/7747469/how-can-i-truncate-a-double-to-only-two-decimal-places-in-java/21468258#21468258
-        BigDecimal decimal;
-        if (x > 0) {
-            decimal = new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_FLOOR);
-        } else {
-            decimal = new BigDecimal(String.valueOf(x)).setScale(numberofDecimals, BigDecimal.ROUND_CEILING);
-        }
-        return decimal.doubleValue();
-    }
-
-    /**
-     * Jenky J2ME-compatible decimal truncate for doubles.
+     * Subject to normal double imprecisions and will encounter numerical
+     * overflow problems if x * (10^numberofDecimals) is greater than
+     * Double.MAX_VALUE or less than Double.MIN_VALUE.
      *
-     * @param x double to be truncated
+     * @param x double to be rounded up
      * @param numberOfDecimals number of decimals that should present in result
      */
-    private static double formatDouble(double x, int numberOfDecimals) {
-        int index;
-        String doubleStr = "" + x;
+    private static double roundDecimalUp(double x, int numberOfDecimals) {
+        int factor = (int)Double.parseDouble("1e" + numberOfDecimals);
 
-        // find the period (or comma)
-        if (doubleStr.indexOf(".") != -1) {
-            index = doubleStr.indexOf(".");
-        } else {
-            index = doubleStr.indexOf(",");
-        }
-
-        // Number doesn't have a decimal point, just return it.
-        if (index == -1) {
-            return x;
-        }
-
-        // We want to truncate all decimals
-        if (numberOfDecimals == 0) {
-            return Double.parseDouble(doubleStr.substring(0, index));
-        }
-
-        int len = index + numberOfDecimals + 1;
-        if (len >= doubleStr.length()) {
-            len = doubleStr.length();
-        }
-
-        return Double.parseDouble(doubleStr.substring(0, len));
+        return Math.floor(x * factor) / factor;
     }
 }
