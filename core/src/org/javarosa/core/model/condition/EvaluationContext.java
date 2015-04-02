@@ -25,7 +25,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
@@ -224,7 +223,7 @@ public class EvaluationContext {
 
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<TreeReference>();
-        expandReference(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
+        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
 
@@ -241,17 +240,21 @@ public class EvaluationContext {
     }
 
     /**
-     * Recursive helper function for expandReference.
+     * Recursive helper function for expandReference that performs the search
+     * for all repeated nodes that match the pattern of the 'ref' argument.
      *
      * @param sourceRef original path we're matching against
-     * @param instance current node that has matched the sourceRef thus far
+     * @param sourceInstance original node obtained from sourceRef
      * @param workingRef explicit path that refers to the current node
-     * @param refs Accumulator vector to collect matching paths; if 'instance' is
-     * a target node that matches sourceRef, workingRef is added to refs
+     * @param refs Accumulator vector to collect matching paths. Contained
+     * references are unambiguous. Template nodes won't be included when
+     * matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     * set.
      * @param includeTemplates
      */
-    private void expandReference(TreeReference sourceRef, DataInstance instance,
-            TreeReference workingRef, Vector<TreeReference> refs, boolean includeTemplates) {
+    private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
+                                            TreeReference workingRef, Vector<TreeReference> refs,
+                                            boolean includeTemplates) {
         int depth = workingRef.size();
         Vector<XPathExpression> predicates = null;
 
@@ -274,9 +277,11 @@ public class EvaluationContext {
             }
 
             int mult = sourceRef.getMultiplicity(depth);
+
+            // child & template TreeReferences that we want to recur on
             Vector<TreeReference> set = new Vector<TreeReference>();
 
-            AbstractTreeElement node = instance.resolveReference(workingRef);
+            AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
             Vector<TreeReference> passingSet = new Vector<TreeReference>();
 
             Vector<TreeReference> children = node.tryBatchChildFetch(name, mult, predicates, this);
@@ -284,7 +289,6 @@ public class EvaluationContext {
             if (children != null) {
                 set = children;
             } else {
-
                 if (node.hasChildren()) {
                     if (mult == TreeReference.INDEX_UNBOUND) {
                         int count = node.getChildMultiplicity(name);
@@ -346,7 +350,7 @@ public class EvaluationContext {
                         //test the predicate on the treeElement
                         //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
                         EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
-                        Object o = xpe.eval(instance, evalContext);
+                        Object o = xpe.eval(sourceInstance, evalContext);
 
                         //There's a special case here that can't be handled by syntactic sugar.
                         //If the result of a predicate expression is an Integer, we need to 
@@ -378,10 +382,10 @@ public class EvaluationContext {
                         predicateEvaluationProgress[0]++;
                     }
                     if (passedAll) {
-                        expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
+                        expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
                     }
                 } else {
-                    expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
+                    expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
                 }
             }
         }
