@@ -1,6 +1,7 @@
 package org.javarosa.xml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 import org.javarosa.xml.util.InvalidStructureException;
@@ -16,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class TreeElementParser extends ElementParser<TreeElement> {
     int multiplicity;
     String instanceId;
-
+    
     public TreeElementParser(KXmlParser parser, int multiplicity, String instanceId) {
         super(parser);
         this.multiplicity = multiplicity;
@@ -56,9 +57,6 @@ public class TreeElementParser extends ElementParser<TreeElement> {
                 case KXmlParser.TEXT:
                     element.setValue(new UncastData(parser.getText().trim()));
                     break;
-                case KXmlParser.END_DOCUMENT:
-                    // top-level escape, when the parser has reached the end of the document
-                    return element;
                 default:
                     throw new InvalidStructureException("Exception while trying to parse an XML Tree, got something other than tags and text", parser);
             }

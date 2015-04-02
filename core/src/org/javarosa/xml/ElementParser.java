@@ -15,6 +15,10 @@ import org.xmlpull.v1.XmlPullParserException;
  * <p>Element Parser is the core parsing element for XML files. Implementations
  * can be made for data types, encapsulating all of the parsing rules for that
  * type's XML definition.</p>
+ * 
+ * <p>An Element parser should have a defined scope of a single tag and its
+ * descendants in the document. The ElementParser should receive the parser
+ * pointing to that opening tag, and return it on the closing tag
  *
  * <p>A number of helper methods are provided in the parser which are intended
  * to standardize the techniques used for validation and pull-parsing through
@@ -30,31 +34,11 @@ public abstract class ElementParser<T> {
     int level = 0;
 
     /**
-     * Produces a new element parser for the appropriate datatype.
-     *
-     * @param stream A stream which is reading the XML content
-     *               of the document.
-     * @throws IOException If the stream cannot be read for any reason
-     *                     other than invalid XML Structures.
-     */
-    public ElementParser(InputStream stream) throws IOException {
-        parser = new KXmlParser();
-        try {
-            parser.setInput(stream, "UTF-8");
-            parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
-            parser.next();
-
-        } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            Logger.exception("Element Parser", e);
-            throw new IOException(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            throw new IOException(e.getMessage());
-        }
-    }
-
-    /**
-     * Produces a new element parser for the appropriate datatype.
+     * Produces a new element parser for the appropriate Element datatype.
+     * 
+     * The parser should be already instantiated, and should be pointing directly
+     * at the opening tag expected by the parser, not (for instance) the beginning
+     * of the document
      *
      * @param parser An XML Pull Parser which is currently at the
      *               position of the top level element that represents this
@@ -63,6 +47,34 @@ public abstract class ElementParser<T> {
     public ElementParser(KXmlParser parser) {
         this.parser = parser;
         level = parser.getDepth();
+    }
+    
+    /**
+     * Prepares a parser that will be used by the element parser, configuring relevant
+     * parameters and setting it to the appropriate point in the document.
+     *
+     * @param stream A stream which is reading the XML content
+     *               of the document.
+     * @throws IOException If the stream cannot be read for any reason
+     *                     other than invalid XML Structures.
+     */
+    public static KXmlParser InstantiateParser(InputStream stream) throws IOException {
+        KXmlParser parser = new KXmlParser();
+        try {
+            parser.setInput(stream, "UTF-8");
+            parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
+            
+            //Point to the first available tag.
+            parser.next();
+
+            return parser;
+        } catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
+            Logger.exception("Element Parser", e);
+            throw new IOException(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new IOException(e.getMessage());
+        }
     }
 
     /**
