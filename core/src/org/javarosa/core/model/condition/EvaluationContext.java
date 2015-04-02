@@ -36,16 +36,20 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
  * and (not supported) variable bindings
  */
 public class EvaluationContext {
-    private TreeReference contextNode; //unambiguous ref used as the anchor for relative paths
+    // Unambiguous anchor reference for relative paths
+    private TreeReference contextNode; 
+
     private Hashtable functionHandlers;
     private Hashtable variables;
 
-    public boolean isConstraint; //true if we are evaluating a constraint
-    public IAnswerData candidateValue; //if isConstraint, this is the value being validated
-    public boolean isCheckAddChild; //if isConstraint, true if we are checking the constraint of a parent node on how
-    //  many children it may have
+    // Do we want to evaluate constraints?
+    public boolean isConstraint; 
 
-    private String outputTextForm = null; //Responsible for informing itext what form is requested if relevant
+    // validate this value when isConstraint is set
+    public IAnswerData candidateValue; 
+
+    // Responsible for informing itext what form is requested if relevant
+    private String outputTextForm = null; 
 
     private Hashtable<String, DataInstance> formInstances;
 
@@ -74,7 +78,6 @@ public class EvaluationContext {
 
         this.isConstraint = base.isConstraint;
         this.candidateValue = base.candidateValue;
-        this.isCheckAddChild = base.isCheckAddChild;
 
         this.outputTextForm = base.outputTextForm;
         this.original = base.original;
@@ -200,19 +203,20 @@ public class EvaluationContext {
     }
 
     /**
-    * search for all repeated nodes that match the pattern of the 'ref' argument
-    *
-    * '/' returns {'/'} 
-    * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
-    *
-    * @param ref Potentially ambiguous reference
-    * @param includeTemplates
-    * @return Null if 'ref' is relative reference. Otherwise, returns a vector
-    * of references that point to nodes that match 'ref' argument. These
-    * references are unambiguous (no index will ever be INDEX_UNBOUND) template
-    * nodes won't be included when matching INDEX_UNBOUND, but will be when
-    * INDEX_TEMPLATE is explicitly set.
-    */
+     * Search for all repeated nodes that match the pattern of the 'ref'
+     * argument.
+     *
+     * '/' returns {'/'} 
+     * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
+     *
+     * @param ref Potentially ambiguous reference
+     * @param includeTemplates
+     * @return Null if 'ref' is relative reference. Otherwise, returns a vector
+     * of references that point to nodes that match 'ref' argument. These
+     * references are unambiguous (no index will ever be INDEX_UNBOUND) template
+     * nodes won't be included when matching INDEX_UNBOUND, but will be when
+     * INDEX_TEMPLATE is explicitly set.
+     */
     public Vector<TreeReference> expandReference(TreeReference ref, boolean includeTemplates) {
         if (!ref.isAbsolute()) {
             return null;
@@ -230,12 +234,14 @@ public class EvaluationContext {
         } else if (instance != null) {
             return instance;
         } else {
-            throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
+            throw new RuntimeException("Unable to expand reference " +
+                    ref.toString(true) +
+                    ", no appropriate instance in evaluation context");
         }
     }
 
     /**
-     * recursive helper function for expandReference
+     * Recursive helper function for expandReference.
      *
      * @param sourceRef original path we're matching against
      * @param instance current node that has matched the sourceRef thus far
@@ -255,7 +261,6 @@ public class EvaluationContext {
             refs.addElement(workingRef);
         } else {
             //Otherwise, need to get the next set of matching references
-
             String name = sourceRef.getName(depth);
             predicates = sourceRef.getPredicate(depth);
 
@@ -288,8 +293,7 @@ public class EvaluationContext {
                             if (child != null) {
                                 set.addElement(child.getRef());
                             } else {
-                                throw new IllegalStateException("Missing or non-sequntial nodes expanding a reference"); // missing/non-sequential
-                                // nodes
+                                throw new IllegalStateException("Missing or non-sequntial nodes expanding a reference");
                             }
                         }
                         if (includeTemplates) {
