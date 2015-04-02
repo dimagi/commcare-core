@@ -58,7 +58,7 @@ public abstract class ElementParser<T> {
      * @throws IOException If the stream cannot be read for any reason
      *                     other than invalid XML Structures.
      */
-    public static KXmlParser InstantiateParser(InputStream stream) throws IOException {
+    public static KXmlParser instantiateParser(InputStream stream) throws IOException {
         KXmlParser parser = new KXmlParser();
         try {
             parser.setInput(stream, "UTF-8");
