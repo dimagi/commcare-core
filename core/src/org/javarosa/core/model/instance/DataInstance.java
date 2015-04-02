@@ -168,10 +168,48 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     public T getTemplate(TreeReference ref) {
         T node = getTemplatePath(ref);
-        return (node == null ? null : ((node.isRepeatable() || node.isAttribute()) ? node : null));
+
+        if (node == null || !(node.isRepeatable() || node.isAttribute())) {
+            return null;
+        }
+        return node;
     }
 
     public T getTemplatePath(TreeReference ref) {
+        if (!ref.isAbsolute()) {
+            return null;
+        }
+
+        T walker = null;
+        AbstractTreeElement<T> node = getBase();
+        for (int i = 0; i < ref.size(); i++) {
+            String name = ref.getName(i);
+
+            if (ref.getMultiplicity(i) == TreeReference.INDEX_ATTRIBUTE) {
+                node = walker = node.getAttribute(null, name);
+            } else {
+
+                T newNode = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+                if (newNode == null) {
+                    newNode = node.getChild(name, 0);
+                }
+                if (newNode == null) {
+                    return null;
+                }
+                node = walker = newNode;
+            }
+        }
+        return walker;
+    }
+
+    /**
+     * Search for a valid path and return last element along that path
+     *
+     * @param ref
+     * @return Last element in subclass of TreeElement null if reference
+     * parameter isn't absolute
+     */
+    public T getTemplatePathDeep(TreeReference ref) {
         if (!ref.isAbsolute()) {
             return null;
         }

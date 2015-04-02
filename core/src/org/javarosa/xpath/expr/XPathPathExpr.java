@@ -221,7 +221,7 @@ public class XPathPathExpr extends XPathExpression {
         // Cache the check, so it is only performed once.
         if (ref.isAbsolute()) {
             if (cachedTemplate == null) {
-                cachedTemplate = m.getTemplatePath(ref);
+                cachedTemplate = m.getTemplatePathDeep(ref);
             }
             if (cachedTemplate == null) {
                 return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
@@ -229,43 +229,6 @@ public class XPathPathExpr extends XPathExpression {
         }
 
         return new XPathLazyNodeset(ref, m, ec);
-
-//        Vector<TreeReference> nodesetRefs;
-//        if(!ec.terminal) {
-//            nodesetRefs = ec.expandReference(ref);
-//        } else {
-//            nodesetRefs = new Vector();
-//            ref.setMultiplicity(ref.size() - 1, 0);
-//            nodesetRefs.addElement(ref);
-//        }
-//        
-//        //to fix conditions based on non-relevant data, filter the nodeset by relevancy
-//        for (int i = 0; i < nodesetRefs.size(); i++) {
-//            if (!m.resolveReference((TreeReference)nodesetRefs.elementAt(i)).isRelevant()) {
-//                nodesetRefs.removeElementAt(i);
-//                i--;
-//            }
-//        }
-//        
-//        return new XPathNodeset(nodesetRefs, m, ec);
-    }
-
-//    
-//    boolean nodeset = forceNodeset;
-//    if (!nodeset) {
-//        //is this a nodeset? it is if the ref contains any unbound multiplicities AND the unbound nodes are repeatable
-//        //the way i'm calculating this sucks; there has got to be an easier way to find out if a node is repeatable
-//        TreeReference repeatTestRef = TreeReference.rootRef();
-//        for (int i = 0; i < ref.size(); i++) {
-//            repeatTestRef.add(ref.getName(i), ref.getMultiplicity(i));
-//            if (ref.getMultiplicity(i) == TreeReference.INDEX_UNBOUND) {
-//                if (m.getTemplate(repeatTestRef) != null) {
-//                    nodeset = true;
-//                    break;
-//                }
-//            }
-//        }
-//    }
 
     public static Object getRefValue(DataInstance model, EvaluationContext ec, TreeReference ref) {
         if (ec.isConstraint && ref.equals(ec.getContextRef())) {
