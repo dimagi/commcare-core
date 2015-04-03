@@ -15,6 +15,12 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     public abstract String getInstanceName();
 
+    /**
+     * Get a child element with the given name and occurence position (multiplicity)
+     *
+     * @param name the name of the child element to select
+     * @param multiplicity is the n-th occurence of an element with a given name
+     */
     public abstract T getChild(String name, int multiplicity);
 
     /**
