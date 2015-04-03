@@ -1,6 +1,7 @@
 package org.javarosa.xml;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 import org.javarosa.xml.util.InvalidStructureException;
@@ -16,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class TreeElementParser extends ElementParser<TreeElement> {
     int multiplicity;
     String instanceId;
-
+    
     public TreeElementParser(KXmlParser parser, int multiplicity, String instanceId) {
         super(parser);
         this.multiplicity = multiplicity;
@@ -34,7 +35,8 @@ public class TreeElementParser extends ElementParser<TreeElement> {
         }
 
         Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
-        //NOTE: We never expect this to be the exit condition
+
+        // loop parses all siblings at a given depth
         while (parser.getDepth() >= depth) {
             switch (this.nextNonWhitespace()) {
                 case KXmlParser.START_TAG:
