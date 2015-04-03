@@ -214,21 +214,14 @@ public class XPathPathExpr extends XPathExpression {
         }
         //Otherwise we'll leave 'm' as set to the main instance 
 
-        //TODO: This causes problems when the paths are heterogeneous. IE: If the path is looking for an attribute that 
-        //doesn't exist on the first node, there is no template path
-
-        // Error out if main DataInstance doesn't match template path of reference.
-        // Cache the check, so it is only performed once.
-        if (ref.isAbsolute()) {
-            if (cachedTemplate == null) {
-                cachedTemplate = m.getTemplatePathDeep(ref);
-            }
-            if (cachedTemplate == null) {
-                return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
-            }
+        // Error out if there doesn't exist a (template) path along the
+        // reference starting at the main DataInstance.
+        if (ref.isAbsolute() && !m.hasTemplatePath(ref)) {
+            return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
         }
 
         return new XPathLazyNodeset(ref, m, ec);
+    }
 
     public static Object getRefValue(DataInstance model, EvaluationContext ec, TreeReference ref) {
         if (ec.isConstraint && ref.equals(ec.getContextRef())) {
