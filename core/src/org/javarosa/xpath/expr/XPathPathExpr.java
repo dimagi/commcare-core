@@ -51,6 +51,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
 
 public class XPathPathExpr extends XPathExpression {
+    private boolean templatePathChecked = false;
     public static final int INIT_CONTEXT_ROOT = 0;
     public static final int INIT_CONTEXT_RELATIVE = 1;
     public static final int INIT_CONTEXT_EXPR = 2;
@@ -175,8 +176,6 @@ public class XPathPathExpr extends XPathExpression {
         return ref;
     }
 
-    AbstractTreeElement cachedTemplate = null;
-
     public XPathNodeset eval(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
 
@@ -214,11 +213,14 @@ public class XPathPathExpr extends XPathExpression {
         }
         //Otherwise we'll leave 'm' as set to the main instance 
 
-        // Error out if there doesn't exist a (template) path along the
-        // reference starting at the main DataInstance.
-        if (ref.isAbsolute() && !m.hasTemplatePath(ref)) {
+        // Error out if a (template) path along the reference starting at the
+        // main DataInstance doesn't exist.
+        if (!templatePathChecked && ref.isAbsolute() && !m.hasTemplatePath(ref)) {
             return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
         }
+
+        // only check the template path once, since it is expensive
+        templatePathChecked = true;
 
         return new XPathLazyNodeset(ref, m, ec);
     }

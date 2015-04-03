@@ -51,7 +51,7 @@ public class TreeReference implements Externalizable {
     // and b[1]
     public static final int INDEX_UNBOUND = -1;
 
-    // 'repeats' (sections of a form that can multiple themselves) are
+    // 'repeats' (sections of a form that can multiply themselves) are
     // populated with a template that never exists in the form (IE: If you
     // serialized the form to XML it wouldn't be there) but provides the xml
     // structure that should be replicated when a 'repeat' is added
