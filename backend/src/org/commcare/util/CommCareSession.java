@@ -704,8 +704,8 @@ public class CommCareSession {
 
         // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
         // commcare core for release issues
-        return (entries.size() == 1 && 
+        return (entries.size() == 1 &&
                 (prototype.getXFormNamespace() == null ||
-                 prototype.getXFormNamespace().equals("")));
+                        prototype.getXFormNamespace().equals("")));
     }
 }
