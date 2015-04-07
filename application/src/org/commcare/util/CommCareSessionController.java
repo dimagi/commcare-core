@@ -79,7 +79,7 @@ public class CommCareSessionController {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (relevance != null) {
                         if (ec == null) {
-                            ec = session.getEvaluationContext(getIif());
+                            ec = session.getEvaluationContext(getIif(), m.getId());
                         }
                         if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
                             continue;
