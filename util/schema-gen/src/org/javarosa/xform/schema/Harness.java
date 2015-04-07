@@ -144,7 +144,7 @@ public class Harness {
         if (extensions != null) {
             Enumeration<?> properties = extensions.propertyNames();
             while (properties.hasMoreElements()) {
-                String namespace = (String) properties.nextElement();
+                String namespace = (String)properties.nextElement();
                 String tagString = extensions.getProperty(namespace);
                 String[] tagsArr = tagString.split(",");
                 Vector<String> tags = new Vector<String>();
@@ -161,7 +161,7 @@ public class Harness {
         if (namespaceWarningSupression != null) {
             Enumeration<?> properties = namespaceWarningSupression.propertyNames();
             while (properties.hasMoreElements()) {
-                String namespace = (String) properties.nextElement();
+                String namespace = (String)properties.nextElement();
                 suppressSpecExtensionWarnings.add(namespace);
             }
         }
@@ -172,7 +172,7 @@ public class Harness {
         if (namespaceParseInner != null) {
             Enumeration<?> properties = namespaceParseInner.propertyNames();
             while (properties.hasMoreElements()) {
-                String namespace = (String) properties.nextElement();
+                String namespace = (String)properties.nextElement();
                 parseSpecExtensionsInnerElements.add(namespace);
             }
         }
@@ -195,7 +195,8 @@ public class Harness {
      * Read in form from standard input or filename argument and run it through
      * XForm parser, logging errors along the way.
      *
-     * @param args is an String array, where the first entry, if present will be treated as a filename.
+     * @param args is an String array, where the first entry, if present will
+     *             be treated as a filename.
      */
     private static void validateForm(String[] args) {
         InputStream inputStream = System.in;
@@ -284,7 +285,8 @@ public class Harness {
         }
 
         try {
-            FormInstanceValidator validator = new FormInstanceValidator(formInput, instanceInput);
+            FormInstanceValidator validator =
+                    new FormInstanceValidator(formInput, instanceInput);
             validator.simulateEntryTest();
         } catch (Exception e) {
             e.printStackTrace();
@@ -295,24 +297,47 @@ public class Harness {
     }
 
     private static void csvImport(String[] args) {
-        // TODO: refactor so that instead of passing in args, we just pass in individual arguments
+        // TODO: refactor so that instead of passing in args, we just pass in
+        // individual arguments
         if (args.length > 1) {
             String delimeter = args[1];
-            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, null, null);
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out,
+                    delimeter, null, null);
         } else if (args.length > 2) {
             String delimeter = args[1];
             String encoding = args[2];
-            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, encoding, null);
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out,
+                    delimeter, encoding, null);
         } else if (args.length > 3) {
             String delimeter = args[1];
             String incoding = args[2];
             String outcoding = args[3];
-            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, incoding, outcoding);
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out,
+                    delimeter, incoding, outcoding);
         } else {
             FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out);
         }
     }
 
+    private static void processSchema(FormDef form) {
+        Document schemaDoc = InstanceSchema.generateInstanceSchema(form);
+        KXmlSerializer serializer = new KXmlSerializer();
+        try {
+            serializer.setOutput(System.out, null);
+            schemaDoc.write(serializer);
+            serializer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Helper function to load the form definition from a filepath.
+     *
+     * @param args is an String array, where the second entry, if present will
+     *             be treated as a filename.
+     * @return FormDef loaded from filepath present in the argument array
+     */
     private static FormDef loadFormDef(String[] args) {
         // Redirect output to syserr because sysout is being used for the
         // response, and must be kept clean.
@@ -341,17 +366,5 @@ public class Harness {
         System.setOut(responseStream);
 
         return form;
-    }
-
-    private static void processSchema(FormDef form) {
-        Document schemaDoc = InstanceSchema.generateInstanceSchema(form);
-        KXmlSerializer serializer = new KXmlSerializer();
-        try {
-            serializer.setOutput(System.out, null);
-            schemaDoc.write(serializer);
-            serializer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
