@@ -23,6 +23,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.xform.parse.XFormParseException;
@@ -31,154 +35,178 @@ import org.javarosa.xform.util.XFormUtils;
 import org.json.simple.JSONObject;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.ParseException;
 
 public class Harness {
-    public static final int MODE_SCHEMA = 1;
-    public static final int MODE_SUMMARY_TEXT = 2;
-    public static final int MODE_SUMMARY_SPREADSHEET = 3;
-    public static final int MODE_CSV_DUMP = 4;
-    public static final int MODE_CSV_IMPORT = 5;
-    public static final int MODE_VALIDATE_MODEL = 6;
-    public static final int MODE_VALIDATE_FORM = 7;
-    
+    // Track specification extension keywords so we know what to do during
+    // parsing when they are encountered.
+    private static Hashtable<String, Vector<String>> specExtensionKeywords =
+            new Hashtable<String, Vector<String>>();
+    // Namespace for which inner elements should be parsed.
+    private static Vector<String> parseSpecExtensionsInnerElements =
+            new Vector<String>();
+    // Namespace for which we supress "unrecognized element" warnings
+    private static Vector<String> suppressSpecExtensionWarnings =
+            new Vector<String>();
+
     public static void main(String[] args) {
-        try{
-            int mode = -1;
-            
-            if (args.length == 0) {
-                mode = MODE_SCHEMA;
-            } else if (args[0].equals("schema")) {
-                mode = MODE_SCHEMA;
-            } else if (args[0].equals("summary")) {
-                mode = MODE_SUMMARY_TEXT;
-            } else if (args[0].equals("csvdump")) {
-                mode = MODE_CSV_DUMP;
-            } else if (args[0].equals("csvimport")) {
-                mode = MODE_CSV_IMPORT;
-            } else if (args[0].equals("validatemodel")) {
-                mode = MODE_VALIDATE_MODEL;
-            } else if (args[0].equals("validate")) {
-                mode = MODE_VALIDATE_FORM;
-            }  else {
-                System.err.println("Usage: java -jar form_translate.jar [validate|schema|summary|csvdump] < form.xml > output");
-                System.err.println("or: java -jar form_translate.jar csvimport [delimeter] [encoding] [outcoding] < translations.csv > itextoutput");
-                System.err.println("or: java -jar form_translate.jar validatemodel /path/to/xform /path/to/instance");
+        Options options = new Options();
+        CommandLine argsParsedWithOptions = parseCommandlineOptions(args, options);
+        processCommandlineOptions(argsParsedWithOptions, options);
+
+        // get unproccessed command-line arguments
+        String[] leftOverArgs = argsParsedWithOptions.getArgs();
+
+        // Dispatch on remaining command-line argument
+        if (leftOverArgs.length == 0 || leftOverArgs[0].equals("schema")) {
+            FormDef form = loadFormDef(leftOverArgs);
+            processSchema(form);
+        } else if (leftOverArgs[0].equals("summary")) {
+            FormDef form = loadFormDef(leftOverArgs);
+            System.out.println(FormOverview.overview(form));
+        } else if (leftOverArgs[0].equals("csvdump")) {
+            FormDef form = loadFormDef(leftOverArgs);
+            try {
+                System.out.println(FormTranslationFormatter.dumpTranslationsIntoCSV(form));
+            } catch (Exception e) {
+                e.printStackTrace();
                 System.exit(1);
             }
-            
-            if(mode == MODE_VALIDATE_FORM) {
-                validate(args);
-                return;
-            }
-            
-            if(mode == MODE_VALIDATE_MODEL) {
-                
-                String formPath = args[1];
-                String modelPath = args[2];
-                
-                FileInputStream formInput = null;
-                FileInputStream instanceInput = null;
-                
-                try {
-                    formInput = new FileInputStream(formPath);
-                } catch (FileNotFoundException e) {
-                    System.out.println("Couldn't find file at: " + formPath);
-                    System.exit(1);
-                }
-                
-                try {
-                    instanceInput = new FileInputStream(modelPath);
-                } catch (FileNotFoundException e) {
-                    System.out.println("Couldn't find file at: " + modelPath);
-                    System.exit(1);
-                }
-                
-                try {
-                    FormInstanceValidator validator = new FormInstanceValidator(formInput, instanceInput);
-                    validator.simulateEntryTest();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.exit(1);
-                }
-                
-                System.out.println("Form instance appears to be valid");
-                System.exit(0);
-            }
-            
-            
-            PrintStream sysOut = System.out;
-            System.setOut(System.err);
-            
-            if(mode == MODE_CSV_IMPORT) {
-                System.setOut(sysOut);
-                if(args.length > 1) {
-                    String delimeter = args[1];
-                    FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, null,null);
-                }
-                else if(args.length > 2) {
-                    String delimeter = args[1];
-                    String encoding = args[2];
-                    FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, encoding, null);
-                } else if(args.length > 3) {
-                    String delimeter = args[1];
-                    String incoding = args[2];
-                    String outcoding = args[3];
-                    FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, incoding, outcoding );
-                } else {
-                    FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out);
-                }
-                System.exit(0);
-            }
-            
-            InputStream inputStream = System.in;
-            if(args.length > 1) {
-                String formPath = args[1];
-            
-                FileInputStream formInput = null;
-            
-                try {
-                    inputStream = new FileInputStream(formPath);
-                } catch (FileNotFoundException e) {
-                    System.out.println("Couldn't find file at: " + formPath);
-                    System.exit(1);
-                }
-            }
-            
-            FormDef f = XFormUtils.getFormFromInputStream(inputStream);
-            System.setOut(sysOut);
-            
-            if (mode == MODE_SCHEMA) {            
-                Document schemaDoc = InstanceSchema.generateInstanceSchema(f);
-                KXmlSerializer serializer = new KXmlSerializer();
-                try {
-                    serializer.setOutput(System.out, null);
-                    schemaDoc.write(serializer);
-                    serializer.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else if (mode == MODE_SUMMARY_TEXT) {
-                System.out.println(FormOverview.overview(f));
-            } else if (mode == MODE_CSV_DUMP) {
-                System.out.println(FormTranslationFormatter.dumpTranslationsIntoCSV(f));
-            }
-        } catch(Exception e){
-            e.printStackTrace();
+        } else if (leftOverArgs[0].equals("csvimport")) {
+            csvImport(leftOverArgs);
+        } else if (leftOverArgs[0].equals("validatemodel")) {
+            validateModel(leftOverArgs[1], leftOverArgs[2]);
+        } else if (leftOverArgs[0].equals("validate")) {
+            validateForm(leftOverArgs);
+        } else {
+            printHelpMessage(options);
             System.exit(1);
-        } finally {
+        }
+        System.exit(0);
+    }
+
+    /**
+     * Setup command-line options and parse them.
+     *
+     * @param args    String array of command-line arguments passed in.
+     * @param options Options object that we add to in this function
+     * @return CommandLine parsed options
+     */
+    private static CommandLine parseCommandlineOptions(String[] args, Options options) {
+        options.addOption(OptionBuilder.withArgName("namespace=tag1,...,tagN")
+                .hasArgs(2)
+                .withValueSeparator()
+                .withDescription("comma-delimited list of reserved tags at given namespace for the parser to expect")
+                .create("E"));
+        options.addOption(OptionBuilder.withArgName("namespace")
+                .hasArg()
+                .withDescription("suppress warnings when parser encounters elements at given namespace")
+                .create("S"));
+        options.addOption(OptionBuilder.withArgName("namespace")
+                .hasArg()
+                .withDescription("continue parsing inner elements of unrecognized tag at given namespace")
+                .create("I"));
+        options.addOption(new Option("help", "print this message"));
+
+        CommandLineParser parser = new BasicParser();
+
+        try {
+            return parser.parse(options, args);
+        } catch (ParseException exp) {
+            System.err.println("Parsing failed: " + exp.getMessage());
+            System.exit(1);
+        }
+        return null;
+    }
+
+    /**
+     * Setup local variables based on parsed command-line options.
+     *
+     * @param argsParsedWithOptions are command-line arguments that have been
+     *                              processed with the options passed in.
+     * @param options               command-line options used for printing help message
+     */
+    private static void processCommandlineOptions(CommandLine argsParsedWithOptions, Options options) {
+        if (argsParsedWithOptions.hasOption("help")) {
+            printHelpMessage(options);
             System.exit(0);
+        }
+
+        // read in specification extension keywords from command-line options
+        Properties extensions = argsParsedWithOptions.getOptionProperties("E");
+        if (extensions != null) {
+            Enumeration<?> properties = extensions.propertyNames();
+            while (properties.hasMoreElements()) {
+                String namespace = (String) properties.nextElement();
+                String tagString = extensions.getProperty(namespace);
+                String[] tagsArr = tagString.split(",");
+                Vector<String> tags = new Vector<String>();
+                for (int i = 0; i < tagsArr.length; i++) {
+                    tags.add(tagsArr[i]);
+                }
+                specExtensionKeywords.put(namespace, tags);
+            }
+        }
+
+        // read in namespace warning suppression for specification extensions
+        // from command-line options
+        Properties namespaceWarningSupression = argsParsedWithOptions.getOptionProperties("S");
+        if (namespaceWarningSupression != null) {
+            Enumeration<?> properties = namespaceWarningSupression.propertyNames();
+            while (properties.hasMoreElements()) {
+                String namespace = (String) properties.nextElement();
+                suppressSpecExtensionWarnings.add(namespace);
+            }
+        }
+
+        // read in inner element parsing logic for specification extensions
+        // from command-line options
+        Properties namespaceParseInner = argsParsedWithOptions.getOptionProperties("I");
+        if (namespaceParseInner != null) {
+            Enumeration<?> properties = namespaceParseInner.propertyNames();
+            while (properties.hasMoreElements()) {
+                String namespace = (String) properties.nextElement();
+                parseSpecExtensionsInnerElements.add(namespace);
+            }
         }
     }
 
-    private static void validate(String[] args) {
+    /**
+     * Print help message for command-line argument options.
+     *
+     * @param options command-line options used for printing help message
+     */
+    private static void printHelpMessage(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("java -jar form_translate.jar [OPTION] ... validate \n" +
+                "or: java -jar form_translate.jar [ schema | summary | csvdump] \n" +
+                "or: java -jar form_translate.jar csvimport [delimeter] [encoding] [outcoding] < translations.csv > itextoutput \n" +
+                "or: java -jar form_translate.jar validatemodel /path/to/xform /path/to/instance", options);
+    }
+
+    /**
+     * Read in form from standard input or filename argument and run it through
+     * XForm parser, logging errors along the way.
+     *
+     * @param args is an String array, where the first entry, if present will be treated as a filename.
+     */
+    private static void validateForm(String[] args) {
         InputStream inputStream = System.in;
-        
-        //if they did pass in an arg, we'll look for the form there
-        if(args.length > 1) {
+
+        // If command line args non-empty, treat first entry as filename we
+        // open to get the form.
+        if (args.length > 1) {
             String formPath = args[1];
-        
+
             FileInputStream formInput = null;
-        
+
             try {
                 inputStream = new FileInputStream(formPath);
             } catch (FileNotFoundException e) {
@@ -187,48 +215,143 @@ public class Harness {
             }
         }
         PrintStream responseStream = System.out;
-        //Redirect output to syserr. We're using sysout for the response, gotta keep it clean
+        // Redirect output to syserr because sysout is being used for the
+        // response, and must be kept clean.
         System.setOut(System.err);
-        
+
         InputStreamReader isr;
         try {
-            isr = new InputStreamReader(inputStream,"UTF-8");
-        } catch(UnsupportedEncodingException uee) {
+            isr = new InputStreamReader(inputStream, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
             System.out.println("UTF 8 encoding unavailable, trying default encoding");
-            isr = new InputStreamReader(inputStream); 
+            isr = new InputStreamReader(inputStream);
         }
-        
+
         try {
             JSONReporter reporter = new JSONReporter();
             try {
                 XFormParser parser = new XFormParser(isr);
+                // setup xformparser with options parsed from command-line
+                parser.setupAllSpecExtensions(specExtensionKeywords,
+                        suppressSpecExtensionWarnings,
+                        parseSpecExtensionsInnerElements);
                 parser.attachReporter(reporter);
                 parser.parse();
-                
+
                 reporter.setPassed();
-            } catch(IOException e) {
-                //Rethrow this. This is probably a failure of the system, not the form
+            } catch (IOException e) {
+                // Rethrow this. This is probably a failure of the system, not the form
                 reporter.setFailed(e);
                 System.err.println("IO Exception while processing form");
                 e.printStackTrace();
                 System.exit(1);
-            } catch(XFormParseException xfpe) {
+            } catch (XFormParseException xfpe) {
                 reporter.setFailed(xfpe);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 reporter.setFailed(e);
             }
+
             responseStream.print(reporter.generateJSONReport());
-            System.exit(0);
-            
         } finally {
             try {
                 isr.close();
-            }
-            catch(IOException e) {
+                // reset output stream on exit
+                System.setOut(responseStream);
+            } catch (IOException e) {
                 System.err.println("IO Exception while closing stream.");
                 e.printStackTrace();
+                System.exit(1);
+            }
+        }
+    }
+
+    private static void validateModel(String formPath, String modelPath) {
+        FileInputStream formInput = null;
+        FileInputStream instanceInput = null;
+
+        try {
+            formInput = new FileInputStream(formPath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + formPath);
+            System.exit(1);
+        }
+
+        try {
+            instanceInput = new FileInputStream(modelPath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + modelPath);
+            System.exit(1);
+        }
+
+        try {
+            FormInstanceValidator validator = new FormInstanceValidator(formInput, instanceInput);
+            validator.simulateEntryTest();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        System.out.println("Form instance appears to be valid");
+    }
+
+    private static void csvImport(String[] args) {
+        // TODO: refactor so that instead of passing in args, we just pass in individual arguments
+        if (args.length > 1) {
+            String delimeter = args[1];
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, null, null);
+        } else if (args.length > 2) {
+            String delimeter = args[1];
+            String encoding = args[2];
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, encoding, null);
+        } else if (args.length > 3) {
+            String delimeter = args[1];
+            String incoding = args[2];
+            String outcoding = args[3];
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out, delimeter, incoding, outcoding);
+        } else {
+            FormTranslationFormatter.turnTranslationsCSVtoItext(System.in, System.out);
+        }
+    }
+
+    private static FormDef loadFormDef(String[] args) {
+        // Redirect output to syserr because sysout is being used for the
+        // response, and must be kept clean.
+        PrintStream responseStream = System.out;
+        System.setOut(System.err);
+
+        InputStream inputStream = System.in;
+
+        // open form file
+        if (args.length > 1) {
+            String formPath = args[1];
+
+            FileInputStream formInput = null;
+
+            try {
+                inputStream = new FileInputStream(formPath);
+            } catch (FileNotFoundException e) {
+                System.out.println("Couldn't find file at: " + formPath);
+                System.exit(1);
             }
         }
 
+        FormDef form = XFormUtils.getFormFromInputStream(inputStream);
+
+        // reset the system output on exit.
+        System.setOut(responseStream);
+
+        return form;
+    }
+
+    private static void processSchema(FormDef form) {
+        Document schemaDoc = InstanceSchema.generateInstanceSchema(form);
+        KXmlSerializer serializer = new KXmlSerializer();
+        try {
+            serializer.setOutput(System.out, null);
+            schemaDoc.write(serializer);
+            serializer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
