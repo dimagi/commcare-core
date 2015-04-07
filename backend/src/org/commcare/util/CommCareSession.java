@@ -406,13 +406,31 @@ public class CommCareSession {
         root.addChild(datum);
     }
 
-
+    
+    /**
+     * Retrieve an evaluation context in which to evaluate expressions in the 
+     * current session state
+     * 
+     * @param iif the instance initailzier for the current platform
+     * @return
+     */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
+        return this.getEvaluationContext(iif, getCommand());
+    }
 
-        if (getCommand() == null) {
+    /**
+     * Retrieve an evaluation context in which to evaluate expressions in the context of a given
+     * command in the installed app
+     * 
+     * @param iif the instance initializer for the current platform
+     * @return
+     */
+    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
+
+        if (command == null) {
             return new EvaluationContext(null);
         }
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
+        Entry entry = getEntriesForCommand(command).elementAt(0);
 
         Hashtable<String, DataInstance> instances = entry.getInstances();
 
