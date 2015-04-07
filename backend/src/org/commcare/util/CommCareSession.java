@@ -412,7 +412,7 @@ public class CommCareSession {
      * current session state
      * 
      * @param iif the instance initailzier for the current platform
-     * @return
+     * @return Evaluation context for current session state
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
         return this.getEvaluationContext(iif, getCommand());
@@ -423,7 +423,7 @@ public class CommCareSession {
      * command in the installed app
      * 
      * @param iif the instance initializer for the current platform
-     * @return
+     * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
 
