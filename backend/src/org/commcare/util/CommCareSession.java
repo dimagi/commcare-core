@@ -711,4 +711,19 @@ public class CommCareSession {
     public void markCurrentFrameForDeath() {
         frame.kill();
     }
+
+    /**
+     * Does the command only have a view entry, and no other actions available
+     * to take?
+     */
+    public boolean isViewCommand(String command) {
+        Vector<Entry> entries = this.getEntriesForCommand(command);
+        Entry prototype = entries.elementAt(0);
+
+        // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
+        // commcare core for release issues
+        return (entries.size() == 1 &&
+                (prototype.getXFormNamespace() == null ||
+                        prototype.getXFormNamespace().equals("")));
+    }
 }
