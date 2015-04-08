@@ -1109,7 +1109,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         
         
         if(matches == null){
-            throw new XPathException("Could not find references depended on by" + itemset.nodesetRef.getInstanceName() );
+            throw new XPathException("Could not find references depended on by " + itemset.nodesetRef.getInstanceName());
         }
         
         for (int i = 0; i < matches.size(); i++) {

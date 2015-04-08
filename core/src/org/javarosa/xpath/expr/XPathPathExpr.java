@@ -51,6 +51,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnsupportedException;
 
 public class XPathPathExpr extends XPathExpression {
+    private boolean templatePathChecked = false;
     public static final int INIT_CONTEXT_ROOT = 0;
     public static final int INIT_CONTEXT_RELATIVE = 1;
     public static final int INIT_CONTEXT_EXPR = 2;
@@ -175,8 +176,6 @@ public class XPathPathExpr extends XPathExpression {
         return ref;
     }
 
-    AbstractTreeElement cachedTemplate = null;
-
     public XPathNodeset eval(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
 
@@ -214,57 +213,17 @@ public class XPathPathExpr extends XPathExpression {
         }
         //Otherwise we'll leave 'm' as set to the main instance 
 
-        //TODO: This causes problems when the paths are heterogeneous. IE: If the path is looking for an attribute that 
-        //doesn't exist on the first node, there is no template path
-
-
-        if (ref.isAbsolute()) {
-            if (cachedTemplate == null) {
-                cachedTemplate = m.getTemplatePath(ref);
-            }
-            if (cachedTemplate == null) {
-                return XPathNodeset.ConstructInvalidPathNodeset(ref.toString(), genericRef.toString());
-            }
+        // Error out if a (template) path along the reference starting at the
+        // main DataInstance doesn't exist.
+        if (!templatePathChecked && ref.isAbsolute() && !m.hasTemplatePath(ref)) {
+            return XPathNodeset.constructInvalidPathNodeset(ref.toString(), genericRef.toString());
         }
 
+        // only check the template path once, since it is expensive
+        templatePathChecked = true;
+
         return new XPathLazyNodeset(ref, m, ec);
-
-//        Vector<TreeReference> nodesetRefs;
-//        if(!ec.terminal) {
-//            nodesetRefs = ec.expandReference(ref);
-//        } else {
-//            nodesetRefs = new Vector();
-//            ref.setMultiplicity(ref.size() - 1, 0);
-//            nodesetRefs.addElement(ref);
-//        }
-//        
-//        //to fix conditions based on non-relevant data, filter the nodeset by relevancy
-//        for (int i = 0; i < nodesetRefs.size(); i++) {
-//            if (!m.resolveReference((TreeReference)nodesetRefs.elementAt(i)).isRelevant()) {
-//                nodesetRefs.removeElementAt(i);
-//                i--;
-//            }
-//        }
-//        
-//        return new XPathNodeset(nodesetRefs, m, ec);
     }
-
-//    
-//    boolean nodeset = forceNodeset;
-//    if (!nodeset) {
-//        //is this a nodeset? it is if the ref contains any unbound multiplicities AND the unbound nodes are repeatable
-//        //the way i'm calculating this sucks; there has got to be an easier way to find out if a node is repeatable
-//        TreeReference repeatTestRef = TreeReference.rootRef();
-//        for (int i = 0; i < ref.size(); i++) {
-//            repeatTestRef.add(ref.getName(i), ref.getMultiplicity(i));
-//            if (ref.getMultiplicity(i) == TreeReference.INDEX_UNBOUND) {
-//                if (m.getTemplate(repeatTestRef) != null) {
-//                    nodeset = true;
-//                    break;
-//                }
-//            }
-//        }
-//    }
 
     public static Object getRefValue(DataInstance model, EvaluationContext ec, TreeReference ref) {
         if (ec.isConstraint && ref.equals(ec.getContextRef())) {

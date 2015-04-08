@@ -1192,7 +1192,10 @@ public class XFormParser {
         ////////////////////////////////////////////////////
         
         String nodesetStr = e.getAttributeValue("", NODESET_ATTR);
-        if(nodesetStr == null ) throw new RuntimeException("No nodeset attribute in element: ["+e.getName()+"]. This is required. (Element Printout:"+XFormSerializer.elementToString(e)+")");
+        if (nodesetStr == null) {
+            throw new RuntimeException("No nodeset attribute in element: [" + e.getName() + "]. This is required. (Element Printout:" + XFormSerializer.elementToString(e) + ")");
+        }
+
         XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
         itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
@@ -1204,6 +1207,7 @@ public class XFormParser {
             String childName = (child != null ? child.getName() : null);
 
             if (LABEL_ELEMENT.equals(childName)) {
+                // is the child element a label tag?
                 String labelXpath = child.getAttributeValue("", REF_ATTR);
                 boolean labelItext = false;
                 
@@ -1227,9 +1231,11 @@ public class XFormParser {
                 itemset.labelExpr = new XPathConditional(labelPath);
                 itemset.labelIsItext = labelItext;
             } else if ("copy".equals(childName)) {
+                // is the child element a copy tag?
+
                 String copyRef = child.getAttributeValue("", REF_ATTR);
 
-                //print unused attribute warning message for child element
+                // print unused attribute warning message for child element
                 if(XFormUtils.showUnusedAttributeWarning(child, copyUA)){
                     reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(child, copyUA), getVagueLocation(child));
                 }
@@ -1241,6 +1247,7 @@ public class XFormParser {
                 itemset.copyRef = FormInstance.unpackReference(getAbsRef(new XPathReference(copyRef), itemset.nodesetRef));
                 itemset.copyMode = true;
             } else if (VALUE.equals(childName)) {
+                // is the child element a value tag?
                 String valueXpath = child.getAttributeValue("", REF_ATTR);
                 
                 //print unused attribute warning message for child element
@@ -1403,7 +1410,13 @@ public class XFormParser {
         return getAbsRef(ref, getFormElementRef(parent));
     }
     
-    //take a (possibly relative) reference, and make it absolute based on its parent
+    /**
+     * Converts a (possibly relative) reference into an absolute reference
+     * based on its parent
+     *
+     * @param ref potentially null reference
+     * @param parentRef must be an absolute path
+     */
     public static IDataReference getAbsRef (IDataReference ref, TreeReference parentRef) {
         TreeReference tref;
         

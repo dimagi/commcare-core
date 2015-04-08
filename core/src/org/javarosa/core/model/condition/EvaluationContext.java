@@ -25,27 +25,31 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
-/* a collection of objects that affect the evaluation of an expression, like function handlers
- * and (not supported) variable bindings
+/**
+ * A collection of objects that affect the evaluation of an expression, like
+ * function handlers and (not supported) variable bindings.
  */
 public class EvaluationContext {
-    private TreeReference contextNode; //unambiguous ref used as the anchor for relative paths
+    // Unambiguous anchor reference for relative paths
+    private TreeReference contextNode; 
+
     private Hashtable functionHandlers;
     private Hashtable variables;
 
-    public boolean isConstraint; //true if we are evaluating a constraint
-    public IAnswerData candidateValue; //if isConstraint, this is the value being validated
-    public boolean isCheckAddChild; //if isConstraint, true if we are checking the constraint of a parent node on how
-    //  many children it may have
+    // Do we want to evaluate constraints?
+    public boolean isConstraint; 
 
-    private String outputTextForm = null; //Responsible for informing itext what form is requested if relevant
+    // validate this value when isConstraint is set
+    public IAnswerData candidateValue; 
+
+    // Responsible for informing itext what form is requested if relevant
+    private String outputTextForm = null; 
 
     private Hashtable<String, DataInstance> formInstances;
 
@@ -74,7 +78,6 @@ public class EvaluationContext {
 
         this.isConstraint = base.isConstraint;
         this.candidateValue = base.candidateValue;
-        this.isCheckAddChild = base.isCheckAddChild;
 
         this.outputTextForm = base.outputTextForm;
         this.original = base.original;
@@ -199,13 +202,21 @@ public class EvaluationContext {
         return expandReference(ref, false);
     }
 
-    // take in a potentially-ambiguous ref, and return a vector of refs for all nodes that match the passed-in ref
-    // meaning, search out all repeated nodes that match the pattern of the passed-in ref
-    // every ref in the returned vector will be unambiguous (no index will ever be INDEX_UNBOUND)
-    // does not return template nodes when matching INDEX_UNBOUND, but will match templates when INDEX_TEMPLATE is explicitly set
-    // return null if ref is relative, otherwise return vector of refs (but vector will be empty is no refs match)
-    // '/' returns {'/'}
-    // can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
+    /**
+     * Search for all repeated nodes that match the pattern of the 'ref'
+     * argument.
+     *
+     * '/' returns {'/'} 
+     * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
+     *
+     * @param ref Potentially ambiguous reference
+     * @param includeTemplates
+     * @return Null if 'ref' is relative reference. Otherwise, returns a vector
+     * of references that point to nodes that match 'ref' argument. These
+     * references are unambiguous (no index will ever be INDEX_UNBOUND) template
+     * nodes won't be included when matching INDEX_UNBOUND, but will be when
+     * INDEX_TEMPLATE is explicitly set.
+     */
     public Vector<TreeReference> expandReference(TreeReference ref, boolean includeTemplates) {
         if (!ref.isAbsolute()) {
             return null;
@@ -213,7 +224,7 @@ public class EvaluationContext {
 
         DataInstance baseInstance = retrieveInstance(ref);
         Vector<TreeReference> v = new Vector<TreeReference>();
-        expandReference(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
+        expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
 
@@ -223,17 +234,28 @@ public class EvaluationContext {
         } else if (instance != null) {
             return instance;
         } else {
-            throw new RuntimeException("Unable to expand reference " + ref.toString(true) + ", no appropriate instance in evaluation context");
+            throw new RuntimeException("Unable to expand reference " +
+                    ref.toString(true) +
+                    ", no appropriate instance in evaluation context");
         }
     }
 
-    // recursive helper function for expandReference
-    // sourceRef: original path we're matching against
-    // node: current node that has matched the sourceRef thus far
-    // workingRef: explicit path that refers to the current node
-    // refs: Vector to collect matching paths; if 'node' is a target node that
-    // matches sourceRef, templateRef is added to refs
-    private void expandReference(TreeReference sourceRef, DataInstance instance, TreeReference workingRef, Vector<TreeReference> refs, boolean includeTemplates) {
+    /**
+     * Recursive helper function for expandReference that performs the search
+     * for all repeated nodes that match the pattern of the 'ref' argument.
+     *
+     * @param sourceRef original path we're matching against
+     * @param sourceInstance original node obtained from sourceRef
+     * @param workingRef explicit path that refers to the current node
+     * @param refs Accumulator vector to collect matching paths. Contained
+     * references are unambiguous. Template nodes won't be included when
+     * matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     * set.
+     * @param includeTemplates
+     */
+    private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
+                                            TreeReference workingRef, Vector<TreeReference> refs,
+                                            boolean includeTemplates) {
         int depth = workingRef.size();
         Vector<XPathExpression> predicates = null;
 
@@ -243,7 +265,6 @@ public class EvaluationContext {
             refs.addElement(workingRef);
         } else {
             //Otherwise, need to get the next set of matching references
-
             String name = sourceRef.getName(depth);
             predicates = sourceRef.getPredicate(depth);
 
@@ -257,9 +278,11 @@ public class EvaluationContext {
             }
 
             int mult = sourceRef.getMultiplicity(depth);
+
+            // child & template TreeReferences that we want to recur on
             Vector<TreeReference> set = new Vector<TreeReference>();
 
-            AbstractTreeElement node = instance.resolveReference(workingRef);
+            AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
             Vector<TreeReference> passingSet = new Vector<TreeReference>();
 
             Vector<TreeReference> children = node.tryBatchChildFetch(name, mult, predicates, this);
@@ -267,7 +290,6 @@ public class EvaluationContext {
             if (children != null) {
                 set = children;
             } else {
-
                 if (node.hasChildren()) {
                     if (mult == TreeReference.INDEX_UNBOUND) {
                         int count = node.getChildMultiplicity(name);
@@ -276,8 +298,7 @@ public class EvaluationContext {
                             if (child != null) {
                                 set.addElement(child.getRef());
                             } else {
-                                throw new IllegalStateException("Missing or non-sequntial nodes expanding a reference"); // missing/non-sequential
-                                // nodes
+                                throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
                             }
                         }
                         if (includeTemplates) {
@@ -330,7 +351,7 @@ public class EvaluationContext {
                         //test the predicate on the treeElement
                         //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
                         EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
-                        Object o = xpe.eval(instance, evalContext);
+                        Object o = xpe.eval(sourceInstance, evalContext);
 
                         //There's a special case here that can't be handled by syntactic sugar.
                         //If the result of a predicate expression is an Integer, we need to 
@@ -362,10 +383,10 @@ public class EvaluationContext {
                         predicateEvaluationProgress[0]++;
                     }
                     if (passedAll) {
-                        expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
+                        expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
                     }
                 } else {
-                    expandReference(sourceRef, instance, treeRef, refs, includeTemplates);
+                    expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
                 }
             }
         }

@@ -34,16 +34,35 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 
 
-//TODO: This class needs to be immutable
+// TODO: This class needs to be immutable so that we can perform caching
+// optimizations.
 public class TreeReference implements Externalizable {
 
     int hashCode = -1;
 
-    public static final int DEFAULT_MUTLIPLICITY = 0;//multiplicity
-    public static final int INDEX_UNBOUND = -1;//multiplicity
-    public static final int INDEX_TEMPLATE = -2;//multiplicity
-    public static final int INDEX_ATTRIBUTE = -4;//multiplicity flag for an attribute
+    // Multiplicity demarcates the position of a given element with respect to
+    // other elements of the same name.
+
+    // Means there's a path to a node, but we haven't yet demarcated the
+    // multiplicity
+    public static final int DEFAULT_MUTLIPLICITY = 0;
+
+    // refers to all instances of an element, e.g. /data/b[-1] refers to b[0]
+    // and b[1]
+    public static final int INDEX_UNBOUND = -1;
+
+    // 'repeats' (sections of a form that can multiply themselves) are
+    // populated with a template that never exists in the form (IE: If you
+    // serialized the form to XML it wouldn't be there) but provides the xml
+    // structure that should be replicated when a 'repeat' is added
+    public static final int INDEX_TEMPLATE = -2;
+
+    // multiplicity flag for an attribute
+    public static final int INDEX_ATTRIBUTE = -4;
+
     public static final int INDEX_REPEAT_JUNCTURE = -10;
+
+
 
     //TODO: Roll these into RefLevel? Or more likely, take absolute
     //ref out of refLevel
