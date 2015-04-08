@@ -63,7 +63,6 @@ public class TreeReference implements Externalizable {
     public static final int INDEX_REPEAT_JUNCTURE = -10;
 
 
-
     //TODO: Roll these into RefLevel? Or more likely, take absolute
     //ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;

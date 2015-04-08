@@ -60,6 +60,7 @@ public class GeoPointData implements IAnswerData {
 
     /**
      * Copy data in argument array into local geopoint array.
+     *
      * @param gp double array of max size 4 representing geopoints
      */
     private void fillArray(double[] gp) {
@@ -155,7 +156,7 @@ public class GeoPointData implements IAnswerData {
      * overflow problems if x * (10^numberofDecimals) is greater than
      * Double.MAX_VALUE or less than Double.MIN_VALUE.
      *
-     * @param x double to be rounded up
+     * @param x                double to be rounded up
      * @param numberOfDecimals number of decimals that should present in result
      */
     private static double roundDecimalUp(double x, int numberOfDecimals) {

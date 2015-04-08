@@ -217,9 +217,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
      * Determines if a path exists for a reference using a given node; template
      * nodes followed first when available.
      *
-     * @param topRef the reference path being followed
+     * @param topRef      the reference path being followed
      * @param currentNode the current element we are at along the path
-     * @param depth the depth of the current element
+     * @param depth       the depth of the current element
      * @return was a valid path found?
      */
     private boolean hasTemplatePathRec(TreeReference topRef, AbstractTreeElement<T> currentNode, int depth) {

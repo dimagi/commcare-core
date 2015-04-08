@@ -88,21 +88,21 @@ public class LocalizationTests extends TestCase {
         assertTrue("Parsed newlines correctly", result2.equals("# Start"));
     }
 
-    public void testParseAndAdd(){
+    public void testParseAndAdd() {
 
         OrderedHashtable<String, String> testTable = new OrderedHashtable<String, String>();
 
-        LocalizationUtils.parseAndAdd(testTable,"string.1=this line should be cutoff here# this is bad if present", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.2=this line should be cutoff here after the space # this is bad is present", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.3=this line should all be here#", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.4=this line should all be here #", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.5=this line should be all here \\# including this \\# and this", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.6=this line should be here \\# and this# not this", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.7=this line should be here \\# and this# not this \\# not this either", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.8=we have a hash \\# and a newline \\n", 0);
-        LocalizationUtils.parseAndAdd(testTable,"string.9=this line should all be here with the hash \\#", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.1=this line should be cutoff here# this is bad if present", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.2=this line should be cutoff here after the space # this is bad is present", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.3=this line should all be here#", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.4=this line should all be here #", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.5=this line should be all here \\# including this \\# and this", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.6=this line should be here \\# and this# not this", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.7=this line should be here \\# and this# not this \\# not this either", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.8=we have a hash \\# and a newline \\n", 0);
+        LocalizationUtils.parseAndAdd(testTable, "string.9=this line should all be here with the hash \\#", 0);
         // make sure doesn't crash
-        LocalizationUtils.parseAndAdd(testTable,"# this is the whole line", 0);
+        LocalizationUtils.parseAndAdd(testTable, "# this is the whole line", 0);
 
         assertTrue("Line 1 failed: " + testTable.get("string.1"), testTable.get("string.1").equals("this line should be cutoff here"));
         assertTrue("Line 2 failed: " + testTable.get("string.2"), testTable.get("string.2").equals("this line should be cutoff here after the space "));

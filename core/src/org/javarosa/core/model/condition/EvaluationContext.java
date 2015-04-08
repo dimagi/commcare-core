@@ -37,19 +37,19 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
  */
 public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
-    private TreeReference contextNode; 
+    private TreeReference contextNode;
 
     private Hashtable functionHandlers;
     private Hashtable variables;
 
     // Do we want to evaluate constraints?
-    public boolean isConstraint; 
+    public boolean isConstraint;
 
     // validate this value when isConstraint is set
-    public IAnswerData candidateValue; 
+    public IAnswerData candidateValue;
 
     // Responsible for informing itext what form is requested if relevant
-    private String outputTextForm = null; 
+    private String outputTextForm = null;
 
     private Hashtable<String, DataInstance> formInstances;
 
@@ -206,10 +206,10 @@ public class EvaluationContext {
      * Search for all repeated nodes that match the pattern of the 'ref'
      * argument.
      *
-     * '/' returns {'/'} 
+     * '/' returns {'/'}
      * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
      *
-     * @param ref Potentially ambiguous reference
+     * @param ref              Potentially ambiguous reference
      * @param includeTemplates
      * @return Null if 'ref' is relative reference. Otherwise, returns a vector
      * of references that point to nodes that match 'ref' argument. These
@@ -244,13 +244,13 @@ public class EvaluationContext {
      * Recursive helper function for expandReference that performs the search
      * for all repeated nodes that match the pattern of the 'ref' argument.
      *
-     * @param sourceRef original path we're matching against
-     * @param sourceInstance original node obtained from sourceRef
-     * @param workingRef explicit path that refers to the current node
-     * @param refs Accumulator vector to collect matching paths. Contained
-     * references are unambiguous. Template nodes won't be included when
-     * matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
-     * set.
+     * @param sourceRef        original path we're matching against
+     * @param sourceInstance   original node obtained from sourceRef
+     * @param workingRef       explicit path that refers to the current node
+     * @param refs             Accumulator vector to collect matching paths. Contained
+     *                         references are unambiguous. Template nodes won't be included when
+     *                         matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     *                         set.
      * @param includeTemplates
      */
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,

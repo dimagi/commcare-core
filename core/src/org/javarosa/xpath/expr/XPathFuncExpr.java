@@ -94,7 +94,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     public boolean equals(Object o) {
         if (o instanceof XPathFuncExpr) {
-            XPathFuncExpr x = (XPathFuncExpr) o;
+            XPathFuncExpr x = (XPathFuncExpr)o;
 
             //Shortcuts for very easily comprable values
             //We also only return "True" for methods we expect to return the same thing. This is not good
@@ -112,12 +112,12 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = (XPathQName) ExtUtil.read(in, XPathQName.class);
-        Vector v = (Vector) ExtUtil.read(in, new ExtWrapListPoly(), pf);
+        id = (XPathQName)ExtUtil.read(in, XPathQName.class);
+        Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
         args = new XPathExpression[v.size()];
         for (int i = 0; i < args.length; i++)
-            args[i] = (XPathExpression) v.elementAt(i);
+            args[i] = (XPathExpression)v.elementAt(i);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -213,7 +213,7 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "0 or 1 arguments", args.length);
                 }
                 if (args.length == 1) {
-                    return position(((XPathNodeset) argVals[0]).getRefAt(0));
+                    return position(((XPathNodeset)argVals[0]).getRefAt(0));
                 } else {
                     if (evalContext.getContextPosition() != -1) {
                         return new Double(evalContext.getContextPosition());
@@ -226,7 +226,7 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("sum")) {
                 checkArity(name, 1, args.length);
                 if (argVals[0] instanceof XPathNodeset) {
-                    return sum(((XPathNodeset) argVals[0]).toArgList());
+                    return sum(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     throw new XPathTypeMismatchException("not a nodeset");
                 }
@@ -235,7 +235,7 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "at least one argument", args.length);
                 }
                 if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
-                    return max(((XPathNodeset) argVals[0]).toArgList());
+                    return max(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     return max(argVals);
                 }
@@ -244,7 +244,7 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "at least one argument", args.length);
                 }
                 if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
-                    return min(((XPathNodeset) argVals[0]).toArgList());
+                    return min(((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     return min(argVals);
                 }
@@ -256,7 +256,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return new Date();
             } else if (name.equals("concat")) {
                 if (args.length == 1 && argVals[0] instanceof XPathNodeset) {
-                    return join("", ((XPathNodeset) argVals[0]).toArgList());
+                    return join("", ((XPathNodeset)argVals[0]).toArgList());
                 } else {
                     return join("", argVals);
                 }
@@ -265,7 +265,7 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "at least one argument", args.length);
                 }
                 if (args.length == 2 && argVals[1] instanceof XPathNodeset) {
-                    return join(argVals[0], ((XPathNodeset) argVals[1]).toArgList());
+                    return join(argVals[0], ((XPathNodeset)argVals[1]).toArgList());
                 } else {
                     return join(argVals[0], subsetArgList(argVals, 1));
                 }
@@ -303,7 +303,7 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "two or more arguments", args.length);
                 }
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
-                    return checklist(argVals[0], argVals[1], ((XPathNodeset) argVals[2]).toArgList());
+                    return checklist(argVals[0], argVals[1], ((XPathNodeset)argVals[2]).toArgList());
                 } else {
                     return checklist(argVals[0], argVals[1], subsetArgList(argVals, 2));
                 }
@@ -312,8 +312,8 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "an even number of arguments", args.length);
                 }
                 if (args.length == 4 && argVals[2] instanceof XPathNodeset && argVals[3] instanceof XPathNodeset) {
-                    Object[] factors = ((XPathNodeset) argVals[2]).toArgList();
-                    Object[] weights = ((XPathNodeset) argVals[3]).toArgList();
+                    Object[] factors = ((XPathNodeset)argVals[2]).toArgList();
+                    Object[] weights = ((XPathNodeset)argVals[3]).toArgList();
                     if (factors.length != weights.length) {
                         throw new XPathTypeMismatchException("weighted-checklist: nodesets not same length");
                     }
@@ -358,7 +358,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round")) {
                 checkArity(name, 1, args.length);
-                return new Double((double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
+                return new Double((double)(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
             } else if (name.equals("log")) { //XPath 3.0
                 checkArity(name, 1, args.length);
                 return log(argVals[0]);
@@ -367,7 +367,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return log10(argVals[0]);
             } else {
                 //check for custom handler
-                IFunctionHandler handler = (IFunctionHandler) funcHandlers.get(name);
+                IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
                 if (handler != null) {
                     return evalCustomFunction(handler, argVals, evalContext);
                 } else {
@@ -389,12 +389,12 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Throws an arity exception if expected arity doesn't match the provided arity.
      *
-     * @param name the function name
+     * @param name          the function name
      * @param expectedArity expected number of arguments to the function
      * @param providedArity number of arguments actually provided to the function
      */
     private static void checkArity(String name, int expectedArity, int providedArity)
-        throws XPathArityException {
+            throws XPathArityException {
         if (expectedArity != providedArity) {
             throw new XPathArityException(name, expectedArity, providedArity);
         }
@@ -418,7 +418,7 @@ public class XPathFuncExpr extends XPathExpression {
         Object[] typedArgs = null;
 
         while (typedArgs == null && e.hasMoreElements()) {
-            typedArgs = matchPrototype(args, (Class[]) e.nextElement());
+            typedArgs = matchPrototype(args, (Class[])e.nextElement());
         }
 
         if (typedArgs != null) {
@@ -498,9 +498,9 @@ public class XPathFuncExpr extends XPathExpression {
     public static boolean isNull(Object o) {
         if (o == null) {
             return true; //true 'null' values aren't allowed in the xpath engine, but whatever
-        } else if (o instanceof String && ((String) o).length() == 0) {
+        } else if (o instanceof String && ((String)o).length() == 0) {
             return true;
-        } else if (o instanceof Double && ((Double) o).isNaN()) {
+        } else if (o instanceof Double && ((Double)o).isNaN()) {
             return true;
         } else {
             return false;
@@ -527,17 +527,17 @@ public class XPathFuncExpr extends XPathExpression {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = (Boolean) o;
+            val = (Boolean)o;
         } else if (o instanceof Double) {
-            double d = ((Double) o).doubleValue();
+            double d = ((Double)o).doubleValue();
             val = new Boolean(Math.abs(d) > 1.0e-12 && !Double.isNaN(d));
         } else if (o instanceof String) {
-            String s = (String) o;
+            String s = (String)o;
             val = new Boolean(s.length() > 0);
         } else if (o instanceof Date) {
             val = Boolean.TRUE;
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType) o).toBoolean();
+            val = ((IExprDataType)o).toBoolean();
         }
 
         if (val != null) {
@@ -549,7 +549,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     public static Double toDouble(Object o) {
         if (o instanceof Date) {
-            return DateUtils.fractionalDaysSinceEpoch((Date) o);
+            return DateUtils.fractionalDaysSinceEpoch((Date)o);
         } else {
             return toNumeric(o);
         }
@@ -568,15 +568,15 @@ public class XPathFuncExpr extends XPathExpression {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = new Double(((Boolean) o).booleanValue() ? 1 : 0);
+            val = new Double(((Boolean)o).booleanValue() ? 1 : 0);
         } else if (o instanceof Double) {
-            val = (Double) o;
+            val = (Double)o;
         } else if (o instanceof String) {
             /* annoying, but the xpath spec doesn't recognize scientific notation, or +/-Infinity
              * when converting a string to a number
              */
 
-            String s = (String) o;
+            String s = (String)o;
             double d;
             try {
                 s = s.trim();
@@ -592,9 +592,9 @@ public class XPathFuncExpr extends XPathExpression {
                 val = new Double(Double.NaN);
             }
         } else if (o instanceof Date) {
-            val = new Double(DateUtils.daysSinceEpoch((Date) o));
+            val = new Double(DateUtils.daysSinceEpoch((Date)o));
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType) o).toNumeric();
+            val = ((IExprDataType)o).toNumeric();
         }
 
         if (val != null) {
@@ -641,26 +641,26 @@ public class XPathFuncExpr extends XPathExpression {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = (((Boolean) o).booleanValue() ? "true" : "false");
+            val = (((Boolean)o).booleanValue() ? "true" : "false");
         } else if (o instanceof Double) {
-            double d = ((Double) o).doubleValue();
+            double d = ((Double)o).doubleValue();
             if (Double.isNaN(d)) {
                 val = "NaN";
             } else if (Math.abs(d) < 1.0e-12) {
                 val = "0";
             } else if (Double.isInfinite(d)) {
                 val = (d < 0 ? "-" : "") + "Infinity";
-            } else if (Math.abs(d - (int) d) < 1.0e-12) {
-                val = String.valueOf((int) d);
+            } else if (Math.abs(d - (int)d) < 1.0e-12) {
+                val = String.valueOf((int)d);
             } else {
                 val = String.valueOf(d);
             }
         } else if (o instanceof String) {
-            val = (String) o;
+            val = (String)o;
         } else if (o instanceof Date) {
-            val = DateUtils.formatDate((Date) o, DateUtils.FORMAT_ISO8601);
+            val = DateUtils.formatDate((Date)o, DateUtils.FORMAT_ISO8601);
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType) o).toString();
+            val = ((IExprDataType)o).toString();
         }
 
         if (val != null) {
@@ -706,7 +706,7 @@ public class XPathFuncExpr extends XPathExpression {
 
             return DateUtils.dateAdd(DateUtils.getDate(1970, 1, 1), n.intValue());
         } else if (o instanceof String) {
-            String s = (String) o;
+            String s = (String)o;
 
             if (s.length() == 0) {
                 return s;
@@ -719,7 +719,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return d;
             }
         } else if (o instanceof Date) {
-            return DateUtils.roundDate((Date) o);
+            return DateUtils.roundDate((Date)o);
         } else {
             String type = o == null ? "null" : o.getClass().getName();
             throw new XPathTypeMismatchException("converting unexpected type " + type + " to date");
@@ -750,7 +750,7 @@ public class XPathFuncExpr extends XPathExpression {
             od = toDate(od);
         }
         if (od instanceof Date) {
-            return DateUtils.format((Date) od, toString(of));
+            return DateUtils.format((Date)od, toString(of));
         } else {
             return "";
         }
@@ -779,8 +779,8 @@ public class XPathFuncExpr extends XPathExpression {
         if (!(o2 instanceof String)) {
             throw generateBadArgumentMessage("selected", 2, "single potential value from the list of select options", o2);
         }
-        String s1 = (String) unpack(o1);
-        String s2 = ((String) o2).trim();
+        String s1 = (String)unpack(o1);
+        String s2 = ((String)o2).trim();
 
         return new Boolean((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
     }
@@ -801,7 +801,7 @@ public class XPathFuncExpr extends XPathExpression {
             throw new XPathTypeMismatchException("count-selected argument was not a select list");
         }
 
-        String s = (String) unpack(o);
+        String s = (String)unpack(o);
         return new Double(DateUtils.split(s, " ", true).size());
     }
 
@@ -813,7 +813,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @return
      */
     public static String selectedAt(Object o1, Object o2) {
-        String selection = (String) unpack(o1);
+        String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
         return DateUtils.split(selection, " ", true).elementAt(index);
@@ -827,7 +827,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     public static Double count(Object o) {
         if (o instanceof XPathNodeset) {
-            return new Double(((XPathNodeset) o).size());
+            return new Double(((XPathNodeset)o).size());
         } else {
             throw new XPathTypeMismatchException("not a nodeset");
         }
@@ -1082,7 +1082,7 @@ public class XPathFuncExpr extends XPathExpression {
             throw new RuntimeException("error in subsetting arglist");
         }
 
-        Object[] subargs = new Object[(int) MathUtils.divLongNotSuck(args.length - start - 1, skip) + 1];
+        Object[] subargs = new Object[(int)MathUtils.divLongNotSuck(args.length - start - 1, skip) + 1];
         for (int i = start, j = 0; i < args.length; i += skip, j++) {
             subargs[j] = args[i];
         }
@@ -1092,7 +1092,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     public static Object unpack(Object o) {
         if (o instanceof XPathNodeset) {
-            return ((XPathNodeset) o).unpack();
+            return ((XPathNodeset)o).unpack();
         } else {
             return o;
         }
@@ -1250,7 +1250,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     public static double pow(final double a, final double b) {
         final long tmp = Double.doubleToLongBits(a);
-        final long tmp2 = (long) (b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
+        final long tmp2 = (long)(b * (tmp - 4606921280493453312L)) + 4606921280493453312L;
         return Double.longBitsToDouble(tmp2);
     }
 
@@ -1260,15 +1260,15 @@ public class XPathFuncExpr extends XPathExpression {
      * Take in a value (only a string for now, TODO: Extend?) that doesn't
      * have any type information and attempt to infer a more specific type
      * that may assist in equality or comparison operations
-     * 
+     *
      * @param attrValue A typeless data object
      * @return The passed in object in as specific of a type as was able to
      * be identified.
      */
     public static Object InferType(String attrValue) {
-        try{
+        try {
             return new Double(Double.parseDouble(attrValue));
-        } catch(NumberFormatException ife) {
+        } catch (NumberFormatException ife) {
             //Not a double
         }
         //TODO: What about dates? That is a _super_ expensive

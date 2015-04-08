@@ -36,56 +36,54 @@ import org.kxml2.kdom.Element;
  * Static Utility methods pertaining to XForms.
  *
  * @author Clayton Sims
- *
  */
 public class XFormUtils {
     private static IXFormParserFactory _factory = new XFormParserFactory();
-    
+
     public static IXFormParserFactory setXFormParserFactory(IXFormParserFactory factory) {
         IXFormParserFactory oldFactory = _factory;
         _factory = factory;
         return oldFactory;
     }
-    
-    public static FormDef getFormFromResource (String resource) throws XFormParseException {
+
+    public static FormDef getFormFromResource(String resource) throws XFormParseException {
         InputStream is = System.class.getResourceAsStream(resource);
         if (is == null) {
             System.err.println("Can't find form resource \"" + resource + "\". Is it in the JAR?");
             return null;
         }
-        
+
         return getFormFromInputStream(is);
     }
-    
-    
-    public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException{
+
+
+    public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException {
         return _factory.getXFormParser(isr).parse();
     }
 
     /*
      * This method throws XFormParseException when the form has errors.
      */
-    public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException{
+    public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException {
         InputStreamReader isr;
         try {
-            isr = new InputStreamReader(is,"UTF-8");
-        } catch(UnsupportedEncodingException uee) {
+            isr = new InputStreamReader(is, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
             System.out.println("UTF 8 encoding unavailable, trying default encoding");
-            isr = new InputStreamReader(is); 
+            isr = new InputStreamReader(is);
         }
-        
+
         try {
             try {
                 return _factory.getXFormParser(isr).parse();
                 //TODO: Keep removing these, shouldn't be swallowing them
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new XFormParseException("IO Exception during parse! " + e.getMessage());
             }
         } finally {
             try {
                 isr.close();
-            }
-            catch(IOException e) {
+            } catch (IOException e) {
                 System.err.println("IO Exception while closing stream.");
                 e.printStackTrace();
             }
@@ -96,18 +94,17 @@ public class XFormUtils {
         FormDef returnForm = null;
         InputStream is = System.class.getResourceAsStream(resource);
         try {
-            if(is != null) {
+            if (is != null) {
                 DataInputStream dis = new DataInputStream(is);
                 returnForm = (FormDef)ExtUtil.read(dis, FormDef.class);
                 dis.close();
                 is.close();
-            }else{
+            } else {
                 //#if debug.output==verbose
                 System.out.println("ResourceStream NULL");
                 //#endif
             }
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (DeserializationException e) {
             e.printStackTrace();
@@ -122,13 +119,14 @@ public class XFormUtils {
 
     /**
      * Get the list of attributes in an element
+     *
      * @param e Element that potentially has attributes in it
      * @return Vector (of String) attributes inside of element
      */
     public static Vector getAttributeList(Element e) {
         Vector atts = new Vector();
 
-        for(int i=0; i < e.getAttributeCount(); i++){
+        for (int i = 0; i < e.getAttributeCount(); i++) {
             atts.addElement(e.getAttributeName(i));
         }
 
@@ -136,13 +134,13 @@ public class XFormUtils {
     }
 
     /**
-     * @param e an Element with attributes
+     * @param e        an Element with attributes
      * @param usedAtts Vector (of String) attributes
      * @return Vector (of String) attributes from 'e' that aren't in 'usedAtts'
      */
     public static Vector getUnusedAttributes(Element e, Vector usedAtts) {
         Vector unusedAtts = getAttributeList(e);
-        for(int i=0; i < usedAtts.size(); i++){
+        for (int i = 0; i < usedAtts.size(); i++) {
             if (unusedAtts.contains(usedAtts.elementAt(i))) {
                 unusedAtts.removeElement(usedAtts.elementAt(i));
             }
@@ -152,7 +150,7 @@ public class XFormUtils {
     }
 
     /**
-     * @param e an Element with attributes
+     * @param e        an Element with attributes
      * @param usedAtts Vector (of String) attributes
      * @return String warning about which attributes from 'e' aren't in 'usedAtts'
      */
@@ -161,12 +159,12 @@ public class XFormUtils {
         Vector unusedAtts = getUnusedAttributes(e, usedAtts);
 
         warning += unusedAtts.size() + " unrecognized attributes found in Element [" +
-                   e.getName() + "] and will be ignored: ";
+                e.getName() + "] and will be ignored: ";
         warning += "[";
-        for(int i=0; i < unusedAtts.size(); i++){
+        for (int i = 0; i < unusedAtts.size(); i++) {
             warning += unusedAtts.elementAt(i);
             if (i != unusedAtts.size() - 1) {
-              warning += ",";
+                warning += ",";
             }
         }
         warning += "] ";
@@ -175,17 +173,18 @@ public class XFormUtils {
     }
 
     /**
-     * @param e an Element with attributes
+     * @param e        an Element with attributes
      * @param usedAtts Vector (of String) attributes
      * @return boolean representing whether there are any attributes in 'e' not
      * in 'usedAtts'
      */
-    public static boolean showUnusedAttributeWarning(Element e, Vector usedAtts){
+    public static boolean showUnusedAttributeWarning(Element e, Vector usedAtts) {
         return getUnusedAttributes(e, usedAtts).size() > 0;
     }
 
     /**
      * Is this element an Output tag?
+     *
      * @param e Element
      * @return boolean
      */

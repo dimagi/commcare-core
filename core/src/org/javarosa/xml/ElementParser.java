@@ -15,7 +15,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * <p>Element Parser is the core parsing element for XML files. Implementations
  * can be made for data types, encapsulating all of the parsing rules for that
  * type's XML definition.</p>
- * 
+ *
  * <p>An Element parser should have a defined scope of a single tag and its
  * descendants in the document. The ElementParser should receive the parser
  * pointing to that opening tag, and return it on the closing tag
@@ -35,7 +35,7 @@ public abstract class ElementParser<T> {
 
     /**
      * Produces a new element parser for the appropriate Element datatype.
-     * 
+     *
      * The parser should be already instantiated, and should be pointing directly
      * at the opening tag expected by the parser, not (for instance) the beginning
      * of the document
@@ -48,7 +48,7 @@ public abstract class ElementParser<T> {
         this.parser = parser;
         level = parser.getDepth();
     }
-    
+
     /**
      * Prepares a parser that will be used by the element parser, configuring relevant
      * parameters and setting it to the appropriate point in the document.
@@ -63,7 +63,7 @@ public abstract class ElementParser<T> {
         try {
             parser.setInput(stream, "UTF-8");
             parser.setFeature(KXmlParser.FEATURE_PROCESS_NAMESPACES, true);
-            
+
             //Point to the first available tag.
             parser.next();
 

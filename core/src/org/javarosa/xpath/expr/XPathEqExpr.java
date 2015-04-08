@@ -29,26 +29,27 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class XPathEqExpr extends XPathBinaryOpExpr {
     public boolean equal;
 
-    public XPathEqExpr () { } //for deserialization
-    
-    public XPathEqExpr (boolean equal, XPathExpression a, XPathExpression b) {
+    public XPathEqExpr() {
+    } //for deserialization
+
+    public XPathEqExpr(boolean equal, XPathExpression a, XPathExpression b) {
         super(a, b);
         this.equal = equal;
     }
-    
-    public Object eval (DataInstance model, EvaluationContext evalContext) {
+
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
         Object aval = XPathFuncExpr.unpack(a.eval(model, evalContext));
         Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
-        
+
         return new Boolean(equal ? eq : !eq);
     }
 
-    public String toString () {
+    public String toString() {
         return super.toString(equal ? "==" : "!=");
     }
-    
-    public boolean equals (Object o) {
+
+    public boolean equals(Object o) {
         if (o instanceof XPathEqExpr) {
             XPathEqExpr x = (XPathEqExpr)o;
             return super.equals(o) && equal == x.equal;
@@ -56,7 +57,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         equal = ExtUtil.readBool(in);
         super.readExternal(in, pf);
@@ -70,8 +71,8 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
     /**
      * Test two XPath Objects for equality the same way that they would be tested
      * if they were the result of an equality operation
-     * 
-     * @param aval XPath Value 
+     *
+     * @param aval XPath Value
      * @param bval XPath Value
      * @return true if the two values are equal, false otherwise
      */
@@ -92,8 +93,8 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
             if (!(aval instanceof Double)) {
                 aval = XPathFuncExpr.toNumeric(aval);
             } else if (!(bval instanceof Double)) {
-                bval = XPathFuncExpr.toNumeric(bval); 
-            } 
+                bval = XPathFuncExpr.toNumeric(bval);
+            }
 
             double fa = ((Double)aval).doubleValue();
             double fb = ((Double)bval).doubleValue();
