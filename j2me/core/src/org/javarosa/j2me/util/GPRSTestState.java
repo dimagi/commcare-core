@@ -36,31 +36,31 @@ import de.enough.polish.ui.ScaledImageItem;
 public abstract class GPRSTestState implements State, TrivialTransitions, HandledCommandListener {
 
     static final String DEFAULT_URL = "https://www.google.com";
-    
+
     String url;
-    
+
     Vector<String> messages;
-    
+
     FramedForm interactiveView;
     ImageItem imageView;
     StringItem interactiveMessage;
-    
+
     Command exit;
     Command back;
     Command details;
     Date start = null;
-    
+
     public GPRSTestState () {
         this(DEFAULT_URL);
     }
-    
+
     public GPRSTestState (String url) {
         this.url = url;
     }
-    
+
     public void start () {
         messages = new Vector<String>();
-        
+
         //#style networkTestForm
         interactiveView = new FramedForm(Localization.get("network.test.title"));
         exit = new Command(Localization.get("polish.command.ok"), Command.BACK, 0);
@@ -68,17 +68,17 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
         details = new Command(Localization.get("network.test.details"), Command.SCREEN, 2);
         interactiveView.setCommandListener(this);
         interactiveView.addCommand(exit);
-        
+
         //#style networkTestImage
         imageView = new ImageItem(null, null, ImageItem.LAYOUT_CENTER | ImageItem.LAYOUT_VCENTER, "");
-        
+
         interactiveMessage = new StringItem(null, "");
-        
+
         interactiveView.append(Graphics.TOP, imageView);
         interactiveView.append(interactiveMessage);
-        
+
         J2MEDisplay.setView(interactiveView);
-        
+
         final GPRSTestState parent = this;
         new HandledThread () {
             public void _run () {
@@ -86,8 +86,8 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
             }
         }.start();
     }
-    
-    
+
+
     private void showDetails() {
         Form details = new Form(Localization.get("network.test.details.title"));
         for(String s: messages) {
@@ -97,7 +97,7 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
         details.setCommandListener(this);
         J2MEDisplay.setView(details);
     }
-    
+
     public void updateInfo (String keyRoot) {
         updateInfo(keyRoot, "");
     }
@@ -110,46 +110,46 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
         } catch(NoLocalizedTextException nlte) {
             //no image for this one. No worries
         }
-        
+
         Date now = new Date();
-        if (start == null) { 
+        if (start == null) {
             start = now;
         }
-        
+
         int diff = (int)(now.getTime() - start.getTime()) / 10;
         String sDiff = (diff / 100) + "." + DateUtils.intPad(diff % 100, 2);
-        
 
-        
+
+
         interactiveMessage.setText(message);
         messages.addElement(sDiff + ": " + message + "\n" + details);
         if(image != null) {
             int[] newScales = ImageUtils.getNewDimensions(image, imageView.itemHeight, imageView.itemWidth);
-            
+
             imageView.setImage(ImageUtils.resizeImage(image, newScales[1], newScales[0]));
         }
     }
-    
+
     public static void networkTest (GPRSTestState parent) {
         HttpConnection conn = null;
         InputStream is = null;
-        
+
         try {
             parent.updateInfo("network.test.begin", "URL: " + parent.url);
-            
+
             conn = (HttpConnection)Connector.open(parent.url);
             conn.setRequestMethod(HttpConnection.GET);
 
             parent.updateInfo("network.test.connecting");
 
             int code = conn.getResponseCode();
-            
-            parent.updateInfo("network.test.connected", 
+
+            parent.updateInfo("network.test.connected",
                     "Response Code: " + code + "\nType: " +  conn.getType() + "\nLength: " + conn.getLength());
-            
+
             byte[] data;
             is = conn.openInputStream();
-            
+
             int len = (int)conn.getLength();
             if (len > 0) {
                 int actual = 0;
@@ -179,7 +179,7 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
                 body = sb.toString();
             }
             parent.updateInfo("network.test.content", "Response Body: " + body);
-            
+
         } catch (Exception e) {
             parent.updateInfo("network.test.failed", "Error: " + WrappedException.printException(e));
         } finally {
@@ -192,11 +192,11 @@ public abstract class GPRSTestState implements State, TrivialTransitions, Handle
         }
         parent.interactiveView.addCommand(parent.details);
     }
-    
+
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
     }
-    
+
     public void _commandAction(Command c, Displayable d) {
         if (c == exit) {
             done();

@@ -235,7 +235,7 @@ public class FormIndex {
 
 //        //TODO: while(true) loops freak me out, this should probably
 //        //get written more safely. -ctsims
-//        
+//
 //        //Iterate over each level of reference, and identify whether
 //        //each object stays in sync
 //        while(true) {
@@ -250,7 +250,7 @@ public class FormIndex {
 //            local = local.getNextLevel();
 //            index = index.getNextLevel();
 //        }
-//        
+//
     }
 
     public int compareTo(Object o) {
@@ -286,7 +286,7 @@ public class FormIndex {
         }
 
 //        int comp = 0;
-//        
+//
 //        //TODO: while(true) loops freak me out, this should probably
 //        //get written more safely. -ctsims
 //        while(comp == 0) {
@@ -302,7 +302,7 @@ public class FormIndex {
 //                } else if (local.instanceIndex < index.instanceIndex) {
 //                    return -1;
 //                }
-//                
+//
 //                //This case is here as a fallback, but it shouldn't really
 //                //ever be the case that two references have the same chain
 //                //of indices without terminating at the same level.
@@ -427,10 +427,10 @@ public class FormIndex {
         }
         //If we've gotten this far, at least one of the two is terminal
         if (!parent.isTerminal() && child.isTerminal()) {
-            //can't be the parent if the child is earlier on 
+            //can't be the parent if the child is earlier on
             return false;
         } else if (parent.getLocalIndex() != child.getLocalIndex()) {
-            //Either they're at the same level, in which case only 
+            //Either they're at the same level, in which case only
             //identical indices should match, or they should have
             //the same root
             return false;

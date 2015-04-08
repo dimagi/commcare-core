@@ -72,7 +72,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
-    private Vector children;// <IFormElement> 
+    private Vector children;// <IFormElement>
     /**
      * A collection of group definitions.
      */
@@ -393,7 +393,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         preloadInstance(mainInstance.resolveReference(destRef));
 
         //2013-05-14 - ctsims - Events should get fired _before_ calculate stuff is fired, moved
-        //this above triggering triggerables 
+        //this above triggering triggerables
         //Grab any actions listening to this event
         Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
         for (Action a : listeners) {
@@ -454,7 +454,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                     return false;
                 }
             } else {
-                //Otherwise the user can never add repeat instances 
+                //Otherwise the user can never add repeat instances
                 return false;
             }
         }
@@ -680,7 +680,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 updatedNodes.addElement(target);
 
                 //For certain types of triggerables, the update will affect not only the target, but
-                //also the children of the target. In that case, we want to add all of those nodes 
+                //also the children of the target. In that case, we want to add all of those nodes
                 //to the list of updated elements as well.
                 if (t.isCascadingToChildren()) {
                     addChildrenOfReference(target, updatedNodes);
@@ -749,7 +749,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public void triggerTriggerables(TreeReference ref) {
 
         //turn unambiguous ref into a generic ref
-        //to identify what nodes should be triggered by this 
+        //to identify what nodes should be triggered by this
         //reference changing
         TreeReference genericRef = ref.genericize();
 
@@ -759,7 +759,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             return;
         }
 
-        //Our vector doesn't have a shallow copy op, so make one 
+        //Our vector doesn't have a shallow copy op, so make one
         Vector triggeredCopy = new Vector();
         for (int i = 0; i < triggered.size(); i++) {
             triggeredCopy.addElement(triggered.elementAt(i));
@@ -836,7 +836,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
     }
 
-    //Recursive step of utility method 
+    //Recursive step of utility method
     private void addChildrenOfElement(AbstractTreeElement el, Vector<TreeReference> toAdd) {
         for (int i = 0; i < el.getNumChildren(); ++i) {
             AbstractTreeElement child = el.getChildAt(i);
@@ -927,12 +927,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
          *
          * arg 1: select value
          * arg 2: string xpath referring to origin question; must be absolute path
-         * 
+         *
          * this won't work at all if the original label needed to be processed/calculated in some way (<output>s, etc.) (is this even allowed?)
          * likely won't work with multi-media labels
          * _might_ work for itemsets, but probably not very well or at all; could potentially work better if we had some context info
          * DOES work with localization
-         * 
+         *
          * it's mainly intended for the simple case of reversing a question with compile-time-static fields, for use inside an <output>
          */
         if (!ec.getFunctionHandlers().containsKey("jr:choice-name")) {
@@ -1159,7 +1159,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.javarosa.core.model.utils.Localizable#localeChanged(java.lang.String,
      * org.javarosa.core.model.utils.Localizer)
@@ -1306,7 +1306,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         //TODO: Hm, not 100% sure that this is right. Maybe we should be
-        //using a slightly different event for "First Load" which doesn't 
+        //using a slightly different event for "First Load" which doesn't
         //get fired again, but always fire this one?
         if (newInstance) {
             dispatchFormEvent(Action.EVENT_XFORMS_READY);
@@ -1345,7 +1345,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         ExtUtil.write(dos, new ExtWrapListPoly(outputFragments));
         ExtUtil.write(dos, new ExtWrapMap(submissionProfiles));
 
-        //for support of multi-instance forms        
+        //for support of multi-instance forms
 
         ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
         ExtUtil.write(dos, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
@@ -1444,7 +1444,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.javarosa.core.model.IFormElement#getDeepChildCount()
      */
     public int getDeepChildCount() {
@@ -1652,7 +1652,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     public SubmissionProfile getSubmissionProfile() {
-        //At some point these profiles will be set by the <submit> control in the form. 
+        //At some point these profiles will be set by the <submit> control in the form.
         //In the mean time, though, we can only promise that the default one will be used.
 
         return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);

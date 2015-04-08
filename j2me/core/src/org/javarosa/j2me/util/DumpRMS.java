@@ -36,54 +36,54 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 public class DumpRMS {
     public static final String DUMP_PATH_PREFIX_DEFAULT = "E:/rmsdump";
     public static final String RESTORE_FILE_PATH_DEFAULT = "E:/rmsrestore";
-    
+
     //pathPrefix should omit leading slash; dump file name will be prefix appended with timestamp
     public static void dumpRMS (String pathPrefix) {
         if (pathPrefix == null)
             pathPrefix = DUMP_PATH_PREFIX_DEFAULT;
         String filepath = dumpFilePath(pathPrefix);
-        
+
         try {
             FileConnection fc = (FileConnection)Connector.open("file:///" + filepath);
             if (fc.exists()) {
                 System.err.println("Error: File " + filepath + " already exists");
                 fail("Dump file " + filepath + " already exists");
             }
-            
+
             fc.create();
             DataOutputStream out = fc.openDataOutputStream();
-            
+
             dumpRMS(out);
-        
+
             fc.close();
         } catch (IOException ioe) {
             fail(ioe, "ioexception");
         }
     }
-    
+
     private static String dumpFilePath (String prefix) {
         String suffix = DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_TIMESTAMP_SUFFIX);
         return prefix + "." + suffix;
     }
-    
+
     public static void dumpRMS (DataOutputStream out) {
         String currentRMS = "";
         try {
             String[] rmses = RecordStore.listRecordStores();
             if (rmses == null) //seriously??
                 rmses = new String[0];
-            
+
             ExtUtil.writeNumeric(out, rmses.length);
-            
-            for (int i = 0; i < rmses.length; i++) {                
+
+            for (int i = 0; i < rmses.length; i++) {
                 String rmsName = rmses[i];
                 currentRMS = rmsName;
                 ExtUtil.writeString(out, rmsName);
-                
+
                 RecordStore rs = RecordStore.openRecordStore(rmsName, false);
                 int numRecords = rs.getNumRecords();
                 ExtUtil.writeNumeric(out, numRecords);
-                
+
                 Vector recordIDs = new Vector();
                 for (RecordEnumeration re = rs.enumerateRecords(null, null, false); re.hasNextElement(); ) {
                     int recID = re.nextRecordId();
@@ -94,13 +94,13 @@ public class DumpRMS {
                     System.err.println("Error: number of records in RMS did not match reported value");
                     fail("Inconsistent number of records in RMS " + rmsName + " (" + recordIDs.size() + " vs " + numRecords + ")");
                 }
-                
+
                 for (int j = 0; j < recordIDs.size(); j++) {
                     int recID = ((Integer)recordIDs.elementAt(j)).intValue();
                     byte[] data = rs.getRecord(recID);
                     if (data == null) //seriously???
-                        data = new byte[0];                    
-                    
+                        data = new byte[0];
+
                     ExtUtil.writeNumeric(out, data.length);
                     if (data.length > 0) //seriously?????
                         out.write(data);
@@ -117,36 +117,36 @@ public class DumpRMS {
                 out.flush();
             } catch (IOException ioe) {    }
         }
-    }    
-    
+    }
+
     //path should omit leading slash
     public static void restoreRMS (String filepath) {
         if (filepath == null)
             filepath = RESTORE_FILE_PATH_DEFAULT;
-        
+
         try {
             FileConnection fc = (FileConnection)Connector.open("file:///" + filepath);
             if (!fc.exists()) {
                 System.err.println("Error: File " + filepath + " does not exist");
                 fail("RMS image [" + filepath + "] not found");
             }
-            
+
             restoreRMS(fc.openDataInputStream(), true);
-            fc.close();            
+            fc.close();
         } catch (IOException ioe) {
             fail(ioe, "ioexception");
         }
     }
-    
+
     public static void restoreRMS (DataInputStream in, boolean deleteOtherRMSes) {
         try {
             int numRMSes = ExtUtil.readInt(in);
             Vector validRMSes = new Vector();
-            
+
             for (int i = 0; i < numRMSes; i++) {
                 String rmsName = ExtUtil.readString(in);
                 validRMSes.addElement(rmsName);
-                
+
                 //wipe out record store if it exists
                 try {
                     RecordStore rs = RecordStore.openRecordStore(rmsName, false);
@@ -177,13 +177,13 @@ public class DumpRMS {
                     int dataLength = ExtUtil.readInt(in);
                     byte[] data = new byte[dataLength];
                     in.read(data);
-                    
+
                     rs.setRecord(recordID, data, 0, dataLength);
                 }
-                                    
+
                 rs.closeRecordStore();
             }
-        
+
             //optionally delete all other RMSes not in the data dump
             if (deleteOtherRMSes) {
                 String[] rmses = RecordStore.listRecordStores();
@@ -207,7 +207,7 @@ public class DumpRMS {
         for (int i = 0; i < recIDs.size(); i++) {
             maxRecID = Math.max(maxRecID, ((Integer)recIDs.elementAt(i)).intValue());
         }
-        
+
         //allocate records up to the maximum needed id
         try {
             while (maxRecID >= rs.getNextRecordID()) {
@@ -216,7 +216,7 @@ public class DumpRMS {
         } catch (RecordStoreException rse) {
             return false;
         }
-            
+
         //test setting each record id
         for (int i = 0; i < recIDs.size(); i++) {
             int recID = ((Integer)recIDs.elementAt(i)).intValue();
@@ -226,7 +226,7 @@ public class DumpRMS {
                 return false;
             }
         }
-        
+
         //clean up record ids that are unused
         try {
             for (RecordEnumeration e = rs.enumerateRecords(null, null, false); e.hasNextElement(); ) {
@@ -238,26 +238,26 @@ public class DumpRMS {
         } catch (RecordStoreException rse) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     public static void RMSRecoveryHook (MIDlet midlet) {
         String action = midlet.getAppProperty("RMS-Image");
         String path = midlet.getAppProperty("RMS-Image-Path");
-        
+
         if ("dump".equals(action)) {
             System.out.println("Dumping RMS image...");
             dumpRMS(path);
         } else if ("restore".equals(action)) {
             System.out.println("Restoring RMS image...");
             restoreRMS(path);
-        }        
+        }
     }
-    
+
     private static void fail (Exception e, String prefix) {
         RuntimeException re;
-        
+
         if (e == null) {
             re = new RuntimeException("wtf exception is null; this is impossible");
         } else {
@@ -271,7 +271,7 @@ public class DumpRMS {
         }
         throw re;
     }
-    
+
     private static void fail (String msg) {
         throw new RuntimeException(msg);
     }

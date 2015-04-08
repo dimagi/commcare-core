@@ -148,7 +148,7 @@ public class DataBinding implements Externalizable {
         setPreloadParams((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
         ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged());
 
-        //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway        
+        //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
     }
 
     /* (non-Javadoc)

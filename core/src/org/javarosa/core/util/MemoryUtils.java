@@ -19,14 +19,14 @@ import org.javarosa.xpath.expr.XPathStep;
  */
 public class MemoryUtils {
 
-    //These 3 are used to hold the profile of the heapspace, only relevant 
+    //These 3 are used to hold the profile of the heapspace, only relevant
     //if you are doing deep memory profiling
     private static long[] memoryProfile;
     private static byte[][] memoryHolders;
     static int currentCount = 0;
 
-    //Variables to keep track of the state of some of the internal 
-    //interning options 
+    //Variables to keep track of the state of some of the internal
+    //interning options
     //TODO: I think we can get rid of this, depending on fragmentation analysis
     static boolean oldterning;
     static boolean otrt;
@@ -114,7 +114,7 @@ public class MemoryUtils {
         int chunk = 100;
         int lastSuccess = 100;
 
-        //Some environments provide better or more accurate numbers for available memory than 
+        //Some environments provide better or more accurate numbers for available memory than
         //others. Just in case, we go through and allocate the largest contiguious block of
         //memory that is available to see what the actual upper bound is for what we can
         //use
@@ -129,7 +129,7 @@ public class MemoryUtils {
                 int newAmount = lastSuccess + chunk;
                 byte[] allocated = new byte[newAmount];
                 lastSuccess = newAmount;
-                //If we succeeded, keep trying a larger piece. 
+                //If we succeeded, keep trying a larger piece.
                 chunk = chunk * 10;
             } catch (OutOfMemoryError oom) {
                 chunk = chunk / 2;
@@ -179,9 +179,9 @@ public class MemoryUtils {
         System.gc();
         long memory = r.freeMemory();
 
-        //Basically: We go through here and allocate arrays over and over, making them smaller and smaller 
+        //Basically: We go through here and allocate arrays over and over, making them smaller and smaller
         //until we reach the smallest unit we care about allocating. The parameters can be tuned depending
-        //on the type of fragmentation you are concerned about. 
+        //on the type of fragmentation you are concerned about.
         while (true) {
             if (currentCount >= MEMORY_PROFILE_SIZE) {
                 System.out.println("Memory profile is too small for this device's usage!");

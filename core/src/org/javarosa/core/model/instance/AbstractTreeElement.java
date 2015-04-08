@@ -108,7 +108,7 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     public abstract int getMult();
 
-    //Support? 
+    //Support?
     public abstract AbstractTreeElement getParent();
 
     public abstract IAnswerData getValue();

@@ -83,7 +83,7 @@ public class MultiInputStream extends InputStream {
 
         //Otherwise, end of Stream
 
-        //Loop through the available streams until we read something that isn't 
+        //Loop through the available streams until we read something that isn't
         //an end of stream
         while (next == -1 && currentStream + 1 < streams.size()) {
             currentStream++;

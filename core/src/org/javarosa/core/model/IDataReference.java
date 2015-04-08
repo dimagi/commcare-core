@@ -42,8 +42,8 @@ public interface IDataReference extends Externalizable {
 //     * data value as this reference.
 //     */
 //    boolean referenceMatches(IDataReference reference);
-//    
-//    /** 
+//
+//    /**
 //     * @return a new object that is a copy of this data reference
 //     */
 //    IDataReference clone();

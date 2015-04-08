@@ -11,7 +11,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * The 'master record' for an RMSStorageUility, containing key information like number of active data stores, etc.
- * 
+ *
  * @author Drew Roos
  *
  */
@@ -19,13 +19,13 @@ public class RMSStorageInfo implements Externalizable {
     public int numRecords;
     public int numDataStores;
     public int nextRecordID;
-    
+
     public RMSStorageInfo () {
         numRecords = 0;
         numDataStores = 0;
         nextRecordID = 1;
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         numRecords = ExtUtil.readInt(in);
         numDataStores = ExtUtil.readInt(in);

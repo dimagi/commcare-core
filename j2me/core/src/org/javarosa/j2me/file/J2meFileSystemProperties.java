@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.file;
 
@@ -17,29 +17,29 @@ import org.javarosa.core.services.properties.IPropertyRules;
  * The J2meFileSystemProperties class provides a clean and quick
  * interface for configuring the parameters associated with the
  * local file system. Registering the class provides the settings
- * interface with a way to determine and configure a local 
+ * interface with a way to determine and configure a local
  * RootFactory (operating with the ReferenceManager in the
  * local runtime environment), and it provides a helper method
  * to initialize the most like-useful file root on startup, thus
  * making jr://file/ references work reliably without manual
- * configuration or intervention. 
- * 
+ * configuration or intervention.
+ *
  * @author ctsims
  *
  */
 public class J2meFileSystemProperties implements IPropertyRules {
-    
+
     public static final String FILE_SYSTEM_ROOT = "j2me-fileroot";
     Vector<String> fileroots;
-    
+
     J2meFileRoot currentRoot;
-    
+
     boolean manageRoot = true;
-    
+
     public J2meFileSystemProperties(boolean useRealFiles) {
         manageRoot = useRealFiles;
     }
-    
+
     private Vector<String> roots() {
         if(fileroots == null) {
             fileroots = new Vector<String>();
@@ -70,7 +70,7 @@ public class J2meFileSystemProperties implements IPropertyRules {
         }
         return fileroots;
     }
-    
+
     /**
      * @return A root in the local environment which is deemed
      * to be likely to be the most useful with which to store
@@ -79,7 +79,7 @@ public class J2meFileSystemProperties implements IPropertyRules {
      */
     public String getPreferredDefaultRoot() {
         Vector<String> preferredRoots = getCardRoots();
-        
+
         Vector<String> roots = roots();
         for(String root : roots) {
             if(preferredRoots.contains(root.toLowerCase())) {
@@ -92,10 +92,10 @@ public class J2meFileSystemProperties implements IPropertyRules {
         }
         return null;
     }
-    
+
     /**
      * Makes available a file reference in the current environment which is set
-     * to either be the current property value for a file system root, or is 
+     * to either be the current property value for a file system root, or is
      * set to the preferred default root inferred by the getPreferredDefaultRoot()
      * method.
      */
@@ -111,43 +111,43 @@ public class J2meFileSystemProperties implements IPropertyRules {
             registerReferenceFactory(root);
         }
     }
-    
+
     /**
      * @return The common roots for memory cards
      */
     private Vector<String> getCardRoots() {
         Vector<String> cardRoots = new Vector<String>();
-        
+
         //For Nokia Phones
         cardRoots.addElement("e:");
-        
+
         //For BlackBerry's
         cardRoots.addElement("sdcard");
-        
+
         //For (sony?)
         cardRoots.addElement("memorystick");
-        
+
         return cardRoots;
     }
-    
+
     /**
      * @return The common roots for phone memory
      */
     private Vector<String> getPhoneMemoryRoots() {
         Vector<String> phoneRoots = new Vector<String>();
-        
+
         //For Nokia Phones
         phoneRoots.addElement("c:");
-        
+
         //For BlackBerry's
         phoneRoots.addElement("");
-        
+
         //For (sony?)
         phoneRoots.addElement("memorystick");
-        
+
         //For Emulators
         phoneRoots.addElement("root1");
-        
+
         return phoneRoots;
     }
 
@@ -206,7 +206,7 @@ public class J2meFileSystemProperties implements IPropertyRules {
     public String getHumanReadableDescription(String propertyName) {
         if(propertyName.equals(FILE_SYSTEM_ROOT)) {
             return "File System Root";
-        } 
+        }
         return null;
     }
 
@@ -235,7 +235,7 @@ public class J2meFileSystemProperties implements IPropertyRules {
             registerReferenceFactory(PropertyManager._().getSingularProperty(FILE_SYSTEM_ROOT));
         }
     }
-    
+
     private void registerReferenceFactory(String newRoot) {
         if(manageRoot) {
             if(currentRoot != null) {
@@ -247,7 +247,7 @@ public class J2meFileSystemProperties implements IPropertyRules {
             }
         }
     }
-    
+
     protected J2meFileRoot root(String root) {
         return new J2meFileRoot(root);
     }

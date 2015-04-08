@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.util;
 
@@ -22,14 +22,14 @@ import de.enough.polish.ui.TextField;
  *
  */
 public abstract class CommCareHandledExceptionState implements State, CommandListener, TrivialTransitions {
-    
+
     TextBox view;
     Command back;
     Exception handledException;
     String errorMessage;
-    
+
     public CommCareHandledExceptionState() {
-        
+
         back = new Command(Localization.get("polish.command.back"), 2, Command.BACK);
         view = new TextBox("Runtime Error","",25,TextField.ANY);
         view.setConstraints(TextField.UNEDITABLE);
@@ -51,25 +51,25 @@ public abstract class CommCareHandledExceptionState implements State, CommandLis
             return;
         } else {}
     }
-    
+
     public String getErrorMessage(){
         return errorMessage;
     }
-    
+
     public void setErrorMessage(String errMessage){
         errorMessage = errMessage;
         setDisplayText();
     }
-    
+
     public abstract String getExplanationMessage(String e);
-    
-    
+
+
     private void setDisplayText(){
         view.setString(getExplanationMessage(errorMessage));
     }
-    
+
     public abstract boolean handlesException(Exception e);
-    
+
     public abstract void done();
-    
+
 }

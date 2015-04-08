@@ -84,7 +84,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //protected boolean isAttribute;
     //private boolean relevant = true;
     //private boolean enabled = true;
-    // inherited properties 
+    // inherited properties
     //private boolean relevantInherited = true;
     //private boolean enabledInherited = true;
 
@@ -775,19 +775,19 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     /*
      * TODO:
-     * 
+     *
      * this new serialization scheme is kind of lame. ideally, we shouldn't have
      * to sub-class TreeElement at all; we should have an API that can
      * seamlessly represent complex data model objects (like weight history or
      * immunizations) as if they were explicity XML subtrees underneath the
      * parent TreeElement
-     * 
+     *
      * failing that, we should wrap this scheme in an ExternalizableWrapper
      */
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.javarosa.core.services.storage.utilities.Externalizable#readExternal
      * (java.io.DataInputStream)
@@ -857,7 +857,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.javarosa.core.services.storage.utilities.Externalizable#writeExternal
      * (java.io.DataOutputStream)
@@ -1059,8 +1059,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    //TODO: This is probably silly because this object is likely already 
-    //not thread safe in any way. Also, we should be wrapping all of the 
+    //TODO: This is probably silly because this object is likely already
+    //not thread safe in any way. Also, we should be wrapping all of the
     //setters.
     TreeReference[] refCache = new TreeReference[1];
 

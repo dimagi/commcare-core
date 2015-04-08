@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.view;
 
@@ -23,15 +23,15 @@ public class LoadingScreenThread extends HandledTimerTask {
     private Display display;
     private boolean canceled;
     private LoadingScreen screen;
-    
+
     private Object lock;
-    
-    
+
+
     public LoadingScreenThread(Display d) {
         display = d;
         lock = new Object();
     }
-    
+
     public void startLoading(ProgressIndicator indicator) {
         timer = new Timer();
         screen = new LoadingScreen(indicator);
@@ -47,11 +47,11 @@ public class LoadingScreenThread extends HandledTimerTask {
                     elapsed += START_THRESHOLD;
                     display.setCurrent(screen);
                     displayed = true;
-                }    
+                }
                 if(indicator != null) {
                     if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_PROGRESS) != 0) {
                         screen.updateProgress(indicator.getProgress());
-                    } 
+                    }
                     if((indicator.getIndicatorsProvided() & ProgressIndicator.INDICATOR_STATUS) != 0) {
                         screen.updateMessage(indicator.getCurrentLoadingStatus());
                     }
@@ -59,7 +59,7 @@ public class LoadingScreenThread extends HandledTimerTask {
             }
         }
     }
-    
+
     public void cancelLoading() {
         synchronized(lock) {
             canceled = true;

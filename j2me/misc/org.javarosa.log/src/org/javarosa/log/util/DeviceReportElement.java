@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.log.util;
 

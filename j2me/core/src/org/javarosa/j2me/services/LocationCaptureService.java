@@ -22,11 +22,11 @@ import org.javarosa.core.api.State;
 import org.javarosa.j2me.services.exception.LocationServiceException;
 
 /**
- * 
+ *
  * A service to get a location fix
- * 
+ *
  * @author mel
- * 
+ *
  */
 public abstract class LocationCaptureService implements DataCaptureService {
 
@@ -91,7 +91,7 @@ public abstract class LocationCaptureService implements DataCaptureService {
 
     /**
      * @author mel a location fix
-     * 
+     *
      */
     public class Fix {
         private double lat;
@@ -128,25 +128,25 @@ public abstract class LocationCaptureService implements DataCaptureService {
     /**
      * @author mel implementers of this interface want to be notified when the
      *         state of the location service changes
-     * 
+     *
      */
     public interface LocationStateListener {
 
         public void onChange(int status);
 
     }
-    
+
     /**
      * Implemented by states that can receive a location fix
-     * 
+     *
      * @author melissa
-     * 
+     *
      */
     public interface LocationReceiver {
 
         /**
          * Transition back to the calling state; fix has been obtained
-         * 
+         *
          * @param fix
          */
         void fixObtained(Fix fix);

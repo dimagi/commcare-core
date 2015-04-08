@@ -42,7 +42,7 @@ public class TreeUtilities {
      * is provided
      */
     public static Vector<TreeReference> tryBatchChildFetch(AbstractTreeElement parent, Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap, String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        //This method builds a predictive model for quick queries that prevents the need to fully flesh out 
+        //This method builds a predictive model for quick queries that prevents the need to fully flesh out
         //full walks of the tree.
 
         //TODO:
@@ -73,7 +73,7 @@ public class TreeUtilities {
         for (int i = 0; i < predicates.size(); ++i) {
             Vector<TreeReference> predicateMatches = new Vector<TreeReference>();
             XPathExpression xpe = predicates.elementAt(i);
-            //what we want here is a static evaluation of the expression to see if it consists of evaluating 
+            //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
             if (xpe instanceof XPathEqExpr) {
                 XPathExpression left = ((XPathEqExpr)xpe).a;
@@ -86,7 +86,7 @@ public class TreeUtilities {
                     if (right instanceof XPathStringLiteral) {
                         literalMatch = ((XPathStringLiteral)right).s;
                     } else if (right instanceof XPathPathExpr) {
-                        //We'll also try to match direct path queries as long as they are not 
+                        //We'll also try to match direct path queries as long as they are not
                         //complex.
 
                         //First: Evaluate whether there are predicates (which may have nesting that ruins our ability to do this)
@@ -128,7 +128,7 @@ public class TreeUtilities {
                     }
 
 
-                    //We're lazily initializing this, since it might actually take a while, and we 
+                    //We're lazily initializing this, since it might actually take a while, and we
                     //don't want the overhead if our predicate is too complex anyway
 
                     //TODO: Probably makes sense to actually just build the hint mapping here,
@@ -143,7 +143,7 @@ public class TreeUtilities {
                             return null;
                         }
 
-                        //Anything that we're going to use across elements should be on all of them 
+                        //Anything that we're going to use across elements should be on all of them
                         AbstractTreeElement kid = kids.elementAt(0);
                         for (int j = 0; j < kid.getAttributeCount(); ++j) {
                             String attribute = kid.getAttributeName(j);
@@ -207,7 +207,7 @@ public class TreeUtilities {
     }
 
 
-    //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest. 
+    //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest.
     static CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
 
     public static XPathPathExpr getXPathAttrExpression(String attribute) {

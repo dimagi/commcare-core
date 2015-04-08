@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.j2me.log;
 
@@ -26,17 +26,17 @@ import org.kxml2.kdom.Element;
 
 /**
  * @author Clayton Sims
- * @date Apr 10, 2009 
+ * @date Apr 10, 2009
  *
  */
 public class XmlLogSerializer implements IFullLogSerializer<Element> {
 
     private String topElementName;
-    
+
     public XmlLogSerializer(String topElementName) {
         this.topElementName = topElementName;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.log.ILogSerializer#serializeLog(org.javarosa.core.log.IncidentLog)
      */
@@ -44,15 +44,15 @@ public class XmlLogSerializer implements IFullLogSerializer<Element> {
         Element entry = new Element();
         entry.setName("log");
         entry.setAttribute(null, "date", DateUtils.formatDateTime(log.getTime(), DateUtils.FORMAT_ISO8601));
-        
+
         Element type = entry.createElement(null,"type");
         type.addChild(Element.TEXT, log.getType());
         entry.addChild(Element.ELEMENT, type);
-        
+
         Element message = entry.createElement(null,"msg");
         message.addChild(Element.TEXT, log.getMessage());
         entry.addChild(Element.ELEMENT, message);
-        
+
         return entry;
     }
 

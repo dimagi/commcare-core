@@ -33,7 +33,7 @@ public class ItemsetBinding implements Externalizable, Localizable {
     //convert expressions into refs while preserving predicates. once these are fixed, this field can go away
 
     public TreeReference labelRef;     //absolute ref of label
-    public IConditionExpr labelExpr;   //path expression for label; may be relative, no predicates  
+    public IConditionExpr labelExpr;   //path expression for label; may be relative, no predicates
     public boolean labelIsItext;       //if true, content of 'label' is an itext id
 
     public boolean copyMode;           //true = copy subtree; false = copy string value

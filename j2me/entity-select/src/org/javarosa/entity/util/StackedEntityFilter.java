@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.entity.util;
 
@@ -13,17 +13,17 @@ import org.javarosa.core.services.storage.EntityFilter;
  *
  */
 public class StackedEntityFilter<E> extends EntityFilter<E> {
-    
+
     public static final int OP_AND = 0;
     public static final int OP_OR = 1;
-    
+
     EntityFilter<E> one, two;
     int op;
-    
+
     public StackedEntityFilter(EntityFilter<E> one, EntityFilter<E> two) {
         this(one, two, OP_AND);
     }
-        
+
     public StackedEntityFilter(EntityFilter<E> one, EntityFilter<E> two, int operator) {
         this.one = one;
         this.two = two;
@@ -55,7 +55,7 @@ public class StackedEntityFilter<E> extends EntityFilter<E> {
             throw new RuntimeException();
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.entity.util.IEntityFilter#isPermitted(org.javarosa.entity.model.IEntity)
      */

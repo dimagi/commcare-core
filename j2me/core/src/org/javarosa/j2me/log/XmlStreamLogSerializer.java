@@ -12,12 +12,12 @@ public class XmlStreamLogSerializer extends StreamLogSerializer {
 
     XmlSerializer o;
     String ns;
-    
+
     public XmlStreamLogSerializer(XmlSerializer o, String ns) {
         this.o = o;
         this.ns = ns;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.log.ILogSerializer#serializeLog(org.javarosa.core.log.IncidentLog)
      */
@@ -25,14 +25,14 @@ public class XmlStreamLogSerializer extends StreamLogSerializer {
         o.startTag(ns, "log");
         try {
         o.attribute(null, "date", DateUtils.formatDateTime(log.getTime(), DateUtils.FORMAT_ISO8601));
-        
+
         o.startTag(ns, "type");
         try {
             o.text(log.getType());
         } finally {
             o.endTag(ns, "type");
         }
-        
+
         o.startTag(ns, "msg");
         try {
             o.text(log.getMessage());

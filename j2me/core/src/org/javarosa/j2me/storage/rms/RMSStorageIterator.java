@@ -15,9 +15,9 @@ public class RMSStorageIterator implements IStorageIterator {
     private int pos;
     private boolean valid;
     private IdIndex index;
-    
+
     public RMSStorageIterator (RMSStorageUtility store, IdIndex index) {
-        
+
         SortedIntSet IDs = new SortedIntSet();
 
         for (Enumeration e = index.getIndexTable().keys(); e.hasMoreElements(); ) {
@@ -29,11 +29,11 @@ public class RMSStorageIterator implements IStorageIterator {
         pos = 0;
         valid = true;
     }
-    
+
     public int numRecords () {
         return IDs.size();
     }
-    
+
     public synchronized boolean hasMore () {
         if(numRecords() == 0) {
             //Otherwise we wouldn't clear the iterator
@@ -43,13 +43,13 @@ public class RMSStorageIterator implements IStorageIterator {
         }
         return pos < numRecords();
     }
-    
+
 
     public int peekID() {
         if (!hasMore()) {
             throw new IllegalStateException("All records have been iterated through");
         }
-            
+
         if (!valid) {
             throw new StorageModifiedException();
         }
@@ -57,14 +57,14 @@ public class RMSStorageIterator implements IStorageIterator {
     }
 
     /* Note: StorageUtility lock must always be acquire before local lock, to avoid deadlock scenarios. */
-    
+
     public int nextID () {
         synchronized (store.getAccessLock()) {
             synchronized (this) {
                 if (!hasMore()) {
                     throw new IllegalStateException("All records have been iterated through");
                 }
-                    
+
                 if (!valid) {
                     throw new StorageModifiedException();
                 }
@@ -75,12 +75,12 @@ public class RMSStorageIterator implements IStorageIterator {
                 if (!hasMore()) {
                     store.iteratorComplete(this);
                 }
-                
+
                 return id;
             }
         }
     }
-        
+
     public Externalizable nextRecord () {
         synchronized (store.getAccessLock()) {
             synchronized (this) {
@@ -88,7 +88,7 @@ public class RMSStorageIterator implements IStorageIterator {
             }
         }
     }
-    
+
     public synchronized void invalidate () {
         valid = false;
     }

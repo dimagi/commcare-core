@@ -116,7 +116,7 @@ public class ResourceFileDataSource implements LocaleDataSource {
 
                 while (index != -1) {
                     int nindex = stringchunk.indexOf('\n', index);
-                    //UTF-8 often doesn't encode with newline, but with CR, so if we 
+                    //UTF-8 often doesn't encode with newline, but with CR, so if we
                     //didn't find one, we'll try that
                     if (nindex == -1) {
                         nindex = stringchunk.indexOf('\r', index);

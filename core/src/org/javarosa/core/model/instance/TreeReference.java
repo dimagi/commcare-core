@@ -327,7 +327,7 @@ public class TreeReference implements Externalizable {
                     return this.clone();
                 }
             }
-            //Or if this refers to another instance and the context ref doesn't refer to the 
+            //Or if this refers to another instance and the context ref doesn't refer to the
             //same instance
             else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
                 return this.clone();

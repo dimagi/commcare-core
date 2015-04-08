@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.file;
 
@@ -11,20 +11,20 @@ import org.javarosa.core.reference.Reference;
  * A J2meFileRoot profiles a mechanism for deriving roots
  * of the type "jr://file" in the context of a J2ME runtime
  * environment. It is created with a localRoot part which
- * defines what local file root should be used in the 
+ * defines what local file root should be used in the
  * current environment.
- * 
+ *
  * @author ctsims
  *
  */
 public class J2meFileRoot extends PrefixedRootFactory {
-    
+
     protected String localRoot;
-    
+
     /**
      * Creates a RootFactory which derives file roots
      * in the local environment to the localRoot provided
-     * 
+     *
      * @param localRoot A local file root in the current
      * runtime environment.
      */

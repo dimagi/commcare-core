@@ -29,7 +29,7 @@ public class JRDemoUtil {
 
     static OrderedHashtable formList;
     static OrderedHashtable remoteFormList;
-    
+
     private static OrderedHashtable savedFormList;
 
     public static String getAppProperty(String key) {
@@ -101,7 +101,7 @@ public class JRDemoUtil {
                 .getStorage(FormInstance.STORAGE_KEY);
         IStorageIterator fi = forms.iterate();
         FormInstance f,result = null;
-        
+
         while (fi.hasMore()) {
             f = (FormInstance) fi.nextRecord();
 
@@ -113,7 +113,7 @@ public class JRDemoUtil {
         return result;
     }
 
-    
+
     // cache this because the storage utility doesn't yet support quick
     // meta-data iteration
     public static FormInstance getSavedFormInstance(int formInstanceId) {
@@ -130,7 +130,7 @@ public class JRDemoUtil {
             return null;
     }
 
-    
+
     public static OrderedHashtable readFormListXML(String formListXmlString)
     {
         OrderedHashtable hashData = new OrderedHashtable();

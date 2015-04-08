@@ -69,7 +69,7 @@ public class AnswerDataFactory {
             case Constants.DATATYPE_TIME:
                 return new TimeData();
 
-            //All of these are things that might require other manipulations in the future, but 
+            //All of these are things that might require other manipulations in the future, but
             //for low can all just live as untyped
             case Constants.DATATYPE_BARCODE:
             case Constants.DATATYPE_BINARY:

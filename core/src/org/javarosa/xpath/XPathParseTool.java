@@ -46,7 +46,7 @@ public class XPathParseTool {
 //        String expr = args[0];
 //        Vector tokens;
 //        ASTNode root;
-//        
+//
 //        System.out.println(expr + " ...");
 //
 //        try {
@@ -64,7 +64,7 @@ public class XPathParseTool {
 //                System.out.print(" ");
 //        }
 //        System.out.println("]");
-//        
+//
 //        root.print();
 //    }
 

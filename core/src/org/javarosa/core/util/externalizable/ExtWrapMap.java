@@ -36,7 +36,7 @@ public class ExtWrapMap extends ExternalizableWrapper {
     public ExternalizableWrapper keyType;
     public ExternalizableWrapper dataType;
     public int type;
-    
+
     /* serialization */
 
     public ExtWrapMap(Hashtable val) {

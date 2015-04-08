@@ -68,7 +68,7 @@ public class EvaluationContext {
         this.formInstances = base.formInstances;
         this.variables = new Hashtable();
 
-        //TODO: this is actually potentially much slower than 
+        //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
         //be threadsafe). We should evaluate the potential impact.
         this.setVariables(base.variables);
@@ -338,13 +338,13 @@ public class EvaluationContext {
             }
 
             for (TreeReference treeRef : set) {
-                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate				
+                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
                 if (predicates != null) {
                     boolean passedAll = true;
                     int predIndex = -1;
                     for (XPathExpression xpe : predicates) {
                         predIndex++;
-                        //Just by getting here we're establishing a position for evaluating the current 
+                        //Just by getting here we're establishing a position for evaluating the current
                         //context. If we break, we won't push up the next one
                         positionContext[predIndex]++;
 
@@ -354,7 +354,7 @@ public class EvaluationContext {
                         Object o = xpe.eval(sourceInstance, evalContext);
 
                         //There's a special case here that can't be handled by syntactic sugar.
-                        //If the result of a predicate expression is an Integer, we need to 
+                        //If the result of a predicate expression is an Integer, we need to
                         //evaluate whether that value is equal to the current position context
 
                         o = XPathFuncExpr.unpack(o);
@@ -363,7 +363,7 @@ public class EvaluationContext {
 
                         if (o instanceof Double) {
                             //The spec just says "number" for when to use
-                            //this, so I think this is ok? It's not clear 
+                            //this, so I think this is ok? It's not clear
                             //what to do with a non-integer. It's possible
                             //we are not supposed to round.
                             int intVal = XPathFuncExpr.toInt(o).intValue();

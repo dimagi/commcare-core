@@ -23,7 +23,7 @@ import org.javarosa.j2me.services.exception.ImageProcessingException;
 
 /**
  * @author mel
- * 
+ *
  * A service that decodes barcode data from images.
  *
  */

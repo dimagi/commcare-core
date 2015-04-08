@@ -5,7 +5,7 @@ public class SavedFormListItem {
     private int formId;
     private int instanceId;
     private String formName;
-    
+
     public SavedFormListItem(String formName,int formId,int instanceId)
     {
         this.setFormName(formName);
@@ -40,5 +40,5 @@ public class SavedFormListItem {
     public String toString() {
         return this.getFormName()+"("+ this.getInstanceId() + ")" ;
     }
-    
+
 }

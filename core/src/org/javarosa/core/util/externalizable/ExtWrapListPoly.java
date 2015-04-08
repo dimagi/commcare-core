@@ -33,8 +33,8 @@ public class ExtWrapListPoly extends ExternalizableWrapper {
         }
 
         this.val = val;
-    }    
-    
+    }
+
     /* deserialization */
 
     public ExtWrapListPoly() {

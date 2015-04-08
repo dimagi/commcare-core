@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class ExtWrapBase extends ExternalizableWrapper {
     public Class type;
-    
+
     /* serialization */
 
     public ExtWrapBase(Object val) {
@@ -35,7 +35,7 @@ public class ExtWrapBase extends ExternalizableWrapper {
 
         this.val = val;
     }
-    
+
     /* deserialization */
 
     public ExtWrapBase(Class type) {

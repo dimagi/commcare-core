@@ -35,12 +35,12 @@ import org.xmlpull.v1.XmlSerializer;
 
 /**
  * class StorageUtility
- * 
+ *
  * This class provides a persistent record store, built on top of RMS. StorageUtility takes a name which uniquely
  * identifies it, and associates it with several underlying RMSes. Each StorageUtility is meant to store records
  * (objects) of a single type. Different StorageUtilitys can be instantiated (with different names) to handle
  * records/objects of different types.
- * 
+ *
  * Features of StorageUtility:
  *   * available storage is not limited by the size constraints of a single RMS; records will spill over into
  *     additional RMSes as needed
@@ -48,37 +48,37 @@ import org.xmlpull.v1.XmlSerializer;
  *   * access is completely thread-safe
  *   * recover gracefully from RMS errors, particularly RMS full. tries hard to not leave the storage structure in
  *     an inconsistent state, and if it is, you'll at least know about it
- * 
+ *
  * StorageUtility can be used in two flavors: you manage the IDs, or the utility manages the IDs:
- * 
+ *
  * If you manage the IDs, the objects you are storing must implement Persistable, which provides the ID from the object
  * itself. You then use the functions read(), write(), and remove() when dealing with storage.
- * 
+ *
  * If the utility manages the IDs, your objects need only implement Externalizable. You use the functions read(), add(),
  * update(), and remove(). add() will return a new ID for the record, which you then explicitly provide to all subsequent
  * calls to update().
- * 
+ *
  * These two schemes should not be mixed within the same StorageUtility.
- * 
+ *
  */
 public class RMSStorageUtility<E extends Externalizable> implements IStorageUtility<E>, XmlStatusProvider {
     private static final int MAX_RMS_NAME_LENGTH = 32;        //maximum length of an RMS name
     private static final int SUFFIX_LENGTH = 3;                //how much of RMS name that we need to reserve for our own purposes
     private static final int MAX_DATA_STORES = 100;            //max number of data RMSes
-    
+
     /* hard-coded ID numbers of specific records in the indexing RMS */
     private static final int TX_FLAG_REC_ID = 1;            //status flag
     private static final int STORAGE_INFO_REC_ID = 2;        //general info (# records, # data stores, etc.)
     protected static final int ID_INDEX_REC_ID = 3;            //record ID -> record location index
     private static final int RESERVE_BUFFER_REC_ID = 4;        //safety buffer
-    
+
     /* amount of safety buffer we want to keep for unexpected size increases to our indexing structures. this is important as
      * we don't support rolling back updates to the data records. if we successfully change the data, but don't have enough
      * space to update the indexes, the StorageUtility will become corrupt! (which can be repaired, but may result in data loss
      * for the record most recently touched
      */
     private static final int RESERVE_BUFFER_SIZE = 400;
-    
+
     /* statuses that the StorageUtility may have */
     private static final int STATUS_UNINITIALIZED = -1;        /* StorageUtility still being initialized and not ready for action
                                                                will only be seen in the wild if the constructor failed */
@@ -87,83 +87,83 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                                                                transaction is in progress, or the previous transaction failed
                                                                in a way we could not recover from (meaning the StorageUtility
                                                                must be repaired before it can be used again) */
-    
+
     /* static collection of storage-related objects -- one per unique StorageUtility name -- mainly useful for thread management */
     private static Hashtable storageStaticInfo = new Hashtable();
-    
+
     private String basename;        //unique name identifying this collection of records
     private Class type;                //type of object this StorageUtility stores
     private boolean allocateIDs;    //if true, will auto-assign IDs to Persistables with an ID of -1
-    
+
     private RMSFactory rmsFactory;             //Factory for creating storage links
-    
+
     private RMS[] datastores;        //RMS wrappers for 1..n data RMSes (are loaded as needed, so entries may be null)
-    
+
     IdIndex index;
-    
+
     public static final String[] TX_EXCL = {
         RMSTransaction.CACHE_RMS,
         LogEntry.STORAGE_KEY,
         LogEntry.STORAGE_KEY + "F", //logging fallback
         LogEntry.STORAGE_KEY + "E"  //logging fallback
     };
-    
+
     public RMSStorageUtility (String basename, Class type) {
         this(basename, type, true, new RMSFactory());
     }
-    
+
     /**
      * Instantiate a new StorageUtility. Will create the underlying skeleton RMSes if they don't exist
-     * 
+     *
      * @param basename unique name identifying this StorageUtility. Different collections of the same type of object
      *   can be kept distinct by giving their StorageUtilitys different names (e.g., "PATIENTS" and "DEMO_PATIENTS")
      * @param type object type that this StorageUtility stores and retrieves. this class must implement Externalizable
      */
     public RMSStorageUtility (String basename, Class type, boolean allocateIDs, RMSFactory factory) {
         rmsFactory = factory;
-        
+
         validateName(basename);
         validateDataType(type);
-        
+
         this.basename = basename;
         this.type = type;
         this.allocateIDs = allocateIDs;
-        
+
         initStaticInfo();
-        
+
         try {
             loadIndexStore();
             //TODO: better exception for corruption
         } catch(RuntimeException e) {
-            //Index store is corrupted. 
+            //Index store is corrupted.
             repairIndexStore();
         }
     }
-    
+
     public String getName () {
         return basename;
     }
-    
+
     public Class getType () {
         return type;
     }
-    
+
     protected E read(int id, IdIndex index, boolean nullOk) {
         synchronized (getAccessLock()) {
 
             checkNotCorrupt();
-            
+
             RMSRecordLoc loc = index.getRecordLoc(id);
             if (loc != null) {
                 E e = (E)getDataStore(loc.rmsID).readRecord(loc.recID, type);
                 if(e == null) {
                     //if there was a record locator, but no record, something is not ok.
                     repair(true);
-                    
+
                     //TODO: Try to return the record if possible?
                     return null;
                 }
-                
+
                 return e;
             } else {
                 if(!nullOk) {
@@ -171,13 +171,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 }
                 return null;
             }
-            
+
         }
     }
-    
+
     /**
      * Read and return the record corresponding to 'id'.
-     * 
+     *
      * @param id id of the object
      * @return object for 'id'. null if no object is stored under that ID
      */
@@ -187,35 +187,35 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
     /**
      * Read and return the raw bytes for the record corresponding to 'id'.
-     * 
+     *
      * @param id id of the object
      * @return raw bytes for the record. null if no record is stored under that ID
      */
     public byte[] readBytes (int id) {
         return readBytes(id, true);
     }
-    
+
     private byte[] readBytes (int id, boolean publicAPI) {
         synchronized (getAccessLock()) {
-            
+
             if (publicAPI) {
                 checkNotCorrupt();
             }
-                
+
             RMSRecordLoc loc = index.getRecordLoc(id);
             if (loc != null) {
                 return getDataStore(loc.rmsID).readRecord(loc.recID);
             } else {
                 return null;
             }
-            
-        }        
+
+        }
     }
-    
+
     /**
      * Write an object to the store. Will either add a new record, or update the existing record (if one exists) for the
      * object's ID. This function should never be used in conjunction with add() and update() within the same StorageUtility
-     * 
+     *
      * @param p object to store
      * @throws StorageFullException if there is not enough room to store the object
      */
@@ -225,10 +225,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         RMSRecordLoc newLoc = null;
 
         synchronized (getAccessLock()) {
-            RMSStorageInfo info = getInfoRecord();            
-            
+            RMSStorageInfo info = getInfoRecord();
+
             int id = p.getID();
-            if (allocateIDs) {            
+            if (allocateIDs) {
                 if (id == -1) {
                     id = info.nextRecordID;
                     p.setID(id);
@@ -237,13 +237,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     info.nextRecordID = id + 1;
                 }
             }
-                        
+
             byte[] data = ExtUtil.serialize(p);
-            
+
             RMSRecordLoc loc = index.getRecordLoc(id);
 
             setDirty();
-                        
+
             //reserve space for updating index/metadata
             int bytesNeededEstimate = (loc == null ? 20 : 40);
             if (!setReserveBuffer(bytesNeededEstimate)) {
@@ -251,7 +251,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 //can't reserve needed space to update index
                 throw new StorageFullException();
             }
-            
+
             if (loc != null) {
                 txRecord(id, "update");
                 newLoc = updateRecord(loc, data, info);
@@ -262,43 +262,43 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     info.numRecords++;
                 }
             }
-            
+
             //release the space we reserved
             setReserveBuffer(0);
-            
+
             if (newLoc == null) {
                 setClean();
                 throw new StorageFullException();
             }
-            
+
             index.beginChangeCommit(id, newLoc);
             commitIndex(info, index);
             setClean();
-            storageModified();            
+            storageModified();
         }
     }
-    
+
     /**
      * Add a new record to the store. This function always adds a new record; it never updates an existing record. The
      * record ID under which this record is added is allocated by the StorageUtility. If this StorageUtility stores
      * Persistables, you should almost certainly use write() instead.
-     * 
+     *
      * @param e object to add
      * @return record ID for newly added object
      * @throws StorageFullException if not enough space available
      */
     public int add (E e) throws StorageFullException {
         typeCheck(e);
-        
+
         byte[] data = ExtUtil.serialize(e);
 
         synchronized (getAccessLock()) {
             RMSStorageInfo info = getInfoRecord();
             int id = info.nextRecordID;
             info.nextRecordID++;
-            
+
             setDirty();
-            
+
             //reserve space for updating index/metadata
             int bytesNeededEstimate = 40;
             if (!setReserveBuffer(bytesNeededEstimate)) {
@@ -306,33 +306,33 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 //can't reserve needed space to update index
                 throw new StorageFullException();
             }
-            
+
             txRecord(id, "add");
             RMSRecordLoc loc = addRecord(data, info);
-            
+
             //release the space we reserved
             setReserveBuffer(0);
-                        
+
             if (loc == null) {
                 setClean();
                 throw new StorageFullException();
             }
-            
+
             index.beginChangeCommit(id, loc);
             info.numRecords++;
-            
+
             commitIndex(info, index);
             setClean();
             storageModified();
-            
+
             return id;
-        }    
+        }
     }
-    
+
     /**
      * Update a record in the store. The record must have previously been added to the store using add(). If this
      * StorageUtility stores Persistables, you should almost certainly use write() instead.
-     * 
+     *
      * @param id ID of record to update
      * @param e updated object
      * @throws StorageFullException if not enough space available to update
@@ -340,18 +340,18 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
      */
     public void update (int id, E e) throws StorageFullException {
         typeCheck(e);
-        
+
         byte[] data = ExtUtil.serialize(e);
-        
+
         synchronized (getAccessLock()) {
             RMSStorageInfo info = getInfoRecord();
             RMSRecordLoc loc = index.getRecordLoc(id);
             if (loc == null) {
                 throw new IllegalArgumentException("Record ID [" + id + "] not found");
             }
-    
+
             setDirty();
-            
+
             //reserve space for updating index/metadata
             int bytesNeededEstimate = 20;
             if (!setReserveBuffer(bytesNeededEstimate)) {
@@ -359,58 +359,58 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 //can't reserve needed space to update index
                 throw new StorageFullException();
             }
-            
+
             //Move a lot of this logic into the index object
             txRecord(id, "update");
             loc = updateRecord(loc, data, info);
-    
+
             //release the space we reserved
             setReserveBuffer(0);
-            
+
             if (loc == null) {
                 setClean();
                 throw new StorageFullException();
             }
-            
+
             index.beginChangeCommit(id, loc);
             commitIndex(info, index);
             setClean();
             storageModified();
         }
     }
-    
+
     /**
      * Remove record with the given ID from the store.
-     * 
+     *
      * @param id ID of record to remove
      * @throws IllegalArgumentException if no record with that ID exists
      */
     public void remove (int id) {
         synchronized (getAccessLock()) {
-            
+
             //Start a transaction, if we aren't already inside of one
             final String transactionKey = "remove";
             beginDeleteAction(transactionKey);
-            
+
             try{
-                
+
                 //Get the current transaction state
                 RMSStorageInfo info = (RMSStorageInfo)deleteActionCache[0];
                 Hashtable idIndex = (Hashtable)deleteActionCache[1];
-                
+
                 if (!idIndex.containsKey(new Integer(id))) {
                     throw new IllegalArgumentException("Record ID [" + id + "] not found");
                 }
-                
+
                 //Perform the actual deletion
                 RMSRecordLoc loc = (RMSRecordLoc)idIndex.get(new Integer(id));
                 txRecord(id, "delete");
                 getDataStore(loc.rmsID).removeRecord(loc.recID);
-                
+
                 //clean up metadata
                 info.numRecords--;
                 idIndex.remove(new Integer(id));
-                
+
             } catch(RuntimeException e) {
                 throw e;
             } finally {
@@ -419,15 +419,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
         }
     }
-    
-    
+
+
     //these two objects contain the meta state of the store during a delete transaction
     //If they are null, no transaction should be ocurring
     /** RMSStorageInfo, Hashtable **/
     private Object[] deleteActionCache;
     //The object key representing the current transaction
     private Object transactionKey;
-    
+
     //Begins an atomic delete transaction, and captures the current state of the storage
     //which it will use until that transaction is complete
     private Object[] beginDeleteAction(Object transactionKey) {
@@ -440,11 +440,11 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     throw new RuntimeException("Improperly structured atomic delete action (multiple transaction openings from same path)");
                 }
             }
-            
-            
+
+
             RMSStorageInfo info = getInfoRecord();
             Hashtable idIndex = index.getIndexTable();
-                
+
             deleteActionCache = new Object[] {info, idIndex};
             this.transactionKey = transactionKey;
 
@@ -452,63 +452,63 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             return deleteActionCache;
         }
     }
-    
+
     //Commits the delete action by updating all of the metadata and index information,
     //and releases the transaction locks
     private void completeDeleteAction(Object transactionKey) {
         synchronized (getAccessLock()) {
-            
-            //If there's no data cached, this transaction is completely incorrect. 
+
+            //If there's no data cached, this transaction is completely incorrect.
             if(this.transactionKey == null || deleteActionCache == null) {
                 throw new RuntimeException("Improperly structured atomic delete action");
             }
-            
+
             //See if the action in question owns this transaction, if not
             //we need to bail
             if(!this.transactionKey.equals(transactionKey)) {
                 return;
             }
-            
+
             RMSStorageInfo info = (RMSStorageInfo)deleteActionCache[0];
             Hashtable idIndex = (Hashtable)deleteActionCache[1];
-            
+
             index.beginChangeCommit(idIndex);
             commitIndex(info, index);
-            
+
             this.deleteActionCache = null;
             this.transactionKey = null;
-            
+
             setClean();
             storageModified();
         }
     }
 
-    
+
     /**
      * Remove object from the store
-     * 
+     *
      * @param p object to remove
      * @throws IllegalArgumentException if object is not in the store
      */
     public void remove (Persistable p) {
         typeCheck(p);
-        
+
         remove(p.getID());
     }
 
     public void removeAll () {
         removeAll(null);
     }
-    
+
     public Vector<Integer> removeAll (EntityFilter filter) {
         synchronized (getAccessLock()) {
             Vector IDs = new Vector();
-            
+
             IStorageIterator ii = iterate();
             while (ii.hasMore()) {
                 int id = ii.nextID();
                 boolean toRemove;
-                
+
                 if (filter == null) {
                     toRemove = true;
                 } else {
@@ -528,7 +528,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             //Begin an atomic delete action, and capture/cache state variables
             beginDeleteAction(transactionKey);
-            
+
             try {
                 //Delete the records
                 for (int i = 0; i < IDs.size(); i++) {
@@ -539,22 +539,22 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 throw e;
             } finally {
                 //Complete the action, and commit the cached variables.
-                completeDeleteAction(transactionKey);    
+                completeDeleteAction(transactionKey);
             }
-            
+
             return IDs;
         }
     }
-    
+
     /**
      * Return the number of records in the store
-     * 
+     *
      * @return number of records
      */
     public int getNumRecords () {
         synchronized (getAccessLock()) {
 
-            checkNotCorrupt();            
+            checkNotCorrupt();
 
             return getInfoRecord().numRecords;
 
@@ -563,13 +563,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
     /**
      * Return whether the store is empty
-     * 
+     *
      * @return true if there are no records in the store
      */
     public boolean isEmpty () {
         return getNumRecords() == 0;
     }
-    
+
     /**
      * Return whether a record exists in the store
      *
@@ -580,11 +580,11 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         synchronized (getAccessLock()) {
 
             checkNotCorrupt();
-            
+
             return index.containsRecordLoc(id);
         }
     }
-    
+
     /**
      * Return total size used by this StorageUtility, including all underlying RMSes
      *
@@ -592,13 +592,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
      */
     public int getTotalSize () {
         int size = 0;
-        
+
         synchronized (getAccessLock()) {
 
             checkNotCorrupt();
-            
+
             RMSStorageInfo info = getInfoRecord();
-            
+
             try {
                 size += index.getIndexStoreSize();
                 for (int i = 0; i < info.numDataStores; i++) {
@@ -608,13 +608,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 throw new RuntimeException("can't happen");
             }
         }
-        
+
         return size;
     }
-    
+
     /**
      * Get the size of a record
-     * 
+     *
      * @param id record ID
      * @return size of that record, in bytes
      * @throws IllegalArgumentException if no record exists for that ID
@@ -623,21 +623,21 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         synchronized (getAccessLock()) {
 
             checkNotCorrupt();
-            
+
             RMSRecordLoc loc = index.getRecordLoc(id);
-            if (loc != null) {            
+            if (loc != null) {
                 try {
                     return getDataStore(loc.rmsID).rms.getRecordSize(loc.recID);
                 } catch (RecordStoreException e) {
                     throw new RuntimeException("error getting record size");
                 }
             } else {
-                throw new IllegalArgumentException("Record ID [" + id + "] not found");    
+                throw new IllegalArgumentException("Record ID [" + id + "] not found");
             }
-            
+
         }
     }
-    
+
     /**
      * Delete the storage utility itself, along with all stored records and meta-data
      */
@@ -646,7 +646,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (RMSTransaction.anyTxOpen()) {
                 throw new RuntimeException("operation not allowed while transactions are active");
             }
-            
+
             throw new RuntimeException("not implemented yet");
         }
     }
@@ -660,11 +660,11 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (RMSTransaction.anyTxOpen()) {
                 throw new RuntimeException("operation not allowed while transactions are active");
             }
-            
+
             throw new RuntimeException("not implemented yet");
         }
     }
-    
+
     /**
      * If the StorageUtility has been left in a corrupt/inconsistent state, restore it to a non-corrupt state, even if it results
      * in data loss
@@ -672,26 +672,26 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
     public void repair () {
         repair(false);
     }
-    
+
     private void repair(boolean force) {
         synchronized (getAccessLock()) {
             if (RMSTransaction.anyTxOpen()) {
                 throw new RuntimeException("operation not allowed while transactions are active");
-            }            
-        
+            }
+
             try {
                 checkNotCorrupt();
                 if(force) { throw new IllegalStateException("An internal constraint was violated");}
-                
+
                 //integrity is ok
                 return;
-                
+
             } catch (IllegalStateException ise) {
                 //utility is corrupt; fix it
                 log("rms-repair", "buf[" + getReserveBufferSize() + "]");
-                
+
                 Hashtable<RMSRecordLoc, Boolean> realRecords = new Hashtable<RMSRecordLoc, Boolean>();
-                
+
                 //Enumerate all of the records which exist
                 for(int id = 0; id < datastores.length; ++ id) {
                     int numPossible = -1;
@@ -714,17 +714,17 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     log("rms-repair", "Located " + (realRecords.size() - old) + " records");
                 }
                 log("rms-repair", "Existing records enumerated");
-            
+
                 RMSStorageInfo info = getInfoRecord();
-                
+
                 log("rms-repair", "Retrieving index table for repair");
-                
+
                 Hashtable idIndex = index.getIndexTable();
 
                 //check index for entries where record does not exist in rms
                 Vector invalidIDs = new Vector();
                 int max_datastore = -1;
-                
+
                 log("rms-repair", "Enumerating RMS Index items");
                 for (Enumeration e = idIndex.keys(); e.hasMoreElements(); ) {
                     int id = ((Integer)e.nextElement()).intValue();
@@ -732,12 +732,12 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     if (loc.rmsID > max_datastore) {
                         max_datastore = loc.rmsID;
                     }
-                    
-                    //remove this record from the table to signify that it's currently known 
+
+                    //remove this record from the table to signify that it's currently known
                     if(realRecords.containsKey(loc)) {
                         realRecords.remove(loc);
                     }
-                    
+
                     boolean recordExists = false;
                     if (loc.rmsID >= info.numDataStores) {
                         log("rms-corrupt", id + " => (" + loc.rmsID + "," + loc.recID + ") data store out of range [" + info.numDataStores + "]");
@@ -746,26 +746,26 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                         if (rms != null && rms.readRecord(loc.recID) != null) {
                             recordExists = true;
                         } else {
-                            log("rms-corrupt", id + " => (" + loc.rmsID + "," + loc.recID + ") no record exists");                        
+                            log("rms-corrupt", id + " => (" + loc.rmsID + "," + loc.recID + ") no record exists");
                         }
                     }
-                    
+
                     if (!recordExists) {
                         invalidIDs.addElement(new Integer(id));
                     }
                 }
-                
+
                 log("rms-repair", "Removing " + invalidIDs.size() + " corrupted records from index");
                 for (int i = 0; i < invalidIDs.size(); i++) {
                     idIndex.remove((Integer)invalidIDs.elementAt(i));
                 }
-                
+
                 //check for rms records that have no corresponding index entry
                 //note: this is hte most likely failure scenario
                 //TODO -- it's not going to hurt anything for now
-                
+
                 int nextID = idIndex.size() + 1;
-                
+
                 //Any records which exist in this table now represent values _unknown_ to the
                 //record store. We'll add them back (TODO: Maybe see whether some were
                 //part of a transaction and sohldn't be?)
@@ -776,32 +776,32 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                     //match up after this op?
                     this.log("rms-corrupt", "Re-Indexed record: " + this.getName() + ": " + nextID + " => (" + loc.rmsID + "," + loc.recID + ")");
                     nextID++;
-                    
+
                     if(loc.rmsID > max_datastore) {
                         max_datastore = loc.rmsID;
                     }
                 }
-                
+
                 //check for uncommitted spillover
                 try {
                     RMS spilled = rmsFactory.getDataRMS(dataStoreName(info.numDataStores), false);
                     if (spilled != null && spilled.rms.getNumRecords() > 0) {
-                        log("rms-corrupt", "uncommitted spillover rms found");                                                
+                        log("rms-corrupt", "uncommitted spillover rms found");
                     }
                 } catch (RecordStoreException rse) {
                     //ok
                 }
-                
+
                 info.numRecords = idIndex.size();
                 info.numDataStores = max_datastore + 1;
                 info.nextRecordID = info.numRecords + 1;
-                
+
                 index.beginChangeCommit(idIndex);
                 commitIndex(info, index);
                 setReserveBuffer(0);
                 setClean();
-                storageModified();    
-                
+                storageModified();
+
                 //check again
                 try {
                     checkNotCorrupt();
@@ -813,14 +813,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
         }
     }
-    
+
     private void repairIndexStore() {
-        
-        //NOTE: There are some _serious_ timing problems here where things can get into a very bad 
+
+        //NOTE: There are some _serious_ timing problems here where things can get into a very bad
         //state.
-        
+
         log("storage-corrupt", "Index Storage is corrupted. Attempting to recreate");
-        
+
         RMS ix = null;
         if(index != null && index.getIndexStore() != null) {
             ix = index.getIndexStore();
@@ -831,7 +831,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 //Storage is not valid.
             }
         }
-        
+
         //We expect these might be null
         byte[] storageInfo = null;
         byte[] indexData = null;
@@ -851,13 +851,13 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
             //Don't worry about the buffer or status...
         }
-        
+
         //ok, so we have all the data we're gonna have.
-        
+
         if(ix != null) {
             ix.close();
         }
-        
+
         //Delete the record store if it still exists.
         try {
             RecordStore.deleteRecordStore(indexStoreName());
@@ -869,36 +869,36 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             //if it's not gone, it's a huge problem
             throw new RuntimeException(message);
         }
-        
+
         //Create and initialize a new index store.
         this.initIndexStore();
-        
+
         ix = index.getIndexStore();
-        
+
         boolean infoRecordRecovered = false;
         if(storageInfo != null) {
             ix.updateRecord(STORAGE_INFO_REC_ID, storageInfo, true);
             infoRecordRecovered = true;
         }
-        
-        if(!infoRecordRecovered) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover info record");} 
+
+        if(!infoRecordRecovered) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover info record");}
         else { log("storage-corrupt", "Recovered Info Record");};
-        
+
         boolean indexDataRecoverd = false;
         if(indexData != null) {
             ix.updateRecord(ID_INDEX_REC_ID, indexData, true);
             indexDataRecoverd = true;
         }
-        
-        if(!indexDataRecoverd) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover index data");} 
+
+        if(!indexDataRecoverd) { log("storage-corrupt", indexStoreName() + ": " +"Couldn't recover index data");}
         else { log("storage-corrupt", "Recovered index data");};
-        
-        
+
+
         //Ok, manually go fix anything that we didn't fix
-        
+
         if(!infoRecordRecovered) {
             RMSStorageInfo info = (RMSStorageInfo)ix.readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
-            
+
             //Figure out how many record stores we have
             int stores = 0;
             boolean failed = false;
@@ -913,35 +913,35 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
             info.numDataStores = stores;
             log("storage-corrupt", indexStoreName() + ": Discovered " + stores + " RMS files");
-            
+
             if(!ix.updateRecord(STORAGE_INFO_REC_ID, ExtUtil.serialize(info), true)) {
                 //TODO: What if we can't recover this record?
             }
         }
-        
+
         //Alright, now initialize the rest of the data.
         this.datastores = new RMS[0];
         getInfoRecord();
-        
+
         for(int i = 0 ; i < datastores.length ; ++i) {
             log("storage-corrupt", indexStoreName() + ": Initializing store: " + i);
             this.getDataStore(i);
             datastores[i].ensureOpen();
             log("storage-corrupt", indexStoreName() + ": Store " + i + " reinitialized");
         }
-        
+
         //and repair the rest
         this.repair(true);
     }
-    
+
     /**
      * Attempt to commit all changes to the indexing and meta-data structures after a record operation (add/update/remove) has been
      * done. Throw a fatal exception if any of these commits fail. It is the responsibility of the caller to ensure that there is
      * enough space to write these updates (such as by reserving a 'safety buffer' of bytes then releasing it immediately prior to
      * this call). We have no provision for rolling back record changes (add/update/remove), so if these commits fail, the
-     * StorageUtility will be left in a corrupt state, necessitating repair (which in turn may result in data loss). So it is 
+     * StorageUtility will be left in a corrupt state, necessitating repair (which in turn may result in data loss). So it is
      * important to reserve the necessary space.
-     * 
+     *
      * @param info general StorageUtility info record
      * @param idIndex ID -> record location mapping
      */
@@ -961,12 +961,12 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             throw new RuntimeException("ERROR! Enable to complete action! Utility must be repaired!");
         }
     }
-    
+
     /**
      * Close all resources associated with this StorageUtility. Any attempt to use this StorageUtility after this call will result
      * in error. Though not strictly necessary, it is a good idea to call this when you are done with the StorageUtility, as closing
      * may trigger clean-up in the underlying RMSes (device-dependent behavior) which may reclaim unused space.
-     * 
+     *
      * Don't worry about other StorageUtilitys that reference the same data (such as in other threads); they will reopen their
      * RecordStores as needed.
      */
@@ -983,35 +983,35 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             datastores = null;
         }
     }
-    
+
     /**
      * Return an iterator to iterate through all records in this StorageUtility
-     * 
+     *
      * @returns record iterator
      */
     public IStorageIterator iterate () {
         synchronized (getAccessLock()) {
-            
+
             checkNotCorrupt();
 
             return newIterator(index);
         }
     }
-    
+
     /**
      * Trigger for when something modifies the data in the storage utility
      */
     private void storageModified () {
         invalidateIterators();
     }
-    
+
     /**
      * Load the indexing/meta-data RMS when this StorageUtility is first instantiated, and check its integrity. Create
-     * it if it doesn't exist. 
+     * it if it doesn't exist.
      */
     private void loadIndexStore () {
         synchronized (getAccessLock()) {
-            
+
             RMS ix = null;
             try {
                 ix = rmsFactory.getIndexRMS(indexStoreName(), false);
@@ -1020,20 +1020,20 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             } catch (RecordStoreException rse) {
                 throw new RuntimeException("Error + (" + rse.getClass().getName() + ") opening index record for store " + basename + " : " + rse.getMessage());
             }
-            
+
             if (ix != null) {
                 this.index = new IdIndex(ix);
             } else {
                 initIndexStore();
             }
-            
-            checkInitialized();            
+
+            checkInitialized();
 
             this.datastores = new RMS[0];
             getInfoRecord();
-            
+
             try {
-                //this gets wrapped (with questionable value!!!) later on, so if we're going to 
+                //this gets wrapped (with questionable value!!!) later on, so if we're going to
                 //catch errors with it and trigger a repair, we need to do it early!
                 index.getIndexStore().rms.getRecordSize(RESERVE_BUFFER_REC_ID);
             } catch (RecordStoreNotFoundException rsnfe) {
@@ -1043,7 +1043,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
         }
     }
-    
+
     /**
      * Create a new indexing/meta-data RMS. The RMS must not exist already.
      */
@@ -1054,45 +1054,45 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         } catch (RecordStoreException rse) {
             throw new RuntimeException("Error creating index record: " + rse.getMessage());
         }
-        
+
         int recID;
-        
+
         //initialize status flag
         recID = ix.addRecord(ExtUtil.serialize(new Integer(STATUS_UNINITIALIZED)));
         if (recID != TX_FLAG_REC_ID) {
             throw new RuntimeException("Error building meta RMS: record not assigned to expected ID");
         }
-        
+
         //create default storage info
         recID = ix.addRecord(ExtUtil.serialize(new RMSStorageInfo()));
         if (recID != STORAGE_INFO_REC_ID) {
             throw new RuntimeException("Error building meta RMS: record not assigned to expected ID");
         }
-        
+
         //create empty record ID index
         recID = ix.addRecord(ExtUtil.serialize(new ExtWrapMap(new Hashtable())));
         if (recID != ID_INDEX_REC_ID) {
             throw new RuntimeException("Error building meta RMS: record not assigned to expected ID");
         }
-        
+
         //create buffer of reserve bytes
         recID = ix.addRecord(new byte[1]); //RMS has trouble with zero-length records
         if (recID != RESERVE_BUFFER_REC_ID) {
             throw new RuntimeException("Error building meta RMS: record not assigned to expected ID");
         }
-        
+
         this.index = new IdIndex(ix);
-        
+
         setClean();
     }
-    
+
     /**
      * Add a new record to the data stores. Attempts to add the record to each data store, starting with the lowest,
      * until it finds a data store that is not full and successfully accepts the record. If all data stores are full,
      * attempt to spillover by creating and adding to an additional data store.
-     * 
+     *
      * If a spillover data store is created, but does not have enough space for the record, the new (empty) data store is removed
-     * 
+     *
      * @param data serialized byte data for record
      * @param info StorageUtility info record
      * @return location record was added to (RMS #, record ID); null if storage is full
@@ -1100,7 +1100,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
     private RMSRecordLoc addRecord (byte[] data, RMSStorageInfo info) {
         RMSRecordLoc newID = null;
         int iDatastore;
-        
+
         for (iDatastore = info.numDataStores - 1; iDatastore >= 0; iDatastore--) {
             RMS rs = getDataStore(iDatastore);
             int recID = rs.addRecord(data);
@@ -1131,7 +1131,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 logSpill(info.numDataStores, "failed to create spillover", false);
             }
         }
-        
+
         return newID;
     }
 
@@ -1140,12 +1140,12 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             log("rms-spill", "#" + dataStoreNum + " " + msg);
         }
     }
-    
+
     /**
      * Update a record in the data stores. It always tries to add a new record with the updated data, and then delete the
      * old record. This is because (on some phones, at least), the RMS gets completely hosed if you try to update a record
      * in place and there isn't enough space.
-     * 
+     *
      * @param curLoc current location (RMS #, record ID) of the record
      * @param data serialized byte data for record
      * @param info StorageUtility info record
@@ -1160,12 +1160,12 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             return null;
         }
     }
-    
-    
+
+
     /**
      * Return a reference to one of the data RMSes. Data RMSes are loaded lazily, so will load it if it has not been
      * previously loaded. Will also re-open it if closed by another thread.
-     * 
+     *
      * @param i number of data store RMS to retrieve
      * @return reference to data RMS
      * @throws IllegalArgumentException if i is out of the range of existing data stores for this StorageUtility
@@ -1174,7 +1174,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         if (i < 0 || i >= datastores.length) {
             throw new IllegalArgumentException("Data store [" + i + "] out of range");
         }
-        
+
         RMS data = datastores[i];
         if (data == null) {
             try {
@@ -1188,10 +1188,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         }
         return data;
     }
-    
+
     /**
      * Create (and cache) a new data store RMS for spillover
-     * 
+     *
      * @param info StorageUtility info record
      * @return a reference to the new data store RMS, null if the entire device is full or max # of data stores exceeded
      */
@@ -1200,7 +1200,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             System.out.println("Warning: maximum number of data RMSes exceeded in StorageUtility [" + basename + "]; repacking the StorageUtility may reclaim space and allow more records to be added");
             return null;
         }
-        
+
         RMS rs = null;
         try {
             rs = rmsFactory.getDataRMS(dataStoreName(info.numDataStores), true);
@@ -1231,23 +1231,23 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         } catch (RecordStoreNotOpenException e) {
             throw new RuntimeException("can't happen");
         }
-    
+
         info.numDataStores++;
-        resizeDatastoreArray(info);        
+        resizeDatastoreArray(info);
         datastores[info.numDataStores - 1] = rs;
-            
+
         return rs;
     }
-    
+
     /**
      * Remove and destroy the most-recently created (highest numbered) data store RMS. RMS must be empty.
-     * 
+     *
      * @param info StorageUtility info record
      */
     private void removeLastDataStore (RMSStorageInfo info) {
         int i = info.numDataStores - 1;
         RMS rs = getDataStore(i);
-        
+
         try {
             if (rs.rms.getNumRecords() != 0) {
                 throw new IllegalStateException("Attempted to remove a datastore that is not empty!");
@@ -1255,7 +1255,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         } catch (RecordStoreNotOpenException e) {
             throw new RuntimeException("can't happen");
         }
-        
+
         rs.close();
         try {
             RecordStore.deleteRecordStore(rs.name);
@@ -1264,15 +1264,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         } catch (RecordStoreException e) {
             throw new RuntimeException("Error deleting datastore");
         }
-        
+
         info.numDataStores--;
         resizeDatastoreArray(info);
     }
-    
+
     /**
      * Check the type of an object against the type registered for use with this StorageUtility. Print a warning
      * if they differ (does not necessarily mean the two types are incompatible, but they probably are).
-     * 
+     *
      * @param o new object
      */
     private void typeCheck (Object o) {
@@ -1280,19 +1280,19 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             System.err.println("Warning: attempting to use type [" + o.getClass().getName() + "] with storage utility of type [" + type.getName() + "]; ensure their serializations are compatible!");
         }
     }
-    
+
     /**
      * Return the name of the indexing/meta-data RMS, constructed from this StorageUtility's base name
-     * 
+     *
      * @return RMS name
      */
     private String indexStoreName () {
         return basename + "_IX";
     }
-    
+
     /**
      * Return the name of one of the data store RMSes, constructed from this StoageUtility's base name
-     * 
+     *
      * @param i number of data store
      * @return RMS name
      */
@@ -1302,21 +1302,21 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         }
         return basename + "_" + DateUtils.intPad(i, 2);
     }
-    
+
     /**
      * Validate that the StorageUtility base name meets all requirements
-     * 
+     *
      * @param basename base name of storage utility
      */
     private void validateName (String basename) {
         if (basename.length() > MAX_RMS_NAME_LENGTH - SUFFIX_LENGTH) {
             throw new IllegalArgumentException("Cannot create storage utility. Utility base name [" + basename + "] exceeds J2ME length limits");
-        }    
+        }
     }
-    
+
     /**
      * Validate that the record type for this StorageUtility meets all requirements
-     * 
+     *
      * @param type Class object for the type of object this StorageUtility will handle
      */
     private void validateDataType (Class type) {
@@ -1328,42 +1328,42 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
         } else {
             throw new IllegalArgumentException("Cannot create storage utility. Type [" + type.getName() + "] is not externalizable.");
-        }        
+        }
     }
-    
+
     /**
      * Load the StorageUtility info record from the indexing/meta-data RMS
-     * 
+     *
      * @return info record
      */
     private RMSStorageInfo getInfoRecord () {
         //TODO: All of this logic needs to move to the IdIndex!
         RMSStorageInfo info = (RMSStorageInfo)index.getIndexStore().readRecord(STORAGE_INFO_REC_ID, RMSStorageInfo.class);
-        
+
         if(info == null) {
             throw new RuntimeException("RMS Storage Info record is corrupted");
         }
-        
+
         if (info.numDataStores != datastores.length) {
             resizeDatastoreArray(info);
         }
-        
+
         return info;
     }
-    
+
     /**
      * Commit the StorageUtility info record back to RMS
-     * 
+     *
      * @param info info record
      * @return true if record committed successfully; false if full
      */
     private boolean writeInfoRecord (RMSStorageInfo info) {
         return index.getIndexStore().updateRecord(STORAGE_INFO_REC_ID, ExtUtil.serialize(info), true);
     }
-    
+
     /**
      * Resize the array of cached references to data store RMSes
-     * 
+     *
      * @param info StorageUtility info record, from which the new number of data stores is taken
      */
     private void resizeDatastoreArray (RMSStorageInfo info) {
@@ -1371,10 +1371,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         datastores = new RMS[info.numDataStores];
         System.arraycopy(old, 0, datastores, 0, Math.min(old.length, datastores.length));
     }
-    
+
 //    /**
 //     * Load the ID index from the indexing/meta-data RMS
-//     * 
+//     *
 //     * @return index hashtable, which maps integer record ID -> record locator
 //     */
 //    public Hashtable getIDIndexRecord () {
@@ -1383,24 +1383,24 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 //        if(this.transactionKey != null) {
 //            return (Hashtable)this.deleteActionCache[1];
 //        }
-//        return (Hashtable)getIndexStore().readRecord(ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));        
+//        return (Hashtable)getIndexStore().readRecord(ID_INDEX_REC_ID, new ExtWrapMap(Integer.class, RMSRecordLoc.class));
 //    }
-    
+
 //    /**
 //     * Commit the record ID index back to RMS
-//     * 
+//     *
 //     * @param idIndex record ID index
 //     * @return true if record committed successfully; false if full
 //     */
 //    private boolean writeIDIndexRecord (Hashtable idIndex) {
 //        return getIndexStore().updateRecord(ID_INDEX_REC_ID, ExtUtil.serialize(new ExtWrapMap(idIndex)), true);
 //    }
-    
+
     /**
      * Reserve bytes for later usage. If 'size' is greater than zero, that amount of bytes plus a fixed 'safety margin'
      * will be reserved (i.e., allocated into a designated record). If 'size' is zero, all reserved bytes will be released,
      * including the safety margin (i.e., the designated record is resized to the minimum possible size).
-     * 
+     *
      * @param size number of bytes to reserve (or 0 to release)
      * @return true if bytes were allocated successfully; false if full
      */
@@ -1409,7 +1409,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         int bufsize = (size <= 0 ? 1 : size + RESERVE_BUFFER_SIZE);
         return index.getIndexStore().updateRecord(RESERVE_BUFFER_REC_ID, new byte[bufsize], true);
     }
-    
+
     private int getReserveBufferSize () {
         try {
             return index.getIndexStore().rms.getRecordSize(RESERVE_BUFFER_REC_ID);
@@ -1417,20 +1417,20 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             return -1;
         }
     }
-    
+
     /**
      * Check that the StorageUtility has been properly initialized. Throw an exception if it is not
      */
     public void checkInitialized () {
         checkStatusOK(true);
     }
-    
+
     /**
      * Check that the StorageUtility is in an initialized, consistent, non-corrupt state. Throw an exception if it is not
-     * 
+     *
      * If the StorageUtility was not properly initialized, this call will fail.
      * If transactions on this StorageUtility are currently in progress (such as by other threads), or a past transaction
-     *   failed and did not properly clean itself up, this call will fail. 
+     *   failed and did not properly clean itself up, this call will fail.
      */
     public void checkNotCorrupt () {
         if(this.transactionKey == null) {
@@ -1441,30 +1441,30 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             checkStatusOK(true);
         }
     }
-    
+
     /**
      * Check the status of the StorageUtility, throwing fatal exceptions if it is in a disallowed state.
      *   UNINITIALIZED is always a disallowed state
      *   CLEAN is always an allowed state
      *   DIRTY is allowed or disallowed depending on the parameter 'dirtyOK'
-     * 
+     *
      * @param dirtyOK if true, DIRTY is an allowed status; if false, the DIRTY status will cause a fatal exception
      */
     private void checkStatusOK (boolean dirtyOK) {
         int status = getStatus();
-        
+
         if (status == STATUS_DIRTY) {
             if (!dirtyOK) {
                 throw new IllegalStateException("Storage utility [" + basename + "] is in a corrupted state. You must repair it before you can access it again");
             }
         } else if (status != STATUS_CLEAN) {
-            throw new IllegalStateException("Storage utility [" + basename + "] was not initialized properly, is pointing at the wrong RMSes, or is otherwise seriously broken. You will likely have to delete it and start over.");            
+            throw new IllegalStateException("Storage utility [" + basename + "] was not initialized properly, is pointing at the wrong RMSes, or is otherwise seriously broken. You will likely have to delete it and start over.");
         }
     }
-    
+
     /**
      * Fetch the StorageUtility status flag
-     * 
+     *
      * @return status flag code
      */
     private int getStatus () {
@@ -1477,25 +1477,25 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
         }
         return (statusObj != null ? statusObj.intValue() : STATUS_UNINITIALIZED);
     }
-    
+
     /**
      * Set the status to DIRTY, indicating a transaction is in progress. Checks first to see that the status is
      * CLEAN, else throws a fatal exception.
      */
     private void setDirty () {
         checkNotCorrupt();
-        index.getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_DIRTY)), true);            
+        index.getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_DIRTY)), true);
     }
-    
+
     /**
      * Set the status to CLEAN, indicating any transaction is now complete, and the StorageUtility is in a consistent state.
      */
     private void setClean () {
         index.getIndexStore().updateRecord(TX_FLAG_REC_ID, ExtUtil.serialize(new Integer(STATUS_CLEAN)), true);
     }
-    
-    
-    
+
+
+
     /**
      * Create an entry for this StorageUtility (unique to this utility's base name) in the static table of synchronization
      * objects.
@@ -1507,10 +1507,10 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             }
         }
     }
-    
+
     /**
      * Fetch the object that acts as the synchronization lock for this StorageUtility
-     * 
+     *
      * @return lock object
      */
     public Object getAccessLock () {
@@ -1518,34 +1518,34 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             return ((StorageStaticEntity)storageStaticInfo.get(basename)).lock;
         }
     }
-    
+
     /**
      * Create a new record iterator and register it
-     * 
+     *
      * @param index list of record IDs to iterate over
      * @return record iterator
      */
     private RMSStorageIterator newIterator (IdIndex index) {
         RMSStorageIterator iter = new RMSStorageIterator(this, index);
-        
+
         synchronized (storageStaticInfo) {
             ((StorageStaticEntity)storageStaticInfo.get(basename)).iterators.addElement(iter);
         }
-        
+
         return iter;
     }
-    
+
     /**
      * Callback from iterator when its iteration is complete
-     * 
+     *
      * @param iter iterator making the callback
      */
     public void iteratorComplete (RMSStorageIterator iter) {
         synchronized (storageStaticInfo) {
             ((StorageStaticEntity)storageStaticInfo.get(basename)).iterators.removeElement(iter);
         }
-    }    
-    
+    }
+
     /**
      * When this StorageUtility has been modified (record add/update/remove), this will invalidate and
      * unregister all active iterators
@@ -1553,15 +1553,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
     private void invalidateIterators () {
         synchronized (storageStaticInfo) {
             Vector iterators = ((StorageStaticEntity)storageStaticInfo.get(basename)).iterators;
-            
+
             for (int i = 0; i < iterators.size(); i++) {
                 ((RMSStorageIterator)iterators.elementAt(i)).invalidate();
             }
-            
+
             iterators.removeAllElements();
         }
     }
-    
+
     /**
      * Stores objects that need to be maintained per storage entity (meaning, per unique basename). Multiple StorageUtilitys
      * can be instantiated at once with the same basename, so this shared object is necessary.
@@ -1569,7 +1569,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
     private class StorageStaticEntity {
         public Object lock;                    //synchronization lock for this storage
         public Vector iterators;            //list of active record enumerations over this storage
-        
+
         public StorageStaticEntity () {
             lock = new Object();
             iterators = new Vector();
@@ -1581,12 +1581,12 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (TX_EXCL[i].equals(getName()))
                 return;
         }
-        
+
         RMSTransaction tx = RMSTransaction.getTx();
         if (tx == null) { //no active transaction
             return;
         }
-        
+
         if (!tx.isRecordTouched(getName(), recordID)) {
             try {
                 RMSStorageUtility tx_cache = RMSTransaction.getCacheRMS();
@@ -1599,14 +1599,14 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
                 throw new WrappedException("RMS transaction error; could not back up original state of record; original operation [" + opType + "] aborted because transaction guarantees cannot be met (transaction is still open; you must roll back manually, if you wish)", e);
             }
         }
-    }    
-    
+    }
+
     /* ========== DEBUGGING CODE ============ */
-    
+
     public String debugInfo () {
         StringBuffer sb = new StringBuffer();
         sb.append("=================\n");
-        
+
         String rmsBaseInfo;
         int numStores = -1;
         try {
@@ -1617,27 +1617,27 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             rmsBaseInfo = "info: corrupted\n";
         }
         Hashtable ix = index.getIndexTable();
-        
+
         sb.append(basename + "(" + type.getName() + ") -- " + getStatus() + "\n");
         sb.append(rmsBaseInfo);
-        
+
         sb.append("rec index:\n");
         for (Enumeration e = ix.keys(); e.hasMoreElements(); ) {
             int id = ((Integer)e.nextElement()).intValue();
             RMSRecordLoc loc = (RMSRecordLoc)ix.get(new Integer(id));
             sb.append("  " + id + " => (" + loc.rmsID + ", " + loc.recID + ")\n");
         }
-        
+
         sb.append(printRMSInfo(index.getIndexStore().rms));
 
         for (int i = 0; i < numStores; i++) {
             sb.append(printRMSInfo(getDataStore(i).rms));
         }
-        
+
         sb.append("\n");
         return sb.toString();
     }
-    
+
     private String printRMSInfo (RecordStore rs) {
         StringBuffer sb = new StringBuffer();
         try {
@@ -1653,15 +1653,15 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
     }
 
     public void getStatusReport(XmlSerializer o, String ns) throws StatusReportException, IOException {
-        
+
         o.startTag(ns, "storage_utility");
         try {
         o.attribute(null, "name", this.getName());
-        
+
         writeText(o, ns, "total_records", String.valueOf(getNumRecords()));
-        
+
         writeText(o, ns, "total_size", String.valueOf(String.valueOf(getTotalSize())));
-        
+
         String statusText;
         int statusFlag = getStatus();
         switch(statusFlag) {
@@ -1670,30 +1670,30 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             case STATUS_UNINITIALIZED: statusText = "UNINITIALIZED"; break;
             default: statusText = "UNKNOWN: " + statusFlag; break;
         }
-        
+
         writeText(o, ns, "status_flag", statusText);
-        
+
         RMSStorageInfo info = getInfoRecord();
 
         for (int i = 0; i < info.numDataStores; i++) {
             RMS rmsStore = getDataStore(i);
-            
+
             o.startTag(ns, "rms_store");
             try {
                 o.attribute(null, "name", rmsStore.name);
                 o.attribute(null, "index", String.valueOf(i));
-                
+
                 try {
                     writeText(o, ns, "num_records", String.valueOf(rmsStore.rms.getNumRecords()));
-                    
+
                     writeText(o, ns, "size_used", String.valueOf(rmsStore.rms.getSize()));
-                    
+
                     writeText(o, ns, "size_available", String.valueOf(rmsStore.rms.getSizeAvailable()));
                 } catch (RecordStoreNotOpenException e) {
                     throw new StatusReportException(e, "storage_utility","Storage: " + this.getName() + " Record Store Not Open");
                 }
                 rmsStore.close();
-            }finally {                
+            }finally {
                 o.endTag(ns, "rms_store");
             }
         }
@@ -1701,7 +1701,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             o.endTag(ns, "storage_utility");
         }
     }
-    
+
     private void writeText(XmlSerializer serializer, String XMLNS, String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(XMLNS,element);
         try {
@@ -1712,7 +1712,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             serializer.endTag(XMLNS,element);
         }
     }
-    
+
     public void log (String type, String message) {
         if (!basename.startsWith(LogEntry.STORAGE_KEY)) {
             Logger.log(type, basename + ": " + message);

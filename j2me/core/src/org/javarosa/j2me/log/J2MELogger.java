@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.javarosa.j2me.log;
 
@@ -41,15 +41,15 @@ import org.javarosa.j2me.storage.rms.RMSStorageUtility;
 
 /**
  * @author Clayton Sims
- * @date Apr 10, 2009 
+ * @date Apr 10, 2009
  *
  */
 public class J2MELogger implements ILogger {
-    
+
     RMSStorageUtility logStorage;
     Object lock;
     boolean storageBroken = false;
-    
+
     public J2MELogger() {
         String storageName = LogEntry.STORAGE_KEY;
         for(int i = 0; i < 5 ; ++i) {
@@ -98,7 +98,7 @@ public class J2MELogger implements ILogger {
         if(storageBroken) { return; };
         synchronized(lock) {
             if(!checkStorage()) { return; }
-            
+
             logStorage.removeAll(new EntityFilter<LogEntry> () {
                 public int preFilter (int id, Hashtable<String, Object> metaData) {
                     return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
@@ -108,11 +108,11 @@ public class J2MELogger implements ILogger {
                     throw new RuntimeException("can't happen");
                 }
             });
-            
+
             log("logs", "purged " + IDs.size() + " " + logStorage.getNumRecords(), new Date());
         }
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.api.IIncidentLogger#logIncident(java.lang.String, java.lang.String, java.util.Date)
      */
@@ -135,12 +135,12 @@ public class J2MELogger implements ILogger {
         if(storageBroken) { return null; };
         synchronized(lock) {
             if(!checkStorage()) { return null; }
-            
+
             Vector logs = new Vector();
             for(IStorageIterator li = logStorage.iterate(); li.hasMore() ; ) {
                 logs.addElement((LogEntry)li.nextRecord());
             }
-        
+
             LogEntry[] collection = new LogEntry[logs.size()];
             logs.copyInto(collection);
             return serializer.serializeLogs(collection);
@@ -152,10 +152,10 @@ public class J2MELogger implements ILogger {
      */
     public void panic () {
         final String LOG_PANIC = "LOG_PANIC";
-        
+
         try {
             RecordStore store = RecordStore.openRecordStore(LOG_PANIC, true);
-            
+
             int time = (int)(System.currentTimeMillis() / 1000);
             byte[] record = new byte[] {
                 (byte)((time / 16777216) % 256),
@@ -164,24 +164,24 @@ public class J2MELogger implements ILogger {
                 (byte)(time % 256)
             };
             store.addRecord(record, 0, record.length);
-            
+
             store.closeRecordStore();
         } catch (RecordStoreException rse) {
             throw new WrappedException(rse);
         }
     }
-    
+
     public void serializeLogs(StreamLogSerializer serializer) throws IOException {
         serializeLogs(serializer, 1 << 20);
     }
-    
+
     public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
         if(storageBroken) { return; };
-        
+
         //Create a copy read-only handle
         RMSStorageUtility logStorageReadOnly;
         Vector<Integer> logIds = new Vector<Integer>();
-        
+
         //This should capture its own internal state when it starts to iterate.
         synchronized(lock) {
             logStorageReadOnly = new RMSStorageUtility(logStorage.getName(), LogEntry.class);
@@ -194,11 +194,11 @@ public class J2MELogger implements ILogger {
                 count++;
             }
         }
-        
+
         System.out.println("Captured: " + logIds.size() + " records for serialization");
-        
-        //Ok, so now we 
-        
+
+        //Ok, so now we
+
         for(Integer logId :logIds) {
             LogEntry log = (LogEntry)logStorageReadOnly.read(logId.intValue());
             //In theeeeooorry, the logs could have been modified. It's really not likely.
@@ -206,7 +206,7 @@ public class J2MELogger implements ILogger {
                 serializer.serializeLog(logId.intValue(), log);
             }
         }
-        
+
         serializer.setPurger(new StreamLogSerializer.Purger () {
             public void purge(SortedIntSet IDs) {
                 clearLogs(IDs);
@@ -221,15 +221,15 @@ public class J2MELogger implements ILogger {
             return logStorage.getNumRecords();
         }
     }
-    
-    
+
+
     /**
      * Check storage attempts to determine whether the storage for the logger
      * is in a safe state and can be utilized without errors occurring. If
      * the Log storage is not in a safe state, the logger shouldn't attempt to
      * perform actions on it that might crash the app.
-     * 
-     * @return True if the log store is safe to manipulate. False otherwise. 
+     *
+     * @return True if the log store is safe to manipulate. False otherwise.
      */
     private boolean checkStorage() {
         try{logStorage.checkNotCorrupt(); return true;}
@@ -254,7 +254,7 @@ public class J2MELogger implements ILogger {
     }
 
     public void halt() {
-        if(!storageBroken){ 
+        if(!storageBroken){
             try{
                 logStorage.close();
             }catch(Exception e ) {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.log;
 
