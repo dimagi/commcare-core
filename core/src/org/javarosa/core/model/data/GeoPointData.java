@@ -35,8 +35,13 @@ import java.util.Vector;
  */
 public class GeoPointData implements IAnswerData {
 
+    // latitude, longitude, and potentially altitude and accuracy data
     private double[] gp = new double[4];
     private int len = 2;
+
+    // accuracy and altitude data points stored will contain this many decimal
+    // points:
+    private final int MAX_DECIMAL_ACCURACY = 2;
 
 
     /**
@@ -53,10 +58,20 @@ public class GeoPointData implements IAnswerData {
     }
 
 
+    /**
+     * Copy data in argument array into local geopoint array.
+     * @param gp double array of max size 4 representing geopoints
+     */
     private void fillArray(double[] gp) {
         len = gp.length;
         for (int i = 0; i < len; i++) {
-            this.gp[i] = gp[i];
+            if (i < 2) {
+                // don't round lat & lng decimal values
+                this.gp[i] = gp[i];
+            } else {
+                // accuracy & altitude should have their decimal values rounded
+                this.gp[i] = roundDecimalUp(gp[i], MAX_DECIMAL_ACCURACY);
+            }
         }
     }
 
@@ -131,5 +146,21 @@ public class GeoPointData implements IAnswerData {
             ++i;
         }
         return new GeoPointData(ret);
+    }
+
+    /**
+     * Jenky (but J2ME-compatible) decimal rounding (up) of doubles.
+     *
+     * Subject to normal double imprecisions and will encounter numerical
+     * overflow problems if x * (10^numberofDecimals) is greater than
+     * Double.MAX_VALUE or less than Double.MIN_VALUE.
+     *
+     * @param x double to be rounded up
+     * @param numberOfDecimals number of decimals that should present in result
+     */
+    private static double roundDecimalUp(double x, int numberOfDecimals) {
+        int factor = (int)Double.parseDouble("1e" + numberOfDecimals);
+
+        return Math.floor(x * factor) / factor;
     }
 }
