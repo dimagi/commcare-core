@@ -185,15 +185,15 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     /*
      * create the specified node in the tree, creating all intermediary nodes at
      * each step, if necessary. if specified node already exists, return null
-     * 
+     *
      * creating a duplicate node is only allowed at the final step. it will be
      * done if the multiplicity of the last step is ALL or equal to the count of
      * nodes already there
-     * 
+     *
      * at intermediate steps, the specified existing node is used; if
      * multiplicity is ALL: if no nodes exist, a new one is created; if one node
      * exists, it is used; if multiple nodes exist, it's an error
-     * 
+     *
      * return the newly-created node; modify ref so that it's an unambiguous ref
      * to the node
      */

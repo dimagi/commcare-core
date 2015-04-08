@@ -114,7 +114,7 @@ public class GroupDef implements IFormElement, Localizable {
         if (children == null || i >= children.size()) {
             return null;
         } else {
-            return (IFormElement) children.elementAt(i);
+            return (IFormElement)children.elementAt(i);
         }
     }
 
@@ -148,7 +148,7 @@ public class GroupDef implements IFormElement, Localizable {
 
     public void localeChanged(String locale, Localizer localizer) {
         for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement) e.nextElement()).localeChanged(locale, localizer);
+            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
         }
     }
 
@@ -172,23 +172,25 @@ public class GroupDef implements IFormElement, Localizable {
         int total = 0;
         Enumeration e = children.elements();
         while (e.hasMoreElements()) {
-            total += ((IFormElement) e.nextElement()).getDeepChildCount();
+            total += ((IFormElement)e.nextElement()).getDeepChildCount();
         }
         return total;
     }
 
-    /** Reads a group definition object from the supplied stream. */
+    /**
+     * Reads a group definition object from the supplied stream.
+     */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
-        setAppearanceAttr((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setBind((IDataReference) ExtUtil.read(dis, new ExtWrapTagged(), pf));
-        setTextID((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setLabelInnerText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setBind((IDataReference)ExtUtil.read(dis, new ExtWrapTagged(), pf));
+        setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setRepeat(ExtUtil.readBool(dis));
-        setChildren((Vector) ExtUtil.read(dis, new ExtWrapListPoly(), pf));
+        setChildren((Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf));
 
         noAddRemove = ExtUtil.readBool(dis);
-        count = (IDataReference) ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        count = (IDataReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
 
         chooseCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis));
         addCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis));
@@ -201,7 +203,9 @@ public class GroupDef implements IFormElement, Localizable {
         mainHeader = ExtUtil.nullIfEmpty(ExtUtil.readString(dis));
     }
 
-    /** Write the group definition object to the supplied stream. */
+    /**
+     * Write the group definition object to the supplied stream.
+     */
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));

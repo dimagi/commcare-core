@@ -39,7 +39,9 @@ public class DateUtils {
     //public static final int FORMAT_HUMAN_READABLE_LONG = 3;
     public static final int FORMAT_TIMESTAMP_SUFFIX = 7;
 
-    /** RFC 822 * */
+    /**
+     * RFC 822 *
+     */
     public static final int FORMAT_TIMESTAMP_HTTP = 9;
 
     public static final long DAY_IN_MS = 86400000l;
@@ -71,7 +73,9 @@ public class DateUtils {
         public int second; //0-59
         public int secTicks; //0-999 (ms)
 
-        /** NOTE: CANNOT BE USED TO SPECIFY A DATE * */
+        /**
+         * NOTE: CANNOT BE USED TO SPECIFY A DATE *
+         */
         public int dow; //1-7;
 
 //        public String tzStr;
@@ -225,12 +229,16 @@ public class DateUtils {
         }
     }
 
-    /** RFC 822 * */
+    /**
+     * RFC 822 *
+     */
     private static String formatDateHttp(DateFields f) {
         return format(f, "%a, %d %b %Y");
     }
 
-    /** RFC 822 * */
+    /**
+     * RFC 822 *
+     */
     private static String formatTimeHttp(DateFields f) {
         return format(f, "%H:%M:%S GMT");
     }
@@ -388,9 +396,9 @@ public class DateUtils {
         }
 
         try {
-            df.year = Integer.parseInt((String) pieces.elementAt(0));
-            df.month = Integer.parseInt((String) pieces.elementAt(1));
-            df.day = Integer.parseInt((String) pieces.elementAt(2));
+            df.year = Integer.parseInt((String)pieces.elementAt(0));
+            df.month = Integer.parseInt((String)pieces.elementAt(1));
+            df.day = Integer.parseInt((String)pieces.elementAt(2));
         } catch (NumberFormatException nfe) {
             return false;
         }
@@ -497,12 +505,12 @@ public class DateUtils {
         }
 
         try {
-            df.hour = Integer.parseInt((String) pieces.elementAt(0));
-            df.minute = Integer.parseInt((String) pieces.elementAt(1));
+            df.hour = Integer.parseInt((String)pieces.elementAt(0));
+            df.minute = Integer.parseInt((String)pieces.elementAt(1));
 
             // if seconds part present, parse it
             if (pieces.size() == 3) {
-                String secStr = (String) pieces.elementAt(2);
+                String secStr = (String)pieces.elementAt(2);
                 int i;
                 // only grab prefix of seconds piece that includes digits and decimal(s)
                 for (i = 0; i < secStr.length(); i++) {
@@ -513,8 +521,8 @@ public class DateUtils {
                 secStr = secStr.substring(0, i);
                 double fsec = Double.parseDouble(secStr);
                 // split seconds into whole and decimal components
-                df.second = (int) fsec;
-                df.secTicks = (int) (1000.0 * (fsec - df.second));
+                df.second = (int)fsec;
+                df.secTicks = (int)(1000.0 * (fsec - df.second));
             }
         } catch (NumberFormatException nfe) {
             return false;
@@ -726,7 +734,7 @@ public class DateUtils {
 
 
     public static Double fractionalDaysSinceEpoch(Date a) {
-        return new Double((a.getTime() - getDate(1970, 1, 1).getTime()) / (double) DAY_IN_MS);
+        return new Double((a.getTime() - getDate(1970, 1, 1).getTime()) / (double)DAY_IN_MS);
     }
 
     /**
@@ -749,7 +757,7 @@ public class DateUtils {
      * @return # days difference
      */
     public static int dateDiff(Date a, Date b) {
-        return (int) MathUtils.divLongNotSuck(roundDate(b).getTime() - roundDate(a).getTime() + DAY_IN_MS / 2, DAY_IN_MS);
+        return (int)MathUtils.divLongNotSuck(roundDate(b).getTime() - roundDate(a).getTime() + DAY_IN_MS / 2, DAY_IN_MS);
         //half-day offset is needed to handle differing DST offsets!
     }
 
@@ -780,7 +788,7 @@ public class DateUtils {
         // remove all pieces that are empty string
         if (combineMultipleDelimiters) {
             for (int i = 0; i < pieces.size(); i++) {
-                if (((String) pieces.elementAt(i)).length() == 0) {
+                if (((String)pieces.elementAt(i)).length() == 0) {
                     pieces.removeElementAt(i);
                     i--;
                 }

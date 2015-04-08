@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.j2me.log;
 
@@ -11,7 +11,7 @@ public class StatusReportException extends Exception {
     private Exception parent;
     private String reportName;
     private String message;
-    
+
     public StatusReportException(Exception parent, String reportName, String message) {
         this.parent = parent;
         this.reportName = reportName;

@@ -22,46 +22,46 @@ import org.javarosa.core.services.UnavailableServiceException;
 
 /**
  * This is a registry of services to be passed to a state (such as form entry) that can perform data capture.
- * 
+ *
  * A 'service' is an interface implementation that provides data from somewhere outside JavaRosa, typically
  * through a vendor-specific API not available on all devices.
- * 
+ *
  * To prevent shared code from crashing/not compiling on a device that lacks the device specific API, the
  * shared code must instead communicate only with an abstract API defined in JavaRosa (i.e.,
  * 'VideoCaptureService'). The deployment then provides an implementation of this service that acts as
  * an intermediary, and communicates directly with the device-specific API.
- * 
+ *
  * @author Drew Roos
  *
  */
 public class DataCaptureServiceRegistry {
-    
+
     private static DataCaptureServiceRegistry instance;
     private Hashtable<String, DataCaptureService> services;
-    
+
     public DataCaptureServiceRegistry () {
         services = new Hashtable<String, DataCaptureService>();
     }
-    
+
     public DataCaptureServiceRegistry (DataCaptureService[] services) {
         this();
         for (int i = 0; i < services.length; i++)
             registerService(services[i]);
     }
-    
+
     public static DataCaptureServiceRegistry _() {
         if(instance == null) {
             instance = new DataCaptureServiceRegistry();
         }
         return instance;
     }
-    
+
     public void registerService (DataCaptureService service) {
         String type = service.getType();
         validateServiceType(type, service);
         services.put(type, service);
     }
-    
+
     public void unregisterService (String type) {
         if (services.get(type) == null) {
             System.err.println("No service registered for type [" + type + "]");
@@ -69,16 +69,16 @@ public class DataCaptureServiceRegistry {
             services.remove(type);
         }
     }
-        
+
     public DataCaptureService getService (String type) throws UnavailableServiceException {
         DataCaptureService service = services.get(type);
         if (service == null) {
             throw new UnavailableServiceException("No service registered for type [" + type + "]");
         } else {
-            return service; 
+            return service;
         }
     }
-    
+
     private static void validateServiceType (String type, DataCaptureService service) {
           if (/*
               (DataCaptureService.IMAGE.equals(type) && !(service instanceof ImageCaptureService)) || */
@@ -92,13 +92,13 @@ public class DataCaptureServiceRegistry {
     }
 
     /* convenience functions */
-    
+
     /*
     public ImageCaptureService getImageCaptureService () throws UnavailableServiceException {
         return (ImageCaptureService)getService(DataCaptureService.IMAGE);
     }
     */
-        
+
     public AudioCaptureService getAudioCaptureService () throws UnavailableServiceException {
         return (AudioCaptureService)getService(DataCaptureService.AUDIO);
     }
@@ -107,7 +107,7 @@ public class DataCaptureServiceRegistry {
     public VideoCaptureService getVideoCaptureService () throws UnavailableServiceException {
         return (VideoCaptureService)getService(DataCaptureService.VIDEO);
     }
-    
+
 
     public BarcodeCaptureService getBarcodeCaptureService () throws UnavailableServiceException {
         return (BarcodeCaptureService)getService(DataCaptureService.BARCODE);
@@ -123,5 +123,5 @@ public class DataCaptureServiceRegistry {
         return (RFIDCaptureService)getService(DataCaptureService.RFID);
     }
      */
-    
+
 }

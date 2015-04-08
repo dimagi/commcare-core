@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class ExtWrapNullable extends ExternalizableWrapper {
     public ExternalizableWrapper type;
-    
+
     /* serialization */
 
     public ExtWrapNullable(Object val) {

@@ -18,17 +18,17 @@ package org.javarosa.j2me.services.exception;
 
 
 /**
- * 
+ *
  * A FileException corresponds to any type of error received by the IFileService
  * during a File I/O operation.
  * @author Ndubisi Onuora
  *
  */
 
-public class FileException extends Exception 
+public class FileException extends Exception
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 

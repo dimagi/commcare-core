@@ -27,7 +27,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
     boolean hasMetaData;
     IMetaData proto;
     Vector<String> dynamicIndices = new Vector<String>();
-    
+
     public RMSStorageUtilityIndexed (String basename, Class type) {
         super(basename, type);
         init(type);
@@ -43,8 +43,8 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         if (hasMetaData) {
             proto = (IMetaData)PrototypeFactory.getInstance(type);
         }
-    }    
-    
+    }
+
     private void checkIndex () {
         synchronized(metadataAccessLock) {
             if (metaDataIndex == null) {
@@ -52,32 +52,32 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             }
         }
     }
-    
+
     private void buildIndex () {
         synchronized(metadataAccessLock) {
             //cts: We used to turn off interning here, but it's unclear whether it was useful
             //in very many environments. We should re-profile on bad Garbage collectors and check
             //again.
             try{
-                
+
                 metaDataIndex = new Hashtable();
-                
+
                 if (!hasMetaData) {
                     return;
                 }
-                
+
                 String[] fields = getFields();
                 for (int k = 0; k < fields.length; k++) {
                     metaDataIndex.put(fields[k], new Hashtable());
                 }
-                
-                
+
+
                 IStorageIterator i = iterate();
                 int records = this.getNumRecords();
                 Hashtable[] metadata = new Hashtable[records];
                 int[] recordIds = new int[records];
                 for(int j = 0 ; j < records ; ++j) {
-                    metadata[j] = new Hashtable(fields.length); 
+                    metadata[j] = new Hashtable(fields.length);
                     for(String field : fields) {
                         metadata[j].put(field, "");
                     }
@@ -88,13 +88,13 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
                     recordIds[count] = i.nextID();
                     count++;
                 }
-                
+
                 //0 memory allocation zone
                 for(int index = 0 ; index < recordIds.length; ++ index) {
                     obj = (IMetaData)read(recordIds[index]);
-                    
+
                     copyHT(metadata[index], getMetaData(obj, fields), fields);
-                    
+
                     obj = null;
                     System.gc();
                 }
@@ -108,19 +108,19 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             }
         }
     }
-    
+
     private int i = 0;
     private void copyHT(Hashtable into, Hashtable source, String[] fields) {
         for(i = 0; i < fields.length ; ++i) {
             into.put(fields[i], source.get(fields[i]));
         }
     }
-    
+
     private void indexMetaData (int id, Hashtable vals) {
         for (Enumeration e = vals.keys(); e.hasMoreElements(); ) {
             String field = (String)e.nextElement();
             Object val = vals.get(field);
-            
+
             Vector IDs = getIDList(field, val);
             if (IDs.contains(DataUtil.integer(id))) {
                 System.out.println("warning: don't think this should happen [add] [" + id + ":" + field + ":" + val.toString() + "]");
@@ -128,13 +128,13 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             IDs.addElement(DataUtil.integer(id));
         }
     }
-    
+
     private void removeMetaData (int id, IMetaData obj) {
         Hashtable vals = getMetaData(obj);
         for (Enumeration e = vals.keys(); e.hasMoreElements(); ) {
             String field = (String)e.nextElement();
             Object val = vals.get(field);
-            
+
             Vector IDs = getIDList(field, val);
             if (!IDs.contains(new Integer(id))) {
                 System.out.println("warning: don't think this should happen [remove] [" + id + ":" + field + ":" + val.toString() + "]");
@@ -145,7 +145,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             }
         }
     }
-    
+
     private Vector getIDList (String field, Object value) {
         Vector IDs;
         synchronized(metadataAccessLock) {
@@ -157,7 +157,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         }
         return IDs;
     }
-    
+
     public void write (Persistable p) throws StorageFullException {
         IMetaData old = null;
         synchronized(metadataAccessLock) {
@@ -167,9 +167,9 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
                     old = getMetaDataForRecord(p.getID());
                 }
             }
-            
+
             super.write(p);
-            
+
             if (hasMetaData) {
                 if (old != null) {
                     removeMetaData(p.getID(), old);
@@ -178,7 +178,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             }
         }
     }
-    
+
     private IMetaData getMetaDataForRecord(int record) {
         Hashtable<String, Object> data = null;
         synchronized(metadataAccessLock) {
@@ -202,22 +202,22 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         }
         return new MetaDataWrapper(data);
     }
-    
+
     public int add (E e) throws StorageFullException {
         synchronized(metadataAccessLock) {
             if (hasMetaData) {
                 checkIndex();
             }
-    
+
             int id = super.add(e);
-            
+
             if (hasMetaData) {
                 indexMetaData(id, getMetaData(((IMetaData)e)));
             }
             return id;
         }
     }
-    
+
     public void update (int id, E e) throws StorageFullException {
         synchronized(metadataAccessLock) {
 
@@ -227,15 +227,15 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
                 checkIndex();
                 removeMetaData(id, (IMetaData)old);
             }
-            
+
             super.update(id, e);
-            
+
             if (hasMetaData) {
                 indexMetaData(id, getMetaData((IMetaData)e));
             }
         }
     }
-    
+
     public void remove (int id) {
         synchronized(metadataAccessLock) {
             IMetaData old = null;
@@ -243,29 +243,29 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
                 checkIndex();
                 old = getMetaDataForRecord(id);
             }
-                
+
             super.remove(id);
-            
+
             if (hasMetaData) {
                 removeMetaData(id, old);
             }
         }
     }
-    
+
     public Vector getIDsForValue (String fieldName, Object value) {
         synchronized(metadataAccessLock) {
             checkIndex();
-    
+
             Hashtable index = (Hashtable)metaDataIndex.get(fieldName);
             if (index == null) {
                 throw new IllegalArgumentException("field [" + fieldName + "] not recognized");
             }
-            
+
             Vector IDs = (Vector)index.get(value);
             return (IDs == null ? new Vector(): IDs);
         }
     }
-    
+
     public E getRecordForValue (String fieldName, Object value) throws NoSuchElementException {
         synchronized(metadataAccessLock) {
             Vector IDs = getIDsForValue(fieldName, value);
@@ -278,7 +278,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             }
         }
     }
-    
+
     public void clearIndexCache() {
         synchronized(metadataAccessLock) {
             if(metaDataIndex != null) {
@@ -295,7 +295,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
             buildIndex();
         }
     }
-    
+
     private Hashtable<String, Object> getMetaData(IMetaData m) {
         return getMetaData(m, getFields());
     }

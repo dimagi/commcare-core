@@ -11,16 +11,16 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A tuple that represents a record's exact location within an RMSStorageUtility, consisting of (RMS #, record ID within that RMS)
- * 
+ *
  * @author Drew Roos
  *
  */
 public class RMSRecordLoc implements Externalizable {
     public int rmsID;
     public int recID;
-    
+
     public RMSRecordLoc () { }
-    
+
     public RMSRecordLoc (int rmsID, int recID) {
         this.rmsID = rmsID;
         this.recID = recID;
@@ -44,7 +44,7 @@ public class RMSRecordLoc implements Externalizable {
             return false;
         }
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         rmsID = ExtUtil.readInt(in);
         recID = ExtUtil.readInt(in);

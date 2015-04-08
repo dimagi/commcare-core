@@ -10,5 +10,5 @@ public interface DataCaptureService {
     String SMELLOVISION = "scent";
 
     String getType ();
-    
+
 }

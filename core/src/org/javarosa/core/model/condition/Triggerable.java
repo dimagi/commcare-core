@@ -156,7 +156,7 @@ public abstract class Triggerable implements Externalizable {
                     Vector<TreeReference> v2 = (k == 0 ? Btriggers : Atriggers);
 
                     for (int i = 0; i < v1.size(); i++) {
-                        //csims@dimagi.com - 2012-04-17 
+                        //csims@dimagi.com - 2012-04-17
                         //Added last condition here. We can't actually say whether two triggers
                         //are the same purely based on equality if they are relative.
                         if (!v1.elementAt(i).isAbsolute() || v2.indexOf(v1.elementAt(i)) == -1) {

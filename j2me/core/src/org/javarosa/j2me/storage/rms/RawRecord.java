@@ -14,14 +14,14 @@ public class RawRecord implements Persistable {
     int id;
 
     public RawRecord () {
-        
+
     }
-    
+
     public RawRecord (int id, byte[] data) {
         this.id = id;
         this.data = data;
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         throw new RuntimeException("write-only");
     }

@@ -185,7 +185,7 @@ public class ReferenceManager {
             }
         }
 
-        //Now try all of the raw connectors available 
+        //Now try all of the raw connectors available
         for (ReferenceFactory root : factories) {
             if (root.derives(uri)) {
                 return root;
@@ -225,7 +225,7 @@ public class ReferenceManager {
                 message += "\n" + root.prefix;
             }
 
-            //Now try all of the raw connectors available 
+            //Now try all of the raw connectors available
             for (ReferenceFactory root : factories) {
 
                 //TODO: Skeeeeeeeeeeeeetch

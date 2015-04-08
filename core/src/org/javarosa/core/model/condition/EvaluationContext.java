@@ -37,19 +37,19 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
  */
 public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
-    private TreeReference contextNode; 
+    private TreeReference contextNode;
 
     private Hashtable functionHandlers;
     private Hashtable variables;
 
     // Do we want to evaluate constraints?
-    public boolean isConstraint; 
+    public boolean isConstraint;
 
     // validate this value when isConstraint is set
-    public IAnswerData candidateValue; 
+    public IAnswerData candidateValue;
 
     // Responsible for informing itext what form is requested if relevant
-    private String outputTextForm = null; 
+    private String outputTextForm = null;
 
     private Hashtable<String, DataInstance> formInstances;
 
@@ -68,7 +68,7 @@ public class EvaluationContext {
         this.formInstances = base.formInstances;
         this.variables = new Hashtable();
 
-        //TODO: this is actually potentially much slower than 
+        //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
         //be threadsafe). We should evaluate the potential impact.
         this.setVariables(base.variables);
@@ -206,10 +206,10 @@ public class EvaluationContext {
      * Search for all repeated nodes that match the pattern of the 'ref'
      * argument.
      *
-     * '/' returns {'/'} 
+     * '/' returns {'/'}
      * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
      *
-     * @param ref Potentially ambiguous reference
+     * @param ref              Potentially ambiguous reference
      * @param includeTemplates
      * @return Null if 'ref' is relative reference. Otherwise, returns a vector
      * of references that point to nodes that match 'ref' argument. These
@@ -244,13 +244,13 @@ public class EvaluationContext {
      * Recursive helper function for expandReference that performs the search
      * for all repeated nodes that match the pattern of the 'ref' argument.
      *
-     * @param sourceRef original path we're matching against
-     * @param sourceInstance original node obtained from sourceRef
-     * @param workingRef explicit path that refers to the current node
-     * @param refs Accumulator vector to collect matching paths. Contained
-     * references are unambiguous. Template nodes won't be included when
-     * matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
-     * set.
+     * @param sourceRef        original path we're matching against
+     * @param sourceInstance   original node obtained from sourceRef
+     * @param workingRef       explicit path that refers to the current node
+     * @param refs             Accumulator vector to collect matching paths. Contained
+     *                         references are unambiguous. Template nodes won't be included when
+     *                         matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     *                         set.
      * @param includeTemplates
      */
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
@@ -338,13 +338,13 @@ public class EvaluationContext {
             }
 
             for (TreeReference treeRef : set) {
-                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate				
+                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
                 if (predicates != null) {
                     boolean passedAll = true;
                     int predIndex = -1;
                     for (XPathExpression xpe : predicates) {
                         predIndex++;
-                        //Just by getting here we're establishing a position for evaluating the current 
+                        //Just by getting here we're establishing a position for evaluating the current
                         //context. If we break, we won't push up the next one
                         positionContext[predIndex]++;
 
@@ -354,7 +354,7 @@ public class EvaluationContext {
                         Object o = xpe.eval(sourceInstance, evalContext);
 
                         //There's a special case here that can't be handled by syntactic sugar.
-                        //If the result of a predicate expression is an Integer, we need to 
+                        //If the result of a predicate expression is an Integer, we need to
                         //evaluate whether that value is equal to the current position context
 
                         o = XPathFuncExpr.unpack(o);
@@ -363,7 +363,7 @@ public class EvaluationContext {
 
                         if (o instanceof Double) {
                             //The spec just says "number" for when to use
-                            //this, so I think this is ok? It's not clear 
+                            //this, so I think this is ok? It's not clear
                             //what to do with a non-integer. It's possible
                             //we are not supposed to round.
                             int intVal = XPathFuncExpr.toInt(o).intValue();

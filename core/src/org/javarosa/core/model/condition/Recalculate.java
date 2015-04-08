@@ -101,7 +101,7 @@ public class Recalculate extends Triggerable {
         }
 
         if (Constants.DATATYPE_BOOLEAN == dataType || val instanceof Boolean) {
-            //ctsims: We should really be using the boolean datatype for real, it's 
+            //ctsims: We should really be using the boolean datatype for real, it's
             //necessary for backend calculations and XSD compliance
 
             boolean b;

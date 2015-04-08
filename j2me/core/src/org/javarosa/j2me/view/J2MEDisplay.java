@@ -36,12 +36,12 @@ import de.enough.polish.ui.UiAccess;
 public class J2MEDisplay {
     private static Display display;
     private static LoadingScreenThread loading;
-    
+
     public static void init (MIDlet m) {
         setDisplay(Display.getDisplay(m));
         loading = new LoadingScreenThread(display);
     }
-    
+
     public static void setDisplay (Display display) {
         J2MEDisplay.display = display;
     }
@@ -50,14 +50,14 @@ public class J2MEDisplay {
         if (display == null) {
             throw new RuntimeException("Display has not been set from MIDlet; call J2MEDisplay.init()");
         }
-        
+
         return display;
     }
-    
+
     public static void startStateWithLoadingScreen(State state) {
         startStateWithLoadingScreen(state,null);
     }
-    
+
     public static void startStateWithLoadingScreen(State state, ProgressIndicator indicator) {
         final State s = state;
         loading.cancelLoading();
@@ -75,22 +75,22 @@ public class J2MEDisplay {
             }
         }).start();
     }
-    
+
     public static void setView (Displayable d) {
         setView(d, false);
     }
-    
+
     /**
      * Sets the current displayable with the option to either clear or not
-     * clear the heavy resources from the current view 
-     * 
+     * clear the heavy resources from the current view
+     *
      * @param d The new displayable to be viewed
      * @param savePreviousView false if resources should freed from the
      * current screen. True if those resources should be maintained. NOTE:
      * if the current screen has major resources and True is set, those
      * resources might need to be freed manually if any hanging references
      * depend on them.
-     * 
+     *
      */
     public static void setView (Displayable d, boolean savePreviousView) {
         loading.cancelLoading();
@@ -99,7 +99,7 @@ public class J2MEDisplay {
         if(!savePreviousView && old != d) {
             if(old instanceof Screen) {
                 System.out.println("Manually releasing resources for previous screen");
-                
+
                 //cts: Polish crashes on resource release unless you've
                 //initialized a menubar. NOTE: This probably won't
                 //catch full context switches with a loading screen
@@ -117,18 +117,18 @@ public class J2MEDisplay {
         }
         CrashHandler.expire(null);
     }
-    
+
     public static void showError (String title, String message) {
         showError(title, message, null, null, null);
     }
-    
+
     public static void showError (String title, String message, Image image) {
         showError(title, message, image, null, null);
     }
-    
+
     public static Alert showError (String title, String message, Image image, Displayable next, CommandListener customListener) {
-        
-        
+
+
         //#if polish.blackberry
         //# //#style mailAlert
         //# final Alert alert = new Alert(title, message, image, de.enough.polish.blackberry.ui.AlertType.ERROR) {
@@ -140,14 +140,14 @@ public class J2MEDisplay {
             {
                 getKeyStates();
             }
-            
+
             /* (non-Javadoc)
              * @see de.enough.polish.ui.Screen#handleKeyPressed(int, int)
              */
             protected boolean handleKeyPressed(int keyCode, int gameAction) {
                 return super.handleKeyPressed(keyCode, gameAction);
             }
-            
+
             /* (non-Javadoc)
              * @see de.enough.polish.ui.Screen#handleKeyReleased(int, int)
              */
@@ -164,10 +164,10 @@ public class J2MEDisplay {
             if (next != null) {
                 System.err.println("Warning: alert invoked with both custom listener and 'next' displayable. 'next' will be ignored; it must be switched to explicitly in the custom handler");
             }
-            
+
             alert.setCommandListener(customListener);
         }
-        
+
         if (next == null) {
             setView(alert, true);
         } else {
@@ -176,21 +176,21 @@ public class J2MEDisplay {
             //# display.setCurrent(alert, next);
             //#endif
         }
-        
+
         return alert;
     }
-    
+
 
     public static int getScreenHeight(int fallback) {
         int staticHeight = -1;
         int guess = de.enough.polish.ui.Display.getScreenHeight();
-        
+
         //#ifdef polish.fullcanvasheight:defined
         //#= staticHeight = ${ polish.fullcanvasheight };
         //#elifdef polish.screenheight:defined
         //#= staticHeight = ${ polish.screenheight };
         //#endif
-        
+
         if(guess == -1 && staticHeight == -1) {
             return fallback;
         } else if(guess != 1) {
@@ -203,13 +203,13 @@ public class J2MEDisplay {
     public static int getScreenWidth(int fallback) {
         int staticWidth = -1;
         int guess = de.enough.polish.ui.Display.getScreenWidth();
-        
+
         //#ifdef polish.fullcanvaswidth:defined
         //#= staticWidth = ${ polish.fullcanvaswidth };
         //#elifdef polish.screenwidth:defined
         //#= staticWidth = ${ polish.screenwidth };
         //#endif
-        
+
         if(guess == -1 && staticWidth == -1) {
             return fallback;
         } else if(guess != 1) {

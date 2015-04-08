@@ -31,23 +31,23 @@ import org.javarosa.patient.model.data.ImmunizationData;
 import org.javarosa.patient.model.data.NumericListData;
 
 public class PatientPreloadHandler implements IPreloadHandler {
-    
+
     /** The patient for this handler */
     private Patient patient;
-    
+
     /**
      * Creates a preload handler that can pull values from
      * the patient object provided.
-     * 
-     * @param thePatient the patient whose data is to be 
+     *
+     * @param thePatient the patient whose data is to be
      * retrevied from this preload handler
      */
     public PatientPreloadHandler(Patient thePatient) {
         patient = thePatient;
     }
-    
+
     /**
-     * 
+     *
      */
     public IAnswerData handlePreload(String preloadParams) {
         System.out.println("Patient preloader! Params: " + preloadParams);
@@ -71,7 +71,7 @@ public class PatientPreloadHandler implements IPreloadHandler {
         } else if(preloadParams.equals("monthsOnTreatment")) {
             DateData dateData = (DateData)patient.getRecord("treatmentStart");
             if(dateData != null) {
-                int months = DateUtils.getMonthsDifference((Date)dateData.getValue(), new Date()); 
+                int months = DateUtils.getMonthsDifference((Date)dateData.getValue(), new Date());
                 returnVal = new IntegerData(months);
             }
         }
@@ -81,7 +81,7 @@ public class PatientPreloadHandler implements IPreloadHandler {
                 returnVal = (IAnswerData)patient.getRecord(preloadParams);
             } else {
                 String type = preloadParams.substring(0, selectorStart);
-                String selector = preloadParams.substring(selectorStart, preloadParams.length()); 
+                String selector = preloadParams.substring(selectorStart, preloadParams.length());
                 Vector data = patient.getRecordSet(type, selector);
                 returnVal = new NumericListData();
                 returnVal.setValue(data);
@@ -108,10 +108,10 @@ public class PatientPreloadHandler implements IPreloadHandler {
                 patient.setRecord(type, combinedList);
             }
         }
-        
+
         return false;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IPreloadHandler#preloadHandled()

@@ -131,7 +131,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.javarosa.core.model.utils.ITreeVisitor#visit(org.javarosa.core.model
      * .DataModelTree)
@@ -215,7 +215,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seeorg.javarosa.core.model.utils.IInstanceSerializingVisitor#
      * setAnswerDataSerializer(org.javarosa.core.model.IAnswerDataSerializer)
      */

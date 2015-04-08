@@ -26,7 +26,7 @@ import java.util.Vector;
 public class ExtWrapList extends ExternalizableWrapper {
     public ExternalizableWrapper type;
     private boolean sealed;
-    
+
     /* serialization */
 
     public ExtWrapList(Vector val) {

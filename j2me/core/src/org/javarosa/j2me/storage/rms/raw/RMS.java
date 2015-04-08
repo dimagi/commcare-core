@@ -25,7 +25,7 @@ public class RMS {
 
     /**
      * Open/create an RMS and wrap it
-     * 
+     *
      * @param name
      *            name of the RMS
      * @param create
@@ -45,11 +45,11 @@ public class RMS {
 
     /**
      * Simple wrapper for RecordStore.addRecord().
-     * 
+     *
      * Optionally, if, on first attempt, RecordStore is full, it will
      * close/reopen the record store to free up any available space, then try
      * once more. (This may have a hefty performance penalty)
-     * 
+     *
      * @param data
      *            record to add
      * @param tryHard
@@ -86,7 +86,7 @@ public class RMS {
     public boolean updateRecord(int id, byte[] data) {
         return updateRecord(id, data, false);
     }
-    
+
     public void listRecords(Hashtable<RMSRecordLoc, Boolean> records, int rmsId) {
         try {
             RecordEnumeration re = rms.enumerateRecords(null,  null, false);
@@ -99,20 +99,20 @@ public class RMS {
                 }
             }
         } catch(RecordStoreNotOpenException e) {
-            
+
         }  catch(ArrayIndexOutOfBoundsException oob) {
             //Apparently Nokias throw this sometimes _instead_ of the invalid
             //record ID exception! SOUNDS LEGIT, RIGHT?
             //Just... just what the hell
-            
+
             //this indicates this RMS is destroyed, we should copy data out of here to a new one.
             try {
                 int lastIndex = rms.getNumRecords();
                 int lastRecordID = rms.getNextRecordID();
-                
+
                 lastIndex = lastIndex > lastRecordID ? lastIndex : lastRecordID;
-                
-                    
+
+
                 //Ok, so we're gonna try a new approach here. Try to iterate over
                 //everything. Maybe we can still find some records.
                 for(int i = 0 ; i < lastIndex ; ++i ){
@@ -123,27 +123,27 @@ public class RMS {
                         //Hm, not sure what to do with this.
                     }
                 }
-                    
-                
+
+
             } catch(RecordStoreException rse ){
-                
+
             }
         }
     }
 
     /**
      * Simple wrapper for RecordStore.updateRecord().
-     * 
+     *
      * Optionally, if, on first attempt, RecordStore is full, it will
      * close/reopen the record store to free up any available space, then try
      * once more. (This may have a hefty performance penalty)
-     * 
+     *
      * BUG: on the Nokia 6085 (and probably others, the RMS becomes hosed if you
      * try to update a record and run out of space, so 'tryHard' will not save
      * you here
-     * 
+     *
      * Error if no record for 'id' exists
-     * 
+     *
      * @param id
      *            id of record to update
      * @param data
@@ -184,10 +184,10 @@ public class RMS {
                     + e.getMessage());
         }
     }
-    
+
     /**
      * Return the byte data for a record.
-     * 
+     *
      * @param id
      *            record ID
      * @return byte array of record's data; null if no record exists for that ID
@@ -206,7 +206,7 @@ public class RMS {
 
     /**
      * Return a deserialized record object
-     * 
+     *
      * @param id
      *            record ID
      * @param type
@@ -230,7 +230,7 @@ public class RMS {
 
     /**
      * Return a deserialized record object
-     * 
+     *
      * @param id
      *            record ID
      * @param ew
@@ -251,7 +251,7 @@ public class RMS {
 
     /**
      * Remove a record. Error if record does not exist
-     * 
+     *
      * @param id
      *            record ID to remove
      */
@@ -270,7 +270,7 @@ public class RMS {
 
     /**
      * Close this record store.
-     * 
+     *
      * It will call closeRecordStore() as many times as necessary to ensure the
      * record store is closed (this is necessary as, if the record store has
      * been opened and never closed by other threads/StorageUtilities, our

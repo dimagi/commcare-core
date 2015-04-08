@@ -147,7 +147,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
                 if (b instanceof Double) {
                     val = (Double)b;
                 } else {
-                    //These are probably the 
+                    //These are probably the
                     if (b instanceof Integer) {
                         val = new Double(((Integer)b).doubleValue());
                     } else if (b instanceof Long) {

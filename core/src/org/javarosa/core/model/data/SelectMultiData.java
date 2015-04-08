@@ -139,7 +139,7 @@ public class SelectMultiData implements IAnswerData {
             selectString.append(selection.getValue());
         }
         //As Crazy, and stupid, as it sounds, this is the XForms specification
-        //for storing multiple selections.    
+        //for storing multiple selections.
         return new UncastData(selectString.toString());
     }
 

@@ -105,7 +105,7 @@ public class LocalizationUtils {
             }
         }
     }
-        
+
         /*
          * Helper to replace our markdown encodings with what we want
          */
@@ -137,18 +137,18 @@ public class LocalizationUtils {
      * http://www.experts-exchange.com/Programming/Languages/Java/Q_27604323.html
      */
 
-    private static int lastIndexOf(String str, String search){
+    private static int lastIndexOf(String str, String search) {
         int i = 0;
         int offset = 0;
         int found = -1;
 
-        while(offset < str.length()){
+        while (offset < str.length()) {
             i = str.indexOf(search, offset);
-            if(i == -1)break;
+            if (i == -1) break;
 
             found = i;
 
-            offset = i+1;
+            offset = i + 1;
         }
         return found;
     }

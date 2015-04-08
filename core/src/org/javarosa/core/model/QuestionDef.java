@@ -250,23 +250,23 @@ public class QuestionDef implements IFormElement, Localizable {
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
-        binding = (IDataReference) ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        setAppearanceAttr((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setTextID((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setLabelInnerText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintTextID((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintInnerText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpTextID((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpInnerText((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        binding = (IDataReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHintInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHelpText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHelpTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
+        setHelpInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
 
         setControlType(ExtUtil.readInt(dis));
-        choices = ExtUtil.nullIfEmpty((Vector) ExtUtil.read(dis, new ExtWrapList(SelectChoice.class), pf));
+        choices = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(dis, new ExtWrapList(SelectChoice.class), pf));
         for (int i = 0; i < getNumChoices(); i++) {
             choices.elementAt(i).setIndex(i);
         }
-        setDynamicChoices((ItemsetBinding) ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
+        setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
     }
 
     /*
@@ -310,7 +310,7 @@ public class QuestionDef implements IFormElement, Localizable {
 
     public void alertStateObservers(int changeFlags) {
         for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((FormElementStateListener) e.nextElement()).formElementStateChanged(this, changeFlags);
+            ((FormElementStateListener)e.nextElement()).formElementStateChanged(this, changeFlags);
     }
 
     /*

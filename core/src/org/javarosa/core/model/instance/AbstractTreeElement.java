@@ -18,7 +18,7 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
     /**
      * Get a child element with the given name and occurence position (multiplicity)
      *
-     * @param name the name of the child element to select
+     * @param name         the name of the child element to select
      * @param multiplicity is the n-th occurence of an element with a given name
      */
     public abstract T getChild(String name, int multiplicity);
@@ -108,7 +108,7 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     public abstract int getMult();
 
-    //Support? 
+    //Support?
     public abstract AbstractTreeElement getParent();
 
     public abstract IAnswerData getValue();

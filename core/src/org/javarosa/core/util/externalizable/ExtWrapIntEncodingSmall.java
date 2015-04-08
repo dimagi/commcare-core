@@ -31,7 +31,7 @@ public class ExtWrapIntEncodingSmall extends ExtWrapIntEncoding {
      *      BIAS = 254 -> [-254,0]
      */
     public int bias;
-    
+
     /* serialization */
 
     public ExtWrapIntEncodingSmall(long l) {

@@ -20,7 +20,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class PrefixTree {
-    //Sometimes the string optimizations here are basically useless 
+    //Sometimes the string optimizations here are basically useless
     //due to wide availability of memory. It's easier in many cases
     //to simply keep using the framework, but just disable the actual
     //stemming/prefix ops

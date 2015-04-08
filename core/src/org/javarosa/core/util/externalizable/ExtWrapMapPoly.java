@@ -29,7 +29,7 @@ import org.javarosa.core.util.OrderedHashtable;
 public class ExtWrapMapPoly extends ExternalizableWrapper {
     public ExternalizableWrapper keyType;
     public boolean ordered;
-    
+
     /* serialization */
 
     public ExtWrapMapPoly(Hashtable val) {

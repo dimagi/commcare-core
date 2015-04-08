@@ -17,9 +17,9 @@ public class TxCacheEntry implements Externalizable {
     byte[] data;
 
     public TxCacheEntry () {
-        
+
     }
-    
+
     public TxCacheEntry (RMSTransaction tx, String rmsName, int rec_id, byte[] data) {
         this.tx_id = tx.tx_id;
         this.rms = rmsName;
@@ -31,10 +31,10 @@ public class TxCacheEntry implements Externalizable {
         if (data == null) {
             throw new IllegalStateException("record must have data");
         }
-        
+
         return new RawRecord(rec_id, data);
     }
-    
+
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         tx_id = ExtUtil.readInt(in);
         rms = ExtUtil.readString(in);

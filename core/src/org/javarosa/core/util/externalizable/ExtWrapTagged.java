@@ -37,7 +37,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
         WRAPPER_CODES.put(ExtWrapIntEncodingUniform.class, new Integer(0x40));
         WRAPPER_CODES.put(ExtWrapIntEncodingSmall.class, new Integer(0x41));
     }
-    
+
     /* serialization */
 
     public ExtWrapTagged(Object val) {
@@ -49,7 +49,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
 
         this.val = val;
     }
-    
+
     /* deserialization */
 
     public ExtWrapTagged() {

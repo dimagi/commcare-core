@@ -17,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class TreeElementParser extends ElementParser<TreeElement> {
     int multiplicity;
     String instanceId;
-    
+
     public TreeElementParser(KXmlParser parser, int multiplicity, String instanceId) {
         super(parser);
         this.multiplicity = multiplicity;

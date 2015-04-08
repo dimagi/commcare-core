@@ -51,7 +51,7 @@ public class PropertyUtils {
                 //no good way to identify if there are Error or Magical strings here.
                 if (value != null && value != "") {
                     nativeValue = value;
-                    //TODO: Do we want to sort between different IMEI's here?        
+                    //TODO: Do we want to sort between different IMEI's here?
                     break;
                 }
             } catch (Exception e) {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.javarosa.demo.util;
 
@@ -16,11 +16,11 @@ import org.javarosa.user.model.User;
 public class MetaPreloadHandler implements IPreloadHandler {
     private static final String MIDLET_VERSION_PROPERTY = "MIDlet-Version";
     private User u;
-    
+
     public MetaPreloadHandler(User u) {
         this.u = u;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.utils.IPreloadHandler#handlePostProcess(org.javarosa.core.model.instance.TreeElement, java.lang.String)
      */

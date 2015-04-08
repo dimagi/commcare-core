@@ -22,29 +22,29 @@ import org.javarosa.j2me.log.HandledThread;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
- * The PermissionsTestState is used to identify whether CommCare can properly access 
+ * The PermissionsTestState is used to identify whether CommCare can properly access
  * @author ctsims
  *
  */
 public abstract class PermissionsTestState implements State, TrivialTransitions, HandledCommandListener {
 
     static final String URL = "http://www.google.com";
-        
+
     Form view;
     Command exit;
     Date start = null;
-    
+
     public PermissionsTestState () {
-        
+
     }
-    
+
     public void start () {
         view = new Form("Permissions test");
         exit = new Command("OK", Command.BACK, 0);
         view.setCommandListener(this);
         view.addCommand(exit);
         J2MEDisplay.setView(view);
-        
+
         final PermissionsTestState parent = this;
         new HandledThread () {
             public void _run () {
@@ -52,30 +52,30 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
             }
         }.start();
     }
-    
+
     public void addLine (String line) {
         Date now = new Date();
         if (start == null)
             start = now;
-        
+
         int diff = (int)(now.getTime() - start.getTime()) / 10;
         String sDiff = (diff / 100) + "." + DateUtils.intPad(diff % 100, 2);
-        
+
         view.append(new StringItem("", sDiff + ": " + line));
     }
-    
+
     public static void permissionsTest (PermissionsTestState parent) {
         HttpConnection conn = null;
-        
-        try{ 
+
+        try{
             parent.addLine("Test #1: Network");
             parent.addLine("Opening Connection to (" + URL + ")");
-            
+
             conn = (HttpConnection)Connector.open(URL);
             conn.setRequestMethod(HttpConnection.GET);
 
             parent.addLine("PASS: Connection Permitted.");
-            
+
         } catch (SecurityException e) {
             parent.addLine("FAIL: Permission Not Granted!");
         } catch (IOException e) {
@@ -84,12 +84,12 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
         } finally {
             try { if (conn != null) { conn.close(); } } catch (IOException ioe) { }
         }
-        
-        
+
+
         parent.addLine("Test #2: Read Files");
-        
+
         String fileroot = null;
-        
+
         //File Read
         //TODO: Wrap for preprocessing
         javax.microedition.io.file.FileConnection fcon = null;
@@ -111,7 +111,7 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
         } finally {
             if(fcon != null) { try { fcon.close();} catch(IOException e) {} }
         }
-        
+
         parent.addLine("Test #3: Write Files");
         String baseFileName = "CommCareWriteTest.file";
         //File Write
@@ -124,7 +124,7 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
                 while(writecon.exists()) {
                     writecon.close();
                     ext++;
-                    writecon = (javax.microedition.io.file.FileConnection)Connector.open("file:///" + fileroot + baseFileName + "." + ext); 
+                    writecon = (javax.microedition.io.file.FileConnection)Connector.open("file:///" + fileroot + baseFileName + "." + ext);
                 }
                 writecon.create();
                 OutputStream temp = writecon.openOutputStream();
@@ -142,9 +142,9 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
             if(writecon != null) { try { writecon.close();} catch(IOException e) {} }
         }
         //SMS Send
-        
+
         parent.addLine("Test #4: SMS Sending");
-        
+
         //#if polish.api.wmapi
         javax.wireless.messaging.MessageConnection mconn = null;
         try {
@@ -160,25 +160,25 @@ public abstract class PermissionsTestState implements State, TrivialTransitions,
             parent.addLine("FAIL: IO Exception!: " + WrappedException.printException(e));
         }
         //#else
-        //# parent.addLine("SKIP: SMS is not available on this platform"); 
+        //# parent.addLine("SKIP: SMS is not available on this platform");
         //#endif
 
-        
+
         //Multimedia recording
-        
+
         //GPS
     }
-    
+
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
     }
-    
+
     public void _commandAction(Command c, Displayable d) {
-        if (c == exit) { 
+        if (c == exit) {
             done();
         }
     }
-    
+
     //nokia s40 bug
     public abstract void done();
 }

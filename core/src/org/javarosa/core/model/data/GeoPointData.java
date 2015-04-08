@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2009 JavaRosa
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -60,6 +60,7 @@ public class GeoPointData implements IAnswerData {
 
     /**
      * Copy data in argument array into local geopoint array.
+     *
      * @param gp double array of max size 4 representing geopoints
      */
     private void fillArray(double[] gp) {
@@ -83,7 +84,7 @@ public class GeoPointData implements IAnswerData {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.javarosa.core.model.data.IAnswerData#getDisplayText()
      */
     public String getDisplayText() {
@@ -98,7 +99,7 @@ public class GeoPointData implements IAnswerData {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
     public double[] getValue() {
@@ -155,7 +156,7 @@ public class GeoPointData implements IAnswerData {
      * overflow problems if x * (10^numberofDecimals) is greater than
      * Double.MAX_VALUE or less than Double.MIN_VALUE.
      *
-     * @param x double to be rounded up
+     * @param x                double to be rounded up
      * @param numberOfDecimals number of decimals that should present in result
      */
     private static double roundDecimalUp(double x, int numberOfDecimals) {

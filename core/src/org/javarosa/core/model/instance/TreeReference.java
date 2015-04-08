@@ -63,7 +63,6 @@ public class TreeReference implements Externalizable {
     public static final int INDEX_REPEAT_JUNCTURE = -10;
 
 
-
     //TODO: Roll these into RefLevel? Or more likely, take absolute
     //ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
@@ -328,7 +327,7 @@ public class TreeReference implements Externalizable {
                     return this.clone();
                 }
             }
-            //Or if this refers to another instance and the context ref doesn't refer to the 
+            //Or if this refers to another instance and the context ref doesn't refer to the
             //same instance
             else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
                 return this.clone();

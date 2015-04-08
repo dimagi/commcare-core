@@ -13,7 +13,7 @@ import org.javarosa.core.services.Logger;
 
 public class ImageUtils {
 
-    
+
     private static boolean IMAGE_DEBUG_MODE = false;
     public static Image getImage(String URI){
 
@@ -30,7 +30,7 @@ public class ImageUtils {
             } catch (IOException e) {
                 System.out.println("IOException for URI:"+URI);
                 e.printStackTrace();
-                if(IMAGE_DEBUG_MODE) throw new RuntimeException("ERROR! Cant find image at URI: "+URI);    
+                if(IMAGE_DEBUG_MODE) throw new RuntimeException("ERROR! Cant find image at URI: "+URI);
                 return null;
             } catch (InvalidReferenceException ire){
                 System.out.println("Invalid Reference Exception for URI:"+URI);
@@ -56,8 +56,8 @@ public class ImageUtils {
             return null;
         }
     }
-    
-    
+
+
     /**
       * This methog resizes an image by resampling its pixels
       * @param src The image to be resized
@@ -68,7 +68,7 @@ public class ImageUtils {
             //We need to make sure we have memory available if it exists, because we're going to be allocating huuuge
            //chunks, and that might fail even if those chunks would be available if we collected.
           Runtime.getRuntime().gc();
-          
+
           int srcWidth = src.getWidth();
           int srcHeight = src.getHeight();
           Image tmp = Image.createImage(newWidth, srcHeight);
@@ -76,7 +76,7 @@ public class ImageUtils {
           int ratio = (srcWidth << 16) / newWidth;
           int pos = ratio/2;
 
-          //Horizontal Resize        
+          //Horizontal Resize
 
           for (int x = 0; x < newWidth; x++) {
               g.setClip(x, 0, 1, srcHeight);
@@ -87,7 +87,7 @@ public class ImageUtils {
           Image resizedImage = Image.createImage(newWidth, newHeight);
           g = resizedImage.getGraphics();
           ratio = (srcHeight << 16) / newHeight;
-          pos = ratio/2;        
+          pos = ratio/2;
 
           //Vertical resize
 
@@ -98,10 +98,10 @@ public class ImageUtils {
           }
           return resizedImage;
 
-      }//resize image    
-      
+      }//resize image
+
       /**
-       * Used for scaling an image.  Checks to see if an image is bigger than the 
+       * Used for scaling an image.  Checks to see if an image is bigger than the
        * provided dimensions, and provides new dimensions such that the image
        * scales to fit within the dimensions given. If the image is smaller (in both width and height)
        * than the given dimensions, returns the original image dimensions.
@@ -119,7 +119,7 @@ public class ImageUtils {
             w = width;
             h = (int)Math.floor(w*scalef);
         }else if (im.getHeight() > height && im.getWidth() > width){ //both are overbounds
-            if(height > width){    //screen width is smaller dimension, so reduce im width and scale height                
+            if(height > width){    //screen width is smaller dimension, so reduce im width and scale height
                 w = width;
                 h = (int)Math.floor(w*scalef);
             }else if(height <= width){ //reduce height and scale width
@@ -133,6 +133,6 @@ public class ImageUtils {
             int[] dim = {h,w};
             return dim;
       }
-      
-      
+
+
 }

@@ -186,7 +186,7 @@ public class XPathPathExpr extends XPathExpression {
             ref = genericRef.contextualize(ec.getContextRef());
         }
 
-        //We don't necessarily know the model we want to be working with until we've contextualized the 
+        //We don't necessarily know the model we want to be working with until we've contextualized the
         //node
 
         //check if this nodeset refers to a non-main instance
@@ -211,7 +211,7 @@ public class XPathPathExpr extends XPathExpression {
                 throw new XPathException("Cannot evaluate the reference [" + refStr + "] in the current evaluation context. No default instance has been declared!");
             }
         }
-        //Otherwise we'll leave 'm' as set to the main instance 
+        //Otherwise we'll leave 'm' as set to the main instance
 
         // Error out if a (template) path along the reference starting at the
         // main DataInstance doesn't exist.

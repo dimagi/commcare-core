@@ -112,7 +112,7 @@ public class BufferedInputStream extends InputStream {
                     continue;
                 }
 
-                //otherwise, try to fill that buffer 
+                //otherwise, try to fill that buffer
                 if (!fillBuffer()) {
                     //Ok, so we didn't fill the whole thing. Either we're at the end of our stream (possible)
                     //or there was an incomplete read.
@@ -121,7 +121,7 @@ public class BufferedInputStream extends InputStream {
                     if (count == -1) {
                         //We're at EOF. Two possible conditions here.
 
-                        //1) This was actually our first attempt on the end of stream. signal EOF 
+                        //1) This was actually our first attempt on the end of stream. signal EOF
                         if (counter == 0) {
                             return -1;
                         }
@@ -134,7 +134,7 @@ public class BufferedInputStream extends InputStream {
 
                     //0 is always an illegal return from here, so if we haven't read any bits yet, we need to do so now
                     if (counter != 0) {
-                        //Incomplete read. Get the bits back. Hopefully the stream won't be blocked next time they try to read.  
+                        //Incomplete read. Get the bits back. Hopefully the stream won't be blocked next time they try to read.
                         quitEarly = true;
                     }
                 }

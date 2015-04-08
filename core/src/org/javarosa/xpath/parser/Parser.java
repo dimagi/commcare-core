@@ -98,7 +98,7 @@ public class Parser {
 
         int funcEnd = node.indexOfBalanced(funcStart + 1, Token.RPAREN, Token.LPAREN, Token.RPAREN);
         if (funcEnd == -1) {
-            throw new XPathSyntaxException("Mismatched brackets or parentheses"); //mismatched parens            
+            throw new XPathSyntaxException("Mismatched brackets or parentheses"); //mismatched parens
         }
 
         ASTNodeAbstractExpr.Partition args = node.partitionBalanced(Token.COMMA, funcStart + 1, Token.LPAREN, Token.RPAREN);
@@ -225,7 +225,7 @@ public class Parser {
                 path.separators = part.separators;
 
                 if (part.separators.size() == 1 && absNode.content.size() == 1 && vectInt(part.separators, 0) == Token.SLASH) {
-                    //empty absolute path                    
+                    //empty absolute path
                 } else {
                     for (int i = 0; i < part.pieces.size(); i++) {
                         ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)part.pieces.elementAt(i);

@@ -42,7 +42,7 @@ public abstract class XPathExpression implements Externalizable {
             //Rethrow unpivotable (expected)
             throw uee;
         } catch (Exception e) {
-            //Pivots aren't critical, if there was a problem getting one, log the exception 
+            //Pivots aren't critical, if there was a problem getting one, log the exception
             //so we can fix it, and then just report that.
             Logger.exception(e);
             throw new UnpivotableExpressionException(e.getMessage());
@@ -64,7 +64,7 @@ public abstract class XPathExpression implements Externalizable {
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         return eval(model, evalContext);
     }
-    
+
     /*======= DEBUGGING ========*/
     // should not compile onto phone
 
