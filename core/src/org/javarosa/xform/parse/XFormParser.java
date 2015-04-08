@@ -373,10 +373,10 @@ public class XFormParser {
     public void addSpecExtension(String namespace, Vector<String> keywords,
                                  boolean suppressWarnings, boolean parseInnerElements) {
         if (suppressWarnings) {
-            XFormParser.suppressSpecExtensionWarnings.add(namespace);
+            XFormParser.suppressSpecExtensionWarnings.addElement(namespace);
         }
         if (parseInnerElements) {
-            XFormParser.parseSpecExtensionsInnerElements.add(namespace);
+            XFormParser.parseSpecExtensionsInnerElements.addElement(namespace);
         }
         XFormParser.specExtensionKeywords.put(namespace, keywords);
     }
