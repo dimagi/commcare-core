@@ -164,42 +164,54 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         try {
-
             //check built-in functions
-            if (name.equals("true") && args.length == 0) {
+            if (name.equals("true")) {
+                checkArity(name, 0, args.length);
                 return Boolean.TRUE;
-            } else if (name.equals("false") && args.length == 0) {
+            } else if (name.equals("false")) {
+                checkArity(name, 0, args.length);
                 return Boolean.FALSE;
-            } else if (name.equals("boolean") && args.length == 1) {
+            } else if (name.equals("boolean")) {
+                checkArity(name, 1, args.length);
                 return toBoolean(argVals[0]);
-            } else if (name.equals("number") && args.length == 1) {
+            } else if (name.equals("number")) {
+                checkArity(name, 1, args.length);
                 return toNumeric(argVals[0]);
-            } else if (name.equals("int") && args.length == 1) { //non-standard
+            } else if (name.equals("int")) { //non-standard
+                checkArity(name, 1, args.length);
                 return toInt(argVals[0]);
-            } else if (name.equals("double") && args.length == 1) { //non-standard
+            } else if (name.equals("double")) { //non-standard
+                checkArity(name, 1, args.length);
                 return toDouble(argVals[0]);
-            } else if (name.equals("string") && args.length == 1) {
+            } else if (name.equals("string")) {
+                checkArity(name, 1, args.length);
                 return toString(argVals[0]);
-            } else if (name.equals("date") && args.length == 1) { //non-standard
+            } else if (name.equals("date")) { //non-standard
+                checkArity(name, 1, args.length);
                 return toDate(argVals[0]);
-            } else if (name.equals("not") && args.length == 1) {
+            } else if (name.equals("not")) {
+                checkArity(name, 1, args.length);
                 return boolNot(argVals[0]);
-            } else if (name.equals("boolean-from-string") && args.length == 1) {
+            } else if (name.equals("boolean-from-string")) {
+                checkArity(name, 1, args.length);
                 return boolStr(argVals[0]);
             } else if (name.equals("format-date")) {
-                if( args.length == 2) {
-                    return dateStr(argVals[0], argVals[1]);
-                } else{
-                    throw new XPathArityException("function \'" + name + "\'", 2, args.length);
-                }
-            } else if ((name.equals("selected") || name.equals("is-selected")) && args.length == 2) { //non-standard
+                checkArity(name, 2, args.length);
+                return dateStr(argVals[0], argVals[1]);
+            } else if ((name.equals("selected") || name.equals("is-selected"))) { //non-standard
+                checkArity(name, 2, args.length);
                 return multiSelected(argVals[0], argVals[1]);
-            } else if (name.equals("count-selected") && args.length == 1) { //non-standard
+            } else if (name.equals("count-selected")) { //non-standard
+                checkArity(name, 1, args.length);
                 return countSelected(argVals[0]);
-            } else if (name.equals("selected-at") && args.length == 2) { //non-standard
+            } else if (name.equals("selected-at")) { //non-standard
+                checkArity(name, 2, args.length);
                 return selectedAt(argVals[0], argVals[1]);
-            } else if (name.equals("position") && (args.length == 0 || args.length == 1)) {
+            } else if (name.equals("position")) {
                 //TODO: Technically, only the 0 length argument is valid here.
+                if (args.length > 1) {
+                    throw new XPathArityException(name, "0 or 1 arguments", args.length);
+                }
                 if (args.length == 1) {
                     return position(((XPathNodeset) argVals[0]).getRefAt(0));
                 } else {
@@ -208,29 +220,39 @@ public class XPathFuncExpr extends XPathExpression {
                     }
                     return position(evalContext.getContextRef());
                 }
-            } else if (name.equals("count") && args.length == 1) {
+            } else if (name.equals("count")) {
+                checkArity(name, 1, args.length);
                 return count(argVals[0]);
-            } else if (name.equals("sum") && args.length == 1) {
-                if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
+            } else if (name.equals("sum")) {
+                checkArity(name, 1, args.length);
+                if (argVals[0] instanceof XPathNodeset) {
                     return sum(((XPathNodeset) argVals[0]).toArgList());
                 } else {
                     throw new XPathTypeMismatchException("not a nodeset");
                 }
             } else if (name.equals("max")) {
+                if (args.length == 0) {
+                    throw new XPathArityException(name, "at least one argument", args.length);
+                }
                 if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
                     return max(((XPathNodeset) argVals[0]).toArgList());
                 } else {
                     return max(argVals);
                 }
             } else if (name.equals("min")) {
+                if (args.length == 0) {
+                    throw new XPathArityException(name, "at least one argument", args.length);
+                }
                 if (argVals.length == 1 && argVals[0] instanceof XPathNodeset) {
                     return min(((XPathNodeset) argVals[0]).toArgList());
                 } else {
                     return min(argVals);
                 }
-            } else if (name.equals("today") && args.length == 0) {
+            } else if (name.equals("today")) {
+                checkArity(name, 0, args.length);
                 return DateUtils.roundDate(new Date());
-            } else if (name.equals("now") && args.length == 0) {
+            } else if (name.equals("now")) {
+                checkArity(name, 0, args.length);
                 return new Date();
             } else if (name.equals("concat")) {
                 if (args.length == 1 && argVals[0] instanceof XPathNodeset) {
@@ -238,37 +260,57 @@ public class XPathFuncExpr extends XPathExpression {
                 } else {
                     return join("", argVals);
                 }
-            } else if (name.equals("join") && args.length >= 1) {
+            } else if (name.equals("join")) {
+                if (args.length == 0) {
+                    throw new XPathArityException(name, "at least one argument", args.length);
+                }
                 if (args.length == 2 && argVals[1] instanceof XPathNodeset) {
                     return join(argVals[0], ((XPathNodeset) argVals[1]).toArgList());
                 } else {
                     return join(argVals[0], subsetArgList(argVals, 1));
                 }
-            } else if (name.equals("substr") && (args.length == 2 || args.length == 3)) {
+            } else if (name.equals("substr")) {
+                if (!(args.length == 2 || args.length == 3)) {
+                    throw new XPathArityException(name, "two or three arguments", args.length);
+                }
                 return substring(argVals[0], argVals[1], args.length == 3 ? argVals[2] : null);
-            } else if (name.equals("string-length") && args.length == 1) {
+            } else if (name.equals("string-length")) {
+                checkArity(name, 1, args.length);
                 return stringLength(argVals[0]);
-            } else if (name.equals("upper-case") && args.length == 1) {
+            } else if (name.equals("upper-case")) {
+                checkArity(name, 1, args.length);
                 return normalizeCase(argVals[0], true);
-            } else if (name.equals("lower-case") && args.length == 1) {
+            } else if (name.equals("lower-case")) {
+                checkArity(name, 1, args.length);
                 return normalizeCase(argVals[0], false);
-            } else if (name.equals("contains") && args.length == 2) {
+            } else if (name.equals("contains")) {
+                checkArity(name, 2, args.length);
                 return toString(argVals[0]).indexOf(toString(argVals[1])) != -1;
-            } else if (name.equals("starts-with") && args.length == 2) {
+            } else if (name.equals("starts-with")) {
+                checkArity(name, 2, args.length);
                 return toString(argVals[0]).startsWith(toString(argVals[1]));
-            } else if (name.equals("ends-with") && args.length == 2) {
+            } else if (name.equals("ends-with")) {
+                checkArity(name, 2, args.length);
                 return toString(argVals[0]).endsWith(toString(argVals[1]));
-            } else if (name.equals("translate") && args.length == 3) {
+            } else if (name.equals("translate")) {
+                checkArity(name, 3, args.length);
                 return translate(argVals[0], argVals[1], argVals[2]);
-            } else if (name.equals("replace") && args.length == 3) {
+            } else if (name.equals("replace")) {
+                checkArity(name, 3, args.length);
                 return replace(argVals[0], argVals[1], argVals[2]);
-            } else if (name.equals("checklist") && args.length >= 2) { //non-standard
+            } else if (name.equals("checklist")) { //non-standard
+                if (args.length < 2) {
+                    throw new XPathArityException(name, "two or more arguments", args.length);
+                }
                 if (args.length == 3 && argVals[2] instanceof XPathNodeset) {
                     return checklist(argVals[0], argVals[1], ((XPathNodeset) argVals[2]).toArgList());
                 } else {
                     return checklist(argVals[0], argVals[1], subsetArgList(argVals, 2));
                 }
-            } else if (name.equals("weighted-checklist") && args.length >= 2 && args.length % 2 == 0) { //non-standard
+            } else if (name.equals("weighted-checklist")) { //non-standard
+                if (!(args.length >= 2 && args.length % 2 == 0)) {
+                    throw new XPathArityException(name, "an even number of arguments", args.length);
+                }
                 if (args.length == 4 && argVals[2] instanceof XPathNodeset && argVals[3] instanceof XPathNodeset) {
                     Object[] factors = ((XPathNodeset) argVals[2]).toArgList();
                     Object[] weights = ((XPathNodeset) argVals[3]).toArgList();
@@ -279,14 +321,22 @@ public class XPathFuncExpr extends XPathExpression {
                 } else {
                     return checklistWeighted(argVals[0], argVals[1], subsetArgList(argVals, 2, 2), subsetArgList(argVals, 3, 2));
                 }
-            } else if (name.equals("regex") && args.length == 2) { //non-standard
+            } else if (name.equals("regex")) { //non-standard
+                checkArity(name, 2, args.length);
                 return regex(argVals[0], argVals[1]);
-            } else if (name.equals("depend") && args.length >= 1) { //non-standard
+            } else if (name.equals("depend")) { //non-standard
+                if (args.length == 0) {
+                    throw new XPathArityException(name, "at least one argument", args.length);
+                }
                 return argVals[0];
-            } else if (name.equals("random") && args.length == 0) { //non-standard
+            } else if (name.equals("random")) { //non-standard
+                checkArity(name, 0, args.length);
                 //calculated expressions may be recomputed w/o warning! use with caution!!
                 return new Double(MathUtils.getRand().nextDouble());
-            } else if (name.equals("uuid") && (args.length == 0 || args.length == 1)) { //non-standard
+            } else if (name.equals("uuid")) { //non-standard
+                if (args.length > 1) {
+                    throw new XPathArityException(name, "0 or 1 arguments", args.length);
+                }
                 //calculated expressions may be recomputed w/o warning! use with caution!!
                 if (args.length == 0) {
                     return PropertyUtils.genUUID();
@@ -294,19 +344,26 @@ public class XPathFuncExpr extends XPathExpression {
 
                 int len = toInt(argVals[0]).intValue();
                 return PropertyUtils.genGUID(len);
-            } else if (name.equals("pow") && (args.length == 2)) { //XPath 3.0
+            } else if (name.equals("pow")) { //XPath 3.0
+                checkArity(name, 2, args.length);
                 return power(argVals[0], argVals[1]);
-            } else if (name.equals("abs") && (args.length == 1)) {
+            } else if (name.equals("abs")) {
+                checkArity(name, 1, args.length);
                 return new Double(Math.abs(toDouble(argVals[0]).doubleValue()));
-            } else if (name.equals("ceiling") && (args.length == 1)) {
+            } else if (name.equals("ceiling")) {
+                checkArity(name, 1, args.length);
                 return new Double(Math.ceil(toDouble(argVals[0]).doubleValue()));
-            } else if (name.equals("floor") && (args.length == 1)) {
+            } else if (name.equals("floor")) {
+                checkArity(name, 1, args.length);
                 return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
-            } else if (name.equals("round") && (args.length == 1)) {
+            } else if (name.equals("round")) {
+                checkArity(name, 1, args.length);
                 return new Double((double) (Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
-            } else if (name.equals("log") && (args.length == 1)) { //XPath 3.0
+            } else if (name.equals("log")) { //XPath 3.0
+                checkArity(name, 1, args.length);
                 return log(argVals[0]);
-            } else if (name.equals("log10") && (args.length == 1)) { //XPath 3.0
+            } else if (name.equals("log10")) { //XPath 3.0
+                checkArity(name, 1, args.length);
                 return log10(argVals[0]);
             } else {
                 //check for custom handler
@@ -326,6 +383,20 @@ public class XPathFuncExpr extends XPathExpression {
             }
 
             throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
+        }
+    }
+
+    /**
+     * Throws an arity exception if expected arity doesn't match the provided arity.
+     *
+     * @param name the function name
+     * @param expectedArity expected number of arguments to the function
+     * @param providedArity number of arguments actually provided to the function
+     */
+    private static void checkArity(String name, int expectedArity, int providedArity)
+        throws XPathArityException {
+        if (expectedArity != providedArity) {
+            throw new XPathArityException(name, expectedArity, providedArity);
         }
     }
 
