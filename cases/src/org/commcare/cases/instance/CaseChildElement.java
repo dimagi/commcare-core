@@ -119,7 +119,16 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
      */
     public Vector getChildrenWithName(String name) {
-        return cache().getChildrenWithName(name);
+        //In order 
+        TreeElement cached = cache();
+        Vector children = cached.getChildrenWithName(name);
+        if (children.size() == 0) {
+            TreeElement emptyNode = new TreeElement(name);
+            cached.addChild(emptyNode);
+            emptyNode.setParent(cached);
+            children.add(emptyNode);
+        }
+        return children;
     }
 
     public boolean hasChildren() {
@@ -393,6 +402,29 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                             return emptyNode;
                         }
                         return child;
+                    }
+                    
+                    /* (non-Javadoc)
+                     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
+                     */
+                    public Vector getChildrenWithName(String name) {
+                        Vector children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
+                        
+                        //If we haven't finished caching yet, we can safely not return
+                        //something useful here, so we can construct as normal.
+                        if (done[0] == false) {
+                            return children;
+                        }
+
+                        if (children.size() == 0) {
+                            TreeElement emptyNode = new TreeElement(name);
+                            emptyNode.setAttribute(null, "case_type", "");
+
+                            this.addChild(emptyNode);
+                            emptyNode.setParent(this);
+                            children.add(emptyNode);
+                        }
+                        return children;
                     }
 
                 };
