@@ -86,6 +86,10 @@ public class Menu implements Externalizable {
         }
         return relevance;
     }
+    
+    public String getMenuRelevanceRaw() {
+        return rawRelevance;
+    }
 
     /**
      * @return The ID of what command actions should be available
