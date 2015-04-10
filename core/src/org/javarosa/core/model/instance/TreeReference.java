@@ -81,6 +81,8 @@ public class TreeReference implements Externalizable {
     private String instanceName = null;
     private Vector<TreeReferenceLevel> data = null;
 
+    // This value will be computed lazily during calls to size(); every time
+    // 'data' changes size, set it to -1 and compute it on demand.
     int size = -1;
 
 
@@ -143,10 +145,15 @@ public class TreeReference implements Externalizable {
         data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
     }
 
+    /**
+     * How many reference levels are present? Compute this value on demand and
+     * cache it.
+     * @return the number of reference levels
+     */
     public int size() {
-        //csims@dimagi.com - this seems unecessary but is a shocking performance
-        //difference due to the number of high-churn circumstances where this
-        //call is made.
+        // csims@dimagi.com - this seems unecessary but is a shocking
+        // performance difference due to the number of high-churn circumstances
+        // where this call is made.
         if (size == -1) {
             size = data.size();
         }
@@ -165,13 +172,53 @@ public class TreeReference implements Externalizable {
         add(new TreeReferenceLevel(name, mult).intern());
     }
 
+    /**
+     * Store a copy of the reference level at level 'key'. 
+     *
+     * @param key reference level at which to attach predicate vector argument.
+     * @param xpe vector of xpath expressions representing predicates to attach
+     * to a reference level.
+     */
     public void addPredicate(int key, Vector<XPathExpression> xpe) {
         hashCode = -1;
         data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
     }
 
+    /**
+     * Get the predicates for the reference level at level 'key'.
+     *
+     * @param key reference level at which to grab the predicates.
+     * @return the predicates for the specified reference level.
+     */
     public Vector<XPathExpression> getPredicate(int key) {
         return data.elementAt(key).getPredicates();
+    }
+
+    /**
+     * @return Do any of the reference levels have predicates attached to them?
+     */
+    public boolean hasPredicates() {
+        for (TreeReferenceLevel level : data) {
+            if (level.getPredicates() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create a copy of this object without any predicates attached to its
+     * reference levels.
+     *
+     * @return a copy of this tree reference without any predicates
+     */
+    public TreeReference removePredicates() {
+        hashCode = -1;
+        TreeReference predicateless = cloneWithoutLevels();
+        for (int i = 0; i < this.size(); ++i) {
+            predicateless.add(this.data.elementAt(i).setPredicates(null));
+        }
+        return predicateless;
     }
 
     public int getRefLevel() {
@@ -221,6 +268,27 @@ public class TreeReference implements Externalizable {
         for (TreeReferenceLevel l : data) {
             newRef.add(l.shallowCopy());
         }
+
+        //TODO: No more == null checks here, use context type
+        //copy instances
+        if (instanceName != null) {
+            newRef.setInstanceName(instanceName);
+        }
+        newRef.contextType = this.contextType;
+        return newRef;
+    }
+
+    /** 
+     * Return a copy of the TreeReference that doesn't include any of the
+     * TreeReferenceLevels. Useful when we are just going to overwrite the
+     * levels with new data anyways.
+     *
+     * @return a clone of this object that doesn't include any reference level
+     * data.
+     */
+    private TreeReference cloneWithoutLevels() {
+        TreeReference newRef = new TreeReference();
+        newRef.setRefLevel(this.refLevel);
 
         //TODO: No more == null checks here, use context type
         //copy instances
@@ -681,32 +749,10 @@ public class TreeReference implements Externalizable {
             throw new IllegalArgumentException("Cannot subreference a non-absolute ref");
         }
 
-        TreeReference subRef = new TreeReference();
-        subRef.refLevel = this.refLevel;
-        subRef.contextType = this.contextType;
-        subRef.instanceName = this.instanceName;
-
+        TreeReference subRef = cloneWithoutLevels();
         for (int i = 0; i <= level; ++i) {
             subRef.add(this.data.elementAt(i).shallowCopy());
         }
         return subRef;
-    }
-
-    public boolean hasPredicates() {
-        for (TreeReferenceLevel level : data) {
-            if (level.getPredicates() != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public TreeReference removePredicates() {
-        hashCode = -1;
-        TreeReference predicateless = clone();
-        for (int i = 0; i < predicateless.data.size(); ++i) {
-            predicateless.data.setElementAt(predicateless.data.elementAt(i).setPredicates(null), i);
-        }
-        return predicateless;
     }
 }

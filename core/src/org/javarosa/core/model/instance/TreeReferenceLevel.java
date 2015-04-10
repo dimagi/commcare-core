@@ -27,7 +27,12 @@ public class TreeReferenceLevel implements Externalizable {
     private int multiplicity = MULT_UNINIT;
     private Vector<XPathExpression> predicates;
 
+    // a cache for refence levels, to avoid keeping a bunch of the same levels
+    // floating around at run-time.
     private static Interner<TreeReferenceLevel> refs;
+
+    // Do we want to keep a cache of all reference levels?
+    public static boolean treeRefLevelInterningEnabled = true;
 
     public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
         TreeReferenceLevel.refs = refs;
@@ -60,6 +65,14 @@ public class TreeReferenceLevel implements Externalizable {
         return new TreeReferenceLevel(name, mult, predicates).intern();
     }
 
+    /**
+     * Create a copy of this level with updated predicates.
+     *
+     * @param xpe vector of xpath expressions representing predicates to attach
+     * to a copy of this reference level.
+     * @return a (cached-)copy of this reference level with the predicates argument
+     * attached.
+     */
     public TreeReferenceLevel setPredicates(Vector<XPathExpression> xpe) {
         return new TreeReferenceLevel(name, multiplicity, xpe).intern();
     }
@@ -141,8 +154,9 @@ public class TreeReferenceLevel implements Externalizable {
         return true;
     }
 
-    public static boolean treeRefLevelInterningEnabled = true;
-
+    /**
+     * Make sure this object has been added to the cache table.
+     */
     public TreeReferenceLevel intern() {
         if (!treeRefLevelInterningEnabled || refs == null) {
             return this;
