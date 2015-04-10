@@ -48,11 +48,13 @@ public class Condition extends Triggerable {
 
     }
 
-    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef) {
+    public Condition(IConditionExpr expr, int trueAction, int falseAction,
+            TreeReference contextRef) {
         this(expr, trueAction, falseAction, contextRef, new Vector());
     }
 
-    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef, Vector targets) {
+    public Condition(IConditionExpr expr, int trueAction, int falseAction,
+            TreeReference contextRef, Vector targets) {
         super(expr, contextRef);
         this.trueAction = trueAction;
         this.falseAction = falseAction;
@@ -84,7 +86,6 @@ public class Condition extends Triggerable {
     public boolean isCascadingToChildren() {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
-
 
     private void performAction(TreeElement node, int action) {
         switch (action) {

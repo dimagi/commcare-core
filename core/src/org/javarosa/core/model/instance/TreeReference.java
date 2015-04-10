@@ -194,12 +194,15 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * return true if this ref contains any unbound multiplicities... ie, there
-     * is ANY chance this ref could ambiguously refer to more than one instance
-     * node.
+     * Does this reference reference contains any unbound multiplicities?
+     * Unbounded multiplicities means there is a chance that this reference
+     * could refer to more than one instance node.
+     *
+     * @return Does this reference have the potential to point to more than one
+     * instance node?
      */
     public boolean isAmbiguous() {
-        //ignore level 0, as /data implies /data[0]
+        // ignore level 0, as /data implies /data[0]
         for (int i = 1; i < size(); i++) {
             if (getMultiplicity(i) == INDEX_UNBOUND) {
                 return true;
@@ -388,13 +391,20 @@ public class TreeReference implements Externalizable {
         }
     }
 
-    //turn unambiguous ref into a generic ref
+    /**
+     * Turn an un-ambiguous reference into a generic one. This is acheived by
+     * setting the multiplicity of every reference level to unbounded.
+     *
+     * @return a clone of this reference with every reference level's
+     * multiplicity set to unbounded.
+     */
     public TreeReference genericize() {
         TreeReference genericRef = clone();
         for (int i = 0; i < genericRef.size(); i++) {
-            //TODO: It's not super clear whether template refs should get
-            //genericized or not
-            if (genericRef.getMultiplicity(i) > -1 || genericRef.getMultiplicity(i) == INDEX_TEMPLATE) {
+            // TODO: It's not super clear whether template refs should get
+            // genericized or not
+            if (genericRef.getMultiplicity(i) > -1 ||
+                    genericRef.getMultiplicity(i) == INDEX_TEMPLATE) {
                 genericRef.setMultiplicity(i, INDEX_UNBOUND);
             }
         }
@@ -445,6 +455,14 @@ public class TreeReference implements Externalizable {
         return childRef;
     }
 
+    /**
+     * Equality of two TreeReferences comes down to having the same reference
+     * level, and equal reference levels entries.
+     *
+     * @param o an object to compare against this TreeReference object.
+     * @return Is object o a TreeReference with equal reference level entries
+     * to this object?
+     */
     public boolean equals(Object o) {
         //csims@dimagi.com - Replaced this function performing itself fully written out
         //rather than allowing the tree reference levels to denote equality. The only edge
@@ -456,25 +474,23 @@ public class TreeReference implements Externalizable {
             TreeReference ref = (TreeReference)o;
 
             if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
-
+                // loop through reference segments, comparing their equality
                 for (int i = 0; i < this.size(); i++) {
-                    TreeReferenceLevel l = data.elementAt(i);
-                    TreeReferenceLevel other = ref.data.elementAt(i);
+                    TreeReferenceLevel thisLevel = data.elementAt(i);
+                    TreeReferenceLevel otherLevel = ref.data.elementAt(i);
 
-                    //we should expect this to hit a lot due to interning
-                    if (l.equals(other)) {
+                    // we should expect this to hit a lot due to interning
+                    if (thisLevel.equals(otherLevel)) {
                         continue;
                     } else {
                         return false;
                     }
                 }
                 return true;
-            } else {
-                return false;
             }
-        } else {
-            return false;
-        }
+        } 
+
+        return false;
     }
 
     public int hashCode() {

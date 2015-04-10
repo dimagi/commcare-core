@@ -102,30 +102,37 @@ public class TreeReferenceLevel implements Externalizable {
         return name.hashCode() ^ multiplicity ^ predPart;
     }
 
+    /**
+     * Two TreeReferenceLevels are equal if they have the same name,
+     * multiplicity, and equal predicates.
+     * @param o an object to compare against this TreeReferenceLevel object.
+     * @return Is object o a TreeReferenceLevel and has the same fields?
+     */
     public boolean equals(Object o) {
         if (!(o instanceof TreeReferenceLevel)) {
             return false;
         }
+
         TreeReferenceLevel l = (TreeReferenceLevel)o;
-        if (multiplicity != l.multiplicity) {
+        // multiplicity and names match-up
+        if ((multiplicity != l.multiplicity) ||
+                (name == null && l.name != null) ||
+                (!name.equals(l.name))) {
             return false;
         }
-        if (name == null && l.name != null) {
-            return false;
-        }
-        if (!name.equals(l.name)) {
-            return false;
-        }
+
         if (predicates == null && l.predicates == null) {
             return true;
         }
 
-        if ((predicates == null && l.predicates != null) || (l.predicates == null && predicates != null)) {
+        // predicates match-up
+        if ((predicates == null && l.predicates != null) ||
+                (l.predicates == null && predicates != null) ||
+                (predicates.size() != l.predicates.size())) {
             return false;
         }
-        if (predicates.size() != l.predicates.size()) {
-            return false;
-        }
+
+        // predicate elements are equal
         for (int i = 0; i < predicates.size(); ++i) {
             if (!predicates.elementAt(i).equals(l.predicates.elementAt(i))) {
                 return false;
