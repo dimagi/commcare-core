@@ -126,7 +126,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             TreeElement emptyNode = new TreeElement(name);
             cached.addChild(emptyNode);
             emptyNode.setParent(cached);
-            children.add(emptyNode);
+            children.addElement(emptyNode);
         }
         return children;
     }
@@ -422,7 +422,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
                             this.addChild(emptyNode);
                             emptyNode.setParent(this);
-                            children.add(emptyNode);
+                            children.addElement(emptyNode);
                         }
                         return children;
                     }
