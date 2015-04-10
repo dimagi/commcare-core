@@ -80,6 +80,9 @@ public class TreeReference implements Externalizable {
     private String instanceName = null;
     private Vector<TreeReferenceLevel> data = null;
 
+    int size = -1;
+
+
     public static TreeReference rootRef() {
         TreeReference root = new TreeReference();
         root.refLevel = REF_ABSOLUTE;
@@ -139,8 +142,6 @@ public class TreeReference implements Externalizable {
         data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
     }
 
-    int size = -1;
-
     public int size() {
         //csims@dimagi.com - this seems unecessary but is a shocking performance
         //difference due to the number of high-churn circumstances where this
@@ -191,8 +192,11 @@ public class TreeReference implements Externalizable {
         return refLevel == REF_ABSOLUTE;
     }
 
-    //return true if this ref contains any unbound multiplicities... ie, there is ANY chance this ref
-    //could ambiguously refer to more than one instance node.
+    /**
+     * return true if this ref contains any unbound multiplicities... ie, there
+     * is ANY chance this ref could ambiguously refer to more than one instance
+     * node.
+     */
     public boolean isAmbiguous() {
         //ignore level 0, as /data implies /data[0]
         for (int i = 1; i < size(); i++) {
@@ -203,7 +207,9 @@ public class TreeReference implements Externalizable {
         return false;
     }
 
-    //return a copy of the ref
+    /** 
+     * return a copy of the ref
+     */
     public TreeReference clone() {
         TreeReference newRef = new TreeReference();
         newRef.setRefLevel(this.refLevel);
@@ -222,8 +228,9 @@ public class TreeReference implements Externalizable {
     }
 
     /*
-     * chop the lowest level off the ref so that the ref now represents the parent of the original ref
-     * return true if we successfully got the parent, false if there were no higher levels
+     * Chop the lowest level off the ref so that the ref now represents the
+     * parent of the original ref. Return true if we successfully got the
+     * parent, false if there were no higher levels
      */
     public boolean removeLastLevel() {
         int size = size();
@@ -252,16 +259,17 @@ public class TreeReference implements Externalizable {
         }
     }
 
-    //return a new reference that is this reference anchored to a passed-in parent reference
-    //if this reference is absolute, return self
-    //if this ref has 'parent' steps (..), it can only be anchored if the parent ref is a relative ref consisting only of other 'parent' steps
-    //return null in these invalid situations
+    /**
+     * Return a new reference that is this reference anchored to a passed-in
+     * parent reference if this reference is absolute, return self if this ref
+     * has 'parent' steps (..), it can only be anchored if the parent ref is a
+     * relative ref consisting only of other 'parent' steps return null in
+     * these invalid situations
+     */
     public TreeReference parent(TreeReference parentRef) {
         if (isAbsolute()) {
             return this;
         } else {
-            TreeReference newRef = parentRef.clone();
-
             if (refLevel > 0) {
                 if (!parentRef.isAbsolute() && parentRef.size() == 0) {
                     parentRef.refLevel += refLevel;
@@ -270,6 +278,7 @@ public class TreeReference implements Externalizable {
                 }
             }
 
+            TreeReference newRef = parentRef.clone();
             for (TreeReferenceLevel l : data) {
                 newRef.add(l.shallowCopy());
             }
@@ -279,25 +288,31 @@ public class TreeReference implements Externalizable {
     }
 
 
-    //very similar to parent(), but assumes contextRef refers to a singular, existing node in the model
-    //this means we can do '/a/b/c + ../../d/e/f = /a/d/e/f', which we couldn't do in parent()
-    //return null if context ref is not absolute, or we parent up past the root node
-    //NOTE: this function still works even when contextRef contains INDEX_UNBOUND multiplicites... conditions depend on this behavior,
-    //  even though it's slightly icky
+    /** 
+    * Similar to parent(), but assumes contextRef refers to a singular,
+    * existing node in the model.  This means we can do '/a/b/c + ../../d/e/f =
+    * /a/d/e/f', which we couldn't do in parent().
+    * Returns null if context ref is not absolute, or we parent up past the root
+    * node.
+    * NOTE: this function still works even when contextRef contains
+    * INDEX_UNBOUND multiplicites...  conditions depend on this behavior, even
+    * though it's slightly icky
+    * @param contextRef absolute reference
+    * @return
+    */
     public TreeReference anchor(TreeReference contextRef) {
-        //TODO: Technically we should possibly be modifying context stuff here
-        //instead of in the xpath stuff;
+        // TODO: Technically we should possibly be modifying context stuff here
+        // instead of in the xpath stuff;
 
         if (isAbsolute()) {
             return this.clone();
         } else if (!contextRef.isAbsolute()) {
             return null;
         } else {
-            TreeReference newRef = contextRef.clone();
-            int contextSize = contextRef.size();
-            if (refLevel > contextSize) {
+            if (refLevel > contextRef.size()) {
                 return null; //tried to do '/..'
             } else {
+                TreeReference newRef = contextRef.clone();
                 for (int i = 0; i < refLevel; i++) {
                     newRef.removeLastLevel();
                 }
@@ -385,14 +400,18 @@ public class TreeReference implements Externalizable {
         return genericRef;
     }
 
-    //returns true if 'this' is parent of 'child'
-    //return true if 'this' equals 'child' only if properParent is false
+    /**
+     * returns true if 'this' is parent of 'child'
+     * return true if 'this' equals 'child' only if properParent is false
+     */
     public boolean isParentOf(TreeReference child, boolean properParent) {
         //Instances and context types;
-        if (refLevel != child.refLevel)
+        if (refLevel != child.refLevel) {
             return false;
-        if (child.size() < size() + (properParent ? 1 : 0))
+        }
+        if (child.size() < size() + (properParent ? 1 : 0)) {
             return false;
+        }
 
         for (int i = 0; i < size(); i++) {
             if (!this.getName(i).equals(child.getName(i))) {
@@ -401,7 +420,9 @@ public class TreeReference implements Externalizable {
 
             int parMult = this.getMultiplicity(i);
             int childMult = child.getMultiplicity(i);
-            if (parMult != INDEX_UNBOUND && parMult != childMult && !(i == 0 && parMult == 0 && childMult == INDEX_UNBOUND)) {
+            if (parMult != INDEX_UNBOUND &&
+                    parMult != childMult &&
+                    !(i == 0 && parMult == 0 && childMult == INDEX_UNBOUND)) {
                 return false;
             }
         }
@@ -578,7 +599,6 @@ public class TreeReference implements Externalizable {
         if (this.equals(b)) {
             return this;
         }
-
 
         TreeReference a;
         //A should always be bigger if one ref is larger than the other

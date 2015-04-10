@@ -101,7 +101,8 @@ public class XPathConditional implements IConditionExpr {
         return triggers;
     }
 
-    private static void getTriggers(XPathExpression x, Vector<TreeReference> v, TreeReference contextRef) {
+    private static void getTriggers(XPathExpression x, Vector<TreeReference> v,
+            TreeReference contextRef) {
         if (x instanceof XPathPathExpr) {
             TreeReference ref = ((XPathPathExpr)x).getReference();
             TreeReference contextualized = ref;
@@ -109,7 +110,8 @@ public class XPathConditional implements IConditionExpr {
                 contextualized = ref.contextualize(contextRef);
             }
 
-            //TODO: It's possible we should just handle this the same way as "genericize". Not entirely clear.
+            // TODO: It's possible we should just handle this the same way as
+            // "genericize". Not entirely clear.
             if (contextualized.hasPredicates()) {
                 contextualized = contextualized.removePredicates();
             }

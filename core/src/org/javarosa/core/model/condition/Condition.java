@@ -117,17 +117,19 @@ public class Condition extends Triggerable {
         }
     }
 
-    //conditions are equal if they have the same actions, expression, and triggers, but NOT targets or context ref
+    /**
+     * Conditions are equal if they have the same actions, expression, and
+     * triggers, but NOT targets or context ref.
+    */
     public boolean equals(Object o) {
         if (o instanceof Condition) {
             Condition c = (Condition)o;
-            if (this == c)
-                return true;
-
-            return (this.trueAction == c.trueAction && this.falseAction == c.falseAction && super.equals(c));
-        } else {
-            return false;
+            return (this == c ||
+                    (this.trueAction == c.trueAction &&
+                    this.falseAction == c.falseAction &&
+                    super.equals(c)));
         }
+        return false;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

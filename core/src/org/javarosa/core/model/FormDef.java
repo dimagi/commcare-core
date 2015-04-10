@@ -92,26 +92,30 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * A unique external name that is used to identify the form between machines
      */
     private Localizer localizer;
-    public Vector<Triggerable> triggerables; // <Triggerable>; this list is topologically ordered, meaning for any tA and tB in
-    //the list, where tA comes before tB, evaluating tA cannot depend on any result from evaluating tB
-    private boolean triggerablesInOrder; //true if triggerables has been ordered topologically (DON'T DELETE ME EVEN THOUGH I'M UNUSED)
+
+    // This list is topologically ordered, meaning for any tA
+    // and tB in the list, where tA comes before tB, evaluating tA cannot
+    // depend on any result from evaluating tB
+    public Vector<Triggerable> triggerables;
+
+    // true if triggerables has been ordered topologically (DON'T DELETE ME
+    // EVEN THOUGH I'M UNUSED)
+    private boolean triggerablesInOrder; 
 
 
-    private Vector outputFragments; // <IConditionExpr> contents of <output>
-    // tags that serve as parameterized
+    // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
+    private Vector outputFragments; 
 
     public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
     private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
-    // associates repeatable
-    // nodes with the Condition
-    // that determines their
+    // associates repeatable nodes with the Condition that determines their
     // relevancy
     public EvaluationContext exprEvalContext;
 
     private QuestionPreloader preloader = new QuestionPreloader();
 
-    //XML ID's cannot start with numbers, so this should never conflict
+    // XML ID's cannot start with numbers, so this should never conflict
     private static String DEFAULT_SUBMISSION_PROFILE = "1";
 
     private Hashtable<String, SubmissionProfile> submissionProfiles;
@@ -523,9 +527,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
 
-        triggerTriggerables(destRef); // trigger conditions that depend on the creation of these new nodes
-        initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
-        //not 100% sure this will work since destRef is ambiguous as the last step, but i think it's supposed to work
+        // trigger conditions that depend on the creation of these new nodes
+        triggerTriggerables(destRef); 
+
+        // initialize conditions for the node (and sub-nodes)
+        initializeTriggerables(destRef); 
+        // not 100% sure this will work since destRef is ambiguous as the last
+        // step, but i think it's supposed to work
     }
 
     /**
@@ -536,12 +544,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public Triggerable addTriggerable(Triggerable t) {
         int existingIx = triggerables.indexOf(t);
         if (existingIx >= 0) {
-            //one node may control access to many nodes; this means many nodes effectively have the same condition
-            //let's identify when conditions are the same, and store and calculate it only once
+            // One node may control access to many nodes; this means many nodes
+            // effectively have the same condition. Let's identify when
+            // conditions are the same, and store and calculate it only once.
 
-            //nov-2-2011: ctsims - We need to merge the context nodes together whenever we do this (finding the highest
-            //common ground between the two), otherwise we can end up failing to trigger when the ignored context
-            //exists and the used one doesn't
+            // nov-2-2011: ctsims - We need to merge the context nodes together
+            // whenever we do this (finding the highest common ground between
+            // the two), otherwise we can end up failing to trigger when the
+            // ignored context exists and the used one doesn't
 
             Triggerable existingTriggerable = (Triggerable)triggerables.elementAt(existingIx);
 
@@ -549,9 +559,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
             return existingTriggerable;
 
-            //note, if the contextRef is unnecessarily deep, the condition will be evaluated more times than needed
-            //perhaps detect when 'identical' condition has a shorter contextRef, and use that one instead?
-
+            // NOTE: if the contextRef is unnecessarily deep, the condition
+            // will be evaluated more times than needed. Perhaps detect when
+            // 'identical' condition has a shorter contextRef, and use that one
+            // instead?
         } else {
             triggerables.addElement(t);
             triggerablesInOrder = false;
