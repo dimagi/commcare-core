@@ -66,10 +66,12 @@ public class TreeReference implements Externalizable {
     //TODO: Roll these into RefLevel? Or more likely, take absolute
     //ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
+    // context is inherited since the path is relative
     public static final int CONTEXT_INHERITED = 1;
+    // use the original context instead of current context, used by the
+    // current() command.
     public static final int CONTEXT_ORIGINAL = 2;
     public static final int CONTEXT_INSTANCE = 4;
-
 
     public static final int REF_ABSOLUTE = -1;
 
@@ -148,6 +150,7 @@ public class TreeReference implements Externalizable {
     /**
      * How many reference levels are present? Compute this value on demand and
      * cache it.
+     *
      * @return the number of reference levels
      */
     public int size() {
@@ -173,11 +176,11 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * Store a copy of the reference level at level 'key'. 
+     * Store a copy of the reference level at level 'key'.
      *
      * @param key reference level at which to attach predicate vector argument.
      * @param xpe vector of xpath expressions representing predicates to attach
-     * to a reference level.
+     *            to a reference level.
      */
     public void addPredicate(int key, Vector<XPathExpression> xpe) {
         hashCode = -1;
@@ -258,7 +261,7 @@ public class TreeReference implements Externalizable {
         return false;
     }
 
-    /** 
+    /**
      * return a copy of the ref
      */
     public TreeReference clone() {
@@ -278,7 +281,7 @@ public class TreeReference implements Externalizable {
         return newRef;
     }
 
-    /** 
+    /**
      * Return a copy of the TreeReference that doesn't include any of the
      * TreeReferenceLevels. Useful when we are just going to overwrite the
      * levels with new data anyways.
@@ -360,18 +363,19 @@ public class TreeReference implements Externalizable {
     }
 
 
-    /** 
-    * Similar to parent(), but assumes contextRef refers to a singular,
-    * existing node in the model.  This means we can do '/a/b/c + ../../d/e/f =
-    * /a/d/e/f', which we couldn't do in parent().
-    * Returns null if context ref is not absolute, or we parent up past the root
-    * node.
-    * NOTE: this function still works even when contextRef contains
-    * INDEX_UNBOUND multiplicites...  conditions depend on this behavior, even
-    * though it's slightly icky
-    * @param contextRef absolute reference
-    * @return
-    */
+    /**
+     * Similar to parent(), but assumes contextRef refers to a singular,
+     * existing node in the model.  This means we can do '/a/b/c + ../../d/e/f =
+     * /a/d/e/f', which we couldn't do in parent().
+     * Returns null if context ref is not absolute, or we parent up past the root
+     * node.
+     * NOTE: this function still works even when contextRef contains
+     * INDEX_UNBOUND multiplicites...  conditions depend on this behavior, even
+     * though it's slightly icky
+     *
+     * @param contextRef absolute reference
+     * @return
+     */
     public TreeReference anchor(TreeReference contextRef) {
         // TODO: Technically we should possibly be modifying context stuff here
         // instead of in the xpath stuff;
@@ -398,46 +402,57 @@ public class TreeReference implements Externalizable {
 
     //TODO: merge anchor() and parent()
 
-    public TreeReference contextualize(TreeReference contextRef) {
+    /**
+     * Evaluate this reference in terms of the base reference argument.
+     * TODO: finish doc -- PLM
+     *
+     * @param baseRef the absolute reference used as the base while evaluating
+     *                this reference.
+     * @return null if base reference is relative
+     */
+    public TreeReference contextualize(TreeReference baseRef) {
         //TODO: Technically we should possibly be modifying context stuff here
         //instead of in the xpath stuff;
-        if (!contextRef.isAbsolute()) {
+
+        if (!baseRef.isAbsolute()) {
             return null;
         }
 
-        //If we're an absolute node, we should already know what our instance is, so
-        //we can't apply any further contextualizaiton unless the instances match
+        // If we're an absolute node, we should already know what our instance
+        // is, so we can't apply any further contextualizaiton unless the
+        // instances match
         if (this.isAbsolute()) {
-            //If this refers to the main instance, but our context ref doesn't
+            // If this refers to the main instance, but our context ref doesn't
             if (this.getInstanceName() == null) {
-                if (contextRef.getInstanceName() != null) {
+                if (baseRef.getInstanceName() != null) {
                     return this.clone();
                 }
             }
-            //Or if this refers to another instance and the context ref doesn't refer to the
-            //same instance
-            else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
+            // Or if this refers to another instance and the context ref
+            // doesn't refer to the same instance
+            else if (!this.getInstanceName().equals(baseRef.getInstanceName())) {
                 return this.clone();
             }
         }
 
-        TreeReference newRef = anchor(contextRef);
-        newRef.setContext(contextRef.getContext());
+        TreeReference newRef = anchor(baseRef);
+        newRef.setContext(baseRef.getContext());
 
-        //apply multiplicites and fill in wildcards as necessary based on the context ref
-        for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
-
-            //If the the contextRef can provide a definition for a wildcard, do so
-            if (TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) && !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
-                newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
+        // apply multiplicites and fill in wildcards as necessary based on the
+        // context ref
+        for (int i = 0; i < baseRef.size() && i < newRef.size(); i++) {
+            // If the the baseRef can provide a definition for a wildcard, do so
+            if (TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) &&
+                    !TreeReference.NAME_WILDCARD.equals(baseRef.getName(i))) {
+                newRef.data.setElementAt(newRef.data.elementAt(i).setName(baseRef.getName(i)), i);
             }
 
-            if (contextRef.getName(i).equals(newRef.getName(i))) {
-                //We can't actually merge nodes if the newRef has predicates or filters
-                //on this expression, since those reset any existing resolutions which
-                //may have been done.
+            if (baseRef.getName(i).equals(newRef.getName(i))) {
+                // We can't actually merge nodes if the newRef has predicates
+                // or filters on this expression, since those reset any
+                // existing resolutions which may have been done.
                 if (newRef.getPredicate(i) == null) {
-                    newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
+                    newRef.setMultiplicity(i, baseRef.getMultiplicity(i));
                 }
             } else {
                 break;
@@ -556,7 +571,7 @@ public class TreeReference implements Externalizable {
                 }
                 return true;
             }
-        } 
+        }
 
         return false;
     }
@@ -738,11 +753,11 @@ public class TreeReference implements Externalizable {
      * Used to identify the reference context for a predicate at the same level
      *
      * @param level number of segments to include in the truncated
-     * sub-reference.
-     * @throws IllegalArgumentException if this object isn't an absolute
-     * reference.
+     *              sub-reference.
      * @return A clone of this reference object that includes steps up the
      * specified level.
+     * @throws IllegalArgumentException if this object isn't an absolute
+     *                                  reference.
      */
     public TreeReference getSubReference(int level) {
         if (!this.isAbsolute()) {

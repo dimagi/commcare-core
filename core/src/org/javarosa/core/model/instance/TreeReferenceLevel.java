@@ -82,7 +82,8 @@ public class TreeReferenceLevel implements Externalizable {
     }
 
     public TreeReferenceLevel shallowCopy() {
-        return new TreeReferenceLevel(name, multiplicity, ArrayUtilities.vectorCopy(predicates)).intern();
+        return new TreeReferenceLevel(name, multiplicity,
+                ArrayUtilities.vectorCopy(predicates)).intern();
     }
 
 
