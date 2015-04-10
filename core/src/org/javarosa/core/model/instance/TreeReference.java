@@ -75,7 +75,8 @@ public class TreeReference implements Externalizable {
 
     public static final String NAME_WILDCARD = "*";
 
-    private int refLevel; //0 = context node, 1 = parent, 2 = grandparent ...
+    // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
+    private int refLevel;
     private int contextType;
     private String instanceName = null;
     private Vector<TreeReferenceLevel> data = null;
@@ -433,7 +434,6 @@ public class TreeReference implements Externalizable {
     /**
      * clone and extend a reference by one level
      *
-     * @param ref
      * @param name
      * @param mult
      * @return
@@ -649,31 +649,31 @@ public class TreeReference implements Externalizable {
      * Returns the subreference of this reference up to the level specified.
      *
      * For instance, for the reference:
-     *
      * (/data/path/to/node).getSubreference(2) => /data/path/to
      *
      * Used to identify the reference context for a predicate at the same level
      *
-     * Must be an absolute reference, otherwise will throw IllegalArgumentException
-     *
-     * @param i
-     * @return
+     * @param level number of segments to include in the truncated
+     * sub-reference.
+     * @throws IllegalArgumentException if this object isn't an absolute
+     * reference.
+     * @return A clone of this reference object that includes steps up the
+     * specified level.
      */
     public TreeReference getSubReference(int level) {
         if (!this.isAbsolute()) {
             throw new IllegalArgumentException("Cannot subreference a non-absolute ref");
         }
 
-        //Copy construct
-        TreeReference ret = new TreeReference();
-        ret.refLevel = this.refLevel;
-        ret.contextType = this.contextType;
-        ret.instanceName = this.instanceName;
-        ret.data = new Vector<TreeReferenceLevel>();
+        TreeReference subRef = new TreeReference();
+        subRef.refLevel = this.refLevel;
+        subRef.contextType = this.contextType;
+        subRef.instanceName = this.instanceName;
+
         for (int i = 0; i <= level; ++i) {
-            ret.data.addElement(this.data.elementAt(i));
+            subRef.add(this.data.elementAt(i).shallowCopy());
         }
-        return ret;
+        return subRef;
     }
 
     public boolean hasPredicates() {
