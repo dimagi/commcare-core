@@ -41,21 +41,12 @@ public class BubbleSeries extends XYSeries {
     }
 
     /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.graph.XYSeries#parse()
-     */
-    protected void parse() throws XPathSyntaxException {
-        super.parse();
-        if (mRadiusParse == null) {
-            mRadiusParse = parse(mRadius);
-        }
-    }
-
-    /*
      * Get actual value for radius in a given EvaluationContext.
      */
     public String evaluateRadius(EvaluationContext context) throws XPathSyntaxException {
-        parse();
+        if (mRadiusParse == null) {
+            mRadiusParse = parse(mRadius);
+        }
         return evaluateExpression(mRadiusParse, context);
     }
 
