@@ -88,21 +88,6 @@ public class TreeReference implements Externalizable {
     // 'data' changes size, set it to -1 and compute it on demand.
     int size = -1;
 
-
-    public static TreeReference rootRef() {
-        TreeReference root = new TreeReference();
-        root.refLevel = REF_ABSOLUTE;
-        root.contextType = CONTEXT_ABSOLUTE;
-        return root;
-    }
-
-    public static TreeReference selfRef() {
-        TreeReference self = new TreeReference();
-        self.refLevel = 0;
-        self.contextType = CONTEXT_INHERITED;
-        return self;
-    }
-
     public TreeReference() {
         instanceName = null; //dido
         data = new Vector<TreeReferenceLevel>();
@@ -110,6 +95,28 @@ public class TreeReference implements Externalizable {
 
     public String getInstanceName() {
         return instanceName;
+    }
+
+    /**
+     * Build a '/' reference
+     * @return a reference that represents a root/'/' path
+     */
+    public static TreeReference rootRef() {
+        TreeReference root = new TreeReference();
+        root.refLevel = REF_ABSOLUTE;
+        root.contextType = CONTEXT_ABSOLUTE;
+        return root;
+    }
+
+    /**
+     * Build a '.' reference
+     * @return a reference that represents a self/'.' path
+     */
+    public static TreeReference selfRef() {
+        TreeReference self = new TreeReference();
+        self.refLevel = 0;
+        self.contextType = CONTEXT_INHERITED;
+        return self;
     }
 
     //TODO: This should be constructed I think
@@ -218,7 +225,7 @@ public class TreeReference implements Externalizable {
      */
     public TreeReference removePredicates() {
         hashCode = -1;
-        TreeReference predicateless = cloneWithoutLevels();
+        TreeReference predicateless = cloneWithEmptyData();
         for (int i = 0; i < this.size(); ++i) {
             predicateless.add(this.data.elementAt(i).setPredicates(null));
         }
@@ -263,14 +270,14 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * return a copy of the ref
+     * Return a copy of the reference
      */
     public TreeReference clone() {
         TreeReference newRef = new TreeReference();
         newRef.setRefLevel(this.refLevel);
 
         for (TreeReferenceLevel l : data) {
-            newRef.add(l.shallowCopy());
+            newRef.add(l);
         }
 
         //TODO: No more == null checks here, use context type
@@ -290,7 +297,7 @@ public class TreeReference implements Externalizable {
      * @return a clone of this object that doesn't include any reference level
      * data.
      */
-    private TreeReference cloneWithoutLevels() {
+    private TreeReference cloneWithEmptyData() {
         TreeReference newRef = new TreeReference();
         newRef.setRefLevel(this.refLevel);
 
@@ -361,7 +368,7 @@ public class TreeReference implements Externalizable {
 
             // copy reference levels over to parent ref
             for (TreeReferenceLevel l : this.data) {
-                newRef.add(l.shallowCopy());
+                newRef.add(l);
             }
 
             return newRef;
@@ -401,7 +408,7 @@ public class TreeReference implements Externalizable {
             }
             // copy level data from this ref to the anchor ref
             for (int i = 0; i < size(); i++) {
-                newRef.add(this.data.elementAt(i).shallowCopy());
+                newRef.add(this.data.elementAt(i));
             }
             return newRef;
         }
@@ -451,14 +458,7 @@ public class TreeReference implements Externalizable {
                 newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
             }
 
-            if (contextRef.getName(i).equals(newRef.getName(i))) {
-                // We can't actually merge nodes if the newRef has predicates
-                // or filters on this expression, since those reset any
-                // existing resolutions which may have been done.
-                if (newRef.getPredicate(i) == null) {
-                    newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
-                }
-            } else {
+            if (!contextRef.getName(i).equals(newRef.getName(i))) {
                 break;
             }
         }
@@ -779,9 +779,9 @@ public class TreeReference implements Externalizable {
             throw new IllegalArgumentException("Cannot subreference a non-absolute ref");
         }
 
-        TreeReference subRef = cloneWithoutLevels();
+        TreeReference subRef = cloneWithEmptyData();
         for (int i = 0; i <= level; ++i) {
-            subRef.add(this.data.elementAt(i).shallowCopy());
+            subRef.add(this.data.elementAt(i));
         }
         return subRef;
     }
