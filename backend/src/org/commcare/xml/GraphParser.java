@@ -10,6 +10,8 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.XYSeries;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -117,16 +119,15 @@ public class GraphParser extends ElementParser<Graph> {
         }
 
         checkNode("x");
-        series.setX(parser.getAttributeValue(null, "function"));
+        series.setX(parseFunction("x"));
 
         nextStartTag();
-        checkNode("y");
-        series.setY(parser.getAttributeValue(null, "function"));
+        series.setY(parseFunction("y"));
 
         if (type.equals(Graph.TYPE_BUBBLE)) {
             nextStartTag();
             checkNode("radius");
-            ((BubbleSeries)series).setRadius(parser.getAttributeValue(null, "function"));
+            ((BubbleSeries)series).setRadius(parseFunction("radius"));
         }
 
         while (parser.getEventType() != KXmlParser.END_TAG || !parser.getName().equals("series")) {
@@ -135,6 +136,19 @@ public class GraphParser extends ElementParser<Graph> {
 
         return series;
     }
+    
+    private String parseFunction(String name) throws InvalidStructureException {
+        checkNode(name);
+        String function = parser.getAttributeValue(null, "function");
+        try {
+            XPathParseTool.parseXPath(function);
+        }
+        catch (XPathSyntaxException e) {
+            throw new InvalidStructureException("Invalid " + name + " function in graph: " + function + ". " + e.getMessage(), parser);
+        }
+        return function;
+    }
+
 
     /*
      * Move parser along until it hits a start tag.
