@@ -499,23 +499,30 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * returns true if 'this' is parent of 'child'
-     * return true if 'this' equals 'child' only if properParent is false
+     * Are these reference's levels subsumed by equivalently named 'child'
+     * levels of the same multiplicity?
+     *
+     * @param child check if this reference is a child of the current reference
+     * @param properParent when set don't return true if 'child' is equal to
+     * this
+     * @return true if 'this' is parent of 'child' or if 'this' equals 'child'
+     * (when properParent is false)
      */
     public boolean isParentOf(TreeReference child, boolean properParent) {
-        //Instances and context types;
-        if (refLevel != child.refLevel) {
-            return false;
-        }
-        if (child.size() < size() + (properParent ? 1 : 0)) {
+        if ((refLevel != child.refLevel) ||
+                (child.size() < (size() + (properParent ? 1 : 0)))) {
             return false;
         }
 
         for (int i = 0; i < size(); i++) {
+            // check that levels names are the same
             if (!this.getName(i).equals(child.getName(i))) {
                 return false;
             }
 
+            // check that multiplicities are the same; allowing them to differ
+            // if on 0-th level, parent mult is the default and child is
+            // unbounded.
             int parMult = this.getMultiplicity(i);
             int childMult = child.getMultiplicity(i);
             if (parMult != INDEX_UNBOUND &&
