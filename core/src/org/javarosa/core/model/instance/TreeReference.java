@@ -43,8 +43,9 @@ public class TreeReference implements Externalizable {
     // Multiplicity demarcates the position of a given element with respect to
     // other elements of the same name.
 
-    // Means there's a path to a node, but we haven't yet demarcated the
-    // multiplicity
+    // Since users usually want to select the first instance from the nodeset
+    // returned from a reference query, let the default multiplicity be
+    // selecting the first node.
     public static final int DEFAULT_MUTLIPLICITY = 0;
 
     // refers to all instances of an element, e.g. /data/b[-1] refers to b[0]
@@ -335,26 +336,31 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * Return a new reference that is this reference anchored to a passed-in
-     * parent reference if this reference is absolute, return self if this ref
-     * has 'parent' steps (..), it can only be anchored if the parent ref is a
-     * relative ref consisting only of other 'parent' steps return null in
-     * these invalid situations
+     * Join this reference with the base reference argument.
+     *
+     * @param baseRef an absolute reference or a relative reference with only
+     * '../'s
+     * @return a join of this reference with the base reference argument.
+     * Returns a clone of this reference if it is absolute, and null if this
+     * reference has '../'s but baseRef argument a non-empty relative reference.
      */
-    public TreeReference parent(TreeReference parentRef) {
+    public TreeReference parent(TreeReference baseRef) {
         if (isAbsolute()) {
-            return this;
+            return this.clone();
         } else {
+            TreeReference newRef = baseRef.clone();
             if (refLevel > 0) {
-                if (!parentRef.isAbsolute() && parentRef.size() == 0) {
-                    parentRef.refLevel += refLevel;
+                if (!baseRef.isAbsolute() && baseRef.size() == 0) {
+                    // if parent ref is relative and doesn't have any levels,
+                    // aggregate '../' count
+                    newRef.refLevel += refLevel;
                 } else {
                     return null;
                 }
             }
 
-            TreeReference newRef = parentRef.clone();
-            for (TreeReferenceLevel l : data) {
+            // copy reference levels over to parent ref
+            for (TreeReferenceLevel l : this.data) {
                 newRef.add(l.shallowCopy());
             }
 
@@ -364,95 +370,93 @@ public class TreeReference implements Externalizable {
 
 
     /**
-     * Similar to parent(), but assumes contextRef refers to a singular,
-     * existing node in the model.  This means we can do '/a/b/c + ../../d/e/f =
-     * /a/d/e/f', which we couldn't do in parent().
-     * Returns null if context ref is not absolute, or we parent up past the root
-     * node.
-     * NOTE: this function still works even when contextRef contains
-     * INDEX_UNBOUND multiplicites...  conditions depend on this behavior, even
-     * though it's slightly icky
+     * Evaluate this reference in terms of a base absolute reference.
      *
-     * @param contextRef absolute reference
-     * @return
+     * For instance, anchoring ../../d/e/f to /a/b/c, results in  /a/d/e/f.
+     *
+     * NOTE: This function works when baseRef contains INDEX_UNBOUND
+     * multiplicites. Conditions depend on this behavior, but it is def
+     * slightly icky
+     *
+     * @param baseRef an absolute reference to be anchored to.
+     * @return null if base reference isn't absolute or there are too many
+     * '../'.
      */
-    public TreeReference anchor(TreeReference contextRef) {
+    public TreeReference anchor(TreeReference baseRef) {
         // TODO: Technically we should possibly be modifying context stuff here
         // instead of in the xpath stuff;
 
         if (isAbsolute()) {
             return this.clone();
-        } else if (!contextRef.isAbsolute()) {
+        } else if (!baseRef.isAbsolute() ||
+                (refLevel > baseRef.size())) {
+            // non-absolute anchor ref or this reference has to many '../' for
+            // the anchor ref
             return null;
         } else {
-            if (refLevel > contextRef.size()) {
-                return null; //tried to do '/..'
-            } else {
-                TreeReference newRef = contextRef.clone();
-                for (int i = 0; i < refLevel; i++) {
-                    newRef.removeLastLevel();
-                }
-                for (int i = 0; i < size(); i++) {
-                    newRef.add(data.elementAt(i).shallowCopy());
-                }
-                return newRef;
+            TreeReference newRef = baseRef.clone();
+            // remove a level from anchor ref for each '../'
+            for (int i = 0; i < refLevel; i++) {
+                newRef.removeLastLevel();
             }
+            // copy level data from this ref to the anchor ref
+            for (int i = 0; i < size(); i++) {
+                newRef.add(this.data.elementAt(i).shallowCopy());
+            }
+            return newRef;
         }
     }
 
-    //TODO: merge anchor() and parent()
-
     /**
      * Evaluate this reference in terms of the base reference argument.
-     * TODO: finish doc -- PLM
      *
-     * @param baseRef the absolute reference used as the base while evaluating
-     *                this reference.
-     * @return null if base reference is relative
+     * @param contextRef the absolute reference used as the base while evaluating
+     *                   this reference.
+     * @return null if context reference is relative, a clone of this reference
+     * if it is absolute and doesn't match the context reference argument.
      */
-    public TreeReference contextualize(TreeReference baseRef) {
+    public TreeReference contextualize(TreeReference contextRef) {
         //TODO: Technically we should possibly be modifying context stuff here
         //instead of in the xpath stuff;
 
-        if (!baseRef.isAbsolute()) {
+        if (!contextRef.isAbsolute()) {
             return null;
         }
 
-        // If we're an absolute node, we should already know what our instance
-        // is, so we can't apply any further contextualizaiton unless the
-        // instances match
+        // With absolute node we should know what our instance is, so no
+        // further contextualizaiton can be applied unless the instances match
         if (this.isAbsolute()) {
-            // If this refers to the main instance, but our context ref doesn't
             if (this.getInstanceName() == null) {
-                if (baseRef.getInstanceName() != null) {
+                // If this refers to the main instance, but our context ref
+                // doesn't
+                if (contextRef.getInstanceName() != null) {
                     return this.clone();
                 }
-            }
-            // Or if this refers to another instance and the context ref
-            // doesn't refer to the same instance
-            else if (!this.getInstanceName().equals(baseRef.getInstanceName())) {
+            } else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
+                // Or if this refers to another instance and the context ref
+                // doesn't refer to the same instance
                 return this.clone();
             }
         }
 
-        TreeReference newRef = anchor(baseRef);
-        newRef.setContext(baseRef.getContext());
+        TreeReference newRef = anchor(contextRef);
+        newRef.setContext(contextRef.getContext());
 
-        // apply multiplicites and fill in wildcards as necessary based on the
+        // apply multiplicites and fill in wildcards as necessary, based on the
         // context ref
-        for (int i = 0; i < baseRef.size() && i < newRef.size(); i++) {
-            // If the the baseRef can provide a definition for a wildcard, do so
+        for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
+            // If the the contextRef can provide a definition for a wildcard, do so
             if (TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) &&
-                    !TreeReference.NAME_WILDCARD.equals(baseRef.getName(i))) {
-                newRef.data.setElementAt(newRef.data.elementAt(i).setName(baseRef.getName(i)), i);
+                    !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
+                newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
             }
 
-            if (baseRef.getName(i).equals(newRef.getName(i))) {
+            if (contextRef.getName(i).equals(newRef.getName(i))) {
                 // We can't actually merge nodes if the newRef has predicates
                 // or filters on this expression, since those reset any
                 // existing resolutions which may have been done.
                 if (newRef.getPredicate(i) == null) {
-                    newRef.setMultiplicity(i, baseRef.getMultiplicity(i));
+                    newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
                 }
             } else {
                 break;
@@ -645,8 +649,12 @@ public class TreeReference implements Externalizable {
                         sb.append("[@juncture]");
                         break;
                     default:
-                        if ((i > 0 || mult != 0) && mult != -4)
+                        // Don't show a multiplicity selector if we are
+                        // selecting the 1st element, since this is the default
+                        // and showing brackets might confuse the user.
+                        if ((i > 0 || mult != 0) && mult != -4) {
                             sb.append("[" + (mult + 1) + "]");
+                        }
                         break;
                 }
             }
