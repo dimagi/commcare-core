@@ -102,7 +102,7 @@ public class XPathConditional implements IConditionExpr {
     }
 
     private static void getTriggers(XPathExpression x, Vector<TreeReference> v,
-            TreeReference contextRef) {
+                                    TreeReference contextRef) {
         if (x instanceof XPathPathExpr) {
             TreeReference ref = ((XPathPathExpr)x).getReference();
             TreeReference contextualized = ref;

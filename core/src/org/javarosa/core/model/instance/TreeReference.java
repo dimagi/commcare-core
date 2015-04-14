@@ -99,6 +99,7 @@ public class TreeReference implements Externalizable {
 
     /**
      * Build a '/' reference
+     *
      * @return a reference that represents a root/'/' path
      */
     public static TreeReference rootRef() {
@@ -110,6 +111,7 @@ public class TreeReference implements Externalizable {
 
     /**
      * Build a '.' reference
+     *
      * @return a reference that represents a self/'.' path
      */
     public static TreeReference selfRef() {
@@ -346,7 +348,7 @@ public class TreeReference implements Externalizable {
      * Join this reference with the base reference argument.
      *
      * @param baseRef an absolute reference or a relative reference with only
-     * '../'s
+     *                '../'s
      * @return a join of this reference with the base reference argument.
      * Returns a clone of this reference if it is absolute, and null if this
      * reference has '../'s but baseRef argument a non-empty relative reference.
@@ -502,9 +504,9 @@ public class TreeReference implements Externalizable {
      * Are these reference's levels subsumed by equivalently named 'child'
      * levels of the same multiplicity?
      *
-     * @param child check if this reference is a child of the current reference
+     * @param child        check if this reference is a child of the current reference
      * @param properParent when set don't return true if 'child' is equal to
-     * this
+     *                     this
      * @return true if 'this' is parent of 'child' or if 'this' equals 'child'
      * (when properParent is false)
      */

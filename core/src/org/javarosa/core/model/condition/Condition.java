@@ -49,12 +49,12 @@ public class Condition extends Triggerable {
     }
 
     public Condition(IConditionExpr expr, int trueAction, int falseAction,
-            TreeReference contextRef) {
+                     TreeReference contextRef) {
         this(expr, trueAction, falseAction, contextRef, new Vector());
     }
 
     public Condition(IConditionExpr expr, int trueAction, int falseAction,
-            TreeReference contextRef, Vector targets) {
+                     TreeReference contextRef, Vector targets) {
         super(expr, contextRef);
         this.trueAction = trueAction;
         this.falseAction = falseAction;
@@ -121,14 +121,14 @@ public class Condition extends Triggerable {
     /**
      * Conditions are equal if they have the same actions, expression, and
      * triggers, but NOT targets or context ref.
-    */
+     */
     public boolean equals(Object o) {
         if (o instanceof Condition) {
             Condition c = (Condition)o;
             return (this == c ||
                     (this.trueAction == c.trueAction &&
-                    this.falseAction == c.falseAction &&
-                    super.equals(c)));
+                            this.falseAction == c.falseAction &&
+                            super.equals(c)));
         }
         return false;
     }

@@ -69,7 +69,7 @@ public class TreeReferenceLevel implements Externalizable {
      * Create a copy of this level with updated predicates.
      *
      * @param xpe vector of xpath expressions representing predicates to attach
-     * to a copy of this reference level.
+     *            to a copy of this reference level.
      * @return a (cached-)copy of this reference level with the predicates argument
      * attached.
      */
@@ -119,6 +119,7 @@ public class TreeReferenceLevel implements Externalizable {
     /**
      * Two TreeReferenceLevels are equal if they have the same name,
      * multiplicity, and equal predicates.
+     *
      * @param o an object to compare against this TreeReferenceLevel object.
      * @return Is object o a TreeReferenceLevel and has the same fields?
      */

@@ -93,7 +93,7 @@ public abstract class Triggerable implements Externalizable {
      * @param f
      */
     public final void apply(FormInstance instance, EvaluationContext parentContext,
-            TreeReference context, FormDef f) {
+                            TreeReference context, FormDef f) {
         // The triggering root is the highest level of actual data we can
         // inquire about, but it _isn't_ necessarily the basis for the actual
         // expressions, so we need genericize that ref against the current
@@ -105,7 +105,7 @@ public abstract class Triggerable implements Externalizable {
 
         for (int i = 0; i < targets.size(); i++) {
             TreeReference targetRef =
-                ((TreeReference)targets.elementAt(i)).contextualize(ec.getContextRef());
+                    ((TreeReference)targets.elementAt(i)).contextualize(ec.getContextRef());
             Vector v = ec.expandReference(targetRef);
 
             for (int j = 0; j < v.size(); j++) {

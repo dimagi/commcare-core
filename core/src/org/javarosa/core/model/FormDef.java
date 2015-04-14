@@ -100,12 +100,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     // true if triggerables has been ordered topologically (DON'T DELETE ME
     // EVEN THOUGH I'M UNUSED)
-    private boolean triggerablesInOrder; 
+    private boolean triggerablesInOrder;
 
 
     // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
-    private Vector outputFragments; 
+    private Vector outputFragments;
 
     public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
     private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
@@ -528,10 +528,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         // trigger conditions that depend on the creation of these new nodes
-        triggerTriggerables(destRef); 
+        triggerTriggerables(destRef);
 
         // initialize conditions for the node (and sub-nodes)
-        initializeTriggerables(destRef); 
+        initializeTriggerables(destRef);
         // not 100% sure this will work since destRef is ambiguous as the last
         // step, but i think it's supposed to work
     }
