@@ -1,21 +1,21 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -52,6 +52,18 @@ public class DetailParser extends CommCareElementParser<Detail> {
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
 
         while (nextTagInBlock("detail")) {
+
+            System.out.println("413 in detail: " + parser.getName());
+
+            if ("lookup".equals(parser.getName().toLowerCase())) {
+                while (nextTagInBlock("lookup")) {
+                    String text = parser.getName();
+                    String enabled = parser.getAttributeValue(null, "enabled");
+                    System.out.println("413 text: " + text + " enabled: " + enabled);
+                }
+                getNextTagInBlock("detail");
+            }
+
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {
                     String function = parser.getAttributeValue(null, "function");
