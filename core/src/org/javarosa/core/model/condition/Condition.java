@@ -48,11 +48,13 @@ public class Condition extends Triggerable {
 
     }
 
-    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef) {
+    public Condition(IConditionExpr expr, int trueAction, int falseAction,
+                     TreeReference contextRef) {
         this(expr, trueAction, falseAction, contextRef, new Vector());
     }
 
-    public Condition(IConditionExpr expr, int trueAction, int falseAction, TreeReference contextRef, Vector targets) {
+    public Condition(IConditionExpr expr, int trueAction, int falseAction,
+                     TreeReference contextRef, Vector targets) {
         super(expr, contextRef);
         this.trueAction = trueAction;
         this.falseAction = falseAction;
@@ -85,7 +87,6 @@ public class Condition extends Triggerable {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
 
-
     private void performAction(TreeElement node, int action) {
         switch (action) {
             case ACTION_NULL:
@@ -117,17 +118,19 @@ public class Condition extends Triggerable {
         }
     }
 
-    //conditions are equal if they have the same actions, expression, and triggers, but NOT targets or context ref
+    /**
+     * Conditions are equal if they have the same actions, expression, and
+     * triggers, but NOT targets or context ref.
+     */
     public boolean equals(Object o) {
         if (o instanceof Condition) {
             Condition c = (Condition)o;
-            if (this == c)
-                return true;
-
-            return (this.trueAction == c.trueAction && this.falseAction == c.falseAction && super.equals(c));
-        } else {
-            return false;
+            return (this == c ||
+                    (this.trueAction == c.trueAction &&
+                            this.falseAction == c.falseAction &&
+                            super.equals(c)));
         }
+        return false;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

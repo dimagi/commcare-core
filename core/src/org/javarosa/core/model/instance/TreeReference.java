@@ -43,8 +43,9 @@ public class TreeReference implements Externalizable {
     // Multiplicity demarcates the position of a given element with respect to
     // other elements of the same name.
 
-    // Means there's a path to a node, but we haven't yet demarcated the
-    // multiplicity
+    // Since users usually want to select the first instance from the nodeset
+    // returned from a reference query, let the default multiplicity be
+    // selecting the first node.
     public static final int DEFAULT_MUTLIPLICITY = 0;
 
     // refers to all instances of an element, e.g. /data/b[-1] refers to b[0]
@@ -66,33 +67,26 @@ public class TreeReference implements Externalizable {
     //TODO: Roll these into RefLevel? Or more likely, take absolute
     //ref out of refLevel
     public static final int CONTEXT_ABSOLUTE = 0;
+    // context is inherited since the path is relative
     public static final int CONTEXT_INHERITED = 1;
+    // use the original context instead of current context, used by the
+    // current() command.
     public static final int CONTEXT_ORIGINAL = 2;
     public static final int CONTEXT_INSTANCE = 4;
-
 
     public static final int REF_ABSOLUTE = -1;
 
     public static final String NAME_WILDCARD = "*";
 
-    private int refLevel; //0 = context node, 1 = parent, 2 = grandparent ...
+    // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
+    private int refLevel;
     private int contextType;
     private String instanceName = null;
     private Vector<TreeReferenceLevel> data = null;
 
-    public static TreeReference rootRef() {
-        TreeReference root = new TreeReference();
-        root.refLevel = REF_ABSOLUTE;
-        root.contextType = CONTEXT_ABSOLUTE;
-        return root;
-    }
-
-    public static TreeReference selfRef() {
-        TreeReference self = new TreeReference();
-        self.refLevel = 0;
-        self.contextType = CONTEXT_INHERITED;
-        return self;
-    }
+    // This value will be computed lazily during calls to size(); every time
+    // 'data' changes size, set it to -1 and compute it on demand.
+    int size = -1;
 
     public TreeReference() {
         instanceName = null; //dido
@@ -101,6 +95,30 @@ public class TreeReference implements Externalizable {
 
     public String getInstanceName() {
         return instanceName;
+    }
+
+    /**
+     * Build a '/' reference
+     *
+     * @return a reference that represents a root/'/' path
+     */
+    public static TreeReference rootRef() {
+        TreeReference root = new TreeReference();
+        root.refLevel = REF_ABSOLUTE;
+        root.contextType = CONTEXT_ABSOLUTE;
+        return root;
+    }
+
+    /**
+     * Build a '.' reference
+     *
+     * @return a reference that represents a self/'.' path
+     */
+    public static TreeReference selfRef() {
+        TreeReference self = new TreeReference();
+        self.refLevel = 0;
+        self.contextType = CONTEXT_INHERITED;
+        return self;
     }
 
     //TODO: This should be constructed I think
@@ -139,12 +157,16 @@ public class TreeReference implements Externalizable {
         data.setElementAt(data.elementAt(i).setMultiplicity(mult), i);
     }
 
-    int size = -1;
-
+    /**
+     * How many reference levels are present? Compute this value on demand and
+     * cache it.
+     *
+     * @return the number of reference levels
+     */
     public int size() {
-        //csims@dimagi.com - this seems unecessary but is a shocking performance
-        //difference due to the number of high-churn circumstances where this
-        //call is made.
+        // csims@dimagi.com - this seems unecessary but is a shocking
+        // performance difference due to the number of high-churn circumstances
+        // where this call is made.
         if (size == -1) {
             size = data.size();
         }
@@ -163,13 +185,53 @@ public class TreeReference implements Externalizable {
         add(new TreeReferenceLevel(name, mult).intern());
     }
 
+    /**
+     * Store a copy of the reference level at level 'key'.
+     *
+     * @param key reference level at which to attach predicate vector argument.
+     * @param xpe vector of xpath expressions representing predicates to attach
+     *            to a reference level.
+     */
     public void addPredicate(int key, Vector<XPathExpression> xpe) {
         hashCode = -1;
         data.setElementAt(data.elementAt(key).setPredicates(xpe), key);
     }
 
+    /**
+     * Get the predicates for the reference level at level 'key'.
+     *
+     * @param key reference level at which to grab the predicates.
+     * @return the predicates for the specified reference level.
+     */
     public Vector<XPathExpression> getPredicate(int key) {
         return data.elementAt(key).getPredicates();
+    }
+
+    /**
+     * @return Do any of the reference levels have predicates attached to them?
+     */
+    public boolean hasPredicates() {
+        for (TreeReferenceLevel level : data) {
+            if (level.getPredicates() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create a copy of this object without any predicates attached to its
+     * reference levels.
+     *
+     * @return a copy of this tree reference without any predicates
+     */
+    public TreeReference removePredicates() {
+        hashCode = -1;
+        TreeReference predicateless = cloneWithEmptyData();
+        for (int i = 0; i < this.size(); ++i) {
+            predicateless.add(this.data.elementAt(i).setPredicates(null));
+        }
+        return predicateless;
     }
 
     public int getRefLevel() {
@@ -191,10 +253,16 @@ public class TreeReference implements Externalizable {
         return refLevel == REF_ABSOLUTE;
     }
 
-    //return true if this ref contains any unbound multiplicities... ie, there is ANY chance this ref
-    //could ambiguously refer to more than one instance node.
+    /**
+     * Does this reference reference contains any unbound multiplicities?
+     * Unbounded multiplicities means there is a chance that this reference
+     * could refer to more than one instance node.
+     *
+     * @return Does this reference have the potential to point to more than one
+     * instance node?
+     */
     public boolean isAmbiguous() {
-        //ignore level 0, as /data implies /data[0]
+        // ignore level 0, as /data implies /data[0]
         for (int i = 1; i < size(); i++) {
             if (getMultiplicity(i) == INDEX_UNBOUND) {
                 return true;
@@ -203,13 +271,15 @@ public class TreeReference implements Externalizable {
         return false;
     }
 
-    //return a copy of the ref
+    /**
+     * Return a copy of the reference
+     */
     public TreeReference clone() {
         TreeReference newRef = new TreeReference();
         newRef.setRefLevel(this.refLevel);
 
         for (TreeReferenceLevel l : data) {
-            newRef.add(l.shallowCopy());
+            newRef.add(l);
         }
 
         //TODO: No more == null checks here, use context type
@@ -221,9 +291,31 @@ public class TreeReference implements Externalizable {
         return newRef;
     }
 
+    /**
+     * Return a copy of the TreeReference that doesn't include any of the
+     * TreeReferenceLevels. Useful when we are just going to overwrite the
+     * levels with new data anyways.
+     *
+     * @return a clone of this object that doesn't include any reference level
+     * data.
+     */
+    private TreeReference cloneWithEmptyData() {
+        TreeReference newRef = new TreeReference();
+        newRef.setRefLevel(this.refLevel);
+
+        //TODO: No more == null checks here, use context type
+        //copy instances
+        if (instanceName != null) {
+            newRef.setInstanceName(instanceName);
+        }
+        newRef.contextType = this.contextType;
+        return newRef;
+    }
+
     /*
-     * chop the lowest level off the ref so that the ref now represents the parent of the original ref
-     * return true if we successfully got the parent, false if there were no higher levels
+     * Chop the lowest level off the ref so that the ref now represents the
+     * parent of the original ref. Return true if we successfully got the
+     * parent, false if there were no higher levels
      */
     public boolean removeLastLevel() {
         int size = size();
@@ -252,26 +344,33 @@ public class TreeReference implements Externalizable {
         }
     }
 
-    //return a new reference that is this reference anchored to a passed-in parent reference
-    //if this reference is absolute, return self
-    //if this ref has 'parent' steps (..), it can only be anchored if the parent ref is a relative ref consisting only of other 'parent' steps
-    //return null in these invalid situations
-    public TreeReference parent(TreeReference parentRef) {
+    /**
+     * Join this reference with the base reference argument.
+     *
+     * @param baseRef an absolute reference or a relative reference with only
+     *                '../'s
+     * @return a join of this reference with the base reference argument.
+     * Returns a clone of this reference if it is absolute, and null if this
+     * reference has '../'s but baseRef argument a non-empty relative reference.
+     */
+    public TreeReference parent(TreeReference baseRef) {
         if (isAbsolute()) {
-            return this;
+            return this.clone();
         } else {
-            TreeReference newRef = parentRef.clone();
-
+            TreeReference newRef = baseRef.clone();
             if (refLevel > 0) {
-                if (!parentRef.isAbsolute() && parentRef.size() == 0) {
-                    parentRef.refLevel += refLevel;
+                if (!baseRef.isAbsolute() && baseRef.size() == 0) {
+                    // if parent ref is relative and doesn't have any levels,
+                    // aggregate '../' count
+                    newRef.refLevel += refLevel;
                 } else {
                     return null;
                 }
             }
 
-            for (TreeReferenceLevel l : data) {
-                newRef.add(l.shallowCopy());
+            // copy reference levels over to parent ref
+            for (TreeReferenceLevel l : this.data) {
+                newRef.add(l);
             }
 
             return newRef;
@@ -279,57 +378,72 @@ public class TreeReference implements Externalizable {
     }
 
 
-    //very similar to parent(), but assumes contextRef refers to a singular, existing node in the model
-    //this means we can do '/a/b/c + ../../d/e/f = /a/d/e/f', which we couldn't do in parent()
-    //return null if context ref is not absolute, or we parent up past the root node
-    //NOTE: this function still works even when contextRef contains INDEX_UNBOUND multiplicites... conditions depend on this behavior,
-    //  even though it's slightly icky
-    public TreeReference anchor(TreeReference contextRef) {
-        //TODO: Technically we should possibly be modifying context stuff here
-        //instead of in the xpath stuff;
+    /**
+     * Evaluate this reference in terms of a base absolute reference.
+     *
+     * For instance, anchoring ../../d/e/f to /a/b/c, results in  /a/d/e/f.
+     *
+     * NOTE: This function works when baseRef contains INDEX_UNBOUND
+     * multiplicites. Conditions depend on this behavior, but it is def
+     * slightly icky
+     *
+     * @param baseRef an absolute reference to be anchored to.
+     * @return null if base reference isn't absolute or there are too many
+     * '../'.
+     */
+    public TreeReference anchor(TreeReference baseRef) {
+        // TODO: Technically we should possibly be modifying context stuff here
+        // instead of in the xpath stuff;
 
         if (isAbsolute()) {
             return this.clone();
-        } else if (!contextRef.isAbsolute()) {
+        } else if (!baseRef.isAbsolute() ||
+                (refLevel > baseRef.size())) {
+            // non-absolute anchor ref or this reference has to many '../' for
+            // the anchor ref
             return null;
         } else {
-            TreeReference newRef = contextRef.clone();
-            int contextSize = contextRef.size();
-            if (refLevel > contextSize) {
-                return null; //tried to do '/..'
-            } else {
-                for (int i = 0; i < refLevel; i++) {
-                    newRef.removeLastLevel();
-                }
-                for (int i = 0; i < size(); i++) {
-                    newRef.add(data.elementAt(i).shallowCopy());
-                }
-                return newRef;
+            TreeReference newRef = baseRef.clone();
+            // remove a level from anchor ref for each '../'
+            for (int i = 0; i < refLevel; i++) {
+                newRef.removeLastLevel();
             }
+            // copy level data from this ref to the anchor ref
+            for (int i = 0; i < size(); i++) {
+                newRef.add(this.data.elementAt(i));
+            }
+            return newRef;
         }
     }
 
-    //TODO: merge anchor() and parent()
-
+    /**
+     * Evaluate this reference in terms of the base reference argument.
+     *
+     * @param contextRef the absolute reference used as the base while evaluating
+     *                   this reference.
+     * @return null if context reference is relative, a clone of this reference
+     * if it is absolute and doesn't match the context reference argument.
+     */
     public TreeReference contextualize(TreeReference contextRef) {
         //TODO: Technically we should possibly be modifying context stuff here
         //instead of in the xpath stuff;
+
         if (!contextRef.isAbsolute()) {
             return null;
         }
 
-        //If we're an absolute node, we should already know what our instance is, so
-        //we can't apply any further contextualizaiton unless the instances match
+        // With absolute node we should know what our instance is, so no
+        // further contextualizaiton can be applied unless the instances match
         if (this.isAbsolute()) {
-            //If this refers to the main instance, but our context ref doesn't
             if (this.getInstanceName() == null) {
+                // If this refers to the main instance, but our context ref
+                // doesn't
                 if (contextRef.getInstanceName() != null) {
                     return this.clone();
                 }
-            }
-            //Or if this refers to another instance and the context ref doesn't refer to the
-            //same instance
-            else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
+            } else if (!this.getInstanceName().equals(contextRef.getInstanceName())) {
+                // Or if this refers to another instance and the context ref
+                // doesn't refer to the same instance
                 return this.clone();
             }
         }
@@ -337,22 +451,16 @@ public class TreeReference implements Externalizable {
         TreeReference newRef = anchor(contextRef);
         newRef.setContext(contextRef.getContext());
 
-        //apply multiplicites and fill in wildcards as necessary based on the context ref
+        // apply multiplicites and fill in wildcards as necessary, based on the
+        // context ref
         for (int i = 0; i < contextRef.size() && i < newRef.size(); i++) {
-
-            //If the the contextRef can provide a definition for a wildcard, do so
-            if (TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) && !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
+            // If the the contextRef can provide a definition for a wildcard, do so
+            if (TreeReference.NAME_WILDCARD.equals(newRef.getName(i)) &&
+                    !TreeReference.NAME_WILDCARD.equals(contextRef.getName(i))) {
                 newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
             }
 
-            if (contextRef.getName(i).equals(newRef.getName(i))) {
-                //We can't actually merge nodes if the newRef has predicates or filters
-                //on this expression, since those reset any existing resolutions which
-                //may have been done.
-                if (newRef.getPredicate(i) == null) {
-                    newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
-                }
-            } else {
+            if (!contextRef.getName(i).equals(newRef.getName(i))) {
                 break;
             }
         }
@@ -372,36 +480,56 @@ public class TreeReference implements Externalizable {
         }
     }
 
-    //turn unambiguous ref into a generic ref
+    /**
+     * Turn an un-ambiguous reference into a generic one. This is acheived by
+     * setting the multiplicity of every reference level to unbounded.
+     *
+     * @return a clone of this reference with every reference level's
+     * multiplicity set to unbounded.
+     */
     public TreeReference genericize() {
         TreeReference genericRef = clone();
         for (int i = 0; i < genericRef.size(); i++) {
-            //TODO: It's not super clear whether template refs should get
-            //genericized or not
-            if (genericRef.getMultiplicity(i) > -1 || genericRef.getMultiplicity(i) == INDEX_TEMPLATE) {
+            // TODO: It's not super clear whether template refs should get
+            // genericized or not
+            if (genericRef.getMultiplicity(i) > -1 ||
+                    genericRef.getMultiplicity(i) == INDEX_TEMPLATE) {
                 genericRef.setMultiplicity(i, INDEX_UNBOUND);
             }
         }
         return genericRef;
     }
 
-    //returns true if 'this' is parent of 'child'
-    //return true if 'this' equals 'child' only if properParent is false
+    /**
+     * Are these reference's levels subsumed by equivalently named 'child'
+     * levels of the same multiplicity?
+     *
+     * @param child        check if this reference is a child of the current reference
+     * @param properParent when set don't return true if 'child' is equal to
+     *                     this
+     * @return true if 'this' is parent of 'child' or if 'this' equals 'child'
+     * (when properParent is false)
+     */
     public boolean isParentOf(TreeReference child, boolean properParent) {
-        //Instances and context types;
-        if (refLevel != child.refLevel)
+        if ((refLevel != child.refLevel) ||
+                (child.size() < (size() + (properParent ? 1 : 0)))) {
             return false;
-        if (child.size() < size() + (properParent ? 1 : 0))
-            return false;
+        }
 
         for (int i = 0; i < size(); i++) {
+            // check that levels names are the same
             if (!this.getName(i).equals(child.getName(i))) {
                 return false;
             }
 
+            // check that multiplicities are the same; allowing them to differ
+            // if on 0-th level, parent mult is the default and child is
+            // unbounded.
             int parMult = this.getMultiplicity(i);
             int childMult = child.getMultiplicity(i);
-            if (parMult != INDEX_UNBOUND && parMult != childMult && !(i == 0 && parMult == 0 && childMult == INDEX_UNBOUND)) {
+            if (parMult != INDEX_UNBOUND &&
+                    parMult != childMult &&
+                    !(i == 0 && parMult == 0 && childMult == INDEX_UNBOUND)) {
                 return false;
             }
         }
@@ -412,7 +540,6 @@ public class TreeReference implements Externalizable {
     /**
      * clone and extend a reference by one level
      *
-     * @param ref
      * @param name
      * @param mult
      * @return
@@ -424,6 +551,14 @@ public class TreeReference implements Externalizable {
         return childRef;
     }
 
+    /**
+     * Equality of two TreeReferences comes down to having the same reference
+     * level, and equal reference levels entries.
+     *
+     * @param o an object to compare against this TreeReference object.
+     * @return Is object o a TreeReference with equal reference level entries
+     * to this object?
+     */
     public boolean equals(Object o) {
         //csims@dimagi.com - Replaced this function performing itself fully written out
         //rather than allowing the tree reference levels to denote equality. The only edge
@@ -435,25 +570,23 @@ public class TreeReference implements Externalizable {
             TreeReference ref = (TreeReference)o;
 
             if (this.refLevel == ref.refLevel && this.size() == ref.size()) {
-
+                // loop through reference segments, comparing their equality
                 for (int i = 0; i < this.size(); i++) {
-                    TreeReferenceLevel l = data.elementAt(i);
-                    TreeReferenceLevel other = ref.data.elementAt(i);
+                    TreeReferenceLevel thisLevel = data.elementAt(i);
+                    TreeReferenceLevel otherLevel = ref.data.elementAt(i);
 
-                    //we should expect this to hit a lot due to interning
-                    if (l.equals(other)) {
+                    // we should expect this to hit a lot due to interning
+                    if (thisLevel.equals(otherLevel)) {
                         continue;
                     } else {
                         return false;
                     }
                 }
                 return true;
-            } else {
-                return false;
             }
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public int hashCode() {
@@ -525,8 +658,12 @@ public class TreeReference implements Externalizable {
                         sb.append("[@juncture]");
                         break;
                     default:
-                        if ((i > 0 || mult != 0) && mult != -4)
+                        // Don't show a multiplicity selector if we are
+                        // selecting the 1st element, since this is the default
+                        // and showing brackets might confuse the user.
+                        if ((i > 0 || mult != 0) && mult != -4) {
                             sb.append("[" + (mult + 1) + "]");
+                        }
                         break;
                 }
             }
@@ -579,7 +716,6 @@ public class TreeReference implements Externalizable {
             return this;
         }
 
-
         TreeReference a;
         //A should always be bigger if one ref is larger than the other
         if (this.size() < b.size()) {
@@ -629,48 +765,26 @@ public class TreeReference implements Externalizable {
      * Returns the subreference of this reference up to the level specified.
      *
      * For instance, for the reference:
-     *
      * (/data/path/to/node).getSubreference(2) => /data/path/to
      *
      * Used to identify the reference context for a predicate at the same level
      *
-     * Must be an absolute reference, otherwise will throw IllegalArgumentException
-     *
-     * @param i
-     * @return
+     * @param level number of segments to include in the truncated
+     *              sub-reference.
+     * @return A clone of this reference object that includes steps up the
+     * specified level.
+     * @throws IllegalArgumentException if this object isn't an absolute
+     *                                  reference.
      */
     public TreeReference getSubReference(int level) {
         if (!this.isAbsolute()) {
             throw new IllegalArgumentException("Cannot subreference a non-absolute ref");
         }
 
-        //Copy construct
-        TreeReference ret = new TreeReference();
-        ret.refLevel = this.refLevel;
-        ret.contextType = this.contextType;
-        ret.instanceName = this.instanceName;
-        ret.data = new Vector<TreeReferenceLevel>();
+        TreeReference subRef = cloneWithEmptyData();
         for (int i = 0; i <= level; ++i) {
-            ret.data.addElement(this.data.elementAt(i));
+            subRef.add(this.data.elementAt(i));
         }
-        return ret;
-    }
-
-    public boolean hasPredicates() {
-        for (TreeReferenceLevel level : data) {
-            if (level.getPredicates() != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public TreeReference removePredicates() {
-        hashCode = -1;
-        TreeReference predicateless = clone();
-        for (int i = 0; i < predicateless.data.size(); ++i) {
-            predicateless.data.setElementAt(predicateless.data.elementAt(i).setPredicates(null), i);
-        }
-        return predicateless;
+        return subRef;
     }
 }

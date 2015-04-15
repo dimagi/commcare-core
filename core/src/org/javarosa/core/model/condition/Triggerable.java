@@ -38,7 +38,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * which represents where the resultant value will be stored.
  *
  * A triggerable will dispatch the action it's performing out to
- * all relevant nodes referenced by the context against thes current
+ * all relevant nodes referenced by the context against these current
  * models.
  *
  * @author ctsims
@@ -56,8 +56,9 @@ public abstract class Triggerable implements Externalizable {
     public Vector<TreeReference> targets;
 
     /**
-     * Current reference which is the "Basis" of the trigerrables being evaluated. This is the highest
-     * common root of all of the targets being evaluated.
+     * Current reference which is the "Basis" of the trigerrables being
+     * evaluated. This is the highest common root of all of the targets being
+     * evaluated.
      */
     public TreeReference contextRef;  //generic ref used to turn triggers into absolute references
 
@@ -87,20 +88,26 @@ public abstract class Triggerable implements Externalizable {
      * Not for re-implementation, dispatches all of the evaluation
      *
      * @param instance
-     * @param evalContext
+     * @param parentContext
+     * @param context
      * @param f
      */
-    public final void apply(FormInstance instance, EvaluationContext parentContext, TreeReference context, FormDef f) {
-        //The triggeringRoot is the highest level of actual data we can inquire about, but it _isn't_ necessarily the basis
-        //for the actual expressions, so we need genericize that ref against the current context
+    public final void apply(FormInstance instance, EvaluationContext parentContext,
+                            TreeReference context, FormDef f) {
+        // The triggering root is the highest level of actual data we can
+        // inquire about, but it _isn't_ necessarily the basis for the actual
+        // expressions, so we need genericize that ref against the current
+        // context
         TreeReference ungenericised = originalContextRef.contextualize(context);
         EvaluationContext ec = new EvaluationContext(parentContext, ungenericised);
 
         Object result = eval(instance, ec);
 
         for (int i = 0; i < targets.size(); i++) {
-            TreeReference targetRef = ((TreeReference)targets.elementAt(i)).contextualize(ec.getContextRef());
+            TreeReference targetRef =
+                    ((TreeReference)targets.elementAt(i)).contextualize(ec.getContextRef());
             Vector v = ec.expandReference(targetRef);
+
             for (int j = 0; j < v.size(); j++) {
                 TreeReference affectedRef = (TreeReference)v.elementAt(j);
                 apply(affectedRef, result, instance, f);
@@ -131,7 +138,9 @@ public abstract class Triggerable implements Externalizable {
     }
 
     public Vector<TreeReference> getTriggers() {
+        // grab the relative trigger references from expression
         Vector<TreeReference> relTriggers = expr.getTriggers();
+        // construct absolute references by anchoring against the original context reference
         Vector<TreeReference> absTriggers = new Vector<TreeReference>();
         for (int i = 0; i < relTriggers.size(); i++) {
             absTriggers.addElement(((TreeReference)relTriggers.elementAt(i)).anchor(originalContextRef));
