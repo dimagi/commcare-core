@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -15,7 +16,7 @@ import java.util.Vector;
 /**
  * Created by wpride1 on 4/14/15.
  */
-public class Callout implements Externalizable{
+public class Callout implements Externalizable, DetailTemplate{
 
     String actionName;
     String image;
@@ -28,6 +29,13 @@ public class Callout implements Externalizable{
         this.image = image;
     }
 
+    /*
+    * (non-Javadoc)
+    * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
+    */
+    public Callout evaluate(EvaluationContext context) {
+        return this;
+    }
 
     /*
      * (non-Javadoc)

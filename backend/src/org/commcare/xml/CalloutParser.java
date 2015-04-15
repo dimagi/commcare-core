@@ -24,8 +24,6 @@ public class CalloutParser extends ElementParser<Callout> {
 
         System.out.println("Parsing Callout!");
 
-        checkNode("lookup");
-
         String text = parser.getName();
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
