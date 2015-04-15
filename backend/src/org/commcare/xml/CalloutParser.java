@@ -27,11 +27,13 @@ public class CalloutParser extends ElementParser<Callout> {
         String text = parser.getName();
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
+        String dislayName = parser.getAttributeValue(null, "name");
 
-        Callout callout = new Callout(actionName, image);
+        Callout callout = new Callout(actionName, image, dislayName);
 
         while(nextTagInBlock(text)){
             String tagname = parser.getName();
+            System.out.println("in tag: " + tagname);
             if(tagname.equals("extra")){
                 callout.addExtra(parser.getAttributeValue(null, "key"), parser.getAttributeValue(null, "value"));
                 System.out.println("added extra with key: " + parser.getAttributeValue(null, "key"));

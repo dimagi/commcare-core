@@ -45,27 +45,28 @@ public class DetailParser extends CommCareElementParser<Detail> {
         } else {
             title = parseDisplayBlock();
         }
+
+        Vector<Callout> callouts = new Vector<Callout>();
+
+        if ("lookup".equals(parser.getName().toLowerCase())) {
+            while (nextTagInBlock("lookup")) {
+
+                Callout callout = new CalloutParser(parser).parse();
+
+                callouts.add(callout);
+            }
+            getNextTagInBlock("detail");
+        }
+
+
         Action action = null;
 
         //Now get the headers and templates.
         Vector<Detail> subdetails = new Vector<Detail>();
         Vector<DetailField> fields = new Vector<DetailField>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
-        Vector<Callout> callouts = new Vector<Callout>();
 
         while (nextTagInBlock("detail")) {
-
-            if ("lookup".equals(parser.getName().toLowerCase())) {
-                while (nextTagInBlock("lookup")) {
-
-                    System.out.println("413 in look up block: " + parser.getName());
-
-                    Callout callout = new CalloutParser(parser).parse();
-
-                    callouts.add(callout);
-                }
-                getNextTagInBlock("detail");
-            }
 
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {

@@ -20,13 +20,15 @@ public class Callout implements Externalizable, DetailTemplate{
 
     String actionName;
     String image;
+    String displayName;
     Hashtable<String, String> extras = new Hashtable<String, String>();
     Vector<String> responses = new Vector<String>();
 
 
-    public Callout(String actionName, String image){
+    public Callout(String actionName, String image, String displayName){
         this.actionName = actionName;
         this.image = image;
+        this.displayName = displayName;
     }
 
     /*
@@ -62,6 +64,8 @@ public class Callout implements Externalizable, DetailTemplate{
     public String getActionName(){
         return actionName;
     }
+
+    public String getDisplayName() { return displayName;}
 
     public void addExtra(String key, String value) {
         extras.put(key, value);
