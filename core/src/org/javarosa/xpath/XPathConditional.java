@@ -104,17 +104,18 @@ public class XPathConditional implements IConditionExpr {
     /**
      * Recursive helper to getExprsTriggers with an accumulator trigger vector.
      *
-     * @param expr current expression we are collecting triggers from
-     * @param triggers accumulates the references that this object's expression value
-     *                 depends upon.
-     * @param contextRef use this updated context; used, for instance, when we
-     *                   move into handling predicates
-     * @param originalContextRef context reference pointing to the nodeset
+     * @param expr               Current expression we are collecting triggers from
+     * @param triggers           Accumulates the references that this object's
+     *                           expression value depends upon.
+     * @param contextRef         Use this updated context; used, for instance,
+     *                           when we move into handling predicates
+     * @param originalContextRef Context reference pointing to the nodeset
      *                           reference; used for expanding 'current()'
      */
     private static void getExprsTriggersAccumulator(XPathExpression expr,
-            Vector<TreeReference> triggers,
-            TreeReference contextRef, TreeReference originalContextRef) {
+                                                    Vector<TreeReference> triggers,
+                                                    TreeReference contextRef,
+                                                    TreeReference originalContextRef) {
         if (expr instanceof XPathPathExpr) {
             TreeReference ref = ((XPathPathExpr)expr).getReference();
             TreeReference contextualized = ref;

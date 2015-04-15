@@ -394,19 +394,19 @@ public class EvaluationContext {
     }
 
     /**
-     * Create a copy of the evaluation context, with a new context ref. 
+     * Create a copy of the evaluation context, with a new context ref.
      *
      * When determining what the original reference field of the new object
      * should be:
-     *  - Use the 'original' field from the original object.
-     *  - If it is unset, use the original objects context reference.
-     *  - If that is '/' then use the new context reference
+     * - Use the 'original' field from the original object.
+     * - If it is unset, use the original objects context reference.
+     * - If that is '/' then use the new context reference
      *
-     * @param newContextRef the new context anchor reference
+     * @param newContextRef      the new context anchor reference
      * @param newContextPosition the new position of the context (in a repeat
      *                           group)
      * @return a copy of this evaluation context, with a new context reference
-     *         set and the original context reference correspondingly updated.
+     * set and the original context reference correspondingly updated.
      */
     private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition) {
         EvaluationContext ec = new EvaluationContext(this, newContextRef);
