@@ -3,12 +3,6 @@
  */
 package org.commcare.suite.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.util.ArrayUtilities;
@@ -23,6 +17,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * <p>A Detail model defines the structure in which
@@ -46,6 +46,7 @@ public class Detail implements Externalizable {
 
     Detail[] details;
     DetailField[] fields;
+    Callout[] callouts;
 
     OrderedHashtable<String, String> variables;
     OrderedHashtable<String, XPathExpression> variablesCompiled;
@@ -58,6 +59,22 @@ public class Detail implements Externalizable {
      */
     public Detail() {
 
+    }
+
+    public Detail(
+            String id, DisplayUnit title,
+            Vector<Detail> details,
+            Vector<DetailField> fields,
+            OrderedHashtable<String, String> variables, Action action, Vector<Callout> callouts
+    ) {
+        this(
+                id, title,
+                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
+                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
+                variables, action
+        );
+
+        this.callouts = ArrayUtilities.copyIntoArray(callouts, new Callout[callouts.size()]);
     }
 
     public Detail(
@@ -337,6 +354,10 @@ public class Detail implements Externalizable {
         }
 
         return mGC;
+    }
+
+    public Callout[] getCallouts(){
+        return callouts;
     }
 
     private abstract class Map<E> {

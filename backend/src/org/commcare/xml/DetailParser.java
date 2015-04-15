@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
@@ -50,6 +51,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         Vector<Detail> subdetails = new Vector<Detail>();
         Vector<DetailField> fields = new Vector<DetailField>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
+        Vector<Callout> callouts = new Vector<Callout>();
 
         while (nextTagInBlock("detail")) {
 
@@ -57,9 +59,10 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
             if ("lookup".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("lookup")) {
-                    String text = parser.getName();
-                    String enabled = parser.getAttributeValue(null, "enabled");
-                    System.out.println("413 text: " + text + " enabled: " + enabled);
+
+                    Callout callout = new CalloutParser(parser).parse();
+
+                    callouts.add(callout);
                 }
                 getNextTagInBlock("detail");
             }
@@ -228,7 +231,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, subdetails, fields, variables, action);
+        Detail d = new Detail(id, title, subdetails, fields, variables, action, callouts);
         return d;
     }
 
