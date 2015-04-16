@@ -105,7 +105,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeDataModel(org.javarosa.core.model.IFormDataModel)
      */
-    public byte[] serializeInstance(FormInstance model, IDataReference ref) throws IOException {
+    public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = model.unpackReference(ref);
         if (this.serializer == null) {
@@ -124,7 +124,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         return createSerializedPayload(model, new XPathReference("/"));
     }
 
-    public IDataPayload createSerializedPayload(FormInstance model, IDataReference ref) throws IOException {
+    public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = model.unpackReference(ref);
         if (this.serializer == null) {

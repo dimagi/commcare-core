@@ -55,7 +55,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
-    public static TreeReference unpackReference(IDataReference ref) {
+    public static TreeReference unpackReference(XPathReference ref) {
         return (TreeReference)ref.getReference();
     }
 
@@ -258,7 +258,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         return false;
     }
 
-    public T resolveReference(IDataReference binding) {
+    public T resolveReference(XPathReference binding) {
         return resolveReference(unpackReference(binding));
     }
 

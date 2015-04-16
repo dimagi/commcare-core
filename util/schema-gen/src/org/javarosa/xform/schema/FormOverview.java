@@ -327,7 +327,7 @@ public class FormOverview {
         }
     }
 
-    private static TreeElement getInstanceNode (FormInstance d, IDataReference ref) {
+    private static TreeElement getInstanceNode (FormInstance d, XPathReference ref) {
         return d.getTemplatePath((TreeReference)ref.getReference());
     }
 
