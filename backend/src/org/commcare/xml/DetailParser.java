@@ -46,7 +46,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             title = parseDisplayBlock();
         }
 
-        Vector<Callout> callouts = new Vector<Callout>();
+        Callout callout = null;
 
         Action action = null;
 
@@ -60,8 +60,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             if("lookup".equals(parser.getName().toLowerCase())) {
                 try {
                     checkNode("lookup");
-                    Callout callout = new CalloutParser(parser).parse();
-                    callouts.add(callout);
+                    callout = new CalloutParser(parser).parse();
                     parser.nextTag();
 
                 } catch (InvalidStructureException e) {
@@ -234,7 +233,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, subdetails, fields, variables, action, callouts);
+        Detail d = new Detail(id, title, subdetails, fields, variables, action, callout);
         return d;
     }
 

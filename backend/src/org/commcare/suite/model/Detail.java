@@ -46,7 +46,7 @@ public class Detail implements Externalizable {
 
     Detail[] details;
     DetailField[] fields;
-    Callout[] callouts;
+    Callout callout;
 
     OrderedHashtable<String, String> variables;
     OrderedHashtable<String, XPathExpression> variablesCompiled;
@@ -65,7 +65,7 @@ public class Detail implements Externalizable {
             String id, DisplayUnit title,
             Vector<Detail> details,
             Vector<DetailField> fields,
-            OrderedHashtable<String, String> variables, Action action, Vector<Callout> callouts
+            OrderedHashtable<String, String> variables, Action action, Callout callout
     ) {
         this(
                 id, title,
@@ -74,7 +74,7 @@ public class Detail implements Externalizable {
                 variables, action
         );
 
-        this.callouts = ArrayUtilities.copyIntoArray(callouts, new Callout[callouts.size()]);
+        this.callout = callout;
     }
 
     public Detail(
@@ -356,8 +356,8 @@ public class Detail implements Externalizable {
         return mGC;
     }
 
-    public Callout[] getCallouts(){
-        return callouts;
+    public Callout getCallout(){
+        return callout;
     }
 
     private abstract class Map<E> {
