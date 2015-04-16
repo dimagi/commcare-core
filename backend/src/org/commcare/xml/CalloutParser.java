@@ -22,29 +22,21 @@ public class CalloutParser extends ElementParser<Callout> {
 
     public Callout parse() throws InvalidStructureException, IOException, XmlPullParserException {
 
-        System.out.println("Parsing Callout!");
-
-        String text = parser.getName();
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
         String dislayName = parser.getAttributeValue(null, "name");
 
         Callout callout = new Callout(actionName, image, dislayName);
 
-        while(nextTagInBlock(text)){
+        while(nextTagInBlock("lookup")){
             String tagname = parser.getName();
-            System.out.println("in tag: " + tagname);
-            if(tagname.equals("extra")){
+            if(tagname != null && tagname.equals("extra")){
                 callout.addExtra(parser.getAttributeValue(null, "key"), parser.getAttributeValue(null, "value"));
-                System.out.println("added extra with key: " + parser.getAttributeValue(null, "key"));
-            } else if (tagname.equals("response")){
+            } else if (tagname != null && tagname.equals("response")){
                 callout.addResponse(parser.getAttributeValue(null, "key"));
-                System.out.println("added response with key: " + parser.getAttributeValue(null, "key"));
             }
 
         }
-        //exit grid block
-        parser.nextTag();
 
         return callout;
     }

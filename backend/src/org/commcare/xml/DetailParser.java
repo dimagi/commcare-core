@@ -48,17 +48,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         Vector<Callout> callouts = new Vector<Callout>();
 
-        if ("lookup".equals(parser.getName().toLowerCase())) {
-            while (nextTagInBlock("lookup")) {
-
-                Callout callout = new CalloutParser(parser).parse();
-
-                callouts.add(callout);
-            }
-            getNextTagInBlock("detail");
-        }
-
-
         Action action = null;
 
         //Now get the headers and templates.
@@ -68,6 +57,17 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         while (nextTagInBlock("detail")) {
 
+            if("lookup".equals(parser.getName().toLowerCase())) {
+                try {
+                    checkNode("lookup");
+                    Callout callout = new CalloutParser(parser).parse();
+                    callouts.add(callout);
+                    parser.nextTag();
+
+                } catch (InvalidStructureException e) {
+                    System.out.println("Lookup block not found " + e);
+                }
+            }
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {
                     String function = parser.getAttributeValue(null, "function");
