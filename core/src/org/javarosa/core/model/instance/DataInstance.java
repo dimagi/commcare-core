@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;

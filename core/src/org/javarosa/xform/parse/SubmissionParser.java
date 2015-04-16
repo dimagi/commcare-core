@@ -6,7 +6,7 @@ package org.javarosa.xform.parse;
 
 import java.util.Hashtable;
 
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.SubmissionProfile;
 import org.kxml2.kdom.Element;
 
