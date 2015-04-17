@@ -1,6 +1,7 @@
 package org.commcare.xml;
 
 import org.commcare.suite.model.Callout;
+import org.commcare.suite.model.Text;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -31,7 +32,7 @@ public class CalloutParser extends ElementParser<Callout> {
         while(nextTagInBlock("lookup")){
             String tagname = parser.getName();
             if(tagname != null && tagname.equals("extra")){
-                callout.addExtra(parser.getAttributeValue(null, "key"), parser.getAttributeValue(null, "value"));
+                callout.addExtra(parser.getAttributeValue(null, "key"), Text.PlainText(parser.getAttributeValue(null, "value")));
             } else if (tagname != null && tagname.equals("response")){
                 callout.addResponse(parser.getAttributeValue(null, "key"));
             }

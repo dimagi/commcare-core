@@ -21,9 +21,8 @@ public class Callout implements Externalizable, DetailTemplate{
     String actionName;
     String image;
     String displayName;
-    Hashtable<String, String> extras = new Hashtable<String, String>();
+    Hashtable<String, Text> extras = new Hashtable<String, Text>();
     Vector<String> responses = new Vector<String>();
-
 
     public Callout(String actionName, String image, String displayName){
         this.actionName = actionName;
@@ -35,8 +34,17 @@ public class Callout implements Externalizable, DetailTemplate{
     * (non-Javadoc)
     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
     */
-    public Callout evaluate(EvaluationContext context) {
-        return this;
+    public CalloutData evaluate(EvaluationContext context) {
+
+        Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
+        for(String key : extras.keySet()){
+            String evaluatedKey = extras.get(key).evaluate(context);
+            evaluatedExtras.put(key, evaluatedKey);
+        }
+
+        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
+
+        return ret;
     }
 
     /*
@@ -67,7 +75,7 @@ public class Callout implements Externalizable, DetailTemplate{
 
     public String getDisplayName() { return displayName;}
 
-    public void addExtra(String key, String value) {
+    public void addExtra(String key, Text value) {
         extras.put(key, value);
     }
 
@@ -75,7 +83,7 @@ public class Callout implements Externalizable, DetailTemplate{
         responses.add(key);
     }
 
-    public Hashtable<String, String> getExtras(){
+    public Hashtable<String, Text> getExtras(){
         return extras;
     }
 
