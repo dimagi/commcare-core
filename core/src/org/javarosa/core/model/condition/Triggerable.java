@@ -139,7 +139,8 @@ public abstract class Triggerable implements Externalizable {
 
     public Vector<TreeReference> getTriggers() {
         // grab the relative trigger references from expression
-        Vector<TreeReference> relTriggers = expr.getTriggers();
+        Vector<TreeReference> relTriggers = expr.getExprsTriggers(originalContextRef);
+
         // construct absolute references by anchoring against the original context reference
         Vector<TreeReference> absTriggers = new Vector<TreeReference>();
         for (int i = 0; i < relTriggers.size(); i++) {

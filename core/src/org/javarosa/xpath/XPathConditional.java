@@ -95,18 +95,38 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
-    public Vector<TreeReference> getTriggers() {
+    public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
         Vector triggers = new Vector();
-        getTriggers(expr, triggers, null);
+        getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
         return triggers;
     }
 
-    private static void getTriggers(XPathExpression x, Vector<TreeReference> v,
-                                    TreeReference contextRef) {
-        if (x instanceof XPathPathExpr) {
-            TreeReference ref = ((XPathPathExpr)x).getReference();
+    /**
+     * Recursive helper to getExprsTriggers with an accumulator trigger vector.
+     *
+     * @param expr               Current expression we are collecting triggers from
+     * @param triggers           Accumulates the references that this object's
+     *                           expression value depends upon.
+     * @param contextRef         Use this updated context; used, for instance,
+     *                           when we move into handling predicates
+     * @param originalContextRef Context reference pointing to the nodeset
+     *                           reference; used for expanding 'current()'
+     */
+    private static void getExprsTriggersAccumulator(XPathExpression expr,
+                                                    Vector<TreeReference> triggers,
+                                                    TreeReference contextRef,
+                                                    TreeReference originalContextRef) {
+        if (expr instanceof XPathPathExpr) {
+            TreeReference ref = ((XPathPathExpr)expr).getReference();
             TreeReference contextualized = ref;
-            if (contextRef != null) {
+
+            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL) {
+                // Starts with 'current()' so contextualize in terms of the
+                // nodeset's original reference.
+                contextualized = ref.contextualize(originalContextRef);
+            } else if (contextRef != null) {
+                // If present then the context has been updated, so use it.
+                // Necessary if we jump into handling predicates.
                 contextualized = ref.contextualize(contextRef);
             }
 
@@ -115,9 +135,10 @@ public class XPathConditional implements IConditionExpr {
             if (contextualized.hasPredicates()) {
                 contextualized = contextualized.removePredicates();
             }
-            if (!v.contains(contextualized)) {
-                v.addElement(contextualized);
+            if (!triggers.contains(contextualized)) {
+                triggers.addElement(contextualized);
             }
+            // find the references this reference depends on inside of predicates
             for (int i = 0; i < ref.size(); i++) {
                 Vector<XPathExpression> predicates = ref.getPredicate(i);
                 if (predicates == null) {
@@ -131,18 +152,23 @@ public class XPathConditional implements IConditionExpr {
                 TreeReference predicateContext = ref.getSubReference(i);
 
                 for (XPathExpression predicate : predicates) {
-                    getTriggers(predicate, v, predicateContext);
+                    getExprsTriggersAccumulator(predicate, triggers,
+                            predicateContext, originalContextRef);
                 }
             }
-        } else if (x instanceof XPathBinaryOpExpr) {
-            getTriggers(((XPathBinaryOpExpr)x).a, v, contextRef);
-            getTriggers(((XPathBinaryOpExpr)x).b, v, contextRef);
-        } else if (x instanceof XPathUnaryOpExpr) {
-            getTriggers(((XPathUnaryOpExpr)x).a, v, contextRef);
-        } else if (x instanceof XPathFuncExpr) {
-            XPathFuncExpr fx = (XPathFuncExpr)x;
+        } else if (expr instanceof XPathBinaryOpExpr) {
+            getExprsTriggersAccumulator(((XPathBinaryOpExpr)expr).a, triggers,
+                    contextRef, originalContextRef);
+            getExprsTriggersAccumulator(((XPathBinaryOpExpr)expr).b, triggers,
+                    contextRef, originalContextRef);
+        } else if (expr instanceof XPathUnaryOpExpr) {
+            getExprsTriggersAccumulator(((XPathUnaryOpExpr)expr).a, triggers,
+                    contextRef, originalContextRef);
+        } else if (expr instanceof XPathFuncExpr) {
+            XPathFuncExpr fx = (XPathFuncExpr)expr;
             for (int i = 0; i < fx.args.length; i++)
-                getTriggers(fx.args[i], v, contextRef);
+                getExprsTriggersAccumulator(fx.args[i], triggers,
+                        contextRef, originalContextRef);
         }
     }
 

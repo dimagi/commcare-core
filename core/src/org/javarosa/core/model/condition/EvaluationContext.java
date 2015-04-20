@@ -53,6 +53,7 @@ public class EvaluationContext {
 
     private Hashtable<String, DataInstance> formInstances;
 
+    // original context reference used for evaluating current()
     private TreeReference original;
     private int currentContextPosition = -1;
 
@@ -392,23 +393,38 @@ public class EvaluationContext {
         }
     }
 
-    private EvaluationContext rescope(TreeReference treeRef, int currentContextPosition) {
-        EvaluationContext ec = new EvaluationContext(this, treeRef);
-        ec.currentContextPosition = currentContextPosition;
-        //If there was no original context position, we'll want to set the next original
-        //context to be this rescoping (which would be the backup original one).
+    /**
+     * Create a copy of the evaluation context, with a new context ref.
+     *
+     * When determining what the original reference field of the new object
+     * should be:
+     * - Use the 'original' field from the original object.
+     * - If it is unset, use the original objects context reference.
+     * - If that is '/' then use the new context reference
+     *
+     * @param newContextRef      the new context anchor reference
+     * @param newContextPosition the new position of the context (in a repeat
+     *                           group)
+     * @return a copy of this evaluation context, with a new context reference
+     * set and the original context reference correspondingly updated.
+     */
+    private EvaluationContext rescope(TreeReference newContextRef, int newContextPosition) {
+        EvaluationContext ec = new EvaluationContext(this, newContextRef);
+        ec.currentContextPosition = newContextPosition;
+
+        // If we have an original context reference, use it
         if (this.original != null) {
             ec.setOriginalContext(this.getOriginalContext());
         } else {
-            //Check to see if we have a context, if not, the treeRef is the original declared
-            //nodeset.
-            if (TreeReference.rootRef().equals(this.getContextRef())) {
-                ec.setOriginalContext(treeRef);
-            } else {
-                //If we do have a legit context, use it!
+            // Otherwise, if the old context reference isn't '/', use that.If
+            // the context ref is '/', use the new context ref as the original
+            if (!TreeReference.rootRef().equals(this.getContextRef())) {
                 ec.setOriginalContext(this.getContextRef());
+            } else {
+                // Otherwise propagate the original context reference field
+                // with the new context reference argument
+                ec.setOriginalContext(newContextRef);
             }
-
         }
         return ec;
     }
@@ -425,6 +441,9 @@ public class EvaluationContext {
         return instance.resolveReference(qualifiedRef);
     }
 
+    /**
+     * What repeat item is the current context pointing to?
+     */
     public int getContextPosition() {
         return currentContextPosition;
     }

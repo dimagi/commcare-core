@@ -83,9 +83,11 @@ public interface IConditionExpr extends Externalizable {
      * directly. These values can't be contextualized fully (since these triggers are necessary
      * before runtime), but should only need to be contextualized to be a complete set.
      *
-     * @return
+     * @param originalContextRef context reference pointing to the nodeset
+     *                           reference; used for expanding 'current()'
+     * @return References that are dependant on this expression's value.
      */
-    Vector<TreeReference> getTriggers(); /* vector of TreeReference */
+    Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef);
 
     /**
      * Provide a list of Pivots around which this Condition Expression depends.
