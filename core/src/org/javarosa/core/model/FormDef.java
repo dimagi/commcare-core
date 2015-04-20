@@ -134,7 +134,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         setChildren(null);
         triggerables = new Vector();
         triggerablesInOrder = true;
-        triggerIndex = new Hashtable();
+        triggerIndex = new Hashtable<TreeReference, Vector<Triggerable>>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
         outputFragments = new Vector();
@@ -543,7 +543,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      */
     public Triggerable addTriggerable(Triggerable t) {
         int existingIx = triggerables.indexOf(t);
-        if (existingIx >= 0) {
+        if (existingIx != -1) {
             // One node may control access to many nodes; this means many nodes
             // effectively have the same condition. Let's identify when
             // conditions are the same, and store and calculate it only once.
@@ -567,11 +567,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggerables.addElement(t);
             triggerablesInOrder = false;
 
-            Vector triggers = t.getTriggers();
-            for (int i = 0; i < triggers.size(); i++) {
-                TreeReference trigger = (TreeReference)triggers.elementAt(i);
+            for (TreeReference trigger : t.getTriggers()) {
                 if (!triggerIndex.containsKey(trigger)) {
-                    triggerIndex.put(trigger.clone(), new Vector());
+                    triggerIndex.put(trigger.clone(), new Vector<Triggerable>());
                 }
                 Vector triggered = (Vector)triggerIndex.get(trigger);
                 if (!triggered.contains(t)) {
@@ -682,6 +680,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * triggerable is fired.
      *
      * @param t
+     * @param destination
      */
     public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
         if (t.canCascade()) {
