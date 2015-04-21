@@ -80,15 +80,18 @@ public class XPathPathExpr extends XPathExpression {
     }
 
     /**
-     * translate an xpath path reference into a TreeReference
-     * TreeReferences only support a subset of true xpath paths; restrictions are:
-     * simple child name tests 'child::name', '.', and '..' allowed only
-     * no predicates
-     * all '..' steps must come before anything else
+     * Translate an xpath path reference into a TreeReference
+     * TreeReferences only support a subset of xpath paths:
+     * - only simple child name tests 'child::name', '.', and '..' allowed.
+     * - '../' steps must come before anything else
+     *
+     * @param allowPredicates Is deprecated! Don't use this.
+     * @return a reference built from this path expression
      */
     public TreeReference getReference(boolean allowPredicates) throws XPathUnsupportedException {
         TreeReference ref = new TreeReference();
         boolean parentsAllowed;
+        // process the beginning of the reference
         switch (init_context) {
             case XPathPathExpr.INIT_CONTEXT_ROOT:
                 ref.setRefLevel(TreeReference.REF_ABSOLUTE);
@@ -102,42 +105,46 @@ public class XPathPathExpr extends XPathExpression {
                 if (this.filtExpr.x != null && this.filtExpr.x instanceof XPathFuncExpr) {
                     XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
                     if (func.id.toString().equals("instance")) {
-                        ref.setRefLevel(TreeReference.REF_ABSOLUTE); //i assume when refering the non main instance you have to be absolute
+                        // i assume when refering the non main instance you have to be absolute
+                        ref.setRefLevel(TreeReference.REF_ABSOLUTE);
                         parentsAllowed = false;
                         if (func.args.length != 1) {
-                            throw new XPathUnsupportedException("instance() function used with " + func.args.length + " arguements. Expecting 1 arguement");
+                            throw new XPathUnsupportedException("instance() function used with " +
+                                    func.args.length + " arguements. Expecting 1 arguement");
                         }
                         if (!(func.args[0] instanceof XPathStringLiteral)) {
                             throw new XPathUnsupportedException("instance() function expecting 1 string literal arguement arguement");
                         }
                         XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
-                        //we've got a non-standard instance in play, watch out
+                        // we've got a non-standard instance in play, watch out
                         ref.setInstanceName(strLit.s);
                     } else if (func.id.toString().equals("current")) {
                         parentsAllowed = true;
                         ref.setContext(TreeReference.CONTEXT_ORIGINAL);
                     } else {
-                        //We only support expression root contexts for instance refs, everything else is an illegal filter
+                        // We only support expression root contexts for
+                        // instance refs, everything else is an illegal filter
                         throw new XPathUnsupportedException("filter expression");
                     }
                 } else {
-                    //We only support expression root contexts for instance refs, everything else is an illegal filter
+                    // We only support expression root contexts for instance
+                    // refs, everything else is an illegal filter
                     throw new XPathUnsupportedException("filter expression");
                 }
-
                 break;
             default:
                 throw new XPathUnsupportedException("filter expression");
         }
-        for (int i = 0; i < steps.length; i++) {
-            XPathStep step = steps[i];
+
+        final String otherStepMessage = "step other than 'child::name', '.', '..'";
+        for (XPathStep step : steps) {
             if (step.axis == XPathStep.AXIS_SELF) {
                 if (step.test != XPathStep.TEST_TYPE_NODE) {
-                    throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
+                    throw new XPathUnsupportedException(otherStepMessage);
                 }
             } else if (step.axis == XPathStep.AXIS_PARENT) {
                 if (!parentsAllowed || step.test != XPathStep.TEST_TYPE_NODE) {
-                    throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
+                    throw new XPathUnsupportedException(otherStepMessage);
                 } else {
                     ref.incrementRefLevel();
                 }
@@ -158,10 +165,10 @@ public class XPathPathExpr extends XPathExpression {
                     ref.add(TreeReference.NAME_WILDCARD, TreeReference.INDEX_UNBOUND);
                     parentsAllowed = false;
                 } else {
-                    throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
+                    throw new XPathUnsupportedException(otherStepMessage);
                 }
             } else {
-                throw new XPathUnsupportedException("step other than 'child::name', '.', '..'");
+                throw new XPathUnsupportedException(otherStepMessage);
             }
 
             if (step.predicates.length > 0) {
@@ -170,7 +177,8 @@ public class XPathPathExpr extends XPathExpression {
                 for (int j = 0; j < step.predicates.length; j++) {
                     v.addElement(step.predicates[j]);
                 }
-                ref.addPredicate(i, v);
+                // add the predicate vector to the last step in the ref
+                ref.addPredicate(ref.size() - 1, v);
             }
         }
         return ref;
