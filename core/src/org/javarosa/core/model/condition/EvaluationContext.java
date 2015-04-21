@@ -229,18 +229,6 @@ public class EvaluationContext {
         return v;
     }
 
-    protected DataInstance retrieveInstance(TreeReference ref) {
-        if (ref.getInstanceName() != null && formInstances.containsKey(ref.getInstanceName())) {
-            return formInstances.get(ref.getInstanceName());
-        } else if (instance != null) {
-            return instance;
-        } else {
-            throw new RuntimeException("Unable to expand reference " +
-                    ref.toString(true) +
-                    ", no appropriate instance in evaluation context");
-        }
-    }
-
     /**
      * Recursive helper function for expandReference that performs the search
      * for all repeated nodes that match the pattern of the 'ref' argument.
@@ -454,8 +442,6 @@ public class EvaluationContext {
         }
     }
 
-    //Dunno what to do about the fact that these two calls are mirrored down...
-
     /**
      * Get the relevant cache host for the provided ref, if one exists.
      *
@@ -469,5 +455,28 @@ public class EvaluationContext {
         }
         CacheHost host = instance.getCacheHost();
         return host;
+    }
+
+    /**
+     * Get the instance of the reference argument, if it's present in this
+     * context's form instances. Otherwise returns the main instance of this
+     * evaluation context.
+     *
+     * @param ref retreive the instance of this reference, if loaded in the
+     *            context
+     * @return the instance that the reference argument names, if loaded,
+     *         otherwise the main instance if present.
+     */
+    private DataInstance retrieveInstance(TreeReference ref) {
+        if (ref.getInstanceName() != null &&
+                formInstances.containsKey(ref.getInstanceName())) {
+            return formInstances.get(ref.getInstanceName());
+        } else if (instance != null) {
+            return instance;
+        }
+
+        throw new RuntimeException("Unable to expand reference " +
+                ref.toString(true) +
+                ", no appropriate instance in evaluation context");
     }
 }
