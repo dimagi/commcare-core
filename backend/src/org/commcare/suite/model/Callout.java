@@ -47,6 +47,19 @@ public class Callout implements Externalizable, DetailTemplate{
         return ret;
     }
 
+    public CalloutData evaluate() {
+
+        Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
+        for(String key : extras.keySet()){
+            String evaluatedKey = extras.get(key).evaluate();
+            evaluatedExtras.put(key, evaluatedKey);
+        }
+
+        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
+
+        return ret;
+    }
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
