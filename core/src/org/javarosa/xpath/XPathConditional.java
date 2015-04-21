@@ -130,14 +130,6 @@ public class XPathConditional implements IConditionExpr {
                 contextualized = ref.contextualize(contextRef);
             }
 
-            // TODO: It's possible we should just handle this the same way as
-            // "genericize". Not entirely clear.
-            if (contextualized.hasPredicates()) {
-                contextualized = contextualized.removePredicates();
-            }
-            if (!triggers.contains(contextualized)) {
-                triggers.addElement(contextualized);
-            }
             // find the references this reference depends on inside of predicates
             for (int i = 0; i < ref.size(); i++) {
                 Vector<XPathExpression> predicates = ref.getPredicate(i);
@@ -145,16 +137,40 @@ public class XPathConditional implements IConditionExpr {
                     continue;
                 }
 
-                //we can't generate this properly without an absolute reference
+                // contextualizing with ../'s present means we need to
+                // calculate an offset to grab the appropriate predicates
+                int basePredIndex = contextualized.size() - ref.size();
+
                 if (!ref.isAbsolute()) {
+                    // With an absolute ref the contextualized version is
+                    // identical; hence no need for offsetting the predicate
+                    // index in order to grab the correct predicates.
+                    basePredIndex = 0;
+                }
+
+                // We can't handle predicates on references that are relative
+                // even after anchoring.
+                // XXX: But why is this? -- PLM
+                if (!contextualized.isAbsolute()) {
                     throw new IllegalArgumentException("can't get triggers for relative references");
                 }
+
                 TreeReference predicateContext = ref.getSubReference(i);
+                predicateContext = contextualized.getSubReference(basePredIndex + i);
 
                 for (XPathExpression predicate : predicates) {
                     getExprsTriggersAccumulator(predicate, triggers,
                             predicateContext, originalContextRef);
                 }
+            }
+
+            // TODO: It's possible we should just handle this the same way as
+            // "genericize". Not entirely clear.
+            if (contextualized.hasPredicates()) {
+                contextualized = contextualized.removePredicates();
+            }
+            if (!triggers.contains(contextualized)) {
+                triggers.addElement(contextualized);
             }
         } else if (expr instanceof XPathBinaryOpExpr) {
             getExprsTriggersAccumulator(((XPathBinaryOpExpr)expr).a, triggers,
