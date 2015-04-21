@@ -55,13 +55,23 @@ public class EvaluationContext {
 
     // original context reference used for evaluating current()
     private TreeReference original;
+
+    /**
+     * What element in a nodeset is the context currently pointing to?
+     * Used for calculating the position() xpath function.
+     */
     private int currentContextPosition = -1;
 
     DataInstance instance;
+
+    /**
+     * TODO: Clayton, please comment what this does and why we can assume in
+     * the code that it always has at least 2 elements. --PLM
+     */
     int[] predicateEvaluationProgress;
 
     /**
-     * Copy Constructor *
+     * Copy Constructor
      */
     private EvaluationContext(EvaluationContext base) {
         //TODO: These should be deep, not shallow
@@ -246,137 +256,135 @@ public class EvaluationContext {
                                             TreeReference workingRef, Vector<TreeReference> refs,
                                             boolean includeTemplates) {
         int depth = workingRef.size();
-        Vector<XPathExpression> predicates = null;
 
-        //check to see if we've matched fully
         if (depth == sourceRef.size()) {
-            //TODO: Do we need to clone these references?
+            // We've matched fully
+            //TODO: Should this reference be cloned?
             refs.addElement(workingRef);
-        } else {
-            //Otherwise, need to get the next set of matching references
-            String name = sourceRef.getName(depth);
-            predicates = sourceRef.getPredicate(depth);
+            return;
+        }
+        Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
+        // Get the next set of matching references
+        String name = sourceRef.getName(depth);
 
-            //Copy predicates for batch fetch
-            if (predicates != null) {
-                Vector<XPathExpression> predCopy = new Vector<XPathExpression>();
-                for (XPathExpression xpe : predicates) {
-                    predCopy.addElement(xpe);
-                }
-                predicates = predCopy;
+        // since tryBatchChildFetch mutates its predicate argument, create an
+        // extra copy, until this gets refactored
+        Vector<XPathExpression> predicatesForChildFetch = new Vector<XPathExpression>();
+
+        // Copy predicates for batch fetch
+        if (predicates != null) {
+            Vector<XPathExpression> predCopy = new Vector<XPathExpression>(predicates.size());
+            for (XPathExpression xpe : predicates) {
+                predCopy.addElement(xpe);
+                predicatesForChildFetch.addElement(xpe);
             }
+            predicates = predCopy;
+        }
 
-            int mult = sourceRef.getMultiplicity(depth);
+        int mult = sourceRef.getMultiplicity(depth);
 
-            // child & template TreeReferences that we want to recur on
-            Vector<TreeReference> set = new Vector<TreeReference>();
+        // Gather child & template TreeReferences to recur over
+        AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
+        // TODO: refactor TreeUtilities.tryBatchChildFetch, make it not clobber
+        // predicates!
+        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult,
+                predicatesForChildFetch, this);
 
-            AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
-            Vector<TreeReference> passingSet = new Vector<TreeReference>();
-
-            Vector<TreeReference> children = node.tryBatchChildFetch(name, mult, predicates, this);
-
-            if (children != null) {
-                set = children;
-            } else {
-                if (node.hasChildren()) {
-                    if (mult == TreeReference.INDEX_UNBOUND) {
-                        int count = node.getChildMultiplicity(name);
-                        for (int i = 0; i < count; i++) {
-                            AbstractTreeElement child = node.getChild(name, i);
-                            if (child != null) {
-                                set.addElement(child.getRef());
-                            } else {
-                                throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
-                            }
-                        }
-                        if (includeTemplates) {
-                            AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
-                            if (template != null) {
-                                set.addElement(template.getRef());
-                            }
-                        }
-                    } else if (mult != TreeReference.INDEX_ATTRIBUTE) {
-                        //TODO: Make this test mult >= 0?
-                        //If the multiplicity is a simple integer, just get
-                        //the appropriate child
-                        AbstractTreeElement child = node.getChild(name, mult);
+        if (childSet == null) {
+            childSet = new Vector<TreeReference>();
+            if (node.hasChildren()) {
+                if (mult == TreeReference.INDEX_UNBOUND) {
+                    int count = node.getChildMultiplicity(name);
+                    for (int i = 0; i < count; i++) {
+                        AbstractTreeElement child = node.getChild(name, i);
                         if (child != null) {
-                            set.addElement(child.getRef());
-                        }
-                    }
-                }
-
-                if (mult == TreeReference.INDEX_ATTRIBUTE) {
-                    AbstractTreeElement attribute = node.getAttribute(null, name);
-                    if (attribute != null) {
-                        set.addElement(attribute.getRef());
-                    }
-                }
-            }
-
-            if (predicates != null && predicateEvaluationProgress != null) {
-                predicateEvaluationProgress[1] += set.size();
-            }
-            //Create a place to store the current position markers
-            int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
-
-            //init all to 0
-            for (int i = 0; i < positionContext.length; ++i) {
-                positionContext[i] = 0;
-            }
-
-            for (TreeReference treeRef : set) {
-                //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
-                if (predicates != null) {
-                    boolean passedAll = true;
-                    int predIndex = -1;
-                    for (XPathExpression xpe : predicates) {
-                        predIndex++;
-                        //Just by getting here we're establishing a position for evaluating the current
-                        //context. If we break, we won't push up the next one
-                        positionContext[predIndex]++;
-
-                        //test the predicate on the treeElement
-                        //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
-                        EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
-                        Object o = xpe.eval(sourceInstance, evalContext);
-
-                        //There's a special case here that can't be handled by syntactic sugar.
-                        //If the result of a predicate expression is an Integer, we need to
-                        //evaluate whether that value is equal to the current position context
-
-                        o = XPathFuncExpr.unpack(o);
-
-                        boolean passed = false;
-
-                        if (o instanceof Double) {
-                            //The spec just says "number" for when to use
-                            //this, so I think this is ok? It's not clear
-                            //what to do with a non-integer. It's possible
-                            //we are not supposed to round.
-                            int intVal = XPathFuncExpr.toInt(o).intValue();
-                            passed = (intVal == positionContext[predIndex]);
-                        } else if (o instanceof Boolean) {
-                            passed = ((Boolean)o).booleanValue();
+                            childSet.addElement(child.getRef());
                         } else {
-                            //???
+                            throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
                         }
+                    }
+                    if (includeTemplates) {
+                        AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+                        if (template != null) {
+                            childSet.addElement(template.getRef());
+                        }
+                    }
+                } else if (mult != TreeReference.INDEX_ATTRIBUTE) {
+                    //TODO: Make this test mult >= 0?
+                    //If the multiplicity is a simple integer, just get
+                    //the appropriate child
+                    AbstractTreeElement child = node.getChild(name, mult);
+                    if (child != null) {
+                        childSet.addElement(child.getRef());
+                    }
+                }
+            }
 
-                        if (!passed) {
-                            passedAll = false;
-                            break;
-                        }
+            if (mult == TreeReference.INDEX_ATTRIBUTE) {
+                AbstractTreeElement attribute = node.getAttribute(null, name);
+                if (attribute != null) {
+                    childSet.addElement(attribute.getRef());
+                }
+            }
+        }
+
+        if (predicates != null && predicateEvaluationProgress != null) {
+            predicateEvaluationProgress[1] += childSet.size();
+        }
+
+        // TODO: write tests and refactor current position code -- PLM
+        // Create a place to store the current position markers
+        int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
+
+        for (TreeReference treeRef : childSet) {
+            //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
+            if (predicates != null) {
+                boolean passedAll = true;
+                int predIndex = -1;
+                for (XPathExpression xpe : predicates) {
+                    predIndex++;
+                    // Just by getting here we're establishing a position for
+                    // evaluating the current context. If we break, we won't
+                    // push up the next one
+                    positionContext[predIndex]++;
+
+                    // Test the predicate on the treeElement
+                    EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
+                    Object o = xpe.eval(sourceInstance, evalContext);
+                    o = XPathFuncExpr.unpack(o);
+
+
+                    boolean passed = false;
+                    if (o instanceof Double) {
+                        // There's a special case here that can't be handled by
+                        // syntactic sugar.  If the result of a predicate
+                        // expression is an Integer, we need to evaluate
+                        // whether that value is equal to the current position
+                        // context
+
+                        //The spec just says "number" for when to use
+                        //this, so I think this is ok? It's not clear
+                        //what to do with a non-integer. It's possible
+                        //we are not supposed to round.
+                        int intVal = XPathFuncExpr.toInt(o).intValue();
+                        passed = (intVal == positionContext[predIndex]);
+                    } else if (o instanceof Boolean) {
+                        passed = (Boolean)o;
                     }
-                    if (predicateEvaluationProgress != null) {
-                        predicateEvaluationProgress[0]++;
+
+                    if (!passed) {
+                        passedAll = false;
+                        break;
                     }
-                    if (passedAll) {
-                        expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
-                    }
-                } else {
+                }
+                if (predicateEvaluationProgress != null) {
+                    predicateEvaluationProgress[0]++;
+                }
+                if (passedAll) {
                     expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
                 }
+            } else {
+                expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
             }
         }
     }
@@ -430,12 +438,18 @@ public class EvaluationContext {
     }
 
     /**
-     * What repeat item is the current context pointing to?
+     * The context's current position in terms the nodes available for the
+     * context's path. I.e. if the context points to the 3rd node that /a/b/c
+     * resolves to, then the current position is 3.
      */
     public int getContextPosition() {
         return currentContextPosition;
     }
 
+    /**
+     * TODO: What is this? Why is predicateEvaluationProgress only ever written
+     * and never seems to be read? -- PLM
+     */
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;
@@ -465,7 +479,7 @@ public class EvaluationContext {
      * @param ref retreive the instance of this reference, if loaded in the
      *            context
      * @return the instance that the reference argument names, if loaded,
-     *         otherwise the main instance if present.
+     * otherwise the main instance if present.
      */
     private DataInstance retrieveInstance(TreeReference ref) {
         if (ref.getInstanceName() != null &&
