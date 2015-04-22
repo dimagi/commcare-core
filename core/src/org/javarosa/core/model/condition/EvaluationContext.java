@@ -297,7 +297,6 @@ public class EvaluationContext {
             incRefsToFilterCount(childSet.size());
         }
 
-        // TODO: write tests and refactor current position code -- PLM
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
