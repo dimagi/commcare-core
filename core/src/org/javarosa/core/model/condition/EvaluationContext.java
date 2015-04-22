@@ -269,6 +269,7 @@ public class EvaluationContext {
         }
         // Get the next set of matching references
         String name = sourceRef.getName(depth);
+        int mult = sourceRef.getMultiplicity(depth);
         Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
 
         // Batch fetch is going to mutate the predicates vector, create a copy
@@ -281,15 +282,14 @@ public class EvaluationContext {
         }
 
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
-        assert node.getMult() == sourceRef.getMultiplicity(depth);
 
         // Use the reference's simple predicates to filter the potential
         // nodeset.  Predicates used in filtering are removed from the
         // predicate input argument.
-        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, node.getMult(), predicates, this);
+        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult, predicates, this);
 
         if (childSet == null) {
-            childSet = loadReferencesChildren(node, name, includeTemplates);
+            childSet = loadReferencesChildren(node, name, mult, includeTemplates);
         }
 
         if (predicates != null && predicates.size() > 0) {
@@ -349,13 +349,14 @@ public class EvaluationContext {
      *
      * @param node element of which to collect child references
      * @param name
+     * @param mult
      * @param includeTemplates
      * @return
      */
     private Vector<TreeReference> loadReferencesChildren(AbstractTreeElement node,
                                                          String name,
+                                                         int mult,
                                                          boolean includeTemplates) {
-        int mult = node.getMult();
         Vector<TreeReference> childSet = new Vector<TreeReference>();
         if (node.hasChildren()) {
             if (mult == TreeReference.INDEX_UNBOUND) {
