@@ -65,8 +65,12 @@ public class EvaluationContext {
     DataInstance instance;
 
     /**
-     * TODO: Clayton, please comment what this does and why we can assume in
-     * the code that it always has at least 2 elements. --PLM
+     * Two-element array to keep track of how many candidate references have
+     * had their (complex) predicates evaluated during reference expansion.
+     *
+     * 1st element counts how refs have been processed, 2nd counts total
+     * references with (complex) predicates. Complex meaning not handled by
+     * tryBatchChildFetch.
      */
     int[] predicateEvaluationProgress;
 
@@ -263,109 +267,64 @@ public class EvaluationContext {
             refs.addElement(workingRef);
             return;
         }
-        Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
         // Get the next set of matching references
         String name = sourceRef.getName(depth);
+        Vector<XPathExpression> predicates = sourceRef.getPredicate(depth);
 
-        // since tryBatchChildFetch mutates its predicate argument, create an
-        // extra copy, until this gets refactored
-        Vector<XPathExpression> predicatesForChildFetch = new Vector<XPathExpression>();
-
-        // Copy predicates for batch fetch
+        // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
             Vector<XPathExpression> predCopy = new Vector<XPathExpression>(predicates.size());
             for (XPathExpression xpe : predicates) {
                 predCopy.addElement(xpe);
-                predicatesForChildFetch.addElement(xpe);
             }
             predicates = predCopy;
         }
 
-        int mult = sourceRef.getMultiplicity(depth);
-
-        // Gather child & template TreeReferences to recur over
         AbstractTreeElement node = sourceInstance.resolveReference(workingRef);
-        // TODO: refactor TreeUtilities.tryBatchChildFetch, make it not clobber
-        // predicates!
-        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, mult,
-                predicatesForChildFetch, this);
+        assert node.getMult() == sourceRef.getMultiplicity(depth);
+
+        // Use the reference's simple predicates to filter the potential
+        // nodeset.  Predicates used in filtering are removed from the
+        // predicate input argument.
+        Vector<TreeReference> childSet = node.tryBatchChildFetch(name, node.getMult(), predicates, this);
 
         if (childSet == null) {
-            childSet = new Vector<TreeReference>();
-            if (node.hasChildren()) {
-                if (mult == TreeReference.INDEX_UNBOUND) {
-                    int count = node.getChildMultiplicity(name);
-                    for (int i = 0; i < count; i++) {
-                        AbstractTreeElement child = node.getChild(name, i);
-                        if (child != null) {
-                            childSet.addElement(child.getRef());
-                        } else {
-                            throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
-                        }
-                    }
-                    if (includeTemplates) {
-                        AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
-                        if (template != null) {
-                            childSet.addElement(template.getRef());
-                        }
-                    }
-                } else if (mult != TreeReference.INDEX_ATTRIBUTE) {
-                    //TODO: Make this test mult >= 0?
-                    //If the multiplicity is a simple integer, just get
-                    //the appropriate child
-                    AbstractTreeElement child = node.getChild(name, mult);
-                    if (child != null) {
-                        childSet.addElement(child.getRef());
-                    }
-                }
-            }
-
-            if (mult == TreeReference.INDEX_ATTRIBUTE) {
-                AbstractTreeElement attribute = node.getAttribute(null, name);
-                if (attribute != null) {
-                    childSet.addElement(attribute.getRef());
-                }
-            }
+            childSet = loadReferencesChildren(node, name, includeTemplates);
         }
 
-        if (predicates != null && predicateEvaluationProgress != null) {
-            predicateEvaluationProgress[1] += childSet.size();
+        if (predicates != null && predicates.size() > 0) {
+            // child references need to be filtered over remaining predicates
+            incRefsToFilterCount(childSet.size());
         }
 
         // TODO: write tests and refactor current position code -- PLM
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
-        for (TreeReference treeRef : childSet) {
-            //if there are predicates then we need to see if e.nextElement meets the standard of the predicate
-            if (predicates != null) {
-                boolean passedAll = true;
+        for (TreeReference refToExpand : childSet) {
+            boolean passedAll = true;
+            if (predicates != null && predicates.size() > 0) {
+                // Evaluate and filter predicates not processed by
+                // tryBatchChildFetch
                 int predIndex = -1;
-                for (XPathExpression xpe : predicates) {
+                for (XPathExpression predExpr : predicates) {
                     predIndex++;
                     // Just by getting here we're establishing a position for
                     // evaluating the current context. If we break, we won't
                     // push up the next one
                     positionContext[predIndex]++;
 
-                    // Test the predicate on the treeElement
-                    EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
-                    Object o = xpe.eval(sourceInstance, evalContext);
+                    EvaluationContext evalContext = rescope(refToExpand, positionContext[predIndex]);
+                    Object o = predExpr.eval(sourceInstance, evalContext);
                     o = XPathFuncExpr.unpack(o);
-
 
                     boolean passed = false;
                     if (o instanceof Double) {
-                        // There's a special case here that can't be handled by
-                        // syntactic sugar.  If the result of a predicate
-                        // expression is an Integer, we need to evaluate
-                        // whether that value is equal to the current position
-                        // context
+                        // If a predicate expression is just an Integer, check
+                        // if its equal to the current position context
 
-                        //The spec just says "number" for when to use
-                        //this, so I think this is ok? It's not clear
-                        //what to do with a non-integer. It's possible
-                        //we are not supposed to round.
+                        // The spec just says "number" for when to use this;
+                        // Not clear what to do with a non-integer/rounding.
                         int intVal = XPathFuncExpr.toInt(o).intValue();
                         passed = (intVal == positionContext[predIndex]);
                     } else if (o instanceof Boolean) {
@@ -377,16 +336,65 @@ public class EvaluationContext {
                         break;
                     }
                 }
-                if (predicateEvaluationProgress != null) {
-                    predicateEvaluationProgress[0]++;
-                }
-                if (passedAll) {
-                    expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
-                }
-            } else {
-                expandReferenceAccumulator(sourceRef, sourceInstance, treeRef, refs, includeTemplates);
+                incRefsFilteredCount();
+            }
+            if (passedAll) {
+                expandReferenceAccumulator(sourceRef, sourceInstance, refToExpand, refs, includeTemplates);
             }
         }
+    }
+
+    /**
+     * Load viable references that are children of the element argument.
+     *
+     * @param node element of which to collect child references
+     * @param name
+     * @param includeTemplates
+     * @return
+     */
+    private Vector<TreeReference> loadReferencesChildren(AbstractTreeElement node,
+                                                         String name,
+                                                         boolean includeTemplates) {
+        int mult = node.getMult();
+        Vector<TreeReference> childSet = new Vector<TreeReference>();
+        if (node.hasChildren()) {
+            if (mult == TreeReference.INDEX_UNBOUND) {
+                int count = node.getChildMultiplicity(name);
+                for (int i = 0; i < count; i++) {
+                    AbstractTreeElement child = node.getChild(name, i);
+                    if (child != null) {
+                        childSet.addElement(child.getRef());
+                    } else {
+                        throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
+                    }
+                }
+                // TODO: this could be lifted out a conditional level, right? -- PLM
+                if (includeTemplates) {
+                    AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+                    if (template != null) {
+                        childSet.addElement(template.getRef());
+                    }
+                }
+            } else if (mult != TreeReference.INDEX_ATTRIBUTE) {
+                // TODO: Make this test mult >= 0?
+                // If the multiplicity is a simple integer, just get the
+                // appropriate child
+                AbstractTreeElement child = node.getChild(name, mult);
+                if (child != null) {
+                    childSet.addElement(child.getRef());
+                }
+            }
+        }
+
+        // Working reference points to an attribute; add it to set to
+        // process
+        if (mult == TreeReference.INDEX_ATTRIBUTE) {
+            AbstractTreeElement attribute = node.getAttribute(null, name);
+            if (attribute != null) {
+                childSet.addElement(attribute.getRef());
+            }
+        }
+        return childSet;
     }
 
     /**
@@ -447,14 +455,36 @@ public class EvaluationContext {
     }
 
     /**
-     * TODO: What is this? Why is predicateEvaluationProgress only ever written
-     * and never seems to be read? -- PLM
+     * Point the local progress tracking array to the address passed in. Used
+     * to enable processes that call expandReference to keep track of
+     * predicates evaluation over candidate reference results.
      */
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;
         }
     }
+
+    /**
+     * Increment the amount of references left to filter during reference
+     * expansion.
+     */
+    private void incRefsToFilterCount(int amount) {
+        if (predicateEvaluationProgress != null) {
+            predicateEvaluationProgress[1] += amount;
+        }
+    }
+
+    /**
+     * Increment the amount of references that have been filtered during
+     * reference expansion.
+     */
+    private void incRefsFilteredCount() {
+        if (predicateEvaluationProgress != null) {
+            predicateEvaluationProgress[0]++;
+        }
+    }
+
 
     /**
      * Get the relevant cache host for the provided ref, if one exists.
