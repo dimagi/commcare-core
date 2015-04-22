@@ -169,9 +169,11 @@ public class TreeUtilities {
                             for (int kidI = 0; kidI < kids.size(); ++kidI) {
                                 String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
 
-                                //We don't necessarily having typing information for these attributes (and if we did
-                                //it's not available here) so we will try to do some _very basic_ type inference
-                                //on this value before performing the match
+                                // We don't necessarily having typing
+                                // information for these attributes (and if we
+                                // did it's not available here) so we will try
+                                // to do some _very basic_ type inference on
+                                // this value before performing the match
                                 Object value = XPathFuncExpr.InferType(attrValue);
 
                                 if (XPathEqExpr.testEquality(value, literalMatch)) {
@@ -179,7 +181,8 @@ public class TreeUtilities {
                                 }
                             }
 
-                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            // Merge and note that this predicate is evaluated
+                            // and doesn't need to be evaluated in the future.
                             allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
