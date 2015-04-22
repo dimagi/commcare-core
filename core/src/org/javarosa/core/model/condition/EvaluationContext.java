@@ -28,6 +28,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -348,11 +349,19 @@ public class EvaluationContext {
                         //Just by getting here we're establishing a position for evaluating the current
                         //context. If we break, we won't push up the next one
                         positionContext[predIndex]++;
+                        boolean passed = false;
 
                         //test the predicate on the treeElement
                         //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
                         EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
-                        Object o = xpe.eval(sourceInstance, evalContext);
+                        Object o;
+                        try {
+                            o = xpe.eval(sourceInstance, evalContext);
+                        } catch (XPathTypeMismatchException e) {
+                            // Yay, the predicate's so jacked it failed to evaluate!
+                            passedAll = false;
+                            break;
+                        }
 
                         //There's a special case here that can't be handled by syntactic sugar.
                         //If the result of a predicate expression is an Integer, we need to
@@ -360,7 +369,7 @@ public class EvaluationContext {
 
                         o = XPathFuncExpr.unpack(o);
 
-                        boolean passed = false;
+
 
                         if (o instanceof Double) {
                             //The spec just says "number" for when to use
