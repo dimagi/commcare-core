@@ -9,13 +9,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Vector;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
@@ -31,6 +32,10 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormUtils;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
@@ -50,6 +55,8 @@ public class XFormPlayer {
     boolean forward = true;
 
     private Step current;
+    
+    private boolean mInEvalMode = false;
 
     Mockup mockup;
 
@@ -144,9 +151,20 @@ public class XFormPlayer {
         boolean exit = false;
         try {
             while(!exit) {
-                show(forward);
+                if(!mInEvalMode) {
+                    show(forward);
+                }
                 forward = true;
                 String input = blockForInput();
+                
+                if(mInEvalMode) { 
+                    //If we're in evalMode we wanna process all input in order from
+                    //this point forth until we exit eval mode
+                    evalModeInput(input);
+                    
+                    //Don't wanna add any eval mode stuff to the execution history.  
+                    continue;
+                }
 
                 //Command!
                 if(input.startsWith(":")) {
@@ -173,6 +191,22 @@ public class XFormPlayer {
             out.println("Error Serializing XForm Data! " + e.getMessage());
         }
     }
+    
+    /**
+     * Evaluate input to eval mode, and exit eval mode if
+     * the input is blank.
+     * 
+     * @param evalModeInput
+     */
+    private void evalModeInput(String evalModeInput) {
+        if(evalModeInput.equals("")) {
+            this.mInEvalMode = false;
+            out.println("exiting eval mode");
+        } else {
+            evalExpression(evalModeInput);
+        }
+        
+    }
 
     private boolean command(String command) throws BadPlaybackException {
         environment.recordAction(new Action(new Command(command)));
@@ -192,10 +226,49 @@ public class XFormPlayer {
         } else if("print".equalsIgnoreCase(command)){
             printInstance(out, fec.getModel().getForm().getInstance());
             return false;
+        } else if(command.startsWith("eval")){
+            int spaceIndex = command.indexOf(" ");
+            if(command.length() == spaceIndex || spaceIndex == -1) {
+                out.println("Entering eval mode, exit by entering a blank line");
+                this.mInEvalMode = true;
+                return false;
+            }
+            String arg = command.substring(spaceIndex + 1);
+            evalExpression(arg);
+            return false;
         } else {
             badInput(command, "Invalid Command " + command);
             return false;
         }
+    }
+    
+    public void evalExpression(String xpath) {
+        out.println(xpath);
+        XPathExpression expr;
+        try { 
+            expr = XPathParseTool.parseXPath(xpath);
+        } catch (XPathSyntaxException e) {
+            out.println("Error (parse): " + e.getMessage());
+            return;
+        }
+        EvaluationContext ec = fec.getModel().getForm().getEvaluationContext();
+        
+        //See if we're on a valid index, if so use that as our EC base
+        FormIndex current = this.fec.getModel().getFormIndex();
+        if(current.isInForm()) {
+            ec = new EvaluationContext(ec, current.getReference());
+        }
+                
+        String valString;
+        try {
+            Object val = expr.eval(ec);
+            valString = XPathFuncExpr.toString(val);
+        } catch(Exception e) {
+            out.println("Error  (eval): " + e.getMessage());
+            return;
+        }
+        
+        out.println(valString);
     }
 
     public static void printInstance(PrintStream out, FormInstance instance) {
