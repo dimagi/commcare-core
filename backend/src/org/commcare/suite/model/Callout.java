@@ -6,6 +6,9 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -21,7 +24,7 @@ public class Callout implements Externalizable, DetailTemplate{
     String actionName;
     String image;
     String displayName;
-    Hashtable<String, Text> extras = new Hashtable<String, Text>();
+    Hashtable<String, String> extras = new Hashtable<String, String>();
     Vector<String> responses = new Vector<String>();
 
     public Callout(String actionName, String image, String displayName){
@@ -37,11 +40,17 @@ public class Callout implements Externalizable, DetailTemplate{
     public CalloutData evaluate(EvaluationContext context) {
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
+
         for(String key : extras.keySet()){
-            String evaluatedKey = extras.get(key).evaluate(context);
-            evaluatedExtras.put(key, evaluatedKey);
+            try {
+                String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                evaluatedExtras.put(key, evaluatedKey);
+            } catch(XPathSyntaxException e){
+                // do nothing
+            }
         }
 
+        // emit a CalloutData with the extras evaluated. used for the detail screen.
         CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
 
         return ret;
@@ -49,13 +58,8 @@ public class Callout implements Externalizable, DetailTemplate{
 
     public CalloutData evaluate() {
 
-        Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
-        for(String key : extras.keySet()){
-            String evaluatedKey = extras.get(key).evaluate();
-            evaluatedExtras.put(key, evaluatedKey);
-        }
-
-        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
+        //emit a callout without the extras evaluated. used for the case list button.
+        CalloutData ret = new CalloutData(actionName, image, displayName, extras, responses);
 
         return ret;
     }
@@ -88,7 +92,7 @@ public class Callout implements Externalizable, DetailTemplate{
 
     public String getDisplayName() { return displayName;}
 
-    public void addExtra(String key, Text value) {
+    public void addExtra(String key, String value) {
         extras.put(key, value);
     }
 
@@ -96,7 +100,7 @@ public class Callout implements Externalizable, DetailTemplate{
         responses.add(key);
     }
 
-    public Hashtable<String, Text> getExtras(){
+    public Hashtable<String, String> getExtras(){
         return extras;
     }
 
