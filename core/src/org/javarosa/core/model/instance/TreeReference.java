@@ -285,7 +285,7 @@ public class TreeReference implements Externalizable {
         newRef.setRefLevel(this.refLevel);
 
         for (TreeReferenceLevel l : data) {
-            newRef.add(l);
+            newRef.add(l.shallowCopy());
         }
 
         //TODO: No more == null checks here, use context type
@@ -376,7 +376,7 @@ public class TreeReference implements Externalizable {
 
             // copy reference levels over to parent ref
             for (TreeReferenceLevel l : this.data) {
-                newRef.add(l);
+                newRef.add(l.shallowCopy());
             }
 
             return newRef;
@@ -416,7 +416,7 @@ public class TreeReference implements Externalizable {
             }
             // copy level data from this ref to the anchor ref
             for (int i = 0; i < size(); i++) {
-                newRef.add(this.data.elementAt(i));
+                newRef.add(this.data.elementAt(i).shallowCopy());
             }
             return newRef;
         }
