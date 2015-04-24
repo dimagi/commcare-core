@@ -81,7 +81,13 @@ public class TreeReference implements Externalizable {
     // -1 = absolute, 0 = context node, 1 = parent, 2 = grandparent ...
     private int refLevel;
     private int contextType;
+
+    /**
+     * Name of the reference's root, if it is a non-main instance, otherwise
+     * null.
+     */
     private String instanceName = null;
+
     private Vector<TreeReferenceLevel> data = null;
 
     // This value will be computed lazily during calls to size(); every time
@@ -89,7 +95,7 @@ public class TreeReference implements Externalizable {
     int size = -1;
 
     public TreeReference() {
-        instanceName = null; //dido
+        instanceName = null;
         data = new Vector<TreeReferenceLevel>();
     }
 
@@ -122,9 +128,9 @@ public class TreeReference implements Externalizable {
     }
 
     //TODO: This should be constructed I think
-    public void setInstanceName(String instanceName) {
+    public void setInstanceName(String newInstanceName) {
         hashCode = -1;
-        if (instanceName == null) {
+        if (newInstanceName == null) {
             if (this.refLevel == REF_ABSOLUTE) {
                 this.contextType = CONTEXT_ABSOLUTE;
             } else {
@@ -133,7 +139,7 @@ public class TreeReference implements Externalizable {
         } else {
             this.contextType = CONTEXT_INSTANCE;
         }
-        this.instanceName = instanceName;
+        this.instanceName = newInstanceName;
     }
 
     public int getMultiplicity(int index) {
