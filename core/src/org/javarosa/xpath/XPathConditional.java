@@ -120,13 +120,12 @@ public class XPathConditional implements IConditionExpr {
             TreeReference ref = ((XPathPathExpr)expr).getReference();
             TreeReference contextualized = ref;
 
-            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL) {
-                // Starts with 'current()' so contextualize in terms of the
-                // nodeset's original reference.
+            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL ||
+                    (contextRef == null && !ref.isAbsolute())) {
+                // Expr's ref begins with 'current()' or is relative and the
+                // context ref is missing.
                 contextualized = ref.contextualize(originalContextRef);
             } else if (contextRef != null) {
-                // If present then the context has been updated, so use it.
-                // Necessary if we jump into handling predicates.
                 contextualized = ref.contextualize(contextRef);
             }
 
@@ -141,22 +140,7 @@ public class XPathConditional implements IConditionExpr {
                 // calculate an offset to grab the appropriate predicates
                 int basePredIndex = contextualized.size() - ref.size();
 
-                if (!ref.isAbsolute()) {
-                    // With an absolute ref the contextualized version is
-                    // identical; hence no need for offsetting the predicate
-                    // index in order to grab the correct predicates.
-                    basePredIndex = 0;
-                }
-
-                // We can't handle predicates on references that are relative
-                // even after anchoring.
-                // XXX: But why is this? -- PLM
-                if (!contextualized.isAbsolute()) {
-                    throw new IllegalArgumentException("can't get triggers for relative references");
-                }
-
-                TreeReference predicateContext = ref.getSubReference(i);
-                predicateContext = contextualized.getSubReference(basePredIndex + i);
+                TreeReference predicateContext = contextualized.getSubReference(basePredIndex + i);
 
                 for (XPathExpression predicate : predicates) {
                     getExprsTriggersAccumulator(predicate, triggers,
