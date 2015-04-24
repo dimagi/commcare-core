@@ -345,24 +345,26 @@ public class EvaluationContext {
     }
 
     /**
-     * Load viable references that are children of the element argument.
+     * Gather references to a nodes children with a specific name and
+     * multiplicity.
      *
-     * @param node element of which to collect child references
-     * @param name
-     * @param mult
-     * @param includeTemplates
-     * @return
+     * @param node             Element of which to collect child references.
+     * @param childName        Only collect child references with this name.
+     * @param childMult        Collect a particular element/attribute or unbounded.
+     * @param includeTemplates Should the result include template elements?
+     * @return A list of references to a node's children that have a given name
+     * and multiplicity.
      */
     private Vector<TreeReference> loadReferencesChildren(AbstractTreeElement node,
-                                                         String name,
-                                                         int mult,
+                                                         String childName,
+                                                         int childMult,
                                                          boolean includeTemplates) {
         Vector<TreeReference> childSet = new Vector<TreeReference>();
         if (node.hasChildren()) {
-            if (mult == TreeReference.INDEX_UNBOUND) {
-                int count = node.getChildMultiplicity(name);
+            if (childMult == TreeReference.INDEX_UNBOUND) {
+                int count = node.getChildMultiplicity(childName);
                 for (int i = 0; i < count; i++) {
-                    AbstractTreeElement child = node.getChild(name, i);
+                    AbstractTreeElement child = node.getChild(childName, i);
                     if (child != null) {
                         childSet.addElement(child.getRef());
                     } else {
@@ -371,16 +373,16 @@ public class EvaluationContext {
                 }
                 // TODO: this could be lifted out a conditional level, right? -- PLM
                 if (includeTemplates) {
-                    AbstractTreeElement template = node.getChild(name, TreeReference.INDEX_TEMPLATE);
+                    AbstractTreeElement template = node.getChild(childName, TreeReference.INDEX_TEMPLATE);
                     if (template != null) {
                         childSet.addElement(template.getRef());
                     }
                 }
-            } else if (mult != TreeReference.INDEX_ATTRIBUTE) {
-                // TODO: Make this test mult >= 0?
+            } else if (childMult != TreeReference.INDEX_ATTRIBUTE) {
+                // TODO: Make this test childMult >= 0?
                 // If the multiplicity is a simple integer, just get the
                 // appropriate child
-                AbstractTreeElement child = node.getChild(name, mult);
+                AbstractTreeElement child = node.getChild(childName, childMult);
                 if (child != null) {
                     childSet.addElement(child.getRef());
                 }
@@ -389,8 +391,8 @@ public class EvaluationContext {
 
         // Working reference points to an attribute; add it to set to
         // process
-        if (mult == TreeReference.INDEX_ATTRIBUTE) {
-            AbstractTreeElement attribute = node.getAttribute(null, name);
+        if (childMult == TreeReference.INDEX_ATTRIBUTE) {
+            AbstractTreeElement attribute = node.getAttribute(null, childName);
             if (attribute != null) {
                 childSet.addElement(attribute.getRef());
             }
