@@ -355,13 +355,7 @@ public class EvaluationContext {
                         //EvaluationContext evalContext = new EvaluationContext(this, treeRef);
                         EvaluationContext evalContext = rescope(treeRef, positionContext[predIndex]);
                         Object o;
-                        try {
-                            o = xpe.eval(sourceInstance, evalContext);
-                        } catch (XPathTypeMismatchException e) {
-                            // Yay, the predicate's so jacked it failed to evaluate!
-                            passedAll = false;
-                            break;
-                        }
+                        o = xpe.eval(sourceInstance, evalContext);
 
                         //There's a special case here that can't be handled by syntactic sugar.
                         //If the result of a predicate expression is an Integer, we need to
