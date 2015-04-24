@@ -147,11 +147,15 @@ public class XPathFuncExpr extends XPathExpression {
 
 
         //check for custom handler, use this if it exists.
-        IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
-        if (handler != null) {
-            return evalCustomFunction(handler, argVals, evalContext);
+        try {
+            IFunctionHandler handler = (IFunctionHandler) funcHandlers.get(name);
+            if (handler != null) {
+                return evalCustomFunction(handler, argVals, evalContext);
+            }
+        } catch(XPathArityException e){
+            // we matched the name but not the arg count.
+            // continue in case the default has the right arity.
         }
-
         //TODO: Func handlers should be able to declare the desire for short circuiting as well
         if (name.equals("if") && args.length == 3) {
             return ifThenElse(model, evalContext, args, argVals);
