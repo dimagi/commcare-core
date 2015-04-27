@@ -145,6 +145,9 @@ public class XPathFuncExpr extends XPathExpression {
 
         Hashtable funcHandlers = evalContext.getFunctionHandlers();
 
+        for (int i = 0; i < args.length; i++) {
+            argVals[i] = args[i].eval(model, evalContext);
+        }
 
         //check for custom handler, use this if it exists.
         try {
@@ -168,10 +171,6 @@ public class XPathFuncExpr extends XPathExpression {
                 argVals[1] = args[1].eval(model, evalContext);
                 return argVals[1];
             }
-        }
-
-        for (int i = 0; i < args.length; i++) {
-            argVals[i] = args[i].eval(model, evalContext);
         }
 
         try {
@@ -423,7 +422,8 @@ public class XPathFuncExpr extends XPathExpression {
         Object[] typedArgs = null;
 
         while (typedArgs == null && e.hasMoreElements()) {
-            typedArgs = matchPrototype(args, (Class[])e.nextElement());
+            typedArgs = matchPrototype(args, (Class []) e.nextElement());
+
         }
 
         if (typedArgs != null) {
