@@ -41,7 +41,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         getNextTagInBlock("title");
         DisplayUnit title;
         if ("text".equals(parser.getName().toLowerCase())) {
-            title = new DisplayUnit(new TextParser(parser).parse(), "", "");
+            title = new DisplayUnit(new TextParser(parser).parse(), null, null);
         } else {
             title = parseDisplayBlock();
         }

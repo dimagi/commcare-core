@@ -3,13 +3,6 @@
  */
 package org.commcare.suite.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -21,6 +14,13 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 /**
  * <p>An Entry definition describes a user
  * initiated form entry action, what information
@@ -30,7 +30,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  * @author ctsims
  */
-public class Entry implements Externalizable {
+public class Entry implements Externalizable, Displayable {
 
     private String xFormNamespace;
     Vector<SessionDatum> data;
@@ -83,19 +83,20 @@ public class Entry implements Externalizable {
         return xFormNamespace;
     }
 
-    /**
-     * @return the URI of an optionally specified image resource to be used in the
-     * view displaying all xform entries.
-     */
+
     public String getImageURI() {
-        return display.getImageURI();
+        if(display.getImageURI() == null) { return null; }
+        return display.getImageURI().evaluate();
     }
 
-    /**
-     * @return the URI of an optional audio resource to be used in the view displaying all xform entries
-     */
     public String getAudioURI() {
-        return display.getAudioURI();
+        if(display.getAudioURI() == null) { return null; }
+        return display.getAudioURI().evaluate();
+    }
+
+    public String getDisplayText() {
+        if(display.getText() == null) { return null; }
+        return display.getText().evaluate();
     }
 
     public Vector<SessionDatum> getSessionDataReqs() {
