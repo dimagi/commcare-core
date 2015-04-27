@@ -37,6 +37,10 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         this.audioReference = audioReference;
     }
 
+    public DisplayData evaluate(){
+        return evaluate(null);
+    }
+
     public DisplayData evaluate(EvaluationContext ec){
         return new DisplayData(name.evaluate(ec),
                 imageReference.evaluate(ec),
@@ -49,6 +53,14 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
      */
     public Text getText() {
         return name;
+    }
+
+    public Text getImageURI() {
+        return imageReference;
+    }
+
+    public Text getAudioURI() {
+        return audioReference;
     }
 
     /* (non-Javadoc)
@@ -70,12 +82,4 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         ExtUtil.write(out, audioReference);
     }
 
-
-    public Text getImageURI() {
-        return imageReference;
-    }
-
-    public Text getAudioURI() {
-        return audioReference;
-    }
 }
