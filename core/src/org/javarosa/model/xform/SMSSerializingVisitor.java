@@ -23,7 +23,7 @@ import java.util.Vector;
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -88,9 +88,9 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
 
     /*
      * (non-Javadoc)
-     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance, org.javarosa.core.model.IDataReference)
+     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance, org.javarosa.core.model.XPathReference)
      */
-    public byte[] serializeInstance(FormInstance model, IDataReference ref) throws IOException {
+    public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = model.unpackReference(ref);
         if (this.serializer == null) {
@@ -113,7 +113,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
         return createSerializedPayload(model, new XPathReference("/"));
     }
 
-    public IDataPayload createSerializedPayload(FormInstance model, IDataReference ref)
+    public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref)
             throws IOException {
         init();
         rootRef = model.unpackReference(ref);

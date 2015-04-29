@@ -20,7 +20,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
@@ -327,7 +327,7 @@ public class FormOverview {
         }
     }
 
-    private static TreeElement getInstanceNode (FormInstance d, IDataReference ref) {
+    private static TreeElement getInstanceNode (FormInstance d, XPathReference ref) {
         return d.getTemplatePath((TreeReference)ref.getReference());
     }
 

@@ -14,6 +14,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * A Submission Profile is a class which is responsible for
@@ -24,7 +25,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class SubmissionProfile implements Externalizable {
 
-    IDataReference ref;
+    XPathReference ref;
     String method;
     String action;
     String mediaType;
@@ -34,11 +35,11 @@ public class SubmissionProfile implements Externalizable {
 
     }
 
-    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype) {
+    public SubmissionProfile(XPathReference ref, String method, String action, String mediatype) {
         this(ref, method, action, mediatype, new Hashtable<String, String>());
     }
 
-    public SubmissionProfile(IDataReference ref, String method, String action, String mediatype, Hashtable<String, String> attributeMap) {
+    public SubmissionProfile(XPathReference ref, String method, String action, String mediatype, Hashtable<String, String> attributeMap) {
         this.method = method;
         this.ref = ref;
         this.action = action;
@@ -46,7 +47,7 @@ public class SubmissionProfile implements Externalizable {
         this.attributeMap = attributeMap;
     }
 
-    public IDataReference getRef() {
+    public XPathReference getRef() {
         return ref;
     }
 
@@ -67,7 +68,7 @@ public class SubmissionProfile implements Externalizable {
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged(IDataReference.class));
+        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged(XPathReference.class));
         method = ExtUtil.readString(in);
         action = ExtUtil.readString(in);
         mediaType = ExtUtil.nullIfEmpty(ExtUtil.readString(in));

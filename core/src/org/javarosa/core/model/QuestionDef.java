@@ -32,12 +32,13 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * The definition of a Question to be presented to users when
  * filling out a form.
  *
- * QuestionDef requires that any IDataReferences that are used
+ * QuestionDef requires that any XPathReferences that are used
  * are contained in the FormDefRMS's PrototypeFactoryDeprecated in order
  * to be properly deserialized. If they aren't, an exception
  * will be thrown at the time of deserialization.
@@ -47,7 +48,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class QuestionDef implements IFormElement, Localizable {
     private int id;
     // reference to a location in the model to store data in
-    private IDataReference binding;
+    private XPathReference binding;
 
     // The type of widget. eg TextInput,Slider,List etc.
     private int controlType;
@@ -85,11 +86,11 @@ public class QuestionDef implements IFormElement, Localizable {
         this.id = id;
     }
 
-    public IDataReference getBind() {
+    public XPathReference getBind() {
         return binding;
     }
 
-    public void setBind(IDataReference binding) {
+    public void setBind(XPathReference binding) {
         this.binding = binding;
     }
 
@@ -250,7 +251,7 @@ public class QuestionDef implements IFormElement, Localizable {
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
-        binding = (IDataReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
         setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
