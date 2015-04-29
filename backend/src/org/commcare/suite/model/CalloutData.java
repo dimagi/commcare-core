@@ -5,6 +5,8 @@ import java.util.Vector;
 
 /**
  * Created by wpride1 on 4/17/15.
+ *
+ * Evaluated form of Callout class where all XPaths have been processed.
  */
 public class CalloutData {
     String actionName;

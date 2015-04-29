@@ -43,6 +43,7 @@ public class Callout implements Externalizable, DetailTemplate{
     * (non-Javadoc)
     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
     */
+    @Override
     public CalloutData evaluate(EvaluationContext context) {
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
