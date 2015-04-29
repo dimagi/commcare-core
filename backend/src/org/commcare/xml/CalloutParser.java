@@ -20,7 +20,8 @@ public class CalloutParser extends ElementParser<Callout> {
         super(parser);
     }
 
-    public Callout parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public Callout parse() throws InvalidStructureException, IOException,
+            XmlPullParserException {
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
         String dislayName = parser.getAttributeValue(null, "name");

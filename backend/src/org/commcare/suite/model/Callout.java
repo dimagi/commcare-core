@@ -35,15 +35,16 @@ public class Callout implements Externalizable, DetailTemplate {
 
     @Override
     public CalloutData evaluate(EvaluationContext context) {
-
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
+        // evaluate extra xpaths down to values
         for (String key : extras.keySet()) {
             try {
-                String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
-                evaluatedExtras.put(key, evaluatedKey);
+                String value =
+                        XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                evaluatedExtras.put(key, value);
             } catch (XPathSyntaxException e) {
-                // do nothing
+                // ignore extra xpaths that have evaluation errors
             }
         }
 
@@ -57,7 +58,8 @@ public class Callout implements Externalizable, DetailTemplate {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException,
+            DeserializationException {
         actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
