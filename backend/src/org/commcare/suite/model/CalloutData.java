@@ -14,7 +14,8 @@ public class CalloutData {
     private Vector<String> responses = new Vector<String>();
 
 
-    public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses) {
+    public CalloutData(String actionName, String image, String displayName,
+                       Hashtable<String, String> extras, Vector<String> responses) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;

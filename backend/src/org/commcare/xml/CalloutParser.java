@@ -30,7 +30,8 @@ public class CalloutParser extends ElementParser<Callout> {
         while (nextTagInBlock("lookup")) {
             String tagname = parser.getName();
             if (tagname != null && tagname.equals("extra")) {
-                callout.addExtra(parser.getAttributeValue(null, "key"), (parser.getAttributeValue(null, "value")));
+                callout.addExtra(parser.getAttributeValue(null, "key"),
+                        (parser.getAttributeValue(null, "value")));
             } else if (tagname != null && tagname.equals("response")) {
                 callout.addResponse(parser.getAttributeValue(null, "key"));
             }
