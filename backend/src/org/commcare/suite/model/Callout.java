@@ -8,6 +8,9 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -30,7 +33,6 @@ public class Callout implements Externalizable, DetailTemplate{
     Hashtable<String, String> extras = new Hashtable<String, String>();
     Vector<String> responses = new Vector<String>();
 
-
     public Callout(String actionName, String image, String displayName){
         this.actionName = actionName;
         this.image = image;
@@ -41,8 +43,31 @@ public class Callout implements Externalizable, DetailTemplate{
     * (non-Javadoc)
     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
     */
-    public Callout evaluate(EvaluationContext context) {
-        return this;
+    public CalloutData evaluate(EvaluationContext context) {
+
+        Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
+
+        for(String key : extras.keySet()){
+            try {
+                String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
+                evaluatedExtras.put(key, evaluatedKey);
+            } catch(XPathSyntaxException e){
+                // do nothing
+            }
+        }
+
+        // emit a CalloutData with the extras evaluated. used for the detail screen.
+        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
+
+        return ret;
+    }
+
+    public CalloutData evaluate() {
+
+        //emit a callout without the extras evaluated. used for the case list button.
+        CalloutData ret = new CalloutData(actionName, image, displayName, extras, responses);
+
+        return ret;
     }
 
     /*
