@@ -29,6 +29,8 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.engine.XFormPlayer;
+import org.javarosa.engine.models.Session;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
@@ -85,6 +87,14 @@ public class Harness {
             validateModel(leftOverArgs[1], leftOverArgs[2]);
         } else if (leftOverArgs[0].equals("validate")) {
             validateForm(leftOverArgs);
+        } else if (leftOverArgs[0].equals("run")) {
+            XFormPlayer xfp = new XFormPlayer(System.in, System.out, null);
+            try {
+                xfp.start(leftOverArgs[1]);
+            } catch (FileNotFoundException e) {
+                System.out.println("File not found at " + args[0]+ "!!!!");
+            }
+
         } else {
             printHelpMessage(options);
             System.exit(1);
