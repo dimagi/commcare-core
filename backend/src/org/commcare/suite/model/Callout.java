@@ -48,10 +48,10 @@ public class Callout implements Externalizable, DetailTemplate{
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
-        Enumeration<String> keys= extras.keys();
+        Enumeration keys= extras.keys();
 
         while(keys.hasMoreElements()){
-            String key = keys.nextElement();
+            String key = (String)keys.nextElement();
             try {
                 String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
