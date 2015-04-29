@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;
@@ -55,7 +55,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
-    public static TreeReference unpackReference(IDataReference ref) {
+    public static TreeReference unpackReference(XPathReference ref) {
         return (TreeReference)ref.getReference();
     }
 
@@ -258,7 +258,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         return false;
     }
 
-    public T resolveReference(IDataReference binding) {
+    public T resolveReference(XPathReference binding) {
         return resolveReference(unpackReference(binding));
     }
 

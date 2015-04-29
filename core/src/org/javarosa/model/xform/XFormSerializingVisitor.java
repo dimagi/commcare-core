@@ -25,7 +25,7 @@ import java.util.Vector;
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -105,7 +105,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeDataModel(org.javarosa.core.model.IFormDataModel)
      */
-    public byte[] serializeInstance(FormInstance model, IDataReference ref) throws IOException {
+    public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = model.unpackReference(ref);
         if (this.serializer == null) {
@@ -124,7 +124,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         return createSerializedPayload(model, new XPathReference("/"));
     }
 
-    public IDataPayload createSerializedPayload(FormInstance model, IDataReference ref) throws IOException {
+    public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = model.unpackReference(ref);
         if (this.serializer == null) {
