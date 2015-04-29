@@ -15,6 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -43,12 +44,14 @@ public class Callout implements Externalizable, DetailTemplate{
     * (non-Javadoc)
     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
     */
-    @Override
     public CalloutData evaluate(EvaluationContext context) {
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
-        for(String key : extras.keySet()){
+        Enumeration<String> keys= extras.keys();
+
+        while(keys.hasMoreElements()){
+            String key = keys.nextElement();
             try {
                 String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
@@ -110,7 +113,7 @@ public class Callout implements Externalizable, DetailTemplate{
     }
 
     public void addResponse(String key){
-        responses.add(key);
+        responses.addElement(key);
     }
 
     public Hashtable<String, String> getExtras(){
