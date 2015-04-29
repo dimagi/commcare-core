@@ -3,6 +3,8 @@ package org.commcare.suite.model;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -15,6 +17,10 @@ import java.util.Vector;
 
 /**
  * Created by wpride1 on 4/14/15.
+ *
+ * Object representation of application callouts described in suite.xml
+ * Used in callouts from EntitySelectActivity and EntityDetailActivity
+ *
  */
 public class Callout implements Externalizable, DetailTemplate{
 
@@ -44,8 +50,11 @@ public class Callout implements Externalizable, DetailTemplate{
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        displayName = ExtUtil.readString(in);
         actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        extras = (Hashtable<String, String>) ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
 
     /*
@@ -53,8 +62,11 @@ public class Callout implements Externalizable, DetailTemplate{
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, displayName);
         ExtUtil.write(out, new ExtWrapNullable(actionName));
         ExtUtil.write(out, new ExtWrapNullable(image));
+        ExtUtil.write(out, new ExtWrapMap(extras));
+        ExtUtil.write(out, new ExtWrapList(responses));
     }
 
     public String getImage(){

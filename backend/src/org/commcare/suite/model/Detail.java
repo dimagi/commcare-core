@@ -69,8 +69,7 @@ public class Detail implements Externalizable {
     ) {
         this(
                 id, title,
-                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
-                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
+                details, fields,
                 variables, action
         );
 

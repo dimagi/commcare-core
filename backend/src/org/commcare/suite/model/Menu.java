@@ -25,7 +25,7 @@ import java.util.Vector;
  * @author ctsims
  *
  */
-public class Menu implements Externalizable, Displayable {
+public class Menu implements Externalizable, MenuDisplayable {
     DisplayUnit display;
     Vector<String> commandIds;
     String[] commandExprs;

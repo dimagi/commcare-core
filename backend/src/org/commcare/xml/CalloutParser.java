@@ -9,7 +9,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * Parser used in DetailParser to parse the Grid attributes for a GridEntityView
+ * Parser used in DetailParser to parse the defintions of callouts used in
+ * case select and detail views.
  *
  * @author wspride
  */
@@ -24,15 +25,15 @@ public class CalloutParser extends ElementParser<Callout> {
 
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
-        String dislayName = parser.getAttributeValue(null, "name");
+        String displayName = parser.getAttributeValue(null, "name");
 
-        Callout callout = new Callout(actionName, image, dislayName);
+        Callout callout = new Callout(actionName, image, displayName);
 
         while(nextTagInBlock("lookup")){
-            String tagname = parser.getName();
-            if(tagname != null && tagname.equals("extra")){
+            String tagName = parser.getName();
+            if(("extra").equals(tagName)){
                 callout.addExtra(parser.getAttributeValue(null, "key"), parser.getAttributeValue(null, "value"));
-            } else if (tagname != null && tagname.equals("response")){
+            } else if ("response".equals(tagName)){
                 callout.addResponse(parser.getAttributeValue(null, "key"));
             }
 

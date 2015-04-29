@@ -2,17 +2,20 @@ package org.commcare.suite.model.graph;
 
 /**
  * Created by wpride1 on 4/24/15.
+ *
+ * Represents an evaluated DisplayUnit
+ *
  */
 public class DisplayData {
 
     String name;
-    String iURI;
-    String aURI;
+    String imageURI;
+    String audioURI;
 
-    public DisplayData(String name, String iURI, String aURI){
+    public DisplayData(String name, String imageURI, String audioURI){
         this.name = name;
-        this.iURI = iURI;
-        this.aURI = aURI;
+        this.imageURI = imageURI;
+        this.audioURI = audioURI;
     }
 
     public String getName(){
@@ -20,10 +23,10 @@ public class DisplayData {
     }
 
     public String getImageURI(){
-        return iURI;
+        return imageURI;
     }
 
     public String getAudioURI(){
-        return aURI;
+        return audioURI;
     }
 }

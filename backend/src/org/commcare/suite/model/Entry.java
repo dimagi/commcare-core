@@ -30,7 +30,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class Entry implements Externalizable, Displayable {
+public class Entry implements Externalizable, MenuDisplayable {
 
     private String xFormNamespace;
     Vector<SessionDatum> data;
