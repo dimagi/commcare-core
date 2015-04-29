@@ -1,21 +1,22 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -44,6 +45,9 @@ public class DetailParser extends CommCareElementParser<Detail> {
         } else {
             title = parseDisplayBlock();
         }
+
+        Callout callout = null;
+
         Action action = null;
 
         //Now get the headers and templates.
@@ -52,6 +56,15 @@ public class DetailParser extends CommCareElementParser<Detail> {
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
 
         while (nextTagInBlock("detail")) {
+            if("lookup".equals(parser.getName().toLowerCase())) {
+                try {
+                    checkNode("lookup");
+                    callout = new CalloutParser(parser).parse();
+                    parser.nextTag();
+                } catch (InvalidStructureException e) {
+                    System.out.println("Lookup block not found " + e);
+                }
+            }
             if ("variables".equals(parser.getName().toLowerCase())) {
                 while (nextTagInBlock("variables")) {
                     String function = parser.getAttributeValue(null, "function");
@@ -137,6 +150,8 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     DetailTemplate template;
                     if (form.equals("graph")) {
                         template = new GraphParser(parser).parse();
+                    } else if (form.equals("callout")){
+                        template = new CalloutParser(parser).parse();
                     } else {
                         checkNode("text");
                         try {
@@ -216,7 +231,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, subdetails, fields, variables, action);
+        Detail d = new Detail(id, title, subdetails, fields, variables, action, callout);
         return d;
     }
 

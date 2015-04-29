@@ -3,12 +3,6 @@
  */
 package org.commcare.suite.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
 import org.javarosa.core.util.ArrayUtilities;
@@ -23,6 +17,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * <p>A Detail model defines the structure in which
@@ -46,6 +46,7 @@ public class Detail implements Externalizable {
 
     Detail[] details;
     DetailField[] fields;
+    Callout callout;
 
     OrderedHashtable<String, String> variables;
     OrderedHashtable<String, XPathExpression> variablesCompiled;
@@ -64,7 +65,7 @@ public class Detail implements Externalizable {
             String id, DisplayUnit title,
             Vector<Detail> details,
             Vector<DetailField> fields,
-            OrderedHashtable<String, String> variables, Action action
+            OrderedHashtable<String, String> variables, Action action, Callout callout
     ) {
         this(
                 id, title,
@@ -72,14 +73,22 @@ public class Detail implements Externalizable {
                 ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
                 variables, action
         );
+
+        this.callout = callout;
     }
 
-    public Detail(
-            String id, DisplayUnit title,
-            Detail[] details,
-            DetailField[] fields,
-            OrderedHashtable<String, String> variables, Action action
-    ) {
+    public Detail(String id, DisplayUnit title, Vector<Detail> details,
+                  Vector<DetailField> fields,
+                  OrderedHashtable<String, String> variables, Action action) {
+        this(id, title,
+                ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
+                ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
+                variables, action);
+    }
+
+    public Detail(String id, DisplayUnit title, Detail[] details,
+                  DetailField[] fields,
+                  OrderedHashtable<String, String> variables, Action action) {
         if (details.length > 0 && fields.length > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
@@ -337,6 +346,10 @@ public class Detail implements Externalizable {
         }
 
         return mGC;
+    }
+
+    public Callout getCallout() {
+        return callout;
     }
 
     private abstract class Map<E> {
