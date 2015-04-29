@@ -406,35 +406,39 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * Given a handler registered to handle the function, try to coerce the function arguments into
-     * one of the prototypes defined by the handler. If no suitable prototype found, throw an eval
-     * exception. Otherwise, evaluate.
+     * Given a handler registered to handle the function, try to coerce the
+     * function arguments into one of the prototypes defined by the handler. If
+     * no suitable prototype found, throw an eval exception. Otherwise,
+     * evaluate.
      *
-     * Note that if the handler supports 'raw args', it will receive the full, unaltered argument
-     * list if no prototype matches. (this lets functions support variable-length argument lists)
+     * Note that if the handler supports 'raw args', it will receive the full,
+     * unaltered argument list if no prototype matches. (this lets functions
+     * support variable-length argument lists)
      *
      * @param handler
      * @param args
+     * @param ec
      * @return
      */
-    private static Object evalCustomFunction(IFunctionHandler handler, Object[] args, EvaluationContext ec) {
+    private static Object evalCustomFunction(IFunctionHandler handler, Object[] args,
+            EvaluationContext ec) {
         Vector prototypes = handler.getPrototypes();
         Enumeration e = prototypes.elements();
         Object[] typedArgs = null;
 
         while (typedArgs == null && e.hasMoreElements()) {
             typedArgs = matchPrototype(args, (Class []) e.nextElement());
-
         }
 
         if (typedArgs != null) {
             return handler.eval(typedArgs, ec);
         } else if (handler.rawArgs()) {
-            return handler.eval(args, ec);  //should we have support for expanding nodesets here?
+            // should we have support for expanding nodesets here?
+            return handler.eval(args, ec);
         } else {
-            throw new XPathTypeMismatchException("for function \'" + handler.getName() + "\'");
+            throw new XPathTypeMismatchException("for function \'" +
+                    handler.getName() + "\'");
         }
-
     }
 
     /**
