@@ -77,7 +77,7 @@ public class Menu implements Externalizable {
     }
     
     /**
-     * @return A string representing an XPath expression to determine
+     * @return A parsed XPath expression that determines
      * whether or not to display this menu.
      */
     public XPathExpression getMenuRelevance() throws XPathSyntaxException {
@@ -85,6 +85,14 @@ public class Menu implements Externalizable {
             relevance = XPathParseTool.parseXPath(rawRelevance);
         }
         return relevance;
+    }
+    
+    /**
+     * @return A string representing an XPath expression to determine
+     * whether or not to display this menu.
+     */
+    public String getMenuRelevanceRaw() {
+        return rawRelevance;
     }
 
     /**
