@@ -19,92 +19,80 @@ import java.util.Vector;
 /**
  * Created by wpride1 on 4/14/15.
  */
-public class Callout implements Externalizable, DetailTemplate{
+public class Callout implements Externalizable, DetailTemplate {
 
-    String actionName;
-    String image;
-    String displayName;
-    Hashtable<String, String> extras = new Hashtable<String, String>();
-    Vector<String> responses = new Vector<String>();
+    private String actionName;
+    private String image;
+    private final String displayName;
+    private final Hashtable<String, String> extras = new Hashtable<String, String>();
+    private final Vector<String> responses = new Vector<String>();
 
-    public Callout(String actionName, String image, String displayName){
+    public Callout(String actionName, String image, String displayName) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
     }
 
-    /*
-    * (non-Javadoc)
-    * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
-    */
+    @Override
     public CalloutData evaluate(EvaluationContext context) {
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
-        for(String key : extras.keySet()){
+        for (String key : extras.keySet()) {
             try {
                 String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
-            } catch(XPathSyntaxException e){
+            } catch (XPathSyntaxException e) {
                 // do nothing
             }
         }
 
         // emit a CalloutData with the extras evaluated. used for the detail screen.
-        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
-
-        return ret;
+        return new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
     }
 
     public CalloutData evaluate() {
-
-        //emit a callout without the extras evaluated. used for the case list button.
-        CalloutData ret = new CalloutData(actionName, image, displayName, extras, responses);
-
-        return ret;
+        // emit a callout without the extras evaluated. used for the case list button.
+        return new CalloutData(actionName, image, displayName, extras, responses);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(actionName));
         ExtUtil.write(out, new ExtWrapNullable(image));
     }
 
-    public String getImage(){
+    public String getImage() {
         return image;
     }
 
-    public String getActionName(){
+    public String getActionName() {
         return actionName;
     }
 
-    public String getDisplayName() { return displayName;}
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public void addExtra(String key, String value) {
         extras.put(key, value);
     }
 
-    public void addResponse(String key){
+    public void addResponse(String key) {
         responses.add(key);
     }
 
-    public Hashtable<String, String> getExtras(){
+    public Hashtable<String, String> getExtras() {
         return extras;
     }
 
-    public Vector<String> getResponses(){
+    public Vector<String> getResponses() {
         return responses;
     }
 }

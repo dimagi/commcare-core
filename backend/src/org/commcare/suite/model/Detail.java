@@ -77,26 +77,18 @@ public class Detail implements Externalizable {
         this.callout = callout;
     }
 
-    public Detail(
-            String id, DisplayUnit title,
-            Vector<Detail> details,
-            Vector<DetailField> fields,
-            OrderedHashtable<String, String> variables, Action action
-    ) {
-        this(
-                id, title,
+    public Detail(String id, DisplayUnit title, Vector<Detail> details,
+                  Vector<DetailField> fields,
+                  OrderedHashtable<String, String> variables, Action action) {
+        this(id, title,
                 ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
                 ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
-                variables, action
-        );
+                variables, action);
     }
 
-    public Detail(
-            String id, DisplayUnit title,
-            Detail[] details,
-            DetailField[] fields,
-            OrderedHashtable<String, String> variables, Action action
-    ) {
+    public Detail(String id, DisplayUnit title, Detail[] details,
+                  DetailField[] fields,
+                  OrderedHashtable<String, String> variables, Action action) {
         if (details.length > 0 && fields.length > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
@@ -356,7 +348,7 @@ public class Detail implements Externalizable {
         return mGC;
     }
 
-    public Callout getCallout(){
+    public Callout getCallout() {
         return callout;
     }
 

@@ -56,13 +56,11 @@ public class DetailParser extends CommCareElementParser<Detail> {
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
 
         while (nextTagInBlock("detail")) {
-
             if("lookup".equals(parser.getName().toLowerCase())) {
                 try {
                     checkNode("lookup");
                     callout = new CalloutParser(parser).parse();
                     parser.nextTag();
-
                 } catch (InvalidStructureException e) {
                     System.out.println("Lookup block not found " + e);
                 }
