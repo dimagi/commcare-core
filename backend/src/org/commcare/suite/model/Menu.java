@@ -3,11 +3,6 @@
  */
 package org.commcare.suite.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -17,6 +12,11 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Vector;
+
 /**
  * <p>A Menu definition describes the structure of how
  * actions should be provided to the user in a CommCare
@@ -25,7 +25,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author ctsims
  *
  */
-public class Menu implements Externalizable {
+public class Menu implements Externalizable, MenuDisplayable {
     DisplayUnit display;
     Vector<String> commandIds;
     String[] commandExprs;
@@ -159,12 +159,20 @@ public class Menu implements Externalizable {
 
 
     public String getImageURI() {
-        return display.getImageURI();
+        if(display.getImageURI() == null) { return null; }
+        return display.getImageURI().evaluate();
     }
     
     public String getAudioURI() {
-        return display.getAudioURI();
+        if(display.getAudioURI() == null) { return null; }
+        return display.getAudioURI().evaluate();
     }
+
+    public String getDisplayText() {
+        if(display.getText() == null) { return null; }
+        return display.getText().evaluate();
+    }
+
     // unsafe! assumes that xpath expressions evaluate properly...
     public int indexOfCommand(String cmd){
         return commandIds.indexOf(cmd);

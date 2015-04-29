@@ -46,18 +46,28 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
      * Build a DisplayUnit object by parsing the contents of a display tag.
      */
     public DisplayUnit parseDisplayBlock() throws InvalidStructureException, IOException, XmlPullParserException {
-        String imageValue = null;
-        String audioValue = null;
+        Text imageValue = null;
+        Text audioValue = null;
         Text displayText = null;
 
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
-                displayText = new TextParser(parser).parse();
+
+                String attributeValue = parser.getAttributeValue(null,"form");
+                
+                if(attributeValue != null && attributeValue.equals("image")){
+                    imageValue = new TextParser(parser).parse();
+                } else if(attributeValue != null && attributeValue.equals("audio")){
+                    audioValue = new TextParser(parser).parse();
+                } else {
+                    displayText = new TextParser(parser).parse();
+                }
             }
-            //check and parse media stuff
+            // check and parse media stuff
+            // still default to using this for now if it exists
             else if (parser.getName().equals("media")) {
-                imageValue = parser.getAttributeValue(null, "image");
-                audioValue = parser.getAttributeValue(null, "audio");
+                imageValue = Text.PlainText(parser.getAttributeValue(null, "image"));
+                audioValue = Text.PlainText(parser.getAttributeValue(null, "audio"));
                 //only ends up grabbing the last entries with
                 //each attribute, but we can only use one of each anyway.
             }

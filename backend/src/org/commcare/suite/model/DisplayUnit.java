@@ -1,22 +1,15 @@
 package org.commcare.suite.model;
 
+import org.commcare.suite.model.graph.DisplayData;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Vector;
-
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapList;
-import org.javarosa.core.util.externalizable.ExtWrapListPoly;
-import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * <p>A display unit element contains text and a set of potential image/audio
@@ -24,11 +17,11 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  *
  * @author ctsims
  */
-public class DisplayUnit implements Externalizable {
+public class DisplayUnit implements Externalizable, DetailTemplate {
 
     Text name;
-    String imageReference;
-    String audioReference;
+    Text imageReference;
+    Text audioReference;
 
     /**
      * Serialization only!!!
@@ -38,10 +31,20 @@ public class DisplayUnit implements Externalizable {
     }
 
 
-    public DisplayUnit(Text name, String imageReference, String audioReference) {
+    public DisplayUnit(Text name, Text imageReference, Text audioReference) {
         this.name = name;
         this.imageReference = imageReference;
         this.audioReference = audioReference;
+    }
+
+    public DisplayData evaluate(){
+        return evaluate(null);
+    }
+
+    public DisplayData evaluate(EvaluationContext ec){
+        return new DisplayData(name.evaluate(ec),
+                imageReference.evaluate(ec),
+                audioReference.evaluate(ec));
     }
 
     /**
@@ -52,14 +55,22 @@ public class DisplayUnit implements Externalizable {
         return name;
     }
 
+    public Text getImageURI() {
+        return imageReference;
+    }
+
+    public Text getAudioURI() {
+        return audioReference;
+    }
+
     /* (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         name = (Text)ExtUtil.read(in, Text.class, pf);
-        imageReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        audioReference = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        imageReference = (Text)ExtUtil.read(in, Text.class, pf);
+        audioReference = (Text)ExtUtil.read(in, Text.class, pf);
     }
 
     /* (non-Javadoc)
@@ -67,16 +78,8 @@ public class DisplayUnit implements Externalizable {
      */
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, name);
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(imageReference));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(audioReference));
+        ExtUtil.write(out, imageReference);
+        ExtUtil.write(out, audioReference);
     }
 
-
-    public String getImageURI() {
-        return imageReference;
-    }
-
-    public String getAudioURI() {
-        return audioReference;
-    }
 }
