@@ -163,15 +163,18 @@ public class XPathFuncExpr extends XPathExpression {
             argVals[i] = args[i].eval(model, evalContext);
         }
 
-        //check for custom handler, use this if it exists.
+        XPathArityException customFuncArityError = null;
+        // check for custom handler, use this if it exists.
         try {
             IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
             if (handler != null) {
                 return evalCustomFunction(handler, argVals, evalContext);
             }
         } catch (XPathArityException e) {
-            // we matched the name but not the arg count.
-            // continue in case the default has the right arity.
+            // we matched the name but not the arg count. continue in case the
+            // default has the right arity, and if no default found, raise this
+            // error on exit
+            customFuncArityError = e;
         }
 
         try {
@@ -377,6 +380,9 @@ public class XPathFuncExpr extends XPathExpression {
                 checkArity(name, 1, args.length);
                 return log10(argVals[0]);
             } else {
+                if (customFuncArityError != null) {
+                    throw customFuncArityError;
+                }
                 throw new XPathUnhandledException("function \'" + name + "\'");
             }
             //Specific list of issues that we know come up
@@ -434,19 +440,18 @@ public class XPathFuncExpr extends XPathExpression {
             argPrototypeArityMatch = argPrototypeArityMatch ||
                     (proto.length == args.length);
         }
-        if (!argPrototypeArityMatch) {
-            // When the argument count doesn't match any of the prototype
-            // sizes, we have an arity error.
-            throw new XPathArityException(handler.getName(),
-                    "a different number of arguments",
-                    args.length);
-        }
 
         if (typedArgs != null) {
             return handler.eval(typedArgs, ec);
         } else if (handler.rawArgs()) {
             // should we have support for expanding nodesets here?
             return handler.eval(args, ec);
+        } else if (!argPrototypeArityMatch) {
+            // When the argument count doesn't match any of the prototype
+            // sizes, we have an arity error.
+            throw new XPathArityException(handler.getName(),
+                    "a different number of arguments",
+                    args.length);
         } else {
             throw new XPathTypeMismatchException("for function \'" +
                     handler.getName() + "\'");
