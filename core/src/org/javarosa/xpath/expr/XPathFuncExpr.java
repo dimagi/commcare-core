@@ -163,6 +163,20 @@ public class XPathFuncExpr extends XPathExpression {
             argVals[i] = args[i].eval(model, evalContext);
         }
 
+        XPathArityException customFuncArityError = null;
+        // check for custom handler, use this if it exists.
+        try {
+            IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
+            if (handler != null) {
+                return evalCustomFunction(handler, argVals, evalContext);
+            }
+        } catch (XPathArityException e) {
+            // we matched the name but not the arg count. continue in case the
+            // default has the right arity, and if no default found, raise this
+            // error on exit
+            customFuncArityError = e;
+        }
+
         try {
             //check built-in functions
             if (name.equals("true")) {
@@ -366,15 +380,11 @@ public class XPathFuncExpr extends XPathExpression {
                 checkArity(name, 1, args.length);
                 return log10(argVals[0]);
             } else {
-                //check for custom handler
-                IFunctionHandler handler = (IFunctionHandler)funcHandlers.get(name);
-                if (handler != null) {
-                    return evalCustomFunction(handler, argVals, evalContext);
-                } else {
-                    throw new XPathUnhandledException("function \'" + name + "\'");
+                if (customFuncArityError != null) {
+                    throw customFuncArityError;
                 }
+                throw new XPathUnhandledException("function \'" + name + "\'");
             }
-
             //Specific list of issues that we know come up
         } catch (ClassCastException cce) {
             String args = "";
@@ -401,41 +411,59 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * Given a handler registered to handle the function, try to coerce the function arguments into
-     * one of the prototypes defined by the handler. If no suitable prototype found, throw an eval
-     * exception. Otherwise, evaluate.
+     * Given a handler registered to handle the function, try to coerce the
+     * function arguments into one of the prototypes defined by the handler. If
+     * no suitable prototype found, throw an eval exception. Otherwise,
+     * evaluate.
      *
-     * Note that if the handler supports 'raw args', it will receive the full, unaltered argument
-     * list if no prototype matches. (this lets functions support variable-length argument lists)
+     * Note that if the handler supports 'raw args', it will receive the full,
+     * unaltered argument list if no prototype matches. (this lets functions
+     * support variable-length argument lists)
      *
      * @param handler
      * @param args
+     * @param ec
      * @return
      */
-    private static Object evalCustomFunction(IFunctionHandler handler, Object[] args, EvaluationContext ec) {
+    private static Object evalCustomFunction(IFunctionHandler handler, Object[] args,
+                                             EvaluationContext ec) {
         Vector prototypes = handler.getPrototypes();
         Enumeration e = prototypes.elements();
         Object[] typedArgs = null;
 
+        boolean argPrototypeArityMatch = false;
+        Class[] proto;
         while (typedArgs == null && e.hasMoreElements()) {
-            typedArgs = matchPrototype(args, (Class[])e.nextElement());
+            // try to coerce args into prototype, stopping on first success
+            proto = (Class[])e.nextElement();
+            typedArgs = matchPrototype(args, proto);
+            argPrototypeArityMatch = argPrototypeArityMatch ||
+                    (proto.length == args.length);
         }
 
         if (typedArgs != null) {
             return handler.eval(typedArgs, ec);
         } else if (handler.rawArgs()) {
-            return handler.eval(args, ec);  //should we have support for expanding nodesets here?
+            // should we have support for expanding nodesets here?
+            return handler.eval(args, ec);
+        } else if (!argPrototypeArityMatch) {
+            // When the argument count doesn't match any of the prototype
+            // sizes, we have an arity error.
+            throw new XPathArityException(handler.getName(),
+                    "a different number of arguments",
+                    args.length);
         } else {
-            throw new XPathTypeMismatchException("for function \'" + handler.getName() + "\'");
+            throw new XPathTypeMismatchException("for function \'" +
+                    handler.getName() + "\'");
         }
-
     }
 
     /**
-     * Given a prototype defined by the function handler, attempt to coerce the function arguments
-     * to match that prototype (checking # args, type conversion, etc.). If it is coercible, return
-     * the type-converted argument list -- these will be the arguments used to evaluate the function.
-     * If not coercible, return null.
+     * Given a prototype defined by the function handler, attempt to coerce the
+     * function arguments to match that prototype (checking # args, type
+     * conversion, etc.). If it is coercible, return the type-converted
+     * argument list -- these will be the arguments used to evaluate the
+     * function.  If not coercible, return null.
      *
      * @param args
      * @param prototype
@@ -450,7 +478,7 @@ public class XPathFuncExpr extends XPathExpression {
             for (int i = 0; i < prototype.length; i++) {
                 typed[i] = null;
 
-                //how to handle type conversions of custom types?
+                // how to handle type conversions of custom types?
                 if (prototype[i].isAssignableFrom(args[i].getClass())) {
                     typed[i] = args[i];
                 } else {
@@ -464,11 +492,13 @@ public class XPathFuncExpr extends XPathExpression {
                         } else if (prototype[i] == Date.class) {
                             typed[i] = toDate(args[i]);
                         }
-                    } catch (XPathTypeMismatchException xptme) { /* swallow type mismatch exception */ }
+                    } catch (XPathTypeMismatchException xptme) {
+                    }
                 }
 
-                if (typed[i] == null)
+                if (typed[i] == null) {
                     return null;
+                }
             }
         }
 
@@ -836,8 +866,7 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * sum the values in a nodeset; each element is coerced to a numeric value
      *
-     * @param model
-     * @param o
+     * @param argVals
      * @return
      */
     public static Double sum(Object argVals[]) {
@@ -997,11 +1026,11 @@ public class XPathFuncExpr extends XPathExpression {
      * perform a 'checklist' computation, enabling expressions like 'if there are at least 3 risk
      * factors active'
      *
-     * @param argVals the first argument is a numeric value expressing the minimum number of factors required.
+     * @param oMin    a numeric value expressing the minimum number of factors required.
      *                if -1, no minimum is applicable
-     *                the second argument is a numeric value expressing the maximum number of allowed factors.
-     *                if -1, no maximum is applicalbe
-     *                arguments 3 through the end are the individual factors, each coerced to a boolean value
+     * @param oMax    a numeric value expressing the maximum number of allowed factors.
+     *                if -1, no maximum is applicable
+     * @param factors individual factors that are coerced to boolean values
      * @return true if the count of 'true' factors is between the applicable minimum and maximum,
      * inclusive
      */
@@ -1030,7 +1059,10 @@ public class XPathFuncExpr extends XPathExpression {
      * the weights of all the 'true' factors are summed, and the function returns whether
      * this sum is between the min and max
      *
-     * @param argVals
+     * @param oMin
+     * @param oMax
+     * @param flags
+     * @param weights
      * @return
      */
     public static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
