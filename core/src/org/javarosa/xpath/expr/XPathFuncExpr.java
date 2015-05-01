@@ -91,6 +91,18 @@ public class XPathFuncExpr extends XPathExpression {
 
         return sb.toString();
     }
+    
+    public String toPrettyString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(id.toString() + "(");
+        for (int i = 0; i < args.length; i++) {
+            sb.append(args[i].toPrettyString());
+            if (i < args.length - 1)
+                sb.append(",");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 
     public boolean equals(Object o) {
         if (o instanceof XPathFuncExpr) {
@@ -139,7 +151,7 @@ public class XPathFuncExpr extends XPathExpression {
      * handler. For built-in functions, the number of arguments must match; for custom functions,
      * the supplied arguments must match one of the function prototypes defined by the handler.
      */
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         String name = id.toString();
         Object[] argVals = new Object[args.length];
 

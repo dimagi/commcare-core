@@ -19,11 +19,13 @@ package org.javarosa.core.model.condition;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -66,6 +68,17 @@ public abstract class Triggerable implements Externalizable {
      * The first context provided to this triggerable before reducing to the common root.
      */
     public TreeReference originalContextRef;
+    
+
+    /** Whether this trigger is collecting debug traces **/
+    boolean mIsDebugOn = false;
+    
+    /**  
+     *  Debug traces collecting during trigger execution. See the
+     *  getTriggerTraces method for details.
+     */
+    Hashtable<TreeReference, EvaluationTrace> mTriggerDebugs;
+
 
     public Triggerable() {
 
@@ -83,6 +96,44 @@ public abstract class Triggerable implements Externalizable {
     protected abstract void apply(TreeReference ref, Object result, FormInstance instance, FormDef f);
 
     public abstract boolean canCascade();
+    
+    /**
+     * @return A key string describing the triggerable type used to aggregate and 
+     * request specific debugging results. 
+     */
+    public abstract String getDebugLabel();
+    
+    /**
+     * @param mDebugMode Whether this triggerable should be collecting trace information
+     * during execution.
+     */
+    public void setDebug(boolean mDebugMode) {
+        this.mIsDebugOn = mDebugMode;
+        if(mIsDebugOn) { 
+            mTriggerDebugs = new Hashtable<TreeReference, EvaluationTrace>();
+        } else{
+            mTriggerDebugs = null;
+        }
+    }
+    
+    /**
+     * Retrieves evaluation traces collected during execution of this triggerable
+     * in debug mode. 
+     * 
+     * @return A mapping from tree refernences impacted by this triggerable, to the 
+     * root of the evaluation trace that was triggered. 
+     * 
+     * @throws IllegalStateException If debugging has not been enabled. 
+     */
+    public Hashtable<TreeReference, EvaluationTrace> getEvaluationTraces() throws IllegalStateException {
+        if(!mIsDebugOn) {
+            throw new IllegalStateException("Evaluation traces requested from triggerable not in debug mode.");
+        }
+        if(mTriggerDebugs == null) {
+            return new Hashtable<TreeReference, EvaluationTrace>();
+        }
+        return this.mTriggerDebugs;
+    }
 
     /**
      * Not for re-implementation, dispatches all of the evaluation
@@ -100,8 +151,13 @@ public abstract class Triggerable implements Externalizable {
         // context
         TreeReference ungenericised = originalContextRef.contextualize(context);
         EvaluationContext ec = new EvaluationContext(parentContext, ungenericised);
+        EvaluationContext triggerEval = ec;
+        if(mIsDebugOn) {
+            triggerEval = new EvaluationContext(ec, ec.getContextRef());
+            triggerEval.setDebugModeOn();
+        }
 
-        Object result = eval(instance, ec);
+        Object result = eval(instance, triggerEval);
 
         for (int i = 0; i < targets.size(); i++) {
             TreeReference targetRef =
@@ -110,6 +166,9 @@ public abstract class Triggerable implements Externalizable {
 
             for (int j = 0; j < v.size(); j++) {
                 TreeReference affectedRef = (TreeReference)v.elementAt(j);
+                if(mIsDebugOn) {
+                    mTriggerDebugs.put(affectedRef, triggerEval.getEvaluationTrace());
+                }
                 apply(affectedRef, result, instance, f);
             }
         }

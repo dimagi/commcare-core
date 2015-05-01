@@ -21,9 +21,9 @@ import java.util.Vector;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.xpath.XPathLazyNodeset;
 
 public abstract class XPathExpression implements Externalizable {
 
@@ -31,7 +31,30 @@ public abstract class XPathExpression implements Externalizable {
         return this.eval(evalContext.getMainInstance(), evalContext);
     }
 
-    public abstract Object eval(DataInstance model, EvaluationContext evalContext);
+    /**
+     * Evaluate this expression, potentially capturing any additional
+     * information about the evaluation. 
+     * 
+     * @param model
+     * @param evalContext 
+     * @return
+     */
+    public Object eval(DataInstance model, EvaluationContext evalContext) {
+        evalContext.openTrace(this);
+        Object value = this.evalRaw(model, evalContext);
+        evalContext.closeTrace(value);
+        return value;
+    }
+    
+    /**
+     * Perform the raw evaluation of this expression producing an
+     * appropriately typed XPath output with no side effects
+     *  
+     * @param model 
+     * @param evalContext
+     * @return
+     */
+    public abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
 
     public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         try {
@@ -271,4 +294,6 @@ public abstract class XPathExpression implements Externalizable {
     public int hashCode() {
         return this.toString().hashCode();
     }
+    
+    public abstract String toPrettyString();
 }

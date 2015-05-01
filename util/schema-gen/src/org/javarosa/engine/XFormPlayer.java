@@ -21,9 +21,11 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.ActionResponse;
 import org.javarosa.engine.models.Command;
+import org.javarosa.engine.models.EvaluationLevelJsonSerializer;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
@@ -57,6 +59,7 @@ public class XFormPlayer {
     private Step current;
     
     private boolean mInEvalMode = false;
+    private boolean mIsDebugOn = false;
 
     Mockup mockup;
 
@@ -236,12 +239,28 @@ public class XFormPlayer {
             String arg = command.substring(spaceIndex + 1);
             evalExpression(arg);
             return false;
+        } else if(command.startsWith("relevant")){
+            displayRelevant();
+            return false;
+        } else if(command.startsWith("debug")) {
+            mIsDebugOn = !mIsDebugOn;
+            out.println("Expression Debugging: " + (mIsDebugOn ? "ENABLED" : "DISABLED"));
+            return false;
         } else {
             badInput(command, "Invalid Command " + command);
             return false;
         }
     }
     
+    private void displayRelevant() {
+        FormIndex current = this.fec.getModel().getFormIndex();
+        String output = this.fec.getModel().getDebugInfo(current, "relevant", new StringEvaluationTraceSerializer());
+        if(output == null) { out.println("No display logic defined"); }
+        else {
+            out.println(output);
+        }
+    }
+
     public void evalExpression(String xpath) {
         out.println(xpath);
         XPathExpression expr;
@@ -258,8 +277,13 @@ public class XFormPlayer {
         if(current.isInForm()) {
             ec = new EvaluationContext(ec, current.getReference());
         }
+        
+        if(mIsDebugOn) {
+            ec.setDebugModeOn();
+        }
                 
         String valString;
+        String debug;
         try {
             Object val = expr.eval(ec);
             valString = XPathFuncExpr.toString(val);
@@ -269,6 +293,11 @@ public class XFormPlayer {
         }
         
         out.println(valString);
+        
+        if(mIsDebugOn) {
+                debug = ec.getEvaluationTrace() == null ? "" : new StringEvaluationTraceSerializer().serializeEvaluationLevels(ec.getEvaluationTrace());
+                out.println(debug);
+        }
     }
 
     public static void printInstance(PrintStream out, FormInstance instance) {
