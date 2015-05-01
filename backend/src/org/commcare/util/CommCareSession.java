@@ -3,11 +3,6 @@
  */
 package org.commcare.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -21,13 +16,13 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
@@ -323,7 +318,9 @@ public class CommCareSession {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
                 String value = step.getValue();
-                data.put(key, value);
+                if (key != null && value != null) {
+                    data.put(key, value);
+                }
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
             } else if (SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {
