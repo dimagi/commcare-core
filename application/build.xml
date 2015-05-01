@@ -1,12 +1,12 @@
 <!-- The JavaRosa build script is structured as follows:
      Modifiable properties are stored in the external build.properties file
      The classpath for external jars is defined in the Build taskdef
-     
-     NOTE: Binary Libraries (.zip is the convention in j2me) are declared 
+
+     NOTE: Binary Libraries (.zip is the convention in j2me) are declared
      seperately in the binaryLibraries property. Not on the classpath!
-     
+
      The BuildPolish target is associated with building the jar/jad files
-     
+
      All other non-test targets essentially modify properties associated with the
      Build target
 -->
@@ -19,13 +19,13 @@
         <taskdef name="buildPolish" classname="de.enough.polish.ant.PolishTask" classpath="${dir.tools}/j2merosa-libraries.jar:${polish.home}/lib/enough-j2mepolish-build.jar:${polish.home}/lib/jdom.jar:${polish.home}/lib/j2me-lib_1.1.jar:${polish.home}/lib/microewt_0.92.jar:${polish.home}/lib/microEWT-Examples.jar:${polish.home}/import/nokia-ui.jar:${polish.home}/import/m3g.jar:${polish.home}}/import/btapi.jar:${wtk.home}/lib/jsr082.jar:${wtk.home}/lib/jsr82.jar:${polish.home}/import/cldc-1.1-java5.jar:${polish.home}/import/enough-j2mepolish-client-java5.jar" />
             <path id="classpath.base">
         </path>
-        
+
         <!-- If not already set, set to nothing -->
         <property name="dest.suffix" value=""/>
-        
+
         <!-- If not already set, set to nothing -->
         <property name="device.dir.dist" value="${dir.dist.root}${dest.suffix}"/>
-        
+
         <!-- extract shared resources for j2merosa lib -->
         <unzip src="${dir.tools}/j2merosa-libraries.jar" dest="${dir.build}">
             <patternset>
@@ -36,19 +36,19 @@
         <property name="cc-content-version" value="unversioned" />
         <property name="key.keystore" value="" />
         <buildPolish>
-            <info name="${app.name}" 
-                version="${app.version}" 
-                description="${app.description}" 
-                vendorName="${app.vendor}" 
-                infoUrl="${app.infoUrl}" 
-                jarName="${app.jarName}" 
+            <info name="${app.name}"
+                version="${app.version}"
+                description="${app.description}"
+                vendorName="${app.vendor}"
+                infoUrl="${app.infoUrl}"
+                jarName="${app.jarName}"
                 jarUrl="${deploy-url}${app.jarName}" copyright="" />
-            
+
             <!-- selection of supported devices, set this in build.properties -->
             <deviceRequirements if="build.batch">
                 <requirement name="Feature" value="javarosa" />
             </deviceRequirements>
-            
+
             <deviceRequirements unless="build.batch">
                 <requirement name="Identifier" value="${device.identifier.test}" />
             </deviceRequirements>
@@ -56,18 +56,18 @@
             <!-- build settings -->
             <!-- 'menu' here designates that we're using the fullscreen Polish UI with native menus -->
             <!-- We should see if we can set these first two attributes as properties instead-->
-            <build fullscreen="menu" 
-                usePolishGui="${javarosa.usepolishui}" 
-                workDir="${dir.work}" 
+            <build fullscreen="menu"
+                usePolishGui="${javarosa.usepolishui}"
+                workDir="${dir.work}"
                 destDir="${device.dir.dist}">
-                
+
                 <libraries>
                         <library dir="${dir.lib}" unless="polish.blackberry"/>
                     <library file="${dir.lib}/regexp-me.jar" if="polish.blackberry"/>
                     <library file="${dir.lib}/kxml2-2.3.0.jar" if="polish.blackberry"/>
             <!--        <library file="${dir.tools}/j2meunit-javarosa.jar" if="unittests" />  -->
                 </libraries>
-                
+
                 <jad>
                     <attribute name="App-Version" value="${app.version}"/>
                     <attribute name="CommCare-Version" value="${commcare.version}"/>
@@ -77,36 +77,36 @@
                     <attribute name="Polish-Device" value="${polish.identifier}" />
                     <attribute name="Built-on" value="${built-on}" />
                     <attribute name="Build-Number" value="${commcare.build.number}"/>
-                    
+
                     <!-- Release property can't go in jad if it will be changed -->
                     <!--attribute name="CommCare-Release"    value="${commcare.release}" /-->
                     <attribute name="Profile" value="${commcare.profile}"/>
-                    
+
                     <attribute name="Skip-Validation" value="${skip.validation}"/>
-                    
+
                     <attribute name="MIDlet-Permissions" if="sign.locally"
                      value="javax.microedition.io.Connector.file.read, javax.microedition.io.Connector.file.write, javax.microedition.io.Connector.http, javax.microedition.io.Connector.https, javax.microedition.io.Connector.ssl, javax.microedition.media.control.VideoControl.getSnapshot, javax.microedition.io.Connector.comm, javax.microedition.io.Connector.sms, javax.wireless.messaging.sms.send"
                     />
                 </jad>
-                
-                
+
+
                 <!-- We rely on the jad file to be able to change properties post-compile, so
                 we need to ensure that any non-static properties don't make it into the manifest file-->
                 <manifestFilter>
                     Manifest-Version, MIDlet-Name, MIDlet-Version, MIDlet-Vendor,
                     MIDlet-Description?, MIDlet-Icon?, MIDlet-Info-URL?,
-                    MIDlet-1, MIDlet-2?, MIDlet-3?, MIDlet-4?, MIDlet-5?, 
+                    MIDlet-1, MIDlet-2?, MIDlet-3?, MIDlet-4?, MIDlet-5?,
                     MicroEdition-Profile, MicroEdition-Configuration,
                     MIDlet-Data-Size?,
                     MicroEdition-*,
                     Polish-*
                 </manifestFilter>
-                
+
 
 
                 <!-- midlets definition -->
                 <midlet class="${app.class}" name="${app.name}" icon="${app.icon}"/>
-                
+
                 <!-- Code source files to include in compilation -->
                 <!-- All source-level inclusions should be made here -->
                 <sources>
@@ -117,17 +117,17 @@
                     <!--Taking this out for now...-->
                     <!--source dir="${dir.test}"/-->
                 </sources>
-                
+
                 <!-- Build variables -->
                 <variables includeAntProperties="true">
                     <variable file="configuration/configuration.properties" />
                     <variable file="polish.keyboardhacks.properties" if="polish.customkeys"/>
                     <variable name="polish.TextField.useDirectInput" value="true" unless="polish.international"/>
                     <variable name="polish.FullScreen" value="false" if="${ isOS( Windows ) }" />
-                    <variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) } or polish.noobfuscate" /> 
+                    <variable name="obfuscate.force.no" value="true" if="${ isOS( Windows ) } or polish.noobfuscate" />
                 </variables>
 
-                <!-- Resources that should be used in the Polish build (images, the polish.css file, etc) --> 
+                <!-- Resources that should be used in the Polish build (images, the polish.css file, etc) -->
                 <resources defaultexcludes="no" excludes="readme.txt,.project">
                     <root dir="${dir.resources-external}" />
                     <root dir="${dir.resources}"/>
@@ -147,8 +147,8 @@
                 <obfuscator name="ProGuard" unless="((noobfuscate or test) and not release) or polish.blackberry or obfuscate.force.no">
                     <parameter name="optimize" value="true" />
                     <!-- removing until there's a fix -->
-                    
-                    <!-- Unfortunately, the ${polish.device} identifier isn't available in the regular ANT context, so we can't actually properly 
+
+                    <!-- Unfortunately, the ${polish.device} identifier isn't available in the regular ANT context, so we can't actually properly
                          place these obfuscation maps anywhere yet -->
                     <!--parameter name="printmapping" value="'dist/obfuscation_mapping.txt'"/-->
 
@@ -190,14 +190,14 @@
                 <!-- Properties of the actual javac compiler -->
                     <compiler debug="on"/>
 
-                <postcompiler name="java5" />                    
+                <postcompiler name="java5" />
 
                 <sign if="sign.locally"
                     keystore="${key.keystore}"
                     key="${key.keyname}"
                     password="${key.password}"
                 />
-                
+
             </build>
 
             <!-- execution of emulator(s) -->
@@ -225,7 +225,7 @@
         </condition>
         <echo message="CommCare Release: ${commcare.release}" />
     </target>
-    
+
     <target name="UpdateBuildNumber" description="Get the revision numbers of the various things from mercurial">
         <exec executable="hg" outputproperty="cc-build-version">
             <arg line="parents --template {node|short}"/>
@@ -245,13 +245,13 @@
                         <include name="javarosa.properties"/>
                     </patternset>
                 </unzip>
-                <property file="${dir.build}/javarosa.properties" /> 
+                <property file="${dir.build}/javarosa.properties" />
             </else>
         </if>
-        
+
         <tstamp><format property="built-on" pattern="yyyy-MMM-dd HH:mm" timezone="UTC" /></tstamp>
      </target>
-    
+
     <target name="CompileAndLinkSource" if="compile.from.source.true">
         <ant antfile="${dir.jrlibs}/build.xml" target="package" inheritAll="false" inheritRefs="false">
             <property name="polish.home" value="${polish.home}"/>
@@ -260,7 +260,7 @@
         <!-- Get the full device definitions -->
         <copy file="${device.list}" todir="${basedir}"/>
     </target>
-    
+
     <!-- Main Target: Call to build the project and call up the emulator -->
     <!-- Builds the code and invokes the emulator -->
     <target name="LaunchEmulator" depends="enableEmulator,disableObfuscator,BuildPolish" description="invokes the emulator">
@@ -269,7 +269,7 @@
     <!-- Main Target: Set for release, clean and build with obfuscator -->
     <target name="LaunchReleaseEmulator" depends="SetRelease, LaunchEmulator" />
 
-    
+
     <!-- Main Target: Call to clean directories created by a build -->
     <target name="Clean" description="allows a clean build. You should call [ant clean] whenever you made changes to devices.xml, vendors.xml or groups.xml">
         <delete dir="build" />
@@ -280,22 +280,22 @@
         <property name="commcare.release" value="true" />
         <echo>setting commcare.release to ${commcare.release}</echo>
     </target>
-    
+
     <!-- Main Target: Set for MVPTZ release, clean and build with obfuscator -->
     <target name="BuildRelease" description="Build a release" depends="SetRelease, BuildClean" />
-    
+
     <!-- Main Target: Cleans, and then runs the build target -->
     <target name="BuildClean" description="allows a clean build. You should call [ant cleanbuild] whenever you made changes to devices.xml, vendors.xml or groups.xml" depends="Clean, BuildPolish" />
-    
+
     <!-- Main Target: Cleans, and then runs the build target -->
     <target name="BuildAllClean" description="allows a clean build. You should call [ant cleanbuild] whenever you made changes to devices.xml, vendors.xml or groups.xml" depends="SetBatch, Clean, BuildPolish" />
-    
+
     <!-- Main Target: Cleans, and then runs the build target with the emulator -->
     <target name="BuildCleanRunEmulator" description="allows a clean build, and then launches the emulator" depends="Clean, enableEmulator, disableObfuscator, BuildPolish" />
 
     <!-- Main Target: Runs the build with all debug properties enabled -->
     <target name="LaunchEmulatorAndProfilers" description="debugs the project" depends="Clean, enableDebug, enableEmulator, BuildPolish" />
-    
+
     <!-- Main Target: Builds project and runs j2mepolish Unit Tests on constructed jars -->
     <target name="RunJ2MEUnitTests" depends="disableObfuscator, BuildPolish" description="Runs j2mepolish Unit Tests on constructed jars">
         <!-- Note that most of this testing code was here to test our auto-integration tester, and isn't actually
@@ -307,19 +307,19 @@
           <pathelement location="${dir.lib}/j2meunit-javarosa.jar" />
           <path refid="classpath.base" />
         </path>
-    
+
         <RunTestSuite suite="org.javarosa.patient.test.SelectorTest"/>
         <!-- add new test suites here -->
         <fail if="testresult.global">Unit Tests Failed!</fail>
     </target>
-    
-    
 
-    
+
+
+
     <target name="PrepareWebDemo" if="dir.web.resources">
         <property name="dir.web.dist.final" value="${dir.dist.root}/${dir.web.dist}"/>
         <property name="dir.web.app.source.final" value="${dir.dist.root}/${dir.web.app.source}"/>
-        
+
         <delete dir="${dir.web.dist.final}"/>
         <mkdir dir="${dir.web.dist.final}"/>
         <copy todir="${dir.web.dist.final}">
@@ -344,16 +344,16 @@
             </classpath>
         </java>
     </target>
-    
+
     <property name="dir.postjad" value="./postjad" />
-    
+
     <target name="PostJad" description="Post a jad file to commcare hq">
         <taskdef name="py-run" onerror="report" classname="org.pyant.tasks.PythonRunTask" classpath="${dir.tools}/pyAntTasks-1.3.jar"/>
         <py-run script="${dir.postjad}/utilities/submit_build.py" />
     </target>
-    
+
     <property name="dir.postjad.new" value="./postjadnew" />
-    
+
     <target name="PostJad10" description="Post a jad file to commcare hq">
         <dirname property="build.zip.dir" file="${build.zip}"/>
         <mkdir dir="${build.zip.dir}"/>
@@ -376,22 +376,22 @@
               <property name="dir.jrlib" value="${dir.tools}"/>
         </ant>
     </target>
-    
+
     <target name="SetBatch">
         <property name="build.batch" value="true"/>
         <property name="dest.suffix" value="${file.separator}${polish.identifier}${file.separator}"/>
     </target>
 
-        
+
     <!-- Initialization for the build targets                    -->
-    <target name="init" depends="extract-libs">    
+    <target name="init" depends="extract-libs">
         <!-- Disable the Emulator by default -->
         <property name="test" value="false" />
-        
+
         <condition property="compile.from.source.true">
             <equals arg1="${compile.source}" arg2="true" />
         </condition>
-        
+
         <condition property="sign.locally">
             <equals arg1="${build.sign}" arg2="true" />
         </condition>
@@ -416,7 +416,7 @@
         <property name="test" value="true" />
         <property name="dir.work" value="build/test" />
     </target>
-    
+
     <!-- Macro: Runs a test suite, and sets testresult.global to be true on failure -->
     <macrodef name="RunTestSuite" description="Runs a test suite, and sets testresult.global to be true on failure">
         <attribute name="suite"/>
@@ -434,7 +434,7 @@
                 </condition>
         </sequential>
     </macrodef>
-    
+
     <macrodef name="propertycopy">
       <attribute name="name"/>
       <attribute name="from"/>
@@ -442,23 +442,23 @@
         <property name="@{name}" value="${@{from}}"/>
       </sequential>
     </macrodef>
-    
-    
-    <!-- import properties which introduce localization hacks for 
+
+
+    <!-- import properties which introduce localization hacks for
          j2me polish commands and UI elements                     -->
     <property file="${basedir}/polish.localehacks.properties" />
-    
+
     <!-- import non-version-controlled local properties           -->
     <property file="${basedir}/local.properties" />
-    
+
     <!-- import user specific properties                          -->
     <property file="${basedir}/build.properties" />
 
     <!-- import global properties                                 -->
-    <property file="${polish.home}/global.properties" />             
-    
+    <property file="${polish.home}/global.properties" />
+
     <property file="${basedir}/key.properties" />
-    
+
     <property name="TALK" value="true" />
 
 </project>
