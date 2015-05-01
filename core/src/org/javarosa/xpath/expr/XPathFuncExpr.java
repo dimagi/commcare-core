@@ -1319,4 +1319,28 @@ public class XPathFuncExpr extends XPathExpression {
         //operation to be testing, though...
         return attrValue;
     }
+
+    /**
+     * Gets a human readable string representing an xpath nodeset.
+     * 
+     * @param value An xpath nodeset to be visualized
+     * @return A string representation of the nodeset's references
+     */
+    public static String getSerializedNodeset(XPathNodeset nodeset) {
+        if(nodeset.size() == 1 ) {
+            return XPathFuncExpr.toString(nodeset);
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("{nodeset: ");
+        for(int i = 0; i < nodeset.size() ; ++i) {
+            String ref = nodeset.getRefAt(i).toString(true);
+            sb.append(ref);
+            if(i != nodeset.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
 }

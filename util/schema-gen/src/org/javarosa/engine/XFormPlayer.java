@@ -34,6 +34,7 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormUtils;
+import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -286,7 +287,7 @@ public class XFormPlayer {
         String debug;
         try {
             Object val = expr.eval(ec);
-            valString = XPathFuncExpr.toString(val);
+            valString = getDisplayString(val);
         } catch(Exception e) {
             out.println("Error  (eval): " + e.getMessage());
             return;
@@ -297,6 +298,14 @@ public class XFormPlayer {
         if(mIsDebugOn) {
                 debug = ec.getEvaluationTrace() == null ? "" : new StringEvaluationTraceSerializer().serializeEvaluationLevels(ec.getEvaluationTrace());
                 out.println(debug);
+        }
+    }
+    
+    public static String getDisplayString(Object value) {
+        if(value instanceof XPathNodeset) {
+            return XPathFuncExpr.getSerializedNodeset((XPathNodeset)value);
+        } else { 
+            return XPathFuncExpr.toString(value);
         }
     }
 

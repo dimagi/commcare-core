@@ -3,8 +3,12 @@
  */
 package org.javarosa.core.model.trace;
 
+import j2meunit.util.StringUtil;
+
 import java.util.Vector;
 
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
 /**
@@ -69,6 +73,11 @@ public class EvaluationTrace {
      * @return The outcome of the expression's execution.
      */
     public String getValue() {
+        //Temporarily deal with this in a flat manner until we can evaluate more 
+        //robustly
+        if(value instanceof XPathNodeset) {
+            return XPathFuncExpr.getSerializedNodeset((XPathNodeset)value);
+        }
         return XPathFuncExpr.toString(value);
     }
     
