@@ -170,16 +170,16 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     String indexName = parser.getName();
                     String caseType = parser.getAttributeValue(null, "case_type");
                     String value = parser.nextText().trim();
-                    
+
                     //Remove any ambiguity associated with empty values
-                    if(value == "") { 
+                    if(value == "") {
                         value = null;
                     }
                     String relationship = parser.getAttributeValue(null, "relationship");
                     if (relationship == null) {
                         relationship = CaseIndex.RELATIONSHIP_CHILD;
                     }
-                    //Process blank inputs in the same manner as data fields (IE: Remove the underlying model) 
+                    //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
                     if(value == null) {
                         caseForBlock.removeIndex(indexName);
                     } else {

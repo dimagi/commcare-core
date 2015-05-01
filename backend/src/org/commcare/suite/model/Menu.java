@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -21,7 +21,7 @@ import java.util.Vector;
  * <p>A Menu definition describes the structure of how
  * actions should be provided to the user in a CommCare
  * application.</p>
- * 
+ *
  * @author ctsims
  *
  */
@@ -33,14 +33,14 @@ public class Menu implements Externalizable, MenuDisplayable {
     String root;
     String rawRelevance;
     XPathExpression relevance;
-    
+
     /**
      * Serialization only!!!
      */
     public Menu() {
-        
+
     }
-    
+
     public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
         this.id = id;
         this.root = root;
@@ -50,7 +50,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         this.commandIds = commandIds;
         this.commandExprs = commandExprs;
     }
-    
+
     /**
      * @return The ID of what menu an option to navigate to
      * this menu should be displayed in.
@@ -58,7 +58,7 @@ public class Menu implements Externalizable, MenuDisplayable {
     public String getRoot() {
         return root;
     }
-    
+
     /**
      * @return A Text which should be displayed to the user as
      * the action which will display this menu.
@@ -66,16 +66,16 @@ public class Menu implements Externalizable, MenuDisplayable {
     public Text getName() {
         return display.getText();
     }
-    
+
     /**
      * @return The ID of this menu. <p>If this value is "root"
      * many CommCare applications will support displaying this
-     * menu's options at the app home screen</p> 
+     * menu's options at the app home screen</p>
      */
     public String getId() {
         return id;
     }
-    
+
     /**
      * @return A parsed XPath expression that determines
      * whether or not to display this menu.
@@ -86,7 +86,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         }
         return relevance;
     }
-    
+
     /**
      * @return A string representing an XPath expression to determine
      * whether or not to display this menu.
@@ -103,14 +103,14 @@ public class Menu implements Externalizable, MenuDisplayable {
         //UNSAFE! UNSAFE!
         return commandIds;
     }
-    
+
     public XPathExpression getCommandRelevance(int index) throws XPathSyntaxException {
         //Don't cache this for now at all
         return commandExprs[index] == null ? null : XPathParseTool.parseXPath(commandExprs[index]);
     }
-    
+
     /**
-     * @param index the 
+     * @param index the
      * @return the raw xpath string for a relevant condition (if available). Largely for
      * displaying to the user in the event of a failure
      */
@@ -134,7 +134,7 @@ public class Menu implements Externalizable, MenuDisplayable {
                 commandExprs[i] = ExtUtil.readString(in);
             }
         }
-        
+
     }
 
     /* (non-Javadoc)
@@ -162,7 +162,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         if(display.getImageURI() == null) { return null; }
         return display.getImageURI().evaluate();
     }
-    
+
     public String getAudioURI() {
         if(display.getAudioURI() == null) { return null; }
         return display.getAudioURI().evaluate();

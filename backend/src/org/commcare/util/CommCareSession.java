@@ -403,11 +403,11 @@ public class CommCareSession {
         root.addChild(datum);
     }
 
-    
+
     /**
-     * Retrieve an evaluation context in which to evaluate expressions in the 
+     * Retrieve an evaluation context in which to evaluate expressions in the
      * current session state
-     * 
+     *
      * @param iif the instance initailzier for the current platform
      * @return Evaluation context for current session state
      */
@@ -418,7 +418,7 @@ public class CommCareSession {
     /**
      * Retrieve an evaluation context in which to evaluate expressions in the context of a given
      * command in the installed app
-     * 
+     *
      * @param iif the instance initializer for the current platform
      * @return Evaluation context for a command in the installed app
      */

@@ -17,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  */
 public class MenuParser extends CommCareElementParser<Menu> {
-    
+
     public MenuParser(KXmlParser parser) {
         super(parser);
     }
@@ -44,7 +44,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
         }
 
         getNextTagInBlock("menu");
-        
+
         DisplayUnit display;
         if(parser.getName().equals("text")){
             display = new DisplayUnit(new TextParser(parser).parse(), null, null);
@@ -56,7 +56,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
             throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
         }
 
-        
+
         //name = new TextParser(parser).parse();
 
         Vector<String> commandIds = new Vector<String>();
@@ -78,7 +78,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
                 }
             }
         }
-        
+
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 

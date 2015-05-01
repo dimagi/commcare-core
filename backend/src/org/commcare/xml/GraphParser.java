@@ -136,7 +136,7 @@ public class GraphParser extends ElementParser<Graph> {
 
         return series;
     }
-    
+
     /**
      * Get an XPath function from a node and attempt to parse it.
      * @param name Node name, also used in any error message.
