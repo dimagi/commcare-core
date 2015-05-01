@@ -347,14 +347,14 @@ public class Case implements Persistable, IMetaData, Secure {
     public void removeIndex(String indexName) {
         CaseIndex toRemove = null;
 
-        for(CaseIndex index : indices) {
-            if(index.mName.equals(indexName)) {
+        for (CaseIndex index : indices) {
+            if (index.mName.equals(indexName)) {
                 toRemove = index;
                 break;
             }
         }
 
-        if(toRemove != null) {
+        if (toRemove != null) {
             indices.removeElement(toRemove);
         }
     }

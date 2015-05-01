@@ -14,7 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class MenuParser extends CommCareElementParser<Menu> {
 
@@ -30,7 +29,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
 
         String id = parser.getAttributeValue(null, "id");
         String root = parser.getAttributeValue(null, "root");
-        root = root == null? "root" : root;
+        root = root == null ? "root" : root;
 
         String relevant = parser.getAttributeValue(null, "relevant");
         XPathExpression relevantExpression = null;
@@ -46,14 +45,15 @@ public class MenuParser extends CommCareElementParser<Menu> {
         getNextTagInBlock("menu");
 
         DisplayUnit display;
-        if(parser.getName().equals("text")){
+        if (parser.getName().equals("text")) {
             display = new DisplayUnit(new TextParser(parser).parse(), null, null);
-        }else if(parser.getName().equals("display")){
+        } else if (parser.getName().equals("display")) {
             display = parseDisplayBlock();
             //check that we have a commandText;
-            if(display.getText() == null) throw new InvalidStructureException("Expected Menu Text in Display block",parser);
+            if (display.getText() == null)
+                throw new InvalidStructureException("Expected Menu Text in Display block", parser);
         } else {
-            throw new InvalidStructureException("Expected either <text> or <display> in menu",parser);
+            throw new InvalidStructureException("Expected either <text> or <display> in menu", parser);
         }
 
 
@@ -65,7 +65,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
             checkNode("command");
             commandIds.addElement(parser.getAttributeValue(null, "id"));
             String relevantExpr = parser.getAttributeValue(null, "relevant");
-            if(relevantExpr == null) {
+            if (relevantExpr == null) {
                 relevantExprs.addElement(null);
             } else {
                 try {

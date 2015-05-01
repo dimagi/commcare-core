@@ -16,7 +16,7 @@ public class CalloutData {
     Vector<String> responses = new Vector<String>();
 
 
-    public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses){
+    public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
@@ -24,21 +24,23 @@ public class CalloutData {
         this.responses = responses;
     }
 
-    public String getImage(){
+    public String getImage() {
         return image;
     }
 
-    public String getActionName(){
+    public String getActionName() {
         return actionName;
     }
 
-    public String getDisplayName() { return displayName;}
+    public String getDisplayName() {
+        return displayName;
+    }
 
-    public Hashtable<String, String> getExtras(){
+    public Hashtable<String, String> getExtras() {
         return extras;
     }
 
-    public Vector<String> getResponses(){
+    public Vector<String> getResponses() {
         return responses;
     }
 }

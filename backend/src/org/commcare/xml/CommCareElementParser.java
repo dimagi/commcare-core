@@ -53,11 +53,11 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
         while (nextTagInBlock("display")) {
             if (parser.getName().equals("text")) {
 
-                String attributeValue = parser.getAttributeValue(null,"form");
+                String attributeValue = parser.getAttributeValue(null, "form");
 
-                if(attributeValue != null && attributeValue.equals("image")){
+                if (attributeValue != null && attributeValue.equals("image")) {
                     imageValue = new TextParser(parser).parse();
-                } else if(attributeValue != null && attributeValue.equals("audio")){
+                } else if (attributeValue != null && attributeValue.equals("audio")) {
                     audioValue = new TextParser(parser).parse();
                 } else {
                     displayText = new TextParser(parser).parse();

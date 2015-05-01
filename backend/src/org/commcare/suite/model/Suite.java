@@ -24,7 +24,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * referrals.</p>
  *
  * @author ctsims
- *
  */
 public class Suite implements Persistable {
 
@@ -33,10 +32,14 @@ public class Suite implements Persistable {
     private int version;
     int recordId = -1;
 
-    /** String(detail id) -> Detail Object **/
+    /**
+     * String(detail id) -> Detail Object *
+     */
     private Hashtable<String, Detail> details;
 
-    /** String(Entry id (also the same for menus) ) -> Entry Object **/
+    /**
+     * String(Entry id (also the same for menus) ) -> Entry Object *
+     */
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
 
@@ -106,9 +109,9 @@ public class Suite implements Persistable {
             throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
         this.version = ExtUtil.readInt(in);
-        this.details = (Hashtable<String, Detail>)ExtUtil.read(in,new ExtWrapMap(String.class, Detail.class), pf);
-        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in,new ExtWrapMap(String.class, Entry.class), pf);
-        this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class),pf);
+        this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
+        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in, new ExtWrapMap(String.class, Entry.class), pf);
+        this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
 
     }
 

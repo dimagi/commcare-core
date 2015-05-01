@@ -4,7 +4,6 @@ package org.commcare.suite.model.graph;
  * Created by wpride1 on 4/24/15.
  *
  * Represents an evaluated DisplayUnit
- *
  */
 public class DisplayData {
 
@@ -12,21 +11,21 @@ public class DisplayData {
     String imageURI;
     String audioURI;
 
-    public DisplayData(String name, String imageURI, String audioURI){
+    public DisplayData(String name, String imageURI, String audioURI) {
         this.name = name;
         this.imageURI = imageURI;
         this.audioURI = audioURI;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public String getImageURI(){
+    public String getImageURI() {
         return imageURI;
     }
 
-    public String getAudioURI(){
+    public String getAudioURI() {
         return audioURI;
     }
 }

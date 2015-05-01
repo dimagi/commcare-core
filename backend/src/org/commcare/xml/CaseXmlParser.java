@@ -172,7 +172,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     String value = parser.nextText().trim();
 
                     //Remove any ambiguity associated with empty values
-                    if(value == "") {
+                    if (value == "") {
                         value = null;
                     }
                     String relationship = parser.getAttributeValue(null, "relationship");
@@ -180,7 +180,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                         relationship = CaseIndex.RELATIONSHIP_CHILD;
                     }
                     //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
-                    if(value == null) {
+                    if (value == null) {
                         caseForBlock.removeIndex(indexName);
                     } else {
                         caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));

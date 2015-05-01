@@ -23,7 +23,6 @@ import java.util.Vector;
  * application.</p>
  *
  * @author ctsims
- *
  */
 public class Menu implements Externalizable, MenuDisplayable {
     DisplayUnit display;
@@ -127,10 +126,10 @@ public class Menu implements Externalizable, MenuDisplayable {
         root = ExtUtil.readString(in);
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
-        commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
-        commandExprs =  new String[ExtUtil.readInt(in)];
-        for(int i = 0 ; i < commandExprs.length; ++i) {
-            if(ExtUtil.readBool(in)) {
+        commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        commandExprs = new String[ExtUtil.readInt(in)];
+        for (int i = 0; i < commandExprs.length; ++i) {
+            if (ExtUtil.readBool(in)) {
                 commandExprs[i] = ExtUtil.readString(in);
             }
         }
@@ -141,16 +140,16 @@ public class Menu implements Externalizable, MenuDisplayable {
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out,ExtUtil.emptyIfNull(id));
-        ExtUtil.writeString(out,root);
-        ExtUtil.writeString(out,ExtUtil.emptyIfNull(rawRelevance));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
+        ExtUtil.writeString(out, root);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(rawRelevance));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
         ExtUtil.writeNumeric(out, commandExprs.length);
-        for(int i = 0 ; i < commandExprs.length ; ++i) {
-            if(commandExprs[i] == null) {
+        for (int i = 0; i < commandExprs.length; ++i) {
+            if (commandExprs[i] == null) {
                 ExtUtil.writeBool(out, false);
-            } else{
+            } else {
                 ExtUtil.writeBool(out, true);
                 ExtUtil.writeString(out, commandExprs[i]);
             }
@@ -159,22 +158,28 @@ public class Menu implements Externalizable, MenuDisplayable {
 
 
     public String getImageURI() {
-        if(display.getImageURI() == null) { return null; }
+        if (display.getImageURI() == null) {
+            return null;
+        }
         return display.getImageURI().evaluate();
     }
 
     public String getAudioURI() {
-        if(display.getAudioURI() == null) { return null; }
+        if (display.getAudioURI() == null) {
+            return null;
+        }
         return display.getAudioURI().evaluate();
     }
 
     public String getDisplayText() {
-        if(display.getText() == null) { return null; }
+        if (display.getText() == null) {
+            return null;
+        }
         return display.getText().evaluate();
     }
 
     // unsafe! assumes that xpath expressions evaluate properly...
-    public int indexOfCommand(String cmd){
+    public int indexOfCommand(String cmd) {
         return commandIds.indexOf(cmd);
     }
 

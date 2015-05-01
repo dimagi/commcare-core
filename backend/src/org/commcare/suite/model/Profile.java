@@ -24,9 +24,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * any JavaRosa URI reference roots which should be
  * available.</p>
  *
- *
  * @author ctsims
- *
  */
 
 public class Profile implements Persistable {
@@ -43,7 +41,7 @@ public class Profile implements Persistable {
     Vector<PropertySetter> properties;
     Vector<RootTranslator> roots;
 
-    Hashtable<String,Boolean> featureStatus;
+    Hashtable<String, Boolean> featureStatus;
 
     /**
      * Serialization Only!
@@ -57,14 +55,12 @@ public class Profile implements Persistable {
      * version and authoritative reference URI.
      *
      * @param version The version of this profile which
-     * is represented by this definition.
-     *
+     *                is represented by this definition.
      * @param authRef A URI which represents the authoritative
-     * source of this profile's master definition. If the
-     * profile definition read at this URI claims a higher
-     * version number than this profile's version, this profile
-     * is obsoleted by it.
-     *
+     *                source of this profile's master definition. If the
+     *                profile definition read at this URI claims a higher
+     *                version number than this profile's version, this profile
+     *                is obsoleted by it.
      */
     public Profile(int version, String authRef) {
         this.version = version;
@@ -74,7 +70,7 @@ public class Profile implements Persistable {
         featureStatus = new Hashtable<String, Boolean>();
 
         //turn on default features
-        featureStatus.put("users",new Boolean(true));
+        featureStatus.put("users", new Boolean(true));
     }
 
     /*
@@ -123,7 +119,9 @@ public class Profile implements Persistable {
      * to end users.
      */
     public boolean isFeatureActive(String feature) {
-        if(!featureStatus.containsKey(feature)) { return false; }
+        if (!featureStatus.containsKey(feature)) {
+            return false;
+        }
         return featureStatus.get(feature).booleanValue();
     }
 
@@ -135,16 +133,16 @@ public class Profile implements Persistable {
     }
 
     public void addPropertySetter(String key, String value) {
-        this.addPropertySetter(key,value,false);
+        this.addPropertySetter(key, value, false);
     }
 
     public void addPropertySetter(String key, String value, boolean force) {
-        properties.addElement(new PropertySetter(key,value,force));
+        properties.addElement(new PropertySetter(key, value, force));
     }
 
     public PropertySetter[] getPropertySetters() {
         PropertySetter[] setters = new PropertySetter[properties.size()];
-        for(int i = 0 ; i < properties.size() ; ++i ) {
+        for (int i = 0; i < properties.size(); ++i) {
             setters[i] = properties.elementAt(i);
         }
         return setters;
@@ -165,10 +163,10 @@ public class Profile implements Persistable {
      * NOTE: Moving at earliest opportunity to j2me profile installer
      */
     public void initializeProperties(boolean enableForce) {
-        for(PropertySetter setter : properties) {
+        for (PropertySetter setter : properties) {
             String property = PropertyManager._().getSingularProperty(setter.getKey());
             //We only want to set properties which are undefined or are forced
-            if(property == null || (enableForce && setter.force)) {
+            if (property == null || (enableForce && setter.force)) {
                 PropertyManager._().setProperty(setter.getKey(), setter.getValue());
             }
         }
@@ -184,9 +182,9 @@ public class Profile implements Persistable {
         version = ExtUtil.readInt(in);
         authRef = ExtUtil.readString(in);
 
-        properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class),pf);
-        roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class),pf);
-        featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class),pf);
+        properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
+        roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
+        featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
     }
 
     /*
