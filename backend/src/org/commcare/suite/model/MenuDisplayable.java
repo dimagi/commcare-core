@@ -5,7 +5,6 @@ package org.commcare.suite.model;
  *
  * Interface to be implemented by objects that want to be
  * displayed in MenuLists and MenuGrids
- *
  */
 public interface MenuDisplayable {
 

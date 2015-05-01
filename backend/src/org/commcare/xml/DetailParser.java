@@ -57,7 +57,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
 
         while (nextTagInBlock("detail")) {
 
-            if("lookup".equals(parser.getName().toLowerCase())) {
+            if ("lookup".equals(parser.getName().toLowerCase())) {
                 try {
                     checkNode("lookup");
                     callout = new CalloutParser(parser).parse();
@@ -152,7 +152,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     DetailTemplate template;
                     if (form.equals("graph")) {
                         template = new GraphParser(parser).parse();
-                    } else if (form.equals("callout")){
+                    } else if (form.equals("callout")) {
                         template = new CalloutParser(parser).parse();
                     } else {
                         checkNode("text");

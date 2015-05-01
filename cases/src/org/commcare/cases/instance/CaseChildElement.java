@@ -119,7 +119,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
      */
     public Vector getChildrenWithName(String name) {
-        //In order 
+        //In order
         TreeElement cached = cache();
         Vector children = cached.getChildrenWithName(name);
         if (children.size() == 0) {
@@ -403,13 +403,13 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                         }
                         return child;
                     }
-                    
+
                     /* (non-Javadoc)
                      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
                      */
                     public Vector getChildrenWithName(String name) {
                         Vector children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
-                        
+
                         //If we haven't finished caching yet, we can safely not return
                         //something useful here, so we can construct as normal.
                         if (done[0] == false) {

@@ -355,7 +355,7 @@ public class Detail implements Externalizable {
         return mGC;
     }
 
-    public Callout getCallout(){
+    public Callout getCallout() {
         return callout;
     }
 

@@ -24,9 +24,8 @@ import java.util.Vector;
  *
  * Object representation of application callouts described in suite.xml
  * Used in callouts from EntitySelectActivity and EntityDetailActivity
- *
  */
-public class Callout implements Externalizable, DetailTemplate{
+public class Callout implements Externalizable, DetailTemplate {
 
     String actionName;
     String image;
@@ -34,7 +33,7 @@ public class Callout implements Externalizable, DetailTemplate{
     Hashtable<String, String> extras = new Hashtable<String, String>();
     Vector<String> responses = new Vector<String>();
 
-    public Callout(String actionName, String image, String displayName){
+    public Callout(String actionName, String image, String displayName) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
@@ -48,14 +47,14 @@ public class Callout implements Externalizable, DetailTemplate{
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
-        Enumeration keys= extras.keys();
+        Enumeration keys = extras.keys();
 
-        while(keys.hasMoreElements()){
+        while (keys.hasMoreElements()) {
             String key = (String)keys.nextElement();
             try {
                 String evaluatedKey = XPathFuncExpr.toString(XPathParseTool.parseXPath(extras.get(key)).eval(context));
                 evaluatedExtras.put(key, evaluatedKey);
-            } catch(XPathSyntaxException e){
+            } catch (XPathSyntaxException e) {
                 // do nothing
             }
         }
@@ -82,7 +81,7 @@ public class Callout implements Externalizable, DetailTemplate{
         displayName = ExtUtil.readString(in);
         actionName = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
-        extras = (Hashtable<String, String>) ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
 
@@ -98,29 +97,31 @@ public class Callout implements Externalizable, DetailTemplate{
         ExtUtil.write(out, new ExtWrapList(responses));
     }
 
-    public String getImage(){
+    public String getImage() {
         return image;
     }
 
-    public String getActionName(){
+    public String getActionName() {
         return actionName;
     }
 
-    public String getDisplayName() { return displayName;}
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public void addExtra(String key, String value) {
         extras.put(key, value);
     }
 
-    public void addResponse(String key){
+    public void addResponse(String key) {
         responses.addElement(key);
     }
 
-    public Hashtable<String, String> getExtras(){
+    public Hashtable<String, String> getExtras() {
         return extras;
     }
 
-    public Vector<String> getResponses(){
+    public Vector<String> getResponses() {
         return responses;
     }
 }

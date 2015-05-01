@@ -29,11 +29,11 @@ public class CalloutParser extends ElementParser<Callout> {
 
         Callout callout = new Callout(actionName, image, displayName);
 
-        while(nextTagInBlock("lookup")){
+        while (nextTagInBlock("lookup")) {
             String tagName = parser.getName();
-            if(("extra").equals(tagName)){
+            if (("extra").equals(tagName)) {
                 callout.addExtra(parser.getAttributeValue(null, "key"), parser.getAttributeValue(null, "value"));
-            } else if ("response".equals(tagName)){
+            } else if ("response".equals(tagName)) {
                 callout.addResponse(parser.getAttributeValue(null, "key"));
             }
 
