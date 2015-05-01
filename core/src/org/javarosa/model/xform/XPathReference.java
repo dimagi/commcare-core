@@ -23,10 +23,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.javarosa.core.model.IDataReference;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
@@ -38,7 +38,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 /**
  *
  */
-public class XPathReference implements IDataReference {
+public class XPathReference implements Externalizable {
     private TreeReference ref;
     private String nodeset;
 

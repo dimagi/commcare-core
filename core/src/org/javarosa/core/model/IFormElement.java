@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * An IFormDataElement is an element of the physical interaction for
@@ -87,7 +88,7 @@ public interface IFormElement extends Localizable, Externalizable {
     /**
      * @return The data reference for this element
      */
-    IDataReference getBind();
+    XPathReference getBind();
 
     /**
      * Registers a state observer for this element.
