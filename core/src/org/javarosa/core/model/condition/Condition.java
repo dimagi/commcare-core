@@ -145,10 +145,6 @@ public class Condition extends Triggerable {
         ExtUtil.writeNumeric(out, falseAction);
     }
 
-    /**
-     * Label used in form debug evaluation traces, which helps users gain
-     * introspection into the evaluation process.
-     */
     public String getDebugLabel() {
         return "relevant";
     }
