@@ -34,7 +34,7 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
         super(a, b);
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("nodeset union operation");
     }
 
@@ -56,5 +56,9 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
 
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
+    }
+    
+    public String toPrettyString() {
+        return "unsupported union operation";
     }
 }

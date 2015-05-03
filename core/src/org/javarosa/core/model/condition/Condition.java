@@ -144,4 +144,8 @@ public class Condition extends Triggerable {
         ExtUtil.writeNumeric(out, trueAction);
         ExtUtil.writeNumeric(out, falseAction);
     }
+
+    public String getDebugLabel() {
+        return "relevant";
+    }
 }

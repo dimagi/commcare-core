@@ -92,6 +92,19 @@ public class XPathFuncExpr extends XPathExpression {
         return sb.toString();
     }
 
+    public String toPrettyString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(id.toString() + "(");
+        for (int i = 0; i < args.length; i++) {
+            sb.append(args[i].toPrettyString());
+            if (i < args.length - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
     public boolean equals(Object o) {
         if (o instanceof XPathFuncExpr) {
             XPathFuncExpr x = (XPathFuncExpr)o;
@@ -139,7 +152,7 @@ public class XPathFuncExpr extends XPathExpression {
      * handler. For built-in functions, the number of arguments must match; for custom functions,
      * the supplied arguments must match one of the function prototypes defined by the handler.
      */
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         String name = id.toString();
         Object[] argVals = new Object[args.length];
 
@@ -1306,5 +1319,29 @@ public class XPathFuncExpr extends XPathExpression {
         //TODO: What about dates? That is a _super_ expensive
         //operation to be testing, though...
         return attrValue;
+    }
+
+    /**
+     * Gets a human readable string representing an xpath nodeset.
+     *
+     * @param nodeset An xpath nodeset to be visualized
+     * @return A string representation of the nodeset's references
+     */
+    public static String getSerializedNodeset(XPathNodeset nodeset) {
+        if (nodeset.size() == 1) {
+            return XPathFuncExpr.toString(nodeset);
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("{nodeset: ");
+        for (int i = 0; i < nodeset.size(); ++i) {
+            String ref = nodeset.getRefAt(i).toString(true);
+            sb.append(ref);
+            if (i != nodeset.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
     }
 }

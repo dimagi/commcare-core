@@ -36,7 +36,7 @@ public class XPathStringLiteral extends XPathExpression {
         this.s = s;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return s;
     }
 
@@ -59,5 +59,9 @@ public class XPathStringLiteral extends XPathExpression {
 
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, s);
+    }
+    
+    public String toPrettyString() {
+        return "'" + s + "'";
     }
 }
