@@ -60,7 +60,7 @@ public class XPathVariableReference extends XPathExpression {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, id);
     }
-    
+
     public String toPrettyString() {
         return "$" + id.toString();
     }

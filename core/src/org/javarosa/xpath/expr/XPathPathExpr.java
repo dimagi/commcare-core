@@ -414,7 +414,7 @@ public class XPathPathExpr extends XPathExpression {
             return this.eval(model, evalContext);
         }
     }
-    
+
     public String toPrettyString() {
         return getReference(true).toString(true);
     }

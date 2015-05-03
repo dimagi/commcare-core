@@ -70,7 +70,7 @@ public class XPathNumericLiteral extends XPathExpression {
             ExtUtil.writeDecimal(out, d);
         }
     }
-    
+
     public String toPrettyString() {
         return Double.toString(d);
     }
