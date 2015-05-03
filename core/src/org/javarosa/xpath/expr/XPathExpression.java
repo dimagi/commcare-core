@@ -33,10 +33,10 @@ public abstract class XPathExpression implements Externalizable {
 
     /**
      * Evaluate this expression, potentially capturing any additional
-     * information about the evaluation. 
-     * 
+     * information about the evaluation.
+     *
      * @param model
-     * @param evalContext 
+     * @param evalContext
      * @return
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
@@ -45,12 +45,12 @@ public abstract class XPathExpression implements Externalizable {
         evalContext.closeTrace(value);
         return value;
     }
-    
+
     /**
      * Perform the raw evaluation of this expression producing an
      * appropriately typed XPath output with no side effects
-     *  
-     * @param model 
+     *
+     * @param model
      * @param evalContext
      * @return
      */
@@ -294,6 +294,6 @@ public abstract class XPathExpression implements Externalizable {
     public int hashCode() {
         return this.toString().hashCode();
     }
-    
+
     public abstract String toPrettyString();
 }

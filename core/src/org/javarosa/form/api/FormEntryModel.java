@@ -789,23 +789,29 @@ public class FormEntryModel {
         }
         return false;
     }
-    
+
     /**
-     * Retrieve the serialized debug trace for the element at the specified form index
-     * for the provided category of trigger 
-     * 
-     * Will enable debugging for the current form (currently doesn't disable afterwards) 
-     * 
-     * @param index The form index to be evaluated
-     * @param category The category of trigger/debug info being requested, like calculate, relevant, etc.
+     * Retrieve the serialized debug trace for the element at the specified
+     * form index for the provided category of trigger
+     *
+     * Will enable debugging for the current form (currently doesn't disable
+     * afterwards)
+     *
+     * @param index      The form index to be evaluated
+     * @param category   The category of trigger/debug info being requested, like
+     *                   calculate, relevant, etc.
      * @param serializer A serializer for the EvaluationTrace
      * @return the output of the provided serializer
      */
-    public <T> T getDebugInfo(FormIndex index, String category, EvaluationTraceSerializer<T> serializer) {
+    public <T> T getDebugInfo(FormIndex index, String category,
+                              EvaluationTraceSerializer<T> serializer) {
         this.getForm().enableDebugTraces();
-        
-        Hashtable<String, EvaluationTrace> indexDebug = this.getForm().getDebugTraceMap().get(index.getReference());
-        if(indexDebug == null || indexDebug.get(category) == null) { return null; }
+
+        Hashtable<String, EvaluationTrace> indexDebug =
+                this.getForm().getDebugTraceMap().get(index.getReference());
+        if (indexDebug == null || indexDebug.get(category) == null) {
+            return null;
+        }
         return serializer.serializeEvaluationLevels(indexDebug.get(category));
     }
 }

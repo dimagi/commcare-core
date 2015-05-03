@@ -651,8 +651,8 @@ public class TreeReference implements Externalizable {
                 switch (mult) {
                     case INDEX_UNBOUND:
                         Vector<XPathExpression> predicates = this.getPredicate(i);
-                        if(predicates != null) {
-                            for(XPathExpression expr : predicates) {
+                        if (predicates != null) {
+                            for (XPathExpression expr : predicates) {
                                 sb.append("[" + expr.toPrettyString() + "]");
                             }
                         }

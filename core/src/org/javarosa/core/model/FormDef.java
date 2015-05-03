@@ -126,7 +126,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     private FormInstance mainInstance = null;
 
     Hashtable<String, Vector<Action>> eventListeners;
-    
+
     boolean mDebugModeEnabled = false;
 
 
@@ -726,37 +726,36 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
     }
-    
+
     /**
-     * Enables debug traces in this form, which can be requested as a map after this 
-     * call has been performed. Debug traces will be available until they are explicitly
-     * disabled.
-     * 
-     * This call also re-executes all triggerables in debug mode to make their current
-     * traces available.
-     * 
+     * Enables debug traces in this form, which can be requested as a map after
+     * this call has been performed. Debug traces will be available until they
+     * are explicitly disabled.
+     *
+     * This call also re-executes all triggerables in debug mode to make their
+     * current traces available.
+     *
      * Must be called after this form is initialized.
-     * 
      */
     public void enableDebugTraces() {
-        if(!mDebugModeEnabled) {
+        if (!mDebugModeEnabled) {
             for (int i = 0; i < triggerables.size(); i++) {
                 Triggerable t = (Triggerable)triggerables.elementAt(i);
                 t.setDebug(true);
             }
-            
-            //Re-execute all triggerables to collect traces
+
+            // Re-execute all triggerables to collect traces
             initializeTriggerables();
             mDebugModeEnabled = true;
         }
     }
-    
+
     /**
-     * Disable debug tracing for this form. Debug traces will no longer be available after
-     * this call.
+     * Disable debug tracing for this form. Debug traces will no longer be
+     * available after this call.
      */
     public void disableDebugTraces() {
-        if(mDebugModeEnabled) {
+        if (mDebugModeEnabled) {
             for (int i = 0; i < triggerables.size(); i++) {
                 Triggerable t = (Triggerable)triggerables.elementAt(i);
                 t.setDebug(false);
@@ -764,35 +763,39 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             mDebugModeEnabled = false;
         }
     }
-    
+
     /**
-     * Aggregates a map of evaluation traces collected by the form's triggerables.
-     * 
-     * @return A mapping from TreeReferences to a set of evaluation traces. The traces 
-     * are separated out by triggerable category (calculate, relevant, etc) and represent
-     * the execution of the last expression that was executed for that trigger. 
-     * 
+     * Aggregates a map of evaluation traces collected by the form's
+     * triggerables.
+     *
+     * @return A mapping from TreeReferences to a set of evaluation traces. The
+     * traces are separated out by triggerable category (calculate, relevant,
+     * etc) and represent the execution of the last expression that was
+     * executed for that trigger.
      * @throws IllegalStateException If debugging has not been enabled.
      */
-    public Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> getDebugTraceMap() throws IllegalStateException {
-        if(!mDebugModeEnabled) {
+    public Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> getDebugTraceMap()
+            throws IllegalStateException {
+
+        if (!mDebugModeEnabled) {
             throw new IllegalStateException("Debugging is not enabled");
         }
-        
-        //TODO: sure would be nice to be able to cache this at some point, but will
-        //have to have a way to invalidate by trigger or something
-        Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> debugInfo = new Hashtable<TreeReference, Hashtable<String, EvaluationTrace>>();
-        
+
+        // TODO: sure would be nice to be able to cache this at some point, but
+        // will have to have a way to invalidate by trigger or something
+        Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> debugInfo =
+                new Hashtable<TreeReference, Hashtable<String, EvaluationTrace>>();
+
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
-            
+
             Hashtable<TreeReference, EvaluationTrace> triggerOutputs = t.getEvaluationTraces();
-            
-            for(Enumeration e = triggerOutputs.keys() ; e.hasMoreElements();) {
+
+            for (Enumeration e = triggerOutputs.keys(); e.hasMoreElements(); ) {
                 TreeReference elementRef = (TreeReference)e.nextElement();
                 String label = t.getDebugLabel();
                 Hashtable<String, EvaluationTrace> traces = debugInfo.get(elementRef);
-                if(traces == null) {
+                if (traces == null) {
                     traces = new Hashtable<String, EvaluationTrace>();
                 }
                 traces.put(label, triggerOutputs.get(elementRef));
@@ -802,7 +805,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         return debugInfo;
     }
-
 
     public void initializeTriggerables() {
         initializeTriggerables(TreeReference.rootRef());

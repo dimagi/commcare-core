@@ -1,10 +1,10 @@
 package org.javarosa.core.model.trace;
 
 /**
- * Serializes an evaluation trace into a raw string for command line or other debugging purposes.
- * 
- * @author ctsims
+ * Serializes an evaluation trace into a raw string for command line or other
+ * debugging purposes.
  *
+ * @author ctsims
  */
 public class StringEvaluationTraceSerializer implements EvaluationTraceSerializer<String> {
 
@@ -12,22 +12,20 @@ public class StringEvaluationTraceSerializer implements EvaluationTraceSerialize
         return dumpExprOutput(input, 1);
     }
 
-    public String dumpExprOutput(EvaluationTrace level, int refLevel) {
-        String output = String.format("%s%s: %s", tabLevel(refLevel),
-                level.getExpression(), level.getValue())
-                + "\n";
+    private String dumpExprOutput(EvaluationTrace level, int refLevel) {
+        String output = indentExprAndValue(level.getExpression(), level.getValue(), refLevel);
         for (EvaluationTrace child : level.getSubTraces()) {
             output += dumpExprOutput(child, refLevel + 1) + "\n";
         }
         return output;
     }
 
-    public String tabLevel(int tabLevel) {
-        String level = "";
-        for (int i = 0; i < tabLevel; ++i) {
-            level += "    ";
+    private String indentExprAndValue(String expr, String value, int indentLevel) {
+        String indent = "";
+        for (int i = 0; i < indentLevel; ++i) {
+            indent += "    ";
         }
-        return level;
-    }
 
+        return String.format("%s%s: %s\n", indent, expr, value);
+    }
 }

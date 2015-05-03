@@ -91,14 +91,15 @@ public class XPathFuncExpr extends XPathExpression {
 
         return sb.toString();
     }
-    
+
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
         sb.append(id.toString() + "(");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
-            if (i < args.length - 1)
+            if (i < args.length - 1) {
                 sb.append(",");
+            }
         }
         sb.append(")");
         return sb.toString();
@@ -1322,21 +1323,21 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * Gets a human readable string representing an xpath nodeset.
-     * 
-     * @param value An xpath nodeset to be visualized
+     *
+     * @param nodeset An xpath nodeset to be visualized
      * @return A string representation of the nodeset's references
      */
     public static String getSerializedNodeset(XPathNodeset nodeset) {
-        if(nodeset.size() == 1 ) {
+        if (nodeset.size() == 1) {
             return XPathFuncExpr.toString(nodeset);
         }
 
         StringBuffer sb = new StringBuffer();
         sb.append("{nodeset: ");
-        for(int i = 0; i < nodeset.size() ; ++i) {
+        for (int i = 0; i < nodeset.size(); ++i) {
             String ref = nodeset.getRefAt(i).toString(true);
             sb.append(ref);
-            if(i != nodeset.size() - 1) {
+            if (i != nodeset.size() - 1) {
                 sb.append(", ");
             }
         }

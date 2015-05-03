@@ -39,23 +39,27 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
  */
 public class EvaluationContext {
     /**
-     * Whether XPath expressions being evaluated should be
-     * traced during execution for debugging.
+     * Whether XPath expressions being evaluated should be traced during
+     * execution for debugging.
      */
     private boolean mAccumulateExprs = false;
-    
+
     /**
-     * During debugging this context is the base that
-     * holds the trace root and aggregates ongoing execution.
+     * During debugging this context is the base that holds the trace root and
+     * aggregates ongoing execution.
      */
     private EvaluationContext mDebugCore;
-    
-    /** The current execution trace being evaluated in debug mode **/
+
+    /**
+     * The current execution trace being evaluated in debug mode
+     */
     private EvaluationTrace mCurrentTraceLevel = null;
-    
-    /** The root of the current execution trace **/
+
+    /**
+     * The root of the current execution trace
+     */
     private EvaluationTrace mTraceRoot = null;
-    
+
     // Unambiguous anchor reference for relative paths
     private TreeReference contextNode;
 
@@ -107,8 +111,8 @@ public class EvaluationContext {
         //and is fixed on the context. Anything that changes the context should
         //invalidate this
         this.currentContextPosition = base.currentContextPosition;
-        
-        if(base.mAccumulateExprs) {
+
+        if (base.mAccumulateExprs) {
             this.mAccumulateExprs = true;
             this.mDebugCore = base.mDebugCore;
         }
@@ -388,7 +392,6 @@ public class EvaluationContext {
                         o = XPathFuncExpr.unpack(o);
 
 
-
                         if (o instanceof Double) {
                             //The spec just says "number" for when to use
                             //this, so I think this is ok? It's not clear
@@ -497,47 +500,49 @@ public class EvaluationContext {
         CacheHost host = instance.getCacheHost();
         return host;
     }
-    
+
     /**
      * Creates a record that an expression is about to be evaluated.
-     * 
+     *
      * @param xPathExpression the expression being evaluated
      */
     public void openTrace(XPathExpression xPathExpression) {
-        if(mAccumulateExprs) {
+        if (mAccumulateExprs) {
             String expressionString = xPathExpression.toPrettyString();
-            EvaluationTrace newLevel = new EvaluationTrace(expressionString, mDebugCore.mCurrentTraceLevel);
-            if(mDebugCore.mCurrentTraceLevel != null) {
+            EvaluationTrace newLevel = new EvaluationTrace(expressionString,
+                    mDebugCore.mCurrentTraceLevel);
+            if (mDebugCore.mCurrentTraceLevel != null) {
                 mDebugCore.mCurrentTraceLevel.addSubTrace(newLevel);
             }
-            
+
             mDebugCore.mCurrentTraceLevel = newLevel;
         }
     }
-    
+
     /**
-     * Closes the current evaluation trace and records the 
+     * Closes the current evaluation trace and records the
      * relevant outcomes and context
+     *
      * @param value The result of the current trace expression
      */
     public void closeTrace(Object value) {
-        if(mAccumulateExprs) {
-            
-            //Lazy nodeset evaluation makes it impossible for the trace to record
-            //predicate subexpressions properly, so trigger that evaluation now
-            if(value instanceof XPathLazyNodeset) {
+        if (mAccumulateExprs) {
+            // Lazy nodeset evaluation makes it impossible for the trace to
+            // record predicate subexpressions properly, so trigger that
+            // evaluation now.
+            if (value instanceof XPathLazyNodeset) {
                 ((XPathLazyNodeset)value).size();
             }
-            
+
             mDebugCore.mCurrentTraceLevel.setOutcome(value);
-            
-            if(mDebugCore.mCurrentTraceLevel.getParent() == null) { 
+
+            if (mDebugCore.mCurrentTraceLevel.getParent() == null) {
                 mDebugCore.mTraceRoot = mDebugCore.mCurrentTraceLevel;
             }
             mDebugCore.mCurrentTraceLevel = mDebugCore.mCurrentTraceLevel.getParent();
         }
     }
-    
+
     /**
      * Sets this EC to be the base of a trace capture for debugging.
      */
@@ -548,8 +553,8 @@ public class EvaluationContext {
 
 
     /**
-     * @return the trace of the expression evaluation that was performed against 
-     * this context.
+     * @return the trace of the expression evaluation that was performed
+     * against this context.
      */
     public EvaluationTrace getEvaluationTrace() {
         return mTraceRoot;
