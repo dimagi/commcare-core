@@ -95,20 +95,23 @@ public class XPathBoolExpr extends XPathBinaryOpExpr {
         ExtUtil.writeNumeric(out, op);
         super.writeExternal(out);
     }
-    
+
     public String toPrettyString() {
         String prettyA = a.toPrettyString();
         String prettyB = b.toPrettyString();
-        String opString = "unknown_operator(%s, %s)";
+        String opString;
         switch (op) {
-        case AND:
-            opString = "%s and %s";
-            break;
-        case OR:
-            opString = "%s or %s";
-            break;
+            case AND:
+                opString = " and ";
+                break;
+            case OR:
+                opString = " or ";
+                break;
+            default:
+                return "unknown_operator(" + prettyA + ", " + prettyB + ")";
         }
-        return String.format(opString, prettyA, prettyB);
+
+        return prettyA + opString + prettyB;
     }
 
 }

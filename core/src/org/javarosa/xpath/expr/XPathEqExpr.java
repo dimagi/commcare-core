@@ -106,16 +106,15 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         }
         return eq;
     }
-    
+
     public String toPrettyString() {
         String prettyA = a.toPrettyString();
         String prettyB = b.toPrettyString();
-        String opString = "unknown_operator(%s, %s)";
-        if(equal) {
-            opString = "%s = %s";
+
+        if (equal) {
+            return prettyA + " = " + prettyB;
         } else {
-            opString = "%s != %s";
+            return prettyA + " != " + prettyB;
         }
-        return String.format(opString, prettyA, prettyB);
     }
 }
