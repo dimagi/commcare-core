@@ -26,6 +26,6 @@ public class StringEvaluationTraceSerializer implements EvaluationTraceSerialize
             indent += "    ";
         }
 
-        return String.format("%s%s: %s\n", indent, expr, value);
+        return indent + expr + ": " + value + "\n";
     }
 }

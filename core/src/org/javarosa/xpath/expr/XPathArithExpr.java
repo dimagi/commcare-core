@@ -114,24 +114,27 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
     public String toPrettyString() {
         String prettyA = a.toPrettyString();
         String prettyB = b.toPrettyString();
-        String opString = "unknown_operator(%s, %s)";
+        String opString;
         switch (op) {
             case ADD:
-                opString = "%s + %s";
+                opString = " + ";
                 break;
             case SUBTRACT:
-                opString = "%s - %s";
+                opString = " - ";
                 break;
             case MULTIPLY:
-                opString = "%s * %s";
+                opString = " * ";
                 break;
             case DIVIDE:
-                opString = "%s div %s";
+                opString = " div ";
                 break;
             case MODULO:
-                opString = "%s mod %s";
+                opString = " mod ";
                 break;
+            default:
+                return "unknown_operator(" + prettyA + ", " + prettyB + ")";
         }
-        return String.format(opString, prettyA, prettyB);
+
+        return prettyA + opString + prettyB;
     }
 }
