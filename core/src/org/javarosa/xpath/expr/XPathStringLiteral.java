@@ -60,7 +60,7 @@ public class XPathStringLiteral extends XPathExpression {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, s);
     }
-    
+
     public String toPrettyString() {
         return "'" + s + "'";
     }

@@ -57,7 +57,7 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
     }
-    
+
     public String toPrettyString() {
         return "unsupported union operation";
     }

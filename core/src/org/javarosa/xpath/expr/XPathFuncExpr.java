@@ -98,7 +98,7 @@ public class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
             if (i < args.length - 1) {
-                sb.append(",");
+                sb.append(", ");
             }
         }
         sb.append(")");

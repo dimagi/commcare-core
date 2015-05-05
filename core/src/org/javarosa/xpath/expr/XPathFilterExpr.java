@@ -94,7 +94,7 @@ public class XPathFilterExpr extends XPathExpression {
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         throw new UnpivotableExpressionException();
     }
-    
+
     public String toPrettyString() {
         return "Unsupported Predicate";
     }

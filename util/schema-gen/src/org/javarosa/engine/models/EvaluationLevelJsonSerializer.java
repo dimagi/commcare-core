@@ -26,12 +26,4 @@ public class EvaluationLevelJsonSerializer implements EvaluationTraceSerializer<
         object.put("components", array);
         return object;
     }
-
-    public String tabLevel(int tabLevel) {
-        String level = "";
-        for (int i = 0; i < tabLevel; ++i) {
-            level += "    ";
-        }
-        return level;
-    }
 }

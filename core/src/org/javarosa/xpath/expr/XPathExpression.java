@@ -37,7 +37,7 @@ public abstract class XPathExpression implements Externalizable {
      *
      * @param model
      * @param evalContext
-     * @return
+     * @return The result of this expression evaluated against the provided context
      */
     public Object eval(DataInstance model, EvaluationContext evalContext) {
         evalContext.openTrace(this);
@@ -52,7 +52,7 @@ public abstract class XPathExpression implements Externalizable {
      *
      * @param model
      * @param evalContext
-     * @return
+     * @return The result of this expression evaluated against the provided context
      */
     public abstract Object evalRaw(DataInstance model, EvaluationContext evalContext);
 
@@ -295,5 +295,11 @@ public abstract class XPathExpression implements Externalizable {
         return this.toString().hashCode();
     }
 
+    /**
+     * @return a best-effort for the cannonical representation
+     * of this expression. May not be one-to-one with the original
+     * text, and may not be semantically complete, but should ideally
+     * provide a human with a clear depiction of the expression.
+     */
     public abstract String toPrettyString();
 }
