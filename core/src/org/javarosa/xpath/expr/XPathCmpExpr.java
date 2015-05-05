@@ -183,21 +183,24 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
     public String toPrettyString() {
         String prettyA = a.toPrettyString();
         String prettyB = b.toPrettyString();
-        String opString = "unknown_operator(%s, %s)";
+        String opString;
         switch (op) {
             case LT:
-                opString = "%s < %s";
+                opString = " < ";
                 break;
             case GT:
-                opString = "%s > %s";
+                opString = " > ";
                 break;
             case LTE:
-                opString = "%s <= %s";
+                opString = " <= ";
                 break;
             case GTE:
-                opString = "%s >= %s";
+                opString = " >= ";
                 break;
+            default:
+                return "unknown_operator(" + prettyA + ", " + prettyB + ")";
         }
-        return String.format(opString, prettyA, prettyB);
+
+        return prettyA + opString + prettyB;
     }
 }
