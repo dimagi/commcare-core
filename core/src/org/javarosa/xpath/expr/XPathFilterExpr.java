@@ -43,7 +43,7 @@ public class XPathFilterExpr extends XPathExpression {
         this.predicates = predicates;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("filter expression");
     }
 
@@ -93,5 +93,9 @@ public class XPathFilterExpr extends XPathExpression {
 
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         throw new UnpivotableExpressionException();
+    }
+
+    public String toPrettyString() {
+        return "Unsupported Predicate";
     }
 }

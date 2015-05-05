@@ -36,7 +36,7 @@ public class XPathVariableReference extends XPathExpression {
         this.id = id;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return evalContext.getVariable(id.toString());
     }
 
@@ -59,5 +59,9 @@ public class XPathVariableReference extends XPathExpression {
 
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, id);
+    }
+
+    public String toPrettyString() {
+        return "$" + id.toString();
     }
 }

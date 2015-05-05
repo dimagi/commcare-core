@@ -184,7 +184,7 @@ public class XPathPathExpr extends XPathExpression {
         return ref;
     }
 
-    public XPathNodeset eval(DataInstance m, EvaluationContext ec) {
+    public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
 
         TreeReference ref;
@@ -422,4 +422,9 @@ public class XPathPathExpr extends XPathExpression {
             return this.eval(model, evalContext);
         }
     }
+
+    public String toPrettyString() {
+        return getReference(true).toString(true);
+    }
+
 }

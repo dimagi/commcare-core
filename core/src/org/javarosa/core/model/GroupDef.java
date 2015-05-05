@@ -34,6 +34,7 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * The definition of a group in a form or questionaire.
@@ -48,7 +49,7 @@ public class GroupDef implements IFormElement, Localizable {
     // The group number.
     private int id;
     // reference to a location in the model to store data in
-    private IDataReference binding;
+    private XPathReference binding;
 
 
     private String labelInnerText;
@@ -69,7 +70,7 @@ public class GroupDef implements IFormElement, Localizable {
     Vector observers;
 
     public boolean noAddRemove = false;
-    public IDataReference count = null;
+    public XPathReference count = null;
 
     public GroupDef() {
         this(Constants.NULL_ID, null, false);
@@ -90,11 +91,11 @@ public class GroupDef implements IFormElement, Localizable {
         this.id = id;
     }
 
-    public IDataReference getBind() {
+    public XPathReference getBind() {
         return binding;
     }
 
-    public void setBind(IDataReference binding) {
+    public void setBind(XPathReference binding) {
         this.binding = binding;
     }
 
@@ -152,7 +153,7 @@ public class GroupDef implements IFormElement, Localizable {
         }
     }
 
-    public IDataReference getCountReference() {
+    public XPathReference getCountReference() {
         return count;
     }
 
@@ -183,14 +184,14 @@ public class GroupDef implements IFormElement, Localizable {
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setBind((IDataReference)ExtUtil.read(dis, new ExtWrapTagged(), pf));
+        setBind((XPathReference)ExtUtil.read(dis, new ExtWrapTagged(), pf));
         setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setRepeat(ExtUtil.readBool(dis));
         setChildren((Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf));
 
         noAddRemove = ExtUtil.readBool(dis);
-        count = (IDataReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
+        count = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
 
         chooseCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis));
         addCaption = ExtUtil.nullIfEmpty(ExtUtil.readString(dis));

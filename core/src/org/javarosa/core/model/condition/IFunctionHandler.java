@@ -16,6 +16,8 @@
 
 package org.javarosa.core.model.condition;
 
+import org.javarosa.xpath.XPathArityException;
+
 import java.util.Vector;
 
 public interface IFunctionHandler {
@@ -47,5 +49,5 @@ public interface IFunctionHandler {
     /**
      * Evaluate the function
      */
-    Object eval(Object[] args, EvaluationContext ec);
+    Object eval(Object[] args, EvaluationContext ec) throws XPathArityException;
 }

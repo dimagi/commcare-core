@@ -6,7 +6,7 @@ package org.javarosa.xform.parse;
 
 import java.util.Hashtable;
 
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.SubmissionProfile;
 import org.kxml2.kdom.Element;
 
@@ -17,7 +17,7 @@ import org.kxml2.kdom.Element;
  */
 public class SubmissionParser {
 
-    public SubmissionProfile parseSubmission(String method, String action, IDataReference ref, Element element) {
+    public SubmissionProfile parseSubmission(String method, String action, XPathReference ref, Element element) {
         String mediatype = element.getAttributeValue(null, "mediatype");
         Hashtable<String, String> attributeMap = new Hashtable<String, String>();
         int nAttr = element.getAttributeCount();

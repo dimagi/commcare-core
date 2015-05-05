@@ -31,7 +31,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
-import org.javarosa.core.model.IDataReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDef;
@@ -792,7 +792,7 @@ public class XFormParser {
 
         String event = e.getAttributeValue(null, "event");
 
-        IDataReference dataRef = null;
+        XPathReference dataRef = null;
         boolean refFromBind = false;
 
 
@@ -856,7 +856,7 @@ public class XFormParser {
         String ref = submission.getAttributeValue(null, REF_ATTR);
         String bind = submission.getAttributeValue(null, BIND_ATTR);
 
-        IDataReference dataRef = null;
+        XPathReference dataRef = null;
         boolean refFromBind = false;
 
         if (bind != null) {
@@ -951,7 +951,7 @@ public class XFormParser {
         usedAtts.addElement(BIND_ATTR);
         usedAtts.addElement(APPEARANCE_ATTR);
 
-        IDataReference dataRef = null;
+        XPathReference dataRef = null;
         boolean refFromBind = false;
 
         String ref = e.getAttributeValue(null, REF_ATTR);
@@ -1463,7 +1463,7 @@ public class XFormParser {
     private void parseGroup(IFormElement parent, Element e, int groupType) {
         GroupDef group = new GroupDef();
         group.setID(serialQuestionID++); //until we come up with a better scheme
-        IDataReference dataRef = null;
+        XPathReference dataRef = null;
         boolean refFromBind = false;
 
         Vector usedAtts = new Vector();
@@ -1576,7 +1576,7 @@ public class XFormParser {
         }
     }
 
-    private IDataReference getAbsRef(IDataReference ref, IFormElement parent) {
+    private XPathReference getAbsRef(XPathReference ref, IFormElement parent) {
         return getAbsRef(ref, getFormElementRef(parent));
     }
 
@@ -1587,7 +1587,7 @@ public class XFormParser {
      * @param ref       potentially null reference
      * @param parentRef must be an absolute path
      */
-    public static IDataReference getAbsRef(IDataReference ref, TreeReference parentRef) {
+    public static XPathReference getAbsRef(XPathReference ref, TreeReference parentRef) {
         TreeReference tref;
 
         if (!parentRef.isAbsolute()) {
@@ -1857,7 +1857,7 @@ public class XFormParser {
         if (nodeset == null) {
             throw new XFormParseException("XForm Parse: <bind> without nodeset", e);
         }
-        IDataReference ref;
+        XPathReference ref;
         try {
             ref = new XPathReference(nodeset);
         } catch (XPathException xpe) {
@@ -1964,7 +1964,7 @@ public class XFormParser {
         addBinding(binding);
     }
 
-    private Condition buildCondition(String xpath, String type, IDataReference contextRef) {
+    private Condition buildCondition(String xpath, String type, XPathReference contextRef) {
         XPathConditional cond;
         int trueAction = -1, falseAction = -1;
 
@@ -2001,7 +2001,7 @@ public class XFormParser {
         return c;
     }
 
-    private static Recalculate buildCalculate(String xpath, IDataReference contextRef) throws XPathSyntaxException {
+    private static Recalculate buildCalculate(String xpath, XPathReference contextRef) throws XPathSyntaxException {
         XPathConditional calc = new XPathConditional(xpath);
 
         Recalculate r = new Recalculate(calc, FormInstance.unpackReference(contextRef));
@@ -2526,7 +2526,7 @@ public class XFormParser {
 
         for (int i = 0; i < fe.getChildren().size(); i++) {
             IFormElement child = fe.getChildren().elementAt(i);
-            IDataReference ref = null;
+            XPathReference ref = null;
             String type = null;
 
             if (child instanceof GroupDef) {

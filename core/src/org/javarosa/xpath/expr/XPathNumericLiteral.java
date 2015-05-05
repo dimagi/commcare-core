@@ -36,7 +36,7 @@ public class XPathNumericLiteral extends XPathExpression {
         this.d = d.doubleValue();
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         return new Double(d);
     }
 
@@ -69,5 +69,9 @@ public class XPathNumericLiteral extends XPathExpression {
             out.writeByte(0x01);
             ExtUtil.writeDecimal(out, d);
         }
+    }
+
+    public String toPrettyString() {
+        return Double.toString(d);
     }
 }

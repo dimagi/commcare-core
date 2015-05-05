@@ -636,7 +636,7 @@ public class TreeReference implements Externalizable {
         if (instanceName != null) {
             sb.append("instance(" + instanceName + ")");
         } else if (contextType == CONTEXT_ORIGINAL) {
-            sb.append("current()");
+            sb.append("current()/");
         }
         if (isAbsolute()) {
             sb.append("/");
@@ -656,6 +656,12 @@ public class TreeReference implements Externalizable {
             if (includePredicates) {
                 switch (mult) {
                     case INDEX_UNBOUND:
+                        Vector<XPathExpression> predicates = this.getPredicate(i);
+                        if (predicates != null) {
+                            for (XPathExpression expr : predicates) {
+                                sb.append("[" + expr.toPrettyString() + "]");
+                            }
+                        }
                         break;
                     case INDEX_TEMPLATE:
                         sb.append("[@template]");

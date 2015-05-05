@@ -29,6 +29,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 
 /**
  * A data binding is an object that represents how a
@@ -46,7 +47,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class DataBinding implements Externalizable {
     private String id;
-    private IDataReference ref;
+    private XPathReference ref;
     private int dataType;
 
     public Condition relevancyCondition;
@@ -71,14 +72,14 @@ public class DataBinding implements Externalizable {
     /**
      * @return The data reference
      */
-    public IDataReference getReference() {
+    public XPathReference getReference() {
         return ref;
     }
 
     /**
      * @param ref the reference to set
      */
-    public void setReference(IDataReference ref) {
+    public void setReference(XPathReference ref) {
         this.ref = ref;
     }
 
@@ -146,7 +147,7 @@ public class DataBinding implements Externalizable {
         setDataType(ExtUtil.readInt(in));
         setPreload((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
         setPreloadParams((String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf));
-        ref = (IDataReference)ExtUtil.read(in, new ExtWrapTagged());
+        ref = (XPathReference)ExtUtil.read(in, new ExtWrapTagged());
 
         //don't bother reading relevancy/required/readonly/constraint/calculate right now; they're only used during parse anyway
     }
