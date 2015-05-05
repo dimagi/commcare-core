@@ -318,7 +318,7 @@ public class CommCareSession {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
                 String value = step.getValue();
-                if(key != null && value != null) {
+                if (key != null && value != null) {
                     data.put(key, value);
                 }
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
