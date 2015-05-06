@@ -50,10 +50,11 @@ import me.regexp.RE;
 /**
  * Representation of an xpath function expression.
  *
- * All of the built-in xpath functions are included here, as well as the xpath type conversion logic
+ * All of the built-in xpath functions are included here, as well as the xpath
+ * type conversion logic
  *
- * Evaluation of functions can delegate out to custom function handlers that must be registered at
- * runtime.
+ * Evaluation of functions can delegate out to custom function handlers that
+ * must be registered at runtime.
  *
  * @author Drew Roos
  */
@@ -65,11 +66,9 @@ public class XPathFuncExpr extends XPathExpression {
     } //for deserialization
 
     public XPathFuncExpr(XPathQName id, XPathExpression[] args) throws XPathSyntaxException {
-
-        if (id.name.equals("if")) {
-            if (args.length != 3) {
-                throw new XPathSyntaxException("if() function requires 3 arguments but only " + args.length + " are present.");
-            }
+        if (id.name.equals("if") && args.length != 3) {
+            throw new XPathSyntaxException("if() function requires 3 arguments but only " +
+                    args.length + " are present.");
         }
 
         this.id = id;
@@ -94,7 +93,7 @@ public class XPathFuncExpr extends XPathExpression {
 
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(id.toString() + "(");
+        sb.append(id.toString()).append("(");
         for (int i = 0; i < args.length; i++) {
             sb.append(args[i].toPrettyString());
             if (i < args.length - 1) {
@@ -109,22 +108,24 @@ public class XPathFuncExpr extends XPathExpression {
         if (o instanceof XPathFuncExpr) {
             XPathFuncExpr x = (XPathFuncExpr)o;
 
-            //Shortcuts for very easily comprable values
-            //We also only return "True" for methods we expect to return the same thing. This is not good
-            //practice in Java, since o.equals(o) will return false. We should evaluate that differently.
-            //Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
-            //May 6, 2013 - Added "random", since two calls asking for a random
-            if (!id.equals(x.id) || args.length != x.args.length || id.toString().equals("uuid") || id.toString().equals("random")) {
-                return false;
-            }
-
-            return ExtUtil.arrayEquals(args, x.args, false);
-        } else {
-            return false;
+            // Shortcuts for very easily comprable values.
+            // We also only return true for methods we expect to return the
+            // same thing. This is not good practice in Java, since o.equals(o)
+            // will return false. We should evaluate that differently.
+            // Dec 8, 2011 - Added "uuid", since we should never assume one uuid equals another
+            // May 6, 2013 - Added "random", since two calls asking for a random
+            return (!(!id.equals(x.id) ||
+                    args.length != x.args.length ||
+                    id.toString().equals("uuid") ||
+                    id.toString().equals("random")) &&
+                    ExtUtil.arrayEquals(args, x.args, false));
         }
+
+        return false;
     }
 
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in,
+                             PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
 
@@ -134,7 +135,7 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
-        Vector v = new Vector();
+        Vector<XPathExpression> v = new Vector<XPathExpression>();
         for (int i = 0; i < args.length; i++)
             v.addElement(args[i]);
 
@@ -145,12 +146,14 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Evaluate the function call.
      *
-     * First check if the function is a member of the built-in function suite. If not, then check
-     * for any custom handlers registered to handler the function. If not, throw and exception.
+     * First check if the function is a member of the built-in function suite.
+     * If not, then check for any custom handlers registered to handler the
+     * function. If not, throw and exception.
      *
-     * Both function name and appropriate arguments are taken into account when finding a suitable
-     * handler. For built-in functions, the number of arguments must match; for custom functions,
-     * the supplied arguments must match one of the function prototypes defined by the handler.
+     * Both function name and appropriate arguments are taken into account when
+     * finding a suitable handler. For built-in functions, the number of
+     * arguments must match; for custom functions, the supplied arguments must
+     * match one of the function prototypes defined by the handler.
      */
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         String name = id.toString();
@@ -158,7 +161,8 @@ public class XPathFuncExpr extends XPathExpression {
 
         Hashtable funcHandlers = evalContext.getFunctionHandlers();
 
-        //TODO: Func handlers should be able to declare the desire for short circuiting as well
+        // TODO: Func handlers should be able to declare the desire for short
+        // circuiting as well
         if (name.equals("if") && args.length == 3) {
             return ifThenElse(model, evalContext, args, argVals);
         } else if (name.equals("coalesce") && args.length == 2) {
@@ -204,16 +208,19 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("number")) {
                 checkArity(name, 1, args.length);
                 return toNumeric(argVals[0]);
-            } else if (name.equals("int")) { //non-standard
+            } else if (name.equals("int")) {
+                // non-standard
                 checkArity(name, 1, args.length);
                 return toInt(argVals[0]);
-            } else if (name.equals("double")) { //non-standard
+            } else if (name.equals("double")) {
+                // non-standard
                 checkArity(name, 1, args.length);
                 return toDouble(argVals[0]);
             } else if (name.equals("string")) {
                 checkArity(name, 1, args.length);
                 return toString(argVals[0]);
-            } else if (name.equals("date")) { //non-standard
+            } else if (name.equals("date")) {
+                // non-standard
                 checkArity(name, 1, args.length);
                 return toDate(argVals[0]);
             } else if (name.equals("not")) {
@@ -225,13 +232,16 @@ public class XPathFuncExpr extends XPathExpression {
             } else if (name.equals("format-date")) {
                 checkArity(name, 2, args.length);
                 return dateStr(argVals[0], argVals[1]);
-            } else if ((name.equals("selected") || name.equals("is-selected"))) { //non-standard
+            } else if ((name.equals("selected") || name.equals("is-selected"))) {
+                // non-standard
                 checkArity(name, 2, args.length);
                 return multiSelected(argVals[0], argVals[1]);
-            } else if (name.equals("count-selected")) { //non-standard
+            } else if (name.equals("count-selected")) {
+                // non-standard
                 checkArity(name, 1, args.length);
                 return countSelected(argVals[0]);
-            } else if (name.equals("selected-at")) { //non-standard
+            } else if (name.equals("selected-at")) {
+                // non-standard
                 checkArity(name, 2, args.length);
                 return selectedAt(argVals[0], argVals[1]);
             } else if (name.equals("position")) {
@@ -243,7 +253,7 @@ public class XPathFuncExpr extends XPathExpression {
                     return position(((XPathNodeset)argVals[0]).getRefAt(0));
                 } else {
                     if (evalContext.getContextPosition() != -1) {
-                        return new Double(evalContext.getContextPosition());
+                        return Double.valueOf(evalContext.getContextPosition());
                     }
                     return position(evalContext.getContextRef());
                 }
@@ -338,33 +348,44 @@ public class XPathFuncExpr extends XPathExpression {
                 if (!(args.length >= 2 && args.length % 2 == 0)) {
                     throw new XPathArityException(name, "an even number of arguments", args.length);
                 }
-                if (args.length == 4 && argVals[2] instanceof XPathNodeset && argVals[3] instanceof XPathNodeset) {
+                if (args.length == 4 &&
+                        argVals[2] instanceof XPathNodeset &&
+                        argVals[3] instanceof XPathNodeset) {
                     Object[] factors = ((XPathNodeset)argVals[2]).toArgList();
                     Object[] weights = ((XPathNodeset)argVals[3]).toArgList();
+
                     if (factors.length != weights.length) {
                         throw new XPathTypeMismatchException("weighted-checklist: nodesets not same length");
                     }
-                    return checklistWeighted(argVals[0], argVals[1], factors, weights);
+                    return checklistWeighted(argVals[0], argVals[1],
+                            factors, weights);
                 } else {
-                    return checklistWeighted(argVals[0], argVals[1], subsetArgList(argVals, 2, 2), subsetArgList(argVals, 3, 2));
+                    return checklistWeighted(argVals[0], argVals[1],
+                            subsetArgList(argVals, 2, 2), subsetArgList(argVals, 3, 2));
                 }
-            } else if (name.equals("regex")) { //non-standard
+            } else if (name.equals("regex")) {
+                // non-standard
                 checkArity(name, 2, args.length);
                 return regex(argVals[0], argVals[1]);
-            } else if (name.equals("depend")) { //non-standard
+            } else if (name.equals("depend")) {
+                // non-standard
                 if (args.length == 0) {
                     throw new XPathArityException(name, "at least one argument", args.length);
                 }
                 return argVals[0];
-            } else if (name.equals("random")) { //non-standard
+            } else if (name.equals("random")) {
+                // non-standard
                 checkArity(name, 0, args.length);
-                //calculated expressions may be recomputed w/o warning! use with caution!!
-                return new Double(MathUtils.getRand().nextDouble());
-            } else if (name.equals("uuid")) { //non-standard
+                // calculated expressions may be recomputed w/o warning! use
+                // with caution!!
+                return Double.valueOf(MathUtils.getRand().nextDouble());
+            } else if (name.equals("uuid")) {
+                // non-standard
                 if (args.length > 1) {
                     throw new XPathArityException(name, "0 or 1 arguments", args.length);
                 }
-                //calculated expressions may be recomputed w/o warning! use with caution!!
+                // calculated expressions may be recomputed w/o warning! use
+                // with caution!!
                 if (args.length == 0) {
                     return PropertyUtils.genUUID();
                 }
@@ -376,20 +397,22 @@ public class XPathFuncExpr extends XPathExpression {
                 return power(argVals[0], argVals[1]);
             } else if (name.equals("abs")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.abs(toDouble(argVals[0]).doubleValue()));
+                return Double.valueOf(Math.abs(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("ceiling")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.ceil(toDouble(argVals[0]).doubleValue()));
+                return Double.valueOf(Math.ceil(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("floor")) {
                 checkArity(name, 1, args.length);
-                return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
+                return Double.valueOf(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round")) {
                 checkArity(name, 1, args.length);
-                return new Double((double)(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
-            } else if (name.equals("log")) { //XPath 3.0
+                return Double.valueOf(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
+            } else if (name.equals("log")) {
+                // XPath 3.0
                 checkArity(name, 1, args.length);
                 return log(argVals[0]);
-            } else if (name.equals("log10")) { //XPath 3.0
+            } else if (name.equals("log10")) {
+                // XPath 3.0
                 checkArity(name, 1, args.length);
                 return log10(argVals[0]);
             } else {
@@ -405,16 +428,20 @@ public class XPathFuncExpr extends XPathExpression {
                 args += "'" + String.valueOf(unpack(argVals[i])) + "'" + (i == argVals.length - 1 ? "" : ", ");
             }
 
-            throw new XPathException("There was likely an invalid argument to the function '" + name + "'. The final list of arguments were: [" + args + "]" + ". Full error " + cce.getMessage());
+            throw new XPathException("There was likely an invalid argument to the function '" +
+                    name + "'. The final list of arguments were: [" +
+                    args + "]" + ". Full error " + cce.getMessage());
         }
     }
 
     /**
-     * Throws an arity exception if expected arity doesn't match the provided arity.
+     * Throws an arity exception if expected arity doesn't match the provided
+     * arity.
      *
      * @param name          the function name
      * @param expectedArity expected number of arguments to the function
-     * @param providedArity number of arguments actually provided to the function
+     * @param providedArity number of arguments actually provided to the
+     *                      function
      */
     private static void checkArity(String name, int expectedArity, int providedArity)
             throws XPathArityException {
@@ -521,41 +548,41 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * ***** HANDLERS FOR BUILT-IN FUNCTIONS ********
      *
-     * the functions below are the handlers for the built-in xpath function suite
+     * The functions below are the handlers for the built-in xpath function
+     * suite
      *
-     * if you add a function to the suite, it should adhere to the following pattern:
+     * If you add a function to the suite, it should adhere to the following
+     * pattern:
      *
-     * * the function takes in its arguments as objects (DO NOT cast the arguments when calling
-     * the handler up in eval() (i.e., return stringLength((String)argVals[0])  <--- NO!)
+     * - the function takes in its arguments as objects (DO NOT cast the
+     * arguments when calling the handler up in eval() (i.e., return
+     * stringLength((String)argVals[0])  <--- NO!)
      *
-     * * the function converts the generic argument(s) to the desired type using the built-in
-     * xpath type conversion functions (toBoolean(), toNumeric(), toString(), toDate())
+     * - the function converts the generic argument(s) to the desired type
+     * using the built-in xpath type conversion functions (toBoolean(),
+     * toNumeric(), toString(), toDate())
      *
-     * * the function MUST return an object of type Boolean, Double, String, or Date; it may
-     * never return null (instead return the empty string or NaN)
+     * - the function MUST return an object of type Boolean, Double, String, or
+     * Date; it may never return null (instead return the empty string or
+     * NaN)
      *
-     * * the function may throw exceptions, but should try as hard as possible not to, and if
-     * it must, strive to make it an XPathException
+     * - the function may throw exceptions, but should try as hard as possible
+     * not to, and if it must, strive to make it an XPathException
      */
 
-    public static boolean isNull(Object o) {
-        if (o == null) {
-            return true; //true 'null' values aren't allowed in the xpath engine, but whatever
-        } else if (o instanceof String && ((String)o).length() == 0) {
-            return true;
-        } else if (o instanceof Double && ((Double)o).isNaN()) {
-            return true;
-        } else {
-            return false;
-        }
+    private static boolean isNull(Object o) {
+        // true 'null' values aren't allowed in the xpath engine, but whatever
+        return ((o == null) ||
+                (o instanceof String && ((String)o).length() == 0) ||
+                (o instanceof Double && ((Double)o).isNaN()));
     }
 
-    public static Double stringLength(Object o) {
+    private static Double stringLength(Object o) {
         String s = toString(o);
         if (s == null) {
-            return new Double(0.0);
+            return Double.valueOf(0.0);
         }
-        return new Double(s.length());
+        return Double.valueOf(s.length());
     }
 
     /**
@@ -573,10 +600,10 @@ public class XPathFuncExpr extends XPathExpression {
             val = (Boolean)o;
         } else if (o instanceof Double) {
             double d = ((Double)o).doubleValue();
-            val = new Boolean(Math.abs(d) > 1.0e-12 && !Double.isNaN(d));
+            val = Boolean.valueOf(Math.abs(d) > 1.0e-12 && !Double.isNaN(d));
         } else if (o instanceof String) {
             String s = (String)o;
-            val = new Boolean(s.length() > 0);
+            val = Boolean.valueOf(s.length() > 0);
         } else if (o instanceof Date) {
             val = Boolean.TRUE;
         } else if (o instanceof IExprDataType) {
@@ -599,8 +626,9 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
-     * no distinction between integer and floating point numbers)
+     * convert a value to a number using xpath's type conversion rules (note
+     * that xpath itself makes no distinction between integer and floating
+     * point numbers)
      *
      * @param o
      * @return
@@ -611,13 +639,12 @@ public class XPathFuncExpr extends XPathExpression {
         o = unpack(o);
 
         if (o instanceof Boolean) {
-            val = new Double(((Boolean)o).booleanValue() ? 1 : 0);
+            val = Double.valueOf(((Boolean)o).booleanValue() ? 1 : 0);
         } else if (o instanceof Double) {
             val = (Double)o;
         } else if (o instanceof String) {
-            /* annoying, but the xpath spec doesn't recognize scientific notation, or +/-Infinity
-             * when converting a string to a number
-             */
+            // Annoying, but the xpath spec doesn't recognize scientific
+            // notation, or +/-Infinity when converting a string to a number
 
             String s = (String)o;
             double d;
@@ -630,12 +657,12 @@ public class XPathFuncExpr extends XPathExpression {
                 }
 
                 d = Double.parseDouble(s);
-                val = new Double(d);
+                val = Double.valueOf(d);
             } catch (NumberFormatException nfe) {
-                val = new Double(Double.NaN);
+                val = Double.valueOf(Double.NaN);
             }
         } else if (o instanceof Date) {
-            val = new Double(DateUtils.daysSinceEpoch((Date)o));
+            val = Double.valueOf(DateUtils.daysSinceEpoch((Date)o));
         } else if (o instanceof IExprDataType) {
             val = ((IExprDataType)o).toNumeric();
         }
@@ -643,14 +670,16 @@ public class XPathFuncExpr extends XPathExpression {
         if (val != null) {
             return val;
         } else {
-            throw new XPathTypeMismatchException("converting '" + (o == null ? "null" : o.toString()) + "' to numeric");
+            throw new XPathTypeMismatchException("converting '" +
+                    (o == null ? "null" : o.toString()) +
+                    "' to numeric");
         }
     }
 
     /**
-     * convert a number to an integer by truncating the fractional part. if non-numeric, coerce the
-     * value to a number first. note that the resulting return value is still a Double, as required
-     * by the xpath engine
+     * convert a number to an integer by truncating the fractional part. if
+     * non-numeric, coerce the value to a number first. note that the resulting
+     * return value is still a Double, as required by the xpath engine
      *
      * @param o
      * @return
@@ -658,15 +687,15 @@ public class XPathFuncExpr extends XPathExpression {
     public static Double toInt(Object o) {
         Double val = toNumeric(o);
 
-        if (val.isInfinite() || val.isNaN()) {
-            return val;
-        } else if (val.doubleValue() >= Long.MAX_VALUE || val.doubleValue() <= Long.MIN_VALUE) {
+        if (val.isInfinite() || val.isNaN() ||
+                (val.doubleValue() >= Long.MAX_VALUE) ||
+                (val.doubleValue() <= Long.MIN_VALUE)) {
             return val;
         } else {
             long l = val.longValue();
-            Double dbl = new Double(l);
-            if (l == 0 && (val.doubleValue() < 0. || val.equals(new Double(-0.)))) {
-                dbl = new Double(-0.);
+            Double dbl = Double.valueOf(l);
+            if (l == 0 && (val.doubleValue() < 0. || val.equals(Double.valueOf(-0.)))) {
+                dbl = Double.valueOf(-0.);
             }
             return dbl;
         }
@@ -703,7 +732,7 @@ public class XPathFuncExpr extends XPathExpression {
         } else if (o instanceof Date) {
             val = DateUtils.formatDate((Date)o, DateUtils.FORMAT_ISO8601);
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType)o).toString();
+            val = o.toString();
         }
 
         if (val != null) {
@@ -712,23 +741,26 @@ public class XPathFuncExpr extends XPathExpression {
             if (o == null) {
                 throw new XPathTypeMismatchException("attempt to cast null value to string");
             } else {
-                throw new XPathTypeMismatchException("converting object of type " + o.getClass().toString() + " to string");
+                throw new XPathTypeMismatchException("converting object of type " +
+                        o.getClass().toString() + " to string");
             }
         }
     }
 
     /**
-     * convert a value to a date. note that xpath has no intrinsic representation of dates, so this
-     * is off-spec. dates convert to strings as 'yyyy-mm-dd', convert to numbers as # of days since
-     * the unix epoch, and convert to booleans always as 'true'
+     * Convert a value to a date. note that xpath has no intrinsic
+     * representation of dates, so this is off-spec. dates convert to strings
+     * as 'yyyy-mm-dd', convert to numbers as # of days since the unix epoch,
+     * and convert to booleans always as 'true'
      *
      * string and int conversions are reversable, however:
-     * * cannot convert bool to date
-     * * empty string and NaN (xpath's 'null values') go unchanged, instead of being converted
-     * into a date (which would cause an error, since Date has no null value (other than java
-     * null, which the xpath engine can't handle))
-     * * note, however, than non-empty strings that aren't valid dates _will_ cause an error
-     * during conversion
+     * - cannot convert bool to date
+     * - empty string and NaN (xpath's 'null values') go unchanged, instead of
+     * being converted into a date (which would cause an error, since Date
+     * has no null value (other than java null, which the xpath engine can't
+     * handle))
+     * - note, however, than non-empty strings that aren't valid dates _will_
+     * cause an error during conversion
      *
      * @param o
      * @return
@@ -743,7 +775,9 @@ public class XPathFuncExpr extends XPathExpression {
                 return n;
             }
 
-            if (n.isInfinite() || n.doubleValue() > Integer.MAX_VALUE || n.doubleValue() < Integer.MIN_VALUE) {
+            if (n.isInfinite() ||
+                    (n.doubleValue() > Integer.MAX_VALUE) ||
+                    (n.doubleValue() < Integer.MIN_VALUE)) {
                 throw new XPathTypeMismatchException("converting out-of-range value to date");
             }
 
@@ -765,16 +799,17 @@ public class XPathFuncExpr extends XPathExpression {
             return DateUtils.roundDate((Date)o);
         } else {
             String type = o == null ? "null" : o.getClass().getName();
-            throw new XPathTypeMismatchException("converting unexpected type " + type + " to date");
+            throw new XPathTypeMismatchException("converting unexpected type " +
+                    type + " to date");
         }
     }
 
-    public static Boolean boolNot(Object o) {
+    private static Boolean boolNot(Object o) {
         boolean b = toBoolean(o).booleanValue();
-        return new Boolean(!b);
+        return Boolean.valueOf(!b);
     }
 
-    public static Boolean boolStr(Object o) {
+    private static Boolean boolStr(Object o) {
         String s = toString(o);
         if (s.equalsIgnoreCase("true") || s.equals("1"))
             return Boolean.TRUE;
@@ -782,14 +817,12 @@ public class XPathFuncExpr extends XPathExpression {
             return Boolean.FALSE;
     }
 
-    public static String dateStr(Object od, Object of) {
-        if (od instanceof Date) {
-            //There's no reason to pull out the time info here if
-            //this is already a date (might still have time info
-            //that we want to preserve).
-            //we round at all of the relevant points up to here,
-            //and we only print out the date info when asked anyway.
-        } else {
+    private static String dateStr(Object od, Object of) {
+        if (!(od instanceof Date)) {
+            // There's no reason to pull out the time info here if this is
+            // already a date (might still have time info that we want to
+            // preserve). We round at all of the relevant points up to here,
+            // and we only print out the date info when asked anyway.
             od = toDate(od);
         }
         if (od instanceof Date) {
@@ -801,10 +834,11 @@ public class XPathFuncExpr extends XPathExpression {
 
 
     private Double position(TreeReference refAt) {
-        return new Double(refAt.getMultLast());
+        return Double.valueOf(refAt.getMultLast());
     }
 
-    public static Object ifThenElse(DataInstance model, EvaluationContext ec, XPathExpression[] args, Object[] argVals) {
+    private static Object ifThenElse(DataInstance model, EvaluationContext ec,
+                                     XPathExpression[] args, Object[] argVals) {
         argVals[0] = args[0].eval(model, ec);
         boolean b = toBoolean(argVals[0]).booleanValue();
         return (b ? args[1].eval(model, ec) : args[2].eval(model, ec));
@@ -813,49 +847,49 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * return whether a particular choice of a multi-select is selected
      *
-     * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
+     * @param o1 XML-serialized answer to multi-select question (i.e,
+     *           space-delimited choice values)
      * @param o2 choice to look for
      * @return
      */
-    public static Boolean multiSelected(Object o1, Object o2) {
+    private static Boolean multiSelected(Object o1, Object o2) {
         o2 = unpack(o2);
         if (!(o2 instanceof String)) {
-            throw generateBadArgumentMessage("selected", 2, "single potential value from the list of select options", o2);
+            throw new XPathException("Bad argument to function 'selected'. Argument #" + 2 +
+                    " should be a single potential value from the list of select options, but instead evaluated to: " +
+                    String.valueOf(o2));
         }
         String s1 = (String)unpack(o1);
         String s2 = ((String)o2).trim();
 
-        return new Boolean((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
-    }
-
-    public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
-        return new XPathException("Bad argument to function '" + functionName + "'. Argument #" + argNumber + " should be a " + type + ", but instead evaluated to: " + String.valueOf(endValue));
+        return Boolean.valueOf((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
     }
 
     /**
      * return the number of choices in a multi-select answer
      *
-     * @param o XML-serialized answer to multi-select question (i.e, space-delimited choice values)
+     * @param o XML-serialized answer to multi-select question (i.e,
+     *          space-delimited choice values)
      * @return
      */
-    public static Double countSelected(Object o) {
-
+    private static Double countSelected(Object o) {
         if (!(unpack(o) instanceof String)) {
             throw new XPathTypeMismatchException("count-selected argument was not a select list");
         }
 
         String s = (String)unpack(o);
-        return new Double(DateUtils.split(s, " ", true).size());
+        return Double.valueOf(DateUtils.split(s, " ", true).size());
     }
 
     /**
      * Get the Nth item in a selected list
      *
-     * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
+     * @param o1 XML-serialized answer to multi-select question (i.e,
+     *           space-delimited choice values)
      * @param o2 the integer index into the list to return
      * @return
      */
-    public static String selectedAt(Object o1, Object o2) {
+    private static String selectedAt(Object o1, Object o2) {
         String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
@@ -868,9 +902,9 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o
      * @return
      */
-    public static Double count(Object o) {
+    private static Double count(Object o) {
         if (o instanceof XPathNodeset) {
-            return new Double(((XPathNodeset)o).size());
+            return Double.valueOf(((XPathNodeset)o).size());
         } else {
             throw new XPathTypeMismatchException("not a nodeset");
         }
@@ -882,12 +916,12 @@ public class XPathFuncExpr extends XPathExpression {
      * @param argVals
      * @return
      */
-    public static Double sum(Object argVals[]) {
+    private static Double sum(Object argVals[]) {
         double sum = 0.0;
         for (int i = 0; i < argVals.length; i++) {
             sum += toNumeric(argVals[i]).doubleValue();
         }
-        return new Double(sum);
+        return Double.valueOf(sum);
     }
 
     /**
@@ -901,7 +935,7 @@ public class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < argVals.length; i++) {
             max = Math.max(max, toNumeric(argVals[i]).doubleValue());
         }
-        return new Double(max);
+        return Double.valueOf(max);
     }
 
     private static Object min(Object[] argVals) {
@@ -909,7 +943,7 @@ public class XPathFuncExpr extends XPathExpression {
         for (int i = 0; i < argVals.length; i++) {
             min = Math.min(min, toNumeric(argVals[i]).doubleValue());
         }
-        return new Double(min);
+        return Double.valueOf(min);
     }
 
     /**
@@ -918,7 +952,7 @@ public class XPathFuncExpr extends XPathExpression {
      * @param argVals
      * @return
      */
-    public static String join(Object oSep, Object[] argVals) {
+    private static String join(Object oSep, Object[] argVals) {
         String sep = toString(oSep);
         StringBuffer sb = new StringBuffer();
 
@@ -933,12 +967,12 @@ public class XPathFuncExpr extends XPathExpression {
 
     /*
      * Implementation decisions:
-     * -Returns the empty string if o1.equals("")
-     * -Returns the empty string for any inputs that would
-     * cause an IndexOutOfBoundsException on call to Java's substring method,
-     * after start and end have been adjusted
+     * - Returns the empty string if o1.equals("")
+     * - Returns the empty string for any inputs that would cause an
+     *   IndexOutOfBoundsException on call to Java's substring method, after
+     *   start and end have been adjusted
      */
-    public static String substring(Object o1, Object o2, Object o3) {
+    private static String substring(Object o1, Object o2, Object o3) {
         String s = toString(o1);
 
         if (s.length() == 0) {
@@ -978,14 +1012,16 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * Replace each of a given set of characters with another set of characters.
-     * If the characters to replace are "abc" and the replacement string is "def",
-     * each "a" in the source string will be replaced with "d", each "b" with "e", etc.
-     * If a character appears multiple times in the string of characters to replace, the
-     * first occurrence is the one that will be used.
+     * Replace each of a given set of characters with another set of
+     * characters.  If the characters to replace are "abc" and the replacement
+     * string is "def", each "a" in the source string will be replaced with
+     * "d", each "b" with "e", etc.  If a character appears multiple times in
+     * the string of characters to replace, the first occurrence is the one
+     * that will be used.
      *
-     * Any extra characters in the string of characters to replace will be deleted from the source.
-     * Any extra characters in the string of replacement characters will be ignored.
+     * Any extra characters in the string of characters to replace will be
+     * deleted from the source.  Any extra characters in the string of
+     * replacement characters will be ignored.
      *
      * @param o1 String to manipulate
      * @param o2 String of characters to replace
@@ -999,15 +1035,15 @@ public class XPathFuncExpr extends XPathExpression {
 
         Hashtable<Character, Character> map = new Hashtable<Character, Character>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
-            if (!map.containsKey(new Character(from.charAt(i)))) {
-                map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));
+            if (!map.containsKey(Character.valueOf(from.charAt(i)))) {
+                map.put(Character.valueOf(from.charAt(i)), Character.valueOf(to.charAt(i)));
             }
         }
         String toDelete = from.substring(Math.min(from.length(), to.length()));
 
         String returnValue = "";
         for (int i = 0; i < source.length(); i++) {
-            Character current = new Character(source.charAt(i));
+            Character current = Character.valueOf(source.charAt(i));
             if (toDelete.indexOf(current) == -1) {
                 if (map.containsKey(current)) {
                     current = map.get(current);
@@ -1024,8 +1060,9 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * @param o1 String to manipulate
      * @param o2 Pattern to search for
-     * @param o3 Replacement string. Contrary to the XPath spec, this function does NOT
-     *           support backreferences (e.g., replace("abbc", "a(.*)c", "$1") will return "a$1c", not "bb").
+     * @param o3 Replacement string. Contrary to the XPath spec, this function
+     *           does NOT support backreferences (e.g., replace("abbc", "a(.*)c", "$1")
+     *           will return "a$1c", not "bb").
      * @return String
      */
     private String replace(Object o1, Object o2, Object o3) {
@@ -1036,18 +1073,18 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     /**
-     * perform a 'checklist' computation, enabling expressions like 'if there are at least 3 risk
-     * factors active'
+     * Perform a 'checklist' computation, enabling expressions like 'if there
+     * are at least 3 risk factors active'
      *
-     * @param oMin    a numeric value expressing the minimum number of factors required.
-     *                if -1, no minimum is applicable
-     * @param oMax    a numeric value expressing the maximum number of allowed factors.
-     *                if -1, no maximum is applicable
+     * @param oMin    a numeric value expressing the minimum number of factors
+     *                required.  if -1, no minimum is applicable
+     * @param oMax    a numeric value expressing the maximum number of allowed
+     *                factors.  if -1, no maximum is applicable
      * @param factors individual factors that are coerced to boolean values
-     * @return true if the count of 'true' factors is between the applicable minimum and maximum,
-     * inclusive
+     * @return true if the count of 'true' factors is between the applicable
+     * minimum and maximum, inclusive
      */
-    public static Boolean checklist(Object oMin, Object oMax, Object[] factors) {
+    private static Boolean checklist(Object oMin, Object oMax, Object[] factors) {
         int min = toNumeric(oMin).intValue();
         int max = toNumeric(oMax).intValue();
 
@@ -1057,20 +1094,21 @@ public class XPathFuncExpr extends XPathExpression {
                 count++;
         }
 
-        return new Boolean((min < 0 || count >= min) && (max < 0 || count <= max));
+        return Boolean.valueOf((min < 0 || count >= min) && (max < 0 || count <= max));
     }
 
     /**
-     * very similar to checklist, only each factor is assigned a real-number 'weight'.
+     * Very similar to checklist, only each factor is assigned a real-number
+     * 'weight'.
      *
-     * the first and second args are again the minimum and maximum, but -1 no longer means
-     * 'not applicable'.
+     * the first and second args are again the minimum and maximum, but -1 no
+     * longer means 'not applicable'.
      *
-     * subsequent arguments come in pairs: first the boolean value, then the floating-point
-     * weight for that value
+     * subsequent arguments come in pairs: first the boolean value, then the
+     * floating-point weight for that value
      *
-     * the weights of all the 'true' factors are summed, and the function returns whether
-     * this sum is between the min and max
+     * the weights of all the 'true' factors are summed, and the function
+     * returns whether this sum is between the min and max
      *
      * @param oMin
      * @param oMax
@@ -1078,7 +1116,8 @@ public class XPathFuncExpr extends XPathExpression {
      * @param weights
      * @return
      */
-    public static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
+    private static Boolean checklistWeighted(Object oMin, Object oMax,
+                                             Object[] flags, Object[] weights) {
         double min = toNumeric(oMin).doubleValue();
         double max = toNumeric(oMax).doubleValue();
 
@@ -1091,7 +1130,7 @@ public class XPathFuncExpr extends XPathExpression {
                 sum += weight;
         }
 
-        return new Boolean(sum >= min && sum <= max);
+        return Boolean.valueOf(sum >= min && sum <= max);
     }
 
     /**
@@ -1101,13 +1140,13 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o2 regular expression
      * @return
      */
-    public static Boolean regex(Object o1, Object o2) {
+    private static Boolean regex(Object o1, Object o2) {
         String str = toString(o1);
         String re = toString(o2);
 
         RE regexp = new RE(re);
         boolean result = regexp.match(str);
-        return new Boolean(result);
+        return Boolean.valueOf(result);
     }
 
     private static Object[] subsetArgList(Object[] args, int start) {
@@ -1119,7 +1158,8 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * @param args
      * @param start index to start at
-     * @param skip  sub-list will contain every nth argument, where n == skip (default: 1)
+     * @param skip  sub-list will contain every nth argument, where n == skip
+     *              (default: 1)
      * @return
      */
     private static Object[] subsetArgList(Object[] args, int start, int skip) {
@@ -1127,7 +1167,9 @@ public class XPathFuncExpr extends XPathExpression {
             throw new RuntimeException("error in subsetting arglist");
         }
 
-        Object[] subargs = new Object[(int)MathUtils.divLongNotSuck(args.length - start - 1, skip) + 1];
+        Object[] subargs =
+                new Object[(int)MathUtils.divLongNotSuck(args.length - start - 1, skip) + 1];
+
         for (int i = start, j = 0; i < args.length; i += skip, j++) {
             subargs[j] = args[i];
         }
@@ -1143,17 +1185,17 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    /**
-     *
-     */
-    public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
+    public Object pivot(DataInstance model, EvaluationContext evalContext,
+                        Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         String name = id.toString();
 
-        //for now we'll assume that all that functions do is return the composition of their components
+        // for now we'll assume that all that functions do is return the
+        // composition of their components
         Object[] argVals = new Object[args.length];
 
 
-        //Identify whether this function is an identity: IE: can reflect back the pivot sentinal with no modification
+        // Identify whether this function is an identity: IE: can reflect back
+        // the pivot sentinal with no modification
         String[] identities = new String[]{"string-length"};
         boolean id = false;
         for (String identity : identities) {
@@ -1162,7 +1204,7 @@ public class XPathFuncExpr extends XPathExpression {
             }
         }
 
-        //get each argument's pivot
+        // get each argument's pivot
         for (int i = 0; i < args.length; i++) {
             argVals[i] = args[i].pivot(model, evalContext, pivots, sentinal);
         }
@@ -1171,15 +1213,16 @@ public class XPathFuncExpr extends XPathExpression {
         //evaluate the pivots
         for (int i = 0; i < argVals.length; ++i) {
             if (argVals[i] == null) {
-                //one of our arguments contained pivots,
+                // one of our arguments contained pivots
                 pivoted = true;
             } else if (sentinal.equals(argVals[i])) {
-                //one of our arguments is the sentinal, return the sentinal if possible
+                // one of our arguments is the sentinal, return the sentinal if
+                // possible
                 if (id) {
                     return sentinal;
                 } else {
-                    //This function modifies the sentinal in a way that makes it impossible to capture
-                    //the pivot.
+                    // This function modifies the sentinal in a way that makes
+                    // it impossible to capture the pivot.
                     throw new UnpivotableExpressionException();
                 }
             }
@@ -1189,13 +1232,13 @@ public class XPathFuncExpr extends XPathExpression {
             if (id) {
                 return null;
             } else {
-                //This function modifies the sentinal in a way that makes it impossible to capture
-                //the pivot.
+                // This function modifies the sentinal in a way that makes it
+                // impossible to capture the pivot.
                 throw new UnpivotableExpressionException();
             }
         }
 
-        //TODO: Inner eval here with eval'd args to improve speed
+        // TODO: Inner eval here with eval'd args to improve speed
         return eval(model, evalContext);
 
     }
@@ -1236,9 +1279,9 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o1 The base number
      * @param o2 The exponent of the number that it is to be raised to
      * @return An approximation of o1 ^ o2. If there is a native power
-     * function, it is utilized. It there is not, a recursive exponent is
-     * run if (b) is an integer value, and a taylor series approximation is
-     * used otherwise.
+     * function, it is utilized. It there is not, a recursive exponent is run
+     * if (b) is an integer value, and a taylor series approximation is used
+     * otherwise.
      */
     private Double power(Object o1, Object o2) {
         //#if polish.cldc
@@ -1275,19 +1318,19 @@ public class XPathFuncExpr extends XPathExpression {
 
     private static Double power(double a, int b) {
         if (b == 0) {
-            return new Double(1.0);
+            return Double.valueOf(1.0);
         }
         double ret = a;
         for (int i = 1; i < b; ++i) {
             ret *= a;
         }
-        return new Double(ret);
+        return Double.valueOf(ret);
     }
 
     /**
-     * This code is fairly legit, but it not compliant with actual
-     * floating point math reqs. I don't know whether we
-     * should expose the option of using it, exactly.
+     * This code is fairly legit, but it not compliant with actual floating
+     * point math reqs. I don't know whether we should expose the option of
+     * using it, exactly.
      *
      * @param a
      * @param b
@@ -1302,9 +1345,9 @@ public class XPathFuncExpr extends XPathExpression {
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
 
     /**
-     * Take in a value (only a string for now, TODO: Extend?) that doesn't
-     * have any type information and attempt to infer a more specific type
-     * that may assist in equality or comparison operations
+     * Take in a value (only a string for now, TODO: Extend?) that doesn't have
+     * any type information and attempt to infer a more specific type that may
+     * assist in equality or comparison operations
      *
      * @param attrValue A typeless data object
      * @return The passed in object in as specific of a type as was able to
@@ -1312,7 +1355,7 @@ public class XPathFuncExpr extends XPathExpression {
      */
     public static Object InferType(String attrValue) {
         try {
-            return new Double(Double.parseDouble(attrValue));
+            return Double.valueOf(Double.parseDouble(attrValue));
         } catch (NumberFormatException ife) {
             //Not a double
         }
