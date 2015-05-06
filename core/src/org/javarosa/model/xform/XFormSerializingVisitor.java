@@ -217,7 +217,6 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
             Vector childNames = new Vector();
             for (int i = 0; i < instanceNode.getNumChildren(); i++) {
                 String childName = instanceNode.getChildAt(i).getName();
-                System.out.println("CHILDNAME: " + childName);
                 if (!childNames.contains(childName))
                     childNames.addElement(childName);
             }
