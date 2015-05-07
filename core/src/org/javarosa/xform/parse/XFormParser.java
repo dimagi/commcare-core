@@ -16,25 +16,15 @@
 
 package org.javarosa.xform.parse;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.SubmissionProfile;
 import org.javarosa.core.model.actions.SetValueAction;
@@ -77,6 +67,16 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Stack;
+import java.util.Vector;
 
 /* droos: i think we need to start storing the contents of the <bind>s in the formdef again */
 
@@ -1001,16 +1001,13 @@ public class XFormParser {
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
             String childName = (child != null ? child.getName() : null);
 
-            if (LABEL_ELEMENT.equals(childName)) {
-                parseQuestionLabel(question, child);
-            } else if ("hint".equals(childName) || "help".equals(childName)) {
+            if (LABEL_ELEMENT.equals(childName) || "hint".equals(childName)
+                    || "help".equals(childName) || "constraint".equals(childName)) {
                 parseHelperText(question, child);
             } else if (isSelect && "item".equals(childName)) {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
                 parseItemset(question, child, parent);
-            } else if ("constraint".equals(childName)) {
-                parseConstraintLabel(question, child);
             }
         }
         if (isSelect) {
@@ -1046,7 +1043,7 @@ public class XFormParser {
                 verifyTextMappings(textRef, "Question <constraint>", true);
                 q.setConstraintTextID(textRef);
             } else {
-                throw new RuntimeException("malformed ref [" + ref + "] for <label>");
+                throw new RuntimeException("malformed ref [" + ref + "] for <constraint>");
             }
         } else {
             //q.setConstraintInnerText(label);
@@ -1058,26 +1055,36 @@ public class XFormParser {
         }
     }
 
-    private void parseQuestionLabel(QuestionDef q, Element e) {
-        String label = getLabel(e);
-        String ref = e.getAttributeValue("", REF_ATTR);
-
+    /**
+     * Handles hint elements (text-only) and help elements (similar, but may include multimedia)
+     *
+     * @param q The QuestionDef object to augment with the hint/help
+     * @param e The Element to parse
+     */
+    private void parseHelperText(QuestionDef q, Element e) {
         Vector usedAtts = new Vector();
         usedAtts.addElement(REF_ATTR);
+        String XMLText = getXMLText(e, true);
+        String innerText = getLabel(e);
+        String ref = e.getAttributeValue("", REF_ATTR);
+        String name = e.getName();
+
+        QuestionString mQuestionString = new QuestionString(name);
+        q.putQuestionString(name, mQuestionString);
 
         if (ref != null) {
             if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
                 String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
-
-                verifyTextMappings(textRef, "Question <label>", true);
-                q.setTextID(textRef);
+                verifyTextMappings(textRef, "<" + name + ">", false);
+                mQuestionString.setTextId(textRef);
             } else {
-                throw new RuntimeException("malformed ref [" + ref + "] for <label>");
+                // TODO: shouldn't this raise an XFormParseException?
+                throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
             }
-        } else {
-            q.setLabelInnerText(label);
         }
 
+        mQuestionString.setTextInner(innerText);
+        mQuestionString.setTextFallback(XMLText);
 
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
@@ -1229,48 +1236,6 @@ public class XFormParser {
         }
 
         return String.valueOf(index);
-    }
-
-    /**
-     * Handles hint elements (text-only) and help elements (similar, but may include multimedia)
-     *
-     * @param q The QuestionDef object to augment with the hint/help
-     * @param e The Element to parse
-     */
-    private void parseHelperText(QuestionDef q, Element e) {
-        Vector usedAtts = new Vector();
-        usedAtts.addElement(REF_ATTR);
-        String XMLText = getXMLText(e, true);
-        String innerText = getLabel(e);
-        String ref = e.getAttributeValue("", REF_ATTR);
-        String name = e.getName();
-
-        if (ref != null) {
-            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
-                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
-
-                verifyTextMappings(textRef, "<" + name + ">", false);
-                if (name.equals("hint")) {
-                    q.setHintTextID(textRef);
-                } else {
-                    q.setHelpTextID(textRef);
-                }
-            } else {
-                // TODO: shouldn't this raise an XFormParseException?
-                throw new RuntimeException("malformed ref [" + ref + "] for <" + name + ">");
-            }
-        } else if (name.equals("hint")) {
-            q.setHintInnerText(innerText);
-            q.setHintText(XMLText);
-        } else {
-            // Help may have multimedia, but only if it's specified as itext
-            q.setHelpInnerText(innerText);
-            q.setHelpText(XMLText);
-        }
-
-        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
-            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
-        }
     }
 
     private void parseItem(QuestionDef q, Element e) {

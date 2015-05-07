@@ -1,0 +1,79 @@
+package org.javarosa.core.model;
+
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+/**
+ * Created by wpride1 on 5/7/15.
+ */
+public class QuestionString implements Externalizable {
+
+    private String name;
+    private String textId;
+    private String textInner;
+    private String textFallback;
+
+    public QuestionString(String name){
+        System.out.println("507 settingQuestionString name: " + name);
+        this.name = name;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public void setTextId(String textId){
+        System.out.println("507 setting textId: " +  textId + " for: " + this.toString());
+        this.textId = textId;
+    }
+
+    public String getTextId(){
+        return textId;
+    }
+
+    public void setTextFallback(String textFallback){
+        System.out.println("507 setting textFallback: " +  textFallback + " for: " + this.toString());
+        this.textFallback = textFallback;
+    }
+
+    public String getTextFallback(){
+        return textFallback;
+    }
+
+    public void setTextInner(String textInner){
+        System.out.println("507 setting textInner: " +  textInner + " for: " + this.toString());
+        this.textInner = textInner;
+    }
+
+    public String getTextInner(){
+        return textInner;
+    }
+
+    public String toString(){
+        return "Name: " + name + " ID: " + textId + " Inner: "
+                + textInner + " Fallback: " + textFallback;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        textId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        textInner = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        textFallback = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out, new ExtWrapNullable(name));
+        ExtUtil.write(out, new ExtWrapNullable(textId));
+        ExtUtil.write(out, new ExtWrapNullable(textInner));
+        ExtUtil.write(out, new ExtWrapNullable(textFallback));
+    }
+}
