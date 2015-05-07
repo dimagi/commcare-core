@@ -459,5 +459,17 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
+    /**
+     * Convenience method
+     * Get longText form of text for THIS element (if available)
+     * !!Falls back to default form if 'long' form does not exist.!!
+     * Use getSpecialFormQuestionText() if you want short form only.
+     *
+     * @return longText form
+     */
+    public String getConstraintText() {
+        return getQuestionText(getQuestion().getConstraintTextID());
+    }
+
 }
 

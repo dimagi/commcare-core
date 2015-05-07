@@ -16,13 +16,6 @@
 
 package org.javarosa.core.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.lang.String;
-
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
@@ -33,6 +26,12 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * The definition of a Question to be presented to users when
@@ -62,6 +61,7 @@ public class QuestionDef implements IFormElement, Localizable {
     private String hintInnerText;
     private String helpInnerText;
     private String helpText;
+    private String constraintText;
 
     private Vector<SelectChoice> choices;
     private ItemsetBinding dynamicChoices;
@@ -328,6 +328,14 @@ public class QuestionDef implements IFormElement, Localizable {
 
     public String getLabelInnerText() {
         return labelInnerText;
+    }
+
+    public void setConstraintTextID(String constraintText) {
+        this.constraintText = constraintText;
+    }
+
+    public String getConstraintTextID() {
+        return constraintText;
     }
 
     public void setHintInnerText(String innerText) {

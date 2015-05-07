@@ -1009,6 +1009,8 @@ public class XFormParser {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
                 parseItemset(question, child, parent);
+            } else if ("constraint".equals(childName)) {
+                parseConstraintLabel(question, child);
             }
         }
         if (isSelect) {
@@ -1028,6 +1030,32 @@ public class XFormParser {
 
 
         return question;
+    }
+
+    private void parseConstraintLabel(QuestionDef q, Element e) {
+        String label = getLabel(e);
+        String ref = e.getAttributeValue("", REF_ATTR);
+
+        Vector usedAtts = new Vector();
+        usedAtts.addElement(REF_ATTR);
+
+        if (ref != null) {
+            if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
+                String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
+
+                verifyTextMappings(textRef, "Question <constraint>", true);
+                q.setConstraintTextID(textRef);
+            } else {
+                throw new RuntimeException("malformed ref [" + ref + "] for <label>");
+            }
+        } else {
+            //q.setConstraintInnerText(label);
+        }
+
+
+        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
+            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
+        }
     }
 
     private void parseQuestionLabel(QuestionDef q, Element e) {
