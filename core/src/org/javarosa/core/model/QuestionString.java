@@ -12,6 +12,9 @@ import java.io.IOException;
 
 /**
  * Created by wpride1 on 5/7/15.
+ *
+ * Represents the compelte set of text strings that can be displayed
+ * with a question. does not contain multimedia references.
  */
 public class QuestionString implements Externalizable {
 
@@ -21,7 +24,6 @@ public class QuestionString implements Externalizable {
     private String textFallback;
 
     public QuestionString(String name){
-        System.out.println("507 settingQuestionString name: " + name);
         this.name = name;
     }
 
@@ -30,7 +32,6 @@ public class QuestionString implements Externalizable {
     }
 
     public void setTextId(String textId){
-        System.out.println("507 setting textId: " +  textId + " for: " + this.toString());
         this.textId = textId;
     }
 
@@ -39,7 +40,6 @@ public class QuestionString implements Externalizable {
     }
 
     public void setTextFallback(String textFallback){
-        System.out.println("507 setting textFallback: " +  textFallback + " for: " + this.toString());
         this.textFallback = textFallback;
     }
 
@@ -48,7 +48,6 @@ public class QuestionString implements Externalizable {
     }
 
     public void setTextInner(String textInner){
-        System.out.println("507 setting textInner: " +  textInner + " for: " + this.toString());
         this.textInner = textInner;
     }
 
