@@ -149,4 +149,8 @@ public class Recalculate extends Triggerable {
             throw new RuntimeException("unrecognized data type in 'calculate' expression: " + val.getClass().getName());
         }
     }
+
+    public String getDebugLabel() {
+        return "calculate";
+    }
 }

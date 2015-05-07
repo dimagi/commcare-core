@@ -43,7 +43,7 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
         this.op = op;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         double aval = XPathFuncExpr.toNumeric(a.eval(model, evalContext)).doubleValue();
         double bval = XPathFuncExpr.toNumeric(b.eval(model, evalContext)).doubleValue();
 
@@ -109,5 +109,32 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, op);
         super.writeExternal(out);
+    }
+
+    public String toPrettyString() {
+        String prettyA = a.toPrettyString();
+        String prettyB = b.toPrettyString();
+        String opString;
+        switch (op) {
+            case ADD:
+                opString = " + ";
+                break;
+            case SUBTRACT:
+                opString = " - ";
+                break;
+            case MULTIPLY:
+                opString = " * ";
+                break;
+            case DIVIDE:
+                opString = " div ";
+                break;
+            case MODULO:
+                opString = " mod ";
+                break;
+            default:
+                return "unknown_operator(" + prettyA + ", " + prettyB + ")";
+        }
+
+        return prettyA + opString + prettyB;
     }
 }

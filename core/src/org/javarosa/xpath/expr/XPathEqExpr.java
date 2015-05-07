@@ -37,7 +37,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         this.equal = equal;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object aval = XPathFuncExpr.unpack(a.eval(model, evalContext));
         Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
@@ -105,5 +105,16 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
             eq = (aval.equals(bval));
         }
         return eq;
+    }
+
+    public String toPrettyString() {
+        String prettyA = a.toPrettyString();
+        String prettyB = b.toPrettyString();
+
+        if (equal) {
+            return prettyA + " = " + prettyB;
+        } else {
+            return prettyA + " != " + prettyB;
+        }
     }
 }

@@ -48,7 +48,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
         this.op = op;
     }
 
-    public Object eval(DataInstance model, EvaluationContext evalContext) {
+    public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         Object aval = a.eval(model, evalContext);
         Object bval = b.eval(model, evalContext);
         boolean result = false;
@@ -178,5 +178,29 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
             }
         }
         return false;
+    }
+
+    public String toPrettyString() {
+        String prettyA = a.toPrettyString();
+        String prettyB = b.toPrettyString();
+        String opString;
+        switch (op) {
+            case LT:
+                opString = " < ";
+                break;
+            case GT:
+                opString = " > ";
+                break;
+            case LTE:
+                opString = " <= ";
+                break;
+            case GTE:
+                opString = " >= ";
+                break;
+            default:
+                return "unknown_operator(" + prettyA + ", " + prettyB + ")";
+        }
+
+        return prettyA + opString + prettyB;
     }
 }
