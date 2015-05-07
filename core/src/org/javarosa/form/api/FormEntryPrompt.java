@@ -192,20 +192,16 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
-    public String getConstraintText(String textForm, IAnswerData attemptedValue) {
-        if (mTreeElement.getConstraint() == null) {
-            return null;
-        } else {
-            EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
-            if (textForm != null) {
-                ec.setOutputTextForm(textForm);
-            }
-            if (attemptedValue != null) {
-                ec.isConstraint = true;
-                ec.candidateValue = attemptedValue;
-            }
-            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), textForm);
-        }
+    /**
+     * Convenience method
+     * Get longText form of text for THIS element (if available)
+     * !!Falls back to default form if 'long' form does not exist.!!
+     * Use getSpecialFormQuestionText() if you want short form only.
+     *
+     * @return longText form
+     */
+    public String getConstraintText() {
+        return this.localizeText(getQuestion().getQuestionString("constraint"));
     }
 
     public Vector<SelectChoice> getSelectChoices() {
@@ -222,15 +218,6 @@ public class FormEntryPrompt extends FormEntryCaption {
             return q.getChoices();
         }
     }
-
-    public void expireDynamicChoices() {
-        dynamicChoicesPopulated = false;
-        ItemsetBinding itemset = getQuestion().getDynamicChoices();
-        if (itemset != null) {
-            itemset.clearChoices();
-        }
-    }
-
 
     public boolean isRequired() {
         return mTreeElement.isRequired();
@@ -287,11 +274,7 @@ public class FormEntryPrompt extends FormEntryCaption {
      */
     public boolean hasHelp() {
 
-        return this.getQuestion().getQuestionString("help") == null;
-
-        /*
-        String text = getHelpText();
-        if (text != null && !"".equals(text)) {
+        if(this.getQuestion().getQuestionString("help") != null){
             return true;
         }
 
@@ -307,7 +290,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
 
         return false;
-        */
     }
 
     /**
@@ -330,7 +312,7 @@ public class FormEntryPrompt extends FormEntryCaption {
 
 
     /**
-     * Helper for getHintText and getHelpText. Tries to localize text form textID,
+     * Helper for getHintText, getHelpText, getConstraintText. Tries to localize text form textID,
      * falls back to innerText if not available.
      *
      * @param mQuestionString
@@ -458,22 +440,6 @@ public class FormEntryPrompt extends FormEntryCaption {
             //can't pivot what ain't there.
             throw new UnpivotableExpressionException();
         }
-    }
-
-    /**
-     * Convenience method
-     * Get longText form of text for THIS element (if available)
-     * !!Falls back to default form if 'long' form does not exist.!!
-     * Use getSpecialFormQuestionText() if you want short form only.
-     *
-     * @return longText form
-     */
-    public String getConstraintText() {
-        QuestionString constraintString = getQuestion().getQuestionString("constraint");
-        if(constraintString == null){
-            return null;
-        }
-        return getQuestionText(constraintString.getTextId());
     }
 
 }
