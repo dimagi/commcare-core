@@ -282,6 +282,77 @@ public class ResourceTable {
     }
 
     /**
+     * @param r
+     * @param invalid
+     * @param upgrade
+     * @param instance
+     * @param master
+     * @throws UnresolvedResourceException Raised when no definitions for
+     * resource 'r' can't be found
+     * @throws UnfullfilledRequirementsException
+     */
+    private void checkForLocalResourceStatus(Resource r,
+                                             Vector<Reference> invalid,
+                                             boolean upgrade,
+                                             CommCareInstance instance,
+                                             ResourceTable master)
+            throws UnresolvedResourceException, UnreliableSourceException {
+
+        // TODO: Possibly check if resource status is local and proceeding to
+        // skip this huge (although in reality like one step) chunk
+
+        UnreliableSourceException theFailure = null;
+        boolean handled = false;
+
+        for (ResourceLocation location : r.getLocations()) {
+            if (handled) {
+                break;
+            }
+            if (location.isRelative()) {
+                for (Reference ref : explodeReferences(location, r, this, master)) {
+                    if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
+                        try {
+                            handled = installResource(r, location, ref, this,
+                                    instance, upgrade);
+                        } catch (UnreliableSourceException use) {
+                            theFailure = use;
+                        }
+                        if (handled) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                try {
+                    handled = installResource(r, location,
+                            ReferenceManager._().DeriveReference(location.getLocation()),
+                            this, instance, upgrade);
+                    if (handled) {
+                        break;
+                    }
+                } catch (InvalidReferenceException ire) {
+                    ire.printStackTrace();
+                    // Continue until no resources can be found.
+                } catch (UnreliableSourceException use) {
+                    theFailure = use;
+                }
+            }
+        }
+
+        if (!handled) {
+            if (theFailure == null) {
+                // no particular failure to point our finger at.
+                throw new UnresolvedResourceException(r,
+                        "No external or local definition could be found for resource " +
+                                r.getResourceId());
+            } else {
+                // Expose the lossy failure rather than the generic one
+                throw theFailure;
+            }
+        }
+    }
+
+    /**
      * Makes all of this table's resources available.
      *
      * @param master   The global resource to prepare against. Used to establish whether resources need to be fetched
@@ -340,53 +411,8 @@ public class ResourceTable {
 
                 // Vector<Reference> refs = explodeAllReferences(r, this, master);
 
-                boolean handled = false;
-                UnreliableSourceException theFailure = null;
+                checkForLocalResourceStatus(r, invalid, upgrade, instance, master);
 
-                // TODO: Possibly check if resource status is local and proceeding
-                // to skip this huge (although in reality like one step) chunk
-
-                for (ResourceLocation location : r.getLocations()) {
-                    if (handled) {
-                        break;
-                    }
-                    if (location.isRelative()) {
-                        for (Reference ref : explodeReferences(location, r, this, master)) {
-                            if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
-                            } else {
-                                try {
-                                    handled = installResource(r, location, ref, this, instance, upgrade);
-                                } catch (UnreliableSourceException use) {
-                                    theFailure = use;
-                                }
-                                if (handled) {
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        try {
-                            handled = installResource(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
-                            if (handled) {
-                                break;
-                            }
-                        } catch (InvalidReferenceException ire) {
-                            ire.printStackTrace();
-                            // Continue until no resources can be found.
-                        } catch (UnreliableSourceException use) {
-                            theFailure = use;
-                        }
-                    }
-                }
-                if (!handled) {
-                    // If there wasn't a particular failure to point our finger at...
-                    if (theFailure == null) {
-                        throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId());
-                    } else {
-                        // Otherwise, expose the lossy failure rather than the generic one
-                        throw theFailure;
-                    }
-                }
                 if (stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
@@ -408,24 +434,33 @@ public class ResourceTable {
     }
 
     /**
-     * This just calls the resource's installer directly, but also handles the logic around attempting retries if applicable
+     * This just calls the resource's installer directly, but also handles the
+     * logic around attempting retries if applicable
      *
      * @throws UnfullfilledRequirementsException *
      */
-    private boolean installResource(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    private boolean installResource(Resource r, ResourceLocation location,
+                                    Reference ref, ResourceTable table,
+                                    CommCareInstance instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
         UnreliableSourceException aFailure = null;
-        for (int i = 0; i < 1 + this.numberOfLossyRetries; ++i) {
+
+        for (int i = 0; i < this.numberOfLossyRetries + 1; ++i) {
             try {
-                boolean result = r.getInstaller().install(r, location, ref, table, instance, upgrade);
-                return result;
+                return r.getInstaller().install(r, location, ref, table, instance, upgrade);
             } catch (UnreliableSourceException use) {
                 aFailure = use;
-                Logger.log("install", "Potentially lossy install attempt # " + (i + 1) + " of " + (numberOfLossyRetries + 1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
+                Logger.log("install", "Potentially lossy install attempt # " +
+                        (i + 1) + " of " + (numberOfLossyRetries + 1) +
+                        " unsuccessful from: " + ref.getURI() + "|" +
+                        use.getMessage());
             }
         }
+
         if (aFailure != null) {
             throw aFailure;
         }
+
         return false;
     }
 
@@ -508,7 +543,6 @@ public class ResourceTable {
             // If this resource has been replaced
             if (r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
-                continue;
             }
         }
     }
@@ -732,9 +766,21 @@ public class ResourceTable {
         return ret;
     }
 
-    private static Vector<Reference> explodeReferences(ResourceLocation location, Resource r, ResourceTable t, ResourceTable m) {
+    /**
+     * @param location
+     * @param r
+     * @param t
+     * @param m
+     *
+     * @return 
+     */
+    private static Vector<Reference> explodeReferences(ResourceLocation location,
+                                                       Resource r,
+                                                       ResourceTable t,
+                                                       ResourceTable m) {
         int type = location.getAuthority();
         Vector<Reference> ret = new Vector<Reference>();
+
         if (r.hasParent()) {
             Resource parent = t.getResourceWithGuid(r.getParentId());
 
