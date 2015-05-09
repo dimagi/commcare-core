@@ -287,8 +287,8 @@ public class ResourceTable {
      * @param upgrade
      * @param instance
      * @param master
-     * @throws UnresolvedResourceException Raised when no definitions for
-     * resource 'r' can't be found
+     * @throws UnresolvedResourceException       Raised when no definitions for
+     *                                           resource 'r' can't be found
      * @throws UnfullfilledRequirementsException
      */
     private void checkForLocalResourceStatus(Resource r,
@@ -296,7 +296,7 @@ public class ResourceTable {
                                              boolean upgrade,
                                              CommCareInstance instance,
                                              ResourceTable master)
-            throws UnresolvedResourceException, UnreliableSourceException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
         // TODO: Possibly check if resource status is local and proceeding to
         // skip this huge (although in reality like one step) chunk
@@ -378,27 +378,34 @@ public class ResourceTable {
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
+
+        boolean idNeedsInitialization = true;
+        if (toInitialize != null) {
+            Resource res = this.getResourceWithId(toInitialize);
+            if (res != null && res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
+                idNeedsInitialization = false;
+            }
+        }
+
         Stack<Resource> v = GetUnreadyResources();
-        int round = -1;
-        while (!v.isEmpty() &&
-                (toInitialize == null ||
-                        this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
-            round++;
+
+        if (idNeedsInitialization) {
             while (!v.isEmpty()) {
                 Resource r = v.pop();
                 boolean upgrade = false;
-                // Make a reference set for all invalid references (this will get filled in for us)
+                // Make a reference set for all invalid references (this will
+                // get filled in for us)
                 Vector<Reference> invalid = new Vector<Reference>();
 
                 // All operations regarding peers and master table
                 if (master != null) {
                     Resource peer = master.getResourceWithId(r.getResourceId());
                     if (peer != null) {
-                        // TODO: For now we're assuming that Versions greater than the
-                        // current are always acceptable
+                        // TODO: For now we're assuming that Versions greater
+                        // than the current are always acceptable
                         if (!r.isNewer(peer)) {
-                            // This resource doesn't need to be updated, copy the exisitng resource into
-                            // this table
+                            // This resource doesn't need to be updated, copy
+                            // the exisitng resource into this table
                             peer.mimick(r);
                             commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
                             continue;
@@ -409,15 +416,14 @@ public class ResourceTable {
                     }
                 }
 
-                // Vector<Reference> refs = explodeAllReferences(r, this, master);
-
                 checkForLocalResourceStatus(r, invalid, upgrade, instance, master);
 
                 if (stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
+
+                v = GetUnreadyResources();
             }
-            v = GetUnreadyResources();
         }
 
         if (toInitialize != null) {
@@ -771,8 +777,7 @@ public class ResourceTable {
      * @param r
      * @param t
      * @param m
-     *
-     * @return 
+     * @return
      */
     private static Vector<Reference> explodeReferences(ResourceLocation location,
                                                        Resource r,
