@@ -290,6 +290,7 @@ public class ResourceTable {
     }
 
     /**
+     * Try to install a resource by looping through its locations
      * @param r
      * @param invalid
      * @param upgrade
@@ -407,6 +408,8 @@ public class ResourceTable {
 
                 // All operations regarding peers and master table
                 if (master != null) {
+                    // obtain resource peer by looking up the current resource
+                    // in the master table
                     Resource peer = master.getResourceWithId(r.getResourceId());
                     if (peer != null) {
                         // TODO: For now we're assuming that Versions greater
@@ -417,9 +420,11 @@ public class ResourceTable {
                             peer.mimick(r);
                             commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
                             continue;
-                        } else {
-                            upgrade = true;
                         }
+
+                        // resource is newer than master version, so invalidate
+                        // old local resource locations.
+                        upgrade = true;
                         invalid = ResourceTable.explodeLocalReferences(peer, master);
                     }
                 }
@@ -448,10 +453,11 @@ public class ResourceTable {
     }
 
     /**
-     * This just calls the resource's installer directly, but also handles the
-     * logic around attempting retries if applicable
+     * Call the resource's installer, handling the logic around attempting
+     * retries.
      *
-     * @throws UnfullfilledRequirementsException *
+     * @return Did the resource install successfully?
+     * @throws UnfullfilledRequirementsException
      */
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
@@ -770,23 +776,12 @@ public class ResourceTable {
                         Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
 
                         for (Reference context : parentRefs) {
-                            // contextualize the location ref in terms of the
-                            // multiple refs pointing to different locations
-                            // for the parent resource
-                            try {
-                                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                            } catch (InvalidReferenceException ire) {
-                                ire.printStackTrace();
-                            }
+                            addDerivedLocation(location, context, ret);
                         }
                     }
                 }
             } else if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
-                try {
-                    ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
-                } catch (InvalidReferenceException e) {
-                    e.printStackTrace();
-                }
+                addDerivedLocation(location, null, ret);
             }
         }
         return ret;
@@ -813,25 +808,27 @@ public class ResourceTable {
             if (parent == null && m != null) {
                 parent = m.getResourceWithGuid(r.getParentId());
             }
+
             if (parent != null) {
-                // Get all local references for the parent
-                Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
-                for (Reference context : parentRefs) {
-                    try {
-                        ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                    } catch (InvalidReferenceException e) {
-                        e.printStackTrace();
-                    }
+                // loop over all local references for the parent
+                for (Reference context : explodeAllReferences(type, parent, t, m)) {
+                    addDerivedLocation(location, context, ret);
                 }
             }
         }
         return ret;
     }
 
+    /**
+     * @param type process locations with authorities of this type
+     * @param r
+     * @param t
+     * @param m
+     */
     private static Vector<Reference> explodeAllReferences(int type, Resource r, ResourceTable t, ResourceTable m) {
-        Vector<ResourceLocation> locations = r.getLocations();
         Vector<Reference> ret = new Vector<Reference>();
-        for (ResourceLocation location : locations) {
+
+        for (ResourceLocation location : r.getLocations()) {
             if (location.getAuthority() == type) {
                 if (location.isRelative()) {
                     if (r.hasParent()) {
@@ -844,26 +841,40 @@ public class ResourceTable {
                         if (parent != null) {
                             // Get all local references for the parent
                             Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
+
                             for (Reference context : parentRefs) {
-                                try {
-                                    ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                                } catch (InvalidReferenceException e) {
-                                    e.printStackTrace();
-                                }
+                                addDerivedLocation(location, context, ret);
                             }
                         }
                     }
                 } else {
-                    try {
-                        ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
-                    } catch (InvalidReferenceException e) {
-                        e.printStackTrace();
-                    }
+                    addDerivedLocation(location, null, ret);
                 }
             }
         }
         return ret;
     }
+
+    /**
+     * TODO PLM
+     * @param location
+     * @param context
+     * @param ret Add derived reference of location to this Vector.
+     */
+    private static void addDerivedLocation(ResourceLocation location, Reference context, Vector<Reference> ret) {
+        try {
+            if (context == null) {
+                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
+            } else {
+                // contextualize the location ref in terms of the multiple refs
+                // pointing to different locations for the parent resource
+                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
+            }
+        } catch (InvalidReferenceException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void verifyInstallation(Vector<MissingMediaException> problems) {
         Vector<Resource> resources = GetResources();
