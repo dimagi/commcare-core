@@ -229,13 +229,21 @@ public class ResourceTable {
     }
 
 
-    private Stack<Resource> GetUnreadyResources() {
+    /**
+     * Get stored resources that are unready for installation, that is, not of
+     * installed, upgrade, or pending status.
+     *
+     * Resources that are:
+     *  - installed don't need anything
+     *  - marked as ready for upgrade are ready
+     *  - marked as pending aren't capable of installation yet
+     *
+     * @return Stack of resource records that aren't ready for installation
+     */
+    private Stack<Resource> getUnreadyResrouces() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
-            // If the resource is installed, it doesn't need anything
-            // If the resource is marked as ready for upgrade, it's ready
-            // If the resource is marked as pending, it isn't capable of installation yet
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
                     r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE &&
                     r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
@@ -246,7 +254,7 @@ public class ResourceTable {
     }
 
     public boolean isReady() {
-        return GetUnreadyResources().size() == 0;
+        return getUnreadyResrouces().size() == 0;
     }
 
     public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
@@ -369,10 +377,11 @@ public class ResourceTable {
     /**
      * Makes some (or all) of the table's resources available
      *
-     * @param master       The global resource to prepare against. Used to establish whether resources need to be fetched
-     *                     remotely
+     * @param master       The global resource to prepare against. Used to
+     *                     establish whether resources need to be fetched remotely
      * @param instance     The instance to prepare against
-     * @param toInitialize The ID of a single resource after which the table preparation can stop.
+     * @param toInitialize The ID of a single resource after which the table
+     *                     preparation can stop.
      * @throws UnresolvedResourceException       If a resource could not be identified and is required
      * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
      */
@@ -387,7 +396,7 @@ public class ResourceTable {
             }
         }
 
-        Stack<Resource> v = GetUnreadyResources();
+        Stack<Resource> v = getUnreadyResrouces();
 
         if (idNeedsInitialization) {
             while (!v.isEmpty()) {
@@ -422,7 +431,7 @@ public class ResourceTable {
                     stateListener.resourceStateUpdated(this);
                 }
 
-                v = GetUnreadyResources();
+                v = getUnreadyResrouces();
             }
         }
 
