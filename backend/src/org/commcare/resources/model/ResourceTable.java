@@ -44,6 +44,11 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNSTAGED = 4;
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
+    TableStateListener stateListener = null;
+
+    int numberOfLossyRetries = 3;
+
+
     /**
      * For Serialization Only!
      */
@@ -234,9 +239,9 @@ public class ResourceTable {
      * installed, upgrade, or pending status.
      *
      * Resources that are:
-     *  - installed don't need anything
-     *  - marked as ready for upgrade are ready
-     *  - marked as pending aren't capable of installation yet
+     * - installed don't need anything
+     * - marked as ready for upgrade are ready
+     * - marked as pending aren't capable of installation yet
      *
      * @return Stack of resource records that aren't ready for installation
      */
@@ -291,6 +296,7 @@ public class ResourceTable {
 
     /**
      * Try to install a resource by looping through its locations
+     *
      * @param r
      * @param invalid
      * @param upgrade
@@ -757,7 +763,9 @@ public class ResourceTable {
     }
 
     /**
-     * Find all absolute paths for a resource's various locations.
+     * Gather derived references for the resource's local locations.
+     * Relative location references that have a parent are contextualized
+     * before being added.
      *
      * @param r resource for which local location references are being gathered
      * @param t table to look-up the resource's parents in
@@ -788,6 +796,10 @@ public class ResourceTable {
     }
 
     /**
+     * Gather derived references for a particular (relative) location
+     * corresponding to the given resource.  If the  parent isn't found in the
+     * current resource table, then look in the master table.
+     *
      * @param location
      * @param r
      * @param t
@@ -798,7 +810,6 @@ public class ResourceTable {
                                                        Resource r,
                                                        ResourceTable t,
                                                        ResourceTable m) {
-        int type = location.getAuthority();
         Vector<Reference> ret = new Vector<Reference>();
 
         if (r.hasParent()) {
@@ -811,7 +822,7 @@ public class ResourceTable {
 
             if (parent != null) {
                 // loop over all local references for the parent
-                for (Reference context : explodeAllReferences(type, parent, t, m)) {
+                for (Reference context : explodeAllReferences(location.getAuthority(), parent, t, m)) {
                     addDerivedLocation(location, context, ret);
                 }
             }
@@ -820,12 +831,20 @@ public class ResourceTable {
     }
 
     /**
+     * Gather derived references for the resource's locations of a given type.
+     * Relative location references that have a parent are contextualized
+     * before being added. If a parent isn't found in the current resource
+     * table, then look in the master table.
+     *
      * @param type process locations with authorities of this type
      * @param r
      * @param t
      * @param m
      */
-    private static Vector<Reference> explodeAllReferences(int type, Resource r, ResourceTable t, ResourceTable m) {
+    private static Vector<Reference> explodeAllReferences(int type,
+                                                          Resource r,
+                                                          ResourceTable t,
+                                                          ResourceTable m) {
         Vector<Reference> ret = new Vector<Reference>();
 
         for (ResourceLocation location : r.getLocations()) {
@@ -857,11 +876,14 @@ public class ResourceTable {
 
     /**
      * TODO PLM
+     *
      * @param location
      * @param context
-     * @param ret Add derived reference of location to this Vector.
+     * @param ret      Add derived reference of location to this Vector.
      */
-    private static void addDerivedLocation(ResourceLocation location, Reference context, Vector<Reference> ret) {
+    private static void addDerivedLocation(ResourceLocation location,
+                                           Reference context,
+                                           Vector<Reference> ret) {
         try {
             if (context == null) {
                 ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
@@ -889,13 +911,9 @@ public class ResourceTable {
         }
     }
 
-    TableStateListener stateListener = null;
-
     public void setStateListener(TableStateListener listener) {
         this.stateListener = listener;
     }
-
-    int numberOfLossyRetries = 3;
 
     /**
      * Sets the number of attempts this table will make to install against resources which
@@ -909,6 +927,4 @@ public class ResourceTable {
         }
         this.numberOfLossyRetries = number;
     }
-
-
 }
