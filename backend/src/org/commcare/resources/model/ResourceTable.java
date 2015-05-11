@@ -131,18 +131,21 @@ public class ResourceTable {
         storage.remove(resource);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException {
+    public void addResource(Resource resource, ResourceInstaller initializer,
+                            String parentId, int status) throws StorageFullException {
         resource.setInstaller(initializer);
         resource.setParentId(parentId);
         addResource(resource, status);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId) throws StorageFullException {
+    public void addResource(Resource resource, ResourceInstaller initializer,
+                            String parentId) throws StorageFullException {
         addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
     }
 
     public void addResource(Resource resource, int status) throws StorageFullException {
-        Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
+        Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
+                resource.getResourceId());
         for (Integer i : existing) {
             Resource r = (Resource)storage.read(i.intValue());
             // this resource is already here! No worries
@@ -245,7 +248,7 @@ public class ResourceTable {
      *
      * @return Stack of resource records that aren't ready for installation
      */
-    private Stack<Resource> getUnreadyResrouces() {
+    private Stack<Resource> getUnreadyResources() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -258,8 +261,12 @@ public class ResourceTable {
         return v;
     }
 
+    /**
+     * Are all the resources ready to be installed or have already been
+     * installed?
+     */
     public boolean isReady() {
-        return getUnreadyResrouces().size() == 0;
+        return getUnreadyResources().size() == 0;
     }
 
     public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
@@ -295,22 +302,26 @@ public class ResourceTable {
     }
 
     /**
-     * Try to install a resource by looping through its locations
+     * Install a resource by looping through its locations stopping at first
+     * successful install.
      *
-     * @param r
-     * @param invalid
-     * @param upgrade
-     * @param instance
-     * @param master
+     * @param r        Resource to install
+     * @param invalid  out-of-date locations to be avoided during resource
+     *                 installation
+     * @param upgrade  Has an older version of the resource been installed?
+     * @param instance The CommCare instance (specific profile and version) to
+     *                 prepare against
+     * @param master   Backup resource table to look-up resources not found in
+     *                 the current table
      * @throws UnresolvedResourceException       Raised when no definitions for
      *                                           resource 'r' can't be found
      * @throws UnfullfilledRequirementsException
      */
-    private void checkForLocalResourceStatus(Resource r,
-                                             Vector<Reference> invalid,
-                                             boolean upgrade,
-                                             CommCareInstance instance,
-                                             ResourceTable master)
+    private void findResourceLocationAndInstall(Resource r,
+                                                Vector<Reference> invalid,
+                                                boolean upgrade,
+                                                CommCareInstance instance,
+                                                ResourceTable master)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
         // TODO: Possibly check if resource status is local and proceeding to
@@ -324,7 +335,7 @@ public class ResourceTable {
                 break;
             }
             if (location.isRelative()) {
-                for (Reference ref : explodeReferences(location, r, this, master)) {
+                for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
                     if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
                         try {
                             handled = installResource(r, location, ref, this,
@@ -403,7 +414,7 @@ public class ResourceTable {
             }
         }
 
-        Stack<Resource> v = getUnreadyResrouces();
+        Stack<Resource> v = getUnreadyResources();
 
         if (idNeedsInitialization) {
             while (!v.isEmpty()) {
@@ -422,7 +433,7 @@ public class ResourceTable {
                         // than the current are always acceptable
                         if (!r.isNewer(peer)) {
                             // This resource doesn't need to be updated, copy
-                            // the exisitng resource into this table
+                            // the existing resource into this table
                             peer.mimick(r);
                             commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
                             continue;
@@ -431,17 +442,17 @@ public class ResourceTable {
                         // resource is newer than master version, so invalidate
                         // old local resource locations.
                         upgrade = true;
-                        invalid = ResourceTable.explodeLocalReferences(peer, master);
+                        invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
                     }
                 }
 
-                checkForLocalResourceStatus(r, invalid, upgrade, instance, master);
+                findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
 
                 if (stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
 
-                v = getUnreadyResrouces();
+                v = getUnreadyResources();
             }
         }
 
@@ -771,7 +782,7 @@ public class ResourceTable {
      * @param t table to look-up the resource's parents in
      * @return all local references a resource's potential locations
      */
-    private static Vector<Reference> explodeLocalReferences(Resource r, ResourceTable t) {
+    private static Vector<Reference> gatherResourcesLocalRefs(Resource r, ResourceTable t) {
         Vector<Reference> ret = new Vector<Reference>();
 
         for (ResourceLocation location : r.getLocations()) {
@@ -781,7 +792,7 @@ public class ResourceTable {
                     if (parent != null) {
                         // Get local references for the parent resource's
                         // locations
-                        Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
+                        Vector<Reference> parentRefs = gatherResourcesLocalRefs(parent, t);
 
                         for (Reference context : parentRefs) {
                             addDerivedLocation(location, context, ret);
@@ -806,10 +817,10 @@ public class ResourceTable {
      * @param m
      * @return
      */
-    private static Vector<Reference> explodeReferences(ResourceLocation location,
-                                                       Resource r,
-                                                       ResourceTable t,
-                                                       ResourceTable m) {
+    private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
+                                                         Resource r,
+                                                         ResourceTable t,
+                                                         ResourceTable m) {
         Vector<Reference> ret = new Vector<Reference>();
 
         if (r.hasParent()) {
