@@ -402,8 +402,7 @@ public class ResourceTable {
             while (!v.isEmpty()) {
                 Resource r = v.pop();
                 boolean upgrade = false;
-                // Make a reference set for all invalid references (this will
-                // get filled in for us)
+
                 Vector<Reference> invalid = new Vector<Reference>();
 
                 // All operations regarding peers and master table
@@ -751,17 +750,29 @@ public class ResourceTable {
         }
     }
 
+    /**
+     * Find all absolute paths for a resource's various locations.
+     *
+     * @param r resource for which local location references are being gathered
+     * @param t table to look-up the resource's parents in
+     * @return all local references a resource's potential locations
+     */
     private static Vector<Reference> explodeLocalReferences(Resource r, ResourceTable t) {
-        Vector<ResourceLocation> locations = r.getLocations();
         Vector<Reference> ret = new Vector<Reference>();
-        for (ResourceLocation location : locations) {
+
+        for (ResourceLocation location : r.getLocations()) {
             if (location.isRelative()) {
                 if (r.hasParent()) {
                     Resource parent = t.getResourceWithGuid(r.getParentId());
                     if (parent != null) {
-                        // Get all local references for the parent
+                        // Get local references for the parent resource's
+                        // locations
                         Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
+
                         for (Reference context : parentRefs) {
+                            // contextualize the location ref in terms of the
+                            // multiple refs pointing to different locations
+                            // for the parent resource
                             try {
                                 ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
                             } catch (InvalidReferenceException ire) {
