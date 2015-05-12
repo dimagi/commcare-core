@@ -278,6 +278,9 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
+            // XXX PLM: Why?
+            Logger.log("Resource",
+                    "committing a resource with a known version.");
         }
         commit(r, status);
     }
