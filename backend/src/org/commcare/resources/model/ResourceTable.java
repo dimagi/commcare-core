@@ -56,7 +56,7 @@ public class ResourceTable {
     }
 
     public boolean isEmpty() {
-        return storage.getNumRecords() <= 0;
+        return storage.getNumRecords() == 0;
     }
 
     public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
@@ -186,7 +186,10 @@ public class ResourceTable {
         }
     }
 
-    private Vector<Resource> GetResources() {
+    /**
+     * Get the all the resources in this table's storage.
+     */
+    private Vector<Resource> getResources() {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -195,7 +198,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Vector<Resource> GetResources(int status) {
+    /**
+     * Get the resources in this table's storage that have a given status.
+     */
+    private Vector<Resource> getResourcesWithStatus(int status) {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -206,7 +212,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Stack<Resource> GetResourceStack() {
+    /**
+     * Get the all the resources in this table's storage.
+     */
+    private Stack<Resource> getResourceStack() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -215,7 +224,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Stack<Resource> GetResourceStack(int status) {
+    /**
+     * Get the resources in this table's storage that have a given status.
+     */
+    private Stack<Resource> getResourceStackWithStatus(int status) {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -282,7 +294,7 @@ public class ResourceTable {
      * Rolls back uncommitted resources from dirty states
      */
     public void rollbackCommits() {
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.isDirty()) {
@@ -390,10 +402,14 @@ public class ResourceTable {
      * @param instance     The instance to prepare against
      * @param toInitialize The ID of a single resource after which the table
      *                     preparation can stop.
-     * @throws UnresolvedResourceException       If a resource could not be identified and is required
-     * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+     * @throws UnresolvedResourceException       Required resource couldn't be
+     *                                           identified
+     * @throws UnfullfilledRequirementsException resource(s) incompatible with
+     *                                           current CommCare version
      */
-    public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize)
+    public void prepareResources(ResourceTable master,
+                                 CommCareInstance instance,
+                                 String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
         boolean idNeedsInitialization = true;
@@ -454,7 +470,7 @@ public class ResourceTable {
         // TODO: Nothing uses this status, really. Should this go away?
         // Wipe out any resources which are still pending. If they weren't updated by their
         // parent, they aren't relevant.
-        for (Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
+        for (Resource stillPending : getResourcesWithStatus(Resource.RESOURCE_STATUS_PENDING)) {
             this.removeResource(stillPending);
         }
     }
@@ -492,15 +508,17 @@ public class ResourceTable {
     }
 
     /**
-     * Prepares this table to be replaced by the incoming table.
+     * Prepare this table to be replaced by the incoming table, and incoming
+     * table to replace it.
      *
-     * All conflicting resources from this table will be unstaged so as to not conflict with the
-     * incoming resources. Once the incoming table is fully installed, this table's resources
-     * can then be fully removed where relevant.
+     * All conflicting resources from this table will be unstaged so as to not
+     * conflict with the incoming resources. Once the incoming table is fully
+     * installed, this table's resources can then be fully removed where
+     * relevant.
      *
-     * @param incoming
-     * @return True if this table was prepared and the incoming table can be fully installed. False
-     * if something is this table couldn't be unstaged.
+     * @param incoming Table for which resource upgrades are applied
+     * @return True if this table was prepared and the incoming table can be
+     * fully installed. False if something is this table couldn't be unstaged.
      * @throws UnresolvedResourceException
      */
     public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
@@ -508,15 +526,18 @@ public class ResourceTable {
             return false;
         }
 
-        // Everything incoming should be marked either ready or upgrade. Upgrade elements
-        // should result in their counterpart in this table being unstaged (which can be
-        // reverted).
+        // Everything incoming should be marked either ready or upgrade.
+        // Upgrade elements should result in their counterpart in this table
+        // being unstaged (which can be reverted).
 
-        Stack<Resource> resources = incoming.GetResourceStack();
+        Stack<Resource> resources = incoming.getResourceStack();
         while (!resources.isEmpty()) {
             Resource r = resources.pop();
             Resource peer = this.getResourceWithId(r.getResourceId());
             if (peer == null) {
+                // no corresponding resource in this table; use incoming
+                // XXX PLM: Why is this needed? Only ever called on global
+                // table, which is thrown away and replaced by incoming table
                 this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {
                 if (r.isNewer(peer)) {
@@ -527,7 +548,7 @@ public class ResourceTable {
                         // TODO: revert this resource table!
                         throw new UnresolvedResourceException(peer,
                                 "Couldn't make room for new resource " +
-                                r.getResourceId() + ", upgrade aborted");
+                                        r.getResourceId() + ", upgrade aborted");
                     } else {
                         // done
                         commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
@@ -538,32 +559,35 @@ public class ResourceTable {
                         if (r.getInstaller().upgrade(r)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
-                            System.out.println("Failed to upgrade resource: " + r.getDescriptor());
+                            Logger.log("Resource",
+                                    "Failed to upgrade resource: " + r.getDescriptor());
                             // REVERT!
                             return false;
                         }
                     }
                 }
-                if (peer.getVersion() == r.getVersion()) {
-                    // Same resource. Don't do anything with it, it has no
-                    // children, so ID's don't need to change.
-                    // Technically resource locations could change, worth thinking
-                    // about for the future.
-                }
+                // TODO Should anything happen if peer.getVersion() ==
+                // r.getVersion()?  Consider children, IDs and the fact
+                // resource locations could change
             }
         }
 
         return true;
     }
 
+    /**
+     * Flag unstaged resources and those not present in replacement table for
+     * deletion.
+     *
+     * @param replacement
+     */
     public void flagForDeletions(ResourceTable replacement) {
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
-            Resource peer = replacement.getResourceWithId(r.getResourceId());
 
-            // If this resource is no longer relevant
-            if (peer == null) {
+            // No entry in 'replacement' so it's no longer relevant
+            if (replacement.getResourceWithId(r.getResourceId()) == null) {
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
                 continue;
             }
@@ -582,7 +606,7 @@ public class ResourceTable {
      * @param incoming The table which unstaged this table's resources
      */
     public void repairTable(ResourceTable incoming) {
-        Stack<Resource> s = this.GetResourceStack(Resource.RESOURCE_STATUS_UNSTAGED);
+        Stack<Resource> s = this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
         while (!s.isEmpty()) {
             Resource resource = s.pop();
 
@@ -624,14 +648,15 @@ public class ResourceTable {
      */
     public void completeUninstall() {
         cleanup();
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
                 try {
                     r.getInstaller().uninstall(r);
                 } catch (Exception e) {
-                    Logger.log("resources", "Error uninstalling resource " + r.getRecordGuid() + ". " + e.getMessage());
+                    Logger.log("Resource", "Error uninstalling resource " +
+                            r.getRecordGuid() + ". " + e.getMessage());
                 }
             }
         }
@@ -651,7 +676,7 @@ public class ResourceTable {
         }
 
         // Copy over all of our resources to the new table
-        for (Resource r : this.GetResources()) {
+        for (Resource r : this.getResources()) {
             r.setID(-1);
             newTable.commit(r);
         }
@@ -660,7 +685,7 @@ public class ResourceTable {
     public String toString() {
         String output = "";
         int ml = 0;
-        for (Resource r : GetResources()) {
+        for (Resource r : getResources()) {
             String line = "| " + r.getResourceId() + " | " + r.getVersion() +
                     " | " + getStatusString(r.getStatus()) + " |\n";
             output += line;
@@ -719,7 +744,7 @@ public class ResourceTable {
      */
     public void clear() {
         cleanup();
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         int count = 0;
         while (!s.isEmpty()) {
             Resource r = s.pop();
@@ -740,7 +765,7 @@ public class ResourceTable {
     }
 
     private void cleanup() {
-        for (Resource r : GetResources()) {
+        for (Resource r : getResources()) {
             r.getInstaller().cleanup();
         }
     }
@@ -750,7 +775,7 @@ public class ResourceTable {
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
 
-        for (Resource r : this.GetResources()) {
+        for (Resource r : this.getResources()) {
             ResourceInstaller i = r.getInstaller();
             if (i.requiresRuntimeInitialization()) {
                 if (i instanceof ProfileInstaller) {
@@ -902,7 +927,7 @@ public class ResourceTable {
 
 
     public void verifyInstallation(Vector<MissingMediaException> problems) {
-        Vector<Resource> resources = GetResources();
+        Vector<Resource> resources = getResources();
         int total = resources.size();
         int count = 0;
         for (Resource r : resources) {
