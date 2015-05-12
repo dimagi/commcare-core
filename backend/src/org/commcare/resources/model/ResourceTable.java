@@ -44,9 +44,9 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNSTAGED = 4;
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
-    TableStateListener stateListener = null;
+    private TableStateListener stateListener = null;
 
-    int numberOfLossyRetries = 3;
+    private int numberOfLossyRetries = 3;
 
 
     /**
@@ -56,11 +56,7 @@ public class ResourceTable {
     }
 
     public boolean isEmpty() {
-        if (storage.getNumRecords() > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return storage.getNumRecords() <= 0;
     }
 
     public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
@@ -75,8 +71,8 @@ public class ResourceTable {
     }
 
     public int getTableReadiness() {
-        // TODO: this is very hard to fully specify without doing assertions when preparing a
-        // table about appropriate states
+        // TODO: this is very hard to fully specify without doing assertions
+        // when preparing a table about appropriate states
 
         boolean isFullyInstalled = true;
         boolean isEmpty = true;
@@ -106,17 +102,13 @@ public class ResourceTable {
 
         if (dirty) {
             return RESOURCE_TABLE_UNCOMMITED;
-        }
-        if (isEmpty) {
+        } else if (isEmpty) {
             return RESOURCE_TABLE_EMPTY;
-        }
-        if (isFullyInstalled) {
+        } else if (isFullyInstalled) {
             return RESOURCE_TABLE_INSTALLED;
-        }
-        if (unstaged) {
+        } else if (unstaged) {
             return RESOURCE_TABLE_UNSTAGED;
-        }
-        if (upgrade) {
+        } else if (upgrade) {
             return RESOURCE_TABLE_UPGRADE;
         }
 
@@ -144,30 +136,28 @@ public class ResourceTable {
     }
 
     public void addResource(Resource resource, int status) throws StorageFullException {
-        Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
-                resource.getResourceId());
-        for (Integer i : existing) {
-            Resource r = (Resource)storage.read(i.intValue());
-            // this resource is already here! No worries
-            return;
-        }
+        // only add resource if they don't already exist
+        if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
+                resource.getResourceId()).size() > 0) {
+            resource.setStatus(status);
+            try {
+                //TODO: Check if it exists?
+                if (resource.getID() != -1) {
+                    // Assume that we're going cross-table, so we need a new
+                    // RecordId.
+                    resource.setID(-1);
 
-        resource.setStatus(status);
-        try {
-            //TODO: Check if it exists?
-            if (resource.getID() != -1) {
-                //Assume that we're going cross-table, so we need a new RecordId.
-                resource.setID(-1);
-
-                //Check to make sure that there's no existing GUID for this record.
-                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                    throw new RuntimeException("Why are you adding a record that already exists? Huh?");
+                    // Check to make sure that there's no existing GUID for
+                    // this record.
+                    if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                        throw new RuntimeException("This resource record already exists.");
+                    }
                 }
+
+                storage.write(resource);
+            } catch (StorageFullException e) {
+                e.printStackTrace();
             }
-            storage.write(resource);
-        } catch (StorageFullException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -535,7 +525,9 @@ public class ResourceTable {
 
                     if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED)) {
                         // TODO: revert this resource table!
-                        throw new UnresolvedResourceException(peer, "Couldn't make room for new resource " + r.getResourceId() + ", upgrade aborted");
+                        throw new UnresolvedResourceException(peer,
+                                "Couldn't make room for new resource " +
+                                r.getResourceId() + ", upgrade aborted");
                     } else {
                         // done
                         commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
@@ -559,7 +551,6 @@ public class ResourceTable {
                     // about for the future.
                 }
             }
-            r = null;
         }
 
         return true;
@@ -670,7 +661,8 @@ public class ResourceTable {
         String output = "";
         int ml = 0;
         for (Resource r : GetResources()) {
-            String line = "| " + r.getResourceId() + " | " + r.getVersion() + " | " + getStatus(r.getStatus()) + " |\n";
+            String line = "| " + r.getResourceId() + " | " + r.getVersion() +
+                    " | " + getStatusString(r.getStatus()) + " |\n";
             output += line;
             if (line.length() > ml) {
                 ml = line.length();
@@ -683,7 +675,7 @@ public class ResourceTable {
         return cap + "\n" + output + cap + "\n";
     }
 
-    public static String getStatus(int status) {
+    private static String getStatusString(int status) {
         switch (status) {
             case Resource.RESOURCE_STATUS_UNINITIALIZED:
                 return "Uninitialized";
