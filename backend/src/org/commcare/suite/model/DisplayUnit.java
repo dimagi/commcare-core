@@ -4,6 +4,7 @@ import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -70,18 +71,18 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        name = (Text)ExtUtil.read(in, Text.class, pf);
-        imageReference = (Text)ExtUtil.read(in, Text.class, pf);
-        audioReference = (Text)ExtUtil.read(in, Text.class, pf);
+        name = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+        imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+        audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, name);
-        ExtUtil.write(out, imageReference);
-        ExtUtil.write(out, audioReference);
+        ExtUtil.write(out, new ExtWrapNullable(name));
+        ExtUtil.write(out, new ExtWrapNullable(imageReference));
+        ExtUtil.write(out, new ExtWrapNullable(audioReference));
     }
 
 }
