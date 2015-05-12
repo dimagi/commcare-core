@@ -78,6 +78,10 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         return false;
     }
 
+    public T resolveReference(XPathReference binding) {
+        return resolveReference(unpackReference(binding));
+    }
+
     public T resolveReference(TreeReference ref) {
         if (!ref.isAbsolute()) {
             return null;
@@ -256,10 +260,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         }
         // no way forward
         return false;
-    }
-
-    public T resolveReference(XPathReference binding) {
-        return resolveReference(unpackReference(binding));
     }
 
     public void setFormId(int formId) {
