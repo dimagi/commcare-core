@@ -63,7 +63,8 @@ public class ResourceTable {
         return RetrieveTable(storage, new InstallerFactory());
     }
 
-    public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage, InstallerFactory factory) {
+    public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage,
+                                              InstallerFactory factory) {
         ResourceTable table = new ResourceTable();
         table.storage = storage;
         table.factory = factory;
@@ -383,11 +384,14 @@ public class ResourceTable {
     /**
      * Makes all of this table's resources available.
      *
-     * @param master   The global resource to prepare against. Used to establish whether resources need to be fetched
-     *                 remotely
+     * @param master   The global resource to prepare against. Used to
+     *                 establish whether resources need to be fetched remotely
      * @param instance The instance to prepare against
-     * @throws UnresolvedResourceException       If a resource could not be identified and is required
-     * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+     * @throws UnresolvedResourceException       If a resource could not be
+     *                                           identified and is required
+     * @throws UnfullfilledRequirementsException If some resources are
+     *                                           incompatible with the current
+     *                                           version of CommCare
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
@@ -579,21 +583,21 @@ public class ResourceTable {
      * Flag unstaged resources and those not present in replacement table for
      * deletion.
      *
-     * @param replacement
+     * @param replacement Resources not in this table, flag for deletion
      */
     public void flagForDeletions(ResourceTable replacement) {
         Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
 
-            // No entry in 'replacement' so it's no longer relevant
             if (replacement.getResourceWithId(r.getResourceId()) == null) {
+                // no entry in 'replacement' so it's no longer relevant
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
                 continue;
             }
 
-            // If this resource has been replaced
             if (r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
+                // resource has been replaced, so flag for deletion
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
             }
         }
@@ -606,7 +610,8 @@ public class ResourceTable {
      * @param incoming The table which unstaged this table's resources
      */
     public void repairTable(ResourceTable incoming) {
-        Stack<Resource> s = this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
+        Stack<Resource> s =
+                this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
         while (!s.isEmpty()) {
             Resource resource = s.pop();
 
@@ -730,8 +735,8 @@ public class ResourceTable {
     }
 
     /**
-     * Destroy this table, but leave any of the files which are installed untouched.
-     * This is useful after an upgrade if this is the temp table.
+     * Destroy this table, but leave any of the files which are installed
+     * untouched. This is useful after an upgrade if this is the temp table.
      */
     public void destroy() {
         cleanup();
@@ -739,8 +744,9 @@ public class ResourceTable {
     }
 
     /**
-     * Destroy this table, and also try very hard to remove any files installed by it. This
-     * is important for rolling back botched upgrades without leaving their files around.
+     * Destroy this table, and also try very hard to remove any files installed
+     * by it. This is important for rolling back botched upgrades without
+     * leaving their files around.
      */
     public void clear() {
         cleanup();
@@ -770,7 +776,8 @@ public class ResourceTable {
         }
     }
 
-    public void initializeResources(CommCareInstance instance) throws ResourceInitializationException {
+    public void initializeResources(CommCareInstance instance)
+            throws ResourceInitializationException {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
@@ -791,15 +798,16 @@ public class ResourceTable {
     }
 
     /**
-     * Gather derived references for the resource's local locations.
-     * Relative location references that have a parent are contextualized
-     * before being added.
+     * Gather derived references for the resource's local locations. Relative
+     * location references that have a parent are contextualized before being
+     * added.
      *
      * @param r resource for which local location references are being gathered
      * @param t table to look-up the resource's parents in
      * @return all local references a resource's potential locations
      */
-    private static Vector<Reference> gatherResourcesLocalRefs(Resource r, ResourceTable t) {
+    private static Vector<Reference> gatherResourcesLocalRefs(Resource r,
+                                                              ResourceTable t) {
         Vector<Reference> ret = new Vector<Reference>();
 
         for (ResourceLocation location : r.getLocations()) {
@@ -809,8 +817,8 @@ public class ResourceTable {
                     if (parent != null) {
                         // Get local references for the parent resource's
                         // locations
-                        Vector<Reference> parentRefs = gatherResourcesLocalRefs(parent, t);
-
+                        Vector<Reference> parentRefs =
+                                gatherResourcesLocalRefs(parent, t);
                         for (Reference context : parentRefs) {
                             addDerivedLocation(location, context, ret);
                         }
@@ -828,11 +836,12 @@ public class ResourceTable {
      * corresponding to the given resource.  If the  parent isn't found in the
      * current resource table, then look in the master table.
      *
-     * @param location
-     * @param r
-     * @param t
-     * @param m
-     * @return
+     * @param location Specific location for the given resource
+     * @param r        Resource for which local location references are being
+     *                 gathered
+     * @param t        Table to look-up the resource's parents in
+     * @param m        Backup table to look-up the resource's parents in
+     * @return All possible (derived) references pointing to a given locations
      */
     private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
                                                          Resource r,
@@ -850,7 +859,9 @@ public class ResourceTable {
 
             if (parent != null) {
                 // loop over all local references for the parent
-                for (Reference context : explodeAllReferences(location.getAuthority(), parent, t, m)) {
+                Vector<Reference> parentRefs =
+                        explodeAllReferences(location.getAuthority(), parent, t, m);
+                for (Reference context : parentRefs) {
                     addDerivedLocation(location, context, ret);
                 }
             }
@@ -865,9 +876,11 @@ public class ResourceTable {
      * table, then look in the master table.
      *
      * @param type process locations with authorities of this type
-     * @param r
-     * @param t
-     * @param m
+     * @param r    resource for which local location references are being gathered
+     * @param t    table to look-up the resource's parents in
+     * @param m    backup table to look-up the resource's parents in
+     * @return all possible (derived) references pointing to a resource's
+     * locations
      */
     private static Vector<Reference> explodeAllReferences(int type,
                                                           Resource r,
@@ -881,14 +894,15 @@ public class ResourceTable {
                     if (r.hasParent()) {
                         Resource parent = t.getResourceWithGuid(r.getParentId());
 
-                        // If the local table doesn't have the parent ref, try the master
+                        // If the local table doesn't have the parent ref, try
+                        // the master
                         if (parent == null) {
                             parent = m.getResourceWithGuid(r.getParentId());
                         }
                         if (parent != null) {
                             // Get all local references for the parent
-                            Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
-
+                            Vector<Reference> parentRefs =
+                                    explodeAllReferences(type, parent, t, m);
                             for (Reference context : parentRefs) {
                                 addDerivedLocation(location, context, ret);
                             }
@@ -903,23 +917,30 @@ public class ResourceTable {
     }
 
     /**
-     * TODO PLM
+     * Derive a reference from the given location and context; adding it to the
+     * vector of references.
      *
-     * @param location
-     * @param context
+     * @param location Contains a reference to a resource.
+     * @param context  Provides context for any relative reference accessors.
+     *                 Can be null.
      * @param ret      Add derived reference of location to this Vector.
      */
     private static void addDerivedLocation(ResourceLocation location,
                                            Reference context,
                                            Vector<Reference> ret) {
         try {
+            final Reference derivedRef;
             if (context == null) {
-                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
+                derivedRef =
+                        ReferenceManager._().DeriveReference(location.getLocation());
             } else {
                 // contextualize the location ref in terms of the multiple refs
                 // pointing to different locations for the parent resource
-                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
+                derivedRef =
+                        ReferenceManager._().DeriveReference(location.getLocation(),
+                                context);
             }
+            ret.addElement(derivedRef);
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
         }
@@ -944,10 +965,11 @@ public class ResourceTable {
     }
 
     /**
-     * Sets the number of attempts this table will make to install against resources which
-     * fail on lossy (IE: Network) channels.
+     * Sets the number of attempts this table will make to install against
+     * resources which fail on lossy (IE: Network) channels.
      *
-     * @param number The number of attempts to make per resource. Must be at least 0
+     * @param number The number of attempts to make per resource. Must be at
+     *               least 0
      */
     public void setNumberOfRetries(int number) {
         if (number < 0) {
