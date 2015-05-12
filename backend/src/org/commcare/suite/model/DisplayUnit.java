@@ -71,7 +71,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        name = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+        name = (Text)ExtUtil.read(in, Text.class, pf);
         imageReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
         audioReference = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
     }
@@ -80,7 +80,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapNullable(name));
+        ExtUtil.write(out, name);
         ExtUtil.write(out, new ExtWrapNullable(imageReference));
         ExtUtil.write(out, new ExtWrapNullable(audioReference));
     }
