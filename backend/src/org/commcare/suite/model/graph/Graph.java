@@ -151,7 +151,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
                 evaluateConfiguration(s, seriesData, seriesContext);
                 for (TreeReference ref : refList) {
-                    System.out.println("[jls] looking at a TreeReference");
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
@@ -160,7 +159,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                             String radius = ((BubbleSeries)s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
                         } else {
-                            System.out.println("[jls] adding a point at (" + x + ", " + y + ")");
                             seriesData.addPoint(new XYPointData(x, y));
                         }
                     }
