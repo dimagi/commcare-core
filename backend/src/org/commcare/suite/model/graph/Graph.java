@@ -27,6 +27,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 public class Graph implements Externalizable, DetailTemplate, Configurable {
     public static final String TYPE_XY = "xy";
+    public static final String TYPE_BAR = "bar";
     public static final String TYPE_BUBBLE = "bubble";
     public static final String TYPE_TIME = "time";
 
