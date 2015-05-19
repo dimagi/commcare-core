@@ -690,22 +690,31 @@ public class ResourceTable {
         }
     }
 
+    /**
+     * String representation of the id, version, and status of all resources in
+     * table.
+     */
     public String toString() {
-        String output = "";
-        int ml = 0;
+        StringBuffer resourceDetails = new StringBuffer();
+        int maxLength = 0;
         for (Resource r : getResources()) {
             String line = "| " + r.getResourceId() + " | " + r.getVersion() +
                     " | " + getStatusString(r.getStatus()) + " |\n";
-            output += line;
-            if (line.length() > ml) {
-                ml = line.length();
+            resourceDetails.append(line);
+
+            if (line.length() > maxLength) {
+                maxLength = line.length();
             }
         }
-        String cap = "";
-        for (int i = 0; i < ml; ++i) {
-            cap += "-";
+
+        StringBuffer header = new StringBuffer();
+        for (int i = 0; i < maxLength; ++i) {
+            header.append("-");
         }
-        return cap + "\n" + output + cap + "\n";
+
+        header.append("\n");
+
+        return header.append(resourceDetails.toString()).append(header.toString()).toString();
     }
 
     private static String getStatusString(int status) {
