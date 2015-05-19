@@ -56,7 +56,7 @@ public class ResourceTable {
     }
 
     public boolean isEmpty() {
-        return storage.getNumRecords() == 0;
+        return storage.getNumRecords() <= 0;
     }
 
     public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
@@ -139,7 +139,7 @@ public class ResourceTable {
     public void addResource(Resource resource, int status) throws StorageFullException {
         // only add resource if they don't already exist
         if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
-                resource.getResourceId()).size() > 0) {
+                resource.getResourceId()).size() == 0) {
             resource.setStatus(status);
             try {
                 //TODO: Check if it exists?
