@@ -401,6 +401,7 @@ public class ResourceTable {
         this.prepareResources(master, instance, null);
     }
 
+
     /**
      * Makes some (or all) of the table's resources available
      *
@@ -419,19 +420,12 @@ public class ResourceTable {
                                  String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
-        boolean idNeedsInitialization = true;
-        if (toInitialize != null) {
-            Resource res = this.getResourceWithId(toInitialize);
-            if (res != null && res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
-                idNeedsInitialization = false;
-            }
-        }
+        Stack<Resource> unreadyResources = getUnreadyResources();
 
-        Stack<Resource> v = getUnreadyResources();
-
-        if (idNeedsInitialization) {
-            while (!v.isEmpty()) {
-                Resource r = v.pop();
+        // install all unready resources. If toInitialize is set, stop after it
+        // has been installed.
+        while (idNeedsInit(toInitialize) && !unreadyResources.isEmpty()) {
+            for (Resource r : unreadyResources) {
                 boolean upgrade = false;
 
                 Vector<Reference> invalid = new Vector<Reference>();
@@ -464,9 +458,10 @@ public class ResourceTable {
                 if (stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
-
-                v = getUnreadyResources();
             }
+            // Installing resources may have exposed more unready resources
+            // that need installing.
+            unreadyResources = getUnreadyResources();
         }
 
         if (toInitialize != null) {
@@ -480,6 +475,23 @@ public class ResourceTable {
         for (Resource stillPending : getResourcesWithStatus(Resource.RESOURCE_STATUS_PENDING)) {
             this.removeResource(stillPending);
         }
+    }
+
+    /**
+     * Is the id non-null and points to a resource that is uninitialized
+     *
+     * @param id Points to a resource. If null, returns true
+     * @return Is the resource pointed to by the ID uninitialized?
+     */
+    private boolean idNeedsInit(String id) {
+        if (id != null) {
+            Resource res = this.getResourceWithId(id);
+            if (res != null &&
+                    res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
