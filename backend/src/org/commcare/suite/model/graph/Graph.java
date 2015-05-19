@@ -27,6 +27,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  */
 public class Graph implements Externalizable, DetailTemplate, Configurable {
     public static final String TYPE_XY = "xy";
+    public static final String TYPE_BAR = "bar";
     public static final String TYPE_BUBBLE = "bubble";
     public static final String TYPE_TIME = "time";
 
@@ -148,7 +149,13 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
+
                 evaluateConfiguration(s, seriesData, seriesContext);
+                // Guess at name for series, if it wasn't provided
+                if (seriesData.getConfiguration("name") == null) {
+                    seriesData.setConfiguration("name", s.getY());
+                }
+
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
                     String x = s.evaluateX(refContext);
