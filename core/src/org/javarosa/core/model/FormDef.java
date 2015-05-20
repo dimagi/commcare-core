@@ -111,8 +111,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
     private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
-    // associates repeatable nodes with the Condition that determines their
-    // relevancy
+
+    /**
+     * Associates repeatable nodes with the Condition that determines their
+     * relevancy.
+     */
     public EvaluationContext exprEvalContext;
 
     private QuestionPreloader preloader = new QuestionPreloader();
@@ -868,13 +871,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * due to their update, and then dispatching all of the evaluations.
      *
      * @param tv        A vector of all of the trigerrables directly triggered by the
-     *                  value changed
+     *                  value changed. Will be mutated by this method.
      * @param anchorRef The reference to original value that was updated
      */
-    private void evaluateTriggerables(Vector tv, TreeReference anchorRef) {
-        //add all cascaded triggerables to queue
-
-        //Iterate through all of the currently known triggerables to be triggered
+    private void evaluateTriggerables(Vector<Triggerable> tv,
+                                      TreeReference anchorRef) {
+        // Update the list of triggerables that need to be evaluated.
+        // XXX PLM: tv changes in size throughout this loop.
+        //          Do we actually want to loop over the newly added elements?
         for (int i = 0; i < tv.size(); i++) {
             Triggerable t = (Triggerable)tv.elementAt(i);
             fillTriggeredElements(t, tv);
