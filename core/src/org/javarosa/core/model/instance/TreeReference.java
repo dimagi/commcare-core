@@ -423,7 +423,10 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * Evaluate this reference in terms of the base reference argument.
+     * Evaluate this reference in terms of the base reference argument. If this
+     * reference can be made more specific by filters or predicates in the
+     * context reference, it does so, but never overwrites existing filters or
+     * predicates.
      *
      * @param contextRef the absolute reference used as the base while evaluating
      *                   this reference.
@@ -466,7 +469,14 @@ public class TreeReference implements Externalizable {
                 newRef.data.setElementAt(newRef.data.elementAt(i).setName(contextRef.getName(i)), i);
             }
 
-            if (!contextRef.getName(i).equals(newRef.getName(i))) {
+            if (contextRef.getName(i).equals(newRef.getName(i))) {
+                // Only copy over multiplicity info if it won't overwrite any
+                // existing preds or filters
+                if (newRef.getPredicate(i) == null &&
+                        newRef.getMultiplicity(i) == INDEX_UNBOUND) {
+                    newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
+                }
+            } else {
                 break;
             }
         }
