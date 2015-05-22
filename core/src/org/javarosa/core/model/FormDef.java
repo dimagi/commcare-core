@@ -98,7 +98,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // This list is topologically ordered, meaning for any tA
     // and tB in the list, where tA comes before tB, evaluating tA cannot
     // depend on any result from evaluating tB
-    public Vector<Triggerable> triggerables;
+    private Vector<Triggerable> triggerables;
 
     // true if triggerables has been ordered topologically (DON'T DELETE ME
     // EVEN THOUGH I'M UNUSED)
@@ -109,7 +109,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // arguments to captions
     private Vector outputFragments;
 
-    public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
+    /**
+     * Map references to the calculate/relevancy conditions that depend on that
+     * reference's value. Used to trigger re-evaluation of those conditionals
+     * when the reference is updated.
+     */
+    private Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
+
     private Hashtable<TreeReference, Condition> conditionRepeatTargetIndex;
 
     /**
@@ -584,6 +590,26 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
             return t;
         }
+    }
+
+    /**
+     * @return All references in the form that are depended on by
+     * calculate/relevancy conditions.
+     */
+    public Enumeration<TreeReference> refWithTriggerDependencies() {
+        return triggerIndex.keys();
+    }
+
+    /**
+     * Get the triggerable conditions, like relevancy/calculate, that depend on
+     * the given reference.
+     *
+     * @param ref An absolute reference that is used in relevancy/calculate
+     *            expressions.
+     * @return All the triggerables that depend on the given reference.
+     */
+    public Vector<Triggerable> conditionsTriggeredByRef(TreeReference ref) {
+        return triggerIndex.get(ref);
     }
 
     /**

@@ -2794,12 +2794,12 @@ public class XFormParser {
         Vector edges = new Vector();
 
         //build graph
-        for (Enumeration e = _f.triggerIndex.keys(); e.hasMoreElements(); ) {
+        for (Enumeration e = _f.refWithTriggerDependencies(); e.hasMoreElements(); ) {
             TreeReference trigger = (TreeReference)e.nextElement();
             if (!vertices.contains(trigger))
                 vertices.addElement(trigger);
 
-            Vector triggered = (Vector)_f.triggerIndex.get(trigger);
+            Vector<Triggerable> triggered = (Vector<Triggerable>)_f.conditionsTriggeredByRef(trigger);
             Vector targets = new Vector();
             for (int i = 0; i < triggered.size(); i++) {
                 Triggerable t = (Triggerable)triggered.elementAt(i);
