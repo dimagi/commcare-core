@@ -286,7 +286,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         // get reference for target element
-        TreeReference ref = FormInstance.unpackReference((elements.lastElement()).getBind()).clone();
+        TreeReference ref = FormInstance.unpackReference(((IFormElement)elements.lastElement()).getBind()).clone();
         for (int i = 0; i < ref.size(); i++) {
             //There has to be a better way to encapsulate this
             if (ref.getMultiplicity(i) != TreeReference.INDEX_ATTRIBUTE) {
@@ -296,11 +296,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         // fill in multiplicities for repeats along the way
         for (int i = 0; i < elements.size(); i++) {
-            IFormElement temp = elements.elementAt(i);
+            IFormElement temp = (IFormElement)elements.elementAt(i);
             if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
                 TreeReference repRef = FormInstance.unpackReference(temp.getBind());
                 if (repRef.isParentOf(ref, false)) {
-                    int repMult = (multiplicities.elementAt(i)).intValue();
+                    int repMult = ((Integer)multiplicities.elementAt(i)).intValue();
                     ref.setMultiplicity(repRef.size() - 1, repMult);
                 } else {
                     // question/repeat hierarchy is not consistent with
