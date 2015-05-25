@@ -20,6 +20,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
+import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
@@ -37,6 +38,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathConditional;
+
+import java.util.Enumeration;
 
 public class FormOverview {
     public static String overview (FormDef f) {
@@ -197,24 +200,25 @@ public class FormOverview {
 
         IConditionExpr expr = null;
 
-        for (int i = 0; i < f.triggerables.size() && expr == null; i++) {
+        triggerLoop:
+        for (Enumeration<Triggerable> e = f.getTriggerables(); e.hasMoreElements();) {
+            Triggerable trig = e.nextElement();
             // Clayton Sims - Jun 1, 2009 : Not sure how legitimate this
             // cast is. It might work now, but break later.
             // Clayton Sims - Jun 24, 2009 : Yeah, that change broke things.
             // For now, we won't bother to print out anything that isn't
             // a condition.
-            if(f.triggerables.elementAt(i) instanceof Condition) {
-            Condition c = (Condition)f.triggerables.elementAt(i);
+            if (trig instanceof Condition) {
+                Condition c = (Condition)trig;
 
-            if (c.trueAction == action) {
-                for (int j = 0; j < c.targets.size() && expr == null; j++) {
-                    TreeReference target = (TreeReference)c.targets.elementAt(j);
-
-                    if (instanceNode == getInstanceNode(f.getInstance(), new XPathReference(target))) {
-                        expr = c.expr;
+                if (c.trueAction == action) {
+                    for (TreeReference target : c.targets) {
+                        if (instanceNode == getInstanceNode(f.getInstance(), new XPathReference(target))) {
+                            expr = c.expr;
+                            break triggerLoop;
+                        }
                     }
                 }
-            }
             }
         }
 

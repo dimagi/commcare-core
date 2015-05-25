@@ -593,6 +593,16 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
+     * Dependency-sorted enumerator for the triggerables present in the form.
+     *
+     * @return Enumerator of triggerables such that when an element X precedes
+     * Y then X doesn't have any references that are dependent on Y.
+     */
+    public Enumeration<Triggerable> getTriggerables() {
+        return triggerables.elements();
+    }
+
+    /**
      * @return All references in the form that are depended on by
      * calculate/relevancy conditions.
      */
