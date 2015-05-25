@@ -37,7 +37,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     public FixtureXmlParser(KXmlParser parser, boolean overwrite, IStorageUtilityIndexed<FormInstance> storage) {
-        super(parser, "fixture", null);
+        super(parser);
         this.overwrite = overwrite;
         this.storage = storage;
     }
