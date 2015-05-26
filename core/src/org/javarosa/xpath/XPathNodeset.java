@@ -156,12 +156,15 @@ public class XPathNodeset {
             throw new XPathTypeMismatchException("Location " + pathEvaluated + " was not found");
         }
     }
-
+    
     protected String nodeContents() {
         if (nodes == null) {
             return "Invalid Path: " + pathEvaluated;
         }
+        return printNodeContents(nodes);
+    }
 
+    public static String printNodeContents(Vector<TreeReference> nodes) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < nodes.size(); i++) {
             sb.append(nodes.elementAt(i).toString());
