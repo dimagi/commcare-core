@@ -58,18 +58,20 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
+     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
      */
-    public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-        if(name.toLowerCase().equals("case")) {
+    public TransactionParser getParser(KXmlParser parser) {
+        String namespace = parser.getNamespace();
+        String name = parser.getName();
+        if ("case".equalsIgnoreCase(name)) {
             return new AttachableCaseXMLParser(parser, caseTallies, tolerant, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
-        } else if(name.toLowerCase().equals("registration")) {
+        } else if("registration".equalsIgnoreCase(name)) {
             //TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the
             //restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
             return new UserXmlParser(parser, restoreId);
-        }  else if(namespace.toLowerCase().equals(LedgerXmlParsers.STOCK_XML_NAMESPACE)) {
+        }  else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(namespace)) {
             return new LedgerXmlParsers(parser, (IStorageUtilityIndexed)StorageManager.getStorage(Ledger.STORAGE_KEY));
-        } else if(name.toLowerCase().equals("message")) {
+        } else if("message".equalsIgnoreCase(name)) {
             return new TransactionParser<String> (parser, "message", null) {
 
             String nature = parser.getAttributeValue(null, "nature");
@@ -90,7 +92,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 }
             };
 
-        } else if (name.equalsIgnoreCase("Sync")) {
+        } else if ("sync".equalsIgnoreCase(name)) {
             return new TransactionParser<String> (parser, "Sync", null) {
                 public void commit(String parsed) throws IOException {
                     //do nothing
@@ -110,7 +112,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                     }
                 }
             };
-        } else if(name.toLowerCase().equals("fixture")) {
+        } else if("fixture".equalsIgnoreCase(name)) {
             return new FixtureXmlParser(parser);
         }
         return null;

@@ -91,9 +91,8 @@ public class StockXmlParserTests extends TestCase {
 
         TransactionParserFactory factory = new TransactionParserFactory() {
 
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-
-                if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+            public TransactionParser getParser(KXmlParser parser) {
+                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, null) {
 
                         /* (non-Javadoc)
