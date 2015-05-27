@@ -103,13 +103,17 @@ public class ResourceTable {
 
         if (dirty) {
             return RESOURCE_TABLE_UNCOMMITED;
-        } else if (isEmpty) {
+        }
+        if (isEmpty) {
             return RESOURCE_TABLE_EMPTY;
-        } else if (isFullyInstalled) {
+        }
+        if (isFullyInstalled) {
             return RESOURCE_TABLE_INSTALLED;
-        } else if (unstaged) {
+        }
+        if (unstaged) {
             return RESOURCE_TABLE_UNSTAGED;
-        } else if (upgrade) {
+        }
+        if (upgrade) {
             return RESOURCE_TABLE_UPGRADE;
         }
 
