@@ -275,10 +275,10 @@ public class Detail implements Externalizable {
     /**
      * Obsoleted - Don't use
      */
-    public int[] getHeaderSizeHints() {
-        return new Map<int[]>(new int[fields.length]) {
-            protected void map(DetailField f, int[] a, int i) {
-                a[i] = f.getHeaderHint();
+    public String[] getHeaderSizeHints() {
+        return new Map<String[]>(new String[fields.length]) {
+            protected void map(DetailField f, String[] a, int i) {
+                a[i] = f.getHeaderWidthHint();
             }
         }.go();
     }
@@ -286,10 +286,10 @@ public class Detail implements Externalizable {
     /**
      * Obsoleted - Don't use
      */
-    public int[] getTemplateSizeHints() {
-        return new Map<int[]>(new int[fields.length]) {
-            protected void map(DetailField f, int[] a, int i) {
-                a[i] = f.getTemplateHint();
+    public String[] getTemplateSizeHints() {
+        return new Map<String[]>(new String[fields.length]) {
+            protected void map(DetailField f, String[] a, int i) {
+                a[i] = f.getTemplateWidthHint();
             }
         }.go();
     }
