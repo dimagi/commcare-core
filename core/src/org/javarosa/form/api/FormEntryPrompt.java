@@ -201,7 +201,12 @@ public class FormEntryPrompt extends FormEntryCaption {
      * @return longText form
      */
     public String getConstraintText() {
-        return this.localizeText(getQuestion().getQuestionString("constraint"));
+        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString("constraint"));
+        if(newConstraintMsg != null){
+            return newConstraintMsg;
+        }
+        EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
+        return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), null);
     }
 
     public Vector<SelectChoice> getSelectChoices() {
