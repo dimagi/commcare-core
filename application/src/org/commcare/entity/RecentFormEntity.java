@@ -60,7 +60,7 @@ public class RecentFormEntity extends Entity<FormInstance> {
         if(header) {
             return new String[] {null, null} ;
         } else {
-            return new String[] {null, "36" };
+            return new String[] {null, "36%" };
         }
     }
 
