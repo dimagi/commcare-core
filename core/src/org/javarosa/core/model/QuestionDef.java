@@ -55,23 +55,6 @@ public class QuestionDef implements IFormElement, Localizable {
     private int controlType;
     private String appearanceAttr;
 
-    // The id (ref) pointing to the localized values of (pic-URIs,audio-URIs,text)
-
-    /*
-    private String textID;
-    private String labelInnerText;
-
-    private String hintText;
-    private String hintInnerText;
-    private String hintTextID;
-
-    private String helpTextID;
-    private String helpInnerText;
-    private String helpText;
-    */
-
-    private String constraintText;
-
     private Vector<SelectChoice> choices;
     private ItemsetBinding dynamicChoices;
 
@@ -311,16 +294,5 @@ public class QuestionDef implements IFormElement, Localizable {
             textID = textID.substring(0, textID.indexOf(";")); //trim away the form specifier
         }
         this.getQuestionString("label").setTextId(textID);
-    }
-
-    public void setConstraintTextID(String textRef){
-        QuestionString mString = this.getQuestionString("constraint");
-        if (mString != null) {
-            mString.setTextId(textRef);
-        } else{
-            mString = new QuestionString("constraint");
-            mString.setTextId(textRef);
-            this.putQuestionString("constraint", mString);
-        }
     }
 }

@@ -201,10 +201,13 @@ public class FormEntryPrompt extends FormEntryCaption {
      * @return longText form
      */
     public String getConstraintText() {
-        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString("constraint"));
+        // new constraint spec uses "alert" form XForm spec 8.2.4
+        // http://www.w3.org/TR/xforms/#ui-commonelems
+        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString("alert"));
         if(newConstraintMsg != null){
             return newConstraintMsg;
         }
+        // if not found, try to fall back to old jr:constraintMsg format http://www.w3.org/TR/xforms/#ui-commonelems
         EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
         return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), null);
     }
