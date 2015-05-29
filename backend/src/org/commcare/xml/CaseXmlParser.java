@@ -51,7 +51,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
      *                               contains create actions for cases which already exist.
      */
     public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites, IStorageUtilityIndexed storage) {
-        super(parser, "case", null);
+        super(parser);
         this.tallies = tallies;
         this.acceptCreateOverwrites = acceptCreateOverwrites;
         this.storage = storage;
