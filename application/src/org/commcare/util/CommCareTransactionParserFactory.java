@@ -72,7 +72,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         }  else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(namespace)) {
             return new LedgerXmlParsers(parser, (IStorageUtilityIndexed)StorageManager.getStorage(Ledger.STORAGE_KEY));
         } else if("message".equalsIgnoreCase(name)) {
-            return new TransactionParser<String> (parser, "message", null) {
+            return new TransactionParser<String>(parser) {
 
             String nature = parser.getAttributeValue(null, "nature");
 
@@ -93,7 +93,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             };
 
         } else if ("sync".equalsIgnoreCase(name)) {
-            return new TransactionParser<String> (parser, "Sync", null) {
+            return new TransactionParser<String>(parser) {
                 public void commit(String parsed) throws IOException {
                     //do nothing
                 }
