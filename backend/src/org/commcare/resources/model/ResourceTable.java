@@ -126,17 +126,17 @@ public class ResourceTable {
         storage.remove(resource);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException {
+    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) {
         resource.setInstaller(initializer);
         resource.setParentId(parentId);
         addResource(resource, status);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId) throws StorageFullException {
+    public void addResource(Resource resource, ResourceInstaller initializer, String parentId) {
         addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
     }
 
-    public void addResource(Resource resource, int status) throws StorageFullException {
+    public void addResource(Resource resource, int status) {
         Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
         for (Integer i : existing) {
             Resource r = (Resource)storage.read(i.intValue());
