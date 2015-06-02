@@ -188,8 +188,8 @@ public class DetailField implements Externalizable {
         if (ExtUtil.readBool(in)) {
             relevancy = ExtUtil.readString(in);
         }
-        headerWidthHint = ExtUtil.readString(in);
-        templateWidthHint = ExtUtil.readString(in);
+        headerWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        templateWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         headerForm = ExtUtil.readString(in);
         templateForm = ExtUtil.readString(in);
         sortOrder = ExtUtil.readInt(in);
@@ -210,8 +210,8 @@ public class DetailField implements Externalizable {
         if (relevantSet) {
             ExtUtil.writeString(out, relevancy);
         }
-        ExtUtil.writeString(out, headerWidthHint);
-        ExtUtil.writeString(out, templateWidthHint);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(headerWidthHint));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(templateWidthHint));
         ExtUtil.writeString(out, headerForm);
         ExtUtil.writeString(out, templateForm);
         ExtUtil.writeNumeric(out, sortOrder);
