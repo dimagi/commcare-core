@@ -676,7 +676,6 @@ public class XFormParser {
     private void parseTitle(Element e) {
         Vector usedAtts = new Vector(); //no attributes parsed in title.
         String title = getXMLText(e, true);
-        System.out.println("Title: \"" + title + "\"");
         _f.setTitle(title);
         if (_f.getName() == null) {
             //Jan 9, 2009 - ctsims
