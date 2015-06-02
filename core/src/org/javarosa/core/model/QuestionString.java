@@ -27,6 +27,11 @@ public class QuestionString implements Externalizable {
         this.name = name;
     }
 
+    public QuestionString(String name, String inner){
+        this.name = name;
+        this.textInner = inner;
+    }
+
     public String getName(){
         return name;
     }

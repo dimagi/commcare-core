@@ -280,7 +280,6 @@ public class QuestionDef implements IFormElement, Localizable {
     }
 
     public String getTextID() {
-        System.out.println("507 getting text id: " + this.getQuestionString("label"));
         return this.getQuestionString("label").getTextId();
     }
 

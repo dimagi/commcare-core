@@ -85,6 +85,21 @@ public class FormEntryCaption implements FormElementStateListener {
         return getQuestionText(getTextID());
     }
 
+    /**
+    * Convenience method
+    * Get shortText form of text for THIS element (if available)
+    * !!Falls back to default form if 'short' form does not exist.!!
+    * Use getSpecialFormQuestionText() if you want short form only.
+    *
+    * @return shortText form
+    */
+    public String getShortText() {
+        String returnText = getSpecialFormQuestionText(getTextID(), TEXT_FORM_SHORT);
+        if (returnText == null) {
+            returnText = getLongText();
+            }
+        return returnText;
+    }
 
     /**
      * Convenience method

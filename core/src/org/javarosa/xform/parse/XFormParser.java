@@ -1048,7 +1048,7 @@ public class XFormParser {
         if (ref != null) {
             if (ref.startsWith(ITEXT_OPEN) && ref.endsWith(ITEXT_CLOSE)) {
                 String textRef = ref.substring(ITEXT_OPEN.length(), ref.indexOf(ITEXT_CLOSE));
-                verifyTextMappings(textRef, "<" + name + ">", false);
+                verifyTextMappings(textRef, "<" + name + ">", true);
                 mQuestionString.setTextId(textRef);
             } else {
                 // TODO: shouldn't this raise an XFormParseException?
