@@ -101,7 +101,6 @@ public class FormEntryCaption implements FormElementStateListener {
         return returnText;
     }
 
-
     /**
      * Convenience method
      * Get audio URI from Text form for THIS element (if available)
@@ -120,6 +119,16 @@ public class FormEntryCaption implements FormElementStateListener {
      */
     public String getImageText() {
         return getSpecialFormQuestionText(getTextID(), TEXT_FORM_IMAGE);
+    }
+
+    /**
+     * Convenience method
+     * Get video URI from Text form for THIS element (if available)
+     *
+     * @return audio URI form stored in current locale of Text, returns null if not available
+     */
+    public String getVideoText() {
+        return getSpecialFormQuestionText(getTextID(), TEXT_FORM_VIDEO);
     }
 
     /**
