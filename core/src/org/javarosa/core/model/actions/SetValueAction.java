@@ -6,6 +6,7 @@ package org.javarosa.core.model.actions;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Vector;
 
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
@@ -19,6 +20,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathNodeset;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -75,10 +78,29 @@ public class SetValueAction extends Action {
         } else {
             result = XPathFuncExpr.unpack(value.eval(model.getMainInstance(), context));
         }
+        
+        String failMessage = "Target of TreeReference " + target.toString(true) + " could not be resolved!";
+        
+        //If the reference has predicates we need to qualify it further.
+        if(qualifiedReference.hasPredicates()) {
+            Vector<TreeReference> references = context.expandReference(qualifiedReference);
+            if(references.size() == 0) {
+                throw new NullPointerException(failMessage);
+            }
+            else if(references.size() > 1) {
+                //The spec for single value binding says we should pick the first one,
+                //but that's not how we do things to prevent errors. We're going to fail
+                //the same way a nodeset does
+                throw new XPathTypeMismatchException("XPath nodeset has more than one node [" + XPathNodeset.printNodeContents(references) + "]; Actions can only target a single node reference. Refine path expression to match only one node.");
+            }
+            else {
+                qualifiedReference = references.elementAt(0);
+            }
+        }
 
         AbstractTreeElement node = context.resolveReference(qualifiedReference);
         if (node == null) {
-            throw new NullPointerException("Target of TreeReference " + qualifiedReference.toString(true) + " could not be resolved!");
+            throw new NullPointerException(failMessage);
         }
         int dataType = node.getDataType();
         IAnswerData val = Recalculate.wrapData(result, dataType);
