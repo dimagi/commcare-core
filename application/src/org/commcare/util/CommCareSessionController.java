@@ -71,10 +71,11 @@ public class CommCareSessionController {
         entryTable.clear();
         menuTable.clear();
         Enumeration en = session.platform.getInstalledSuites().elements();
-        EvaluationContext ec  = null;
         while(en.hasMoreElements()) {
             Suite suite = (Suite)en.nextElement();
             for(Menu m : suite.getMenus()) {
+                //don't do this lazily for now because it changes per module
+                EvaluationContext ec  = null;
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (relevance != null) {
