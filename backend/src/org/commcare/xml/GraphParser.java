@@ -136,9 +136,10 @@ public class GraphParser extends ElementParser<Graph> {
 
         return series;
     }
-    
+
     /**
      * Get an XPath function from a node and attempt to parse it.
+     *
      * @param name Node name, also used in any error message.
      * @return String representation of the XPath function.
      * @throws InvalidStructureException
@@ -148,8 +149,7 @@ public class GraphParser extends ElementParser<Graph> {
         String function = parser.getAttributeValue(null, "function");
         try {
             XPathParseTool.parseXPath(function);
-        }
-        catch (XPathSyntaxException e) {
+        } catch (XPathSyntaxException e) {
             throw new InvalidStructureException("Invalid " + name + " function in graph: " + function + ". " + e.getMessage(), parser);
         }
         return function;

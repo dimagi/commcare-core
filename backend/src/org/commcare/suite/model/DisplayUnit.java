@@ -38,11 +38,11 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         this.audioReference = audioReference;
     }
 
-    public DisplayData evaluate(){
+    public DisplayData evaluate() {
         return evaluate(null);
     }
 
-    public DisplayData evaluate(EvaluationContext ec){
+    public DisplayData evaluate(EvaluationContext ec) {
         String imageRef = imageReference == null ? null : imageReference.evaluate(ec);
         String audioRef = audioReference == null ? null : audioReference.evaluate(ec);
         return new DisplayData(name.evaluate(ec),

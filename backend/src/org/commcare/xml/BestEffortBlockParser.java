@@ -25,7 +25,7 @@ public abstract class BestEffortBlockParser extends TransactionParser<Hashtable<
     String[] elements;
 
     public BestEffortBlockParser(KXmlParser parser, String name, String namespace, String[] elements) {
-        super(parser, name, namespace);
+        super(parser);
         this.elements = elements;
     }
 

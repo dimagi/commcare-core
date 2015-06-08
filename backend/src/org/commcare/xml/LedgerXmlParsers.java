@@ -50,7 +50,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
      * @param parser The parser for incoming XML.
      */
     public LedgerXmlParsers(KXmlParser parser, IStorageUtilityIndexed<Ledger> storage) {
-        super(parser, null, null);
+        super(parser);
         this.storage = storage;
     }
 

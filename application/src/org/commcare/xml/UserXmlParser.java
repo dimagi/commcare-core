@@ -24,7 +24,7 @@ public class UserXmlParser extends TransactionParser<User> {
     }
 
     public UserXmlParser(KXmlParser parser, String syncToken) {
-        super(parser, "registration", null);
+        super(parser);
         this.syncToken = syncToken;
     }
 

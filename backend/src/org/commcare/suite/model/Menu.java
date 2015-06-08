@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -21,9 +21,8 @@ import java.util.Vector;
  * <p>A Menu definition describes the structure of how
  * actions should be provided to the user in a CommCare
  * application.</p>
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class Menu implements Externalizable, MenuDisplayable {
     DisplayUnit display;
@@ -33,14 +32,14 @@ public class Menu implements Externalizable, MenuDisplayable {
     String root;
     String rawRelevance;
     XPathExpression relevance;
-    
+
     /**
      * Serialization only!!!
      */
     public Menu() {
-        
+
     }
-    
+
     public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
         this.id = id;
         this.root = root;
@@ -50,7 +49,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         this.commandIds = commandIds;
         this.commandExprs = commandExprs;
     }
-    
+
     /**
      * @return The ID of what menu an option to navigate to
      * this menu should be displayed in.
@@ -58,7 +57,7 @@ public class Menu implements Externalizable, MenuDisplayable {
     public String getRoot() {
         return root;
     }
-    
+
     /**
      * @return A Text which should be displayed to the user as
      * the action which will display this menu.
@@ -66,16 +65,16 @@ public class Menu implements Externalizable, MenuDisplayable {
     public Text getName() {
         return display.getText();
     }
-    
+
     /**
      * @return The ID of this menu. <p>If this value is "root"
      * many CommCare applications will support displaying this
-     * menu's options at the app home screen</p> 
+     * menu's options at the app home screen</p>
      */
     public String getId() {
         return id;
     }
-    
+
     /**
      * @return A parsed XPath expression that determines
      * whether or not to display this menu.
@@ -86,7 +85,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         }
         return relevance;
     }
-    
+
     /**
      * @return A string representing an XPath expression to determine
      * whether or not to display this menu.
@@ -103,14 +102,14 @@ public class Menu implements Externalizable, MenuDisplayable {
         //UNSAFE! UNSAFE!
         return commandIds;
     }
-    
+
     public XPathExpression getCommandRelevance(int index) throws XPathSyntaxException {
         //Don't cache this for now at all
         return commandExprs[index] == null ? null : XPathParseTool.parseXPath(commandExprs[index]);
     }
-    
+
     /**
-     * @param index the 
+     * @param index the
      * @return the raw xpath string for a relevant condition (if available). Largely for
      * displaying to the user in the event of a failure
      */
@@ -127,30 +126,30 @@ public class Menu implements Externalizable, MenuDisplayable {
         root = ExtUtil.readString(in);
         rawRelevance = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class);
-        commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class),pf);
-        commandExprs =  new String[ExtUtil.readInt(in)];
-        for(int i = 0 ; i < commandExprs.length; ++i) {
-            if(ExtUtil.readBool(in)) {
+        commandIds = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        commandExprs = new String[ExtUtil.readInt(in)];
+        for (int i = 0; i < commandExprs.length; ++i) {
+            if (ExtUtil.readBool(in)) {
                 commandExprs[i] = ExtUtil.readString(in);
             }
         }
-        
+
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out,ExtUtil.emptyIfNull(id));
-        ExtUtil.writeString(out,root);
-        ExtUtil.writeString(out,ExtUtil.emptyIfNull(rawRelevance));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
+        ExtUtil.writeString(out, root);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(rawRelevance));
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(commandIds));
         ExtUtil.writeNumeric(out, commandExprs.length);
-        for(int i = 0 ; i < commandExprs.length ; ++i) {
-            if(commandExprs[i] == null) {
+        for (int i = 0; i < commandExprs.length; ++i) {
+            if (commandExprs[i] == null) {
                 ExtUtil.writeBool(out, false);
-            } else{
+            } else {
                 ExtUtil.writeBool(out, true);
                 ExtUtil.writeString(out, commandExprs[i]);
             }
@@ -159,22 +158,28 @@ public class Menu implements Externalizable, MenuDisplayable {
 
 
     public String getImageURI() {
-        if(display.getImageURI() == null) { return null; }
+        if (display.getImageURI() == null) {
+            return null;
+        }
         return display.getImageURI().evaluate();
     }
-    
+
     public String getAudioURI() {
-        if(display.getAudioURI() == null) { return null; }
+        if (display.getAudioURI() == null) {
+            return null;
+        }
         return display.getAudioURI().evaluate();
     }
 
     public String getDisplayText() {
-        if(display.getText() == null) { return null; }
+        if (display.getText() == null) {
+            return null;
+        }
         return display.getText().evaluate();
     }
 
     // unsafe! assumes that xpath expressions evaluate properly...
-    public int indexOfCommand(String cmd){
+    public int indexOfCommand(String cmd) {
         return commandIds.indexOf(cmd);
     }
 

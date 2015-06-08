@@ -85,17 +85,23 @@ public class Entry implements Externalizable, MenuDisplayable {
 
 
     public String getImageURI() {
-        if(display.getImageURI() == null) { return null; }
+        if (display.getImageURI() == null) {
+            return null;
+        }
         return display.getImageURI().evaluate();
     }
 
     public String getAudioURI() {
-        if(display.getAudioURI() == null) { return null; }
+        if (display.getAudioURI() == null) {
+            return null;
+        }
         return display.getAudioURI().evaluate();
     }
 
     public String getDisplayText() {
-        if(display.getText() == null) { return null; }
+        if (display.getText() == null) {
+            return null;
+        }
         return display.getText().evaluate();
     }
 

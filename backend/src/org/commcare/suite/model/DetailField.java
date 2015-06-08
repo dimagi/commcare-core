@@ -44,8 +44,8 @@ public class DetailField implements Externalizable {
     private Text background;
     private String relevancy;
     private XPathExpression parsedRelevancy;
-    private int headerHint = -1;
-    private int templateHint = -1;
+    private String headerWidthHint = null;  // Something like "500" or "10%"
+    private String templateWidthHint = null;
     private String headerForm;
     private String templateForm;
     private int sortOrder = -1;
@@ -65,7 +65,7 @@ public class DetailField implements Externalizable {
 
     public DetailField(
             Text header, DetailTemplate template, Text sort, String relevancy,
-            int headerHint, int templateHint,
+            String headerWidthHint, String templateWidthHint,
             String headerForm, String templateForm,
             int sortOrder, int sortDirection, int sortType
     ) {
@@ -73,8 +73,8 @@ public class DetailField implements Externalizable {
         this.template = template;
         this.sort = sort;
         this.relevancy = relevancy;
-        this.headerHint = headerHint;
-        this.templateHint = templateHint;
+        this.headerWidthHint = headerWidthHint;
+        this.templateWidthHint = templateWidthHint;
         this.headerForm = headerForm;
         this.templateForm = templateForm;
         this.sortOrder = sortOrder;
@@ -125,18 +125,18 @@ public class DetailField implements Externalizable {
     }
 
     /**
-     * @return the headerHint
+     * @return the headerWidthHint
      */
-    public int getHeaderHint() {
-        return headerHint;
+    public String getHeaderWidthHint() {
+        return headerWidthHint;
     }
 
 
     /**
      * @return the templateHint
      */
-    public int getTemplateHint() {
-        return templateHint;
+    public String getTemplateWidthHint() {
+        return templateWidthHint;
     }
 
 
@@ -188,8 +188,8 @@ public class DetailField implements Externalizable {
         if (ExtUtil.readBool(in)) {
             relevancy = ExtUtil.readString(in);
         }
-        headerHint = ExtUtil.readInt(in);
-        templateHint = ExtUtil.readInt(in);
+        headerWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        templateWidthHint = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         headerForm = ExtUtil.readString(in);
         templateForm = ExtUtil.readString(in);
         sortOrder = ExtUtil.readInt(in);
@@ -210,8 +210,8 @@ public class DetailField implements Externalizable {
         if (relevantSet) {
             ExtUtil.writeString(out, relevancy);
         }
-        ExtUtil.writeNumeric(out, headerHint);
-        ExtUtil.writeNumeric(out, templateHint);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(headerWidthHint));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(templateWidthHint));
         ExtUtil.writeString(out, headerForm);
         ExtUtil.writeString(out, templateForm);
         ExtUtil.writeNumeric(out, sortOrder);
@@ -302,18 +302,18 @@ public class DetailField implements Externalizable {
 
 
         /**
-         * @param headerHint the headerHint to set
+         * @param headerWidthHint the headerWidthHint to set
          */
-        public void setHeaderHint(int headerHint) {
-            field.headerHint = headerHint;
+        public void setHeaderWidthHint(String hint) {
+            field.headerWidthHint = hint;
         }
 
 
         /**
-         * @param templateHint the templateHint to set
+         * @param templateWidthHint the templateWidthHint to set
          */
-        public void setTemplateHint(int templateHint) {
-            field.templateHint = templateHint;
+        public void setTemplateWidthHint(String hint) {
+            field.templateWidthHint = hint;
         }
 
 

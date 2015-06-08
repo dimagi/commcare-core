@@ -119,14 +119,11 @@ public class DataModelPullParser extends ElementParser<Boolean> {
             }
 
             String name = parser.getName();
-            String namespace = parser.getNamespace();
-
-            int depth = parser.getDepth();
             if (name == null) {
                 continue;
             }
 
-            TransactionParser transaction = factory.getParser(name, namespace, parser);
+            TransactionParser transaction = factory.getParser(parser);
             if (transaction == null) {
                 //nothing to be done for this element, recurse?
                 if (deep) {
@@ -140,7 +137,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
                         transaction.parse();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        deal(e, depth, name);
+                        deal(e, parser.getDepth(), name);
                     }
                 } else {
                     transaction.parse();
