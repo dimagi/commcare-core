@@ -193,6 +193,26 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
+    public String getConstraintText(IAnswerData attemptedValue) {
+        return getConstraintText(null, attemptedValue);
+    }
+
+    public String getConstraintText(String textForm, IAnswerData attemptedValue) {
+        if (mTreeElement.getConstraint() == null) {
+            return null;
+        } else {
+            EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
+            if (textForm != null) {
+                ec.setOutputTextForm(textForm);
+            }
+            if (attemptedValue != null) {
+                ec.isConstraint = true;
+                ec.candidateValue = attemptedValue;
+            }
+            return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), textForm);
+        }
+    }
+
     /**
      * Convenience method
      * Get longText form of text for THIS element (if available)
@@ -317,8 +337,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         QuestionDef qd = (QuestionDef)element;
         return localizeText(qd.getQuestionString(XFormParser.HELP_ELEMENT));
     }
-
-
 
     /**
      * Helper for getHintText, getHelpText, getConstraintText. Tries to localize text form textID,
