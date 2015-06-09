@@ -27,6 +27,7 @@ import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xform.parse.XFormParser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -119,7 +120,7 @@ public class QuestionDef implements IFormElement, Localizable {
 
 
     public String getHelpTextID() {
-        return mQuestionStrings.get("help") == null ? null : mQuestionStrings.get("help").getTextId();
+        return mQuestionStrings.get(XFormParser.HELP_ELEMENT) == null ? null : mQuestionStrings.get(XFormParser.HELP_ELEMENT).getTextId();
     }
 
     public void addSelectChoice(SelectChoice choice) {
@@ -280,11 +281,11 @@ public class QuestionDef implements IFormElement, Localizable {
     }
 
     public String getTextID() {
-        return this.getQuestionString("label").getTextId();
+        return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextId();
     }
 
     public String getLabelInnerText() {
-        return this.getQuestionString("label").getTextInner();
+        return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextInner();
     }
 
     public void setTextID(String textID) {
@@ -292,6 +293,6 @@ public class QuestionDef implements IFormElement, Localizable {
             System.err.println("Warning: TextID contains ;form modifier:: \"" + textID.substring(textID.indexOf(";")) + "\"... will be stripped.");
             textID = textID.substring(0, textID.indexOf(";")); //trim away the form specifier
         }
-        this.getQuestionString("label").setTextId(textID);
+        this.getQuestionString(XFormParser.LABEL_ELEMENT).setTextId(textID);
     }
 }

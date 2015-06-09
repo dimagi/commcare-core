@@ -37,6 +37,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.formmanager.view.IQuestionWidget;
+import org.javarosa.xform.parse.XFormParser;
 
 import java.util.Vector;
 
@@ -203,7 +204,7 @@ public class FormEntryPrompt extends FormEntryCaption {
     public String getConstraintText() {
         // new constraint spec uses "alert" form XForm spec 8.2.4
         // http://www.w3.org/TR/xforms/#ui-commonelems
-        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString("alert"));
+        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT));
         if(newConstraintMsg != null){
             return newConstraintMsg;
         }
@@ -272,7 +273,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
 
         QuestionDef qd = (QuestionDef)element;
-        return localizeText(qd.getQuestionString("hint"));
+        return localizeText(qd.getQuestionString(XFormParser.HINT_ELEMENT));
     }
 
     /**
@@ -282,7 +283,7 @@ public class FormEntryPrompt extends FormEntryCaption {
      */
     public boolean hasHelp() {
 
-        if(this.getQuestion().getQuestionString("help") != null){
+        if(this.getQuestion().getQuestionString(XFormParser.HELP_ELEMENT) != null){
             return true;
         }
 
@@ -314,7 +315,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
 
         QuestionDef qd = (QuestionDef)element;
-        return localizeText(qd.getQuestionString("help"));
+        return localizeText(qd.getQuestionString(XFormParser.HELP_ELEMENT));
     }
 
 

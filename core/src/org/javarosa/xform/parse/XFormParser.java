@@ -93,7 +93,10 @@ public class XFormParser {
     private static final String FORM_ATTR = "form";
     private static final String APPEARANCE_ATTR = "appearance";
     private static final String NODESET_ATTR = "nodeset";
-    private static final String LABEL_ELEMENT = "label";
+    public static final String LABEL_ELEMENT = "label";
+    public static final String HELP_ELEMENT = "help";
+    public static final String HINT_ELEMENT = "hint";
+    public static final String CONSTRAINT_ELEMENT = "alert";
     private static final String VALUE = "value";
     private static final String ITEXT_CLOSE = "')";
     private static final String ITEXT_OPEN = "jr:itext('";
@@ -1000,8 +1003,8 @@ public class XFormParser {
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
             String childName = (child != null ? child.getName() : null);
 
-            if (LABEL_ELEMENT.equals(childName) || "hint".equals(childName)
-                    || "help".equals(childName) || "alert".equals(childName)) {
+            if (LABEL_ELEMENT.equals(childName) || HINT_ELEMENT.equals(childName)
+                    || HELP_ELEMENT.equals(childName) || CONSTRAINT_ELEMENT.equals(childName)) {
                 parseHelperText(question, child);
             } else if (isSelect && "item".equals(childName)) {
                 parseItem(question, child);
