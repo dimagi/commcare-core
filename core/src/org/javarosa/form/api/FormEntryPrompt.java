@@ -16,13 +16,12 @@
 
 package org.javarosa.form.api;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -38,6 +37,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.formmanager.view.IQuestionWidget;
+import org.javarosa.xform.parse.XFormParser;
+
+import java.util.Vector;
 
 
 /**
@@ -191,10 +193,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
-    public String getConstraintText() {
-        return getConstraintText(null);
-    }
-
     public String getConstraintText(IAnswerData attemptedValue) {
         return getConstraintText(null, attemptedValue);
     }
@@ -215,6 +213,26 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
+    /**
+     * Convenience method
+     * Get longText form of text for THIS element (if available)
+     * !!Falls back to default form if 'long' form does not exist.!!
+     * Use getSpecialFormQuestionText() if you want short form only.
+     *
+     * @return longText form
+     */
+    public String getConstraintText() {
+        // new constraint spec uses "alert" form XForm spec 8.2.4
+        // http://www.w3.org/TR/xforms/#ui-commonelems
+        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT));
+        if(newConstraintMsg != null){
+            return newConstraintMsg;
+        }
+        // if not found, try to fall back to old jr:constraintMsg format http://www.w3.org/TR/xforms/#ui-commonelems
+        EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
+        return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), null);
+    }
+
     public Vector<SelectChoice> getSelectChoices() {
         QuestionDef q = getQuestion();
 
@@ -229,15 +247,6 @@ public class FormEntryPrompt extends FormEntryCaption {
             return q.getChoices();
         }
     }
-
-    public void expireDynamicChoices() {
-        dynamicChoicesPopulated = false;
-        ItemsetBinding itemset = getQuestion().getDynamicChoices();
-        if (itemset != null) {
-            itemset.clearChoices();
-        }
-    }
-
 
     public boolean isRequired() {
         return mTreeElement.isRequired();
@@ -284,7 +293,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
 
         QuestionDef qd = (QuestionDef)element;
-        return localizeText(qd.getHintText(), qd.getHintTextID(), qd.getHintInnerText());
+        return localizeText(qd.getQuestionString(XFormParser.HINT_ELEMENT));
     }
 
     /**
@@ -293,8 +302,8 @@ public class FormEntryPrompt extends FormEntryCaption {
      * @return
      */
     public boolean hasHelp() {
-        String text = getHelpText();
-        if (text != null && !"".equals(text)) {
+
+        if(this.getQuestion().getQuestionString(XFormParser.HELP_ELEMENT) != null){
             return true;
         }
 
@@ -326,23 +335,26 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
 
         QuestionDef qd = (QuestionDef)element;
-        return localizeText(qd.getHelpText(), qd.getHelpTextID(), qd.getHelpInnerText());
+        return localizeText(qd.getQuestionString(XFormParser.HELP_ELEMENT));
     }
 
     /**
-     * Helper for getHintText and getHelpText.
+     * Helper for getHintText, getHelpText, getConstraintText. Tries to localize text form textID,
+     * falls back to innerText if not available.
      *
-     * @param fallbackText
-     * @param textID
-     * @param innerText
+     * @param mQuestionString
      * @return
      */
-    private String localizeText(String fallbackText, String textID, String innerText) {
+    private String localizeText(QuestionString mQuestionString) {
+
+        if(mQuestionString == null){return null;}
+
+        String fallbackText = mQuestionString.getTextFallback();
         try {
-            if (textID != null) {
-                fallbackText = localizer().getLocalizedText(textID);
+            if (mQuestionString.getTextId() != null) {
+                fallbackText = getQuestionText(mQuestionString.getTextId());
             } else {
-                fallbackText = substituteStringArgs(((QuestionDef)element).getHelpInnerText());
+                fallbackText = substituteStringArgs(mQuestionString.getTextInner());
             }
         } catch (NoLocalizedTextException nlt) {
             //use fallback
@@ -382,7 +394,6 @@ public class FormEntryPrompt extends FormEntryCaption {
      *
      * @param sel the selection (item), if <code>null</code> will throw a IllegalArgumentException
      * @return Question Text.  <code>null</code> if no text for this element exists (after all fallbacks).
-     * @throws RunTimeException         if this method is called on an element that is NOT a QuestionDef
      * @throws IllegalArgumentException if Selection is <code>null</code>
      */
     public String getSelectItemText(Selection sel) {
@@ -422,7 +433,6 @@ public class FormEntryPrompt extends FormEntryCaption {
      * @param sel  - The Item whose text you're trying to retrieve.
      * @param form - Special text form of Item you're trying to retrieve.
      * @return Special Form Text. <code>null</code> if no text for this element exists (with the specified special form).
-     * @throws RunTimeException         if this method is called on an element that is NOT a QuestionDef
      * @throws IllegalArgumentException if <code>sel == null</code>
      */
     public String getSpecialFormSelectItemText(Selection sel, String form) {

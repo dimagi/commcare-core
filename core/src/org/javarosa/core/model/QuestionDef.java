@@ -16,23 +16,25 @@
 
 package org.javarosa.core.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.lang.String;
-
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xform.parse.XFormParser;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * The definition of a Question to be presented to users when
@@ -53,18 +55,11 @@ public class QuestionDef implements IFormElement, Localizable {
     // The type of widget. eg TextInput,Slider,List etc.
     private int controlType;
     private String appearanceAttr;
-    private String hintTextID;
-    private String helpTextID;
-    private String labelInnerText;
-    private String hintText;
-    // The id (ref) pointing to the localized values of (pic-URIs,audio-URIs,text)
-    private String textID;
-    private String hintInnerText;
-    private String helpInnerText;
-    private String helpText;
 
     private Vector<SelectChoice> choices;
     private ItemsetBinding dynamicChoices;
+
+    private Hashtable<String, QuestionString> mQuestionStrings;
 
     Vector observers;
 
@@ -76,6 +71,19 @@ public class QuestionDef implements IFormElement, Localizable {
         setID(id);
         setControlType(controlType);
         observers = new Vector();
+        mQuestionStrings = new Hashtable<String, QuestionString>();
+    }
+
+    public void putQuestionString(String key, QuestionString value){
+        mQuestionStrings.put(key, value);
+    }
+
+    public QuestionString getQuestionString(String key){
+        return mQuestionStrings.get(key);
+    }
+
+    public boolean hasQuestionString(String key){
+        return (mQuestionStrings.get(key) != null);
     }
 
     public int getID() {
@@ -110,42 +118,9 @@ public class QuestionDef implements IFormElement, Localizable {
         this.appearanceAttr = appearanceAttr;
     }
 
-    /**
-     * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
-     */
-    public String getHintText() {
-        return hintText;
-    }
-
-    public String getHelpText() {
-        return helpText;
-    }
-
-    public void setHelpText(String text) {
-        helpText = text;
-    }
-
-    /**
-     * Only if there is no localizable version of the &lt;hint&gt; available should this method be used
-     */
-    public void setHintText(String hintText) {
-        this.hintText = hintText;
-    }
-
-    public String getHintTextID() {
-        return hintTextID;
-    }
 
     public String getHelpTextID() {
-        return helpTextID;
-    }
-
-    public void setHintTextID(String textID) {
-        this.hintTextID = textID;
-    }
-
-    public void setHelpTextID(String textID) {
-        this.helpTextID = textID;
+        return mQuestionStrings.get(XFormParser.HELP_ELEMENT) == null ? null : mQuestionStrings.get(XFormParser.HELP_ELEMENT).getTextId();
     }
 
     public void addSelectChoice(SelectChoice choice) {
@@ -252,22 +227,14 @@ public class QuestionDef implements IFormElement, Localizable {
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
-        setAppearanceAttr((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setLabelInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHintInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpTextID((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-        setHelpInnerText((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
-
+        setAppearanceAttr((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
         setControlType(ExtUtil.readInt(dis));
         choices = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(dis, new ExtWrapList(SelectChoice.class), pf));
         for (int i = 0; i < getNumChoices(); i++) {
             choices.elementAt(i).setIndex(i);
         }
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
+        mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
     }
 
     /*
@@ -278,19 +245,10 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));
-        ExtUtil.write(dos, new ExtWrapNullable(getTextID()));
-        ExtUtil.write(dos, new ExtWrapNullable(getLabelInnerText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHintText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHintTextID()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHintInnerText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpText()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpTextID()));
-        ExtUtil.write(dos, new ExtWrapNullable(getHelpInnerText()));
-
         ExtUtil.writeNumeric(dos, getControlType());
-
         ExtUtil.write(dos, new ExtWrapList(ExtUtil.emptyIfNull(choices)));
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
+        ExtUtil.write(dos, new ExtWrapMap(String.class, QuestionString.class));
     }
 
     /* === MANAGING OBSERVERS === */
@@ -322,32 +280,12 @@ public class QuestionDef implements IFormElement, Localizable {
         return 1;
     }
 
-    public void setLabelInnerText(String labelInnerText) {
-        this.labelInnerText = labelInnerText;
+    public String getTextID() {
+        return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextId();
     }
 
     public String getLabelInnerText() {
-        return labelInnerText;
-    }
-
-    public void setHintInnerText(String innerText) {
-        this.hintInnerText = innerText;
-    }
-
-    public void setHelpInnerText(String innerText) {
-        this.helpInnerText = innerText;
-    }
-
-    public String getHintInnerText() {
-        return hintInnerText;
-    }
-
-    public String getHelpInnerText() {
-        return helpInnerText;
-    }
-
-    public String getTextID() {
-        return textID;
+        return this.getQuestionString(XFormParser.LABEL_ELEMENT).getTextInner();
     }
 
     public void setTextID(String textID) {
@@ -355,6 +293,6 @@ public class QuestionDef implements IFormElement, Localizable {
             System.err.println("Warning: TextID contains ;form modifier:: \"" + textID.substring(textID.indexOf(";")) + "\"... will be stripped.");
             textID = textID.substring(0, textID.indexOf(";")); //trim away the form specifier
         }
-        this.textID = textID;
+        this.getQuestionString(XFormParser.LABEL_ELEMENT).setTextId(textID);
     }
 }

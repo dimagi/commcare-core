@@ -86,21 +86,20 @@ public class FormEntryCaption implements FormElementStateListener {
     }
 
     /**
-     * Convenience method
-     * Get shortText form of text for THIS element (if available)
-     * !!Falls back to default form if 'short' form does not exist.!!
-     * Use getSpecialFormQuestionText() if you want short form only.
-     *
-     * @return shortText form
-     */
+    * Convenience method
+    * Get shortText form of text for THIS element (if available)
+    * !!Falls back to default form if 'short' form does not exist.!!
+    * Use getSpecialFormQuestionText() if you want short form only.
+    *
+    * @return shortText form
+    */
     public String getShortText() {
         String returnText = getSpecialFormQuestionText(getTextID(), TEXT_FORM_SHORT);
         if (returnText == null) {
             returnText = getLongText();
-        }
+            }
         return returnText;
     }
-
 
     /**
      * Convenience method
@@ -120,6 +119,16 @@ public class FormEntryCaption implements FormElementStateListener {
      */
     public String getImageText() {
         return getSpecialFormQuestionText(getTextID(), TEXT_FORM_IMAGE);
+    }
+
+    /**
+     * Convenience method
+     * Get video URI from Text form for THIS element (if available)
+     *
+     * @return audio URI form stored in current locale of Text, returns null if not available
+     */
+    public String getVideoText() {
+        return getSpecialFormQuestionText(getTextID(), TEXT_FORM_VIDEO);
     }
 
     /**
