@@ -3,6 +3,7 @@ package org.commcare.suite.model.graph;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -176,4 +177,13 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Graph{" +
+                "mType='" + mType + '\'' +
+                ", mSeries=" + Arrays.toString(mSeries.toArray()) +
+                ", mConfiguration=" + Arrays.toString(mConfiguration.entrySet().toArray()) +
+                ", mAnnotations=" + Arrays.toString(mAnnotations.toArray()) +
+                '}';
+    }
 }

@@ -150,7 +150,6 @@ public class SessionDatum implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
     }
 
-
     /**
      * Takes an ID and identifies a reference in the provided context which corresponds
      * to that element if one can be found.
@@ -178,5 +177,19 @@ public class SessionDatum implements Externalizable {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "id: " + this.id + " "
+                + "shortDetail: " + this.shortDetail + " "
+                + "longDetail: " + this.longDetail + " "
+                + "inlineDetail: " + this.inlineDetail + " "
+                + "persistentDetail: " + this.persistentDetail + " "
+                + "value: " + this.value + " " +
+                super.toString()
+                + "]"
+                ;
     }
 }
