@@ -1,0 +1,110 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Constraints for simple and select answers</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+                      xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                      uiVersion="1" version="279" name="Constraints for simple and select answers">
+
+                    <itemdata>
+                        <item id="a" value="10">Item A</item>
+                        <item id="b" value="20">Item B</item>
+                        <item id="c" value="30">Item C</item>
+                        <item id="d" value="40">Item D</item>
+                    </itemdata>
+
+                    <select-without-constraint-answer/>
+                    <select-with-constraint-fail-answer/>
+                    <select-with-constraint-pass-answer/>
+
+                    <simple-without-constraint-answer/>
+                    <simple-with-constraint-fail-answer/>
+                    <simple-with-constraint-pass-answer/>
+
+                </data>
+            </instance>
+
+            <bind nodeset="/data/select-without-constraint-answer"/>
+            <bind nodeset="/data/select-with-constraint-fail-answer" constraint=". < 30"/>
+            <bind nodeset="/data/select-with-constraint-pass-answer" constraint=". < 30"/>
+
+            <bind nodeset="/data/simple-without-constraint-answer"/>
+            <bind nodeset="/data/simple-with-constraint-fail-answer" type="xsd:int"
+                  constraint=". < 10"/>
+            <bind nodeset="/data/simple-with-constraint-pass-answer" type="xsd:int"
+                  constraint=". < 10"/>
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="select-without-constraint-label">
+                        <value>Test will load items from itemset above and try to answer b</value>
+                    </text>
+
+                    <text id="select-with-constraint-pass-label">
+                        <value>Test will load items from itemset above and answer a; form will have
+                            value constraint of less than 30.
+                        </value>
+                    </text>
+
+                    <text id="select-with-constraint-fail-label">
+                        <value>Test will load items from itemset above and try to answer d, but form
+                            will have value constraint of less than 30.
+                        </value>
+                    </text>
+
+                    <text id="simple-without-constraint-label">
+                        <value>Expects an integer</value>
+                    </text>
+
+                    <text id="simple-with-constraint-pass-label">
+                        <value>Expects an integer below 10; test framework will set to 5</value>
+                    </text>
+
+                    <text id="simple-with-constraint-fail-label">
+                        <value>Expects an integer below 10; test framework will set to 15</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+
+    <h:body>
+        <select ref="/data/select-without-constraint-answer">
+            <label ref="jr:itext('select-without-constraint-label')"/>
+            <itemset nodeset="/data/itemdata/item">
+                <label ref="."/>
+                <value ref="@id"/>
+            </itemset>
+        </select>
+
+        <select ref="/data/select-with-constraint-fail-answer">
+            <label ref="jr:itext('select-with-constraint-fail-label')"/>
+            <itemset nodeset="/data/itemdata/item">
+                <label ref="."/>
+                <value ref="@id"/>
+            </itemset>
+        </select>
+
+        <select ref="/data/select-with-constraint-pass-answer">
+            <label ref="jr:itext('select-with-constraint-pass-label')"/>
+            <itemset nodeset="/data/itemdata/item">
+                <label ref="."/>
+                <value ref="@id"/>
+            </itemset>
+        </select>
+
+        <input ref="simple-without-constraint-answer">
+            <label ref="jr:itext('simple-without-constraint-label')"/>
+        </input>
+        <input ref="simple-with-constraint-fail-answer">
+            <label ref="jr:itext('simple-with-constraint-fail-label')"/>
+        </input>
+        <input ref="simple-with-constraint-pass-answer">
+            <label ref="jr:itext('simple-with-constraint-pass-label')"/>
+        </input>
+
+    </h:body>
+</h:html>

@@ -1,0 +1,118 @@
+<h:html xmlns:vellum="http://commcarehq.org/xforms/vellum_markup"
+        xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Model Iteration</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+                      xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                      uiVersion="1" version="279" name="Model Iteration">
+
+                    <!-- This is just here so the form works independently. This data connector might be case data or something instead. -->
+                    <itemdata>
+                        <item id="a" value="10">Item A</item>
+                        <item id="b" value="20">Item B</item>
+                        <item id="c" value="30">Item C</item>
+                        <item id="d" value="40">Item D</item>
+                    </itemdata>
+
+                    <itemsetanswer/>
+
+                    <!-- This is the "root" of the question. The repeat itself is inside. this give us clean namespacing. The name myiterator is the user's definition for the question name -->
+                    <myiterator vellum:role="iterator-host" vellum:datasource="formdata"
+                                vellum:sourceroot="/data/itemdata"
+                                vellum:itemid="2K3M4P32OIMJFO324I3I23F">
+                        <!-- @datasource tells the iterator where the data is coming from (IE: Where to look for names, etc). In this case, from the form.  -->
+                        <!-- @sourceroot tells the iterator that the formdata source starts at a specific location-->
+                        <!--  Maybe those two should be set on 'elements' below? -->
+
+                        <elements vellum:role="iterator-set"
+                                  vellum:itemid="2K3M4P32OIMJFO324I3I23F"/>
+                        <!-- a list of the elements we are iterating over. Multiple strategies exist for populating this node (case data, itemset, etc) -->
+                        <num_elements vellum:role="iterator-size"
+                                      vellum:itemid="2K3M4P32OIMJFO324I3I23F"/>
+                        <!--  Counts the number of things in the elements node -->
+                        <cur_element vellum:role="iterator-counter"
+                                     vellum:itemid="2K3M4P32OIMJFO324I3I23F"/>
+                        <!-- Provides a counter for the current model iteration (IE: How many we've gone through) -->
+                        <iterator jr:template="" id="" index="" vellum:role="iterator-repeat"
+                                  vellum:itemid="2K3M4P32OIMJFO324I3I23F"> <!-- This node will possibly also need to be named uniquely? unclear. It's the actual repeat-->
+                            <!-- The inside (user definable) portion of the repeat starts here -->
+                            <question/>
+                        </iterator>
+                    </myiterator>
+                </data>
+
+            </instance>
+
+
+            <!-- This is the "data selection". It pulls data from an outside location to iterate over. In this case, straight from the form-->
+            <bind nodeset="/data/myiterator/elements" vellum:role="iterator-set"
+                  vellum:itemid="2K3M4P32OIMJFO324I3I23F" calculate="/data/itemsetanswer"/>
+
+            <!-- Alternative data selection. Pulling from the casedb instead of from an itemset. -->
+            <!-- setvalue event="xforms-ready" ref="/data/myiterator/elements" value="join(' ',instance('casedb')/casedb/case[@case_type='cc_bihar_newborn'][index/mother_id=/data/case/@case_id][@status='open']/@case_id)"/> -->
+
+            <!-- this attaches the index (2, 3, 4, etc...) to the current repeat -->
+            <setvalue event="jr-insert" vellum:role="iterator-index"
+                      vellum:itemid="2K3M4P32OIMJFO324I3I23F" ref="/data/myiterator/iterator/@index"
+                      value="int(/data/myiterator/cur_element)"/>
+
+            <!-- this counts the total number of elements in the iteration -->
+            <bind nodeset="/data/myiterator/num_elements" vellum:role="iterator-size"
+                  vellum:itemid="2K3M4P32OIMJFO324I3I23F" type="int"
+                  calculate="count-selected(/data/myiterator/elements)"/>
+            <!-- This counts the "current" size of the repeat -->
+            <bind nodeset="/data/myiterator/cur_element" vellum:role="iterator-counter"
+                  vellum:itemid="2K3M4P32OIMJFO324I3I23F"
+                  calculate="count(/data/myiterator/iterator)"/>
+
+            <!-- This attaches the ID of the current model to the node using the index. This ID can be used to index into the data source. -->
+            <bind nodeset="/data/myiterator/iterator/@id" vellum:role="iterator-id"
+                  vellum:itemid="2K3M4P32OIMJFO324I3I23F"
+                  calculate="selected-at(/data/myiterator/elements,../@index)"/>
+
+            <itext>
+                <translation lang="en" default="">
+                    <text id="itemsetanswer-label">
+                        <value>Choose which items to include in the iteration</value>
+                    </text>
+                    <text id="repeatable-label">
+                        <value>Label for the repeat</value>
+                    </text>
+                    <text id="myiterator-question-label">
+                        <!-- This question text relies on the pattern of selecting the ID'd node from the datasource. that should be something that vellum makes relatively easy (although updating them will be hard and can be ignored for now) -->
+                        <value>Model
+                            <output ref="/data/itemdata/item[@id=current()/../@id]"/>
+                            is associated with the value:
+                            <output ref="/data/itemdata/item[@id=current()/../@id]/@value"/>
+                        </value>
+                    </text>
+
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <!-- For demonstration only, not fundamentally related -->
+        <select ref="/data/itemsetanswer">
+            <label ref="jr:itext('itemsetanswer-label')"/>
+            <itemset nodeset="/data/itemdata/item">
+                <label ref="."/>
+                <value ref="@id"/>
+            </itemset>
+        </select>
+
+
+        <group vellum:role="iterator-question" vellum:itemid="2K3M4P32OIMJFO324I3I23F">
+            <label ref="jr:itext('repeatable-label')"/>
+            <repeat nodeset="/data/myiterator/iterator" jr:count="/data/myiterator/num_elements">
+                <trigger ref="question">
+                    <label ref="jr:itext('myiterator-question-label')"></label>
+                </trigger>
+            </repeat>
+        </group>
+    </h:body>
+</h:html>

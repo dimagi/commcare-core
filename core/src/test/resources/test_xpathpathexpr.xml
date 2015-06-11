@@ -1,0 +1,12 @@
+<data>
+    <places>
+        <country id='one'>
+            <name>Singapore</name>
+        </country>
+        <country id='two'>
+            <name>United States</name>
+            <state id='beehive_state'>Utah</state>
+            <state id='treasure_state'>Montana</state>
+        </country>
+    </places>
+</data>

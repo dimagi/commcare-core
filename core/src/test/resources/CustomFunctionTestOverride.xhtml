@@ -1,0 +1,62 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Custom Function Override Test</h:title>
+        <meta jr:name="rm-subforms-test-images"/>
+        <model>
+            <instance>
+                <data>
+                    <qOne/>
+                    <qTwo/>
+                    <goodCalc/>
+                    <badCalc/>
+                    <goodResult/>
+                    <noArgTrueWorks/>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/qOne" type="xsd:int"/>
+            <bind nodeset="/data/qTwo" type="xsd:int"/>
+
+            <bind nodeset="/data/goodCalc" calculate="true(/data/qOne)"/>
+            <bind nodeset="/data/badCalc" calculate="true(1, /data/qTwo)"/>
+            <bind nodeset="/data/noArgTrueWorks" relevant="true() = 1"/>
+            <bind nodeset="/data/goodResult" relevant="/data/goodCalc = 4.0"/>
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="qOne">
+                        <value>Dummy localization text</value>
+                    </text>
+                    <text id="qTwo">
+                        <value>Dummy localization text</value>
+                    </text>
+                    <text id="qThree">
+                        <value>Dummy localization text</value>
+                    </text>
+                </translation>
+            </itext>
+
+        </model>
+    </h:head>
+    <h:body>
+        <input ref="qOne"><label ref="jr:itext('qOne')"/></input>
+
+        <!-- once answered should case error in badCalc re-calculation -->
+        <input ref="qTwo"><label ref="jr:itext('qTwo')"/></input>
+
+        <trigger ref="/data/noArgTrueWorks">
+            <label>This should be shown:
+                <output ref="/data/my_calculation"/>
+            </label>
+        </trigger>
+        <trigger ref="/data/goodResult">
+            <label>This should be shown:
+                <output ref="/data/my_calculation"/>
+            </label>
+        </trigger>
+    </h:body>
+</h:html>
