@@ -12,10 +12,10 @@ import org.javarosa.xpath.XPathUnhandledException;
 
 import java.util.Vector;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestMethod;
+import junit.framework.TestSuite;
 
 /**
  * @author Will Pride

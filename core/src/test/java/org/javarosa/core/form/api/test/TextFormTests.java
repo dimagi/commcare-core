@@ -17,10 +17,10 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestMethod;
+import junit.framework.TestSuite;
 
 public class TextFormTests extends TestCase {
 

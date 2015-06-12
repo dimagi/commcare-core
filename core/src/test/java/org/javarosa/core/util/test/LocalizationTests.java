@@ -19,10 +19,10 @@ package org.javarosa.core.util.test;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.OrderedHashtable;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestMethod;
+import junit.framework.TestSuite;
 
 public class LocalizationTests extends TestCase {
 

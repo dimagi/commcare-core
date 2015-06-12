@@ -16,10 +16,10 @@
 
 package org.javarosa.core.io.test;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestMethod;
+import junit.framework.TestSuite;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

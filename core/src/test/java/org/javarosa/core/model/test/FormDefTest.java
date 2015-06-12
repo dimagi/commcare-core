@@ -25,10 +25,10 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XPathReference;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestMethod;
+import junit.framework.TestSuite;
 
 /**
  * @author Phillip Mates

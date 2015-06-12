@@ -1,25 +1,8 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.test;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import java.util.Vector;
 
@@ -51,11 +34,6 @@ public class QuestionDefTest extends TestCase {
     FormEntryPrompt fep = null;
     FormParseInit fpi = null;
 
-    public QuestionDefTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-        initStuff();
-    }
-
     public QuestionDefTest(String name) {
         super(name);
         initStuff();
@@ -79,45 +57,18 @@ public class QuestionDefTest extends TestCase {
         pf = ExtUtil.defaultPrototypes();
     }
 
-    public Test suite() {
-        TestSuite aSuite = new TestSuite();
-        System.out.println("Running QuestionDefTest tests...");
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-            aSuite.addTest(new QuestionDefTest("QuestionDef Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((QuestionDefTest)tc).doTest(testID);
-                }
-            }));
-        }
-
-        return aSuite;
+    public static Test suite() {
+        TestSuite suite = new TestSuite();
+        suite.addTest(new QuestionDefTest("testConstructors"));
+        suite.addTest(new QuestionDefTest("testAccessorsModifiers"));
+        suite.addTest(new QuestionDefTest("testChild"));
+        suite.addTest(new QuestionDefTest("testFlagObservers"));
+        suite.addTest(new QuestionDefTest("testReferences"));
+        return suite;
     }
 
     private void testSerialize(QuestionDef q, String msg) {
         //ExternalizableTest.testExternalizable(q, this, pf, "QuestionDef [" + msg + "]");
-    }
-
-    public final static int NUM_TESTS = 5;
-
-    public void doTest(int i) {
-        switch (i) {
-            case 1:
-                testConstructors();
-                break;
-            case 2:
-                testAccessorsModifiers();
-                break;
-            case 3:
-                testChild();
-                break;
-            case 4:
-                testFlagObservers();
-                break;
-            case 5:
-                testReferences();
-                break;
-        }
     }
 
     public void testConstructors() {
