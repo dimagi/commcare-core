@@ -59,8 +59,8 @@ public class XPathPathExprTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new XPathPathExprTest("testHeterogeneousPaths");
-        suite.addTest(new XPathPathExprTest("testNestedMultiplicities");
+        suite.addTest(new XPathPathExprTest("testHeterogeneousPaths"));
+        suite.addTest(new XPathPathExprTest("testNestedMultiplicities"));
 
         return suite;
     }

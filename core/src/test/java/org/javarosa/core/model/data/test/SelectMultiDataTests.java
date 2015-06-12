@@ -70,11 +70,11 @@ public class SelectMultiDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new SelectMultiDataTests("testGetData");
-        suite.addTest(new SelectMultiDataTests("testSetData");
-        suite.addTest(new SelectMultiDataTests("testNullData");
-        suite.addTest(new SelectMultiDataTests("testBadDataTypes");
-        suite.addTest(new SelectMultiDataTests("testVectorImmutability");
+        suite.addTest(new SelectMultiDataTests("testGetData"));
+        suite.addTest(new SelectMultiDataTests("testSetData"));
+        suite.addTest(new SelectMultiDataTests("testNullData"));
+        suite.addTest(new SelectMultiDataTests("testBadDataTypes"));
+        suite.addTest(new SelectMultiDataTests("testVectorImmutability"));
 
         return suite;
     }

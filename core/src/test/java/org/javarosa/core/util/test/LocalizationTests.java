@@ -23,8 +23,8 @@ public class LocalizationTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new LocalizationTests("testParseValue");
-        suite.addTest(new LocalizationTests("testParseAndAdd");
+        suite.addTest(new LocalizationTests("testParseValue"));
+        suite.addTest(new LocalizationTests("testParseAndAdd"));
 
         return suite;
     }

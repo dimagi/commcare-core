@@ -52,9 +52,9 @@ public class SelectOneDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new SelectOneDataTests("testGetData");
-        suite.addTest(new SelectOneDataTests("testSetData");
-        suite.addTest(new SelectOneDataTests("testNullData");
+        suite.addTest(new SelectOneDataTests("testGetData"));
+        suite.addTest(new SelectOneDataTests("testSetData"));
+        suite.addTest(new SelectOneDataTests("testNullData"));
 
         return suite;
     }

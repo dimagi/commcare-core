@@ -33,9 +33,9 @@ public class IntegerDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new IntegerDataTests("testGetData");
-        suite.addTest(new IntegerDataTests("testSetData");
-        suite.addTest(new IntegerDataTests("testNullData");
+        suite.addTest(new IntegerDataTests("testGetData"));
+        suite.addTest(new IntegerDataTests("testSetData"));
+        suite.addTest(new IntegerDataTests("testNullData"));
 
         return suite;
     }

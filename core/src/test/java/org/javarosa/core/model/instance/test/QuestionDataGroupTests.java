@@ -54,14 +54,14 @@ public class QuestionDataGroupTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new QuestionDataGroupTests("testIsLeaf");
-        suite.addTest(new QuestionDataGroupTests("testGetName");
-        suite.addTest(new QuestionDataGroupTests("testSetName");
-        suite.addTest(new QuestionDataGroupTests("testAcceptsVisitor");
-        suite.addTest(new QuestionDataGroupTests("testAddLeafChild");
-        suite.addTest(new QuestionDataGroupTests("testAddTreeChild");
-        suite.addTest(new QuestionDataGroupTests("testContains");
-        suite.addTest(new QuestionDataGroupTests("testSuperclassMethods");
+        suite.addTest(new QuestionDataGroupTests("testIsLeaf"));
+        suite.addTest(new QuestionDataGroupTests("testGetName"));
+        suite.addTest(new QuestionDataGroupTests("testSetName"));
+        suite.addTest(new QuestionDataGroupTests("testAcceptsVisitor"));
+        suite.addTest(new QuestionDataGroupTests("testAddLeafChild"));
+        suite.addTest(new QuestionDataGroupTests("testAddTreeChild"));
+        suite.addTest(new QuestionDataGroupTests("testContains"));
+        suite.addTest(new QuestionDataGroupTests("testSuperclassMethods"));
 
         return suite;
     }

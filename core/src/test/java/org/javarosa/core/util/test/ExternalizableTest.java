@@ -36,7 +36,7 @@ public class ExternalizableTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new ExternalizableTest("doTests");
+        suite.addTest(new ExternalizableTest("doTests"));
 
         return suite;
     }

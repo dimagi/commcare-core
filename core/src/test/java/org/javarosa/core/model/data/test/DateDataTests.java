@@ -37,10 +37,10 @@ public class DateDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new DateDataTests("testGetData");
-        suite.addTest(new DateDataTests("testSetData");
-        suite.addTest(new DateDataTests("testDisplay");
-        suite.addTest(new DateDataTests("testNullData");
+        suite.addTest(new DateDataTests("testGetData"));
+        suite.addTest(new DateDataTests("testSetData"));
+        suite.addTest(new DateDataTests("testDisplay"));
+        suite.addTest(new DateDataTests("testNullData"));
 
         return suite;
     }

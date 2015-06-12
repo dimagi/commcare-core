@@ -60,14 +60,14 @@ public class TextFormTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new TextFormTests("testConstructors");
-        suite.addTest(new TextFormTests("testPromptsNoLocalizer");
-        suite.addTest(new TextFormTests("testPromptIDsNoLocalizer");
-        suite.addTest(new TextFormTests("testPromptsWithLocalizer");
-        suite.addTest(new TextFormTests("testSelectChoicesNoLocalizer");
-        suite.addTest(new TextFormTests("testSelectChoiceIDsNoLocalizer");
-        suite.addTest(new TextFormTests("testNonLocalizedText");
-        suite.addTest(new TextFormTests("testTextForms");
+        suite.addTest(new TextFormTests("testConstructors"));
+        suite.addTest(new TextFormTests("testPromptsNoLocalizer"));
+        suite.addTest(new TextFormTests("testPromptIDsNoLocalizer"));
+        suite.addTest(new TextFormTests("testPromptsWithLocalizer"));
+        suite.addTest(new TextFormTests("testSelectChoicesNoLocalizer"));
+        suite.addTest(new TextFormTests("testSelectChoiceIDsNoLocalizer"));
+        suite.addTest(new TextFormTests("testNonLocalizedText"));
+        suite.addTest(new TextFormTests("testTextForms"));
 
         return suite;
     }

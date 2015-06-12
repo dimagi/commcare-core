@@ -47,8 +47,8 @@ public class BufferedInputStreamTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new BufferedInputStreamTests("testBuffered");
-        suite.addTest(new BufferedInputStreamTests("testIndividual");
+        suite.addTest(new BufferedInputStreamTests("testBuffered"));
+        suite.addTest(new BufferedInputStreamTests("testIndividual"));
 
         return suite;
     }

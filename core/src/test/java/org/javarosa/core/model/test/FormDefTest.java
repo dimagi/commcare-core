@@ -32,10 +32,10 @@ public class FormDefTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new FormDefTest("testAnswerConstraint");
-        suite.addTest(new FormDefTest("testCurrentFuncInTriggers");
-        suite.addTest(new FormDefTest("testAnswerConstraintOldText");
-        suite.addTest(new FormDefTest("testSetValuePredicate");
+        suite.addTest(new FormDefTest("testAnswerConstraint"));
+        suite.addTest(new FormDefTest("testCurrentFuncInTriggers"));
+        suite.addTest(new FormDefTest("testAnswerConstraintOldText"));
+        suite.addTest(new FormDefTest("testSetValuePredicate"));
 
         return suite;
     }

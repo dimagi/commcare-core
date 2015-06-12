@@ -33,11 +33,11 @@ public class DateUtilsTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat");
-        suite.addTest(new DateUtilsTests("testSetDates");
-        suite.addTest(new DateUtilsTests("testNullDates");
-        suite.addTest(new DateUtilsTests("testTimeParses");
-        suite.addTest(new DateUtilsTests("testParity");
+        suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat"));
+        suite.addTest(new DateUtilsTests("testSetDates"));
+        suite.addTest(new DateUtilsTests("testNullDates"));
+        suite.addTest(new DateUtilsTests("testTimeParses"));
+        suite.addTest(new DateUtilsTests("testParity"));
 
         return suite;
     }

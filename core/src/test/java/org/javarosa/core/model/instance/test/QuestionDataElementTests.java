@@ -51,13 +51,13 @@ public class QuestionDataElementTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new QuestionDataElementTests("testIsLeaf");
-        suite.addTest(new QuestionDataElementTests("testGetName");
-        suite.addTest(new QuestionDataElementTests("testSetName");
-        suite.addTest(new QuestionDataElementTests("testGetValue");
-        suite.addTest(new QuestionDataElementTests("testSetValue");
-        suite.addTest(new QuestionDataElementTests("testAcceptsVisitor");
-        suite.addTest(new QuestionDataElementTests("testSuperclassMethods");
+        suite.addTest(new QuestionDataElementTests("testIsLeaf"));
+        suite.addTest(new QuestionDataElementTests("testGetName"));
+        suite.addTest(new QuestionDataElementTests("testSetName"));
+        suite.addTest(new QuestionDataElementTests("testGetValue"));
+        suite.addTest(new QuestionDataElementTests("testSetValue"));
+        suite.addTest(new QuestionDataElementTests("testAcceptsVisitor"));
+        suite.addTest(new QuestionDataElementTests("testSuperclassMethods"));
 
         return suite;
     }

@@ -142,17 +142,17 @@ public class TreeReferenceTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new TreeReferenceTest("testClones");
-        suite.addTest(new TreeReferenceTest("testSerialization");
-        suite.addTest(new TreeReferenceTest("testParentage");
-        suite.addTest(new TreeReferenceTest("testIntersection");
-        suite.addTest(new TreeReferenceTest("testAnchor");
-        suite.addTest(new TreeReferenceTest("testParent");
-        suite.addTest(new TreeReferenceTest("testContextualization");
-        suite.addTest(new TreeReferenceTest("testPredicates");
-        suite.addTest(new TreeReferenceTest("testGenericize");
-        suite.addTest(new TreeReferenceTest("testSubreferences");
-        suite.addTest(new TreeReferenceTest("testMutation");
+        suite.addTest(new TreeReferenceTest("testClones"));
+        suite.addTest(new TreeReferenceTest("testSerialization"));
+        suite.addTest(new TreeReferenceTest("testParentage"));
+        suite.addTest(new TreeReferenceTest("testIntersection"));
+        suite.addTest(new TreeReferenceTest("testAnchor"));
+        suite.addTest(new TreeReferenceTest("testParent"));
+        suite.addTest(new TreeReferenceTest("testContextualization"));
+        suite.addTest(new TreeReferenceTest("testPredicates"));
+        suite.addTest(new TreeReferenceTest("testGenericize"));
+        suite.addTest(new TreeReferenceTest("testSubreferences"));
+        suite.addTest(new TreeReferenceTest("testMutation"));
 
         return suite;
     }

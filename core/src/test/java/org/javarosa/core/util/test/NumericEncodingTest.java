@@ -20,8 +20,8 @@ public class NumericEncodingTest extends TestCase {
     public Test suite() {
         TestSuite aSuite = new TestSuite();
 
-        suite.addTest(new NumericEncodingTest("testIntEncodingUniform");
-        suite.addTest(new NumericEncodingTest("testIntEncodingSmall");
+        suite.addTest(new NumericEncodingTest("testIntEncodingUniform"));
+        suite.addTest(new NumericEncodingTest("testIntEncodingSmall"));
 
         return aSuite;
     }

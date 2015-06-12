@@ -61,7 +61,7 @@ public class DataInstanceTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new DataInstanceTest("doTests");
+        suite.addTest(new DataInstanceTest("doTests"));
 
         return suite;
     }

@@ -23,8 +23,8 @@ public class PrefixTreeTest extends TestCase {
     public Test suite() {
         TestSuite aSuite = new TestSuite();
 
-        suite.addTest(new PrefixTreeTest("testBasic");
-        suite.addTest(new PrefixTreeTest("testHeuristic");
+        suite.addTest(new PrefixTreeTest("testBasic"));
+        suite.addTest(new PrefixTreeTest("testHeuristic"));
 
         return aSuite;
     }

@@ -19,7 +19,7 @@ public class GeoPointDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new GeoPointDataTests("testGetData");
+        suite.addTest(new GeoPointDataTests("testGetData"));
 
         return suite;
     }

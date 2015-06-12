@@ -33,9 +33,9 @@ public class CustomFuncTest extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new CustomFuncTest("testFormFailure");
-        suite.addTest(new CustomFuncTest("testFormSuccess");
-        suite.addTest(new CustomFuncTest("testFormOverride");
+        suite.addTest(new CustomFuncTest("testFormFailure"));
+        suite.addTest(new CustomFuncTest("testFormSuccess"));
+        suite.addTest(new CustomFuncTest("testFormOverride"));
 
         return suite;
     }

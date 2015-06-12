@@ -35,9 +35,9 @@ public class TimeDataTests extends TestCase {
     public Test suite() {
         TestSuite suite = new TestSuite();
 
-        suite.addTest(new TimeDataTests("testGetData");
-        suite.addTest(new TimeDataTests("testSetData");
-        suite.addTest(new TimeDataTests("testNullData");
+        suite.addTest(new TimeDataTests("testGetData"));
+        suite.addTest(new TimeDataTests("testSetData"));
+        suite.addTest(new TimeDataTests("testNullData"));
 
         return suite;
     }
