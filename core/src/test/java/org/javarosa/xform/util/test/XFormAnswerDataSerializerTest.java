@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xform.util.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.util.Date;
@@ -57,8 +40,6 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
     XFormAnswerDataSerializer serializer;
 
-    private static int NUM_TESTS = 5;
-
     /* (non-Javadoc)
      * @see j2meunit.framework.TestCase#setUp()
      */
@@ -79,10 +60,6 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         serializer = new XFormAnswerDataSerializer();
     }
 
-    public XFormAnswerDataSerializerTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
-
     public XFormAnswerDataSerializerTest(String name) {
         super(name);
     }
@@ -92,40 +69,15 @@ public class XFormAnswerDataSerializerTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
-
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-
-            aSuite.addTest(new XFormAnswerDataSerializerTest("XFormAnswerDataSerializer Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((XFormAnswerDataSerializerTest)tc).testMaster(testID);
-                }
-            }));
-        }
-
-        return aSuite;
+        TestSuite suite = new TestSuite();
+        suite.addTest(new XFormAnswerDataSerializerTest("testString"));
+        suite.addTest(new XFormAnswerDataSerializerTest("testInteger"));
+        suite.addTest(new XFormAnswerDataSerializerTest("testDate"));
+        suite.addTest(new XFormAnswerDataSerializerTest("testTime"));
+        suite.addTest(new XFormAnswerDataSerializerTest("testSelect"));
+        return suite;
     }
 
-    public void testMaster(int testID) {
-        switch (testID) {
-            case 1:
-                testString();
-                break;
-            case 2:
-                testInteger();
-                break;
-            case 3:
-                testDate();
-                break;
-            case 4:
-                testTime();
-                break;
-            case 5:
-                testSelect();
-                break;
-        }
-    }
 
     public void testString() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer String", serializer.canSerialize(stringElement.getValue()));

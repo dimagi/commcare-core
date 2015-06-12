@@ -19,7 +19,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 public class TextFormTests extends TestCase {
@@ -59,50 +58,18 @@ public class TextFormTests extends TestCase {
 
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
-        System.out.println("Running TextFormTests...");
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-            aSuite.addTest(new QuestionDefTest("QuestionDef Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((QuestionDefTest)tc).doTest(testID);
-                }
-            }));
-        }
+        TestSuite suite = new TestSuite();
 
-        return aSuite;
-    }
+        suite.addTest(new TextFormTests("testConstructors");
+        suite.addTest(new TextFormTests("testPromptsNoLocalizer");
+        suite.addTest(new TextFormTests("testPromptIDsNoLocalizer");
+        suite.addTest(new TextFormTests("testPromptsWithLocalizer");
+        suite.addTest(new TextFormTests("testSelectChoicesNoLocalizer");
+        suite.addTest(new TextFormTests("testSelectChoiceIDsNoLocalizer");
+        suite.addTest(new TextFormTests("testNonLocalizedText");
+        suite.addTest(new TextFormTests("testTextForms");
 
-
-    public final static int NUM_TESTS = 8;
-
-    public void doTest(int i) {
-        switch (i) {
-            case 1:
-                testConstructors();
-                break;
-            case 2:
-                testPromptsNoLocalizer();
-                break;
-            case 3:
-                testPromptIDsNoLocalizer();
-                break;
-            case 4:
-                testPromptsWithLocalizer();
-                break;
-            case 5:
-                testSelectChoicesNoLocalizer();
-                break;
-            case 6:
-                testSelectChoiceIDsNoLocalizer();
-                break;
-            case 7:
-                testNonLocalizedText();
-                break;
-            case 8:
-                testTextForms();
-                break;
-        }
+        return suite;
     }
 
     public void testConstructors() {

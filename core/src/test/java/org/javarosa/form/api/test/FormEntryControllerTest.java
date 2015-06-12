@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2015 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.form.api.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import org.javarosa.core.model.FormElementStateListener;
@@ -47,11 +30,6 @@ public class FormEntryControllerTest extends TestCase {
         initForm();
     }
 
-    public FormEntryControllerTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-        initForm();
-    }
-
     /**
      * load and parse form
      */
@@ -61,15 +39,9 @@ public class FormEntryControllerTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
-
-        aSuite.addTest(new FormEntryControllerTest("FormEntryController Test answerQuestion method", new TestMethod() {
-            public void run(TestCase tc) {
-                ((FormEntryControllerTest)tc).testAnswerQuestion();
-            }
-        }));
-
-        return aSuite;
+        TestSuite suite = new TestSuite();
+        suite.addTest(new FormEntryControllerTest("testAnswerQuestion"));
+        return suite;
     }
 
     /**
@@ -91,7 +63,6 @@ public class FormEntryControllerTest extends TestCase {
             if (q == null || q.getTextID() == null || q.getTextID() == "") {
                 continue;
             }
-
 
             if (q.getTextID().equals("select-without-constraint-label")) {
                 ans = new IntegerData(20);

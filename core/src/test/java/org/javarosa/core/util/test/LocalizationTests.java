@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util.test;
 
 import org.javarosa.core.services.locale.LocalizationUtils;
@@ -21,22 +5,11 @@ import org.javarosa.core.util.OrderedHashtable;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 public class LocalizationTests extends TestCase {
-
-    private static int NUM_TESTS = 2;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         super.setUp();
-    }
-
-    public LocalizationTests(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
     }
 
     public LocalizationTests(String name) {
@@ -48,36 +21,15 @@ public class LocalizationTests extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
+        suite.addTest(new LocalizationTests("testParseValue");
+        suite.addTest(new LocalizationTests("testParseAndAdd");
 
-            aSuite.addTest(new LocalizationTests("Localization Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((LocalizationTests)tc).testMaster(testID);
-                }
-            }));
-        }
-
-        return aSuite;
-    }
-
-    public void testMaster(int testID) {
-        //System.out.println("running " + testID);
-
-        switch (testID) {
-            case 1:
-                testParseValue();
-                break;
-            case 2:
-                testParseAndAdd();
-                break;
-        }
+        return suite;
     }
 
     public void testParseValue() {
-
         String result1 = "";
         String result2 = "";
 
@@ -89,7 +41,6 @@ public class LocalizationTests extends TestCase {
     }
 
     public void testParseAndAdd() {
-
         OrderedHashtable<String, String> testTable = new OrderedHashtable<String, String>();
 
         LocalizationUtils.parseAndAdd(testTable, "string.1=this line should be cutoff here# this is bad if present", 0);
@@ -113,8 +64,5 @@ public class LocalizationTests extends TestCase {
         assertTrue("Line 7 failed: " + testTable.get("string.7"), testTable.get("string.7").equals("this line should be here # and this"));
         assertTrue("Line 8 failed: " + testTable.get("string.8"), testTable.get("string.8").equals("we have a hash # and a newline \n"));
         assertTrue("Line 9 failed: " + testTable.get("string.9"), testTable.get("string.9").equals("this line should all be here with the hash #"));
-
-
     }
-
 }

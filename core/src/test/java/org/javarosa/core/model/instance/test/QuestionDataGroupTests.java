@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.instance.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.io.DataInputStream;
@@ -46,11 +29,6 @@ public class QuestionDataGroupTests extends TestCase {
 
     TreeElement group;
 
-    private static int NUM_TESTS = 9;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         super.setUp();
         stringData = new StringData("Answer Value");
@@ -65,10 +43,6 @@ public class QuestionDataGroupTests extends TestCase {
         group = new TreeElement(groupName);
     }
 
-    public QuestionDataGroupTests(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
-
     public QuestionDataGroupTests(String name) {
         super(name);
     }
@@ -78,52 +52,20 @@ public class QuestionDataGroupTests extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
+        suite.addTest(new QuestionDataGroupTests("testIsLeaf");
+        suite.addTest(new QuestionDataGroupTests("testGetName");
+        suite.addTest(new QuestionDataGroupTests("testSetName");
+        suite.addTest(new QuestionDataGroupTests("testAcceptsVisitor");
+        suite.addTest(new QuestionDataGroupTests("testAddLeafChild");
+        suite.addTest(new QuestionDataGroupTests("testAddTreeChild");
+        suite.addTest(new QuestionDataGroupTests("testContains");
+        suite.addTest(new QuestionDataGroupTests("testSuperclassMethods");
 
-            aSuite.addTest(new QuestionDataGroupTests("QuestionDataGroup Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((QuestionDataGroupTests)tc).testMaster(testID);
-                }
-            }));
-        }
-
-        return aSuite;
+        return suite;
     }
 
-    public void testMaster(int testID) {
-        //System.out.println("running " + testID);
-
-        switch (testID) {
-            case 1:
-                testIsLeaf();
-                break;
-            case 2:
-                testGetName();
-                break;
-            case 3:
-                testSetName();
-                break;
-            case 4:
-                testAcceptsVisitor();
-                break;
-            case 5:
-                testAddLeafChild();
-                break;
-            case 6:
-                testAddTreeChild();
-                break;
-            case 7:
-                testContains();
-                break;
-            case 8:
-                testSuperclassMethods();
-                break;
-
-        }
-    }
 
     public void testIsLeaf() {
         assertTrue("A Group with no children should report being a leaf", group.isLeaf());

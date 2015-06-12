@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.utils.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.util.Calendar;
@@ -29,15 +12,8 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.DateUtils.DateFields;
 
 public class DateUtilsTests extends TestCase {
-
-    private static int NUM_TESTS = 5;
-
     Date currentTime;
     Date minusOneHour;
-
-    public DateUtilsTests(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
 
     public DateUtilsTests(String name) {
         super(name);
@@ -55,38 +31,15 @@ public class DateUtilsTests extends TestCase {
     }
 
     public Test suite() {
-        TestSuite dateSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
+        suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat");
+        suite.addTest(new DateUtilsTests("testSetDates");
+        suite.addTest(new DateUtilsTests("testNullDates");
+        suite.addTest(new DateUtilsTests("testTimeParses");
+        suite.addTest(new DateUtilsTests("testParity");
 
-            dateSuite.addTest(new DateUtilsTests("DateUtilData Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((DateUtilsTests)tc).testMaster(testID);
-                }
-            }));
-        }
-        return dateSuite;
-    }
-
-    public void testMaster(int testID) {
-        switch (testID) {
-            case 1:
-                testGetXMLStringValueFormat();
-                break;
-            case 2:
-                testSetDates();
-                break;
-            case 3:
-                testNullDates();
-                break;
-            case 4:
-                testTimeParses();
-                break;
-            case 5:
-                testParity();
-                break;
-        }
+        return suite;
     }
 
     /**

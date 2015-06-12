@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.test;
 
 import org.javarosa.core.model.FormIndex;
@@ -27,7 +11,6 @@ import org.javarosa.model.xform.XPathReference;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 /**
@@ -37,11 +20,6 @@ public class FormDefTest extends TestCase {
 
     // How many tests does the suite have?
     // Used to dispatch in doTest's switch statement.
-    public final static int NUM_TESTS = 4;
-
-    public FormDefTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
 
     public FormDefTest(String name) {
         super(name);
@@ -52,36 +30,16 @@ public class FormDefTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-            aSuite.addTest(new FormDefTest("FormDef Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((FormDefTest)tc).doTest(testID);
-                }
-            }));
-        }
+        suite.addTest(new FormDefTest("testAnswerConstraint");
+        suite.addTest(new FormDefTest("testCurrentFuncInTriggers");
+        suite.addTest(new FormDefTest("testAnswerConstraintOldText");
+        suite.addTest(new FormDefTest("testSetValuePredicate");
 
-        return aSuite;
+        return suite;
     }
 
-    public void doTest(int i) {
-        switch (i) {
-            case 1:
-                testAnswerConstraint();
-                break;
-            case 2:
-                testCurrentFuncInTriggers();
-                break;
-            case 3:
-                testAnswerConstraintOldText();
-                break;
-            case 4:
-                testSetValuePredicate();
-                break;
-        }
-    }
 
 
     /**

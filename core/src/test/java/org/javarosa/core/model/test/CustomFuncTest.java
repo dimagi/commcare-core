@@ -14,7 +14,6 @@ import java.util.Vector;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 /**
@@ -22,12 +21,6 @@ import junit.framework.TestSuite;
  */
 public class CustomFuncTest extends TestCase {
     private FormParseInit fpi;
-
-    public final static int NUM_TESTS = 3;
-
-    public CustomFuncTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
 
     public CustomFuncTest(String name) {
         super(name);
@@ -38,32 +31,13 @@ public class CustomFuncTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-            aSuite.addTest(new CustomFuncTest("Custom Function Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((CustomFuncTest)tc).doTest(testID);
-                }
-            }));
-        }
+        suite.addTest(new CustomFuncTest("testFormFailure");
+        suite.addTest(new CustomFuncTest("testFormSuccess");
+        suite.addTest(new CustomFuncTest("testFormOverride");
 
-        return aSuite;
-    }
-
-    public void doTest(int i) {
-        switch (i) {
-            case 1:
-                testFormFailure();
-                break;
-            case 2:
-                testFormSuccess();
-                break;
-            case 3:
-                testFormOverride();
-                break;
-        }
+        return suite;
     }
 
     /**

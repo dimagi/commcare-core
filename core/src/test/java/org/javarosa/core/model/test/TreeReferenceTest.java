@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.util.Vector;
@@ -67,11 +50,6 @@ public class TreeReferenceTest extends TestCase {
     private Vector<XPathExpression> amatchpreds;
     private Vector<XPathExpression> anotpreds;
 
-
-    public TreeReferenceTest(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-        initStuff();
-    }
 
     public TreeReferenceTest(String name) {
         super(name);
@@ -162,59 +140,23 @@ public class TreeReferenceTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
-        System.out.println("Running TreeReference tests...");
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
-            aSuite.addTest(new TreeReferenceTest("TreeReference Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((TreeReferenceTest)tc).doTest(testID);
-                }
-            }));
-        }
+        TestSuite suite = new TestSuite();
 
-        return aSuite;
+        suite.addTest(new TreeReferenceTest("testClones");
+        suite.addTest(new TreeReferenceTest("testSerialization");
+        suite.addTest(new TreeReferenceTest("testParentage");
+        suite.addTest(new TreeReferenceTest("testIntersection");
+        suite.addTest(new TreeReferenceTest("testAnchor");
+        suite.addTest(new TreeReferenceTest("testParent");
+        suite.addTest(new TreeReferenceTest("testContextualization");
+        suite.addTest(new TreeReferenceTest("testPredicates");
+        suite.addTest(new TreeReferenceTest("testGenericize");
+        suite.addTest(new TreeReferenceTest("testSubreferences");
+        suite.addTest(new TreeReferenceTest("testMutation");
+
+        return suite;
     }
 
-    private final static int NUM_TESTS = 10;
-
-    private void doTest(int i) {
-        switch (i) {
-            case 1:
-                testClones();
-                break;
-            case 2:
-                testSerialization();
-                break;
-            case 3:
-                testParentage();
-                break;
-            case 4:
-                testIntersection();
-                break;
-            case 5:
-                testAnchor();
-                break;
-            case 6:
-                testParent();
-                break;
-            case 7:
-                testContextualization();
-                break;
-            case 8:
-                testPredicates();
-                break;
-            case 9:
-                testGenericize();
-                break;
-            case 10:
-                testSubreferences();
-                break;
-            case 11:
-                testMutation();
-                break;
-        }
-    }
 
     //Tests ensuring that original references aren't mutated.
     private void testMutation() {

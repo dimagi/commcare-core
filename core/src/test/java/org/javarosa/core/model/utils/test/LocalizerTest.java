@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.utils.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.util.Hashtable;
@@ -46,123 +29,43 @@ public class LocalizerTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
+        suite.addTest(new LocalizerTest("testEmpty");
+        suite.addTest(new LocalizerTest("testAddLocale");
+        suite.addTest(new LocalizerTest("testAddLocaleWithData");
+        suite.addTest(new LocalizerTest("testAddExistingLocale");
+        suite.addTest(new LocalizerTest("testSetCurrentLocaleExists");
+        suite.addTest(new LocalizerTest("testSetCurrentLocaleNotExists");
+        suite.addTest(new LocalizerTest("testUnsetCurrentLocale");
+        suite.addTest(new LocalizerTest("testSetDefaultLocaleExists");
+        suite.addTest(new LocalizerTest("testSetDefaultLocaleNotExists");
+        suite.addTest(new LocalizerTest("testUnsetDefaultLocale");
+        suite.addTest(new LocalizerTest("testSetToDefault");
+        suite.addTest(new LocalizerTest("testSetToDefaultNoDefault");
+        suite.addTest(new LocalizerTest("testDestroyLocale");
+        suite.addTest(new LocalizerTest("testDestroyLocaleNotExist");
+        suite.addTest(new LocalizerTest("testDestroyCurrentLocale");
+        suite.addTest(new LocalizerTest("testDestroyDefaultLocale");
+        suite.addTest(new LocalizerTest("testAvailableLocales");
+        suite.addTest(new LocalizerTest("testGetNextLocale");
+        suite.addTest(new LocalizerTest("testGetLocaleMap");
+        suite.addTest(new LocalizerTest("testGetLocaleMapNotExist");
+        suite.addTest(new LocalizerTest("testTextMapping");
+        suite.addTest(new LocalizerTest("testTextMappingOverwrite");
+        suite.addTest(new LocalizerTest("testGetText");
+        suite.addTest(new LocalizerTest("testGetTextNoCurrentLocale");
+        suite.addTest(new LocalizerTest("testLocalizationObservers");
+        suite.addTest(new LocalizerTest("testLocalizationObserverUpdateOnRegister");
+        suite.addTest(new LocalizerTest("testNullArgs");
+        suite.addTest(new LocalizerTest("testSerialization");
+        suite.addTest(new LocalizerTest("testLinearSub");
+        suite.addTest(new LocalizerTest("testHashSub");
+        suite.addTest(new LocalizerTest("testFallbacks");
 
-            aSuite.addTest(new LocalizerTest("Localizer Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((LocalizerTest)tc).testMaster(testID);
-                }
-            }));
-        }
-
-        return aSuite;
+        return suite;
     }
 
-    public final int NUM_TESTS = 31;
-
-    public void testMaster(int testID) {
-        //System.out.println("running " + testID);
-
-        switch (testID) {
-            case 1:
-                testEmpty();
-                break;
-            case 2:
-                testAddLocale();
-                break;
-            case 3:
-                testAddLocaleWithData();
-                break;
-            case 4:
-                testAddExistingLocale();
-                break;
-            case 5:
-                testSetCurrentLocaleExists();
-                break;
-            case 6:
-                testSetCurrentLocaleNotExists();
-                break;
-            case 7:
-                testUnsetCurrentLocale();
-                break;
-            case 8:
-                testSetDefaultLocaleExists();
-                break;
-            case 9:
-                testSetDefaultLocaleNotExists();
-                break;
-            case 10:
-                testUnsetDefaultLocale();
-                break;
-            case 11:
-                testSetToDefault();
-                break;
-            case 12:
-                testSetToDefaultNoDefault();
-                break;
-            case 13:
-                testDestroyLocale();
-                break;
-            case 14:
-                testDestroyLocaleNotExist();
-                break;
-            case 15:
-                testDestroyCurrentLocale();
-                break;
-            case 16:
-                testDestroyDefaultLocale();
-                break;
-            case 17:
-                testAvailableLocales();
-                break;
-            case 18:
-                testGetNextLocale();
-                break;
-            case 19:
-                testGetLocaleMap();
-                break;
-            case 20:
-                testGetLocaleMapNotExist();
-                break;
-            case 21:
-                testTextMapping();
-                break;
-            case 22:
-                testTextMappingOverwrite();
-                break;
-            case 23:
-                testGetText();
-                break;
-            case 24:
-                testGetTextNoCurrentLocale();
-                break;
-            case 25:
-                testLocalizationObservers();
-                break;
-            case 26:
-                testLocalizationObserverUpdateOnRegister();
-                break;
-            case 27:
-                testNullArgs();
-                break;
-            case 28:
-                testSerialization();
-                break;
-            case 29:
-                testLinearSub();
-                break;
-            case 30:
-                testHashSub();
-                break;
-            case 31:
-                testFallbacks();
-                break;
-
-        }
-    }
 
     private void testSerialize(Localizer l, String msg) {
         PrototypeFactory pf = new PrototypeFactory();

@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.instance.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestMethod;
 import junit.framework.TestSuite;
 
 import java.io.DataInputStream;
@@ -44,11 +27,6 @@ public class QuestionDataElementTests extends TestCase {
     TreeElement stringElement;
     TreeElement intElement;
 
-    private static int NUM_TESTS = 7;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
     protected void setUp() throws Exception {
         super.setUp();
         stringData = new StringData("Answer Value");
@@ -62,10 +40,6 @@ public class QuestionDataElementTests extends TestCase {
 
     }
 
-    public QuestionDataElementTests(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-    }
-
     public QuestionDataElementTests(String name) {
         super(name);
     }
@@ -75,49 +49,19 @@ public class QuestionDataElementTests extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
-        for (int i = 1; i <= NUM_TESTS; i++) {
-            final int testID = i;
+        suite.addTest(new QuestionDataElementTests("testIsLeaf");
+        suite.addTest(new QuestionDataElementTests("testGetName");
+        suite.addTest(new QuestionDataElementTests("testSetName");
+        suite.addTest(new QuestionDataElementTests("testGetValue");
+        suite.addTest(new QuestionDataElementTests("testSetValue");
+        suite.addTest(new QuestionDataElementTests("testAcceptsVisitor");
+        suite.addTest(new QuestionDataElementTests("testSuperclassMethods");
 
-            aSuite.addTest(new QuestionDataElementTests("QuestionDataElement Test " + i, new TestMethod() {
-                public void run(TestCase tc) {
-                    ((QuestionDataElementTests)tc).testMaster(testID);
-                }
-            }));
-        }
-
-        return aSuite;
+        return suite;
     }
 
-    public void testMaster(int testID) {
-        //System.out.println("running " + testID);
-
-        switch (testID) {
-            case 1:
-                testIsLeaf();
-                break;
-            case 2:
-                testGetName();
-                break;
-            case 3:
-                testSetName();
-                break;
-            case 4:
-                testGetValue();
-                break;
-            case 5:
-                testSetValue();
-                break;
-            case 6:
-                testAcceptsVisitor();
-                break;
-            case 7:
-                testSuperclassMethods();
-                break;
-
-        }
-    }
 
     public void testIsLeaf() {
         assertTrue("Question Data Element returned negative for being a leaf", stringElement.isLeaf());
