@@ -18,12 +18,12 @@ public class NumericEncodingTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
         suite.addTest(new NumericEncodingTest("testIntEncodingUniform"));
         suite.addTest(new NumericEncodingTest("testIntEncodingSmall"));
 
-        return aSuite;
+        return suite;
     }
 
     public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {

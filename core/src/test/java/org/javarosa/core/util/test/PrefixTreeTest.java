@@ -21,12 +21,12 @@ public class PrefixTreeTest extends TestCase {
     }
 
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
         suite.addTest(new PrefixTreeTest("testBasic"));
         suite.addTest(new PrefixTreeTest("testHeuristic"));
 
-        return aSuite;
+        return suite;
     }
 
 

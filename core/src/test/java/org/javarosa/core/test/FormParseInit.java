@@ -158,10 +158,4 @@ public class FormParseInit {
 
         return stuff;
     }
-
-    public static void main(String[] args) {
-        for (int i = 0; i < TextFormTests.NUM_TESTS; i++) {
-            new TextFormTests().doTest(i);
-        }
-    }
 }

@@ -23,7 +23,11 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class FormEntryControllerTest extends TestCase {
     private FormParseInit fpi;
-    private FormEntryController fec;
+
+    public FormEntryControllerTest(String name) {
+        super(name);
+        initForm();
+    }
 
     public FormEntryControllerTest() {
         super();

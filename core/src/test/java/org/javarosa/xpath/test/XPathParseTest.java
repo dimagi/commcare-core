@@ -2,6 +2,7 @@ package org.javarosa.xpath.test;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
 import org.javarosa.core.services.PrototypeManager;
@@ -200,22 +201,22 @@ public class XPathParseTest extends TestCase {
         super();
     }
 
-    // TODO PLM: migrate this to junit
     public Test suite() {
-        TestSuite aSuite = new TestSuite();
+        TestSuite suite = new TestSuite();
 
         for (int i = 0; i < parseTestCases.length; i++) {
             final String expr = parseTestCases[i][0];
             final String expected = parseTestCases[i][1];
 
-            aSuite.addTest(new XPathParseTest("XPath Parsing Test [" + expr + "]", new TestMethod() {
-                public void run(TestCase tc) {
-                    ((XPathParseTest)tc).testParse(expr, expected);
+            suite.addTest(new XPathParseTest("XPath Parsing Test [" + expr + "]") {
+                @Override
+                public void run(TestResult tc) {
+                    testParse(expr, expected);
                 }
-            }));
+            });
         }
 
-        return aSuite;
+        return suite;
     }
 
     private void testXPathValid(String expr, String expected) {

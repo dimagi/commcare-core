@@ -35,11 +35,6 @@ public class TextFormTests extends TestCase {
     }
 
 
-    public TextFormTests(String name, TestMethod rTestMethod) {
-        super(name, rTestMethod);
-        initStuff();
-    }
-
     public TextFormTests(String name) {
         super(name);
         initStuff();
