@@ -42,7 +42,7 @@ public class FormEntryControllerTest extends TestCase {
         fpi = new FormParseInit("/test_form_entry_controller.xml");
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(new FormEntryControllerTest("testAnswerQuestion"));
         return suite;

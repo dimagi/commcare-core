@@ -201,7 +201,7 @@ public class XPathParseTest extends TestCase {
         super();
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         for (int i = 0; i < parseTestCases.length; i++) {

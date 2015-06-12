@@ -40,9 +40,15 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
     XFormAnswerDataSerializer serializer;
 
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
+    public XFormAnswerDataSerializerTest(String name) {
+        super(name);
+    }
+
+    public XFormAnswerDataSerializerTest() {
+        super();
+    }
+
+
     protected void setUp() throws Exception {
         super.setUp();
         stringData = new StringData(stringDataValue);
@@ -60,15 +66,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         serializer = new XFormAnswerDataSerializer();
     }
 
-    public XFormAnswerDataSerializerTest(String name) {
-        super(name);
-    }
-
-    public XFormAnswerDataSerializerTest() {
-        super();
-    }
-
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(new XFormAnswerDataSerializerTest("testString"));
         suite.addTest(new XFormAnswerDataSerializerTest("testInteger"));

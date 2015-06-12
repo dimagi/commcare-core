@@ -139,7 +139,7 @@ public class TreeReferenceTest extends TestCase {
         acPredRefClone.addPredicate(0, acPredRefClonePredicates);
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new TreeReferenceTest("testClones"));

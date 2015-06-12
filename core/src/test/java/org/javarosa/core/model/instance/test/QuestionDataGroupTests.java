@@ -51,7 +51,7 @@ public class QuestionDataGroupTests extends TestCase {
         super();
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new QuestionDataGroupTests("testIsLeaf"));

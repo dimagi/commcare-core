@@ -52,7 +52,7 @@ public class TextFormTests extends TestCase {
     }
 
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new TextFormTests("testConstructors"));

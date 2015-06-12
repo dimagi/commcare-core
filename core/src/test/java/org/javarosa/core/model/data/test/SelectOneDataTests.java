@@ -49,7 +49,7 @@ public class SelectOneDataTests extends TestCase {
         super();
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new SelectOneDataTests("testGetData"));

@@ -30,7 +30,7 @@ public class DateUtilsTests extends TestCase {
         minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat"));

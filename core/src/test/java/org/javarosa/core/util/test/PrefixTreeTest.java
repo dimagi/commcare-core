@@ -20,7 +20,7 @@ public class PrefixTreeTest extends TestCase {
         super();
     }
 
-    public Test suite() {
+    public static Test suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new PrefixTreeTest("testBasic"));
