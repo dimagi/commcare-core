@@ -1,6 +1,6 @@
 package org.javarosa.form.api.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -42,7 +42,7 @@ public class FormEntryControllerTest extends TestCase {
         fpi = new FormParseInit("/test_form_entry_controller.xml");
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(new FormEntryControllerTest("testAnswerQuestion"));
         return suite;
@@ -55,6 +55,7 @@ public class FormEntryControllerTest extends TestCase {
      * TODO: create test cases that test complex questions, that is, those with
      * copy tags inside of them that need to processed.
      */
+    @Test
     public void testAnswerQuestion() {
         IntegerData ans;
         FormEntryController fec = fpi.getFormEntryController();

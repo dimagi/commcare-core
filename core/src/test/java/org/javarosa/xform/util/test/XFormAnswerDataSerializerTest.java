@@ -1,6 +1,6 @@
 package org.javarosa.xform.util.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -66,7 +66,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         serializer = new XFormAnswerDataSerializer();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(new XFormAnswerDataSerializerTest("testString"));
         suite.addTest(new XFormAnswerDataSerializerTest("testInteger"));
@@ -77,6 +77,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
     }
 
 
+    @Test
     public void testString() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer String", serializer.canSerialize(stringElement.getValue()));
         Object answerData = serializer.serializeAnswerData(stringData);
@@ -84,6 +85,7 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         assertEquals("Serializer returns incorrect string serialization", answerData, stringDataValue);
     }
 
+    @Test
     public void testInteger() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Integer", serializer.canSerialize(intElement.getValue()));
         Object answerData = serializer.serializeAnswerData(integerData);
@@ -91,18 +93,21 @@ public class XFormAnswerDataSerializerTest extends TestCase {
         //assertEquals("Serializer returns incorrect Integer serialization", answerData, integerDataValue);
     }
 
+    @Test
     public void testDate() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Date", serializer.canSerialize(dateElement.getValue()));
         Object answerData = serializer.serializeAnswerData(dateData);
         assertNotNull("Serializer returns Null for valid Date Data", answerData);
     }
 
+    @Test
     public void testTime() {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Time", serializer.canSerialize(timeElement.getValue()));
         Object answerData = serializer.serializeAnswerData(timeData);
         assertNotNull("Serializer returns Null for valid Time Data", answerData);
     }
 
+    @Test
     public void testSelect() {
         //No select tests yet.
     }

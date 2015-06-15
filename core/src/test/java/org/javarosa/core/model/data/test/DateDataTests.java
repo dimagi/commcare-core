@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -34,7 +34,7 @@ public class DateDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new DateDataTests("testGetData"));
@@ -46,6 +46,7 @@ public class DateDataTests extends TestCase {
     }
 
 
+    @Test
     public void testGetData() {
         DateData data = new DateData(today);
         assertEquals("DateData's getValue returned an incorrect date", data.getValue(), today);
@@ -59,6 +60,7 @@ public class DateDataTests extends TestCase {
         assertEquals("DateData's getValue was mutated incorrectly", data.getValue(), temp);
     }
 
+    @Test
     public void testSetData() {
         DateData data = new DateData(notToday);
         data.setValue(today);
@@ -76,10 +78,12 @@ public class DateDataTests extends TestCase {
         assertEquals("DateData's value was mutated incorrectly", data.getValue(), temp);
     }
 
+    @Test
     public void testDisplay() {
         // We don't actually want this, because the Date's getDisplayText code should be moved to a library
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         DateData data = new DateData();

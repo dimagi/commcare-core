@@ -1,6 +1,6 @@
 package org.javarosa.core.model.instance.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -51,7 +51,7 @@ public class QuestionDataGroupTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new QuestionDataGroupTests("testIsLeaf"));
@@ -67,12 +67,14 @@ public class QuestionDataGroupTests extends TestCase {
     }
 
 
+    @Test
     public void testIsLeaf() {
         assertTrue("A Group with no children should report being a leaf", group.isLeaf());
         group.addChild(stringElement);
         assertTrue("A Group with children should not report being a leaf", !group.isLeaf());
     }
 
+    @Test
     public void testGetName() {
         String name = "TestGroup";
         assertEquals("Question Data Group did not properly get its name", group.getName(), name);
@@ -80,6 +82,7 @@ public class QuestionDataGroupTests extends TestCase {
         assertEquals("Question Data Group's name was changed improperly", group.getName(), name);
     }
 
+    @Test
     public void testSetName() {
         String name = "TestGroup";
         group = new TreeElement(name);
@@ -104,6 +107,7 @@ public class QuestionDataGroupTests extends TestCase {
         }
     }
 
+    @Test
     public void testAcceptsVisitor() {
         final MutableBoolean visitorAccepted = new MutableBoolean(false);
         final MutableBoolean dispatchedWrong = new MutableBoolean(false);
@@ -125,13 +129,15 @@ public class QuestionDataGroupTests extends TestCase {
         assertTrue("The visitor was dispatched incorrectly by the QuestionDataElement", !dispatchedWrong.getValue());
     }
 
-    private void testSuperclassMethods() {
+    @Test
+    public void testSuperclassMethods() {
         //stringElement should not have a root at this point.
 
         //TODO: Implement tests for the 'attribute' system.
     }
 
-    private void testAddLeafChild() {
+    @Test
+    public void testAddLeafChild() {
 
 
         //boolean threw = false;
@@ -159,7 +165,8 @@ public class QuestionDataGroupTests extends TestCase {
         }
     }
 
-    private void testAddTreeChild() {
+    @Test
+    public void testAddTreeChild() {
         //TreeElement subTree = new TreeElement("subtree");
         //TreeElement firstRootTree = new TreeElement("firstRoot");
         //TreeElement secondRootTree = new TreeElement("secondRoot");
@@ -175,7 +182,8 @@ public class QuestionDataGroupTests extends TestCase {
 
     }
 
-    private void testContains() {
+    @Test
+    public void testContains() {
 
     }
 }

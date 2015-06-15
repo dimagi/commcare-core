@@ -17,7 +17,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -52,7 +52,7 @@ public class TextFormTests extends TestCase {
     }
 
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new TextFormTests("testConstructors"));
@@ -67,6 +67,7 @@ public class TextFormTests extends TestCase {
         return suite;
     }
 
+    @Test
     public void testConstructors() {
         QuestionDef q;
 
@@ -89,6 +90,7 @@ public class TextFormTests extends TestCase {
      * (fallback to default for example).
      * Test being able to retrieve other exotic forms
      */
+    @Test
     public void testTextForms() {
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
@@ -117,9 +119,9 @@ public class TextFormTests extends TestCase {
             fail("getLongText() not falling back to default text form correctly");
         if (!fep.getSpecialFormQuestionText("long").equals(null))
             fail("getSpecialFormQuestionText() returning incorrect value");
-
     }
 
+    @Test
     public void testNonLocalizedText() {
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
@@ -143,6 +145,7 @@ public class TextFormTests extends TestCase {
         if (!testFlag) fail("Failed to fallback to labelInnerText in testNonLocalizedText()");
     }
 
+    @Test
     public void testSelectChoiceIDsNoLocalizer() {
 
         QuestionDef q = fpi.getFirstQuestionDef();
@@ -160,6 +163,7 @@ public class TextFormTests extends TestCase {
         q.removeSelectChoice(q.getChoices().elementAt(0));
     }
 
+    @Test
     public void testSelectChoicesNoLocalizer() {
         QuestionDef q = fpi.getFirstQuestionDef();
         if (q.getNumChoices() != 0) {
@@ -194,6 +198,7 @@ public class TextFormTests extends TestCase {
         q.removeSelectChoice(q.getChoice(0));
     }
 
+    @Test
     public void testPromptsWithLocalizer() {
         Localizer l = new Localizer();
 
@@ -225,6 +230,7 @@ public class TextFormTests extends TestCase {
 
     }
 
+    @Test
     public void testPromptIDsNoLocalizer() {
         QuestionDef q = new QuestionDef();
 
@@ -241,6 +247,7 @@ public class TextFormTests extends TestCase {
         }
     }
 
+    @Test
     public void testPromptsNoLocalizer() {
 
         QuestionDef q = new QuestionDef();
@@ -250,6 +257,4 @@ public class TextFormTests extends TestCase {
             fail("Help text getter/setter broken");
         }
     }
-
-
 }

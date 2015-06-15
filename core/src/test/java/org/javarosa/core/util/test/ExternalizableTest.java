@@ -1,6 +1,6 @@
 package org.javarosa.core.util.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -33,7 +33,7 @@ public class ExternalizableTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new ExternalizableTest("doTests"));

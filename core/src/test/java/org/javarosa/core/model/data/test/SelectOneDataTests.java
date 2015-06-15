@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -49,7 +49,7 @@ public class SelectOneDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new SelectOneDataTests("testGetData"));
@@ -60,12 +60,14 @@ public class SelectOneDataTests extends TestCase {
     }
 
 
+    @Test
     public void testGetData() {
         SelectOneData data = new SelectOneData(one);
         assertEquals("SelectOneData's getValue returned an incorrect SelectOne", data.getValue(), one);
 
     }
 
+    @Test
     public void testSetData() {
         SelectOneData data = new SelectOneData(one);
         data.setValue(two);
@@ -79,6 +81,7 @@ public class SelectOneDataTests extends TestCase {
 
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         SelectOneData data = new SelectOneData();

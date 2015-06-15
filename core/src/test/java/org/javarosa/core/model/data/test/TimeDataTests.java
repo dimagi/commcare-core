@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -32,7 +32,7 @@ public class TimeDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new TimeDataTests("testGetData"));
@@ -43,6 +43,7 @@ public class TimeDataTests extends TestCase {
     }
 
 
+    @Test
     public void testGetData() {
         TimeData data = new TimeData(now);
         assertEquals("TimeData's getValue returned an incorrect Time", data.getValue(), now);
@@ -57,6 +58,7 @@ public class TimeDataTests extends TestCase {
 
     }
 
+    @Test
     public void testSetData() {
         TimeData data = new TimeData(now);
         data.setValue(minusOneHour);
@@ -74,6 +76,7 @@ public class TimeDataTests extends TestCase {
         assertEquals("TimeData's value was mutated incorrectly", data.getValue(), temp);
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         TimeData data = new TimeData();

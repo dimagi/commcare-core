@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -30,7 +30,7 @@ public class StringDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new StringDataTests("testGetData"));
@@ -41,12 +41,14 @@ public class StringDataTests extends TestCase {
     }
 
 
+    @Test
     public void testGetData() {
         StringData data = new StringData(stringA);
         assertEquals("StringData's getValue returned an incorrect String", data.getValue(), stringA);
 
     }
 
+    @Test
     public void testSetData() {
         StringData data = new StringData(stringA);
         data.setValue(stringB);
@@ -59,6 +61,7 @@ public class StringDataTests extends TestCase {
         assertEquals("StringData did not properly reset value ", data.getValue(), stringA);
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         StringData data = new StringData();

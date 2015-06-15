@@ -1,6 +1,6 @@
 package org.javarosa.core.model.utils.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -30,12 +30,10 @@ public class DateUtilsTests extends TestCase {
         minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat"));
-        suite.addTest(new DateUtilsTests("testSetDates"));
-        suite.addTest(new DateUtilsTests("testNullDates"));
         suite.addTest(new DateUtilsTests("testTimeParses"));
         suite.addTest(new DateUtilsTests("testParity"));
 
@@ -47,7 +45,8 @@ public class DateUtilsTests extends TestCase {
      * by the getXMLStringValue function are in
      * the proper XML compliant format.
      */
-    private void testGetXMLStringValueFormat() {
+    @Test
+    public void testGetXMLStringValueFormat() {
         String currentDate = DateUtils.getXMLStringValue(currentTime);
         assertEquals("The date string was not of the proper length", currentDate.length(), "YYYY-MM-DD".length());
         assertEquals("The date string does not have proper year formatting", currentDate.indexOf("-"), "YYYY-".indexOf("-"));
@@ -71,15 +70,8 @@ public class DateUtilsTests extends TestCase {
         }
     }
 
-    private void testNullDates() {
-        // TODO Auto-generated method stub
-    }
-
-    private void testSetDates() {
-        // TODO Auto-generated method stub
-    }
-
-    private void testTimeParses() {
+    @Test
+    public void testTimeParses() {
         // This is all kind of tricky. We need to assume J2ME level compliance, so
         // dates won't ever be assumed to have an intrinsic timezone, they'll be
         // assumed to be in the phone's default timezone
@@ -165,7 +157,8 @@ public class DateUtilsTests extends TestCase {
         return -d.getTime();
     }
 
-    private void testParity() {
+    @Test
+    public void testParity() {
         testCycle(new Date(1300139579000l));
         testCycle(new Date(0));
 

@@ -1,6 +1,6 @@
 package org.javarosa.core.model.instance.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -48,7 +48,7 @@ public class QuestionDataElementTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new QuestionDataElementTests("testIsLeaf"));
@@ -63,14 +63,17 @@ public class QuestionDataElementTests extends TestCase {
     }
 
 
+    @Test
     public void testIsLeaf() {
         assertTrue("Question Data Element returned negative for being a leaf", stringElement.isLeaf());
     }
 
+    @Test
     public void testGetName() {
         assertEquals("Question Data Element 'string' did not properly get its name", stringElement.getName(), stringElementName);
     }
 
+    @Test
     public void testSetName() {
         String newName = new String("New Name");
         stringElement.setName(newName);
@@ -78,11 +81,13 @@ public class QuestionDataElementTests extends TestCase {
         assertEquals("Question Data Element 'string' did not properly set its name", stringElement.getName(), newName);
     }
 
+    @Test
     public void testGetValue() {
         IAnswerData data = stringElement.getValue();
         assertEquals("Question Data Element did not return the correct value", data, stringData);
     }
 
+    @Test
     public void testSetValue() {
         stringElement.setValue(integerData);
         assertEquals("Question Data Element did not set value correctly", stringElement.getValue(), integerData);
@@ -114,6 +119,7 @@ public class QuestionDataElementTests extends TestCase {
         }
     }
 
+    @Test
     public void testAcceptsVisitor() {
         final MutableBoolean visitorAccepted = new MutableBoolean(false);
         final MutableBoolean dispatchedWrong = new MutableBoolean(false);
@@ -134,7 +140,8 @@ public class QuestionDataElementTests extends TestCase {
         assertTrue("The visitor was dispatched incorrectly by the QuestionDataElement", !dispatchedWrong.getValue());
     }
 
-    private void testSuperclassMethods() {
+    @Test
+    public void testSuperclassMethods() {
         //stringElement should not have a root at this point.
 
         //TODO: Implement tests for the 'attribute' system.

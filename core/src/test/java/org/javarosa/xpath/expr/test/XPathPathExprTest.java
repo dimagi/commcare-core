@@ -1,6 +1,6 @@
 package org.javarosa.xpath.expr.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -56,7 +56,7 @@ public class XPathPathExprTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new XPathPathExprTest("testHeterogeneousPaths"));
@@ -65,7 +65,8 @@ public class XPathPathExprTest extends TestCase {
         return suite;
     }
 
-    private void testHeterogeneousPaths() {
+    @Test
+    public void testHeterogeneousPaths() {
         FormInstance instance = loadInstance("/test_xpathpathexpr.xml");
 
         // Used to reproduce bug where locations can't handle heterogeneous template paths.
@@ -78,7 +79,8 @@ public class XPathPathExprTest extends TestCase {
      * Some simple xpath expressions with multiple predicates that operate over
      * nodesets.
      */
-    private void testNestedMultiplicities() {
+    @Test
+    public void testNestedMultiplicities() {
         FormParseInit fpi = new FormParseInit("/test_nested_multiplicities.xml");
         FormDef fd = fpi.getFormDef();
         FormEntryModel fem = fpi.getFormEntryModel();

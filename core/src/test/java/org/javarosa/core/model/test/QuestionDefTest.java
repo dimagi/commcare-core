@@ -1,6 +1,6 @@
 package org.javarosa.core.model.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -57,7 +57,7 @@ public class QuestionDefTest extends TestCase {
         pf = ExtUtil.defaultPrototypes();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(new QuestionDefTest("testConstructors"));
         suite.addTest(new QuestionDefTest("testAccessorsModifiers"));
@@ -71,6 +71,7 @@ public class QuestionDefTest extends TestCase {
         //ExternalizableTest.testExternalizable(q, this, pf, "QuestionDef [" + msg + "]");
     }
 
+    @Test
     public void testConstructors() {
         QuestionDef q;
 
@@ -92,6 +93,7 @@ public class QuestionDefTest extends TestCase {
         return new XPathReference(xpath);
     }
 
+    @Test
     public void testAccessorsModifiers() {
         QuestionDef q = new QuestionDef();
 
@@ -121,6 +123,7 @@ public class QuestionDefTest extends TestCase {
         testSerialize(q, "h");
     }
 
+    @Test
     public void testChild() {
         QuestionDef q = new QuestionDef();
 
@@ -143,6 +146,7 @@ public class QuestionDefTest extends TestCase {
         }
     }
 
+    @Test
     public void testFlagObservers() {
         QuestionDef q = new QuestionDef();
 
@@ -193,6 +197,7 @@ public class QuestionDefTest extends TestCase {
 //    }
 
 
+    @Test
     public void testReferences() {
         QuestionDef q = fpi.getFirstQuestionDef();
         FormEntryPrompt fep = fpi.getFormEntryModel().getQuestionPrompt();

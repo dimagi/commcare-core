@@ -1,6 +1,6 @@
 package org.javarosa.core.util.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -17,7 +17,7 @@ public class NumericEncodingTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new NumericEncodingTest("testIntEncodingUniform"));
@@ -30,6 +30,7 @@ public class NumericEncodingTest extends TestCase {
         ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, this, null);
     }
 
+    @Test
     public void testIntEncodingUniform() {
         ExtWrapIntEncoding enc = new ExtWrapIntEncodingUniform();
 
@@ -53,6 +54,7 @@ public class NumericEncodingTest extends TestCase {
         }
     }
 
+    @Test
     public void testIntEncodingSmall() {
         int[] biases = {0, 1, 30, 128, 254};
         int[] smallTests = {0, 1, 126, 127, 128, 129, 253, 254, 255, 256, -1, -2, -127, -128, -129};

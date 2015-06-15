@@ -1,6 +1,6 @@
 package org.javarosa.core.io.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -44,7 +44,7 @@ public class BufferedInputStreamTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new BufferedInputStreamTests("testBuffered"));
@@ -53,7 +53,8 @@ public class BufferedInputStreamTests extends TestCase {
         return suite;
     }
 
-    private void testBuffered() {
+    @Test
+    public void testBuffered() {
         //TODO: Test on this axis too?
         byte[] testBuffer = new byte[256];
 
@@ -83,7 +84,8 @@ public class BufferedInputStreamTests extends TestCase {
         }
     }
 
-    private void testIndividual() {
+    @Test
+    public void testIndividual() {
         //TODO: Almost identical to above
         for (byte[] bytes : arraysToTest) {
             try {

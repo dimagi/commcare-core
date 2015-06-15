@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -16,7 +16,7 @@ public class GeoPointDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new GeoPointDataTests("testGetData"));
@@ -24,6 +24,7 @@ public class GeoPointDataTests extends TestCase {
         return suite;
     }
 
+    @Test
     public void testGetData() {
         double[] pointsA = {1.11111, 2.2, -1.111, -4.19999};
         double[] pointsB = {1, 2, -3, 4};

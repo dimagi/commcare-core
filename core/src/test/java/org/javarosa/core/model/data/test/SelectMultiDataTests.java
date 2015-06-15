@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -67,7 +67,7 @@ public class SelectMultiDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new SelectMultiDataTests("testGetData"));
@@ -79,11 +79,13 @@ public class SelectMultiDataTests extends TestCase {
         return suite;
     }
 
+    @Test
     public void testGetData() {
         SelectOneData data = new SelectOneData(one);
         assertEquals("SelectOneData's getValue returned an incorrect SelectOne", data.getValue(), one);
     }
 
+    @Test
     public void testSetData() {
         SelectMultiData data = new SelectMultiData(firstTwo);
         data.setValue(lastTwo);
@@ -97,6 +99,7 @@ public class SelectMultiDataTests extends TestCase {
 
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         SelectMultiData data = new SelectMultiData();
@@ -110,6 +113,7 @@ public class SelectMultiDataTests extends TestCase {
         assertTrue("SelectMultiData overwrote existing value on incorrect input", data.getValue().equals(firstTwo));
     }
 
+    @Test
     public void testVectorImmutability() {
         SelectMultiData data = new SelectMultiData(firstTwo);
         Selection[] copy = new Selection[firstTwo.size()];
@@ -145,6 +149,7 @@ public class SelectMultiDataTests extends TestCase {
         }
     }
 
+    @Test
     public void testBadDataTypes() {
         boolean failure = false;
         SelectMultiData data = new SelectMultiData(firstTwo);

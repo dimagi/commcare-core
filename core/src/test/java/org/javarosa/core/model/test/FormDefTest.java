@@ -9,7 +9,7 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XPathReference;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -29,7 +29,7 @@ public class FormDefTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new FormDefTest("testAnswerConstraint"));
@@ -47,6 +47,7 @@ public class FormDefTest extends TestCase {
      * such as in 'relevant' tags. The test answers a question and expects the
      * correct elements to be re-evaluated and set to not relevant.
      */
+    @Test
     public void testCurrentFuncInTriggers() {
         FormParseInit fpi = new FormParseInit("/trigger_and_current_tests.xml");
 
@@ -76,6 +77,7 @@ public class FormDefTest extends TestCase {
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
     }
 
+    @Test
     public void testAnswerConstraint() {
         IntegerData ans = new IntegerData(13);
         FormParseInit fpi = new FormParseInit("/ImageSelectTester.xhtml");
@@ -100,6 +102,7 @@ public class FormDefTest extends TestCase {
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
     }
 
+    @Test
     public void testAnswerConstraintOldText() {
         IntegerData ans = new IntegerData(7);
         FormParseInit fpi = new FormParseInit("/ImageSelectTester.xhtml");
@@ -158,6 +161,7 @@ public class FormDefTest extends TestCase {
     /**
      * Test setvalue expressions which have predicate references
      */
+    @Test
     public void testSetValuePredicate() {
         FormParseInit fpi = new FormParseInit("/test_setvalue_predicate.xml");
         FormEntryController fec = fpi.getFormEntryController();

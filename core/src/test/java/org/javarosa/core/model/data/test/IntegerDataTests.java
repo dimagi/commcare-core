@@ -1,6 +1,6 @@
 package org.javarosa.core.model.data.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -30,7 +30,7 @@ public class IntegerDataTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new IntegerDataTests("testGetData"));
@@ -40,11 +40,13 @@ public class IntegerDataTests extends TestCase {
         return suite;
     }
 
+    @Test
     public void testGetData() {
         IntegerData data = new IntegerData(one);
         assertEquals("IntegerData's getValue returned an incorrect integer", data.getValue(), one);
     }
 
+    @Test
     public void testSetData() {
         IntegerData data = new IntegerData(one);
         data.setValue(two);
@@ -58,6 +60,7 @@ public class IntegerDataTests extends TestCase {
 
     }
 
+    @Test
     public void testNullData() {
         boolean exceptionThrown = false;
         IntegerData data = new IntegerData();

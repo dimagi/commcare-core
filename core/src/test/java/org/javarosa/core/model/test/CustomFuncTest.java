@@ -12,7 +12,7 @@ import org.javarosa.xpath.XPathUnhandledException;
 
 import java.util.Vector;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -30,7 +30,7 @@ public class CustomFuncTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new CustomFuncTest("testFormFailure"));
@@ -44,6 +44,7 @@ public class CustomFuncTest extends TestCase {
      * Try to use a form that has a custom function defined without extending
      * the context with a custom function handler.
      */
+    @Test
     public void testFormFailure() {
         fpi = new FormParseInit("/CustomFunctionTest.xhtml");
 
@@ -70,6 +71,7 @@ public class CustomFuncTest extends TestCase {
      * Successfully use a form that has a custom function by extending the
      * context with a custom function handler.
      */
+    @Test
     public void testFormSuccess() {
         fpi = new FormParseInit("/CustomFunctionTest.xhtml");
 
@@ -122,6 +124,7 @@ public class CustomFuncTest extends TestCase {
      * - Makes sure falling through to default still raises additional arity
      * mismatches.
      */
+    @Test
     public void testFormOverride() {
         fpi = new FormParseInit("/CustomFunctionTestOverride.xhtml");
 

@@ -1,6 +1,6 @@
 package org.javarosa.core.util.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -20,7 +20,7 @@ public class PrefixTreeTest extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new PrefixTreeTest("testBasic"));
@@ -47,6 +47,7 @@ public class PrefixTreeTest extends TestCase {
         }
     }
 
+    @Test
     public void testBasic() {
         for (int i : prefixLengths) {
             PrefixTree t = new PrefixTree(i);
@@ -64,6 +65,7 @@ public class PrefixTreeTest extends TestCase {
 
     }
 
+    @Test
     public void testHeuristic() {
         for (int i : prefixLengths) {
 

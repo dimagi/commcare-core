@@ -1,6 +1,6 @@
 package org.javarosa.core.model.test;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -139,7 +139,7 @@ public class TreeReferenceTest extends TestCase {
         acPredRefClone.addPredicate(0, acPredRefClonePredicates);
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new TreeReferenceTest("testClones"));
@@ -152,18 +152,22 @@ public class TreeReferenceTest extends TestCase {
         suite.addTest(new TreeReferenceTest("testPredicates"));
         suite.addTest(new TreeReferenceTest("testGenericize"));
         suite.addTest(new TreeReferenceTest("testSubreferences"));
-        suite.addTest(new TreeReferenceTest("testMutation"));
+        // TODO PLM: the following test wasn't being run by the ant test suite.
+        // Figure out if it is broken or should be included.
+        // suite.addTest(new TreeReferenceTest("testMutation"));
 
         return suite;
     }
 
 
     //Tests ensuring that original references aren't mutated.
-    private void testMutation() {
+    @Test
+    public void testMutation() {
         assertTrue("/a/c[] predicate set illegally modified", acPredRef.getPredicate(0).size() != 1);
     }
 
-    private void testSubreferences() {
+    @Test
+    public void testSubreferences() {
         assertTrue("(/a/c/d).subreference(0) should be: /a",
                 aRef.equals(acdRef.getSubReference(0)));
         assertTrue("(/a/c/d).subreference(1) should be: /a/c",
@@ -175,12 +179,14 @@ public class TreeReferenceTest extends TestCase {
         }
     }
 
-    private void testSerialization() {
+    @Test
+    public void testSerialization() {
         //TODO: That ^
     }
 
 
-    private void testParentage() {
+    @Test
+    public void testParentage() {
         assertTrue("/ is a parent of '/a'",
                 root.isParentOf(aRef, true));
         assertTrue("/a is a parent of '/a/c'",
@@ -197,7 +203,8 @@ public class TreeReferenceTest extends TestCase {
                 aa.isParentOf(aaa, true));
     }
 
-    private void testClones() {
+    @Test
+    public void testClones() {
         assertTrue("/a was unable to clone properly",
                 aRef.clone().equals(aRef));
         assertTrue("/a/c was unable to clone properly",
@@ -213,7 +220,8 @@ public class TreeReferenceTest extends TestCase {
 
     }
 
-    private void testIntersection() {
+    @Test
+    public void testIntersection() {
         assertTrue("intersect(/a, /a) should result in /a",
                 aRef.intersect(aRef).equals(aRef));
         assertTrue("intersect(/a/c, /a/c) should result in /a/c",
@@ -232,7 +240,8 @@ public class TreeReferenceTest extends TestCase {
                 dotRef.intersect(dotRef).equals(root));
     }
 
-    private void testContextualization() {
+    @Test
+    public void testContextualization() {
         TreeReference contextualizeEval;
 
         // ('c').contextualize('/a/b') ==> /a/b/c
@@ -330,7 +339,8 @@ public class TreeReferenceTest extends TestCase {
 
     }
 
-    private void testAnchor() {
+    @Test
+    public void testAnchor() {
         TreeReference anchorEval;
         // TODO: investigate why this test fails when acRef is used instead of
         // ac2Ref
@@ -365,7 +375,8 @@ public class TreeReferenceTest extends TestCase {
                 wildA.equals(anchorEval));
     }
 
-    private void testParent() {
+    @Test
+    public void testParent() {
         TreeReference parentEval;
 
         // ('/a/b').parent('/a/c') ==> '/a/b'
@@ -397,7 +408,8 @@ public class TreeReferenceTest extends TestCase {
                 abcRef.equals(parentEval));
     }
 
-    private void testPredicates() {
+    @Test
+    public void testPredicates() {
         assertTrue("Predicates weren't correctly removed from reference.",
                 !acPredRef.removePredicates().hasPredicates());
 
@@ -418,7 +430,8 @@ public class TreeReferenceTest extends TestCase {
     }
 
 
-    private void testGenericize() {
+    @Test
+    public void testGenericize() {
         // Generic ref to generic attribute
         TreeReference attributeRef =
                 XPathReference.getPathExpr("/data/node/@attribute").getReference();

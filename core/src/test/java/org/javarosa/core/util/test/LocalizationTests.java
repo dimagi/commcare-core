@@ -3,7 +3,7 @@ package org.javarosa.core.util.test;
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.OrderedHashtable;
 
-import junit.framework.Test;
+import org.junit.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -20,7 +20,7 @@ public class LocalizationTests extends TestCase {
         super();
     }
 
-    public static Test suite() {
+    public static TestSuite suite() {
         TestSuite suite = new TestSuite();
 
         suite.addTest(new LocalizationTests("testParseValue"));
@@ -29,6 +29,7 @@ public class LocalizationTests extends TestCase {
         return suite;
     }
 
+    @Test
     public void testParseValue() {
         String result1 = "";
         String result2 = "";
@@ -40,6 +41,7 @@ public class LocalizationTests extends TestCase {
         assertTrue("Parsed newlines correctly", result2.equals("# Start"));
     }
 
+    @Test
     public void testParseAndAdd() {
         OrderedHashtable<String, String> testTable = new OrderedHashtable<String, String>();
 
