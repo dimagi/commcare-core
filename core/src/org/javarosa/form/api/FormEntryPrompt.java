@@ -198,16 +198,17 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
 
     public String getConstraintText(IAnswerData attemptedValue) {
-        return getConstraintText(null, attemptedValue);
-    }
-
-    public String getConstraintText(String textForm, IAnswerData attemptedValue) {
         // new constraint spec uses "alert" form XForm spec 8.2.4
         // http://www.w3.org/TR/xforms/#ui-commonelems
         String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT));
         if(newConstraintMsg != null){
             return newConstraintMsg;
         }
+        //default to old logic
+        return getConstraintText(null, attemptedValue);
+    }
+
+    public String getConstraintText(String textForm, IAnswerData attemptedValue) {
         // if doesn't exist, use the old logic
         if (mTreeElement.getConstraint() == null) {
             return null;
