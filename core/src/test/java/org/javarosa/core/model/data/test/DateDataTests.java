@@ -1,50 +1,26 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.utils.DateUtils;
 
-public class DateDataTests extends TestCase {
+public class DateDataTests {
 
     Date today;
     Date notToday;
 
-    private static int NUM_TESTS = 4;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    // TODO PLM: is this called by junit 4?
+    @BeforeClass
+    public static void setUp() {
 
         today = DateUtils.roundDate(new Date());
         notToday = DateUtils.roundDate(new Date(today.getTime() - today.getTime() / 2));
     }
-
-    public DateDataTests(String name) {
-        super(name);
-    }
-
-    public DateDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new DateDataTests("testGetData"));
-        suite.addTest(new DateDataTests("testSetData"));
-        suite.addTest(new DateDataTests("testDisplay"));
-        suite.addTest(new DateDataTests("testNullData"));
-
-        return suite;
-    }
-
 
     @Test
     public void testGetData() {

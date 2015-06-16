@@ -1,8 +1,8 @@
 package org.javarosa.core.model.utils.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,33 +11,15 @@ import java.util.TimeZone;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.DateUtils.DateFields;
 
-public class DateUtilsTests extends TestCase {
+public class DateUtilsTests {
     Date currentTime;
     Date minusOneHour;
 
-    public DateUtilsTests(String name) {
-        super(name);
-    }
-
-    public DateUtilsTests() {
-        super();
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
 
         currentTime = new Date();
         minusOneHour = new Date(new Date().getTime() - (1000 * 60));
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new DateUtilsTests("testGetXMLStringValueFormat"));
-        suite.addTest(new DateUtilsTests("testTimeParses"));
-        suite.addTest(new DateUtilsTests("testParity"));
-
-        return suite;
     }
 
     /**

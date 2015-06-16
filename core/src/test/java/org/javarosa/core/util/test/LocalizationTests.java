@@ -4,31 +4,9 @@ import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.OrderedHashtable;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
-public class LocalizationTests extends TestCase {
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public LocalizationTests(String name) {
-        super(name);
-    }
-
-    public LocalizationTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new LocalizationTests("testParseValue"));
-        suite.addTest(new LocalizationTests("testParseAndAdd"));
-
-        return suite;
-    }
-
+public class LocalizationTests {
     @Test
     public void testParseValue() {
         String result1 = "";

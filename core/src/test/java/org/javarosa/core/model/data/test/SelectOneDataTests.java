@@ -1,8 +1,8 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Vector;
 
@@ -12,19 +12,15 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 
-public class SelectOneDataTests extends TestCase {
+public class SelectOneDataTests {
     QuestionDef question;
 
     Selection one;
     Selection two;
 
-    private static int NUM_TESTS = 3;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    // TODO PLM: is this called by junit 4?
+    @BeforeClass
+    public static void setUp() {
 
         question = new QuestionDef();
         question.setID(57);
@@ -40,25 +36,6 @@ public class SelectOneDataTests extends TestCase {
         two = new Selection("Selection2");
         two.attachChoice(question);
     }
-
-    public SelectOneDataTests(String name) {
-        super(name);
-    }
-
-    public SelectOneDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new SelectOneDataTests("testGetData"));
-        suite.addTest(new SelectOneDataTests("testSetData"));
-        suite.addTest(new SelectOneDataTests("testNullData"));
-
-        return suite;
-    }
-
 
     @Test
     public void testGetData() {

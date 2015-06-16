@@ -1,47 +1,23 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 
 import org.javarosa.core.model.data.TimeData;
 
-public class TimeDataTests extends TestCase {
+public class TimeDataTests {
     Date now;
     Date minusOneHour;
 
-    private static int NUM_TESTS = 3;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
 
         now = new Date();
         minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }
-
-    public TimeDataTests(String name) {
-        super(name);
-    }
-
-    public TimeDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new TimeDataTests("testGetData"));
-        suite.addTest(new TimeDataTests("testSetData"));
-        suite.addTest(new TimeDataTests("testNullData"));
-
-        return suite;
-    }
-
 
     @Test
     public void testGetData() {

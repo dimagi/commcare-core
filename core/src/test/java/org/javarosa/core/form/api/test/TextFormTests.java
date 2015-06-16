@@ -18,11 +18,10 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import static org.junit.Assert.*;
 
-public class TextFormTests extends TestCase {
-
+public class TextFormTests {
     QuestionDef q = null;
     FormEntryPrompt fep = null;
     FormParseInit fpi = null;
@@ -34,37 +33,11 @@ public class TextFormTests extends TestCase {
         pf = ExtUtil.defaultPrototypes();
     }
 
-
-    public TextFormTests(String name) {
-        super(name);
-        initStuff();
-    }
-
-    public TextFormTests() {
-        super();
-        initStuff();
-    }
-
+    @Before
     public void initStuff() {
         fpi = new FormParseInit("/ImageSelectTester.xhtml");
         q = fpi.getFirstQuestionDef();
         fep = new FormEntryPrompt(fpi.getFormDef(), fpi.getFormEntryModel().getFormIndex());
-    }
-
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new TextFormTests("testConstructors"));
-        suite.addTest(new TextFormTests("testPromptsNoLocalizer"));
-        suite.addTest(new TextFormTests("testPromptIDsNoLocalizer"));
-        suite.addTest(new TextFormTests("testPromptsWithLocalizer"));
-        suite.addTest(new TextFormTests("testSelectChoicesNoLocalizer"));
-        suite.addTest(new TextFormTests("testSelectChoiceIDsNoLocalizer"));
-        suite.addTest(new TextFormTests("testNonLocalizedText"));
-        suite.addTest(new TextFormTests("testTextForms"));
-
-        return suite;
     }
 
     @Test
@@ -186,13 +159,13 @@ public class TextFormTests extends TestCase {
 
         Object a = onetext;
         Object b = fep.getSelectChoiceText(one);
-        this.assertEquals("Invalid select choice text returned", a, b);
+        assertEquals("Invalid select choice text returned", a, b);
 
-        this.assertEquals("Invalid select choice text returned", twotext, fep.getSelectChoiceText(two));
+        assertEquals("Invalid select choice text returned", twotext, fep.getSelectChoiceText(two));
 
-        this.assertNull("Form Entry Caption incorrectly contains Image Text", fep.getSpecialFormSelectChoiceText(one, FormEntryCaption.TEXT_FORM_IMAGE));
+        assertNull("Form Entry Caption incorrectly contains Image Text", fep.getSpecialFormSelectChoiceText(one, FormEntryCaption.TEXT_FORM_IMAGE));
 
-        this.assertNull("Form Entry Caption incorrectly contains Audio Text", fep.getSpecialFormSelectChoiceText(one, FormEntryCaption.TEXT_FORM_AUDIO));
+        assertNull("Form Entry Caption incorrectly contains Audio Text", fep.getSpecialFormSelectChoiceText(one, FormEntryCaption.TEXT_FORM_AUDIO));
 
         q.removeSelectChoice(q.getChoice(0));
         q.removeSelectChoice(q.getChoice(0));

@@ -10,38 +10,12 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XPathReference;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 /**
- * @author Phillip Mates
+ * @author Phillip Mates (pmates@dimagi.com)
  */
-public class FormDefTest extends TestCase {
-
-    // How many tests does the suite have?
-    // Used to dispatch in doTest's switch statement.
-
-    public FormDefTest(String name) {
-        super(name);
-    }
-
-    public FormDefTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new FormDefTest("testAnswerConstraint"));
-        suite.addTest(new FormDefTest("testCurrentFuncInTriggers"));
-        suite.addTest(new FormDefTest("testAnswerConstraintOldText"));
-        suite.addTest(new FormDefTest("testSetValuePredicate"));
-
-        return suite;
-    }
-
-
-
+public class FormDefTest {
     /**
      * Make sure that 'current()' expands correctly when used in conditionals
      * such as in 'relevant' tags. The test answers a question and expects the
@@ -180,7 +154,6 @@ public class FormDefTest extends TestCase {
                     testPassed = true;
                 }
             }
-            
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
         if(!testPassed) {
             fail("Setvalue Predicate Target Test");

@@ -1,43 +1,20 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import org.javarosa.core.model.data.IntegerData;
 
-public class IntegerDataTests extends TestCase {
+public class IntegerDataTests {
     Integer one;
     Integer two;
 
-    private static int NUM_TESTS = 3;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
 
         one = new Integer(1);
         two = new Integer(2);
-    }
-
-    public IntegerDataTests(String name) {
-        super(name);
-    }
-
-    public IntegerDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new IntegerDataTests("testGetData"));
-        suite.addTest(new IntegerDataTests("testSetData"));
-        suite.addTest(new IntegerDataTests("testNullData"));
-
-        return suite;
     }
 
     @Test

@@ -1,8 +1,8 @@
 package org.javarosa.core.model.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import static org.junit.Assert.*;
 
 import java.util.Vector;
 
@@ -12,8 +12,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class TreeReferenceTest extends TestCase {
-
+public class TreeReferenceTest {
     private TreeReference root;
     private TreeReference aRef;
     private TreeReference bRef;
@@ -51,16 +50,7 @@ public class TreeReferenceTest extends TestCase {
     private Vector<XPathExpression> anotpreds;
 
 
-    public TreeReferenceTest(String name) {
-        super(name);
-        initStuff();
-    }
-
-    public TreeReferenceTest() {
-        super();
-        initStuff();
-    }
-
+    @Before
     private void initStuff() {
         root = TreeReference.rootRef();
         aRef = root.extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
@@ -139,29 +129,12 @@ public class TreeReferenceTest extends TestCase {
         acPredRefClone.addPredicate(0, acPredRefClonePredicates);
     }
 
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new TreeReferenceTest("testClones"));
-        suite.addTest(new TreeReferenceTest("testSerialization"));
-        suite.addTest(new TreeReferenceTest("testParentage"));
-        suite.addTest(new TreeReferenceTest("testIntersection"));
-        suite.addTest(new TreeReferenceTest("testAnchor"));
-        suite.addTest(new TreeReferenceTest("testParent"));
-        suite.addTest(new TreeReferenceTest("testContextualization"));
-        suite.addTest(new TreeReferenceTest("testPredicates"));
-        suite.addTest(new TreeReferenceTest("testGenericize"));
-        suite.addTest(new TreeReferenceTest("testSubreferences"));
-        // TODO PLM: the following test wasn't being run by the ant test suite.
-        // Figure out if it is broken or should be included.
-        // suite.addTest(new TreeReferenceTest("testMutation"));
-
-        return suite;
-    }
 
 
     //Tests ensuring that original references aren't mutated.
-    @Test
+    // TODO PLM: the following test wasn't being run by the ant test suite.
+    // Figure out if it is broken or should be included.
+    // @Test
     public void testMutation() {
         assertTrue("/a/c[] predicate set illegally modified", acPredRef.getPredicate(0).size() != 1);
     }

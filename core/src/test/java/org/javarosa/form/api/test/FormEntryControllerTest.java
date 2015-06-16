@@ -1,8 +1,8 @@
 package org.javarosa.form.api.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import static org.junit.Assert.*;
 
 import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.FormIndex;
@@ -21,31 +21,17 @@ import org.javarosa.form.api.FormEntryPrompt;
 /**
  * @author Phillip Mates
  */
-public class FormEntryControllerTest extends TestCase {
+public class FormEntryControllerTest {
     private FormParseInit fpi;
 
-    public FormEntryControllerTest(String name) {
-        super(name);
-        initForm();
-    }
-
-    public FormEntryControllerTest() {
-        super();
-        initForm();
-    }
 
     /**
      * load and parse form
      */
+    @Before
     private void initForm() {
         System.out.println("init FormEntryControllerTest");
         fpi = new FormParseInit("/test_form_entry_controller.xml");
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new FormEntryControllerTest("testAnswerQuestion"));
-        return suite;
     }
 
     /**

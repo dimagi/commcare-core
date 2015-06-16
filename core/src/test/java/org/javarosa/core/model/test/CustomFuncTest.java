@@ -13,32 +13,13 @@ import org.javarosa.xpath.XPathUnhandledException;
 import java.util.Vector;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 /**
  * @author Will Pride
  */
-public class CustomFuncTest extends TestCase {
+public class CustomFuncTest {
     private FormParseInit fpi;
-
-    public CustomFuncTest(String name) {
-        super(name);
-    }
-
-    public CustomFuncTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new CustomFuncTest("testFormFailure"));
-        suite.addTest(new CustomFuncTest("testFormSuccess"));
-        suite.addTest(new CustomFuncTest("testFormOverride"));
-
-        return suite;
-    }
 
     /**
      * Try to use a form that has a custom function defined without extending

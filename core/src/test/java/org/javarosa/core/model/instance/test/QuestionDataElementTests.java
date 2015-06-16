@@ -1,8 +1,8 @@
 package org.javarosa.core.model.instance.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,7 +18,7 @@ import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-public class QuestionDataElementTests extends TestCase {
+public class QuestionDataElementTests {
     private final String stringElementName = "String Data Element";
 
     StringData stringData;
@@ -27,8 +27,8 @@ public class QuestionDataElementTests extends TestCase {
     TreeElement stringElement;
     TreeElement intElement;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
         stringData = new StringData("Answer Value");
         integerData = new IntegerData(4);
 
@@ -39,29 +39,6 @@ public class QuestionDataElementTests extends TestCase {
         stringElement.setValue(stringData);
 
     }
-
-    public QuestionDataElementTests(String name) {
-        super(name);
-    }
-
-    public QuestionDataElementTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new QuestionDataElementTests("testIsLeaf"));
-        suite.addTest(new QuestionDataElementTests("testGetName"));
-        suite.addTest(new QuestionDataElementTests("testSetName"));
-        suite.addTest(new QuestionDataElementTests("testGetValue"));
-        suite.addTest(new QuestionDataElementTests("testSetValue"));
-        suite.addTest(new QuestionDataElementTests("testAcceptsVisitor"));
-        suite.addTest(new QuestionDataElementTests("testSuperclassMethods"));
-
-        return suite;
-    }
-
 
     @Test
     public void testIsLeaf() {
@@ -102,7 +79,6 @@ public class QuestionDataElementTests extends TestCase {
 
     }
 
-
     private class MutableBoolean {
         private boolean bool;
 
@@ -138,12 +114,5 @@ public class QuestionDataElementTests extends TestCase {
         assertTrue("The visitor's visit method was not called correctly by the QuestionDataElement", visitorAccepted.getValue());
 
         assertTrue("The visitor was dispatched incorrectly by the QuestionDataElement", !dispatchedWrong.getValue());
-    }
-
-    @Test
-    public void testSuperclassMethods() {
-        //stringElement should not have a root at this point.
-
-        //TODO: Implement tests for the 'attribute' system.
     }
 }

@@ -1,45 +1,22 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import org.javarosa.core.model.data.StringData;
 
-public class StringDataTests extends TestCase {
+public class StringDataTests {
     String stringA;
     String stringB;
 
-    private static int NUM_TESTS = 3;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    // TODO PLM: is this called by junit 4?
+    @BeforeClass
+    public static void setUp() {
 
         stringA = "string A";
         stringB = "string B";
     }
-
-    public StringDataTests(String name) {
-        super(name);
-    }
-
-    public StringDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new StringDataTests("testGetData"));
-        suite.addTest(new StringDataTests("testSetData"));
-        suite.addTest(new StringDataTests("testNullData"));
-
-        return suite;
-    }
-
 
     @Test
     public void testGetData() {

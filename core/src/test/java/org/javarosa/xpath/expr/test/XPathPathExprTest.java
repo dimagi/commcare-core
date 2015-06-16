@@ -1,8 +1,7 @@
 package org.javarosa.xpath.expr.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -47,24 +46,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * @author Phillip Mates
  */
 
-public class XPathPathExprTest extends TestCase {
-    public XPathPathExprTest(String name) {
-        super(name);
-    }
-
-    public XPathPathExprTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new XPathPathExprTest("testHeterogeneousPaths"));
-        suite.addTest(new XPathPathExprTest("testNestedMultiplicities"));
-
-        return suite;
-    }
-
+public class XPathPathExprTest {
     @Test
     public void testHeterogeneousPaths() {
         FormInstance instance = loadInstance("/test_xpathpathexpr.xml");

@@ -1,28 +1,11 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import org.javarosa.core.model.data.GeoPointData;
 
-public class GeoPointDataTests extends TestCase {
-
-    public GeoPointDataTests(String name) {
-        super(name);
-    }
-
-    public GeoPointDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new GeoPointDataTests("testGetData"));
-
-        return suite;
-    }
+public class GeoPointDataTests {
 
     @Test
     public void testGetData() {

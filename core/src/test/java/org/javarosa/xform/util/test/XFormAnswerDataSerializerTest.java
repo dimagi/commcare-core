@@ -1,8 +1,8 @@
 package org.javarosa.xform.util.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 
@@ -20,7 +20,7 @@ import org.javarosa.xform.util.XFormAnswerDataSerializer;
  *
  * @author Clayton Sims
  */
-public class XFormAnswerDataSerializerTest extends TestCase {
+public class XFormAnswerDataSerializerTest {
     final String stringDataValue = "String Data Value";
     final Integer integerDataValue = new Integer(5);
     final Date dateDataValue = new Date();
@@ -40,17 +40,8 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
     XFormAnswerDataSerializer serializer;
 
-    public XFormAnswerDataSerializerTest(String name) {
-        super(name);
-    }
-
-    public XFormAnswerDataSerializerTest() {
-        super();
-    }
-
-
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
         stringData = new StringData(stringDataValue);
         stringElement.setValue(stringData);
 
@@ -65,17 +56,6 @@ public class XFormAnswerDataSerializerTest extends TestCase {
 
         serializer = new XFormAnswerDataSerializer();
     }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new XFormAnswerDataSerializerTest("testString"));
-        suite.addTest(new XFormAnswerDataSerializerTest("testInteger"));
-        suite.addTest(new XFormAnswerDataSerializerTest("testDate"));
-        suite.addTest(new XFormAnswerDataSerializerTest("testTime"));
-        suite.addTest(new XFormAnswerDataSerializerTest("testSelect"));
-        return suite;
-    }
-
 
     @Test
     public void testString() {

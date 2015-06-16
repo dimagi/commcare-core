@@ -1,8 +1,8 @@
 package org.javarosa.core.io.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +11,7 @@ import java.util.Random;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.util.ArrayUtilities;
 
-public class BufferedInputStreamTests extends TestCase {
+public class BufferedInputStreamTests {
 
     byte[] bytes;
 
@@ -19,13 +19,8 @@ public class BufferedInputStreamTests extends TestCase {
 
     byte[][] arraysToTest;
 
-    private static int NUM_TESTS = 2;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
 
         Random r = new Random();
 
@@ -34,23 +29,6 @@ public class BufferedInputStreamTests extends TestCase {
             arraysToTest[i] = new byte[sizesToTest[i]];
             r.nextBytes(arraysToTest[i]);
         }
-    }
-
-    public BufferedInputStreamTests(String name) {
-        super(name);
-    }
-
-    public BufferedInputStreamTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new BufferedInputStreamTests("testBuffered"));
-        suite.addTest(new BufferedInputStreamTests("testIndividual"));
-
-        return suite;
     }
 
     @Test
@@ -75,10 +53,10 @@ public class BufferedInputStreamTests extends TestCase {
 
 
                 if (!ArrayUtilities.arraysEqual(bytes, baos.toByteArray())) {
-                    this.fail("Bulk BufferedInputStream read failed at size " + bytes.length);
+                    fail("Bulk BufferedInputStream read failed at size " + bytes.length);
                 }
             } catch (Exception e) {
-                this.fail("Exception while testing bulk read for " + bytes.length + " size: " + e.getMessage());
+                fail("Exception while testing bulk read for " + bytes.length + " size: " + e.getMessage());
                 continue;
             }
         }
@@ -99,16 +77,16 @@ public class BufferedInputStreamTests extends TestCase {
                         break;
                     } else {
                         if (bytes[position] != (byte)read) {
-                            this.fail("one-by-one BIS read failed at size " + bytes.length + " at position " + position);
+                            fail("one-by-one BIS read failed at size " + bytes.length + " at position " + position);
                         }
                     }
                     position++;
                 }
                 if (position != bytes.length) {
-                    this.fail("one-by-one BIS read failed to read full array of size " + bytes.length + " only read " + position);
+                    fail("one-by-one BIS read failed to read full array of size " + bytes.length + " only read " + position);
                 }
             } catch (Exception e) {
-                this.fail("Exception while testing buffered read for " + bytes.length + " size: " + e.getMessage());
+                fail("Exception while testing buffered read for " + bytes.length + " size: " + e.getMessage());
                 continue;
             }
         }

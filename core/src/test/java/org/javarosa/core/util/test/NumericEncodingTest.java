@@ -1,35 +1,13 @@
 package org.javarosa.core.util.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import org.javarosa.core.util.externalizable.ExtWrapIntEncoding;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingSmall;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingUniform;
 
-public class NumericEncodingTest extends TestCase {
-    public NumericEncodingTest(String name) {
-        super(name);
-    }
-
-    public NumericEncodingTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new NumericEncodingTest("testIntEncodingUniform"));
-        suite.addTest(new NumericEncodingTest("testIntEncodingSmall"));
-
-        return suite;
-    }
-
-    public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {
-        ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, this, null);
-    }
-
+public class NumericEncodingTest {
     @Test
     public void testIntEncodingUniform() {
         ExtWrapIntEncoding enc = new ExtWrapIntEncodingUniform();
@@ -84,4 +62,9 @@ public class NumericEncodingTest extends TestCase {
             }
         }
     }
+
+    public void testNumericEncoding(long val, ExtWrapIntEncoding encoding) {
+        ExternalizableTest.testExternalizable(encoding.clone(new Long(val)), encoding, null, this, null);
+    }
+
 }

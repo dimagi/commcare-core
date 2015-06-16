@@ -1,8 +1,7 @@
 package org.javarosa.core.model.utils.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import java.util.Hashtable;
 
@@ -15,54 +14,7 @@ import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
 
-public class LocalizerTest extends TestCase {
-    public LocalizerTest(String name) {
-        super(name);
-    }
-
-    public LocalizerTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new LocalizerTest("testEmpty"));
-        suite.addTest(new LocalizerTest("testAddLocale"));
-        suite.addTest(new LocalizerTest("testAddLocaleWithData"));
-        suite.addTest(new LocalizerTest("testAddExistingLocale"));
-        suite.addTest(new LocalizerTest("testSetCurrentLocaleExists"));
-        suite.addTest(new LocalizerTest("testSetCurrentLocaleNotExists"));
-        suite.addTest(new LocalizerTest("testUnsetCurrentLocale"));
-        suite.addTest(new LocalizerTest("testSetDefaultLocaleExists"));
-        suite.addTest(new LocalizerTest("testSetDefaultLocaleNotExists"));
-        suite.addTest(new LocalizerTest("testUnsetDefaultLocale"));
-        suite.addTest(new LocalizerTest("testSetToDefault"));
-        suite.addTest(new LocalizerTest("testSetToDefaultNoDefault"));
-        suite.addTest(new LocalizerTest("testDestroyLocale"));
-        suite.addTest(new LocalizerTest("testDestroyLocaleNotExist"));
-        suite.addTest(new LocalizerTest("testDestroyCurrentLocale"));
-        suite.addTest(new LocalizerTest("testDestroyDefaultLocale"));
-        suite.addTest(new LocalizerTest("testAvailableLocales"));
-        suite.addTest(new LocalizerTest("testGetNextLocale"));
-        suite.addTest(new LocalizerTest("testGetLocaleMap"));
-        suite.addTest(new LocalizerTest("testGetLocaleMapNotExist"));
-        suite.addTest(new LocalizerTest("testTextMapping"));
-        suite.addTest(new LocalizerTest("testTextMappingOverwrite"));
-        suite.addTest(new LocalizerTest("testGetText"));
-        suite.addTest(new LocalizerTest("testGetTextNoCurrentLocale"));
-        suite.addTest(new LocalizerTest("testLocalizationObservers"));
-        suite.addTest(new LocalizerTest("testLocalizationObserverUpdateOnRegister"));
-        suite.addTest(new LocalizerTest("testNullArgs"));
-        suite.addTest(new LocalizerTest("testSerialization"));
-        suite.addTest(new LocalizerTest("testLinearSub"));
-        suite.addTest(new LocalizerTest("testHashSub"));
-        suite.addTest(new LocalizerTest("testFallbacks"));
-
-        return suite;
-    }
-
-
+public class LocalizerTest {
     private void testSerialize(Localizer l, String msg) {
         PrototypeFactory pf = new PrototypeFactory();
         pf.addClass(TableLocaleSource.class);

@@ -1,8 +1,7 @@
 package org.javarosa.core.util.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -24,24 +23,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-public class ExternalizableTest extends TestCase {
-    public ExternalizableTest(String name) {
-        super(name);
-    }
-
-    public ExternalizableTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new ExternalizableTest("doTests"));
-
-        return suite;
-    }
-
-    public static void testExternalizable(Object orig, Object template, PrototypeFactory pf, TestCase tc, String failMessage) {
+public class ExternalizableTest {
+    public static void testExternalizable(Object orig, Object template, PrototypeFactory pf, String failMessage) {
         if (failMessage == null)
             failMessage = "Serialization Failure";
 
@@ -71,21 +54,21 @@ public class ExternalizableTest extends TestCase {
                 print("SUCCESS");
             } else {
                 print("FAILURE");
-                tc.fail(failMessage + ": Objects do not match");
+                fail(failMessage + ": Objects do not match");
             }
             print("---------------------------------------------");
         } catch (Exception e) {
-            tc.fail(failMessage + ": Exception! " + e.getClass().getName() + " " + e.getMessage());
+            fail(failMessage + ": Exception! " + e.getClass().getName() + " " + e.getMessage());
         }
     }
 
     //for outside test suites to call
-    public static void testExternalizable(Externalizable original, TestCase tc, PrototypeFactory pf) {
-        testExternalizable(original, tc, pf, "Serialization failure for " + original.getClass().getName());
+    public static void testExternalizable(Externalizable original, PrototypeFactory pf) {
+        testExternalizable(original, pf, "Serialization failure for " + original.getClass().getName());
     }
 
-    public static void testExternalizable(Externalizable original, TestCase tc, PrototypeFactory pf, String failMessage) {
-        testExternalizable(original, original.getClass(), pf, tc, failMessage);
+    public static void testExternalizable(Externalizable original, PrototypeFactory pf, String failMessage) {
+        testExternalizable(original, original.getClass(), pf, failMessage);
     }
 
     //for use inside this test suite
@@ -94,7 +77,7 @@ public class ExternalizableTest extends TestCase {
     }
 
     public void testExternalizable(Object orig, Object template, PrototypeFactory pf) {
-        testExternalizable(orig, template, pf, this, null);
+        testExternalizable(orig, template, pf, null);
     }
 
     public static String printObj(Object o) {
@@ -136,6 +119,7 @@ public class ExternalizableTest extends TestCase {
         //#endif
     }
 
+    @Test
     public void doTests() {
         //base types (built-in + externalizable)
         testExternalizable("string", String.class);

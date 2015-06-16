@@ -1,8 +1,8 @@
 package org.javarosa.core.model.data.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.util.Vector;
 
@@ -13,7 +13,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 
-public class SelectMultiDataTests extends TestCase {
+public class SelectMultiDataTests {
     QuestionDef question;
 
     Selection one;
@@ -24,13 +24,8 @@ public class SelectMultiDataTests extends TestCase {
     Vector lastTwo;
     Vector invalid;
 
-    private static int NUM_TESTS = 5;
-
-    /* (non-Javadoc)
-     * @see j2meunit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
 
         question = new QuestionDef();
 
@@ -57,26 +52,6 @@ public class SelectMultiDataTests extends TestCase {
         invalid.addElement(three);
         invalid.addElement(new Integer(12));
         invalid.addElement(one);
-    }
-
-    public SelectMultiDataTests(String name) {
-        super(name);
-    }
-
-    public SelectMultiDataTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new SelectMultiDataTests("testGetData"));
-        suite.addTest(new SelectMultiDataTests("testSetData"));
-        suite.addTest(new SelectMultiDataTests("testNullData"));
-        suite.addTest(new SelectMultiDataTests("testBadDataTypes"));
-        suite.addTest(new SelectMultiDataTests("testVectorImmutability"));
-
-        return suite;
     }
 
     @Test

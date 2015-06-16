@@ -1,8 +1,8 @@
 package org.javarosa.core.model.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Before;
+import static org.junit.Assert.*;
 
 import java.util.Vector;
 
@@ -29,21 +29,12 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XPathReference;
 
-public class QuestionDefTest extends TestCase {
+public class QuestionDefTest {
     QuestionDef q = null;
     FormEntryPrompt fep = null;
     FormParseInit fpi = null;
 
-    public QuestionDefTest(String name) {
-        super(name);
-        initStuff();
-    }
-
-    public QuestionDefTest() {
-        super();
-        initStuff();
-    }
-
+    @Before
     public void initStuff() {
         fpi = new FormParseInit("/ImageSelectTester.xhtml");
         q = fpi.getFirstQuestionDef();
@@ -55,16 +46,6 @@ public class QuestionDefTest extends TestCase {
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");
         pf = ExtUtil.defaultPrototypes();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new QuestionDefTest("testConstructors"));
-        suite.addTest(new QuestionDefTest("testAccessorsModifiers"));
-        suite.addTest(new QuestionDefTest("testChild"));
-        suite.addTest(new QuestionDefTest("testFlagObservers"));
-        suite.addTest(new QuestionDefTest("testReferences"));
-        return suite;
     }
 
     private void testSerialize(QuestionDef q, String msg) {
@@ -163,39 +144,6 @@ public class QuestionDefTest extends TestCase {
             fail("Localization observer updated after unregistered");
         }
     }
-
-
-//    //Deprecated
-//    public void testLocaleChanged () {
-//        QuestionDef q = new QuestionDef();
-//        q.setLabelInnerText("zh: some text");
-//        q.setHelpText("zh: help text");
-//        q.setTextID("textID");
-//        q.setHelpTextID("help text");
-//        q.addSelectChoice(new SelectChoice("choice", "val1"));
-//        q.addSelectChoice(new SelectChoice("","non-loc: choice", "val2", false));
-//
-//        QuestionObserver qo = new QuestionObserver();
-//        q.registerStateObserver(qo);
-//
-//        Localizer l = new Localizer();
-//        TableLocaleSource table = new TableLocaleSource();
-//        l.addAvailableLocale("en");
-//        table.setLocaleMapping("textID", "en: some text");
-//        table.setLocaleMapping("short text", "en: short text");
-//        table.setLocaleMapping("help text", "en: help text");
-//        table.setLocaleMapping("choice", "en: choice");
-//        l.registerLocaleResource("en", table);
-//        l.setLocale("en");
-//
-//        q.localeChanged("locale", l);
-//        if (!"en: some text".equals(q.getLabelInnerText()) || !"en: help text".equals(q.getHelpText()) ||
-//                !"[{choice}en: choice => val1, non-loc: choice => val2]".equals(q.getChoices().toString()) ||
-//                !qo.flag || qo.flags != FormElementStateListener.CHANGE_LOCALE) {
-//            fail("Improper locale change update");
-//        }
-//    }
-
 
     @Test
     public void testReferences() {

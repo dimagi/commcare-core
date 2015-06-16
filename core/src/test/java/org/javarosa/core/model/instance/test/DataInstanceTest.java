@@ -1,8 +1,7 @@
 package org.javarosa.core.model.instance.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -43,30 +42,15 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * DataInstance methods tests
  *
- * @author Phillip Mates
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 
-public class DataInstanceTest extends TestCase {
+public class DataInstanceTest {
 
     private static final String formPath = new String("/test_xpathpathexpr.xml");
 
-    public DataInstanceTest(String name) {
-        super(name);
-    }
-
-    public DataInstanceTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new DataInstanceTest("doTests"));
-
-        return suite;
-    }
-
-    public void doTests() {
+    @Test
+    public void testDataInstance() {
         // load the xml doc into a form instance
         FormInstance model = null;
         try {

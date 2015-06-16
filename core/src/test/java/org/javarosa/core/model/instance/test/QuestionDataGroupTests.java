@@ -1,8 +1,8 @@
 package org.javarosa.core.model.instance.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,7 +17,7 @@ import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-public class QuestionDataGroupTests extends TestCase {
+public class QuestionDataGroupTests {
     private final String stringElementName = "String Data Element";
     private final String groupName = "TestGroup";
 
@@ -29,8 +29,8 @@ public class QuestionDataGroupTests extends TestCase {
 
     TreeElement group;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    public static void setUp() {
         stringData = new StringData("Answer Value");
         integerData = new IntegerData(4);
 
@@ -42,30 +42,6 @@ public class QuestionDataGroupTests extends TestCase {
 
         group = new TreeElement(groupName);
     }
-
-    public QuestionDataGroupTests(String name) {
-        super(name);
-    }
-
-    public QuestionDataGroupTests() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new QuestionDataGroupTests("testIsLeaf"));
-        suite.addTest(new QuestionDataGroupTests("testGetName"));
-        suite.addTest(new QuestionDataGroupTests("testSetName"));
-        suite.addTest(new QuestionDataGroupTests("testAcceptsVisitor"));
-        suite.addTest(new QuestionDataGroupTests("testAddLeafChild"));
-        suite.addTest(new QuestionDataGroupTests("testAddTreeChild"));
-        suite.addTest(new QuestionDataGroupTests("testContains"));
-        suite.addTest(new QuestionDataGroupTests("testSuperclassMethods"));
-
-        return suite;
-    }
-
 
     @Test
     public void testIsLeaf() {
@@ -138,9 +114,6 @@ public class QuestionDataGroupTests extends TestCase {
 
     @Test
     public void testAddLeafChild() {
-
-
-        //boolean threw = false;
         boolean added = false;
         try {
             group.addChild(stringElement);
@@ -160,30 +133,13 @@ public class QuestionDataGroupTests extends TestCase {
             if (!added) {
                 fail("Group did not report success adding a valid child");
             }
-            //threw = true;
-
         }
     }
 
     @Test
     public void testAddTreeChild() {
-        //TreeElement subTree = new TreeElement("subtree");
-        //TreeElement firstRootTree = new TreeElement("firstRoot");
-        //TreeElement secondRootTree = new TreeElement("secondRoot");
-
         TreeElement subElement = new TreeElement("SubElement");
         subElement.addChild(stringElement);
         subElement.addChild(intElement);
-
-        //assertTrue("Group did not add valid subtree group as a child",subTree.addChild(subElement));
-        //assertTrue("Group does not properly contain subtree group as a child",subTree.contains(subElement));
-
-        //Looks like these are not valid anymore after the last round of changes.
-
-    }
-
-    @Test
-    public void testContains() {
-
     }
 }

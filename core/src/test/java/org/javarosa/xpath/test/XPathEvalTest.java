@@ -1,8 +1,7 @@
 package org.javarosa.xpath.test;
 
 import org.junit.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.Vector;
@@ -30,23 +29,7 @@ import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-public class XPathEvalTest extends TestCase {
-    public XPathEvalTest(String name) {
-        super(name);
-    }
-
-    public XPathEvalTest() {
-        super();
-    }
-
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-
-        suite.addTest(new XPathEvalTest("doTests"));
-
-        return suite;
-    }
-
+public class XPathEvalTest {
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
         testEval(expr, model, ec, expected, 1.0e-12);
     }
