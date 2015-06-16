@@ -144,7 +144,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         return shortText;
     }
 
-    public String[] getStyleHints (boolean header) {
+    public int[] getStyleHints (boolean header) {
         if(header) {
             return shortDetail.getHeaderSizeHints();
         } else {

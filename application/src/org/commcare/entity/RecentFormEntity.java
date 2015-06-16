@@ -56,11 +56,11 @@ public class RecentFormEntity extends Entity<FormInstance> {
         return true;
     }
 
-    public String[] getStyleHints (boolean header) {
+    public int[] getStyleHints (boolean header) {
         if(header) {
-            return new String[] {null, null} ;
+            return new int[] {-1, -1} ;
         } else {
-            return new String[] {null, "36%" };
+		      return new int[] {-1, 36 };
         }
     }
 

@@ -123,7 +123,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     }
                     checkNode("header");
 
-                    builder.setHeaderWidthHint(parser.getAttributeValue(null, "width"));
+                    builder.setHeaderHint(getWidth());
 
                     String form = parser.getAttributeValue(null, "form");
                     builder.setHeaderForm(form == null ? "" : form);
@@ -140,7 +140,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     //Template
                     checkNode("template");
 
-                    builder.setTemplateWidthHint(parser.getAttributeValue(null, "width"));
+                    builder.setTemplateHint(getWidth());
 
                     String form = parser.getAttributeValue(null, "form");
                     if (form == null) {
@@ -236,6 +236,21 @@ public class DetailParser extends CommCareElementParser<Detail> {
         Detail d = new Detail(id, title, subdetails, fields, variables, action, callout);
         return d;
     }
+
+    private int getWidth() throws InvalidStructureException {
+        String width = parser.getAttributeValue(null, "width");
+        if (width == null) {
+            return -1;
+        }
+        ;
+
+        //Remove the trailing % sign if any
+        if (width.indexOf("%") != -1) {
+            width = width.substring(0, width.indexOf("%"));
+        }
+        return this.parseInt(width);
+    }
+
 
     private int[] toIntArray(Vector<Integer> vector) {
         int[] ret = new int[vector.size()];
