@@ -222,7 +222,6 @@ public class TextFormTests {
 
     @Test
     public void testPromptsNoLocalizer() {
-
         QuestionDef q = new QuestionDef();
 
         q.putQuestionString("help", new QuestionString("help", "help text"));

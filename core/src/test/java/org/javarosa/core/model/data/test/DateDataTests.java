@@ -1,5 +1,6 @@
 package org.javarosa.core.model.data.test;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import static org.junit.Assert.*;
@@ -10,13 +11,11 @@ import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.utils.DateUtils;
 
 public class DateDataTests {
-
     static Date today;
     static Date notToday;
 
-    @BeforeClass
-    public static void setUp() {
-
+    @Before
+    public void setUp() {
         today = DateUtils.roundDate(new Date());
         notToday = DateUtils.roundDate(new Date(today.getTime() - today.getTime() / 2));
     }

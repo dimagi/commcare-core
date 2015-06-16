@@ -1,12 +1,8 @@
 package org.javarosa.core.model.instance.test;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.BeforeClass;
 import static org.junit.Assert.*;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
@@ -14,8 +10,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class QuestionDataGroupTests {
     private static final String stringElementName = "String Data Element";
@@ -29,8 +23,8 @@ public class QuestionDataGroupTests {
 
     static TreeElement group;
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         stringData = new StringData("Answer Value");
         integerData = new IntegerData(4);
 

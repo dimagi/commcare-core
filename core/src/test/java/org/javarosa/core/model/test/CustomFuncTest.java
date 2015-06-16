@@ -21,6 +21,8 @@ import static org.junit.Assert.*;
 public class CustomFuncTest {
     private FormParseInit fpi;
 
+    private double errorDelta = 0.001;
+
     /**
      * Try to use a form that has a custom function defined without extending
      * the context with a custom function handler.
@@ -64,7 +66,7 @@ public class CustomFuncTest {
 
             public Object eval(Object[] args, EvaluationContext ec) {
                 Double my_double = (Double)args[0];
-                assertEquals(2.0, my_double * 2.0);
+                assertEquals(2.0, my_double * 2.0, errorDelta);
                 return my_double * 2.0;
             }
 
