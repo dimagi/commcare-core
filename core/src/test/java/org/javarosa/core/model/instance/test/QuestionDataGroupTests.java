@@ -18,16 +18,16 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class QuestionDataGroupTests {
-    private final String stringElementName = "String Data Element";
-    private final String groupName = "TestGroup";
+    private static final String stringElementName = "String Data Element";
+    private static final String groupName = "TestGroup";
 
-    StringData stringData;
-    IntegerData integerData;
+    static StringData stringData;
+    static IntegerData integerData;
 
-    TreeElement stringElement;
-    TreeElement intElement;
+    static TreeElement stringElement;
+    static TreeElement intElement;
 
-    TreeElement group;
+    static TreeElement group;
 
     @BeforeClass
     public static void setUp() {

@@ -9,8 +9,8 @@ import java.util.Date;
 import org.javarosa.core.model.data.TimeData;
 
 public class TimeDataTests {
-    Date now;
-    Date minusOneHour;
+    static Date now;
+    static Date minusOneHour;
 
     @BeforeClass
     public static void setUp() {

@@ -51,7 +51,7 @@ public class TreeReferenceTest {
 
 
     @Before
-    private void initStuff() {
+    public void initStuff() {
         root = TreeReference.rootRef();
         aRef = root.extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         bRef = root.extendRef("b", TreeReference.DEFAULT_MUTLIPLICITY);

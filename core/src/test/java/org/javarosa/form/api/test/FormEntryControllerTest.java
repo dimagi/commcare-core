@@ -19,17 +19,16 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
- * @author Phillip Mates
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormEntryControllerTest {
     private FormParseInit fpi;
-
 
     /**
      * load and parse form
      */
     @Before
-    private void initForm() {
+    public void initForm() {
         System.out.println("init FormEntryControllerTest");
         fpi = new FormParseInit("/test_form_entry_controller.xml");
     }

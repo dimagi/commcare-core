@@ -7,12 +7,11 @@ import static org.junit.Assert.*;
 import org.javarosa.core.model.data.IntegerData;
 
 public class IntegerDataTests {
-    Integer one;
-    Integer two;
+    static Integer one;
+    static Integer two;
 
     @BeforeClass
     public static void setUp() {
-
         one = new Integer(1);
         two = new Integer(2);
     }

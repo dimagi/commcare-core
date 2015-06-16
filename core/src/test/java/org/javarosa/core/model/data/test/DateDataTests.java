@@ -11,10 +11,9 @@ import org.javarosa.core.model.utils.DateUtils;
 
 public class DateDataTests {
 
-    Date today;
-    Date notToday;
+    static Date today;
+    static Date notToday;
 
-    // TODO PLM: is this called by junit 4?
     @BeforeClass
     public static void setUp() {
 

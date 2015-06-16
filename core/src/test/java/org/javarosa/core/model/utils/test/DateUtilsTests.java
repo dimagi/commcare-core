@@ -12,12 +12,11 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.DateUtils.DateFields;
 
 public class DateUtilsTests {
-    Date currentTime;
-    Date minusOneHour;
+    static Date currentTime;
+    static Date minusOneHour;
 
     @BeforeClass
     public static void setUp() {
-
         currentTime = new Date();
         minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }

@@ -21,24 +21,22 @@ import org.javarosa.xform.util.XFormAnswerDataSerializer;
  * @author Clayton Sims
  */
 public class XFormAnswerDataSerializerTest {
-    final String stringDataValue = "String Data Value";
-    final Integer integerDataValue = new Integer(5);
-    final Date dateDataValue = new Date();
-    final Date timeDataValue = new Date();
+    static final String stringDataValue = "String Data Value";
+    static final Integer integerDataValue = new Integer(5);
+    static final Date dateDataValue = new Date();
+    static final Date timeDataValue = new Date();
 
-    StringData stringData;
-    IntegerData integerData;
-    DateData dateData;
-    SelectOneData selectData;
-    TimeData timeData;
+    static StringData stringData;
+    static IntegerData integerData;
+    static DateData dateData;
+    static TimeData timeData;
 
-    TreeElement stringElement = new TreeElement();
-    TreeElement intElement = new TreeElement();
-    TreeElement dateElement = new TreeElement();
-    TreeElement selectElement = new TreeElement();
-    TreeElement timeElement = new TreeElement();
+    static TreeElement stringElement = new TreeElement();
+    static TreeElement intElement = new TreeElement();
+    static TreeElement dateElement = new TreeElement();
+    static TreeElement timeElement = new TreeElement();
 
-    XFormAnswerDataSerializer serializer;
+    static XFormAnswerDataSerializer serializer;
 
     @BeforeClass
     public static void setUp() {
@@ -85,10 +83,5 @@ public class XFormAnswerDataSerializerTest {
         assertTrue("Serializer Incorrectly Reports Inability to Serializer Time", serializer.canSerialize(timeElement.getValue()));
         Object answerData = serializer.serializeAnswerData(timeData);
         assertNotNull("Serializer returns Null for valid Time Data", answerData);
-    }
-
-    @Test
-    public void testSelect() {
-        //No select tests yet.
     }
 }

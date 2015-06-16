@@ -19,13 +19,13 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class QuestionDataElementTests {
-    private final String stringElementName = "String Data Element";
+    private static final String stringElementName = "String Data Element";
 
-    StringData stringData;
-    IntegerData integerData;
+    static StringData stringData;
+    static IntegerData integerData;
 
-    TreeElement stringElement;
-    TreeElement intElement;
+    static TreeElement stringElement;
+    static TreeElement intElement;
 
     @BeforeClass
     public static void setUp() {

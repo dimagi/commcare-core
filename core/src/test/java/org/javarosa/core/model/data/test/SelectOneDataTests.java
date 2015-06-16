@@ -13,15 +13,13 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 
 public class SelectOneDataTests {
-    QuestionDef question;
+    static QuestionDef question;
 
-    Selection one;
-    Selection two;
+    static Selection one;
+    static Selection two;
 
-    // TODO PLM: is this called by junit 4?
     @BeforeClass
     public static void setUp() {
-
         question = new QuestionDef();
         question.setID(57);
 

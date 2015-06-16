@@ -14,15 +14,15 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
 
 public class SelectMultiDataTests {
-    QuestionDef question;
+    static QuestionDef question;
 
-    Selection one;
-    Selection two;
-    Selection three;
+    static Selection one;
+    static Selection two;
+    static Selection three;
 
-    Vector firstTwo;
-    Vector lastTwo;
-    Vector invalid;
+    static Vector firstTwo;
+    static Vector lastTwo;
+    static Vector invalid;
 
     @BeforeClass
     public static void setUp() {

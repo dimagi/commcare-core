@@ -7,13 +7,11 @@ import static org.junit.Assert.*;
 import org.javarosa.core.model.data.StringData;
 
 public class StringDataTests {
-    String stringA;
-    String stringB;
+    static String stringA;
+    static String stringB;
 
-    // TODO PLM: is this called by junit 4?
     @BeforeClass
     public static void setUp() {
-
         stringA = "string A";
         stringB = "string B";
     }

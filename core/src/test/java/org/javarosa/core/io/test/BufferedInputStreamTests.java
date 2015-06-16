@@ -14,14 +14,11 @@ import org.javarosa.core.util.ArrayUtilities;
 public class BufferedInputStreamTests {
 
     byte[] bytes;
-
-    int[] sizesToTest = new int[]{15, 64, 500, 1280, 2047, 2048, 2049, 5000, 10000, 23000};
-
-    byte[][] arraysToTest;
+    static int[] sizesToTest = new int[]{15, 64, 500, 1280, 2047, 2048, 2049, 5000, 10000, 23000};
+    static byte[][] arraysToTest;
 
     @BeforeClass
     public static void setUp() {
-
         Random r = new Random();
 
         arraysToTest = new byte[sizesToTest.length][];
