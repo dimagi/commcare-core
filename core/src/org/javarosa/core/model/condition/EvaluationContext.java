@@ -399,7 +399,6 @@ public class EvaluationContext {
                         throw new IllegalStateException("Missing or non-sequential nodes expanding a reference");
                     }
                 }
-                // TODO: this could be lifted out a conditional level, right? -- PLM
                 if (includeTemplates) {
                     AbstractTreeElement template = node.getChild(childName, TreeReference.INDEX_TEMPLATE);
                     if (template != null) {
