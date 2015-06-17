@@ -19,41 +19,49 @@ import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 
 /**
- * Helper methods for procedures which are common to different Tree model implementations and don't
- * fit well into the inheritance model
+ * Helper methods for procedures which are common to different Tree model
+ * implementations and don't fit well into the inheritance model
  *
  * @author ctsims
  */
 public class TreeUtilities {
 
     /**
-     * A general purpose method for taking an abstract tree element and attempting to batch fetch its children's
-     * predicates through static evaluation.
+     * A general purpose method for taking an abstract tree element and
+     * attempting to batch fetch its children's predicates through static
+     * evaluation.
      *
      * @param parent                The element whose children are being requested
      * @param childAttributeHintMap A mapping of paths which can be evaluated in memory.
      * @param name                  The name of the children being queried
-     * @param mult                  the multiplicity being queried for (could be undefined)
-     * @param predicates            the evaluation step predicates which are being processed. NOTE: This vector
-     *                              will be modified by this method as a side effect if a predicate was succesfully statically evaluated
+     * @param mult                  The multiplicity being queried for (could be undefined)
+     * @param predicates            The evaluation step predicates which are
+     *                              being processed. NOTE: This vector will be modified by this method as a
+     *                              side effect if a predicate was succesfully statically evaluated
      * @param evalContext           The current eval context.
      * @return A vector of TreeReferences which contains the nodes matched by predicate expressions.
      * Expressions which result in returned matches will be removed from the predicate collection which
      * is provided
      */
-    public static Vector<TreeReference> tryBatchChildFetch(AbstractTreeElement parent, Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap, String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
-        //This method builds a predictive model for quick queries that prevents the need to fully flesh out
-        //full walks of the tree.
+    public static Vector<TreeReference> tryBatchChildFetch(AbstractTreeElement parent,
+                                                           Hashtable<XPathPathExpr,
+                                                                   Hashtable<String, TreeElement[]>> childAttributeHintMap,
+                                                           String name,
+                                                           int mult,
+                                                           Vector<XPathExpression> predicates,
+                                                           EvaluationContext evalContext) {
+        // This method builds a predictive model for quick queries that
+        // prevents the need to fully flesh out full walks of the tree.
 
-        //TODO:
-        //We build a bunch of models here, it's not clear whether we should be retaining them for multiple queries in the future
-        //rather than letting it rebuild the same caches a couple of times
+        // TODO: We build a bunch of models here, it's not clear whether we
+        // should be retaining them for multiple queries in the future rather
+        // than letting it rebuild the same caches a couple of times
 
-        //We also need to figure out exactly how to determine whether this "worked" more or less and potentially preventing this attempt
-        //from proceeding in the future, since it's not exactly free...
+        // We also need to figure out exactly how to determine whether this
+        // "worked" more or less and potentially preventing this attempt from
+        // proceeding in the future, since it's not exactly free...
 
-
-        //Only do for predicates
+        // Only do for predicates
         if (mult != TreeReference.INDEX_UNBOUND || predicates == null) {
             return null;
         }
@@ -161,9 +169,11 @@ public class TreeUtilities {
                             for (int kidI = 0; kidI < kids.size(); ++kidI) {
                                 String attrValue = kids.elementAt(kidI).getAttributeValue(null, attributeName);
 
-                                //We don't necessarily having typing information for these attributes (and if we did
-                                //it's not available here) so we will try to do some _very basic_ type inference
-                                //on this value before performing the match
+                                // We don't necessarily having typing
+                                // information for these attributes (and if we
+                                // did it's not available here) so we will try
+                                // to do some _very basic_ type inference on
+                                // this value before performing the match
                                 Object value = XPathFuncExpr.InferType(attrValue);
 
                                 if (XPathEqExpr.testEquality(value, literalMatch)) {
@@ -171,24 +181,26 @@ public class TreeUtilities {
                                 }
                             }
 
-                            //Merge and note that this predicate is evaluated and doesn't need to be evaluated in the future.
+                            // Merge and note that this predicate is evaluated
+                            // and doesn't need to be evaluated in the future.
                             allSelectedChildren = merge(allSelectedChildren, predicateMatches, i, toRemove);
                             continue predicate;
                         }
                     }
                 }
             }
-            //There's only one case where we want to keep moving along, and we would have triggered it if it were going to happen,
-            //so otherwise, just get outta here.
+            // There's only one case where we want to keep moving along, and we
+            // would have triggered it if it were going to happen, so
+            // otherwise, just get outta here.
             break;
         }
 
-        //if we weren't able to evaluate any predicates, signal that.
+        // if we weren't able to evaluate any predicates, signal that.
         if (allSelectedChildren == null) {
             return null;
         }
 
-        //otherwise, remove all of the predicates we've already evaluated
+        // otherwise, remove all of the predicates we've already evaluated
         for (int i = toRemove.size() - 1; i >= 0; i--) {
             predicates.removeElementAt(toRemove.elementAt(i).intValue());
         }

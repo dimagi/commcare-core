@@ -241,10 +241,9 @@ public class XPathFuncExpr extends XPathExpression {
                 }
                 if (args.length == 1) {
                     return position(((XPathNodeset)argVals[0]).getRefAt(0));
+                } else if (evalContext.getContextPosition() != -1) {
+                    return new Double(evalContext.getContextPosition());
                 } else {
-                    if (evalContext.getContextPosition() != -1) {
-                        return new Double(evalContext.getContextPosition());
-                    }
                     return position(evalContext.getContextRef());
                 }
             } else if (name.equals("count")) {

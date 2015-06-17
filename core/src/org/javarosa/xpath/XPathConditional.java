@@ -120,14 +120,32 @@ public class XPathConditional implements IConditionExpr {
             TreeReference ref = ((XPathPathExpr)expr).getReference();
             TreeReference contextualized = ref;
 
-            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL) {
-                // Starts with 'current()' so contextualize in terms of the
-                // nodeset's original reference.
+            if (ref.getContext() == TreeReference.CONTEXT_ORIGINAL ||
+                    (contextRef == null && !ref.isAbsolute())) {
+                // Expr's ref begins with 'current()' or is relative and the
+                // context ref is missing.
                 contextualized = ref.contextualize(originalContextRef);
             } else if (contextRef != null) {
-                // If present then the context has been updated, so use it.
-                // Necessary if we jump into handling predicates.
                 contextualized = ref.contextualize(contextRef);
+            }
+
+            // find the references this reference depends on inside of predicates
+            for (int i = 0; i < ref.size(); i++) {
+                Vector<XPathExpression> predicates = ref.getPredicate(i);
+                if (predicates == null) {
+                    continue;
+                }
+
+                // contextualizing with ../'s present means we need to
+                // calculate an offset to grab the appropriate predicates
+                int basePredIndex = contextualized.size() - ref.size();
+
+                TreeReference predicateContext = contextualized.getSubReference(basePredIndex + i);
+
+                for (XPathExpression predicate : predicates) {
+                    getExprsTriggersAccumulator(predicate, triggers,
+                            predicateContext, originalContextRef);
+                }
             }
 
             // TODO: It's possible we should just handle this the same way as
@@ -137,24 +155,6 @@ public class XPathConditional implements IConditionExpr {
             }
             if (!triggers.contains(contextualized)) {
                 triggers.addElement(contextualized);
-            }
-            // find the references this reference depends on inside of predicates
-            for (int i = 0; i < ref.size(); i++) {
-                Vector<XPathExpression> predicates = ref.getPredicate(i);
-                if (predicates == null) {
-                    continue;
-                }
-
-                //we can't generate this properly without an absolute reference
-                if (!ref.isAbsolute()) {
-                    throw new IllegalArgumentException("can't get triggers for relative references");
-                }
-                TreeReference predicateContext = ref.getSubReference(i);
-
-                for (XPathExpression predicate : predicates) {
-                    getExprsTriggersAccumulator(predicate, triggers,
-                            predicateContext, originalContextRef);
-                }
             }
         } else if (expr instanceof XPathBinaryOpExpr) {
             getExprsTriggersAccumulator(((XPathBinaryOpExpr)expr).a, triggers,

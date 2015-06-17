@@ -970,13 +970,25 @@ public class XFormParser {
         } else if (ref != null) {
             try {
                 dataRef = new XPathReference(ref);
+                TreeReference controlRefTarget = (TreeReference)dataRef.getReference();
+                if (controlRefTarget.getInstanceName() != null) {
+                    reporter.error("<" + e.getName() +
+                            "> points to an non-main instance (" +
+                            controlRefTarget.getInstanceName() +
+                            "), which isn't supported.");
+                }
+                if (controlRefTarget.hasPredicates()) {
+                    throw new XFormParseException("XForm Parse: The ref path " +
+                            "of a <trigger> isn't allowed to have predicates.", e);
+                }
             } catch (RuntimeException el) {
                 System.out.println(this.getVagueLocation(e));
                 throw el;
             }
         } else {
             if (controlType == Constants.CONTROL_TRIGGER) {
-                //TODO: special handling for triggers? also, not all triggers created equal
+                // TODO: special handling for triggers? also, not all triggers created equal
+                // Currently, trigger and input tags are treated identically --PLM
             } else {
                 throw new XFormParseException("XForm Parse: input control with neither 'ref' nor 'bind'", e);
             }
@@ -2419,8 +2431,20 @@ public class XFormParser {
                 i--;
             } else {
                 Vector<TreeReference> nodes = new EvaluationContext(instance).expandReference(ref, true);
+
                 if (nodes.size() == 0) {
-                    reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "<bind> defined for a node that doesn't exist [" + ref.toString() + "]. The node's name was probably changed and the bind should be updated. ", null);
+                    if (ref.getInstanceName() != null) {
+                        reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
+                                "<bind> points to an non-main instance (" +
+                                        ref.getInstanceName() + "), which is read-only.",
+                                null);
+                    } else {
+                        reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE,
+                                "<bind> defined for a node that doesn't exist [" +
+                                        ref.toString() +
+                                        "]. The node was renamed and the bind should be updated accordingly.",
+                                null);
+                    }
                 }
             }
         }
