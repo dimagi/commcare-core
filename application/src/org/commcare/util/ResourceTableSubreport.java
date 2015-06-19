@@ -35,7 +35,7 @@ public class ResourceTableSubreport implements DeviceReportElement {
                 try {
                     o.attribute(null, "id", r.getResourceId());
                     o.attribute(null, "version", String.valueOf(r.getVersion()));
-                    DeviceReportState.writeText(o, "status", ResourceTable.getStatus(r.getStatus()));
+                    DeviceReportState.writeText(o, "status", ResourceTable.getStatusString(r.getStatus()));
                 }finally {
                     o.endTag(DeviceReportState.XMLNS, "resource");
                 }

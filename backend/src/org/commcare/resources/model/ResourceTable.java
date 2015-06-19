@@ -733,7 +733,7 @@ public class ResourceTable {
         return header.append(resourceDetails.toString()).append(header.toString()).toString();
     }
 
-    private static String getStatusString(int status) {
+    public static String getStatusString(int status) {
         switch (status) {
             case Resource.RESOURCE_STATUS_UNINITIALIZED:
                 return "Uninitialized";
