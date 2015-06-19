@@ -19,8 +19,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * Copied directly from JavaRosa, although we should likely move that model somewhere
- * in the global framing anyway.
+ * Copied directly from JavaRosa, although we should likely move that model
+ * somewhere in the global framing anyway.
  *
  * @author ctsims
  */
@@ -40,6 +40,8 @@ public class User implements Persistable, Restorable, IMetaData {
     private String username;
     private String password;
     private String uniqueId;  //globally-unique id
+
+    static private User demo_user;
 
     private boolean rememberMe = false;
 
@@ -63,7 +65,7 @@ public class User implements Persistable, Restorable, IMetaData {
         rememberMe = false;
     }
 
-    ///fetch the value for the default user and password from the RMS
+    // fetch the value for the default user and password from the RMS
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.username = ExtUtil.readString(in);
         this.password = ExtUtil.readString(in);
@@ -183,8 +185,6 @@ public class User implements Persistable, Restorable, IMetaData {
         RestoreUtils.applyDataType(dm, "user-id", parentRef, Integer.class);
         RestoreUtils.applyDataType(dm, "uuid", parentRef, String.class);
         RestoreUtils.applyDataType(dm, "remember", parentRef, Boolean.class);
-
-        // other/* defaults to string
     }
 
     public void importData(FormInstance dm) {
@@ -237,8 +237,6 @@ public class User implements Persistable, Restorable, IMetaData {
         this.syncToken = syncToken;
     }
 
-    static private User demo_user;
-
     public static User FactoryDemoUser() {
         if (demo_user == null) {
             demo_user = new User();
@@ -249,5 +247,4 @@ public class User implements Persistable, Restorable, IMetaData {
         }
         return demo_user;
     }
-
 }

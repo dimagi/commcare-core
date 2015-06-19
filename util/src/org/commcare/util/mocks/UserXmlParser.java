@@ -108,5 +108,4 @@ public class UserXmlParser extends TransactionParser<User> {
     public IStorageUtilityIndexed storage() {
         return storage;
     }
-
 }

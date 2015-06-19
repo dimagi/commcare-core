@@ -7,19 +7,19 @@ import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * A prototype factory that is configured to keep track of all of the case->hash
- * pairs that it creates in order to use them for deserializaiton in the future.
+ * A prototype factory that is configured to keep track of all of the
+ * case->hash pairs that it creates in order to use them for deserializaiton in
+ * the future.
  *
  * Will only work reliably if it is used synchronously to hash all values that
- * are read, and should really only be expected to function for 'in memory' storage
- * like mocks.
+ * are read, and should really only be expected to function for 'in memory'
+ * storage like mocks.
  *
  * TODO: unify with Android storage live factory mocker
  *
  * @author ctsims
  */
 public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
-
     private final Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
     private final Hasher mPassThroughHasher;
 
@@ -58,5 +58,4 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
         factoryTable.put(ExtUtil.printBytes(hash), type);
         return hash;
     }
-
 }
