@@ -1,12 +1,18 @@
 package org.javarosa.core.model.test;
 
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
+import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.model.xform.XPathReference;
 
 import org.junit.Test;
@@ -47,6 +53,44 @@ public class FormDefTest {
                 // shouldn't happen after answering "no" to the first, unless
                 // triggers aren't working properly.
                 fail("shouldn't be relevant after answering no before");
+            }
+        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+    }
+
+    /**
+     * Make sure that relative references in <bind> elements are correctly
+     * contextualized.
+     */
+    @Test
+    public void testRelativeRefInTriggers() {
+        FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        FormDef fd = fpi.getFormDef();
+        // run initialization to ensure xforms-ready event and binds are
+        // triggered.
+        fd.initialize(true, new DummyInstanceInitializationFactory());
+
+        FormInstance instance = (FormInstance)fd.getMainInstance();
+
+        String errorMsg;
+        errorMsg = ExprEvalUtils.expectedEval("/data/query-one", instance, null, "0", null);
+        assertTrue(errorMsg, "".equals(errorMsg));
+
+        boolean isShown = false;
+        boolean[] shouldBePresent = { true, true };
+
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null) {
+                continue;
+            }
+            // get the reference of question
+            TreeReference qRef = (TreeReference)((XPathReference)q.getBind()).getReference();
+
+            if (q.getID() <= shouldBePresent.length && !shouldBePresent[q.getID() - 1]) {
+                fail("question with id " + q.getID() + " shouldn't be relevant");
             }
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
     }

@@ -193,11 +193,23 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
+    public String getConstraintText(){
+        return getConstraintText(null);
+    }
+
     public String getConstraintText(IAnswerData attemptedValue) {
+        // new constraint spec uses "alert" form XForm spec 8.2.4
+        // http://www.w3.org/TR/xforms/#ui-commonelems
+        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT));
+        if(newConstraintMsg != null){
+            return newConstraintMsg;
+        }
+        //default to old logic
         return getConstraintText(null, attemptedValue);
     }
 
     public String getConstraintText(String textForm, IAnswerData attemptedValue) {
+        // if doesn't exist, use the old logic
         if (mTreeElement.getConstraint() == null) {
             return null;
         } else {
@@ -211,26 +223,6 @@ public class FormEntryPrompt extends FormEntryCaption {
             }
             return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), textForm);
         }
-    }
-
-    /**
-     * Convenience method
-     * Get longText form of text for THIS element (if available)
-     * !!Falls back to default form if 'long' form does not exist.!!
-     * Use getSpecialFormQuestionText() if you want short form only.
-     *
-     * @return longText form
-     */
-    public String getConstraintText() {
-        // new constraint spec uses "alert" form XForm spec 8.2.4
-        // http://www.w3.org/TR/xforms/#ui-commonelems
-        String newConstraintMsg =  this.localizeText(getQuestion().getQuestionString(XFormParser.CONSTRAINT_ELEMENT));
-        if(newConstraintMsg != null){
-            return newConstraintMsg;
-        }
-        // if not found, try to fall back to old jr:constraintMsg format http://www.w3.org/TR/xforms/#ui-commonelems
-        EvaluationContext ec = new EvaluationContext(form.exprEvalContext, mTreeElement.getRef());
-        return mTreeElement.getConstraint().getConstraintMessage(ec, form.getMainInstance(), null);
     }
 
     public Vector<SelectChoice> getSelectChoices() {

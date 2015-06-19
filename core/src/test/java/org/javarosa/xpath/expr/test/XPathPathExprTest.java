@@ -45,7 +45,6 @@ import org.xmlpull.v1.XmlPullParserException;
 /**
  * @author Phillip Mates
  */
-
 public class XPathPathExprTest {
     @Test
     public void testHeterogeneousPaths() {
@@ -65,7 +64,6 @@ public class XPathPathExprTest {
     public void testNestedMultiplicities() {
         FormParseInit fpi = new FormParseInit("/test_nested_multiplicities.xml");
         FormDef fd = fpi.getFormDef();
-        FormEntryModel fem = fpi.getFormEntryModel();
 
         testEval("/data/bikes/manufacturer/model[@id='pista']/@color",
                 fd.getInstance(), null, "seafoam");
@@ -79,6 +77,45 @@ public class XPathPathExprTest {
                 fd.getInstance(), null, new XPathTypeMismatchException());
         testEval("join(' ', /data/bikes/manufacturer[@american='no'][model=1]/model/@id)",
                 fd.getInstance(), null, new XPathTypeMismatchException());
+    }
+
+    /**
+     * Test nested predicates that have relative and absolute references.
+     */
+    @Test
+    private void testNestedPreds() {
+        FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
+        FormDef fd = fpi.getFormDef();
+        FormInstance fi = fd.getInstance();
+        FormInstance groupsInstance = (FormInstance)fd.getNonMainInstance("groups");
+        EvaluationContext ec = fd.getEvaluationContext();
+
+        // TODO PLM: test chaining of predicates where second pred would throw
+        // and error if the first pred hadn't already filtered out certain
+        // nodes:
+        // /a/b[filter out first][../a/b/d = foo]
+
+        testEval("join(' ', instance('groups')/root/groups/group/@id)",
+                groupsInstance, ec, "inc dwa");
+
+        testEval("count(instance('groups')/root/groups[position() = 1]/team[@id = 'mobile'])",
+                groupsInstance, ec, 1.0);
+
+        // find 'group' elements that have a 'team' sibling with id = mobile;
+        testEval("instance('groups')/root/groups/group[count(../team[@id = 'mobile']) > 0]/@id",
+                groupsInstance, ec, "inc");
+
+        testEval("count(instance('groups')/root/groups/group[count(../team[@id = 'mobile']) > 0]) = 1",
+                groupsInstance, ec, true);
+
+        testEval("if(count(instance('groups')/root/groups/group/group_data/data) > 0 and count(instance('groups')/root/groups/group[count(../team[@id = 'mobile']) > 0]) = 1, instance('groups')/root/groups/group[count(../team[@id = 'mobile']) > 0]/@id, '')",
+                groupsInstance, ec, "inc");
+
+        testEval("instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . = 'yes']) > 0]/@id",
+                groupsInstance, ec, "inc");
+
+        testEval("if(count(instance('groups')/root/groups/group/group_data/data) > 0 and count(instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]) = 1, instance('groups')/root/groups/group[count(group_data/data[@key = 'all_field_staff' and . ='yes']) > 0]/@id, '')",
+                groupsInstance, ec, "inc");
     }
 
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {

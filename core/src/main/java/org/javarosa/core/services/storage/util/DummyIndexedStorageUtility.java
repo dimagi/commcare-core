@@ -24,6 +24,7 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
@@ -37,12 +38,19 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     int curCount;
 
     Class<T> prototype;
-
+    
+    PrototypeFactory mFactory;
+    
     public DummyIndexedStorageUtility(Class<T> prototype) {
+        this(prototype, PrototypeManager.getDefault());
+    }
+
+    public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
         data = new Hashtable<Integer, T>();
         curCount = 0;
         this.prototype = prototype;
+        this.mFactory = factory;
     }
 
 
@@ -173,7 +181,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         //return data.get(DataUtil.integer(id));
         try {
             T t = prototype.newInstance();
-            t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), PrototypeManager.getDefault());
+            t.readExternal(new DataInputStream(new ByteArrayInputStream(readBytes(id))), mFactory);
             return t;
         } catch (InstantiationException e) {
             e.printStackTrace();
