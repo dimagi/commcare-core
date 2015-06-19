@@ -45,19 +45,26 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
     public boolean initialize(T instance) throws ResourceInitializationException;
 
     /**
-     * Proceeds with the next step of installing resource r, keeping
-     * records at current, and maintaining upgrade status against
-     * master.
+     * Proceeds with the next step of installing resource r, keeping records at
+     * current, and maintaining upgrade status against master.
      *
-     * @param r     The resource to be stepped
-     * @param table the table where the resource is being managed
-     * @param peer  the current copy of a resource (if one exists)
+     * @param r        The resource to be stepped
+     * @param location
+     * @param ref
+     * @param table    the table where the resource is being managed
+     * @param instance
+     * @param upgrade
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
-     * @throws UnresolvedResourceException       If the local resource definition could not be found
-     * @throws UnfullfilledRequirementsException If the current platform does not fullfill the needs for this resource
+     * @throws UnresolvedResourceException       If the local resource
+     *                                           definition could not be found
+     * @throws UnfullfilledRequirementsException If the current platform does
+     *                                           not fullfill the needs for this resource
      */
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, T instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    public boolean install(Resource r, ResourceLocation location,
+                           Reference ref, ResourceTable table,
+                           T instance, boolean upgrade) throws
+            UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**
      * Removes the binary files and cached data associated with a resource, often in order to
