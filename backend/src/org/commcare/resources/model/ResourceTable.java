@@ -136,7 +136,7 @@ public class ResourceTable {
     }
 
     public void addResource(Resource resource, ResourceInstaller initializer,
-                            String parentId) throws StorageFullException {
+                            String parentId) {
         addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
     }
 
