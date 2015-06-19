@@ -89,12 +89,22 @@ public class CommCarePlatform implements CommCareInstance {
         return minorVersion;
     }
 
-    public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, ResourceTable recovery, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+    public ResourceTable stageUpgradeTable(ResourceTable global,
+                                           ResourceTable incoming,
+                                           ResourceTable recovery,
+                                           boolean clearProgress) 
+        throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
         Profile current = getCurrentProfile();
         return stageUpgradeTable(global, incoming, recovery, current.getAuthReference(), clearProgress);
     }
 
-    public ResourceTable stageUpgradeTable(ResourceTable global, ResourceTable incoming, ResourceTable recovery, String profileRef, boolean clearProgress) throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+    public ResourceTable stageUpgradeTable(ResourceTable global,
+                                           ResourceTable incoming,
+                                           ResourceTable recovery,
+                                           String profileRef,
+                                           boolean clearProgress)
+            throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+
         // Make sure everything's in a good state
         if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair(global, incoming, recovery);
@@ -117,7 +127,8 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
         locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 
-        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
+        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
 
         incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
 

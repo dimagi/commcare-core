@@ -44,6 +44,11 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNSTAGED = 4;
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
+    private TableStateListener stateListener = null;
+
+    private int numberOfLossyRetries = 3;
+
+
     /**
      * For Serialization Only!
      */
@@ -51,18 +56,15 @@ public class ResourceTable {
     }
 
     public boolean isEmpty() {
-        if (storage.getNumRecords() > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return storage.getNumRecords() <= 0;
     }
 
     public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage) {
         return RetrieveTable(storage, new InstallerFactory());
     }
 
-    public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage, InstallerFactory factory) {
+    public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage,
+                                              InstallerFactory factory) {
         ResourceTable table = new ResourceTable();
         table.storage = storage;
         table.factory = factory;
@@ -70,8 +72,8 @@ public class ResourceTable {
     }
 
     public int getTableReadiness() {
-        // TODO: this is very hard to fully specify without doing assertions when preparing a
-        // table about appropriate states
+        // TODO: this is very hard to fully specify without doing assertions
+        // when preparing a table about appropriate states
 
         boolean isFullyInstalled = true;
         boolean isEmpty = true;
@@ -126,40 +128,41 @@ public class ResourceTable {
         storage.remove(resource);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) {
+    public void addResource(Resource resource, ResourceInstaller initializer,
+                            String parentId, int status) {
         resource.setInstaller(initializer);
         resource.setParentId(parentId);
         addResource(resource, status);
     }
 
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId) {
+    public void addResource(Resource resource, ResourceInstaller initializer,
+                            String parentId) throws StorageFullException {
         addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
     }
 
     public void addResource(Resource resource, int status) {
-        Vector<Integer> existing = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId());
-        for (Integer i : existing) {
-            Resource r = (Resource)storage.read(i.intValue());
-            // this resource is already here! No worries
-            return;
-        }
+        // only add resource if they don't already exist
+        if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
+                resource.getResourceId()).size() == 0) {
+            resource.setStatus(status);
+            try {
+                //TODO: Check if it exists?
+                if (resource.getID() != -1) {
+                    // Assume that we're going cross-table, so we need a new
+                    // RecordId.
+                    resource.setID(-1);
 
-        resource.setStatus(status);
-        try {
-            //TODO: Check if it exists?
-            if (resource.getID() != -1) {
-                //Assume that we're going cross-table, so we need a new RecordId.
-                resource.setID(-1);
-
-                //Check to make sure that there's no existing GUID for this record.
-                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                    throw new RuntimeException("Why are you adding a record that already exists? Huh?");
+                    // Check to make sure that there's no existing GUID for
+                    // this record.
+                    if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                        throw new RuntimeException("This resource record already exists.");
+                    }
                 }
+
+                storage.write(resource);
+            } catch (StorageFullException e) {
+                e.printStackTrace();
             }
-            storage.write(resource);
-        } catch (StorageFullException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -188,7 +191,10 @@ public class ResourceTable {
         }
     }
 
-    private Vector<Resource> GetResources() {
+    /**
+     * Get the all the resources in this table's storage.
+     */
+    private Vector<Resource> getResources() {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -197,7 +203,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Vector<Resource> GetResources(int status) {
+    /**
+     * Get the resources in this table's storage that have a given status.
+     */
+    private Vector<Resource> getResourcesWithStatus(int status) {
         Vector<Resource> v = new Vector<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -208,7 +217,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Stack<Resource> GetResourceStack() {
+    /**
+     * Get the all the resources in this table's storage.
+     */
+    private Stack<Resource> getResourceStack() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -217,7 +229,10 @@ public class ResourceTable {
         return v;
     }
 
-    private Stack<Resource> GetResourceStack(int status) {
+    /**
+     * Get the resources in this table's storage that have a given status.
+     */
+    private Stack<Resource> getResourceStackWithStatus(int status) {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -229,13 +244,21 @@ public class ResourceTable {
     }
 
 
-    private Stack<Resource> GetUnreadyResources() {
+    /**
+     * Get stored resources that are unready for installation, that is, not of
+     * installed, upgrade, or pending status.
+     *
+     * Resources that are:
+     * - installed don't need anything
+     * - marked as ready for upgrade are ready
+     * - marked as pending aren't capable of installation yet
+     *
+     * @return Stack of resource records that aren't ready for installation
+     */
+    private Stack<Resource> getUnreadyResources() {
         Stack<Resource> v = new Stack<Resource>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
-            // If the resource is installed, it doesn't need anything
-            // If the resource is marked as ready for upgrade, it's ready
-            // If the resource is marked as pending, it isn't capable of installation yet
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
                     r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE &&
                     r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
@@ -245,8 +268,12 @@ public class ResourceTable {
         return v;
     }
 
+    /**
+     * Are all the resources ready to be installed or have already been
+     * installed?
+     */
     public boolean isReady() {
-        return GetUnreadyResources().size() == 0;
+        return getUnreadyResources().size() == 0;
     }
 
     public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
@@ -255,6 +282,9 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
+            // XXX PLM: Why?
+            Logger.log("Resource",
+                    "committing a resource with a known version.");
         }
         commit(r, status);
     }
@@ -272,7 +302,7 @@ public class ResourceTable {
      * Rolls back uncommitted resources from dirty states
      */
     public void rollbackCommits() {
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.isDirty()) {
@@ -282,116 +312,160 @@ public class ResourceTable {
     }
 
     /**
+     * Install a resource by looping through its locations stopping at first
+     * successful install.
+     *
+     * @param r        Resource to install
+     * @param invalid  out-of-date locations to be avoided during resource
+     *                 installation
+     * @param upgrade  Has an older version of the resource been installed?
+     * @param instance The CommCare instance (specific profile and version) to
+     *                 prepare against
+     * @param master   Backup resource table to look-up resources not found in
+     *                 the current table
+     * @throws UnresolvedResourceException       Raised when no definitions for
+     *                                           resource 'r' can't be found
+     * @throws UnfullfilledRequirementsException
+     */
+    private void findResourceLocationAndInstall(Resource r,
+                                                Vector<Reference> invalid,
+                                                boolean upgrade,
+                                                CommCareInstance instance,
+                                                ResourceTable master)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+
+        // TODO: Possibly check if resource status is local and proceeding to
+        // skip this huge (although in reality like one step) chunk
+
+        UnreliableSourceException theFailure = null;
+        boolean handled = false;
+
+        for (ResourceLocation location : r.getLocations()) {
+            if (handled) {
+                break;
+            }
+            if (location.isRelative()) {
+                for (Reference ref : gatherLocationsRefs(location, r, this, master)) {
+                    if (!(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref))) {
+                        try {
+                            handled = installResource(r, location, ref, this,
+                                    instance, upgrade);
+                        } catch (UnreliableSourceException use) {
+                            theFailure = use;
+                        }
+                        if (handled) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                try {
+                    handled = installResource(r, location,
+                            ReferenceManager._().DeriveReference(location.getLocation()),
+                            this, instance, upgrade);
+                    if (handled) {
+                        break;
+                    }
+                } catch (InvalidReferenceException ire) {
+                    ire.printStackTrace();
+                    // Continue until no resources can be found.
+                } catch (UnreliableSourceException use) {
+                    theFailure = use;
+                }
+            }
+        }
+
+        if (!handled) {
+            if (theFailure == null) {
+                // no particular failure to point our finger at.
+                throw new UnresolvedResourceException(r,
+                        "No external or local definition could be found for resource " +
+                                r.getResourceId());
+            } else {
+                // Expose the lossy failure rather than the generic one
+                throw theFailure;
+            }
+        }
+    }
+
+    /**
      * Makes all of this table's resources available.
      *
-     * @param master   The global resource to prepare against. Used to establish whether resources need to be fetched
-     *                 remotely
+     * @param master   The global resource to prepare against. Used to
+     *                 establish whether resources need to be fetched remotely
      * @param instance The instance to prepare against
-     * @throws UnresolvedResourceException       If a resource could not be identified and is required
-     * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+     * @throws UnresolvedResourceException       If a resource could not be
+     *                                           identified and is required
+     * @throws UnfullfilledRequirementsException If some resources are
+     *                                           incompatible with the current
+     *                                           version of CommCare
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
         this.prepareResources(master, instance, null);
     }
 
+
     /**
      * Makes some (or all) of the table's resources available
      *
-     * @param master       The global resource to prepare against. Used to establish whether resources need to be fetched
-     *                     remotely
+     * @param master       The global resource to prepare against. Used to
+     *                     establish whether resources need to be fetched remotely
      * @param instance     The instance to prepare against
-     * @param toInitialize The ID of a single resource after which the table preparation can stop.
-     * @throws UnresolvedResourceException       If a resource could not be identified and is required
-     * @throws UnfullfilledRequirementsException If some resources are incompatible with the current version of CommCare
+     * @param toInitialize The ID of a single resource after which the table
+     *                     preparation can stop.
+     * @throws UnresolvedResourceException       Required resource couldn't be
+     *                                           identified
+     * @throws UnfullfilledRequirementsException resource(s) incompatible with
+     *                                           current CommCare version
      */
-    public void prepareResources(ResourceTable master, CommCareInstance instance, String toInitialize)
+    public void prepareResources(ResourceTable master,
+                                 CommCareInstance instance,
+                                 String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
-        Stack<Resource> v = GetUnreadyResources();
-        int round = -1;
-        while (!v.isEmpty() &&
-                (toInitialize == null ||
-                        this.getResourceWithId(toInitialize).getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED)) {
-            round++;
-            while (!v.isEmpty()) {
-                Resource r = v.pop();
+
+        Stack<Resource> unreadyResources = getUnreadyResources();
+
+        // install all unready resources. If toInitialize is set, stop after it
+        // has been installed.
+        while (idNeedsInit(toInitialize) && !unreadyResources.isEmpty()) {
+            for (Resource r : unreadyResources) {
                 boolean upgrade = false;
-                // Make a reference set for all invalid references (this will get filled in for us)
+
                 Vector<Reference> invalid = new Vector<Reference>();
 
                 // All operations regarding peers and master table
                 if (master != null) {
+                    // obtain resource peer by looking up the current resource
+                    // in the master table
                     Resource peer = master.getResourceWithId(r.getResourceId());
                     if (peer != null) {
-                        // TODO: For now we're assuming that Versions greater than the
-                        // current are always acceptable
+                        // TODO: For now we're assuming that Versions greater
+                        // than the current are always acceptable
                         if (!r.isNewer(peer)) {
-                            // This resource doesn't need to be updated, copy the exisitng resource into
-                            // this table
+                            // This resource doesn't need to be updated, copy
+                            // the existing resource into this table
                             peer.mimick(r);
                             commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
                             continue;
-                        } else {
-                            upgrade = true;
                         }
-                        invalid = ResourceTable.explodeLocalReferences(peer, master);
+
+                        // resource is newer than master version, so invalidate
+                        // old local resource locations.
+                        upgrade = true;
+                        invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
                     }
                 }
 
-                // Vector<Reference> refs = explodeAllReferences(r, this, master);
+                findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
 
-                boolean handled = false;
-                UnreliableSourceException theFailure = null;
-
-                // TODO: Possibly check if resource status is local and proceeding
-                // to skip this huge (although in reality like one step) chunk
-
-                for (ResourceLocation location : r.getLocations()) {
-                    if (handled) {
-                        break;
-                    }
-                    if (location.isRelative()) {
-                        for (Reference ref : explodeReferences(location, r, this, master)) {
-                            if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL && invalid.contains(ref)) {
-                            } else {
-                                try {
-                                    handled = installResource(r, location, ref, this, instance, upgrade);
-                                } catch (UnreliableSourceException use) {
-                                    theFailure = use;
-                                }
-                                if (handled) {
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        try {
-                            handled = installResource(r, location, ReferenceManager._().DeriveReference(location.getLocation()), this, instance, upgrade);
-                            if (handled) {
-                                break;
-                            }
-                        } catch (InvalidReferenceException ire) {
-                            ire.printStackTrace();
-                            // Continue until no resources can be found.
-                        } catch (UnreliableSourceException use) {
-                            theFailure = use;
-                        }
-                    }
-                }
-                if (!handled) {
-                    // If there wasn't a particular failure to point our finger at...
-                    if (theFailure == null) {
-                        throw new UnresolvedResourceException(r, "No external or local definition could be found for resource " + r.getResourceId());
-                    } else {
-                        // Otherwise, expose the lossy failure rather than the generic one
-                        throw theFailure;
-                    }
-                }
                 if (stateListener != null) {
                     stateListener.resourceStateUpdated(this);
                 }
             }
-            v = GetUnreadyResources();
+            // Installing resources may have exposed more unready resources
+            // that need installing.
+            unreadyResources = getUnreadyResources();
         }
 
         if (toInitialize != null) {
@@ -402,43 +476,72 @@ public class ResourceTable {
         // TODO: Nothing uses this status, really. Should this go away?
         // Wipe out any resources which are still pending. If they weren't updated by their
         // parent, they aren't relevant.
-        for (Resource stillPending : GetResources(Resource.RESOURCE_STATUS_PENDING)) {
+        for (Resource stillPending : getResourcesWithStatus(Resource.RESOURCE_STATUS_PENDING)) {
             this.removeResource(stillPending);
         }
     }
 
     /**
-     * This just calls the resource's installer directly, but also handles the logic around attempting retries if applicable
+     * Is the id non-null and points to a resource that is uninitialized
      *
-     * @throws UnfullfilledRequirementsException *
+     * @param id Points to a resource. If null, returns true
+     * @return Is the resource pointed to by the ID uninitialized?
      */
-    private boolean installResource(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
-        UnreliableSourceException aFailure = null;
-        for (int i = 0; i < 1 + this.numberOfLossyRetries; ++i) {
-            try {
-                boolean result = r.getInstaller().install(r, location, ref, table, instance, upgrade);
-                return result;
-            } catch (UnreliableSourceException use) {
-                aFailure = use;
-                Logger.log("install", "Potentially lossy install attempt # " + (i + 1) + " of " + (numberOfLossyRetries + 1) + " unsuccessful from: " + ref.getURI() + "|" + use.getMessage());
+    private boolean idNeedsInit(String id) {
+        if (id != null) {
+            Resource res = this.getResourceWithId(id);
+            if (res != null &&
+                    res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
+                return false;
             }
         }
+        return true;
+    }
+
+    /**
+     * Call the resource's installer, handling the logic around attempting
+     * retries.
+     *
+     * @return Did the resource install successfully?
+     * @throws UnfullfilledRequirementsException
+     */
+    private boolean installResource(Resource r, ResourceLocation location,
+                                    Reference ref, ResourceTable table,
+                                    CommCareInstance instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+        UnreliableSourceException aFailure = null;
+
+        for (int i = 0; i < this.numberOfLossyRetries + 1; ++i) {
+            try {
+                return r.getInstaller().install(r, location, ref, table, instance, upgrade);
+            } catch (UnreliableSourceException use) {
+                aFailure = use;
+                Logger.log("install", "Potentially lossy install attempt # " +
+                        (i + 1) + " of " + (numberOfLossyRetries + 1) +
+                        " unsuccessful from: " + ref.getURI() + "|" +
+                        use.getMessage());
+            }
+        }
+
         if (aFailure != null) {
             throw aFailure;
         }
+
         return false;
     }
 
     /**
-     * Prepares this table to be replaced by the incoming table.
+     * Prepare this table to be replaced by the incoming table, and incoming
+     * table to replace it.
      *
-     * All conflicting resources from this table will be unstaged so as to not conflict with the
-     * incoming resources. Once the incoming table is fully installed, this table's resources
-     * can then be fully removed where relevant.
+     * All conflicting resources from this table will be unstaged so as to not
+     * conflict with the incoming resources. Once the incoming table is fully
+     * installed, this table's resources can then be fully removed where
+     * relevant.
      *
-     * @param incoming
-     * @return True if this table was prepared and the incoming table can be fully installed. False
-     * if something is this table couldn't be unstaged.
+     * @param incoming Table for which resource upgrades are applied
+     * @return True if this table was prepared and the incoming table can be
+     * fully installed. False if something is this table couldn't be unstaged.
      * @throws UnresolvedResourceException
      */
     public boolean upgradeTable(ResourceTable incoming) throws UnresolvedResourceException {
@@ -446,15 +549,18 @@ public class ResourceTable {
             return false;
         }
 
-        // Everything incoming should be marked either ready or upgrade. Upgrade elements
-        // should result in their counterpart in this table being unstaged (which can be
-        // reverted).
+        // Everything incoming should be marked either ready or upgrade.
+        // Upgrade elements should result in their counterpart in this table
+        // being unstaged (which can be reverted).
 
-        Stack<Resource> resources = incoming.GetResourceStack();
+        Stack<Resource> resources = incoming.getResourceStack();
         while (!resources.isEmpty()) {
             Resource r = resources.pop();
             Resource peer = this.getResourceWithId(r.getResourceId());
             if (peer == null) {
+                // no corresponding resource in this table; use incoming
+                // XXX PLM: Why is this needed? Only ever called on global
+                // table, which is thrown away and replaced by incoming table
                 this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {
                 if (r.isNewer(peer)) {
@@ -463,7 +569,9 @@ public class ResourceTable {
 
                     if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED)) {
                         // TODO: revert this resource table!
-                        throw new UnresolvedResourceException(peer, "Couldn't make room for new resource " + r.getResourceId() + ", upgrade aborted");
+                        throw new UnresolvedResourceException(peer,
+                                "Couldn't make room for new resource " +
+                                        r.getResourceId() + ", upgrade aborted");
                     } else {
                         // done
                         commit(peer, Resource.RESOURCE_STATUS_UNSTAGED);
@@ -474,41 +582,42 @@ public class ResourceTable {
                         if (r.getInstaller().upgrade(r)) {
                             incoming.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                         } else {
-                            System.out.println("Failed to upgrade resource: " + r.getDescriptor());
+                            Logger.log("Resource",
+                                    "Failed to upgrade resource: " + r.getDescriptor());
                             // REVERT!
                             return false;
                         }
                     }
                 }
-                if (peer.getVersion() == r.getVersion()) {
-                    // Same resource. Don't do anything with it, it has no
-                    // children, so ID's don't need to change.
-                    // Technically resource locations could change, worth thinking
-                    // about for the future.
-                }
+                // TODO Should anything happen if peer.getVersion() ==
+                // r.getVersion()?  Consider children, IDs and the fact
+                // resource locations could change
             }
-            r = null;
         }
 
         return true;
     }
 
+    /**
+     * Flag unstaged resources and those not present in replacement table for
+     * deletion.
+     *
+     * @param replacement Resources not in this table, flag for deletion
+     */
     public void flagForDeletions(ResourceTable replacement) {
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
-            Resource peer = replacement.getResourceWithId(r.getResourceId());
 
-            // If this resource is no longer relevant
-            if (peer == null) {
+            if (replacement.getResourceWithId(r.getResourceId()) == null) {
+                // no entry in 'replacement' so it's no longer relevant
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
                 continue;
             }
 
-            // If this resource has been replaced
             if (r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
+                // resource has been replaced, so flag for deletion
                 this.commit(r, Resource.RESOURCE_STATUS_DELETE);
-                continue;
             }
         }
     }
@@ -520,7 +629,8 @@ public class ResourceTable {
      * @param incoming The table which unstaged this table's resources
      */
     public void repairTable(ResourceTable incoming) {
-        Stack<Resource> s = this.GetResourceStack(Resource.RESOURCE_STATUS_UNSTAGED);
+        Stack<Resource> s =
+                this.getResourceStackWithStatus(Resource.RESOURCE_STATUS_UNSTAGED);
         while (!s.isEmpty()) {
             Resource resource = s.pop();
 
@@ -562,14 +672,15 @@ public class ResourceTable {
      */
     public void completeUninstall() {
         cleanup();
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         while (!s.isEmpty()) {
             Resource r = s.pop();
             if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
                 try {
                     r.getInstaller().uninstall(r);
                 } catch (Exception e) {
-                    Logger.log("resources", "Error uninstalling resource " + r.getRecordGuid() + ". " + e.getMessage());
+                    Logger.log("Resource", "Error uninstalling resource " +
+                            r.getRecordGuid() + ". " + e.getMessage());
                 }
             }
         }
@@ -589,30 +700,40 @@ public class ResourceTable {
         }
 
         // Copy over all of our resources to the new table
-        for (Resource r : this.GetResources()) {
+        for (Resource r : this.getResources()) {
             r.setID(-1);
             newTable.commit(r);
         }
     }
 
+    /**
+     * String representation of the id, version, and status of all resources in
+     * table.
+     */
     public String toString() {
-        String output = "";
-        int ml = 0;
-        for (Resource r : GetResources()) {
-            String line = "| " + r.getResourceId() + " | " + r.getVersion() + " | " + getStatus(r.getStatus()) + " |\n";
-            output += line;
-            if (line.length() > ml) {
-                ml = line.length();
+        StringBuffer resourceDetails = new StringBuffer();
+        int maxLength = 0;
+        for (Resource r : getResources()) {
+            String line = "| " + r.getResourceId() + " | " + r.getVersion() +
+                    " | " + getStatusString(r.getStatus()) + " |\n";
+            resourceDetails.append(line);
+
+            if (line.length() > maxLength) {
+                maxLength = line.length();
             }
         }
-        String cap = "";
-        for (int i = 0; i < ml; ++i) {
-            cap += "-";
+
+        StringBuffer header = new StringBuffer();
+        for (int i = 0; i < maxLength; ++i) {
+            header.append("-");
         }
-        return cap + "\n" + output + cap + "\n";
+
+        header.append("\n");
+
+        return header.append(resourceDetails.toString()).append(header.toString()).toString();
     }
 
-    public static String getStatus(int status) {
+    public static String getStatusString(int status) {
         switch (status) {
             case Resource.RESOURCE_STATUS_UNINITIALIZED:
                 return "Uninitialized";
@@ -642,8 +763,8 @@ public class ResourceTable {
     }
 
     /**
-     * Destroy this table, but leave any of the files which are installed untouched.
-     * This is useful after an upgrade if this is the temp table.
+     * Destroy this table, but leave any of the files which are installed
+     * untouched. This is useful after an upgrade if this is the temp table.
      */
     public void destroy() {
         cleanup();
@@ -651,12 +772,13 @@ public class ResourceTable {
     }
 
     /**
-     * Destroy this table, and also try very hard to remove any files installed by it. This
-     * is important for rolling back botched upgrades without leaving their files around.
+     * Destroy this table, and also try very hard to remove any files installed
+     * by it. This is important for rolling back botched upgrades without
+     * leaving their files around.
      */
     public void clear() {
         cleanup();
-        Stack<Resource> s = this.GetResourceStack();
+        Stack<Resource> s = this.getResourceStack();
         int count = 0;
         while (!s.isEmpty()) {
             Resource r = s.pop();
@@ -677,17 +799,18 @@ public class ResourceTable {
     }
 
     private void cleanup() {
-        for (Resource r : GetResources()) {
+        for (Resource r : getResources()) {
             r.getInstaller().cleanup();
         }
     }
 
-    public void initializeResources(CommCareInstance instance) throws ResourceInitializationException {
+    public void initializeResources(CommCareInstance instance)
+            throws ResourceInitializationException {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
 
-        for (Resource r : this.GetResources()) {
+        for (Resource r : this.getResources()) {
             ResourceInstaller i = r.getInstaller();
             if (i.requiresRuntimeInitialization()) {
                 if (i instanceof ProfileInstaller) {
@@ -702,39 +825,58 @@ public class ResourceTable {
         }
     }
 
-    private static Vector<Reference> explodeLocalReferences(Resource r, ResourceTable t) {
-        Vector<ResourceLocation> locations = r.getLocations();
+    /**
+     * Gather derived references for the resource's local locations. Relative
+     * location references that have a parent are contextualized before being
+     * added.
+     *
+     * @param r resource for which local location references are being gathered
+     * @param t table to look-up the resource's parents in
+     * @return all local references a resource's potential locations
+     */
+    private static Vector<Reference> gatherResourcesLocalRefs(Resource r,
+                                                              ResourceTable t) {
         Vector<Reference> ret = new Vector<Reference>();
-        for (ResourceLocation location : locations) {
+
+        for (ResourceLocation location : r.getLocations()) {
             if (location.isRelative()) {
                 if (r.hasParent()) {
                     Resource parent = t.getResourceWithGuid(r.getParentId());
                     if (parent != null) {
-                        // Get all local references for the parent
-                        Vector<Reference> parentRefs = explodeLocalReferences(parent, t);
+                        // Get local references for the parent resource's
+                        // locations
+                        Vector<Reference> parentRefs =
+                                gatherResourcesLocalRefs(parent, t);
                         for (Reference context : parentRefs) {
-                            try {
-                                ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                            } catch (InvalidReferenceException ire) {
-                                ire.printStackTrace();
-                            }
+                            addDerivedLocation(location, context, ret);
                         }
                     }
                 }
             } else if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
-                try {
-                    ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
-                } catch (InvalidReferenceException e) {
-                    e.printStackTrace();
-                }
+                addDerivedLocation(location, null, ret);
             }
         }
         return ret;
     }
 
-    private static Vector<Reference> explodeReferences(ResourceLocation location, Resource r, ResourceTable t, ResourceTable m) {
-        int type = location.getAuthority();
+    /**
+     * Gather derived references for a particular (relative) location
+     * corresponding to the given resource.  If the  parent isn't found in the
+     * current resource table, then look in the master table.
+     *
+     * @param location Specific location for the given resource
+     * @param r        Resource for which local location references are being
+     *                 gathered
+     * @param t        Table to look-up the resource's parents in
+     * @param m        Backup table to look-up the resource's parents in
+     * @return All possible (derived) references pointing to a given locations
+     */
+    private static Vector<Reference> gatherLocationsRefs(ResourceLocation location,
+                                                         Resource r,
+                                                         ResourceTable t,
+                                                         ResourceTable m) {
         Vector<Reference> ret = new Vector<Reference>();
+
         if (r.hasParent()) {
             Resource parent = t.getResourceWithGuid(r.getParentId());
 
@@ -742,60 +884,99 @@ public class ResourceTable {
             if (parent == null && m != null) {
                 parent = m.getResourceWithGuid(r.getParentId());
             }
+
             if (parent != null) {
-                // Get all local references for the parent
-                Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
+                // loop over all local references for the parent
+                Vector<Reference> parentRefs =
+                        explodeAllReferences(location.getAuthority(), parent, t, m);
                 for (Reference context : parentRefs) {
-                    try {
-                        ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                    } catch (InvalidReferenceException e) {
-                        e.printStackTrace();
-                    }
+                    addDerivedLocation(location, context, ret);
                 }
             }
         }
         return ret;
     }
 
-    private static Vector<Reference> explodeAllReferences(int type, Resource r, ResourceTable t, ResourceTable m) {
-        Vector<ResourceLocation> locations = r.getLocations();
+    /**
+     * Gather derived references for the resource's locations of a given type.
+     * Relative location references that have a parent are contextualized
+     * before being added. If a parent isn't found in the current resource
+     * table, then look in the master table.
+     *
+     * @param type process locations with authorities of this type
+     * @param r    resource for which local location references are being gathered
+     * @param t    table to look-up the resource's parents in
+     * @param m    backup table to look-up the resource's parents in
+     * @return all possible (derived) references pointing to a resource's
+     * locations
+     */
+    private static Vector<Reference> explodeAllReferences(int type,
+                                                          Resource r,
+                                                          ResourceTable t,
+                                                          ResourceTable m) {
         Vector<Reference> ret = new Vector<Reference>();
-        for (ResourceLocation location : locations) {
+
+        for (ResourceLocation location : r.getLocations()) {
             if (location.getAuthority() == type) {
                 if (location.isRelative()) {
                     if (r.hasParent()) {
                         Resource parent = t.getResourceWithGuid(r.getParentId());
 
-                        // If the local table doesn't have the parent ref, try the master
+                        // If the local table doesn't have the parent ref, try
+                        // the master
                         if (parent == null) {
                             parent = m.getResourceWithGuid(r.getParentId());
                         }
                         if (parent != null) {
                             // Get all local references for the parent
-                            Vector<Reference> parentRefs = explodeAllReferences(type, parent, t, m);
+                            Vector<Reference> parentRefs =
+                                    explodeAllReferences(type, parent, t, m);
                             for (Reference context : parentRefs) {
-                                try {
-                                    ret.addElement(ReferenceManager._().DeriveReference(location.getLocation(), context));
-                                } catch (InvalidReferenceException e) {
-                                    e.printStackTrace();
-                                }
+                                addDerivedLocation(location, context, ret);
                             }
                         }
                     }
                 } else {
-                    try {
-                        ret.addElement(ReferenceManager._().DeriveReference(location.getLocation()));
-                    } catch (InvalidReferenceException e) {
-                        e.printStackTrace();
-                    }
+                    addDerivedLocation(location, null, ret);
                 }
             }
         }
         return ret;
     }
 
+    /**
+     * Derive a reference from the given location and context; adding it to the
+     * vector of references.
+     *
+     * @param location Contains a reference to a resource.
+     * @param context  Provides context for any relative reference accessors.
+     *                 Can be null.
+     * @param ret      Add derived reference of location to this Vector.
+     */
+    private static void addDerivedLocation(ResourceLocation location,
+                                           Reference context,
+                                           Vector<Reference> ret) {
+        try {
+            final Reference derivedRef;
+            if (context == null) {
+                derivedRef =
+                        ReferenceManager._().DeriveReference(location.getLocation());
+            } else {
+                // contextualize the location ref in terms of the multiple refs
+                // pointing to different locations for the parent resource
+                derivedRef =
+                        ReferenceManager._().DeriveReference(location.getLocation(),
+                                context);
+            }
+            ret.addElement(derivedRef);
+        } catch (InvalidReferenceException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void verifyInstallation(Vector<MissingMediaException> problems) {
-        Vector<Resource> resources = GetResources();
+        Vector<Resource> resources = getResources();
         int total = resources.size();
         int count = 0;
         for (Resource r : resources) {
@@ -807,19 +988,16 @@ public class ResourceTable {
         }
     }
 
-    TableStateListener stateListener = null;
-
     public void setStateListener(TableStateListener listener) {
         this.stateListener = listener;
     }
 
-    int numberOfLossyRetries = 3;
-
     /**
-     * Sets the number of attempts this table will make to install against resources which
-     * fail on lossy (IE: Network) channels.
+     * Sets the number of attempts this table will make to install against
+     * resources which fail on lossy (IE: Network) channels.
      *
-     * @param number The number of attempts to make per resource. Must be at least 0
+     * @param number The number of attempts to make per resource. Must be at
+     *               least 0
      */
     public void setNumberOfRetries(int number) {
         if (number < 0) {
@@ -827,6 +1005,4 @@ public class ResourceTable {
         }
         this.numberOfLossyRetries = number;
     }
-
-
 }

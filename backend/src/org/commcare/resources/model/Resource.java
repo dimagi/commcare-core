@@ -158,14 +158,6 @@ public class Resource implements Persistable, IMetaData {
     }
 
     /**
-     * This method is obsolete and should be deleted as soon as it is verified
-     * that it is.
-     */
-    public InputStream OpenStream() {
-        return null;
-    }
-
-    /**
      * @return The locations where this resource's definition can be obtained.
      */
     public Vector<ResourceLocation> getLocations() {
