@@ -1487,6 +1487,8 @@ public class XFormParser {
                 group.count = getAbsRef(new XPathReference(countRef), parent);
                 group.noAddRemove = true;
             } else {
+                // TODO PLM: I'm worried that this doesn't actually check the
+                // truthy-ness of what the noAddRemove param is set to.
                 group.noAddRemove = (e.getAttributeValue(NAMESPACE_JAVAROSA, "noAddRemove") != null);
             }
         }

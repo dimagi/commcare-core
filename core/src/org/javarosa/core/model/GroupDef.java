@@ -69,7 +69,16 @@ public class GroupDef implements IFormElement, Localizable {
 
     Vector observers;
 
+    /**
+     * When set the user can only create as many children as specified by the
+     * 'count' reference.
+     */
     public boolean noAddRemove = false;
+
+    /**
+     * Points to a reference that stores the expected number of entries for the
+     * group.
+     */
     public XPathReference count = null;
 
     public GroupDef() {
@@ -153,10 +162,25 @@ public class GroupDef implements IFormElement, Localizable {
         }
     }
 
+    /**
+     * @return Reference pointing to the number of entries this group should
+     * have.
+     */
     public XPathReference getCountReference() {
         return count;
     }
 
+    /**
+     * Contextualize the reference pointing to the repeat number limit in terms
+     * of the inputted context. Used to contextualize the count reference in
+     * terms of the current repeat item.
+     *
+     * @param context Used to resolve relative parts of the 'count' reference.
+     *                Usually the current repeat item reference is passed in
+     *                for this value.
+     * @return An absolute reference that points to the numeric limit of repeat
+     * items that should be created.
+     */
     public TreeReference getConextualizedCountReference(TreeReference context) {
         return DataInstance.unpackReference(count).contextualize(context);
     }
