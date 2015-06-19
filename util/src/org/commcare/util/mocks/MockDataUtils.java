@@ -44,14 +44,9 @@ public class MockDataUtils {
         try {
             DataModelPullParser parser = new DataModelPullParser(stream, factory);
             parser.parse();
-        } catch(IOException ioe) {
+        } catch(IOException | UnfullfilledRequirementsException |
+                XmlPullParserException | InvalidStructureException ioe) {
             ioe.printStackTrace();
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
         }
     }
 

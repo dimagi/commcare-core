@@ -11,6 +11,7 @@ import org.commcare.util.mocks.UserXmlParser;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -18,12 +19,12 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * A factory for covering all of the basic transactions expected in userspace against
- * the mock data sandbox provided.
+ * A factory for covering all of the basic transactions expected in userspace
+ * against the mock data sandbox provided.
  *
- * This set of transactions should almost certainly be made uniform between different platform
- * implementations, but the different platforms require some subtle difference right now which
- * make that challenging.
+ * This set of transactions should almost certainly be made uniform between
+ * different platform implementations, but the different platforms require some
+ * subtle difference right now which make that challenging.
  *
  * @author ctsims
  */
@@ -49,14 +50,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 if (created == null) {
                     created = new FixtureXmlParser(parser) {
                         //TODO: store these on the file system instead of in DB?
-                        private IStorageUtilityIndexed fixtureStorage;
+                        private IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
                         /*
                          * (non-Javadoc)
                          * @see org.commcare.xml.FixtureXmlParser#storage()
                          */
                         @Override
-                        public IStorageUtilityIndexed storage() {
+                        public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
                                 fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
                             }
@@ -74,10 +75,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initStockParser();
     }
 
-
-    /* (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
-     */
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
@@ -105,7 +103,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if (name != null && name.toLowerCase().equals("message")) {
             //server message;
             //" <message nature=""/>"
-        } else if (name != null && name.toLowerCase().equals("sync") && namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
+        } else if (name != null && name.toLowerCase().equals("sync") && 
+                namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
                 /*
                  * (non-Javadoc)
@@ -120,7 +119,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                  * @see org.javarosa.xml.ElementParser#parse()
                  */
                 @Override
-                public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+                public String parse() throws InvalidStructureException,
+                       IOException, XmlPullParserException,
+                       UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
                     syncToken = parser.nextText();
@@ -141,11 +142,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         reportProgress(requests);
     }
 
-    public void reportProgress(int total) {
+    void reportProgress(int total) {
         //nothing
     }
 
-    public void initUserParser() {
+    void initUserParser() {
         userParser = new TransactionParserFactory() {
             UserXmlParser created = null;
 
@@ -159,7 +160,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public void initCaseParser() {
+    void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
@@ -173,7 +174,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public void initStockParser() {
+    void initStockParser() {
         stockParser = new TransactionParserFactory() {
 
             public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
