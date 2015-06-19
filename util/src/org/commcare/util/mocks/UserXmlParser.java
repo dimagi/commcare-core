@@ -13,18 +13,18 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
- * Mock copied from Android app. 
- * 
- * TODO:unify into CommCare Global Project 
- * @author ctsims
+ * Mock copied from Android app.
  *
+ * TODO:unify into CommCare Global Project
+ *
+ * @author ctsims
  */
 public class UserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed<User> storage;
     byte[] wrappedKey;
-    
-    
+
+
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
         this.storage = storage;
@@ -32,57 +32,57 @@ public class UserXmlParser extends TransactionParser<User> {
 
     public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("registration");
-        
+
         //parse (with verification) the next tag
         this.nextTag("username");
         String username = parser.nextText();
-        
+
         this.nextTag("password");
         String passwordHash = parser.nextText();
-        
+
         this.nextTag("uuid");
         String uuid = parser.nextText();
-        
+
         this.nextTag("date");
         String dateModified = parser.nextText();
-        Date modified = DateUtils.parseDateTime(dateModified);
-        
+        DateUtils.parseDateTime(dateModified);
+
         User u = retrieve(uuid);
-        
-        if(u == null) {
+
+        if (u == null) {
             u = new User(username, passwordHash, uuid);
         } else {
-            if(passwordHash != null && !passwordHash.equals(u.getPassword())) {
+            if (passwordHash != null && !passwordHash.equals(u.getPassword())) {
                 u.setPassword(passwordHash);
-            } 
+            }
         }
-        
+
         //Now look for optional components
-        while(this.nextTagInBlock("registration")) {
-            
+        while (this.nextTagInBlock("registration")) {
+
             String tag = parser.getName().toLowerCase();
-            
-            if(tag.equals("registering_phone_id")) {
-                String phoneid = parser.nextText();
-            } else if(tag.equals("token")) {
-                String token = parser.nextText();
-            } else if(tag.equals("user_data")) {
-                while(this.nextTagInBlock("user_data")) {
+
+            if (tag.equals("registering_phone_id")) {
+                parser.nextText();
+            } else if (tag.equals("token")) {
+                parser.nextText();
+            } else if (tag.equals("user_data")) {
+                while (this.nextTagInBlock("user_data")) {
                     this.checkNode("data");
-                    
+
                     String key = this.parser.getAttributeValue(null, "key");
                     String value = this.parser.nextText();
-                    
+
                     u.setProperty(key, value);
                 }
-                
+
                 //This should be the last block in the registration stuff...
                 break;
             } else {
-                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag,parser);
+                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag, parser);
             }
         }
-        
+
         commit(u);
         return u;
     }
@@ -98,13 +98,13 @@ public class UserXmlParser extends TransactionParser<User> {
 
     public User retrieve(String entityId) {
         IStorageUtilityIndexed storage = storage();
-        try{
+        try {
             return (User)storage.getRecordForValue(User.META_UID, entityId);
-        } catch(NoSuchElementException nsee) {
+        } catch (NoSuchElementException nsee) {
             return null;
         }
     }
-    
+
     public IStorageUtilityIndexed storage() {
         return storage;
     }
