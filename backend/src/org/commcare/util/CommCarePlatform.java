@@ -92,6 +92,15 @@ public class CommCarePlatform implements CommCareInstance {
     public ResourceTable stageUpgradeTable(ResourceTable global,
                                            ResourceTable incoming,
                                            ResourceTable recovery,
+                                           boolean clearProgress) 
+        throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+        Profile current = getCurrentProfile();
+        return stageUpgradeTable(global, incoming, recovery, current.getAuthReference(), clearProgress);
+    }
+
+    public ResourceTable stageUpgradeTable(ResourceTable global,
+                                           ResourceTable incoming,
+                                           ResourceTable recovery,
                                            String profileRef,
                                            boolean clearProgress)
             throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
