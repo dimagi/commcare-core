@@ -83,7 +83,7 @@ public class XPathPathExprTest {
      * Test nested predicates that have relative and absolute references.
      */
     @Test
-    private void testNestedPreds() {
+    public void testNestedPreds() {
         FormParseInit fpi = new FormParseInit("/test_nested_preds_with_rel_refs.xml");
         FormDef fd = fpi.getFormDef();
         FormInstance fi = fd.getInstance();
