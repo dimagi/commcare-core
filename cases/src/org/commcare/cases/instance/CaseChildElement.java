@@ -18,8 +18,6 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.CacheTable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 /**

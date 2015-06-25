@@ -3,14 +3,11 @@
  */
 package org.commcare.cases.ledger.instance;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.cases.model.Case;
 import org.commcare.cases.util.StorageBackedTreeRoot;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
@@ -21,9 +18,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 /**
