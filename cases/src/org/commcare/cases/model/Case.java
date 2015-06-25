@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
