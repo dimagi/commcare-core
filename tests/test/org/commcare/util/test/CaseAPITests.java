@@ -1,23 +1,29 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.UserDatabaseHelper;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Vector;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class CaseAPITests {
 
     Case a, b, c, d, e;
+
+    Ledger l;
+
     DummyIndexedStorageUtility<Case> storage;
     String owner;
     String groupOwner;
@@ -58,6 +64,10 @@ public class CaseAPITests {
         e = new Case("e", "e");
         e.setCaseId("e");
         e.setUserId(groupOwner);
+
+        l = new Ledger("ledger_entity_id");
+        l.setID(12345);
+        l.setEntry("test_section_id", "test_entry_id", 2345);
     }
 
     @Test
@@ -68,6 +78,7 @@ public class CaseAPITests {
             Statement stmt = null;
 
             try {
+                /*
                 Class.forName("org.sqlite.JDBC");
                 c = DriverManager.getConnection("jdbc:sqlite:test.db");
 
@@ -78,8 +89,49 @@ public class CaseAPITests {
                 UserDatabaseHelper.insertToTable(c, "TFCase", a);
 
                 ResultSet rs = UserDatabaseHelper.selectFromTable(c, "TFCase", new String[]{"case_id"}, new String[]{"a"}, new Case());
-                String caseType = rs.getString("case_type");
-                assertEquals("a", caseType);
+                byte[] caseBytes = rs.getBytes("commcare_sql_record");
+                System.out.println("result bytes: " + caseBytes);
+                DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
+
+                Case readCase = new Case();
+                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
+                mPrototypeFactory.addClass(Case.class);
+                readCase.readExternal(is, mPrototypeFactory);
+
+                assertEquals("a",readCase.getCaseId());
+                assertEquals(owner, readCase.getUserId());
+
+
+                c.close();
+
+                */
+
+                c = DriverManager.getConnection("jdbc:sqlite:test.db");
+
+                UserDatabaseHelper.dropTable(c, "TFLedger");
+
+                UserDatabaseHelper.createTable(c, "TFLedger", new Ledger());
+
+                UserDatabaseHelper.insertToTable(c, "TFLedger", l);
+
+                ResultSet rs = UserDatabaseHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
+                byte[] caseBytes = rs.getBytes("commcare_sql_record");
+                System.out.println("result bytes: " + caseBytes);
+                DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
+
+                Ledger readLedger = new Ledger();
+                try {
+                    PrototypeFactory lPrototypeFactory = new PrototypeFactory();
+                    lPrototypeFactory.addClass(Ledger.class);
+                    readLedger.readExternal(is, lPrototypeFactory);
+                } catch(Exception e){
+                    System.out.println("e: " + e);
+                    e.printStackTrace();
+                }
+
+                System.out.println("Read ledger: " + readLedger.getSectionList()[0]);
+
+
                 c.close();
 
             } catch ( Exception e ) {
