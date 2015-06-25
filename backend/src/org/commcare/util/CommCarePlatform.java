@@ -357,12 +357,10 @@ public class CommCarePlatform implements CommCareInstance {
     public String getModuleNameForEntry(Entry entry) {
         Vector<Suite> installed = getInstalledSuites();
 
-        for (Suite s : installed) {
-            for (Entry suiteEntry : s.getEntries().values()) {
+        for (Suite suite : installed) {
+            for (Entry suiteEntry : suite.getEntries().values()) {
                 if (suiteEntry.getCommandId().equals(entry.getCommandId())) {
-                    // XXX PLM: unsure what to do when there are multiple
-                    // entries in getMenus()
-                    return s.getMenus().firstElement().getId();
+                    return suite.getMenus().firstElement().getId();
                 }
             }
         }
