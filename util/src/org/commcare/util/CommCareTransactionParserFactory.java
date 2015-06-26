@@ -33,7 +33,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     private TransactionParserFactory userParser;
     private TransactionParserFactory caseParser;
     private TransactionParserFactory stockParser;
-    private final TransactionParserFactory fixtureParser;
+    private TransactionParserFactory fixtureParser;
 
     private final MockUserDataSandbox sandbox;
 
@@ -43,33 +43,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public CommCareTransactionParserFactory(MockUserDataSandbox sandbox) {
         this.sandbox = sandbox;
 
-        fixtureParser = new TransactionParserFactory() {
-            FixtureXmlParser created = null;
-
-            public TransactionParser getParser(KXmlParser parser) {
-                if (created == null) {
-                    created = new FixtureXmlParser(parser) {
-                        //TODO: store these on the file system instead of in DB?
-                        private IStorageUtilityIndexed<FormInstance> fixtureStorage;
-
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.FixtureXmlParser#storage()
-                         */
-                        @Override
-                        public IStorageUtilityIndexed<FormInstance> storage() {
-                            if (fixtureStorage == null) {
-                                fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
-                            }
-                            return fixtureStorage;
-                        }
-                    };
-                }
-
-                return created;
-            }
-        };
-
+        this.initFixtureParser();
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
@@ -85,26 +59,26 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
             req();
             return stockParser.getParser(parser);
-        } else if (name != null && name.toLowerCase().equals("case")) {
+        } else if ("case".equalsIgnoreCase(name)) {
             if (caseParser == null) {
                 throw new RuntimeException("Couldn't receive Case transaction without initialization!");
             }
             req();
             return caseParser.getParser(parser);
-        } else if (name != null && name.toLowerCase().equals("registration")) {
+        } else if ("registration".equalsIgnoreCase(name)) {
             if (userParser == null) {
                 throw new RuntimeException("Couldn't receive User transaction without initialization!");
             }
             req();
             return userParser.getParser(parser);
-        } else if (name != null && name.toLowerCase().equals("fixture")) {
+        } else if ("fixture".equalsIgnoreCase(name)) {
             req();
             return fixtureParser.getParser(parser);
-        } else if (name != null && name.toLowerCase().equals("message")) {
+        } else if ("message".equalsIgnoreCase(name)) {
             //server message;
             //" <message nature=""/>"
-        } else if (name != null && name.toLowerCase().equals("sync") && 
-                namespace != null && "http://commcarehq.org/sync".equals(namespace)) {
+        } else if ("sync".equalsIgnoreCase(name) && 
+                "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
                 /*
                  * (non-Javadoc)
@@ -124,11 +98,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                        UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
-                    syncToken = parser.nextText();
+                    String syncToken = parser.nextText();
                     if (syncToken == null) {
                         throw new InvalidStructureException("Sync block must contain restore_id with valid ID inside!", parser);
                     }
                     syncToken = syncToken.trim();
+                    
+                    sandbox.setSyncToken(syncToken);
+                    
                     return syncToken;
                 }
 
@@ -159,6 +136,35 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
             }
         };
     }
+    
+    public void initFixtureParser() {
+        fixtureParser = new TransactionParserFactory() {
+            FixtureXmlParser created = null;
+
+            public TransactionParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new FixtureXmlParser(parser) {
+                        //TODO: store these on the file system instead of in DB?
+                        private IStorageUtilityIndexed<FormInstance> fixtureStorage;
+
+                        /*
+                         * (non-Javadoc)
+                         * @see org.commcare.xml.FixtureXmlParser#storage()
+                         */
+                        @Override
+                        public IStorageUtilityIndexed<FormInstance> storage() {
+                            if (fixtureStorage == null) {
+                                fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
+                            }
+                            return fixtureStorage;
+                        }
+                    };
+                }
+
+                return created;
+            }
+        };
+    }
 
     void initCaseParser() {
         caseParser = new TransactionParserFactory() {
@@ -181,9 +187,5 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
             }
         };
-    }
-
-    public String getSyncToken() {
-        return syncToken;
     }
 }

@@ -22,6 +22,8 @@ public class MockUserDataSandbox {
     private final IStorageUtilityIndexed<User> userStorage;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private final IStorageUtilityIndexed<FormInstance> appFixtureStorage;
+    
+    private String mSyncToken;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -55,5 +57,13 @@ public class MockUserDataSandbox {
 
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
         return appFixtureStorage;
+    }
+    
+    public void setSyncToken(String syncToken) {
+        this.mSyncToken = syncToken;
+    }
+    
+    public String getSyncToken() {
+        return mSyncToken;
     }
 }

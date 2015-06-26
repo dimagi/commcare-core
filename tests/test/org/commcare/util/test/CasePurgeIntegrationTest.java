@@ -44,5 +44,9 @@ public class CasePurgeIntegrationTest {
         if (sandbox.getCaseStorage().getNumRecords() > 1) {
             throw new RuntimeException("Incorrectly retained case");
         }
+        
+        if(!"sync_token_a".equals(sandbox.getSyncToken())) {
+            throw new RuntimeException("Invalid Sync Token: " + sandbox.getSyncToken());
+        }
     }
 }
