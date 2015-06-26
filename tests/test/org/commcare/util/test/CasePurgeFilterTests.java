@@ -561,14 +561,14 @@ public class CasePurgeFilterTests {
 
     private void testRemovedClaim(Vector<Integer> removed, int[] toRemove) {
         if(removed.size() != toRemove.length) {
-            fail("storage purge returned incorrect size of returned items");
+            fail("caseStorage purge returned incorrect size of returned items");
         }
 
         for(int i = 0 ; i < toRemove.length; ++i) {
             removed.removeElement(DataUtil.integer(toRemove[i]));
         }
         if(removed.size() > 0) {
-            fail("storage purge returned incorrect set of removed items");
+            fail("caseStorage purge returned incorrect set of removed items");
         }
     }
 

@@ -1,6 +1,7 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.SqlIndexedStorageUtility;
+import org.commcare.api.persistence.SqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -9,10 +10,9 @@ import org.junit.Test;
 
 import java.util.Vector;
 
+import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class SqlStorageIndexedTests {
 
@@ -131,6 +131,16 @@ public class SqlStorageIndexedTests {
 
                 assertTrue(ledgerStorage.exists(12345));
                 assertFalse(ledgerStorage.exists(-123));
+
+                SqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
+
+                assertEquals(3, mIterator.numRecords());
+
+
+                assertEquals(12345, mIterator.nextID());
+                assertEquals(1234567, mIterator.nextID());
+                assertEquals(12345678, mIterator.nextID());
+                assertEquals(-1, mIterator.nextID());
 
 
 
