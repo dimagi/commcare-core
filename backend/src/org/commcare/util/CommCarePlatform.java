@@ -358,8 +358,8 @@ public class CommCarePlatform implements CommCareInstance {
         Vector<Suite> installed = getInstalledSuites();
 
         for (Suite suite : installed) {
-            for (Enumeration<Entry> e = suite.getEntries().elements(); e.hasMoreElements(); ) {
-                Entry suiteEntry = e.nextElement();
+            for (Enumeration e = suite.getEntries().elements(); e.hasMoreElements(); ) {
+                Entry suiteEntry = (Entry)e.nextElement();
                 if (suiteEntry.getCommandId().equals(entry.getCommandId())) {
                     return suite.getMenus().firstElement().getId();
                 }
