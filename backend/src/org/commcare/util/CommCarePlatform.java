@@ -346,6 +346,27 @@ public class CommCarePlatform implements CommCareInstance {
         return merged;
     }
 
+    /**
+     * Given an form entry object, return the module's id that contains it.
+     *
+     * @param entry Get the module's id that contains this Entry
+     *
+     * @return The ID of the module that contains the provided entry. Null if
+     * the entry can't be found in the installed suites.
+     */
+    public String getModuleNameForEntry(Entry entry) {
+        Vector<Suite> installed = getInstalledSuites();
+
+        for (Suite suite : installed) {
+            for (Entry suiteEntry : suite.getEntries().values()) {
+                if (suiteEntry.getCommandId().equals(entry.getCommandId())) {
+                    return suite.getMenus().firstElement().getId();
+                }
+            }
+        }
+        return null;
+    }
+
     public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
         Vector<Resource> unresolved = new Vector<Resource>();
         Vector<Resource> resolved = new Vector<Resource>();
