@@ -1,31 +1,29 @@
 package org.commcare.util.test;
 
+import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.util.UserDataUtils;
 import org.commcare.cases.util.CasePurgeFilter;
-import org.commcare.util.mocks.MockDataUtils;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Vector;
 
 /**
- * Quick test to be able to restore a set of user data
- * and ensure users and groups are properly being included
- * in case purges.
+ * Tests for the SqlSandbox API
  *
- * @author ctsims
+ * @author wspride
  */
-public class CasePurgeIntegrationTest {
+public class SqlSandboxTest {
 
-    private MockUserDataSandbox sandbox;
+    private SqlSandbox sandbox;
     private Vector<String> owners;
+    String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {
-        sandbox = MockDataUtils.getStaticStorage();
-
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_purge.xml"), sandbox);
-        owners = MockDataUtils.extractEntityOwners(sandbox);
+        sandbox = UserDataUtils.getStaticStorage(username);
+        UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_purge.xml"), sandbox);
+        owners = UserDataUtils.extractEntityOwners(sandbox);
     }
 
     @Test

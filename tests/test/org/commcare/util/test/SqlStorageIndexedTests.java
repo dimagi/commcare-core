@@ -142,8 +142,6 @@ public class SqlStorageIndexedTests {
                 assertEquals(12345678, mIterator.nextID());
                 assertEquals(-1, mIterator.nextID());
 
-
-
             } catch ( Exception e ) {
                 System.err.println(e.getClass().getName() + ": " + e.getMessage());
                 e.printStackTrace();
