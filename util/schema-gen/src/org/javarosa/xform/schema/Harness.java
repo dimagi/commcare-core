@@ -37,13 +37,13 @@ import org.javarosa.xform.util.XFormUtils;
 import org.json.simple.JSONObject;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
-import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option.Builder;
 import org.apache.commons.cli.ParseException;
 
 public class Harness {
@@ -110,22 +110,22 @@ public class Harness {
      * @return CommandLine parsed options
      */
     private static CommandLine parseCommandlineOptions(String[] args, Options options) {
-        options.addOption(OptionBuilder.withArgName("namespace=tag1,...,tagN")
-                .hasArgs(2)
-                .withValueSeparator()
-                .withDescription("comma-delimited list of reserved tags at given namespace for the parser to expect")
-                .create("E"));
-        options.addOption(OptionBuilder.withArgName("namespace")
+        options.addOption(Option.builder("E").argName("namespace=tag1,...,tagN")
+                .valueSeparator('=')
+                .numberOfArgs(2)
+                .desc("comma-delimited list of reserved tags at given namespace for the parser to expect")
+                .build());
+        options.addOption(Option.builder("S").argName("namespace")
                 .hasArg()
-                .withDescription("suppress warnings when parser encounters elements at given namespace")
-                .create("S"));
-        options.addOption(OptionBuilder.withArgName("namespace")
+                .desc("suppress warnings when parser encounters elements at given namespace")
+                .build());
+        options.addOption(Option.builder("I").argName("namespace")
                 .hasArg()
-                .withDescription("continue parsing inner elements of unrecognized tag at given namespace")
-                .create("I"));
+                .desc("continue parsing inner elements of unrecognized tag at given namespace")
+                .build());
         options.addOption(new Option("help", "print this message"));
 
-        CommandLineParser parser = new BasicParser();
+        CommandLineParser parser = new DefaultParser();
 
         try {
             return parser.parse(options, args);
