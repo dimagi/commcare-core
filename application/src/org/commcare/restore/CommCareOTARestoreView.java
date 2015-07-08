@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.restore;
 
@@ -19,16 +19,16 @@ import de.enough.polish.ui.UiAccess;
  */
 public class CommCareOTARestoreView extends Form{
 
-    public final Command FINISHED = new Command(Localization.get("restore.finished"),Command.SCREEN,1); 
-    
+    public final Command FINISHED = new Command(Localization.get("restore.finished"),Command.SCREEN,1);
+
     private Gauge gauge;
     private final static int RESOLUTION = 100;
-    
+
     StringItem details;
     String buffer;
-    
+
     int count = 0;
-    
+
     boolean finished;
     boolean gaugeIsInfinite = true;
     int totalItems;
@@ -36,25 +36,25 @@ public class CommCareOTARestoreView extends Form{
     public CommCareOTARestoreView(String title) {
         super(title);
         details = new StringItem("","");
-        
+
         gauge = new Gauge(title, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
         this.append(gauge);
-        
+
         this.append(details);
         buffer = "";
     }
-    
+
     public void addToMessage(String message) {
         //buffer = message + "\n" + buffer;
         buffer = message;
         setMessage(buffer);
     }
-    
+
     public void setMessage(String message) {
         buffer = message;
-        details.setText(buffer);    
+        details.setText(buffer);
     }
-    
+
     public void setTotalItems(int totalItems){
         this.totalItems = totalItems;
         gaugeIsInfinite = false;
@@ -63,7 +63,7 @@ public class CommCareOTARestoreView extends Form{
         this.append(gauge);
         this.append(details);
     }
-    
+
     public void updateProgress(int finishedItems) {
         if(gaugeIsInfinite){
             addToMessage(Localization.get("restore.ui.unbounded", new String [] {""+finishedItems}));
@@ -73,14 +73,14 @@ public class CommCareOTARestoreView extends Form{
             addToMessage(Localization.get("restore.ui.bounded", new String [] {""+finishedItems,""+totalItems}));
         }
     }
-    
+
     public void setFinished() {
         this.addCommand(FINISHED);
         //Scroll to the bottom
         this.setScrollYOffset(this.getScreenFullHeight() - this.contentHeight, true);
         this.finished = true;
     }
-    
+
     protected boolean handleKeyReleased(int keyCode, int gameAction) {
         if(super.handleKeyReleased(keyCode, gameAction)) {
             //Don't do anything that already does something.
@@ -105,6 +105,6 @@ public class CommCareOTARestoreView extends Form{
     public void stopGauge(){
         this.deleteAll();
         this.append(details);
-        
+
     }
 }

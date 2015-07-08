@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -27,7 +27,7 @@ public class CommCareStatic {
     private static Interner<TreeReferenceLevel> treeRefLevels;
     private static Interner<XPathStep> xpathSteps;
     public static Interner<String> appStringCache;
-    
+
     public static void init() {
         treeRefLevels = new Interner<TreeReferenceLevel>();
         xpathSteps = new Interner<XPathStep>();
@@ -35,21 +35,21 @@ public class CommCareStatic {
         TreeReferenceLevel.attachCacheTable(treeRefLevels);
         XPathStep.attachInterner(xpathSteps);
         ExtUtil.attachCacheTable(appStringCache);
-        
+
         XFormUtils.setXFormParserFactory(new XFormParserFactory(appStringCache));
     }
-    
+
     public static void cleanup() {
         //TODO: This doesn't do anything, we need to, like, tell them to clean up their internals instead.
         treeRefLevels = null;
         xpathSteps = null;
         appStringCache = null;
     }
-    
+
     public static String validate(ResourceTable mResourceTable){
-        
+
         SizeBoundUniqueVector<MissingMediaException> problems = new SizeBoundUniqueVector<MissingMediaException>(10);
-        
+
         mResourceTable.verifyInstallation(problems);
         if(problems.size() > 0 ) {
             int badImageRef = problems.getBadImageReferenceCount();
@@ -62,31 +62,31 @@ public class CommCareStatic {
                 MissingMediaException mme = (MissingMediaException)en.nextElement();
 
                 String res = mme.getResource().getResourceId();
-                
+
                 Vector<String> list;
                 if(problemList.containsKey(res)) {
                     list = problemList.get(res);
                 } else{
                     list = new Vector<String>();
                 }
-                
+
                 // code to pretty up the output for mealz
-                
+
                 int substringIndex = mme.getMessage().indexOf("/commcare");
-                
+
                 String shortenedMessage = (mme.getMessage()).substring(substringIndex+1);
-                
+
                 list.addElement(shortenedMessage);
-                
+
                 problemList.put(res, list);
 
             }
-            
+
             message += "\n-----------";
-            
+
             for(Enumeration en = problemList.keys(); en.hasMoreElements();) {
-                
-                String resource = (String)en.nextElement();        
+
+                String resource = (String)en.nextElement();
                 //message += "\n-----------";
                 for(String s : problemList.get(resource)) {
                     message += "\n" + s;
@@ -95,7 +95,7 @@ public class CommCareStatic {
             if(problems.getAdditional() > 0) {
                 message += "\n\n..." + problems.getAdditional() + " more";
             }
-            
+
             return message;
         }
         return null;

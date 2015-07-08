@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.view;
 
@@ -20,14 +20,14 @@ import de.enough.polish.ui.List;
  * @author ctsims
  *
  */
-public class CommCareListView extends List implements MultimediaListener {    
-    
+public class CommCareListView extends List implements MultimediaListener {
+
     private Vector<String> audioLocations = new Vector<String>();
-    
+
     public CommCareListView(String title) {
         this(title, CommCareSense.formEntryQuick(), !CommCareSense.formEntryQuick());
     }
-    
+
     public CommCareListView(String title, boolean autoSelect, boolean numericNavigation) {
         super(title, List.IMPLICIT);
         this.choiceGroup = new CustomChoiceGroup(null, ChoiceGroup.IMPLICIT, autoSelect, numericNavigation) {
@@ -47,7 +47,7 @@ public class CommCareListView extends List implements MultimediaListener {
         }
         audioLocations.setElementAt(audioURI, index);
     }
-    
+
     protected CommandListener wrapped;
     public void setCommandListener(CommandListener cl) {
         wrapped = cl;
@@ -60,10 +60,10 @@ public class CommCareListView extends List implements MultimediaListener {
                 }
                 //All list view actions should stop any currently playing audio
                 MediaUtils.stopAudio();
-                
+
                 //otherwise
                 wrapped.commandAction(c, d);
-            } 
+            }
         });
     }
 }

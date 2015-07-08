@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -37,26 +37,26 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     CaseInstanceTreeElement casebase;
     LedgerInstanceTreeElement ledgerBase;
     Interner<String> stringCache;
-    
-    public CommCareInstanceInitializer(Interner<String> stringCache){ 
+
+    public CommCareInstanceInitializer(Interner<String> stringCache){
         this(null, null);
     }
     public CommCareInstanceInitializer(Interner<String> stringCache, CommCareSession session) {
         this.session = session;
     }
-    
+
     /**
-     * 
+     *
      * This method's behavior depends on the following configuration properties:
-     *  
+     *
      * @see DeviceID - Needs to Exist
      * @see app-version - Needs to exist.
      */
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        
+
         if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
-            
+
             //See if we already have a ledger model loaded
             if(ledgerBase == null) {
                 //If not create one and attach our cache
@@ -76,40 +76,40 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             if(ref.indexOf("report") != -1) {
                 ConcreteTreeElement base = new ConcreteTreeElement("device_report");
                 base.setNamespace("http://code.javarosa.org/devicereport");
-                
-                
+
+
                 String deviceId = PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY);
                 String reportDate = DateUtils.formatDate(new Date(), DateUtils.FORMAT_HUMAN_READABLE_SHORT);
                 String appVersion = PropertyManager._().getSingularProperty("app-version");
-                    
+
                 ConcreteTreeElement did = new ConcreteTreeElement("device_id");
                 did.setValue(new StringData(deviceId));
                 base.addChild(did);
-                
+
                 ConcreteTreeElement rd = new ConcreteTreeElement("report_date");
                 rd.setValue(new StringData(reportDate));
                 base.addChild(rd);
-                
+
                 ConcreteTreeElement ap = new ConcreteTreeElement("app_version");
                 ap.setValue(new StringData(appVersion));
                 base.addChild(ap);
-                
+
                 ConcreteTreeElement logsr = new ConcreteTreeElement("log_subreport");
-                
+
                 ConcreteTreeElement log = new ConcreteTreeElement("log");
                 log.setAttribute(null, "date", DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601));
-                
+
                 ConcreteTreeElement type = new ConcreteTreeElement("type");
                 type.setValue(new StringData("casedb_dump"));
-                
+
                 ConcreteTreeElement msg = new ConcreteTreeElement("msg");
-                
-                
+
+
                 CaseInstanceTreeElement reportBase = new CaseInstanceTreeElement(msg, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY), true);
                 if(stringCache != null ) {
                     reportBase.attachStringCache(stringCache);
                 }
-                
+
                 //jr: | instance | casedb | report | (sync | state)?
                 if(data.size() == 6) {
                     reportBase.setState(data.elementAt(4), data.elementAt(5));
@@ -119,7 +119,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 log.addChild(msg);
                 logsr.addChild(log);
                 base.addChild(logsr);
-                
+
                 return base;
             }
             if(casebase == null) {
@@ -142,20 +142,20 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             if(fixture == null) {
                 throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
             }
-            
+
             //FormInstance fixture = (FormInstance)storage.getRecordForValue(FormInstance.META_ID, refId);
             TreeElement root = fixture.getRoot();
             root.setParent(instance.getBase());
             return root;
         }
         if(instance.getReference().indexOf("session") != -1) {
-            FormInstance sessionInstance = session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY), 
+            FormInstance sessionInstance = session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY),
                     PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
                     CommCareContext._().getUser().getUsername(),
                     CommCareContext._().getUser().getUniqueId(),
                     CommCareContext._().getUser().getProperties());
 
-            
+
             TreeElement root = sessionInstance.getRoot();
             root.setParent(instance.getBase());
             return root;

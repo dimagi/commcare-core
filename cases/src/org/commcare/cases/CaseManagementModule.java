@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.commcare.cases;
 
@@ -26,8 +26,7 @@ import org.javarosa.core.services.storage.StorageManager;
 
 /**
  * @author Clayton Sims
- * @date Mar 19, 2009 
- *
+ * @date Mar 19, 2009
  */
 public class CaseManagementModule implements IModule {
 

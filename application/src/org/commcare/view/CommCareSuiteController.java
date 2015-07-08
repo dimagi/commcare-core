@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.view;
 
@@ -24,22 +24,22 @@ public class CommCareSuiteController implements HandledCommandListener {
 
     public final static Command BACK = new Command(Localization.get("command.back"), Command.BACK, 0);
 
-    
+
     CommCareListView view;
     MenuTransitions transitions;
     CommCareSessionController controller;
-    
+
     Menu m;
     public CommCareSuiteController(CommCareSessionController controller, Menu m) {
         this.m = m;
         this.controller = controller;
-        
-        //Strip any hanging menu stuff from this title 
+
+        //Strip any hanging menu stuff from this title
         view = new CommCareListView(Localizer.processArguments(m.getName().evaluate(), new String[]{""}));
         view.setCommandListener(this);
         view.addCommand(BACK);
     }
-    
+
     public void setTransitions (MenuTransitions transitions) {
         this.transitions = transitions;
     }
@@ -52,7 +52,7 @@ public class CommCareSuiteController implements HandledCommandListener {
 
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
-    }  
+    }
 
     public void _commandAction(Command c, Displayable d) {
         if(c.equals(List.SELECT_COMMAND)) {
@@ -62,5 +62,5 @@ public class CommCareSuiteController implements HandledCommandListener {
         else if(c.equals(BACK)) {
             transitions.exitMenuTransition();
         }
-    }    
+    }
 }

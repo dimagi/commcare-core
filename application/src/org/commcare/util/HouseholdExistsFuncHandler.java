@@ -24,7 +24,7 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
 
     public Object eval(Object[] args, EvaluationContext ec) {
         boolean exists = false;
-        
+
 //        if(args[0] instanceof Double) {
 //            Double d = (Double)args[0];
 //            if (d.doubleValue() >= 0 && d.doubleValue() <= 10000) {
@@ -34,7 +34,7 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
 //        if(args[0] instanceof String) {
             exists = validateHouseholdID((String)args[0]);
         //}
-        
+
         return new Boolean(exists);
     }
 
@@ -42,7 +42,7 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
         IStorageUtilityIndexed cases = (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY);
         Vector extidIDs = cases.getIDsForValue("external-id", hhid);
         Vector typeIDs = cases.getIDsForValue("case-type", "cc_case_house_visit");
-        
+
         boolean found = false;
         //for each case with same ext id
         for (int i = 0; i < extidIDs.size(); i++) {
@@ -58,7 +58,7 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
         }
         return found;
     }
-    
+
     public boolean rawArgs() {
         return false;
     }
@@ -66,5 +66,5 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
     public boolean realTime() {
         return true;
     }
-    
+
 }

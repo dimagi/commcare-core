@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.entity;
 
@@ -35,14 +35,14 @@ public class CommCareEntity extends Entity<TreeReference> {
     String[] sortText;
     EvaluationContext context;
     NodeEntitySet set;
-    
+
     public CommCareEntity(Detail shortDetail, Detail longDetail, EvaluationContext context, NodeEntitySet set) {
         this.shortDetail = shortDetail;
         this.longDetail = longDetail;
         this.context = context;
         this.set = set;
     }
-    
+
     protected int readEntityId(TreeReference element) {
         return set.getId(element);
     }
@@ -73,14 +73,14 @@ public class CommCareEntity extends Entity<TreeReference> {
             if(longDetail == null) { return null;}
             d = longDetail;
         }
-        
+
         String[] output = new String[d.getFields().length];
         for(int i = 0 ; i < output.length ; ++i) {
             output[i] = d.getFields()[i].getHeader().evaluate();
         }
         return output;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.patient.select.activity.IEntity#matchID(java.lang.String)
      */
@@ -99,7 +99,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         }
         return false;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.entity.model.Entity#getForms(boolean)
@@ -107,7 +107,7 @@ public class CommCareEntity extends Entity<TreeReference> {
     public String[] getForms(boolean header) {
         return header ? shortDetail.getHeaderForms() : shortDetail.getTemplateForms();
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.entity.model.Entity#getForms(boolean)
@@ -143,8 +143,8 @@ public class CommCareEntity extends Entity<TreeReference> {
     public String[] getShortFields() {
         return shortText;
     }
-    
-    public int[] getStyleHints (boolean header) {
+
+    public String[] getStyleHints (boolean header) {
         if(header) {
             return shortDetail.getHeaderSizeHints();
         } else {
@@ -160,7 +160,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         loadVars(ec, shortDetail);
         loadTexts(ec);
     }
-    
+
     private void loadVars(EvaluationContext ec, Detail detail) {
         Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
         for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
@@ -173,7 +173,7 @@ public class CommCareEntity extends Entity<TreeReference> {
             }
         }
     }
-    
+
     private void loadTexts(EvaluationContext context) {
         shortText = new String[shortDetail.getFields().length];
         sortText = new String[shortDetail.getFields().length];
@@ -185,7 +185,7 @@ public class CommCareEntity extends Entity<TreeReference> {
             else {
                 shortText[i] = "";
             }
-            
+
             //see whether or not the field has a special text form just for sorting
             Text sortKey = shortDetail.getFields()[i].getSort();
             if(sortKey == null) {
@@ -197,7 +197,7 @@ public class CommCareEntity extends Entity<TreeReference> {
             }
         }
     }
-    
+
     /**
      * Get a list of what the default sort orderings should be for this entity
      * @return An array of indices into the getSortFields() array specifying
@@ -206,7 +206,7 @@ public class CommCareEntity extends Entity<TreeReference> {
     public int[] getDefaultSortOrder() {
         return shortDetail.getSortOrder();
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.entity.model.Entity#getSortFields()
@@ -214,13 +214,13 @@ public class CommCareEntity extends Entity<TreeReference> {
     public int[] getSortFields () {
         int[] sortOrder = getDefaultSortOrder();
         Vector<Integer> fields = new Vector<Integer>();
-        
+
         //Put the default sorted ones in at the top
         for(int index : sortOrder) {
             fields.addElement(DataUtil.integer(index));
         }
-        
-        //now loop through the rest and see if they need to get added 
+
+        //now loop through the rest and see if they need to get added
         String[] headers = getHeaders(false);
         for(int i = 0 ; i < headers.length ; ++i) {
             if(headers[i] == null  || headers[i].equals("")) { continue;}
@@ -237,7 +237,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         }
         return ret;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.entity.model.Entity#getSortFieldNames()
@@ -245,7 +245,7 @@ public class CommCareEntity extends Entity<TreeReference> {
     public String getSortFieldName (int index) {
         return getHeaders(false)[index];
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.entity.model.Entity#getSortKey(java.lang.String)
@@ -253,10 +253,10 @@ public class CommCareEntity extends Entity<TreeReference> {
     public Object getSortKey (int index) {
         //Get the sort value
         String text = sortText[index];
-        
+
         //Figure out if we need to cast to a type for comparison
         int sortType = shortDetail.getFields()[index].getSortType();
-        
+
         try {
             if(sortType == Constants.DATATYPE_TEXT) {
                 return text.toLowerCase();
@@ -268,19 +268,19 @@ public class CommCareEntity extends Entity<TreeReference> {
             } else {
                 //Hrmmmm :/ Handle better?
                 return text;
-            } 
+            }
         } catch(XPathTypeMismatchException e) {
-            //So right now this will fail 100% silently, which is bad, but 
+            //So right now this will fail 100% silently, which is bad, but
             //I find it very likely that people are going to mess this up
             //constantly...
             Logger.log("config", "Entity Select: Couldn't cast "+ text + " to datatype " + sortType + "|" + e.getMessage());
             return null;
         }
     }
-    
+
     /**
-     * Returns the orientation that the specified field should be sorted in 
-     * 
+     * Returns the orientation that the specified field should be sorted in
+     *
      * @param fieldKey The key to be sorted
      * @return true if the field should be sorted in ascending order. False otherwise
      */

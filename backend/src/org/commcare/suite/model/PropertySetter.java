@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -13,29 +13,36 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
- * This is just a tiny little struct to make it reasonable to maintain 
+ * This is just a tiny little struct to make it reasonable to maintain
  * the properties until they are installed. Unfortunately, the serialization
  * framework requires it to be public.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class PropertySetter implements Externalizable {
     String key;
     String value;
     boolean force;
-    
-    public String getKey() { return key; }
-    public String getValue() { return value; }
-    public boolean isForce() { return force; }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public boolean isForce() {
+        return force;
+    }
 
     /**
      * Serialization Only!!!
      */
     public PropertySetter() {
-        
+
     }
-    
+
     protected PropertySetter(String key, String value, boolean force) {
         this.key = key;
         this.value = value;
@@ -50,9 +57,9 @@ public class PropertySetter implements Externalizable {
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out,key);
-        ExtUtil.writeString(out,value);
+        ExtUtil.writeString(out, key);
+        ExtUtil.writeString(out, value);
         ExtUtil.writeBool(out, force);
     }
-    
+
 }

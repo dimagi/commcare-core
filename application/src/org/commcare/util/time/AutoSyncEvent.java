@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util.time;
 
@@ -10,15 +10,15 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
- * The AutoUpdate event is responsible for checking for updates to CommCare's 
+ * The AutoUpdate event is responsible for checking for updates to CommCare's
  * resource tables. It should be run at a pace specified by the application's
- * properties.  
- * 
+ * properties.
+ *
  * @author ctsims
  *
  */
 public class AutoSyncEvent extends PeriodicEvent {
-    
+
     public static final String EVENT_KEY = "autosync_event";
 
 
@@ -36,7 +36,7 @@ public class AutoSyncEvent extends PeriodicEvent {
             public void onSuccess(String detailMsg) {
                 AutoSyncEvent.this.done();
             }
-            
+
         };
         J2MEDisplay.startStateWithLoadingScreen(state);
     }
@@ -62,8 +62,8 @@ public class AutoSyncEvent extends PeriodicEvent {
             return PeriodicEvent.TYPE_DAILY;
         } else if(frequency.equals(CommCareProperties.FREQUENCY_WEEKLY)) {
             return PeriodicEvent.TYPE_WEEKLY;
-        }  
-        
+        }
+
         //If we don't recognize it, don't do anything.
         return PeriodicEvent.TYPE_DISABLED;
     }

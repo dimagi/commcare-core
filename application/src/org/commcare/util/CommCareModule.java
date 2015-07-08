@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -43,7 +43,7 @@ public class CommCareModule implements IModule {
                                             XYSeries.class.getName(),
                                             BubbleSeries.class.getName()};
         PrototypeManager.registerPrototypes(prototypes);
-        
+
         StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);

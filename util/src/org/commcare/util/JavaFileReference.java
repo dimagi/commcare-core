@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -17,15 +17,15 @@ import org.javarosa.core.reference.Reference;
  *
  */
 public class JavaFileReference implements Reference {
-    
+
     String localPart;
     String uri;
     String authority;
-    
+
     public JavaFileReference(String localPart, String uri) {
         this(localPart, uri, "file");
     }
-    
+
     public JavaFileReference(String localPart, String uri, String authority) {
         this.localPart = localPart;
         this.uri = uri;
@@ -64,7 +64,7 @@ public class JavaFileReference implements Reference {
             throw new IOException("Could not delete file at URI " + file.getAbsolutePath());
         }
     }
-    
+
     private File file() {
         return new File(getLocalURI());
     }

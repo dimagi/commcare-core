@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -21,32 +21,35 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * detail definitions, and UI information. A suite
  * generally contains a set of form entry actions
  * related to the same case ID, sometimes including
- * referrals.</p> 
- *  
- * @author ctsims
+ * referrals.</p>
  *
+ * @author ctsims
  */
 public class Suite implements Persistable {
-    
+
     public static final String STORAGE_KEY = "SUITE";
-    
+
     private int version;
     int recordId = -1;
-    
-    /** String(detail id) -> Detail Object **/
+
+    /**
+     * String(detail id) -> Detail Object *
+     */
     private Hashtable<String, Detail> details;
-    
-    /** String(Entry id (also the same for menus) ) -> Entry Object **/
+
+    /**
+     * String(Entry id (also the same for menus) ) -> Entry Object *
+     */
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
-    
+
     /**
      * For serialization only;
      */
     public Suite() {
-        
+
     }
-    
+
     public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries, Vector<Menu> menus) {
         this.version = version;
         this.details = details;
@@ -61,7 +64,7 @@ public class Suite implements Persistable {
     public int getID() {
         return recordId;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.services.storage.Persistable#setID(int)
@@ -69,26 +72,26 @@ public class Suite implements Persistable {
     public void setID(int ID) {
         recordId = ID;
     }
-    
+
     /**
-     * @return The menus which define how to access the actions 
+     * @return The menus which define how to access the actions
      * which are available in this suite.
      */
     public Vector<Menu> getMenus() {
         return menus;
     }
-    
+
     /**
      * WOAH! UNSAFE! Copy, maybe? But this is _wicked_ dangerous.
-     * 
-     * @return The set of entry actions which are defined by this 
+     *
+     * @return The set of entry actions which are defined by this
      * suite, indexed by their id (which is present in the menu
      * definitions).
      */
     public Hashtable<String, Entry> getEntries() {
         return entries;
     }
-    
+
     /**
      * @param id The String ID of a detail definition
      * @return A Detail definition associated with the provided
@@ -106,10 +109,10 @@ public class Suite implements Persistable {
             throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
         this.version = ExtUtil.readInt(in);
-        this.details = (Hashtable<String, Detail>)ExtUtil.read(in,new ExtWrapMap(String.class, Detail.class), pf);
-        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in,new ExtWrapMap(String.class, Entry.class), pf);
-        this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class),pf);
-        
+        this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
+        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in, new ExtWrapMap(String.class, Entry.class), pf);
+        this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
+
     }
 
     /*
@@ -123,6 +126,6 @@ public class Suite implements Persistable {
         ExtUtil.write(out, new ExtWrapMap(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
     }
-    
-    
+
+
 }

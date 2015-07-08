@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.view;
 
@@ -19,16 +19,16 @@ import de.enough.polish.ui.StringItem;
  */
 public class CommCareStartupInteraction extends Form implements CommandListener {
     private StringItem messageItem;
-    
+
     private YesNoListener listener;
-    
+
     private Command yes;
     private Command no;
-    
+
     private Command cancel;
-    
+
     private Gauge gauge;
-    
+
     public CommCareStartupInteraction(String message) {
         this(message, false);
     }
@@ -44,23 +44,23 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
         this.setCommandListener(this);
         setMessage(message, true);
     }
-    
+
     public void setMessage(String message){
         setMessage(message, false);
     }
-    
+
     public void setMessage(String message, boolean showSpinner) {
         this.messageItem.setText(message);
         gauge.setVisible(showSpinner);
     }
-    
-    public void AskYesNo(String message, YesNoListener listener) {        
+
+    public void AskYesNo(String message, YesNoListener listener) {
         setMessage(message, false);
         this.listener = listener;
         if(yes == null){
             yes = new Command(failSafeText("yes","Yes"), Command.OK, 0);
             no = new Command(failSafeText("no","No"), Command.CANCEL, 0);
-            
+
             this.addCommand(yes);
             this.addCommand(no);
         }
@@ -69,15 +69,15 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
             no.setLabel("No");
         }
     }
-    
+
     public void AskYesNo(String message, YesNoListener listener, String left, String right){
         setMessage(message, false);
         this.listener = listener;
         if(yes == null) {
-            
+
             yes = new Command(left, Command.OK, 0);
             no = new Command(right, Command.CANCEL, 0);
-            
+
             this.addCommand(yes);
             this.addCommand(no);
         }
@@ -86,27 +86,27 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
             no.setLabel(right);
         }
     }
-    
+
     public void PromptResponse(String message, YesNoListener listener) {
         setMessage(message, false);
         this.listener = listener;
         if(yes == null) {
             yes = new Command(failSafeText("ok","OK"), Command.OK, 0);
-            
+
             this.addCommand(yes);
         }
     }
-    
+
     public static String failSafeText(String localeId, String fallback) {
-        try { 
+        try {
             return Localization.get(localeId);
         } catch(Exception e) {
             return fallback;
         }
     }
-    
+
     public static String failSafeText(String localeId, String fallBack, String[] args){
-        try { 
+        try {
             return Localization.get(localeId,args);
         } catch(Exception e) {
             return fallBack;
@@ -121,7 +121,7 @@ public class CommCareStartupInteraction extends Form implements CommandListener 
         }
         clearCommands();
     }
-    
+
     public void updateProgess(int progress) {
         this.gauge.setValue(progress);
     }

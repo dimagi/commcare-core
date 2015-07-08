@@ -7,8 +7,6 @@ import java.util.TimeZone;
 
 import org.commcare.model.PeriodicEvent;
 import org.commcare.util.time.TimeMessageEvent;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -17,19 +15,21 @@ import org.javarosa.services.transport.CommUtil;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
 import org.javarosa.user.transport.HttpUserRegistrationTranslator;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class CommCareHQResponder implements TransportResponseProcessor {
-    
+
     String apiLevelGuess;
     OpenRosaApiResponseProcessor orHandler;
-    
+
     /**
      * A processor for responses from CommCare HQ. Currently handles responses
      * from CCHQ 0.9, and for CCHQ 1.0 (assuming the OpenRosa 1.0 response API).
-     * 
+     *
      * @param apiLevelGuess A guess for what system we're talking to. Available
      * through a property set in the profile, generally.
      */
@@ -38,39 +38,39 @@ public class CommCareHQResponder implements TransportResponseProcessor {
         //One central processor (for handling multiple payloads)
         this.orHandler = new OpenRosaApiResponseProcessor();
     }
-    
+
     //TODO: Replace all response semantics with a single unified response system
-    
+
     public String getResponseMessage(TransportMessage message) {
         String returnstr = "";
-        
-        // Make sure this is a normal HTTP message before trying anything fancy 
+
+        // Make sure this is a normal HTTP message before trying anything fancy
         if(message.isSuccess() && message.getClass() == SimpleHttpTransportMessage.class) {
             String numForms = "";
             boolean understoodResponse = true;
             byte[] response = null;
-            
+
             // No class-cast-exception possible since we just checked
             SimpleHttpTransportMessage msg = (SimpleHttpTransportMessage)message;
-            
+
             //Check for date inconsistencies
             dateInconsistencyHelper(msg.getResponseProperties().getGMTDate());
-                        
+
             //If the server didn't tell us what OR API version to use, but we have a guess, use
             //that.
             if(msg.getResponseProperties().getORApiVersion() == null && apiLevelGuess != null) {
                 msg.getResponseProperties().setRequestProperty("X-OpenRosa-Version",apiLevelGuess);
             }
-            
-            
+
+
             if(orHandler.handlesResponse(msg)) {
-                
+
                 //For now the failure mode from this point forward will assume that
                 //with the server having and data safely received, that any state
                 //lost is recoverable, so we'll report on any problems, but won't
                 //fail-fast just yet, since the HTTP layer is not the appropriate
                 //place for ensuring transaction security.
-                
+
                 try{
                     orHandler.processResponse(msg);
                 } catch (InvalidStructureException e) {
@@ -90,12 +90,12 @@ public class CommCareHQResponder implements TransportResponseProcessor {
                     Logger.exception("hq responder [xppe]", e);
                     return Localization.get("sending.status.problem.datasafe");
                 }
-            } 
-            
+            }
+
             //If the response is something custom and unexpected, go through
             //the old response formats.
-            
-            response = msg.getResponseBody();                
+
+            response = msg.getResponseBody();
             Document doc = CommUtil.getXMLResponse(response);
 
             //1.0-ish, but not properly declared (and can't handle transactions)
@@ -116,12 +116,12 @@ public class CommCareHQResponder implements TransportResponseProcessor {
                     }
                 }
             }
-            
+
             //Old (pre 1.0 responder logic)
-         
+
             // 200 means everything is cool. 202 means data safe, but a problem
             if( msg.getResponseCode() == 200 ) {
-                
+
                 if (doc != null) {
                     Element e = doc.getRootElement();
                     for (int i = 0; i < e.getChildCount(); i++) {
@@ -138,23 +138,23 @@ public class CommCareHQResponder implements TransportResponseProcessor {
                     understoodResponse = false;
                 }
             }
-            
+
             if (!understoodResponse) {
                 returnstr = Localization.get("sending.status.didnotunderstand",
                         new String[] {response != null ? CommUtil.getString(response) : "[none]"});
             } else if (numForms.equals(""))
                 returnstr = Localization.get("sending.status.problem.datasafe");
             else
-                returnstr = Localization.get("sending.status.success", new String[]{numForms});    
+                returnstr = Localization.get("sending.status.success", new String[]{numForms});
         }
-        
+
         return returnstr;
     }
-        
+
     /**
      * Helper method for identifying whether the server and phone have substantially
-     * different notions of what the current date and time are.  
-     * 
+     * different notions of what the current date and time are.
+     *
      * @param date The most recent authoritative (from the server) Date in GMT
      */
     private void dateInconsistencyHelper(long date) {
@@ -167,10 +167,10 @@ public class CommCareHQResponder implements TransportResponseProcessor {
                 Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                 c.setTime(new Date(date));
                 c.setTimeZone(TimeZone.getDefault());
-                
+
                 long difference = Math.abs(c.getTime().getTime() - new Date().getTime());
-                
-                
+
+
                 //TODO: Property for this limit
                 if(difference > DateUtils.DAY_IN_MS * 1.5) {
                     Logger.log("dih","Date off. Difference(ms): " + difference + ". Adding event.");
@@ -199,5 +199,5 @@ public class CommCareHQResponder implements TransportResponseProcessor {
         }
         return summative;
     }
-    
+
 }

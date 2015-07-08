@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.applogic;
 
@@ -23,23 +23,23 @@ import de.enough.polish.ui.List;
  *
  */
 public abstract class CommCareToolsState implements State, CommandListener, TrivialTransitions {
-    
+
     ChoiceItem cUpdates;
     ChoiceItem cNetwork;
     ChoiceItem cPermissions;
     ChoiceItem cMediaTest;
-    
+
     Command back;
     CommCareListView view;
-    
+
     public CommCareToolsState() {
         cUpdates = new ChoiceItem(Localization.get("home.updates"), null, List.IMPLICIT);
         cNetwork = new ChoiceItem(Localization.get("commcare.tools.network"), null, List.IMPLICIT);
         cPermissions = new ChoiceItem(Localization.get("commcare.tools.permissions"), null, List.IMPLICIT);
         cMediaTest = new ChoiceItem(Localization.get("commcare.tools.validate"), null, List.IMPLICIT);
-        
+
         back = new Command(Localization.get("polish.command.back"), 2, Command.BACK);
-        
+
         view = new CommCareListView(Localization.get("commcare.tools.title"));
         view.append(cUpdates);
         view.append(cNetwork);
@@ -76,7 +76,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
             }
         }
     }
-    
+
     protected void doMediaValidation(){
         J2MEDisplay.startStateWithLoadingScreen(new CommCareValidationState("test message") {
             public void done() {
@@ -84,12 +84,12 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
             }
         });
     }
-    
+
     protected void doUpdateCheck() {
         J2MEDisplay.startStateWithLoadingScreen(new CommCareUpgradeState(true) {
             public void done() {
                 //Return to whatever called us (A little weird that the workflow is
-                //different, but we want people who press the center button to 
+                //different, but we want people who press the center button to
                 //have a route back to the non-tools workflow here.
                 CommCareToolsState.this.done();
             }
@@ -106,7 +106,7 @@ public abstract class CommCareToolsState implements State, CommandListener, Triv
         }.start();
 
     }
-    
+
     protected void doPermissionsTest() {
         new PermissionsTestState () {
             public void done () {

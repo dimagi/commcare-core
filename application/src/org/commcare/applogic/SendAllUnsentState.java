@@ -11,7 +11,7 @@ public abstract class SendAllUnsentState implements TrivialTransitions, TrivialT
         controller.setTransitions(this);
         controller.start();
     }
-    
+
     protected SendAllUnsentController getController () {
         return new SendAllUnsentController();
     }
@@ -19,7 +19,7 @@ public abstract class SendAllUnsentState implements TrivialTransitions, TrivialT
     public void done (boolean errorsOccurred) {
         done();
     }
-    
+
     //Re-declaration for S40 Bug workaround
     public abstract void done();
 }

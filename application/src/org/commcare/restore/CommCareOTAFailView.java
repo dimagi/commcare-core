@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.restore;
 
@@ -21,19 +21,19 @@ public class CommCareOTAFailView extends Form{
 
     public static final Command DOWNLOAD = new Command(Localization.get("restore.retry"), Command.OK, 1);
     public static final Command CANCEL = new Command(Localization.get("polish.command.cancel"), Command.BACK, 2);
-    
+
     private StringItem fetch;
-    
+
     private final static int RESOLUTION = 100;
-    
+
     StringItem details;
     String buffer;
-    
+
     StringItem failTitle;
     String failMessage = Localization.get("restore.fail.view");
-    
+
     int count = 0;
-    
+
     boolean finished;
     boolean gaugeIsInfinite = true;
     int totalItems;
@@ -41,27 +41,27 @@ public class CommCareOTAFailView extends Form{
     public CommCareOTAFailView(String title) {
         super(title);
         details = new StringItem("","");
-        
+
         failTitle = new StringItem(failMessage,"");
         this.append(failTitle);
-        
+
         this.append(details);
         buffer = "";
-        
+
         this.addCommand(DOWNLOAD);
         this.addCommand(CANCEL);
     }
-    
+
     public void addToMessage(String message) {
         buffer = message + "\n" + buffer;
         setMessage(buffer);
     }
-    
+
     public void setMessage(String message) {
         buffer = message;
-        details.setText(buffer);    
+        details.setText(buffer);
     }
-    
+
     protected boolean handleKeyReleased(int keyCode, int gameAction) {
         if(super.handleKeyReleased(keyCode, gameAction)) {
             //Don't do anything that already does something.
@@ -83,7 +83,7 @@ public class CommCareOTAFailView extends Form{
             return false;
         }
     }
-    
+
     public void setInteractive(boolean isInteractive) {
         if(isInteractive) {
             this.addCommand(CANCEL);

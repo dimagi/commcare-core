@@ -1,7 +1,6 @@
 package org.commcare.suite.model.graph;
 
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 
 /*
@@ -20,18 +19,18 @@ public class SeriesData implements ConfigurableData {
     public void addPoint(XYPointData p) {
         mPoints.addElement(p);
     }
-    
+
     public Vector<XYPointData> getPoints() {
         return mPoints;
     }
-    
+
     /*
      * Number of points in the series.
      */
     public int size() {
         return mPoints.size();
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.suite.model.graph.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
@@ -39,7 +38,7 @@ public class SeriesData implements ConfigurableData {
     public void setConfiguration(String key, String value) {
         mConfiguration.put(key, value);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.commcare.suite.model.graph.ConfigurableData#getConfiguration(java.lang.String)

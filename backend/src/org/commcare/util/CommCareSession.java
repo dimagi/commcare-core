@@ -1,12 +1,7 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Stack;
-import java.util.Vector;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -21,44 +16,47 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * Before arriving at the Form Entry phase, CommCare applications
  * need to determine what form to enter, and with what pre-requisites.
- * 
+ *
  * A CommCare Session helps to encapsulate this information by identifying
  * the set of possible entry operations (Every piece of data needed to begin
  * entry) and specifying the operation which would most quickly filter our
- * the set of operations. 
- * 
- * NOTE: Currently horribly coupled to the platform.
- * 
- * @author ctsims
+ * the set of operations.
  *
+ * NOTE: Currently horribly coupled to the platform.
+ *
+ * @author ctsims
  */
 public class CommCareSession {
-    
+
     CommCarePlatform platform;
-        
+
     protected StackFrameStep popped;
-    
+
     protected String currentCmd;
     protected OrderedHashtable data;
     protected String currentXmlns;
-    
-    /** The current session frame data **/
+
+    /**
+     * The current session frame data *
+     */
     SessionFrame frame;
-    
-    /** The stack of pending Frames **/
+
+    /**
+     * The stack of pending Frames *
+     */
     Stack<SessionFrame> frameStack;
-    
+
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
         data = new OrderedHashtable();
@@ -69,79 +67,82 @@ public class CommCareSession {
     public Vector<Entry> getEntriesForCommand(String commandId) {
         return this.getEntriesForCommand(commandId, new OrderedHashtable());
     }
+
     public Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
-        Hashtable<String,Entry> map = platform.getMenuMap();
+        Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
         Entry entry = null;
         top:
-        for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
                 //We need to see if everything in this menu can be matched
-                if(commandId.equals(m.getId())) {
+                if (commandId.equals(m.getId())) {
                     menu = m;
                     break top;
                 }
-                
-                if(s.getEntries().containsKey(commandId)) {
+
+                if (s.getEntries().containsKey(commandId)) {
                     entry = s.getEntries().get(commandId);
                     break top;
                 }
             }
         }
-        
+
         Vector<Entry> entries = new Vector<Entry>();
-        if(entry != null) {
+        if (entry != null) {
             entries.addElement(entry);
         }
-        
-        if(menu != null) {
+
+        if (menu != null) {
             //We're in a menu we have a set of requirements which
             //need to be fulfilled
-            for(String cmd : menu.getCommandIds()) {
+            for (String cmd : menu.getCommandIds()) {
                 Entry e = map.get(cmd);
-                if(e == null) { throw new RuntimeException("No entry found for menu command [" + cmd + "]"); }
+                if (e == null) {
+                    throw new RuntimeException("No entry found for menu command [" + cmd + "]");
+                }
                 boolean valid = true;
                 Vector<SessionDatum> requirements = e.getSessionDataReqs();
-                if(requirements.size() >= data.size()) {
-                    for(int i = 0 ; i < data.size() ; ++i ) {
-                        if(!requirements.elementAt(i).getDataId().equals(data.keyAt(i)))  {
+                if (requirements.size() >= data.size()) {
+                    for (int i = 0; i < data.size(); ++i) {
+                        if (!requirements.elementAt(i).getDataId().equals(data.keyAt(i))) {
                             valid = false;
                         }
                     }
                 }
-                if(valid) {
+                if (valid) {
                     entries.addElement(e);
                 }
             }
         }
         return entries;
     }
-    
+
     protected OrderedHashtable getData() {
         return data;
     }
-    
+
     public String getNeededData() {
-        if(this.getCommand() == null) {
+        if (this.getCommand() == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
-        
+
         Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
-        
+
         //Get data. Checking first to see if the relevant key is needed by all entries
-        
+
         String needDatum = null;
         String nextKey = null;
-        for(Entry e : entries) {
-            
+        for (Entry e : entries) {
+
             //TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
             //to make sure things are fine. We need to comprehensively address matching these as sets.
-            if(e.getSessionDataReqs().size() > this.getData().size()) {
+            if (e.getSessionDataReqs().size() > this.getData().size()) {
                 SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
                 String needed = datum.getDataId();
-                if(nextKey == null) {
+                if (nextKey == null) {
                     nextKey = needed;
-                    if(datum.getNodeset() != null) {
+                    if (datum.getNodeset() != null) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
                     } else {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
@@ -149,24 +150,24 @@ public class CommCareSession {
                     continue;
                 } else {
                     //TODO: Detail screen matchup seems relevant? Maybe?
-                    if(nextKey.equals(needed)) {
+                    if (nextKey.equals(needed)) {
                         continue;
                     }
                 }
             }
-            
+
             //If we made it here, we either don't need more data or don't need
             //consistent data for the remaining options
             needDatum = null;
             break;
         }
-        if(needDatum != null) {
+        if (needDatum != null) {
             return needDatum;
         }
-        
+
         //the only other thing we can need is a form command. If there's still
         //more than one applicable entry, we need to keep going
-        if(entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(this.getCommand())) {
+        if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(this.getCommand())) {
             return SessionFrame.STATE_COMMAND_ID;
         } else {
             return null;
@@ -175,54 +176,54 @@ public class CommCareSession {
 
     public String[] getHeaderTitles() {
         Hashtable<String, String> menus = new Hashtable<String, String>();
-        
-        for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
+
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
                 menus.put(m.getId(), m.getName().evaluate());
             }
         }
-        
+
         Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
-        
-        
+
+
         Hashtable<String, Entry> entries = platform.getMenuMap();
         int i = 0;
-        for(StackFrameStep step : steps) {
-            if(step.getType() == SessionFrame.STATE_COMMAND_ID) {
-                //Menu or form. 
-                if(menus.containsKey(step.getId())) {
+        for (StackFrameStep step : steps) {
+            if (step.getType() == SessionFrame.STATE_COMMAND_ID) {
+                //Menu or form.
+                if (menus.containsKey(step.getId())) {
                     returnVal[i] = menus.get(step.getId());
-                } else if(entries.containsKey(step.getId())) {
+                } else if (entries.containsKey(step.getId())) {
                     returnVal[i] = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if(step.getType() == SessionFrame.STATE_DATUM_VAL) {
+            } else if (step.getType() == SessionFrame.STATE_DATUM_VAL) {
                 //TODO: Grab the name of the case
-            }  else if(step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if (step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
                 //Nothing to do here
             }
-            
-            if(returnVal[i] != null) {
-                //Menus contain a potential argument listing where that value is on the screen, 
+
+            if (returnVal[i] != null) {
+                //Menus contain a potential argument listing where that value is on the screen,
                 //clear it out if it exists
-                returnVal[i] = Localizer.processArguments(returnVal[i], new String[] {""}).trim();
+                returnVal[i] = Localizer.processArguments(returnVal[i], new String[]{""}).trim();
             }
-            
+
             ++i;
         }
-        
+
         return returnVal;
     }
-    
+
     /**
      * @return The next relevant datum for the current entry. Requires there to be
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);        
+        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
         return getNeededDatum(entry);
     }
-    
+
     /**
      * @param entry An entry which is consistent as a step on the stack
      * @return A session datum definition if one is pending. Null otherwise.
@@ -230,51 +231,53 @@ public class CommCareSession {
     public SessionDatum getNeededDatum(Entry entry) {
         int nextVal = getData().size();
         //If we've already retrieved all data needed, return null.
-        if(nextVal >= entry.getSessionDataReqs().size()) { return null; }
-        
+        if (nextVal >= entry.getSessionDataReqs().size()) {
+            return null;
+        }
+
         //Otherwise retrieve the needed value
         SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
         return datum;
     }
 
     public Detail getDetail(String id) {
-        for(Suite s : platform.getInstalledSuites()) {
+        for (Suite s : platform.getInstalledSuites()) {
             Detail d = s.getDetail(id);
-            if(d != null) {
+            if (d != null) {
                 return d;
             }
         }
         return null;
     }
-    
+
     public Menu getMenu(String id) {
-        for(Suite suite : platform.getInstalledSuites()) {
-            for(Menu m : suite.getMenus()) {
-                if(id.equals(m.getId())) {
+        for (Suite suite : platform.getInstalledSuites()) {
+            for (Menu m : suite.getMenus()) {
+                if (id.equals(m.getId())) {
                     return m;
                 }
             }
         }
         return null;
     }
-    
+
     public Suite getCurrentSuite() {
-        for(Suite s : platform.getInstalledSuites()) {
-            for(Menu m : s.getMenus()) {
+        for (Suite s : platform.getInstalledSuites()) {
+            for (Menu m : s.getMenus()) {
                 //We need to see if everything in this menu can be matched
-                if(currentCmd.equals(m.getId())) {
+                if (currentCmd.equals(m.getId())) {
                     return s;
                 }
-                
-                if(s.getEntries().containsKey(currentCmd)) {
+
+                if (s.getEntries().containsKey(currentCmd)) {
                     return s;
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     public void stepBack() {
         StackFrameStep recentPop = frame.popStep();
         //TODO: Check the "base state" of the frame
@@ -285,7 +288,7 @@ public class CommCareSession {
         popped = recentPop;
         //If we've stepped back into a computed value, we actually want to go back again, since evaluating that
         //element will just result in moving forward again.
-        if(this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
+        if (this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
             stepBack();
         }
     }
@@ -294,55 +297,59 @@ public class CommCareSession {
         frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
         syncState();
     }
-    
+
     public void setXmlns(String xmlns) {
         frame.pushStep(new StackFrameStep(SessionFrame.STATE_FORM_XMLNS, xmlns, null));
         syncState();
     }
-    
+
     public void setCommand(String commandId) {
         frame.pushStep(new StackFrameStep(SessionFrame.STATE_COMMAND_ID, commandId, null));
         syncState();
     }
-    
+
     private void syncState() {
         this.data.clear();
         this.currentCmd = null;
         this.currentXmlns = null;
         this.popped = null;
-        
-        for(StackFrameStep step : frame.getSteps()) {
-            if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+
+        for (StackFrameStep step : frame.getSteps()) {
+            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
                 String value = step.getValue();
-                data.put(key, value);
-            } else if(SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
+                if (key != null && value != null) {
+                    data.put(key, value);
+                }
+            } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
-            }  else if(SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {
+            } else if (SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {
                 this.currentXmlns = step.getId();
             }
         }
     }
-    
+
     public StackFrameStep getPoppedStep() {
         return popped;
     }
-    
+
     public String getForm() {
-        if(this.currentXmlns != null) { 
+        if (this.currentXmlns != null) {
             return this.currentXmlns;
-        } 
+        }
         String command = getCommand();
-        if(command == null) { return null; }
-        
+        if (command == null) {
+            return null;
+        }
+
         Entry e = platform.getMenuMap().get(command);
         return e.getXFormNamespace();
     }
-    
+
     public String getCommand() {
         return this.currentCmd;
     }
-    
+
     /**
      * Clear the current stack frame and release any pending
      * stack frames (completely clearing the session)
@@ -352,64 +359,84 @@ public class CommCareSession {
         frameStack.removeAllElements();
         syncState();
     }
-    
+
     public FormInstance getSessionInstance(String deviceId, String appversion, String username, String userId, Hashtable<String, String> userFields) {
-        TreeElement sessionRoot = new TreeElement("session",0);
-        
-        TreeElement sessionData = new TreeElement("data",0);
-        
+        TreeElement sessionRoot = new TreeElement("session", 0);
+
+        TreeElement sessionData = new TreeElement("data", 0);
+
         sessionRoot.addChild(sessionData);
-        
-        for(StackFrameStep step : frame.getSteps()) {
-            if(step.getType() == SessionFrame.STATE_DATUM_VAL) {
+
+        for (StackFrameStep step : frame.getSteps()) {
+            if (step.getType() == SessionFrame.STATE_DATUM_VAL) {
                 TreeElement datum = new TreeElement(step.getId());
                 datum.setValue(new UncastData(step.getValue()));
                 sessionData.addChild(datum);
             }
         }
-        
-        TreeElement sessionMeta = new TreeElement("context",0);
+
+        TreeElement sessionMeta = new TreeElement("context", 0);
 
         addData(sessionMeta, "deviceid", deviceId);
         addData(sessionMeta, "appversion", appversion);
         addData(sessionMeta, "username", username);
-        addData(sessionMeta, "userid",userId );
+        addData(sessionMeta, "userid", userId);
 
         sessionRoot.addChild(sessionMeta);
-        
-        TreeElement user = new TreeElement("user",0);
-        TreeElement userData = new TreeElement("data",0);
+
+        TreeElement user = new TreeElement("user", 0);
+        TreeElement userData = new TreeElement("data", 0);
         user.addChild(userData);
-        for(Enumeration en = userFields.keys() ; en.hasMoreElements();) {
+        for (Enumeration en = userFields.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             addData(userData, key, userFields.get(key));
         }
-        
+
         sessionRoot.addChild(user);
-        
+
         return new FormInstance(sessionRoot, "session");
     }
-    
+
     private static void addData(TreeElement root, String name, String data) {
         TreeElement datum = new TreeElement(name);
         datum.setValue(new UncastData(data));
         root.addChild(datum);
     }
-    
-    
+
+
+    /**
+     * Retrieve an evaluation context in which to evaluate expressions in the
+     * current session state
+     *
+     * @param iif the instance initailzier for the current platform
+     * @return Evaluation context for current session state
+     */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif) {
-        
-        if(getCommand() == null) { return new EvaluationContext(null); } 
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        
+        return this.getEvaluationContext(iif, getCommand());
+    }
+
+    /**
+     * Retrieve an evaluation context in which to evaluate expressions in the context of a given
+     * command in the installed app
+     *
+     * @param iif the instance initializer for the current platform
+     * @return Evaluation context for a command in the installed app
+     */
+    public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
+
+        if (command == null) {
+            return new EvaluationContext(null);
+        }
+        Entry entry = getEntriesForCommand(command).elementAt(0);
+
         Hashtable<String, DataInstance> instances = entry.getInstances();
 
-        for(Enumeration en = instances.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement(); 
+        for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
             instances.get(key).initialize(iif, key);
         }
 
-        
+
         return new EvaluationContext(null, instances);
     }
 
@@ -417,11 +444,11 @@ public class CommCareSession {
         //TODO: Type safe copy
         return frame;
     }
-    
+
 
     /**
      * Deprecated. Fires a single stack operation.
-     * 
+     *
      * @param op
      * @param ec
      */
@@ -430,129 +457,131 @@ public class CommCareSession {
         ops.addElement(op);
         return executeStackOperations(ops, ec);
     }
-    
+
     /**
      * Executes a set of stack operations against the current session environment.
-     * 
+     *
      * The context data and session data provided will consistently match the live frame
      * when the operations began executing, although frame operations will be executed
      * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
-     * 
+     *
      * @param ops
      * @param ec
      */
-    public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {        
+    public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
         //the on deck frame is the frame that is the target of operations that execute
         //as part of this stack update. If at the end of the stack ops the frame on deck
         //doesn't match the current (living) frame, it will become the the current frame
-        SessionFrame onDeck  = frame;
-        
+        SessionFrame onDeck = frame;
+
         //Whether the current frame is on the stack (we wanna treat it as a "phantom" bottom element
         //at first, basically.
         boolean currentFramePushed = false;
-        
-        for(StackOperation op : ops) {
+
+        for (StackOperation op : ops) {
             //First, see if there is a frame with a matching ID for this op
             //(relevant for a couple reasons, and possibly prevents a costly XPath lookup)
             String frameId = op.getFrameId();
             SessionFrame matchingFrame = null;
-            if(frameId != null) {
+            if (frameId != null) {
                 //TODO: This is correct, right? We want to treat the current frame
                 //as part of the "environment" and not let people create a new frame
                 //with the same id? Possibly this should only be true if the current
                 //frame is live?
-                if(frameId.equals(frame.getFrameId())) {
+                if (frameId.equals(frame.getFrameId())) {
                     matchingFrame = frame;
                 } else {
                     //Otherwise, peruse the stack looking for another
                     //frame with a matching ID.
-                    for(Enumeration e = frameStack.elements() ; e .hasMoreElements() ;) {
+                    for (Enumeration e = frameStack.elements(); e.hasMoreElements(); ) {
                         SessionFrame stackFrame = (SessionFrame)e.nextElement();
-                        if(frameId.equals(stackFrame.getFrameId())) {
+                        if (frameId.equals(stackFrame.getFrameId())) {
                             matchingFrame = stackFrame;
                             break;
                         }
                     }
                 }
             }
-            
+
             boolean newFrame = false;
-            switch(op.getOp()) {
-            //Note: the Create step and Push step utilize the same code, 
-            //and the create step does some setup first
-            case StackOperation.OPERATION_CREATE:
-                //First make sure we have no existing frames with this ID
-                if(matchingFrame != null) {
-                    //If we do, just bail.
-                    continue;
-                }
-                //Otherwise, create our new frame (we'll only manipulate it
-                //and add it if it is triggered)
-                matchingFrame = new SessionFrame(frameId);
-                
-                //Ok, now fall through to the push case using that frame, 
-                //as the push operations are ~identical
-                newFrame = true;
-            case StackOperation.OPERATION_PUSH:
-                //Ok, first, see if we need to execute this op
-                if(!op.isOperationTriggered(ec)){
-                    //Otherwise, we're done.
-                    continue;
-                }
-                
-                //If we don't have a frame yet, this push is targeting the
-                //frame on deck
-                if(matchingFrame == null) { matchingFrame = onDeck;}
-                
-                //Now, execute the steps in this operation
-                for(StackFrameStep step : op.getStackFrameSteps()) {
-                    matchingFrame.pushStep(step.defineStep(ec));
-                }
-                
-                //ok, frame should be appropriately modified now. 
-                //we also need to push this frame if it's new 
-                if(newFrame){
-                    //Before we can push a frame onto the stack, we need to
-                    //make sure the stack is clean. This means that if the
-                    //current frame has a snapshot, we've gotta make sure 
-                    //the existing frames are still valid.
-                    
-                    //TODO: We might want to handle this differently in the future,
-                    //so that we can account for the invalidated frames in the ui
-                    //somehow.
-                    cleanStack();
-                    
-                    //OK, now we want to take the current frame and put it up on the frame stack unless
-                    //this frame is dead (IE: We're closing it out). then we'll push the new frame
-                    //on top of it.
-                    if(!frame.isDead() && !currentFramePushed) {
-                        frameStack.push(frame);
-                        currentFramePushed = true;
+            switch (op.getOp()) {
+                //Note: the Create step and Push step utilize the same code,
+                //and the create step does some setup first
+                case StackOperation.OPERATION_CREATE:
+                    //First make sure we have no existing frames with this ID
+                    if (matchingFrame != null) {
+                        //If we do, just bail.
+                        continue;
                     }
-                    
-                    frameStack.push(matchingFrame);
-                }
-                break;
-            case StackOperation.OPERATION_CLEAR:
-                if(matchingFrame != null) {
-                    if(op.isOperationTriggered(ec)) {
-                        frameStack.removeElement(matchingFrame);
+                    //Otherwise, create our new frame (we'll only manipulate it
+                    //and add it if it is triggered)
+                    matchingFrame = new SessionFrame(frameId);
+
+                    //Ok, now fall through to the push case using that frame,
+                    //as the push operations are ~identical
+                    newFrame = true;
+                case StackOperation.OPERATION_PUSH:
+                    //Ok, first, see if we need to execute this op
+                    if (!op.isOperationTriggered(ec)) {
+                        //Otherwise, we're done.
+                        continue;
                     }
-                }
-                break;
-            default:
-                throw new RuntimeException("Undefined stack operation: " + op.getOp());
-            }        
+
+                    //If we don't have a frame yet, this push is targeting the
+                    //frame on deck
+                    if (matchingFrame == null) {
+                        matchingFrame = onDeck;
+                    }
+
+                    //Now, execute the steps in this operation
+                    for (StackFrameStep step : op.getStackFrameSteps()) {
+                        matchingFrame.pushStep(step.defineStep(ec));
+                    }
+
+                    //ok, frame should be appropriately modified now.
+                    //we also need to push this frame if it's new
+                    if (newFrame) {
+                        //Before we can push a frame onto the stack, we need to
+                        //make sure the stack is clean. This means that if the
+                        //current frame has a snapshot, we've gotta make sure
+                        //the existing frames are still valid.
+
+                        //TODO: We might want to handle this differently in the future,
+                        //so that we can account for the invalidated frames in the ui
+                        //somehow.
+                        cleanStack();
+
+                        //OK, now we want to take the current frame and put it up on the frame stack unless
+                        //this frame is dead (IE: We're closing it out). then we'll push the new frame
+                        //on top of it.
+                        if (!frame.isDead() && !currentFramePushed) {
+                            frameStack.push(frame);
+                            currentFramePushed = true;
+                        }
+
+                        frameStack.push(matchingFrame);
+                    }
+                    break;
+                case StackOperation.OPERATION_CLEAR:
+                    if (matchingFrame != null) {
+                        if (op.isOperationTriggered(ec)) {
+                            frameStack.removeElement(matchingFrame);
+                        }
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Undefined stack operation: " + op.getOp());
+            }
         }
-        
+
         //All stack ops executed. Now we need to see if we're on the right frame.
-        if(!this.frame.isDead() && frame != onDeck) {
+        if (!this.frame.isDead() && frame != onDeck) {
             //If the current frame isn't dead, and isn't on deck, that means we've pushed
             //in new frames and need to load up the correct one
-            
-            if(!finishAndPop()) {
+
+            if (!finishAndPop()) {
                 //Somehow we didn't end up with any frames after that? that's incredibly weird, I guess
                 //we should just start over.
                 this.clearAllState();
@@ -572,7 +601,7 @@ public class CommCareSession {
     private void cleanStack() {
         //See whether the current frame was incompatible with its start
         //state.
-        if(frame.isSnapshotIncompatible()) {
+        if (frame.isSnapshotIncompatible()) {
             //If it is, our frames can no longer make sense.
             this.frameStack.removeAllElements();
             frame.clearSnapshot();
@@ -582,8 +611,8 @@ public class CommCareSession {
     /**
      * Complete the current session (and perform any cleanup), then
      * check the stack for any pending frames, and load the top one
-     * into the current session if so. 
-     * 
+     * into the current session if so.
+     *
      * @return True if there was a pending frame and it has been
      * popped into the current session. False if the stack was empty
      * and the session is over.
@@ -591,18 +620,18 @@ public class CommCareSession {
     public boolean finishAndPop() {
         cleanStack();
 
-        if(frameStack.empty()) {
+        if (frameStack.empty()) {
             return false;
         } else {
             frame = frameStack.pop();
             //Ok, so if _after_ popping from the stack, we still have
-            //stack members, we need to be careful about making sure 
+            //stack members, we need to be careful about making sure
             //that they won't get triggered if we abandon the current
             //frame
-            if(!frameStack.isEmpty()) {
+            if (!frameStack.isEmpty()) {
                 frame.captureSnapshot();
             }
-            
+
             syncState();
             return true;
         }
@@ -611,27 +640,28 @@ public class CommCareSession {
     /**
      * Retrieve the single valid entry for the current session, should be called only
      * when the current request is fully built
-     * 
+     *
      * @return The unique valid entry built on this session. Will throw an exception if there isn't
      * a unique entry.
      */
     public Entry getCurrentEntry() {
         Vector<Entry> e = getEntriesForCommand(getCommand());
-        if(e.size() > 1) {
+        if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
-        } if(e.size() == 0){
+        }
+        if (e.size() == 0) {
             throw new IllegalStateException("The current session has no valid entry");
         }
         return e.elementAt(0);
     }
-    
+
     /**
-     * Retrieves a valid datum definition in the current session's history 
+     * Retrieves a valid datum definition in the current session's history
      * which contains a selector for the datum Id provided.
-     * 
+     *
      * Can be used to resolve the context about an item that
-     * has been selected in this session. 
-     *  
+     * has been selected in this session.
+     *
      * @param datumId The ID of a session datum in the session history
      * @return An Entry object which contains a selector for that datum
      * which is in this session history
@@ -640,32 +670,32 @@ public class CommCareSession {
         //We're performing a walk down the entities in this session here,
         //we should likely generalize this to make it easier to do it for other
         //operations
-        
-        Vector<StackFrameStep> steps =  frame.getSteps();
-        
+
+        Vector<StackFrameStep> steps = frame.getSteps();
+
         int stepId = -1;
         //walk to our datum
-        for(int i = 0 ; i < steps.size(); ++i) {
-            if(steps.elementAt(i).getType() == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i).getId().equals(datumId)) {
-               stepId = i;
-               break;
+        for (int i = 0; i < steps.size(); ++i) {
+            if (steps.elementAt(i).getType() == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i).getId().equals(datumId)) {
+                stepId = i;
+                break;
             }
         }
-        if(stepId == -1) {
+        if (stepId == -1) {
             System.out.println("I don't think this should be possible...");
             return null;
         }
-        
+
         //ok, so now we have our step, we want to walk backwards until we find the entity
         //associated with our ID
-        for(int i = stepId; i >= 0 ; i--) {
-            if(steps.elementAt(i).getType().equals(SessionFrame.STATE_COMMAND_ID)) {
+        for (int i = stepId; i >= 0; i--) {
+            if (steps.elementAt(i).getType().equals(SessionFrame.STATE_COMMAND_ID)) {
                 Vector<Entry> entries = this.getEntriesForCommand(steps.elementAt(i).getId());
-                
+
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
-                for(Entry entry : entries) {
-                    for(SessionDatum datum : entry.getSessionDataReqs()) {
-                        if(datum.getDataId().equals(datumId)) {
+                for (Entry entry : entries) {
+                    for (SessionDatum datum : entry.getSessionDataReqs()) {
+                        if (datum.getDataId().equals(datumId)) {
                             return datum;
                         }
                     }
@@ -677,5 +707,20 @@ public class CommCareSession {
 
     public void markCurrentFrameForDeath() {
         frame.kill();
+    }
+
+    /**
+     * Does the command only have a view entry, and no other actions available
+     * to take?
+     */
+    public boolean isViewCommand(String command) {
+        Vector<Entry> entries = this.getEntriesForCommand(command);
+        Entry prototype = entries.elementAt(0);
+
+        // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
+        // commcare core for release issues
+        return (entries.size() == 1 &&
+                (prototype.getXFormNamespace() == null ||
+                        prototype.getXFormNamespace().equals("")));
     }
 }

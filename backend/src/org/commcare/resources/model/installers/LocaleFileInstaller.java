@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.resources.model.installers;
 
@@ -35,32 +35,31 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
- *
  */
 public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> {
-    
+
     String locale;
     String localReference;
-    
+
     OrderedHashtable<String, String> cache;
-    
+
     /**
      * Serialization only!
      */
     public LocaleFileInstaller() {
-        
+
     }
 
     public LocaleFileInstaller(String locale) {
         this.locale = locale;
         this.localReference = "";
     }
-    
+
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
      */
     public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
-        if(cache == null) {
+        if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
         } else {
             Localization.getGlobalLocalizerAdvanced().addAvailableLocale(locale);
@@ -82,16 +81,16 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     public boolean resourceReady(Resource r) {
         return false;
     }
-    
+
     private static final String valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance,  boolean upgrade) throws UnresolvedResourceException {
+
+    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
-        if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
+        if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {
-                if(ref.doesBinaryExist()) {
+                if (ref.doesBinaryExist()) {
                     localReference = ref.getURI();
-                    table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
+                    table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                     return true;
                 } else {
                     //If the file isn't there, not much we can do about it.
@@ -101,60 +100,60 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                 e.printStackTrace();
                 return false;
             }
-        } else if(location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
+        } else if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_REMOTE) {
             //We need to download the resource, and store it locally. Either in the cache
             //(if no resource location is available) or in a local reference if one exists.
             InputStream incoming = null;
             try {
-                if(!ref.doesBinaryExist()) {
+                if (!ref.doesBinaryExist()) {
                     return false;
                 }
                 incoming = ref.getStream();
-                if(incoming == null) {
+                if (incoming == null) {
                     //if it turns out there isn't actually a remote resource, bail.
                     return false;
                 }
-                
+
                 //Now we're gong to try to find a local location to put the resource.
                 //Start with an arbitrary file location (since we don't support destination
                 //information yet, which we probably should soon).
                 String uri = ref.getURI();
                 int lastslash = uri.lastIndexOf('/');
-                
+
                 //Now we have a local part reference
                 uri = uri.substring(lastslash == -1 ? 0 : lastslash + 1);
-                
-                
+
+
                 String cleanUri = "";
                 //clean the uri ending. NOTE: This should be replaced with a link to a more
                 //robust uri cleaning subroutine
-                for(int i = 0 ; i < uri.length(); ++i) {
+                for (int i = 0; i < uri.length(); ++i) {
                     char c = uri.charAt(i);
-                    if(valid.indexOf(c) ==-1 ) {
+                    if (valid.indexOf(c) == -1) {
                         cleanUri += "_";
-                    } else{
+                    } else {
                         cleanUri += c;
                     }
                 }
-                
+
                 uri = cleanUri;
-                
+
                 int copy = 0;
-                
+
                 try {
                     Reference destination = ReferenceManager._().DeriveReference("jr://file/" + uri);
-                    while(destination.doesBinaryExist()) {
+                    while (destination.doesBinaryExist()) {
                         //Need a different location.
                         copy++;
                         String newUri = uri + "." + copy;
                         destination = ReferenceManager._().DeriveReference("jr://file/" + newUri);
                     }
-                    
-                    if(destination.isReadOnly()) {
+
+                    if (destination.isReadOnly()) {
                         return cache(incoming, r, table, upgrade);
                     }
                     //destination is now a valid local reference, so we can store the file there.
-                    
+
                     OutputStream output = destination.getOutputStream();
                     try {
                         //We're now reading from incoming, so if this fails, we need to ensure that it is closed
@@ -166,37 +165,43 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
                     } finally {
                         output.close();
                     }
-                    
+
                     this.localReference = destination.getURI();
-                    if(upgrade) {
-                        table.commit(r,Resource.RESOURCE_STATUS_UPGRADE);
+                    if (upgrade) {
+                        table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
                     } else {
-                        table.commit(r,Resource.RESOURCE_STATUS_INSTALLED);
+                        table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
                     }
                     return true;
-                    
+
                 } catch (InvalidReferenceException e) {
                     //Local location doesn't exist, put this in the cache
                     return cache(ref.getStream(), r, table, upgrade);
-                } catch(IOException e) {
-                    //This is a catch-all for local references failing in unexpected ways. 
+                } catch (IOException e) {
+                    //This is a catch-all for local references failing in unexpected ways.
                     return cache(ref.getStream(), r, table, upgrade);
                 }
             } catch (IOException e) {
-                throw new UnreliableSourceException(r, e.getMessage()); 
+                throw new UnreliableSourceException(r, e.getMessage());
             } finally {
-                try { if(incoming != null) { incoming.close(); } } catch (IOException e) {} 
+                try {
+                    if (incoming != null) {
+                        incoming.close();
+                    }
+                } catch (IOException e) {
+                }
             }
-            
+
             //TODO: Implement local cache code
             //    return false;
         }
         return false;
     }
+
     private boolean cache(InputStream incoming, Resource r, ResourceTable table, boolean upgrade) throws UnresolvedResourceException {
-        //NOTE: Incoming here needs to be _fresh_. It's extremely important that 
+        //NOTE: Incoming here needs to be _fresh_. It's extremely important that
         //nothing have gotten the stream first
-        
+
         try {
             cache = LocalizationUtils.parseLocaleInput(incoming);
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
@@ -204,15 +209,20 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         } catch (IOException e) {
             throw new UnreliableSourceException(r, e.getMessage());
         } finally {
-            try { if(incoming != null) { incoming.close(); } } catch (IOException e) {}
+            try {
+                if (incoming != null) {
+                    incoming.close();
+                }
+            } catch (IOException e) {
+            }
         }
     }
-    
+
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //TODO: Rename file to take off ".N"?
         return true;
     }
-    
+
     public boolean unstage(Resource r, int newStatus) {
         return true;
     }
@@ -220,17 +230,17 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
     public boolean revert(Resource r, ResourceTable table) {
         return true;
     }
-    
-    
+
+
     public int rollback(Resource r) {
         //This does nothing
         return Resource.getCleanFlag(r.getStatus());
     }
-    
+
 
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         //If we're not using files, just deal with the cache (this is even likely unnecessary).
-        if(cache != null) {
+        if (cache != null) {
             cache.clear();
             cache = null;
             return true;
@@ -238,23 +248,23 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         Reference reference;
         try {
             reference = ReferenceManager._().DeriveReference(localReference);
-            if(!reference.isReadOnly()) {
+            if (!reference.isReadOnly()) {
                 reference.remove();
             }
-            //CTS: The table should take care of this for the installer 
+            //CTS: The table should take care of this for the installer
             //table.removeResource(r);
             return true;
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
-            throw new UnresolvedResourceException(r,"Could not resolve locally installed reference at" + localReference);
+            throw new UnresolvedResourceException(r, "Could not resolve locally installed reference at" + localReference);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new UnresolvedResourceException(r,"Problem removing local data at reference " + localReference);
+            throw new UnresolvedResourceException(r, "Problem removing local data at reference " + localReference);
         }
     }
 
     public void cleanup() {
-        
+
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf)
@@ -270,22 +280,26 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         ExtUtil.write(out, new ExtWrapMap(ExtUtil.emptyIfNull(cache)));
     }
 
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems)  {
+    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
-        if(locale == null) { problems.addElement(new MissingMediaException(r, "Bad metadata, no locale")); return true;}
-        if(cache != null) {
-            //If we've gotten the cache into memory, we're fine
-        } else {
-            try {
-                if(!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
-                    throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
-                }
-            } catch (IOException e) {
-                throw new MissingMediaException(r, "Problem reading locale data from: " + localReference);
-            } catch (InvalidReferenceException e) {
-                throw new MissingMediaException(r, "Locale reference is invalid: " + localReference);
+            if (locale == null) {
+                problems.addElement(new MissingMediaException(r, "Bad metadata, no locale"));
+                return true;
             }
-        }} catch(MissingMediaException ure) {
+            if (cache != null) {
+                //If we've gotten the cache into memory, we're fine
+            } else {
+                try {
+                    if (!ReferenceManager._().DeriveReference(localReference).doesBinaryExist()) {
+                        throw new MissingMediaException(r, "Locale data does note exist at: " + localReference);
+                    }
+                } catch (IOException e) {
+                    throw new MissingMediaException(r, "Problem reading locale data from: " + localReference);
+                } catch (InvalidReferenceException e) {
+                    throw new MissingMediaException(r, "Locale reference is invalid: " + localReference);
+                }
+            }
+        } catch (MissingMediaException ure) {
             problems.addElement(ure);
             return true;
         }

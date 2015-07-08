@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.suite.model;
 
@@ -22,51 +22,51 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * @author ctsims
- *
  */
 public class AssertionSet implements Externalizable {
-    
+
     Vector<String> xpathExpressions;
     Vector<Text> messages;
-    
+
     public AssertionSet() {
-        
+
     }
+
     /**
-     * Create an set of assertion tests. 
+     * Create an set of assertion tests.
      * NOTE: The tests are _not parsed here_ to test their xpath expressions.
      * They should be tested _before_ being passed in (we don't do so here
      * to permit retaining the locality of which expression failed).
-     * 
+     *
      * @param xpathExpressions
      * @param messages
      * @throws XPathSyntaxException
      */
     public AssertionSet(Vector<String> xpathExpressions, Vector<Text> messages) {
         //First, make sure things are set up correctly
-        if(xpathExpressions.size() != messages.size()) {
+        if (xpathExpressions.size() != messages.size()) {
             throw new IllegalArgumentException("Expression and message sets must be the same size");
         }
-        
+
         this.xpathExpressions = xpathExpressions;
         this.messages = messages;
     }
-    
+
     public Text getAssertionFailure(EvaluationContext ec) {
         try {
-            for(int i = 0; i < xpathExpressions.size() ; ++i) {
+            for (int i = 0; i < xpathExpressions.size(); ++i) {
                 XPathExpression expression = XPathParseTool.parseXPath(xpathExpressions.elementAt(i));
                 try {
                     Object val = expression.eval(ec);
-                    if(!XPathFuncExpr.toBoolean(val).booleanValue()) {
+                    if (!XPathFuncExpr.toBoolean(val).booleanValue()) {
                         return messages.elementAt(i);
-                    } 
-                } catch(Exception e) {
+                    }
+                } catch (Exception e) {
                     return messages.elementAt(i);
                 }
             }
             return null;
-        } catch(XPathSyntaxException xpe) {
+        } catch (XPathSyntaxException xpe) {
             throw new XPathException("Assertion somehow failed to parse after validating : " + xpe.getMessage());
         }
     }

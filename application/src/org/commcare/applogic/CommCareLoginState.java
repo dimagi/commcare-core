@@ -23,13 +23,13 @@ import org.javarosa.user.model.User;
 
 public class CommCareLoginState extends LoginState {
     boolean interactive;
-    
+
     public CommCareLoginState(boolean interactive) {
         this.interactive = interactive;
     }
-    
+
     public CommCareLoginState() {
-        this(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") && 
+        this(CommCareContext._().getManager().getCurrentProfile().isFeatureActive("users") &&
              (!CommCareSense.isAutoLoginEnabled() ||
              PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER) == null));
     }
@@ -45,15 +45,15 @@ public class CommCareLoginState extends LoginState {
 
     protected static User getLoggedInUser() {
         IStorageUtilityIndexed users = (IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY);
-        
-        
+
+
         if(CommCareSense.isAutoLoginEnabled()) {
             User user = (User)users.getRecordForValue(User.META_UID, PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER));
             return user;
         }
-        
+
         IStorageIterator ui = users.iterate();
-        
+
         User admin = null;
         while (ui.hasMore()) {
             User u = (User)ui.nextRecord();
@@ -65,37 +65,37 @@ public class CommCareLoginState extends LoginState {
         }
         return admin;
     }
-    
+
     /*
      * (non-Javadoc)
      * @see org.javarosa.user.api.LoginState#getController()
-     * 
+     *
      * Returns a LoginController to handle the CommCare LoginProcess
-     * 
-     * @param CommCareProperties.DEMO_MODE = CommCareProperties.DEMO_DISABLED prevents the user from login in as a demo user. 
+     *
+     * @param CommCareProperties.DEMO_MODE = CommCareProperties.DEMO_DISABLED prevents the user from login in as a demo user.
      *         CommCareUtil.demoEnabled() returns false
-     * 
+     *
      * @param CommCareProperties.LOGIN_IMAGES = CommCareProperties.PROPERTY_YES causes the login screen to use images instead of buttons
      *         CommCareUtil.loginImagesEnabled() returns true
-     * 
+     *
      * @param CommCareProperties.PASSWORD_FORMAT = CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC allows letters in the user's password, otherwise only digits
-     * 
+     *
      * @param CommCareProperties.LOGIN_IMAGE - the URI to an image the login screen should use as a banner, null for no banner
-     * 
+     *
      */
-    
-    protected LoginController getController () {        
+
+    protected LoginController getController () {
         String ver = "CommCare " + CommCareUtil.getVersion(CommCareUtil.VERSION_MED);
         String[] extraText = (CommCareUtil.isTestingMode() ? new String[] {ver, "*** TEST BUILD ***"}
                                               : new String[] {ver});
-        
+
         String passFormat = PropertyManager._().getSingularProperty(CommCareProperties.PASSWORD_FORMAT);
-        
+
         return new LoginController(
                 Localization.get("login.title"),
                 PropertyManager._().getSingularProperty(CommCareProperties.LOGIN_IMAGE),
-                extraText, CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ? 
-                                              CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC : 
+                extraText, CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC.equals(passFormat) ?
+                                              CreateUserController.PASSWORD_FORMAT_ALPHA_NUMERIC :
                                               CreateUserController.PASSWORD_FORMAT_NUMERIC,
                                               CommCareUtil.demoEnabled(),
                                               CommCareUtil.loginImagesEnabled());
@@ -114,19 +114,19 @@ public class CommCareLoginState extends LoginState {
     public void loggedIn(final User u, String password) {
         CommCareContext._().setUser(u, password == null ? null : new DefaultHttpCredentialProvider(u.getUsername(), password));
         Logger.log("login", PropertyUtils.trim(u.getUniqueId(), 8) + "-" + u.getUsername());
-        
+
         CommCareContext._().toggleDemoMode(User.DEMO_USER.equals(u.getUserType()));
-                
+
         if(CommCareSense.isAutoLoginEnabled()) {
             if(User.STANDARD.equals(u.getUserType() )) {
                 //We only want to autolog non-admin non-demo users
-                //Set the current user to be automatically logged in 
+                //Set the current user to be automatically logged in
                 PropertyManager._().setProperty(CommCareProperties.LOGGED_IN_USER, u.getUniqueId());
-            } 
+            }
             //TODO: Do we want to clear the auto-logged-in user if an admin logs in?
         }
 
-        
+
         //TODO: Replace this state completely with the periodic wrapper state and reimplement this
         //functionality as a periodically wrapped set
         J2MEDisplay.startStateWithLoadingScreen(new DeviceReportState() {
@@ -140,26 +140,26 @@ public class CommCareLoginState extends LoginState {
             }
 
             public void done() {
-                
+
                 //"admin" login criteria (the actual admin user, not a superuser)
                 boolean isAdminUser = CommCareUtil.isMagicAdmin(u);
-                
+
                 //Don't run period events if you're logging in in either
                 //A) Admin mode (user with username "admin" and superuser permissions)
                 //B) Demo mode
                 //TODO: Some events might still want to trigger in admin mode?
                 if(CommCareContext._().inDemoMode() || isAdminUser) {
-                    //The periodic events really aren't relevant for demo data, so just skip straight to the 
+                    //The periodic events really aren't relevant for demo data, so just skip straight to the
                     //actual home.
                     J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
                     return;
                 }
-                
+
                 // Go to the home state if we're done or if we skip it.
                 J2MEDisplay.startStateWithLoadingScreen(new PeriodicWrapperState(CommCareContext._().getEventDescriptors()){
 
                     public void done() {
-                        J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());                        
+                        J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
                     }
                 });
             }

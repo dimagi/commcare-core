@@ -15,18 +15,18 @@ public abstract class CommCareSelectState<E> extends EntitySelectState<E> {
 
     Entity<E> entity;
     EntitySelectController<E> controller;
-    
+
     public CommCareSelectState (Entity<E> entity, String storageKey) {
         this(entity, new StorageEntitySet(StorageManager.getStorage(storageKey)));
     }
-    
+
     public CommCareSelectState (Entity<E> entity, EntitySet<E> set) {
         this.entity = entity;
-        
+
         controller = new CommCareEntitySelectController<E>(entity.entityType(), set, entity,
                    EntitySelectView.NEW_DISALLOWED, true, false);
     }
-    
+
     protected EntitySelectController<E> getController () {
         return controller;
     }

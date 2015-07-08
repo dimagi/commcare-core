@@ -1,29 +1,27 @@
-/**
- * 
- */
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.InvalidStructureException;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.util.Vector;
+
 /**
  * @author ctsims
- *
  */
-public class DetailParser extends ElementParser<Detail> {
+public class DetailParser extends CommCareElementParser<Detail> {
 
     public DetailParser(KXmlParser parser) {
         super(parser);
@@ -32,7 +30,7 @@ public class DetailParser extends ElementParser<Detail> {
     public Detail parse() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("detail");
 
-        String id = parser.getAttributeValue(null,"id");
+        String id = parser.getAttributeValue(null, "id");
 
         Text background = new Text();
 
@@ -43,11 +41,13 @@ public class DetailParser extends ElementParser<Detail> {
         getNextTagInBlock("title");
         DisplayUnit title;
         if ("text".equals(parser.getName().toLowerCase())) {
-            title = new DisplayUnit(new TextParser(parser).parse(), "", "");
-        }
-        else {
+            title = new DisplayUnit(new TextParser(parser).parse(), null, null);
+        } else {
             title = parseDisplayBlock();
         }
+
+        Callout callout = null;
+
         Action action = null;
 
         //Now get the headers and templates.
@@ -55,22 +55,35 @@ public class DetailParser extends ElementParser<Detail> {
         Vector<DetailField> fields = new Vector<DetailField>();
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
 
-        while(nextTagInBlock("detail")) {
-            if("variables".equals(parser.getName().toLowerCase())) {
-                while(nextTagInBlock("variables")) {
+        while (nextTagInBlock("detail")) {
+
+            if ("lookup".equals(parser.getName().toLowerCase())) {
+                try {
+                    checkNode("lookup");
+                    callout = new CalloutParser(parser).parse();
+                    parser.nextTag();
+
+                } catch (InvalidStructureException e) {
+                    System.out.println("Lookup block not found " + e);
+                }
+            }
+            if ("variables".equals(parser.getName().toLowerCase())) {
+                while (nextTagInBlock("variables")) {
                     String function = parser.getAttributeValue(null, "function");
-                    if(function == null) { throw new InvalidStructureException("No function in variable declaration for variable " + parser.getName(), parser); }
+                    if (function == null) {
+                        throw new InvalidStructureException("No function in variable declaration for variable " + parser.getName(), parser);
+                    }
                     try {
                         XPathParseTool.parseXPath(function);
                     } catch (XPathSyntaxException e) {
                         e.printStackTrace();
-                        throw new InvalidStructureException("Invalid XPath function " + function +". " + e.getMessage(), parser);
+                        throw new InvalidStructureException("Invalid XPath function " + function + ". " + e.getMessage(), parser);
                     }
                     variables.put(parser.getName(), function);
                 }
                 continue;
             }
-            if(ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
+            if (ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
                 action = new ActionParser(parser).parse();
                 continue;
             }
@@ -78,12 +91,11 @@ public class DetailParser extends ElementParser<Detail> {
 
             if (parser.getName().equals("detail")) {
                 subdetails.addElement((new DetailParser(parser)).parse());
-            }
-            else {
+            } else {
                 checkNode("field");
                 //Get the fields
                 String sortDefault = parser.getAttributeValue(null, "sort");
-                if(sortDefault != null && sortDefault.equals("default")) {
+                if (sortDefault != null && sortDefault.equals("default")) {
                     builder.setSortOrder(1);
                 }
                 String relevancy = parser.getAttributeValue(null, "relevant");
@@ -96,13 +108,13 @@ public class DetailParser extends ElementParser<Detail> {
                         throw new InvalidStructureException("Bad XPath Expression {" + relevancy + "}", parser);
                     }
                 }
-                if(nextTagInBlock("field")) {
+                if (nextTagInBlock("field")) {
                     //style
-                    if(parser.getName().toLowerCase().equals("style")){
-                        StyleParser styleParser = new StyleParser(builder,parser);
+                    if (parser.getName().toLowerCase().equals("style")) {
+                        StyleParser styleParser = new StyleParser(builder, parser);
                         styleParser.parse();
                         //Header
-                        GridParser gridParser = new GridParser(builder,parser);
+                        GridParser gridParser = new GridParser(builder, parser);
                         gridParser.parse();
 
                         //exit style block
@@ -111,7 +123,7 @@ public class DetailParser extends ElementParser<Detail> {
                     }
                     checkNode("header");
 
-                    builder.setHeaderHint(getWidth());
+                    builder.setHeaderWidthHint(parser.getAttributeValue(null, "width"));
 
                     String form = parser.getAttributeValue(null, "form");
                     builder.setHeaderForm(form == null ? "" : form);
@@ -124,11 +136,11 @@ public class DetailParser extends ElementParser<Detail> {
                 } else {
                     throw new InvalidStructureException("Not enough field entries", parser);
                 }
-                if(nextTagInBlock("field")) {
+                if (nextTagInBlock("field")) {
                     //Template
                     checkNode("template");
 
-                    builder.setTemplateHint(getWidth());
+                    builder.setTemplateWidthHint(parser.getAttributeValue(null, "width"));
 
                     String form = parser.getAttributeValue(null, "form");
                     if (form == null) {
@@ -140,25 +152,27 @@ public class DetailParser extends ElementParser<Detail> {
                     DetailTemplate template;
                     if (form.equals("graph")) {
                         template = new GraphParser(parser).parse();
-                    }
-                    else {
+                    } else if (form.equals("callout")) {
+                        template = new CalloutParser(parser).parse();
+                    } else {
                         checkNode("text");
-                        try{
+                        try {
                             template = new TextParser(parser).parse();
-                        } catch(InvalidStructureException ise){
+                        } catch (InvalidStructureException ise) {
                             throw new InvalidStructureException("Error in suite detail with id " + id + " : " + ise.getMessage(), parser);
                         }
                     }
                     builder.setTemplate(template);
                 } else {
                     throw new InvalidStructureException("detail <field> with no <template>!", parser);
-                } if(nextTagInBlock("field")) {
+                }
+                if (nextTagInBlock("field")) {
                     //sort details
-                    checkNode(new String[] {"sort","background"});
+                    checkNode(new String[]{"sort", "background"});
 
                     String name = parser.getName().toLowerCase();
 
-                    if(name.equals("sort")){
+                    if (name.equals("sort")) {
 
                         //So in the past we've been fairly flexible about inputs to attributes and such
                         //in case we want to expand their function in the future. These are limited sets,
@@ -167,17 +181,17 @@ public class DetailParser extends ElementParser<Detail> {
                         //version, so we'll be flexible for now.
 
                         String order = parser.getAttributeValue(null, "order");
-                        if(order != null && order !="") {
+                        if (order != null && order != "") {
                             try {
                                 builder.setSortOrder(Integer.parseInt(order));
-                            } catch(NumberFormatException nfe) {
+                            } catch (NumberFormatException nfe) {
                                 //see above comment
                             }
                         }
                         String direction = parser.getAttributeValue(null, "direction");
-                        if("ascending".equals(direction)) {
+                        if ("ascending".equals(direction)) {
                             builder.setSortDirection(DetailField.DIRECTION_ASCENDING);
-                        } else if("descending".equals(direction)) {
+                        } else if ("descending".equals(direction)) {
                             builder.setSortDirection(DetailField.DIRECTION_DESCENDING);
                         } else {
                             //see above comment. Also note that this catches the null case,
@@ -186,11 +200,11 @@ public class DetailParser extends ElementParser<Detail> {
 
                         //See if there's a sort type
                         String type = parser.getAttributeValue(null, "type");
-                        if("int".equals(type)) {
+                        if ("int".equals(type)) {
                             builder.setSortType(Constants.DATATYPE_INTEGER);
-                        } else if("double".equals(type)) {
+                        } else if ("double".equals(type)) {
                             builder.setSortType(Constants.DATATYPE_DECIMAL);
-                        } else if("string".equals(type)) {
+                        } else if ("string".equals(type)) {
                             builder.setSortType(Constants.DATATYPE_TEXT);
                         } else {
                             //see above comment
@@ -198,7 +212,7 @@ public class DetailParser extends ElementParser<Detail> {
 
 
                         //See if this has a text value for the sort
-                        if(nextTagInBlock("sort")) {
+                        if (nextTagInBlock("sort")) {
                             //Make sure the internal element _is_ a text
                             checkNode("text");
 
@@ -206,8 +220,8 @@ public class DetailParser extends ElementParser<Detail> {
                             Text sort = new TextParser(parser).parse();
                             builder.setSort(sort);
                         }
-                    } else if(name.equals("background")){
-                        if(nextTagInBlock("background")) {
+                    } else if (name.equals("background")) {
+                        if (nextTagInBlock("background")) {
                             checkNode("text");
                             //Get it if so
                             background = new TextParser(parser).parse();
@@ -219,24 +233,13 @@ public class DetailParser extends ElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, subdetails, fields, variables, action);
+        Detail d = new Detail(id, title, subdetails, fields, variables, action, callout);
         return d;
-    }
-
-    private int getWidth() throws InvalidStructureException {
-        String width = parser.getAttributeValue(null,"width");
-        if(width == null) { return -1; };
-
-        //Remove the trailing % sign if any
-        if(width.indexOf("%") != -1) {
-            width = width.substring(0,width.indexOf("%"));
-        }
-        return this.parseInt(width);
     }
 
     private int[] toIntArray(Vector<Integer> vector) {
         int[] ret = new int[vector.size()];
-        for(int i = 0; i < ret.length ; ++i) {
+        for (int i = 0; i < ret.length; ++i) {
             ret[i] = vector.elementAt(i).intValue();
         }
         return ret;
@@ -244,8 +247,8 @@ public class DetailParser extends ElementParser<Detail> {
 
     private String[] toStringArray(Vector<String> vector) {
         String[] ret = new String[vector.size()];
-        for(int i = 0; i < ret.length ; ++i) {
-            if(vector.elementAt(i).equals("")) {
+        for (int i = 0; i < ret.length; ++i) {
+            if (vector.elementAt(i).equals("")) {
                 ret[i] = null;
             } else {
                 ret[i] = vector.elementAt(i);

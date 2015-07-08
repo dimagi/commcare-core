@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.commcare.cases.model;
 
@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -43,40 +42,39 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * NOTE: All new fields should be added to the case class using the "data" class,
  * as it demonstrated by the "userid" field. This prevents problems with datatype
  * representation across versions.
- * 
- * @author Clayton Sims
- * @date Mar 19, 2009 
  *
+ * @author Clayton Sims
+ * @date Mar 19, 2009
  */
 public class Case implements Persistable, IMetaData, Secure {
     public static String STORAGE_KEY = "CASE";
-    
+
     public static String INDEX_CASE_ID = "case-id";
     public static String INDEX_CASE_TYPE = "case-type";
     public static String INDEX_CASE_STATUS = "case-status";
     public static String INDEX_CASE_INDEX_PRE = "case-in-";
-    
+
     protected String typeId;
     protected String id;
     protected String name;
-    
+
     protected boolean closed = false;
-    
+
     protected Date dateOpened;
-    
+
     protected int recordId;
 
     protected Hashtable data = new Hashtable();
-    
+
     protected Vector<CaseIndex> indices = new Vector<CaseIndex>();
-    
+
     /**
      * NOTE: This constructor is for serialization only.
      */
     public Case() {
         dateOpened = new Date();
     }
-    
+
     public Case(String name, String typeId) {
         setID(-1);
         this.name = name;
@@ -84,7 +82,7 @@ public class Case implements Persistable, IMetaData, Secure {
         dateOpened = new Date();
         setLastModified(dateOpened);
     }
-    
+
     /**
      * @return the typeId
      */
@@ -133,15 +131,15 @@ public class Case implements Persistable, IMetaData, Secure {
     public int getID() {
         return recordId;
     }
-    
-    public void setID (int id) {
+
+    public void setID(int id) {
         this.recordId = id;
     }
-        
+
     public String getUserId() {
         return (String)data.get(org.javarosa.core.api.Constants.USER_ID_KEY);
     }
-    
+
     public void setUserId(String id) {
         data.put(org.javarosa.core.api.Constants.USER_ID_KEY, id);
     }
@@ -152,11 +150,11 @@ public class Case implements Persistable, IMetaData, Secure {
     public void setCaseId(String id) {
         this.id = id;
     }
-    
+
     public String getCaseId() {
         return id;
     }
-    
+
     /**
      * @return the dateOpened
      */
@@ -198,30 +196,30 @@ public class Case implements Persistable, IMetaData, Secure {
         ExtUtil.write(out, new ExtWrapList(indices));
         ExtUtil.write(out, new ExtWrapMapPoly(data));
     }
-    
+
     public void setProperty(String key, Object value) {
         this.data.put(key, value);
     }
-    
+
     public Object getProperty(String key) {
-        if("case-id".equals(key)) {
+        if ("case-id".equals(key)) {
             return id;
         }
         return data.get(key);
     }
-    
+
     public String getPropertyString(String key) {
         Object o = this.getProperty(key);
-        if(o instanceof String) {
+        if (o instanceof String) {
             return (String)o;
         } else {
-            //This is not good, but it's also the uniform matching that's used in the 
+            //This is not good, but it's also the uniform matching that's used in the
             //xml transform, essentially.
             return PreloadUtils.wrapIndeterminedObject(o).uncast().getString();
         }
 
     }
-    
+
     public Hashtable getProperties() {
         return data;
     }
@@ -252,20 +250,20 @@ public class Case implements Persistable, IMetaData, Secure {
             return closed ? "closed" : "open";
         } else if (fieldName.startsWith(INDEX_CASE_INDEX_PRE)) {
             String name = fieldName.substring(fieldName.lastIndexOf('-') + 1, fieldName.length());
-            
-            for(CaseIndex index : this.getIndices()) {
-                if(index.getName().equals(name)) {
+
+            for (CaseIndex index : this.getIndices()) {
+                if (index.getName().equals(name)) {
                     return index.getTarget();
                 }
             }
             return "";
         } else {
-            throw new IllegalArgumentException("No metadata field " + fieldName  + " in the case storage system");
+            throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
         }
     }
 
     public String[] getMetaDataFields() {
-        return new String[] {INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
+        return new String[]{INDEX_CASE_ID, INDEX_CASE_TYPE, INDEX_CASE_STATUS};
     }
 
     /**
@@ -274,27 +272,28 @@ public class Case implements Persistable, IMetaData, Secure {
     public void setIndex(String indexName, String caseType, String indexValue) {
         setIndex(new CaseIndex(indexName, caseType, indexValue));
     }
-    
+
     public void setIndex(CaseIndex index) {
         //remove existing indices at this name
-        for(CaseIndex i : this.indices) {
-            if(i.getName().equals(index.getName())) {
+        for (CaseIndex i : this.indices) {
+            if (i.getName().equals(index.getName())) {
                 this.indices.removeElement(i);
                 break;
             }
         }
         this.indices.addElement(index);
     }
-    
+
     public Vector<CaseIndex> getIndices() {
         return indices;
     }
 
     private static final String ATTACHMENT_PREFIX = "attachmentdata";
+
     public void updateAttachment(String attachmentName, String reference) {
         data.put(ATTACHMENT_PREFIX + attachmentName, reference);
     }
-    
+
     public String getAttachmentSource(String attachmentName) {
         return (String)data.get(ATTACHMENT_PREFIX + attachmentName);
     }
@@ -302,9 +301,9 @@ public class Case implements Persistable, IMetaData, Secure {
     //this is so terrible it hurts. We'll be redoing this
     public Vector<String> getAttachments() {
         Vector<String> attachments = new Vector<String>();
-        for(Enumeration en = data.keys() ; en.hasMoreElements() ;) {
+        for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             String name = (String)en.nextElement();
-            if(name.startsWith(ATTACHMENT_PREFIX)) {
+            if (name.startsWith(ATTACHMENT_PREFIX)) {
                 attachments.addElement(name.substring(ATTACHMENT_PREFIX.length()));
             }
         }
@@ -314,23 +313,48 @@ public class Case implements Persistable, IMetaData, Secure {
     public void removeAttachment(String attachmentName) {
         data.remove(ATTACHMENT_PREFIX + attachmentName);
     }
-    
+
     // ugh, adding stuff to case models sucks. Need to code up a transition scheme in android so we
     // can stop having shitty models.
-    
+
     private static final String LAST_MODIFIED = "last_modified";
-    
+
     /**
-     * 
      * @param lastModified
      */
     public void setLastModified(Date lastModified) {
-        if(lastModified == null) { throw new NullPointerException("Case date last modified cannot be null"); }
+        if (lastModified == null) {
+            throw new NullPointerException("Case date last modified cannot be null");
+        }
         data.put(LAST_MODIFIED, lastModified);
     }
-    
+
     public Date getLastModified() {
-        if(!data.containsKey(LAST_MODIFIED)) { return getDateOpened();}
+        if (!data.containsKey(LAST_MODIFIED)) {
+            return getDateOpened();
+        }
         return (Date)data.get(LAST_MODIFIED);
+    }
+
+    /**
+     * Removes any potential indices with the provided index name.
+     *
+     * If the index doesn't currently exist, nothing is changed.
+     *
+     * @param indexName The name of a case index that should be removed.
+     */
+    public void removeIndex(String indexName) {
+        CaseIndex toRemove = null;
+
+        for (CaseIndex index : indices) {
+            if (index.mName.equals(indexName)) {
+                toRemove = index;
+                break;
+            }
+        }
+
+        if (toRemove != null) {
+            indices.removeElement(toRemove);
+        }
     }
 }

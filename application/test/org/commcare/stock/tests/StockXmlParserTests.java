@@ -33,18 +33,18 @@ import org.commcare.xml.LedgerXmlParsers;
 import org.kxml2.io.KXmlParser;
 
 public class StockXmlParserTests extends TestCase {
-    
+
     private static int NUM_TESTS = 1;
-    
+
     private static final String BALANCE_GOOD = "<balance entity-id='a59d8b11-218e-47a9-ba49-fb8e6f615085' stock-id='supplies' date='2013-12-05' xmlns='http://commtrack.org/stock_report'><n2:product index='0' id='productguid0' quantity='10' /><n2:product index='1' id='productguid2' quantity='20' /></n2:balance></data>";
-    
+
     /* (non-Javadoc)
      * @see j2meunit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
+
     public StockXmlParserTests(String name, TestMethod rTestMethod) {
         super(name, rTestMethod);
     }
@@ -55,7 +55,7 @@ public class StockXmlParserTests extends TestCase {
 
     public StockXmlParserTests() {
         super();
-    }    
+    }
 
     public Test suite() {
         TestSuite aSuite = new TestSuite();
@@ -74,28 +74,27 @@ public class StockXmlParserTests extends TestCase {
     }
     public void testMaster (int testID) {
         //System.out.println("running " + testID);
-        
+
         switch (testID) {
         case 1: testGoodParses(); break;
         }
     }
-    
+
     public void testGoodParses() {
         Vector<Ledger> s = parseBlock(BALANCE_GOOD);
         assertTrue("Wrong number of stock records!", s.size() == 1);
-        
+
     }
-    
+
     public Vector<Ledger> parseBlock(String source) {
         final Vector<Ledger> stockResults = new Vector<Ledger>();
-        
+
         TransactionParserFactory factory = new TransactionParserFactory() {
 
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                
-                if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
+            public TransactionParser getParser(KXmlParser parser) {
+                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, null) {
-    
+
                         /* (non-Javadoc)
                          * @see org.commcare.xml.StockXmlParsers#commit(org.commcare.cases.stock.Stock[])
                          */
@@ -105,7 +104,7 @@ public class StockXmlParserTests extends TestCase {
                                 stockResults.addElement(s);
                             }
                         }
-    
+
                         /* (non-Javadoc)
                          * @see org.commcare.xml.StockXmlParsers#retrieve(java.lang.String)
                          */
@@ -113,15 +112,15 @@ public class StockXmlParserTests extends TestCase {
                         public Ledger retrieveOrCreate(String entityId) {
                             return null;
                         }
-                        
+
                     };
-                } 
-                
+                }
+
                 return null;
             }
-            
+
         };
-        
+
         //handle exceptions later
         try {
             DataModelPullParser modelParser = new DataModelPullParser(new ByteArrayInputStream(source.getBytes()), factory, true, true);
@@ -129,8 +128,8 @@ public class StockXmlParserTests extends TestCase {
         } catch(Exception e) {
             throw new RuntimeException("Exception " + e.getClass().getName() +" while parsing stock: " + e.getMessage());
         }
-        
+
         return stockResults;
     }
-    
+
 }

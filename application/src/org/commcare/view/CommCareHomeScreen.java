@@ -27,21 +27,21 @@ import de.enough.polish.ui.UiAccess;
 
 /**
  * @author Clayton Sims
- * @date Jan 23, 2009 
+ * @date Jan 23, 2009
  *
  */
 public class CommCareHomeScreen extends CommCareListView {
     CommCareHomeController controller;
 
     private boolean isAdmin;
-    
+
     private User loggedInUser;
-    
+
     private boolean reviewEnabled;
-    
+
     public ChoiceItem sendAllUnsent = new ChoiceItem(Localization.get("menu.send.all"), null, List.IMPLICIT);
     public ChoiceItem serverSync = new ChoiceItem(Localization.get("menu.sync"), null, List.IMPLICIT);
-    
+
     public ChoiceItem reviewRecent;
 
     public Command select = new Command(Localization.get("polish.command.select"), Command.ITEM, 1);
@@ -62,13 +62,13 @@ public class CommCareHomeScreen extends CommCareListView {
     public Command admForceSend = new Command("Force Send", Command.ITEM, 1);
     public Command admPermTest = new Command("Permissions Test", Command.ITEM, 1);
     public Command admValidateMedia = new Command("Validate Media", Command.ITEM, 1);
-    
+
     private int unsentFormNumberLimit = 10;
     private int unsentFormTimeLimit = 3;
-    
+
     public CommCareHomeScreen(CommCareHomeController controller, User loggedInUser, boolean reviewEnabled) {
         super(Localization.get("homescreen.title"));
-        
+
         try {
             String unsentPropertyString = PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_NUMBER_LIMIT);
             if(unsentPropertyString != null) {
@@ -77,8 +77,8 @@ public class CommCareHomeScreen extends CommCareListView {
         } catch(NumberFormatException nfe) {
             //not a valid integer;
         }
-        
-        
+
+
         try {
             String unsentPropertyString = PropertyManager._().getSingularProperty(CommCareProperties.UNSENT_FORM_TIME_LIMIT);
             if(unsentPropertyString != null) {
@@ -87,13 +87,13 @@ public class CommCareHomeScreen extends CommCareListView {
         } catch(NumberFormatException nfe) {
             //not a valid integer;
         }
-        
-        
+
+
         this.controller = controller;
-        
+
         setCommandListener(controller);
         setSelectCommand(select);
-        
+
         addCommand(exit);
         this.loggedInUser = loggedInUser;
         isAdmin = (loggedInUser == null) ? true : loggedInUser.isAdminUser();
@@ -117,10 +117,10 @@ public class CommCareHomeScreen extends CommCareListView {
         if (CommCareSense.isAutoLoginEnabled() && !isAdmin) {
             addCommand(adminLogin);
         }
-        
+
         this.reviewEnabled = reviewEnabled;
     }
-    
+
     public void setImage(ChoiceItem ci, String filePath){
         try{
             Image mImage = ImageUtils.getImage(Localization.get(filePath));
@@ -130,14 +130,14 @@ public class CommCareHomeScreen extends CommCareListView {
             System.out.println("couldn't find file path");
         }
     }
-    
+
     public void init() {
         if(reviewEnabled) {
             setImage(reviewRecent,"commcare.review.icon");
             reviewRecent = new ChoiceItem(Localization.get("commcare.review"), null, List.IMPLICIT);
             append(reviewRecent);
         }
-        
+
         //serverSync.setImage(serverImage);
 
         if (CommCareProperties.TETHER_SYNC.equals(PropertyManager._().getSingularProperty(CommCareProperties.TETHER_MODE))) {
@@ -157,15 +157,15 @@ public class CommCareHomeScreen extends CommCareListView {
     }
 
     public void setSendUnsent() {
-        
+
         String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
-        
+
         String numunsent = "error";
         int unsent = CommCareUtil.getNumberUnsent();
         numunsent = String.valueOf(unsent);
-        
+
         sendAllUnsent.setText(Localization.get("menu.send.all.val", new String[] {numunsent}));
-        
+
         if(unsent > unsentFormNumberLimit) {
             //#style unsentImportant
             UiAccess.setStyle(sendAllUnsent);
@@ -173,9 +173,9 @@ public class CommCareHomeScreen extends CommCareListView {
             //#style listitem
             UiAccess.setStyle(sendAllUnsent);
         }
-        
+
         admForceSend.setLabel(admForceSend.getLabel() + " (" + numunsent + ")");
-        
+
         //If we're in sense mode, we want to change the title of this screen to reflect the logged in
         //user and # of unsent forms.
         if(CommCareSense.sense()) {
@@ -188,11 +188,11 @@ public class CommCareHomeScreen extends CommCareListView {
     }
 
     public void setSync () {
-                
+
         String sLastSync = PropertyManager._().getSingularProperty(CommCareProperties.LAST_SYNC_AT);
 
         boolean bad = false;
-        
+
         String message = null;
         if (sLastSync != null) {
             Date lastSync = DateUtils.parseDateTime(sLastSync);
@@ -213,40 +213,40 @@ public class CommCareHomeScreen extends CommCareListView {
             message = Localization.get("menu.sync.prompt");
             bad = true;
         }
-            
+
         int numUnsent = CommCareUtil.getNumberUnsent();
-        
+
         String sUnsent = null;
-        
+
         if(numUnsent == 1) {
             sUnsent = Localization.get("menu.sync.unsent.one");
         } else if(numUnsent > 1) {
             sUnsent = Localization.get("menu.sync.unsent.mult", new String[]{String.valueOf(numUnsent)});
         }
-        
+
         if (message == null) {
             message = sUnsent;
         } else if (sUnsent != null) {
             message += "; " + sUnsent;
         }
-        
+
         if(numUnsent > unsentFormNumberLimit) {
             bad = true;
         }
-        
+
         if (message != null) {
             serverSync.setText(serverSync.getText() + " (" + message + ")");
         }
-        
+
         if(bad) {
             //#style unsentImportant
             UiAccess.setStyle(serverSync);
-            
+
             setImage(serverSync,"server.sync.icon.warn");
         } else {
             //#style listitem
             UiAccess.setStyle(serverSync);
         }
     }
-        
+
 }

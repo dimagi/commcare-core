@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.cases.instance;
 
@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.StorageBackedTreeRoot;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
@@ -19,57 +18,56 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
 
 /**
  * The root element for the <casedb> abstract type. All children are
  * nodes in the case database. Depending on instantiation, the <casedb>
- * may include only a subset of the full db. 
- * 
- * @author ctsims
+ * may include only a subset of the full db.
  *
+ * @author ctsims
  */
 public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElement> {
 
     public static final String MODEL_NAME = "casedb";
 
     private AbstractTreeElement instanceRoot;
-    
+
     protected IStorageUtilityIndexed storage;
     private String[] caseRecords;
-    
-    protected  Vector<CaseChildElement> cases;
-    
+
+    protected Vector<CaseChildElement> cases;
+
     protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
-    
+
     protected Interner<String> stringCache;
-    
+
     String syncToken;
     String stateHash;
-    
-    /** In report mode, casedb is not the root of a document, and we only build the top
-     *    level case node (not the whole thing) 
+
+    /**
+     * In report mode, casedb is not the root of a document, and we only build the top
+     * level case node (not the whole thing)
      */
     boolean reportMode;
-    
+
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
         this(instanceRoot, storage, false);
         this.caseRecords = caseIDs;
     }
-    
+
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
-        this.instanceRoot= instanceRoot;
+        this.instanceRoot = instanceRoot;
         this.storage = storage;
         this.reportMode = reportMode;
         storage.setReadOnly();
     }
-    
+
     /**
-     * Rebase assigns this tree element to a new root instance node. 
-     * 
+     * Rebase assigns this tree element to a new root instance node.
+     *
      * Used to migrate the already created tree structure to a new instance connector.
-     * 
+     *
      * @param instanceRoot The root of the new tree that this element should be a part of
      */
     public void rebase(AbstractTreeElement instanceRoot) {
@@ -99,7 +97,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
     }
-    
+
     public void attachStringCache(Interner<String> stringCache) {
         this.stringCache = stringCache;
     }
@@ -108,14 +106,14 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public CaseChildElement getChild(String name, int multiplicity) {
-        if(multiplicity == TreeReference.INDEX_TEMPLATE) {
+        if (multiplicity == TreeReference.INDEX_TEMPLATE) {
             return null;
         }
-        
+
         //name is always "case", so multiplicities are the only relevant component here
-        if(name.equals("case")) { 
+        if (name.equals("case")) {
             getCases();
-            if(cases.size() == 0) {
+            if (cases.size() == 0) {
                 //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
                 return CaseChildElement.TemplateElement(this);
@@ -129,32 +127,32 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
      */
     public Vector getChildrenWithName(String name) {
-        if(name.equals("case")) {
+        if (name.equals("case")) {
             getCases();
             return cases;
         } else {
             return new Vector();
         }
-        
+
     }
-    
+
     int numRecords = -1;
 
     public boolean hasChildren() {
-        if(getNumChildren() > 0) {
+        if (getNumChildren() > 0) {
             return true;
         }
         return false;
     }
-    
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
      */
     public int getNumChildren() {
-        if(caseRecords != null) {
+        if (caseRecords != null) {
             return caseRecords.length;
         } else {
-            if(numRecords == -1) {
+            if (numRecords == -1) {
                 numRecords = storage.getNumRecords();
             }
             return numRecords;
@@ -168,31 +166,31 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         getCases();
         return cases.elementAt(i);
     }
-    
+
     protected synchronized void getCases() {
-        if(cases != null) {
+        if (cases != null) {
             return;
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         cases = new Vector<CaseChildElement>();
-        if(caseRecords != null) {
+        if (caseRecords != null) {
             int i = 0;
-            for(String id : caseRecords) {
+            for (String id : caseRecords) {
                 cases.addElement(new CaseChildElement(this, -1, id, i));
                 ++i;
             }
         } else {
             int mult = 0;
-            for(IStorageIterator i = storage.iterate(); i.hasMore();) {
+            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
                 int id = i.nextID();
                 cases.addElement(new CaseChildElement(this, id, null, mult));
                 objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
                 mult++;
             }
-            
+
         }
     }
-    
+
     public void setState(String syncToken, String stateHash) {
         this.syncToken = syncToken;
         this.stateHash = stateHash;
@@ -219,7 +217,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     public int getChildMultiplicity(String name) {
         //All children have the same name;
-        if(name.equals("case")) {
+        if (name.equals("case")) {
             return this.getNumChildren();
         } else {
             return 0;
@@ -238,14 +236,16 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
-        
+
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
      */
     public int getAttributeCount() {
-        if(syncToken == null) { return 0; }
+        if (syncToken == null) {
+            return 0;
+        }
         return 2;
     }
 
@@ -260,11 +260,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
      */
     public String getAttributeName(int index) {
-        if(index == 0) {
+        if (index == 0) {
             return "syncToken";
-        } else if(index == 1) {
+        } else if (index == 1) {
             return "stateHash";
-        } else { 
+        } else {
             return null;
         }
     }
@@ -273,11 +273,11 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
      */
     public String getAttributeValue(int index) {
-        if(index == 0) {
+        if (index == 0) {
             return syncToken;
-        } else if(index == 1) {
+        } else if (index == 1) {
             return stateHash;
-        } else { 
+        } else {
             return null;
         }
     }
@@ -294,20 +294,21 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
      */
     public String getAttributeValue(String namespace, String name) {
-        return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1: -1);
+        return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1 : -1);
     }
-    
+
     TreeReference cachedRef = null;
+
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
      */
     public TreeReference getRef() {
-        if(cachedRef ==null) {
+        if (cachedRef == null) {
             cachedRef = TreeElement.BuildRef(this);
         }
         return cachedRef;
     }
-    
+
     private void expireCachedRef() {
         cachedRef = null;
     }
@@ -359,7 +360,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public void clearCaches() {
         // TODO Auto-generated method stub
     }
-    
+
     //Xpath parsing is sllllllloooooooowwwwwww
     final static private XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
     final static private XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
@@ -367,16 +368,16 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     final static private XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
     final static private XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
 
-    
+
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
         String filter = super.translateFilterExpr(expressionTemplate, matchingExpr, indices);
-        
+
         //If we're matching a case index, we've got some magic to take care of. First,
         //generate the expected case ID
-        if(expressionTemplate == CASE_INDEX_EXPR) {
+        if (expressionTemplate == CASE_INDEX_EXPR) {
             filter += ((XPathPathExpr)matchingExpr).steps[1].name.name;
         }
-        
+
         return filter;
     }
 
@@ -385,7 +386,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
     public String intern(String s) {
-        if(stringCache == null) {
+        if (stringCache == null) {
             return s;
         } else {
             return stringCache.intern(s);
@@ -401,16 +402,16 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
-        Hashtable<XPathPathExpr, String> indices=  new Hashtable<XPathPathExpr, String>();
-        
+        Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
+
         //TODO: Much better matching
         indices.put(CASE_ID_EXPR, Case.INDEX_CASE_ID);
         indices.put(CASE_ID_EXPR_TWO, Case.INDEX_CASE_ID);
         indices.put(CASE_TYPE_EXPR, Case.INDEX_CASE_TYPE);
         indices.put(CASE_STATUS_EXPR, Case.INDEX_CASE_STATUS);
         indices.put(CASE_INDEX_EXPR, Case.INDEX_CASE_INDEX_PRE);
-        
-        return indices; 
+
+        return indices;
     }
 
     protected IStorageUtilityIndexed<?> getStorage() {

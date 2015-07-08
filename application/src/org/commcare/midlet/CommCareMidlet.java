@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.midlet;
 
@@ -39,7 +39,7 @@ public class CommCareMidlet extends MIDlet {
     protected void pauseApp() {
 
     }
-    
+
     /* (non-Javadoc)
      * @see javax.microedition.midlet.MIDlet#startApp()
      */
@@ -54,7 +54,7 @@ public class CommCareMidlet extends MIDlet {
             public void onSuccess() {
                 CommCareUtil.launchFirstState();
             }
-            
+
         });
     }
 

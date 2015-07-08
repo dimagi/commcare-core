@@ -12,16 +12,16 @@ public abstract class CommCareAlertState implements State, HandledCommandListene
 
     private String title;
     private String content;
-    
+
     public CommCareAlertState (String title, String content) {
         this.title = title;
         this.content = content;
     }
-    
+
     public void start() {
         J2MEDisplay.showError(title, content, null, null, this);
     }
-        
+
     public void commandAction(Command c, Displayable d) {
         CrashHandler.commandAction(this, c, d);
     }
@@ -29,6 +29,6 @@ public abstract class CommCareAlertState implements State, HandledCommandListene
     public void _commandAction(Command c, Displayable d) {
         done();
     }
-        
+
     public abstract void done ();
 }

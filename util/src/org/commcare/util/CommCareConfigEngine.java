@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -30,7 +30,6 @@ import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -48,22 +47,23 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * @author ctsims
  *
  */
 public class CommCareConfigEngine {
-    private OutputStream output; 
+    private OutputStream output;
     private ResourceTable table;
     private PrintStream print;
     private CommCareInstance instance;
     private Vector<Suite> suites;
     private Profile profile;
     private int fileuricount = 0;
-    
+
     private void initModules()
-    { 
+    {
         new CoreModelModule().registerModule();
         new XFormsModule().registerModule();
         new CaseManagementModule().registerModule();
@@ -82,11 +82,11 @@ public class CommCareConfigEngine {
         PrototypeManager.registerPrototypes(prototypes);
 
     }
-    
+
     public CommCareConfigEngine() {
         this(System.out);
     }
-    
+
     public CommCareConfigEngine(OutputStream output) {
         this.output = output;
         this.print = new PrintStream(output);
@@ -106,16 +106,16 @@ public class CommCareConfigEngine {
             }
 
             public int getMinorVersion() {
-                return 20;
+                return 23;
             }
         };
-        
+
         setRoots();
-        
+
         table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(ResourceTable.class));
-        
-        
-        //All of the below is on account of the fact that the installers 
+
+
+        //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
         StorageManager.setStorageFactory(new IStorageFactory() {
@@ -123,42 +123,42 @@ public class CommCareConfigEngine {
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type);
             }
-            
+
         });
-        
+
         initModules();
 
-        
+
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage("fixture", FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }
-    
+
     private void setRoots() {
         ReferenceManager._().addReferenceFactory(new JavaHttpRoot());
     }
-    
+
     public void addLocalFileResource(String resource) {
         //Get the location of the file. In the future, we'll treat this as the resource root
         String root = resource.substring(0,resource.lastIndexOf(File.separator));
-        
+
         //cut off the end
         resource = resource.substring(resource.lastIndexOf(File.separator) + 1);
-        
+
         //(That root now reads as jr://file/)
         ReferenceManager._().addReferenceFactory(new JavaFileRoot(root));
-        
+
         //(Now jr://resource/ points there too)
         ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource","jr://file"));
-        
+
         //(Now jr://resource/ points there too)
         ReferenceManager._().addRootTranslator(new RootTranslator("jr://media","jr://file"));
-        
+
         //Now build the testing reference we'll use
         String reference = "jr://file/" + resource;
-        
+
         ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, reference);
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
         locations.add(location);
@@ -171,7 +171,7 @@ public class CommCareConfigEngine {
             System.exit(-1);
         }
     }
-    
+
     /**
      * super, super hacky for now, gets a jar directory and loads language resources
      * from it.
@@ -182,11 +182,11 @@ public class CommCareConfigEngine {
         if(!resources.exists() && resources.isDirectory()) {
             throw new RuntimeException("Couldn't find jar resources at " + resources.getAbsolutePath() + " . Please correct the path, or use the -nojarresources flag to skip loading jar resources.");
         }
-        
+
         fileuricount++;
         String jrroot = "extfile" + fileuricount;
         ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[] {jrroot}, resources.getAbsolutePath()));
-        
+
         for(File file : resources.listFiles()) {
             String name = file.getName();
             if(name.endsWith("txt")) {
@@ -205,17 +205,17 @@ public class CommCareConfigEngine {
                         e.printStackTrace();
                     }
                 }
-            } else { 
+            } else {
                 //we don't support other file types yet
             }
         }
     }
-    
-    
+
+
     public void addResource(String reference) {
-        
+
     }
-    
+
     public void resolveTable() {
             try {
                 table.prepareResources(null, instance);
@@ -231,7 +231,7 @@ public class CommCareConfigEngine {
                 System.exit(-1);
             }
     }
-    
+
     public void validateResources() {
         try {
             table.initializeResources(instance);
@@ -241,19 +241,19 @@ public class CommCareConfigEngine {
             System.exit(-1);
         }
     }
-    
+
     public void describeApplication() {
         print.println("Locales defined: ");
         for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             System.out.println("* " + locale);
         }
-        
+
         Localization.setDefaultLocale("default");
-        
+
         Vector<Menu> root = new Vector<Menu>();
         Hashtable<String, Vector<Menu>> mapping = new Hashtable<String, Vector<Menu>>();
         mapping.put("root",new Vector<Menu>());
-        
+
         for(Suite s : suites) {
             for(Menu m : s.getMenus()) {
                 if(m.getId().equals("root")) {
@@ -268,13 +268,13 @@ public class CommCareConfigEngine {
                 }
             }
         }
-        
+
         for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
             Localization.setLocale(locale);
-            
+
             print.println("Application details for locale: " + locale);
             print.println("CommCare");
-            
+
             for(Menu m : mapping.get("root")) {
                 print.println("|- " + m.getName().evaluate());
                 for(String command : m.getCommandIds()) {
@@ -284,9 +284,9 @@ public class CommCareConfigEngine {
                         }
                     }
                 }
-                
+
             }
-            
+
             for(Menu m : root) {
                 for(String command : m.getCommandIds()) {
                     for(Suite s : suites) {
@@ -298,7 +298,7 @@ public class CommCareConfigEngine {
             }
         }
     }
-    
+
     private void print(Suite s, Entry e, int level) {
         String head = "";
         String emptyhead = "";

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.xml;
 
@@ -10,8 +10,9 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
-import org.commcare.xml.util.InvalidStructureException;
-import org.commcare.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
@@ -19,19 +20,19 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class ProfileParser extends ElementParser<Profile> {
-    
+
     ResourceTable table;
     String resourceId;
     int initialResourceStatus;
     CommCareInstance instance;
     boolean forceVersion = false;
 
-    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table, 
+    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
             String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
-        super(suiteStream);
+
+        super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceId = resourceId;
         this.initialResourceStatus = initialResourceStatus;
@@ -59,31 +60,32 @@ public class ProfileParser extends ElementParser<Profile> {
         if (sMajor != null) {
             major = parseInt(sMajor);
         }
-        
+
+
         if (sMinor != null) {
             minor = parseInt(sMinor);
         }
 
-        // If version information is available, check valid versions
+        //If version information is available, check valid versions
         if ((!forceVersion && this.instance != null) && (major != -1) && (minor != -1)) {
-            
-            // For the major version, only a matching number is valid, 2.0 cannot be run on either 1.0 or 3.0
+
+            //For the major version, only a matching number is valid, 2.0 cannot be run on either 1.0 or 3.0
             if (this.instance.getMajorVersion() != -1
                     && this.instance.getMajorVersion() != major) {    //changed < to !=
-                
+
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " + this.instance.getMajorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
-            
-            // For the minor version, anything greater than the profile's version is valid
+
+            //For the minor version, anything greater than the profile's version is valid
             if (this.instance.getMinorVersion() != -1
                     && this.instance.getMinorVersion() < minor) {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " + this.instance.getMinorVersion() + ")",
-                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
+                        CommCareElementParser.SEVERITY_PROMPT,
+                        CommCareElementParser.REQUIREMENT_MINOR_APP_VERSION, major, minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
         }
 
@@ -109,7 +111,7 @@ public class ProfileParser extends ElementParser<Profile> {
             eventType = parser.getEventType();
             do {
                 if (eventType == KXmlParser.END_DOCUMENT) {
-                    
+
                 } else if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("property")) {
                         String key = parser.getAttributeValue(null, "key");
@@ -151,11 +153,11 @@ public class ProfileParser extends ElementParser<Profile> {
                             } else if (tag.equals("package")) {
                                 //nothing (yet)
                             } else if (tag.equals("users")) {
-                                while(nextTagInBlock("users")) {
-                                    if(parser.getName().toLowerCase().equals("registration")) {                                    
+                                while (nextTagInBlock("users")) {
+                                    if (parser.getName().toLowerCase().equals("registration")) {
                                         registrationNamespace = parser.nextText();
                                         profile.addPropertySetter("user_reg_namespace", registrationNamespace, true);
-                                    } else if(parser.getName().toLowerCase().equals("logo")) {
+                                    } else if (parser.getName().toLowerCase().equals("logo")) {
                                         String logo = parser.nextText();
                                         profile.addPropertySetter("cc_login_image", logo, true);
                                     } else {
@@ -163,18 +165,18 @@ public class ProfileParser extends ElementParser<Profile> {
                                     }
                                 }
                             } else if (tag.equals("sense")) {
-                                
+
                             }
-                            
+
                             profile.setFeatureActive(tag, isActive);
-                            
+
                             //TODO: set feature activation in profile
                         }
                     } else if (parser.getName().toLowerCase().equals("suite")) {
                         // Get the resource block or fail out
                         getNextTagInBlock("suite");
                         Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        
+
                         //TODO: Possibly add a real parent reference if we decide these go in the table
                         table.addResource(resource, table.getInstallers().getSuiteInstaller(), resourceId, initialResourceStatus);
                     } else {
@@ -189,22 +191,23 @@ public class ProfileParser extends ElementParser<Profile> {
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
-            
-        return profile;
+
+            return profile;
 
         } catch (XmlPullParserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            throw new InvalidStructureException("Pull Parse Exception, malformed XML.",parser);
+            throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
         } catch (StorageFullException e) {
             e.printStackTrace();
             //BUT not really! This should maybe be added to the high level declaration
             //instead? Or maybe there should be a more general Resource Management Exception?
-            throw new InvalidStructureException("Problem storing parser suite XML",parser);
+            throw new InvalidStructureException("Problem storing parser suite XML", parser);
         }
     }
 
     int maximumResourceAuthority = -1;
+
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
     }

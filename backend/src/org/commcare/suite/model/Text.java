@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -33,7 +30,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * even xpath expressions. They are dynamically evaluated
  * at runtime in order to allow for CommCare apps to flexibly
  * provide rich information from a number of sources.</p>
- * 
+ *
  * <p>There are 4 types of Text sources which can be defined
  * <ul>
  * <li>Raw Text</li>
@@ -42,31 +39,30 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * <li>Compound Text</li>
  * </ul>
  * </p>
- *  
- * @author ctsims
  *
+ * @author ctsims
  */
 public class Text implements Externalizable, DetailTemplate {
     private int type;
     private String argument;
-    
+
     //Will this maintain order? I don't think so....
     private Hashtable<String, Text> arguments;
-    
+
     private XPathExpression cacheParse;
-    
+
     public static final int TEXT_TYPE_FLAT = 1;
     public static final int TEXT_TYPE_LOCALE = 2;
     public static final int TEXT_TYPE_XPATH = 4;
     public static final int TEXT_TYPE_COMPOSITE = 8;
-    
+
     /**
      * For Serialization only;
      */
     public Text() {
-        
+
     }
-    
+
     /**
      * @return An empty text object
      */
@@ -77,10 +73,10 @@ public class Text implements Externalizable, DetailTemplate {
         t.arguments = new Hashtable<String, Text>();
         return t;
     }
-    
+
     /**
      * @param id The locale key.
-     * @return A Text object that evaluates to the 
+     * @return A Text object that evaluates to the
      * localized value of the ID provided.
      */
     public static Text LocaleText(String id) {
@@ -89,26 +85,26 @@ public class Text implements Externalizable, DetailTemplate {
         t.type = TEXT_TYPE_LOCALE;
         return t;
     }
-    
+
     /**
      * @param localeText A Text object which evaluates
-     * to a locale key.
-     * @return A Text object that evaluates to the 
+     *                   to a locale key.
+     * @return A Text object that evaluates to the
      * localized value of the id returned by evaluating
      * localeText
      */
     public static Text LocaleText(Text localeText) {
         Text t = TextFactory();
         t.arguments = new Hashtable<String, Text>();
-        t.arguments.put("id",localeText);
+        t.arguments.put("id", localeText);
         t.argument = "";
         t.type = TEXT_TYPE_LOCALE;
         return t;
     }
-    
+
     /**
      * @param text A text string.
-     * @return A Text object that evaluates to the 
+     * @return A Text object that evaluates to the
      * string provided.
      */
     public static Text PlainText(String text) {
@@ -117,19 +113,18 @@ public class Text implements Externalizable, DetailTemplate {
         t.type = TEXT_TYPE_FLAT;
         return t;
     }
-    
+
     /**
-     * 
-     * @param function A valid XPath function.
+     * @param function  A valid XPath function.
      * @param arguments A key/value set defining arguments
-     * which, when evaluated, will provide a value for variables
-     * in the provided function. 
-     * @return A Text object that evaluates to the 
+     *                  which, when evaluated, will provide a value for variables
+     *                  in the provided function.
+     * @return A Text object that evaluates to the
      * resulting value of the xpath expression defined
      * by function when presented with a compatible data
      * model.
      * @throws XPathSyntaxException If the provided xpath function does
-     * not have valid syntax. 
+     *                              not have valid syntax.
      */
     public static Text XPathText(String function, Hashtable<String, Text> arguments) throws XPathSyntaxException {
         Text t = TextFactory();
@@ -140,16 +135,16 @@ public class Text implements Externalizable, DetailTemplate {
         t.type = TEXT_TYPE_XPATH;
         return t;
     }
-    
+
     /**
      * @param text A vector of Text objects.
-     * @return A Text object that evaluates to the 
+     * @return A Text object that evaluates to the
      * value of each member of the text vector.
      */
     public static Text CompositeText(Vector<Text> text) {
         Text t = TextFactory();
         int i = 0;
-        for(Text txt : text) {
+        for (Text txt : text) {
             //TODO: Probably a more efficient way to do this...
             t.arguments.put(Integer.toHexString(i), txt);
             i++;
@@ -157,8 +152,8 @@ public class Text implements Externalizable, DetailTemplate {
         t.type = TEXT_TYPE_COMPOSITE;
         return t;
     }
-    
-    
+
+
     /**
      * @return The evaluated string value for this Text object. Note
      * that if this string is expecting a model in order to evaluate
@@ -167,54 +162,54 @@ public class Text implements Externalizable, DetailTemplate {
     public String evaluate() {
         return evaluate(null);
     }
-    
+
     /**
-     * @param context A data model which is compatible with any 
-     * xpath functions in the underlying Text
+     * @param context A data model which is compatible with any
+     *                xpath functions in the underlying Text
      * @return The evaluated string value for this Text object.
      */
     public String evaluate(EvaluationContext context) {
-        switch(type) {
-        case TEXT_TYPE_FLAT:
-            return argument;
-        case TEXT_TYPE_LOCALE:
-            String id = argument;
-            if(argument.equals("")) {
-                id = arguments.get("id").evaluate(context);
-            }
-            return Localization.get(id);
-        case TEXT_TYPE_XPATH:
-            try {
-                    if(cacheParse == null) {
+        switch (type) {
+            case TEXT_TYPE_FLAT:
+                return argument;
+            case TEXT_TYPE_LOCALE:
+                String id = argument;
+                if (argument.equals("")) {
+                    id = arguments.get("id").evaluate(context);
+                }
+                return Localization.get(id);
+            case TEXT_TYPE_XPATH:
+                try {
+                    if (cacheParse == null) {
                         //Do an XPath cast to a string as part of the operation.
                         cacheParse = XPathParseTool.parseXPath("string(" + argument + ")");
                     }
-                    
+
                     //We need an EvaluatonContext in a specific sense in order to evaluate certain components
                     //like Instance references or relative references to some models, but it's valid to use
                     //XPath expressions for other things like Dates, or simply manipulating other variables,
                     //so if we don't have one, we can make one that doesn't reference any data specifically
                     EvaluationContext temp;
-                    if(context == null) {
+                    if (context == null) {
                         temp = new EvaluationContext(null);
                     } else {
                         temp = new EvaluationContext(context, context.getContextRef());
                     }
-                    
+
                     temp.addFunctionHandler(new IFunctionHandler() {
 
                         public Object eval(Object[] args, EvaluationContext ec) {
                             Object o = XPathFuncExpr.toDate(args[0]);
-                            if(!(o instanceof Date)) {
+                            if (!(o instanceof Date)) {
                                 //return null, date is null.
                                 return "";
                             }
-                            
+
                             String type = (String)args[1];
                             int format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
-                            if(type.equals("short")) {
+                            if (type.equals("short")) {
                                 format = DateUtils.FORMAT_HUMAN_READABLE_SHORT;
-                            } else if(type.equals("long")){
+                            } else if (type.equals("long")) {
                                 format = DateUtils.FORMAT_ISO8601;
                             }
                             return DateUtils.formatDate((Date)o, format);
@@ -226,7 +221,7 @@ public class Text implements Externalizable, DetailTemplate {
 
                         public Vector getPrototypes() {
                             Vector format = new Vector();
-                            Class[] prototypes = new Class[] {
+                            Class[] prototypes = new Class[]{
                                     Date.class,
                                     String.class
                             };
@@ -234,12 +229,16 @@ public class Text implements Externalizable, DetailTemplate {
                             return format;
                         }
 
-                        public boolean rawArgs() { return false; }
+                        public boolean rawArgs() {
+                            return false;
+                        }
 
-                        public boolean realTime() { return false; }
-                        
+                        public boolean realTime() {
+                            return false;
+                        }
+
                     });
-                    
+
                     temp.addFunctionHandler(new IFunctionHandler() {
 
                         public Object eval(Object[] args, EvaluationContext ec) {
@@ -254,40 +253,44 @@ public class Text implements Externalizable, DetailTemplate {
 
                         public Vector getPrototypes() {
                             Vector format = new Vector();
-                            Class[] prototypes = new Class[] {};
+                            Class[] prototypes = new Class[]{};
                             format.addElement(prototypes);
                             return format;
                         }
 
-                        public boolean rawArgs() { return false; }
+                        public boolean rawArgs() {
+                            return false;
+                        }
 
-                        public boolean realTime() { return false; }
-                        
+                        public boolean realTime() {
+                            return false;
+                        }
+
                     });
-                    
-                    
-                    for(Enumeration en = arguments.keys(); en.hasMoreElements() ;) {
+
+
+                    for (Enumeration en = arguments.keys(); en.hasMoreElements(); ) {
                         String key = (String)en.nextElement();
                         String value = arguments.get(key).evaluate(context);
-                        temp.setVariable(key,value);
+                        temp.setVariable(key, value);
                     }
-                    
+
                     return (String)cacheParse.eval(temp.getMainInstance(), temp);
                 } catch (XPathSyntaxException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-            //For testing;
-            return argument;
-        case TEXT_TYPE_COMPOSITE:
-            String ret = "";
-            for(int i = 0 ; i < arguments.size(); ++i) {
-                Text item = arguments.get(String.valueOf(i));
-                ret += item.evaluate(context) +"";
-            }
-            return ret;
-        default:
-            return argument;
+                //For testing;
+                return argument;
+            case TEXT_TYPE_COMPOSITE:
+                String ret = "";
+                for (int i = 0; i < arguments.size(); ++i) {
+                    Text item = arguments.get(String.valueOf(i));
+                    ret += item.evaluate(context) + "";
+                }
+                return ret;
+            default:
+                return argument;
         }
     }
 
@@ -306,8 +309,8 @@ public class Text implements Externalizable, DetailTemplate {
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeNumeric(out,type);
-        ExtUtil.writeString(out,argument);
+        ExtUtil.writeNumeric(out, type);
+        ExtUtil.writeString(out, argument);
         ExtUtil.write(out, new ExtWrapMap(arguments));
     }
 }

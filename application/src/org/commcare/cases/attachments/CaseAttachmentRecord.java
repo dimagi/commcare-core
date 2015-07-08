@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.cases.attachments;
 
@@ -18,7 +18,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class CaseAttachmentRecord implements Persistable {
     String url;
     String destination;
-    
+
     public CaseAttachmentRecord(String url, String destination) {
         this.url = url;
         this.destination = destination;

@@ -13,17 +13,18 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
  * Single series ("line") on a bubble chart.
+ *
  * @author jschweers
  */
 public class BubbleSeries extends XYSeries {
     private String mRadius;
     private XPathExpression mRadiusParse;
-    
+
     /*
      * Deserialization Only!
      */
     public BubbleSeries() {
-        
+
     }
 
     public BubbleSeries(String nodeSet) {
@@ -33,7 +34,7 @@ public class BubbleSeries extends XYSeries {
     public String getRadius() {
         return mRadius;
     }
-    
+
     public void setRadius(String radius) {
         mRadius = radius;
         mRadiusParse = null;
