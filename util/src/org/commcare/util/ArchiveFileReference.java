@@ -13,9 +13,11 @@ import java.util.zip.ZipFile;
 import org.javarosa.core.reference.Reference;
 
 /**
- * @author wspride
- * this class associates a GUID and relative path with a corresponding 
- * real directory in the filesystem
+ * 
+ * An archive file reference retrieves a binary file from a path within a zip 
+ * file registerd with the appropriate root.
+ * 
+ * @author ctsims
  *
  */
 public class ArchiveFileReference implements Reference {
@@ -24,6 +26,11 @@ public class ArchiveFileReference implements Reference {
     String archiveURI;
     ZipFile mZipFile;
 
+    /**
+     * @param zipFile The host file
+     * @param GUID The guid registered with the existing root
+     * @param archiveURI a local path to the file being referenced
+     */
     public ArchiveFileReference(ZipFile zipFile, String GUID, String archiveURI) {
         this.archiveURI = archiveURI;
         this.mZipFile = zipFile;
