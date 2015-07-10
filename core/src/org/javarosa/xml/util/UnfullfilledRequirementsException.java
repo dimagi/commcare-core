@@ -10,6 +10,7 @@ public class UnfullfilledRequirementsException extends Exception {
 
     private int severity;
     private int requirement;
+    private boolean isDuplicateApp;
 
     /**
      * Version Numbers if version is incompatible *
@@ -22,6 +23,11 @@ public class UnfullfilledRequirementsException extends Exception {
 
     public UnfullfilledRequirementsException(String message, int severity, int requirement) {
         this(message, severity, requirement, -1, -1, -1, -1);
+    }
+
+    public UnfullfilledRequirementsException(String message, int severity, boolean isDuplicateApp) {
+        this(message, severity, -1, -1, -1, -1, -1);
+        this.isDuplicateApp = isDuplicateApp;
     }
 
     /**
@@ -69,5 +75,9 @@ public class UnfullfilledRequirementsException extends Exception {
 
     public int getRequirementCode() {
         return requirement;
+    }
+
+    public boolean isDuplicateException() {
+        return this.isDuplicateApp;
     }
 }
