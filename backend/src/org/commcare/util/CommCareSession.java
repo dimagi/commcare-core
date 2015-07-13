@@ -72,6 +72,12 @@ public class CommCareSession {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
         Entry entry = null;
+        Vector<Entry> entries = new Vector<Entry>();
+
+        if (commandId == null) {
+            return entries;
+        }
+
         top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -88,7 +94,6 @@ public class CommCareSession {
             }
         }
 
-        Vector<Entry> entries = new Vector<Entry>();
         if (entry != null) {
             entries.addElement(entry);
         }
@@ -262,6 +267,9 @@ public class CommCareSession {
     }
 
     public Suite getCurrentSuite() {
+        if (currentCmd == null) {
+            return null;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 //We need to see if everything in this menu can be matched
