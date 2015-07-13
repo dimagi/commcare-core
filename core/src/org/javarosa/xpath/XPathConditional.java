@@ -95,6 +95,16 @@ public class XPathConditional implements IConditionExpr {
         }
     }
 
+    /**
+     * Gather the references that affect the outcome of evaluating this
+     * conditional expression.
+     *
+     * @param originalContextRef context reference pointing to the nodeset
+     *                           reference; used for expanding 'current()'
+     * @return References of which this conditional expression depends on. Used
+     * for retriggering the expression's evaluation if any of these references
+     * value or relevancy calculations once.
+     */
     public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
         Vector triggers = new Vector();
         getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
