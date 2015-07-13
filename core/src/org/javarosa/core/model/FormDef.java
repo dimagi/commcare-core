@@ -616,7 +616,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * @return Enumerator of triggerables such that when an element X precedes
      * Y then X doesn't have any references that are dependent on Y.
      */
-    public Enumeration<Triggerable> getTriggerables() {
+    public Enumeration getTriggerables() {
         return triggerables.elements();
     }
 
@@ -624,7 +624,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * @return All references in the form that are depended on by
      * calculate/relevancy conditions.
      */
-    public Enumeration<TreeReference> refWithTriggerDependencies() {
+    public Enumeration refWithTriggerDependencies() {
         return triggerIndex.keys();
     }
 
@@ -636,7 +636,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *            expressions.
      * @return All the triggerables that depend on the given reference.
      */
-    public Vector<Triggerable> conditionsTriggeredByRef(TreeReference ref) {
+    public Vector conditionsTriggeredByRef(TreeReference ref) {
         return triggerIndex.get(ref);
     }
 
