@@ -6,36 +6,58 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * Logic for loading a particular xml form instance into a FormDef.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormInstanceLoader {
     private static InstanceInitializationFactory iif;
 
 
-    public static FormDef loadInstance(InputStream formInput, InputStream instanceInput) throws Exception {
+    /**
+     * Build a form definition and load a particular instance into it.
+     *
+     * @param formInput     XML stream of the form definition
+     * @param instanceInput XML stream of an instance of the form
+     * @return The form definition with the given instance loaded. Returns null
+     * if the instance doesn't match the form provided.
+     * @throws IOException thrown when XML input streams aren't successfully
+     *                     parsed
+     */
+    public static FormDef loadInstance(InputStream formInput,
+                                       InputStream instanceInput)
+            throws IOException {
         FormDef formDef;
         FormInstance savedModel;
         FormEntryModel entryModel;
 
-        formDef = XFormUtils.getFormFromInputStream(formInput);
+        try {
+            formDef = XFormUtils.getFormFromInputStream(formInput);
+        } catch (XFormParseException e) {
+            throw new IOException(e.getMessage());
+        }
 
         savedModel = XFormParser.restoreDataModel(instanceInput, null);
 
         // get the root of the saved and template instances
         TreeElement savedRoot = savedModel.getRoot();
-        TreeElement templateRoot = formDef.getInstance().getRoot().deepCopy(true);
+        TreeElement templateRoot =
+                formDef.getInstance().getRoot().deepCopy(true);
 
         entryModel = new FormEntryModel(formDef);
 
         // weak check for matching forms
-        if (!savedRoot.getName().equals(templateRoot.getName()) || savedRoot.getMult() != 0) {
-            System.out.println("Saved form instance does not match template form definition");
+        if (!savedRoot.getName().equals(templateRoot.getName()) ||
+                savedRoot.getMult() != 0) {
+            System.out.println("Instance and template form definition don't match");
             return null;
         } else {
             // populate the data model
@@ -47,7 +69,8 @@ public class FormInstanceLoader {
             formDef.getInstance().setRoot(templateRoot);
 
             if (entryModel.getLanguages() != null) {
-                formDef.localeChanged(entryModel.getLanguage(), formDef.getLocalizer());
+                formDef.localeChanged(entryModel.getLanguage(),
+                        formDef.getLocalizer());
             }
         }
 
