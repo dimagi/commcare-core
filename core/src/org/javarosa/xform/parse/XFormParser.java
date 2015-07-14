@@ -2796,8 +2796,8 @@ public class XFormParser {
         Vector edges = new Vector();
 
         //build graph
-        for (Enumeration<TreeReference> e = _f.refWithTriggerDependencies(); e.hasMoreElements(); ) {
-            TreeReference trigger = e.nextElement();
+        for (Enumeration e = _f.refWithTriggerDependencies(); e.hasMoreElements(); ) {
+            TreeReference trigger = (TreeReference)e.nextElement();
             if (!vertices.contains(trigger))
                 vertices.addElement(trigger);
 
