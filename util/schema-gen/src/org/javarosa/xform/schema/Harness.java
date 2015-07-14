@@ -87,6 +87,10 @@ public class Harness {
             validateModel(leftOverArgs[1], leftOverArgs[2]);
         } else if (leftOverArgs[0].equals("validate")) {
             validateForm(leftOverArgs);
+        } else if (leftOverArgs[0].equals("runinstance")) {
+            // load a form and an incomplete instance into the form player
+            XFormPlayer xfp = new XFormPlayer(System.in, System.out, null);
+            xfp.start(loadFormAndInstance(leftOverArgs[1], leftOverArgs[2]));
         } else if (leftOverArgs[0].equals("run")) {
             XFormPlayer xfp = new XFormPlayer(System.in, System.out, null);
             try {
@@ -274,6 +278,33 @@ public class Harness {
                 System.exit(1);
             }
         }
+    }
+
+    private static FormDef loadFormAndInstance(String formPath, String instancePath) {
+        FileInputStream formInput = null;
+        FileInputStream instanceInput = null;
+
+        try {
+            formInput = new FileInputStream(formPath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + formPath);
+            System.exit(1);
+        }
+
+        try {
+            instanceInput = new FileInputStream(instancePath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + instancePath);
+            System.exit(1);
+        }
+
+        try {
+            return FormInstanceLoader.loadInstance(formInput, instanceInput);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
     }
 
     private static void validateModel(String formPath, String modelPath) {
