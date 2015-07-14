@@ -1,6 +1,7 @@
 package org.javarosa.engine;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,18 +18,21 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
 import org.javarosa.engine.models.Action;
 import org.javarosa.engine.models.ActionResponse;
 import org.javarosa.engine.models.Command;
-import org.javarosa.engine.models.EvaluationLevelJsonSerializer;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Session;
 import org.javarosa.engine.models.Step;
 import org.javarosa.engine.playback.BadPlaybackException;
+import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathNodeset;
@@ -44,6 +48,7 @@ public class XFormPlayer {
 
     XFormEnvironment environment;
     FormEntryController fec;
+    InstanceInitializationFactory mIIF;
     //FormIndex current;
 
     PrintStream out;
@@ -85,7 +90,7 @@ public class XFormPlayer {
 
     public void start(FormDef form) {
         this.environment = new XFormEnvironment(form, mockup);
-        fec = environment.setup();
+        fec = environment.setup(this.mIIF);
         reader = new BufferedReader(new InputStreamReader(in));
         processLoop();
     }
@@ -217,8 +222,15 @@ public class XFormPlayer {
         } else if ("finish".equalsIgnoreCase(command) && fec.getModel().getEvent() == FormEntryController.EVENT_END_OF_FORM) {
             out.println("Quitting!");
             return true;
-        } else if ("print".equalsIgnoreCase(command)) {
-            printInstance(out, fec.getModel().getForm().getInstance());
+        } else if (command.startsWith("print")) {
+            int spaceIndex = command.indexOf(" ");
+            if (command.length() == spaceIndex || spaceIndex == -1) {
+                printInstance(out, fec.getModel().getForm().getInstance());
+            } else{
+                //This is the instance the user wants to print
+                String arg = command.substring(spaceIndex + 1);
+                printExternalInstance(out, arg);
+            }
             return false;
         } else if (command.startsWith("eval")) {
             int spaceIndex = command.indexOf(" ");
@@ -242,7 +254,7 @@ public class XFormPlayer {
             return false;
         }
     }
-
+    
     private void displayRelevant() {
         FormIndex current = this.fec.getModel().getFormIndex();
         String output = this.fec.getModel().getDebugInfo(current, "relevant", new StringEvaluationTraceSerializer());
@@ -294,13 +306,27 @@ public class XFormPlayer {
             return XPathFuncExpr.toString(value);
         }
     }
+    
+    public void printExternalInstance(PrintStream out, String instanceRef) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataModelSerializer s = new DataModelSerializer(bos, mIIF);
+            
+            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+            out.println(XmlUtil.getPrettyXml(bos.toByteArray()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            out.println("Error Serializing XForm Data! " + e.getMessage());
+        }
+    }
 
     private static void printInstance(PrintStream out, FormInstance instance) {
         XFormSerializingVisitor visitor = new XFormSerializingVisitor();
         try {
             byte[] data = visitor.serializeInstance(instance);
-            out.println(new String(data));
+            out.println(XmlUtil.getPrettyXml(data));
         } catch (IOException e) {
+            e.printStackTrace();
             out.println("Error Serializing XForm Data! " + e.getMessage());
         }
     }
@@ -427,5 +453,9 @@ public class XFormPlayer {
         if (fep.getControlType() == Constants.CONTROL_TRIGGER) {
             System.out.println("Press Return to Proceed");
         }
+    }
+
+    public void setSessionIIF(InstanceInitializationFactory iif) {
+        mIIF = iif; 
     }
 }

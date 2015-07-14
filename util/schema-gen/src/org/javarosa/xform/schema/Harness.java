@@ -28,23 +28,20 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.javarosa.core.model.FormDef;
-import org.javarosa.engine.XFormPlayer;
-import org.javarosa.engine.models.Session;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormUtils;
-import org.json.simple.JSONObject;
-import org.kxml2.io.KXmlSerializer;
-import org.kxml2.kdom.Document;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option.Builder;
 import org.apache.commons.cli.ParseException;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.engine.XFormPlayer;
+import org.javarosa.xform.parse.XFormParseException;
+import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.util.XFormUtils;
+import org.kxml2.io.KXmlSerializer;
+import org.kxml2.kdom.Document;
 
 public class Harness {
     // Track specification extension keywords so we know what to do during
