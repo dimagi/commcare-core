@@ -10,6 +10,11 @@ public class UnfullfilledRequirementsException extends Exception {
 
     private int severity;
     private int requirement;
+    /**
+     * Indicates that this exception was thrown due to an attempt to install an app that was
+     * already installed
+     */
+    private boolean isDuplicateException;
 
     /**
      * Version Numbers if version is incompatible *
@@ -18,6 +23,11 @@ public class UnfullfilledRequirementsException extends Exception {
 
     public UnfullfilledRequirementsException(String message, int severity) {
         this(message, severity, -1, -1, -1, -1, -1);
+    }
+
+    public UnfullfilledRequirementsException(String message, int severity, boolean isDuplicate) {
+        this(message, severity, -1, -1, -1, -1, -1);
+        this.isDuplicateException = isDuplicate;
     }
 
     public UnfullfilledRequirementsException(String message, int severity, int requirement) {
@@ -69,5 +79,12 @@ public class UnfullfilledRequirementsException extends Exception {
 
     public int getRequirementCode() {
         return requirement;
+    }
+
+    /**
+     * @return true if this exception was thrown due to an attempt at installing a duplicate app
+     */
+    public boolean isDuplicateException() {
+        return this.isDuplicateException;
     }
 }
