@@ -4,14 +4,9 @@
 package org.javarosa.engine.xml;
 
 import java.io.IOException;
-import java.util.Vector;
 
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.util.externalizable.ExtUtil;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 

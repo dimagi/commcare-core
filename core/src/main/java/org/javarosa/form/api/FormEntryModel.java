@@ -449,8 +449,8 @@ public class FormEntryModel {
      * the interface, it will merely use the xforms repeat hint to create new
      * nodes that are assumed to exist
      *
-     * @param The index to be evaluated as to whether the underlying model is
-     *            hinted to exist
+     * @param index To be evaluated as to whether the underlying model is
+     *              hinted to exist
      */
     public void createModelIfNecessary(FormIndex index) {
         if (index.isInForm()) {
@@ -475,7 +475,7 @@ public class FormEntryModel {
                                     getForm().createNewRepeat(index);
                                 } catch (InvalidReferenceException ire) {
                                     ire.printStackTrace();
-                                    throw new RuntimeException("Invalid Reference while creting new repeat!" + ire.getMessage());
+                                    throw new RuntimeException("Invalid Reference while creating new repeat!" + ire.getMessage());
                                 }
                             }
                         }

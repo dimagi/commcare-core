@@ -3,7 +3,6 @@
  */
 package org.javarosa.xform.schema;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
