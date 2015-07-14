@@ -19,11 +19,11 @@ import java.io.InputStream;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class FormInstanceLoader {
-    private static InstanceInitializationFactory iif;
-
 
     /**
-     * Build a form definition and load a particular instance into it.
+     * Build a form definition and load a particular form instance into it.
+     * The FormDef object returned isn't initialized, and hence will not have
+     * 'instance(...)' data set.
      *
      * @param formInput     XML stream of the form definition
      * @param instanceInput XML stream of an instance of the form
@@ -74,7 +74,6 @@ public class FormInstanceLoader {
             }
         }
 
-        formDef.initialize(false, iif);
         return formDef;
     }
 }
