@@ -23,12 +23,12 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
+import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.IXFormParserFactory;
 import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
 
@@ -66,6 +66,10 @@ public class XFormUtils {
      */
     public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException {
         InputStreamReader isr;
+        
+        //Buffer the incoming data, since it's coming from disk.
+        is = new BufferedInputStream(is);
+        
         try {
             isr = new InputStreamReader(is, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
@@ -95,7 +99,7 @@ public class XFormUtils {
         InputStream is = System.class.getResourceAsStream(resource);
         try {
             if (is != null) {
-                DataInputStream dis = new DataInputStream(is);
+                DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
                 returnForm = (FormDef)ExtUtil.read(dis, FormDef.class);
                 dis.close();
                 is.close();
