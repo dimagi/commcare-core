@@ -16,16 +16,18 @@
 
 package org.javarosa.xform.schema;
 
+import java.util.Enumeration;
+
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.IConditionExpr;
+import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -196,15 +198,16 @@ public class FormOverview {
         }
 
         IConditionExpr expr = null;
-
-        for (int i = 0; i < f.triggerables.size() && expr == null; i++) {
+        
+        for(Enumeration e = f.getTriggerables(); e.hasMoreElements(); ) {
+            Triggerable t = (Triggerable)e.nextElement();
             // Clayton Sims - Jun 1, 2009 : Not sure how legitimate this
             // cast is. It might work now, but break later.
             // Clayton Sims - Jun 24, 2009 : Yeah, that change broke things.
             // For now, we won't bother to print out anything that isn't
             // a condition.
-            if(f.triggerables.elementAt(i) instanceof Condition) {
-            Condition c = (Condition)f.triggerables.elementAt(i);
+            if(t instanceof Condition) {
+            Condition c = (Condition)t;
 
             if (c.trueAction == action) {
                 for (int j = 0; j < c.targets.size() && expr == null; j++) {
