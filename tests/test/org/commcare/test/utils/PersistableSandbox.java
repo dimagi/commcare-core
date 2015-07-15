@@ -17,7 +17,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  */
 public class PersistableSandbox {
-    LivePrototypeFactory factory;
+    private LivePrototypeFactory factory;
     
     public PersistableSandbox() {
         LivePrototypeFactory factory = new LivePrototypeFactory();

@@ -25,9 +25,9 @@ import org.junit.Test;
  * @author ctsims
  */
 public class ProfileTests {
-    PersistableSandbox mSandbox;
-    CommCareConfigEngine mAppPlatform;
-    ResourceTable mFreshResourceTable;
+    private PersistableSandbox mSandbox;
+    private CommCareConfigEngine mAppPlatform;
+    private ResourceTable mFreshResourceTable;
     
     @Before
     public void setUp() {
@@ -55,7 +55,7 @@ public class ProfileTests {
         compareProfiles(p, deserialized);
     }
     
-    public void compareProfiles(Profile a, Profile b) {
+    private void compareProfiles(Profile a, Profile b) {
         if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
             fail("Mismatch of property setters between profiles");
         }
