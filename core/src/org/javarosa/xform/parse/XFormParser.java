@@ -606,7 +606,7 @@ public class XFormParser {
                     di = new ExternalDataInstance(srcLocation, instanceid);
                 } else {
                     FormInstance fi = parseInstance(e, false);
-                    loadInstanceData(e, fi.getRoot(), _f);
+                    loadInstanceData(e, fi.getRoot());
                     di = fi;
                 }
                 _f.addNonMainInstance(di);
@@ -625,7 +625,7 @@ public class XFormParser {
     }
 
     /**
-     * @param element  is the current element we are parsing
+     * @param e        is the current element we are parsing
      * @param parent   is the parent to the element we are parsing
      * @param handlers maps tags to IElementHandlers, used to perform parsing of that tag
      */
@@ -1990,10 +1990,12 @@ public class XFormParser {
         }
     }
 
-    //e is the top-level _data_ node of the instance (immediate (and only) child of <instance>)
+    /**
+     * @param e the top-level _data_ node of the instance (immediate (and only) child of <instance>)
+     */
     private void addMainInstanceToFormDef(Element e, FormInstance instanceModel) {
         //TreeElement root = buildInstanceStructure(e, null);
-        loadInstanceData(e, instanceModel.getRoot(), _f);
+        loadInstanceData(e, instanceModel.getRoot());
 
         checkDependencyCycles();
         _f.setInstance(instanceModel);
@@ -2065,7 +2067,7 @@ public class XFormParser {
         return buildInstanceStructure(node, parent, null, node.getNamespace());
     }
 
-    //parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags
+    /** parse instance hierarchy and turn into a skeleton model; ignoring data content, but respecting repeated nodes and 'template' flags */
     public static TreeElement buildInstanceStructure(Element node, TreeElement parent, String instanceName, String docnamespace) {
         TreeElement element = null;
 
@@ -2737,11 +2739,22 @@ public class XFormParser {
         }
     }
 
-    //TODO: hook here for turning sub-trees into complex IAnswerData objects (like for immunizations)
-    //FIXME: the 'ref' and FormDef parameters (along with the helper function above that initializes them) are only needed so that we
-    //can fetch QuestionDefs bound to the given node, as the QuestionDef reference is needed to properly represent answers
-    //to select questions. obviously, we want to fix this.
-    private static void loadInstanceData(Element node, TreeElement cur, FormDef f) {
+
+    /**
+     * Traverse the node, copying data from it into the TreeElement argument.
+     *
+     * @param node Parsed XML for a form instance
+     * @param cur  Valueless structure of the form instance, which will have
+     *             values copied in by this method
+     */
+    private static void loadInstanceData(Element node, TreeElement cur) {
+        // TODO: hook here for turning sub-trees into complex IAnswerData
+        // objects (like for immunizations)
+        // FIXME: the 'ref' and FormDef parameters (along with the helper
+        // function above that initializes them) are only needed so that we can
+        // fetch QuestionDefs bound to the given node, as the QuestionDef
+        // reference is needed to properly represent answers to select
+        // questions. obviously, we want to fix this.
         int numChildren = node.getChildCount();
         boolean hasElements = false;
         for (int i = 0; i < numChildren; i++) {
@@ -2752,7 +2765,9 @@ public class XFormParser {
         }
 
         if (hasElements) {
-            Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>(); //stores max multiplicity seen for a given node name thus far
+            // recur on child nodes
+            // stores max multiplicity seen for a given node name thus far
+            Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
             for (int i = 0; i < numChildren; i++) {
                 if (node.getType(i) == Node.ELEMENT) {
                     Element child = node.getElement(i);
@@ -2770,24 +2785,17 @@ public class XFormParser {
                         multiplicities.put(name, DataUtil.integer(index));
                     }
 
-                    loadInstanceData(child, cur.getChild(name, index), f);
+                    loadInstanceData(child, cur.getChild(name, index));
                 }
             }
         } else {
+            // copy values from node into current tree element
             String text = getXMLText(node, true);
-            if (text != null && text.trim().length() > 0) { //ignore text that is only whitespace
-                //TODO: custom data types? modelPrototypes?
+            if (text != null && text.trim().length() > 0) {
+                // ignore text that is only whitespace
+                // TODO: custom data types? modelPrototypes?
                 cur.setValue(AnswerDataFactory.templateByDataType(cur.getDataType()).cast(new UncastData(text.trim())));
             }
-        }
-    }
-
-    //find a questiondef that binds to ref, if the data type is a 'select' question type
-    public static QuestionDef ghettoGetQuestionDef(int dataType, FormDef f, TreeReference ref) {
-        if (dataType == Constants.DATATYPE_CHOICE || dataType == Constants.DATATYPE_CHOICE_LIST) {
-            return FormDef.findQuestionByRef(ref, f);
-        } else {
-            return null;
         }
     }
 
@@ -2887,7 +2895,7 @@ public class XFormParser {
         // populate the data model
         TreeReference tr = TreeReference.rootRef();
         tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
-        templateRoot.populate(savedRoot, f);
+        templateRoot.populate(savedRoot);
 
         // populated model to current form
         f.getMainInstance().setRoot(templateRoot);
@@ -3027,7 +3035,7 @@ public class XFormParser {
         if (r != null) {
             RestoreUtils.templateData(r, dm, null);
         }
-        loadInstanceData(e, te, null);
+        loadInstanceData(e, te);
 
         return dm;
     }

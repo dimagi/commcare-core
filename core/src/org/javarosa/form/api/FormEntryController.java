@@ -43,8 +43,6 @@ public class FormEntryController {
 
     /**
      * Creates a new form entry controller for the model provided
-     *
-     * @param model
      */
     public FormEntryController(FormEntryModel model) {
         this.model = model;
@@ -58,9 +56,6 @@ public class FormEntryController {
 
     /**
      * Attempts to save answer at the current FormIndex into the datamodel.
-     *
-     * @param data
-     * @return
      */
     public int answerQuestion(IAnswerData data) {
         return answerQuestion(model.getFormIndex(), data);
@@ -71,8 +66,6 @@ public class FormEntryController {
      * Attempts to save the answer at the specified FormIndex into the
      * datamodel.
      *
-     * @param index
-     * @param data
      * @return OK if save was successful, error if a constraint was violated.
      */
     public int answerQuestion(FormIndex index, IAnswerData data) {
@@ -127,8 +120,6 @@ public class FormEntryController {
      * you're doing. For normal form filling you should always use
      * answerQuestion or answerCurrentQuestion.
      *
-     * @param index
-     * @param data
      * @return true if saved successfully, false otherwise.
      */
     public boolean saveAnswer(FormIndex index, IAnswerData data) {
@@ -146,8 +137,6 @@ public class FormEntryController {
      * you're doing. For normal form filling you should always use
      * answerQuestion().
      *
-     * @param index
-     * @param data
      * @return true if saved successfully, false otherwise.
      */
     public boolean saveAnswer(IAnswerData data) {
@@ -158,9 +147,6 @@ public class FormEntryController {
     /**
      * commitAnswer actually saves the data into the datamodel.
      *
-     * @param element
-     * @param index
-     * @param data
      * @return true if saved successfully, false otherwise
      */
     private boolean commitAnswer(TreeElement element, FormIndex index, IAnswerData data) {
@@ -176,8 +162,6 @@ public class FormEntryController {
 
     /**
      * Expand any unexpanded repeats at the given FormIndex.
-     *
-     * @param index
      */
     public void expandRepeats(FormIndex index) {
         model.createModelIfNecessary(index);
@@ -199,10 +183,6 @@ public class FormEntryController {
 
     /**
      * Find the FormIndex that comes after the given one.
-     *
-     * @param index
-     * @param expandRepeats
-     * @return FormIndex
      */
     public FormIndex getNextIndex(FormIndex index, boolean expandRepeats) {
         return getAdjacentIndex(index, true, expandRepeats);
@@ -210,9 +190,6 @@ public class FormEntryController {
 
     /**
      * Find the FormIndex that comes after the given one, expanding any repeats encountered.
-     *
-     * @param index
-     * @return FormIndex
      */
     public FormIndex getNextIndex(FormIndex index) {
         return getAdjacentIndex(index, true, true);
@@ -230,10 +207,6 @@ public class FormEntryController {
 
     /**
      * Find the FormIndex that comes before the given one.
-     *
-     * @param index
-     * @param expandRepeats
-     * @return FormIndex
      */
     public FormIndex getPreviousIndex(FormIndex index, boolean expandRepeats) {
         return getAdjacentIndex(index, false, expandRepeats);
@@ -242,7 +215,6 @@ public class FormEntryController {
     /**
      * Moves the current FormIndex to the next/previous relevant position.
      *
-     * @param forward
      * @param expandRepeats Expand any unexpanded repeat groups
      * @return event associated with the new position
      */
@@ -255,10 +227,7 @@ public class FormEntryController {
     /**
      * Find a FormIndex next to the given one.
      *
-     * @param index
      * @param forward       If true, get the next FormIndex, else get the previous one.
-     * @param expandRepeats
-     * @return
      */
     public FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
@@ -300,7 +269,6 @@ public class FormEntryController {
     /**
      * Jumps to a given FormIndex. Expands any repeat groups.
      *
-     * @param index
      * @return EVENT for the specified Index.
      */
     public int jumpToIndex(FormIndex index) {
@@ -310,7 +278,6 @@ public class FormEntryController {
     /**
      * Jumps to a given FormIndex.
      *
-     * @param index
      * @param expandRepeats Expand any unexpanded repeat groups
      * @return EVENT for the specified Index.
      */
@@ -333,8 +300,6 @@ public class FormEntryController {
     /**
      * Creates a new repeated instance of the group referenced by the specified
      * FormIndex.
-     *
-     * @param questionIndex
      */
     public void newRepeat(FormIndex questionIndex) {
         try {
@@ -348,8 +313,6 @@ public class FormEntryController {
     /**
      * Creates a new repeated instance of the group referenced by the current
      * FormIndex.
-     *
-     * @param questionIndex
      */
     public void newRepeat() {
         newRepeat(model.getFormIndex());
@@ -359,9 +322,6 @@ public class FormEntryController {
     /**
      * Deletes a repeated instance of a group referenced by the specified
      * FormIndex.
-     *
-     * @param questionIndex
-     * @return
      */
     public FormIndex deleteRepeat(FormIndex questionIndex) {
         return model.getForm().deleteRepeat(questionIndex);
@@ -371,9 +331,6 @@ public class FormEntryController {
     /**
      * Deletes a repeated instance of a group referenced by the current
      * FormIndex.
-     *
-     * @param questionIndex
-     * @return
      */
     public FormIndex deleteRepeat() {
         return deleteRepeat(model.getFormIndex());
@@ -385,8 +342,6 @@ public class FormEntryController {
 
     /**
      * Sets the current language.
-     *
-     * @param language
      */
     public void setLanguage(String language) {
         model.setLanguage(language);

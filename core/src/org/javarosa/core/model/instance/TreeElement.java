@@ -919,13 +919,10 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         ExtUtil.write(out, new ExtWrapList(ExtUtil.emptyIfNull(attStrings)));
     }
 
-    //rebuilding a node from an imported instance
+    /** rebuilding a node from an imported instance */
     //  there's a lot of error checking we could do on the received instance, but it's
     //  easier to just ignore the parts that are incorrect
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#populate(org.javarosa.core.model.instance.TreeElement, org.javarosa.core.model.FormDef)
-     */
-    public void populate(TreeElement incoming, FormDef f) {
+    public void populate(TreeElement incoming) {
         if (this.isLeaf()) {
             // check that incoming doesn't have children?
 
@@ -998,7 +995,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                             children = new Vector();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
-                        newChild.populate((TreeElement)newChildren.elementAt(k), f);
+                        newChild.populate((TreeElement)newChildren.elementAt(k));
                     }
                     i += newChildren.size();
                 } else {
@@ -1006,7 +1003,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     if (newChildren.size() == 0) {
                         child.setRelevant(false);
                     } else {
-                        child.populate((TreeElement)newChildren.elementAt(0), f);
+                        child.populate((TreeElement)newChildren.elementAt(0));
                     }
                 }
             }
