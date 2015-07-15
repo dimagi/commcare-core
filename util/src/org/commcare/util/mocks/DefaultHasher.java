@@ -31,6 +31,10 @@ public class DefaultHasher implements Hasher {
         }
 
         return hash;
+    }
 
+    @Override
+    public int getHashSize(){
+        return CLASS_HASH_SIZE;
     }
 }
