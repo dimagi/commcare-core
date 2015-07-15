@@ -179,19 +179,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return formInstances.get(name);
     }
 
-    /**
-     * Get the non main instances
-     *
-     * @return
-     */
     public Enumeration getNonMainInstances() {
         return formInstances.elements();
     }
 
     /**
      * Set the main instance
-     *
-     * @param fi
      */
     public void setInstance(FormInstance fi) {
         mainInstance = fi;
@@ -202,8 +195,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /**
      * Get the main instance
-     *
-     * @return
      */
     public FormInstance getMainInstance() {
         return mainInstance;
@@ -247,9 +238,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *
      * Ignore 'new-repeat' node for now; just return/stop at ref to
      * yet-to-be-created repeat node (similar to repeats that already exist)
-     *
-     * @param index
-     * @return
      */
     public Vector explodeIndex(FormIndex index) {
         Vector<Integer> indexes = new Vector();
@@ -263,10 +251,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // take a reference, find the instance node it refers to (factoring in
     // multiplicities)
 
-    /**
-     * @param index
-     * @return
-     */
     public TreeReference getChildInstanceRef(FormIndex index) {
         Vector<Integer> indexes = new Vector();
         Vector<Integer> multiplicities = new Vector();
@@ -279,10 +263,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Return a tree reference which follows the path down the concrete elements provided
      * along with the multiplicities provided.
-     *
-     * @param elements
-     * @param multiplicities
-     * @return
      */
     public TreeReference getChildInstanceRef(Vector<IFormElement> elements,
                                              Vector<Integer> multiplicities) {
@@ -356,9 +336,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Deletes the inner-most repeat that this node belongs to and returns the
      * corresponding FormIndex. Behavior is currently undefined if you call this
      * method on a node that is not contained within a repeat.
-     *
-     * @param index
-     * @return
      */
     public FormIndex deleteRepeat(FormIndex index) {
         Vector indexes = new Vector();
@@ -714,9 +691,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         triggerablesInOrder = true;
 
-        //
         //build the condition index for repeatable nodes
-        //
 
         conditionRepeatTargetIndex = new Hashtable();
         for (int i = 0; i < triggerables.size(); i++) {
@@ -737,9 +712,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Get all of the elements which will need to be evaluated (in order) when the
      * triggerable is fired.
-     *
-     * @param t
-     * @param destination
      */
     public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
         if (t.canCascade()) {
@@ -1291,16 +1263,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         itemset.setChoices(choices, this.getLocalizer());
     }
 
-    /**
-     * @return the preloads
-     */
     public QuestionPreloader getPreloader() {
         return preloader;
     }
 
-    /**
-     * @param preloads the preloads to set
-     */
     public void setPreloader(QuestionPreloader preloads) {
         this.preloader = preloads;
     }

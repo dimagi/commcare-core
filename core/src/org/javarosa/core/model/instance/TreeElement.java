@@ -920,7 +920,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     /**
      * Rebuilding this node from an imported instance
      */
-    public void populate(TreeElement incoming, FormDef f) {
+    public void populate(TreeElement incoming) {
         if (this.isLeaf()) {
             // check that incoming doesn't have children?
 
@@ -953,7 +953,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                             children = new Vector();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
-                        newChild.populate((TreeElement)newChildren.elementAt(k), f);
+                        newChild.populate((TreeElement)newChildren.elementAt(k));
                     }
                     i += newChildren.size();
                 } else {
@@ -961,7 +961,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     if (newChildren.size() == 0) {
                         child.setRelevant(false);
                     } else {
-                        child.populate((TreeElement)newChildren.elementAt(0), f);
+                        child.populate((TreeElement)newChildren.elementAt(0));
                     }
                 }
             }
