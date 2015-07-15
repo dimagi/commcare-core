@@ -14,10 +14,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * A persistable sandbox provides an environment to handle 
  * prototypes for object serialization and deserialization.
  * 
- * 
- * 
  * @author ctsims
- *
  */
 public class PersistableSandbox {
     LivePrototypeFactory factory;
@@ -51,5 +48,4 @@ public class PersistableSandbox {
         runtimed.initCause(e);
         return runtimed;
     }
-
 }

@@ -23,13 +23,11 @@ import org.junit.Test;
  * to setup/usage of resource tables or other models.
  * 
  * @author ctsims
- *
  */
 public class ProfileTests {
     PersistableSandbox mSandbox;
     CommCareConfigEngine mAppPlatform;
     ResourceTable mFreshResourceTable;
-    
     
     @Before
     public void setUp() {
@@ -62,15 +60,13 @@ public class ProfileTests {
             fail("Mismatch of property setters between profiles");
         }
         
-        //
         assertEquals("Mismatched auth references", a.getAuthReference(), b.getAuthReference());
 
         assertEquals("Mismatched profile versions", a.getVersion(), b.getVersion());
         
         //TOOD: compare root references and other mismatched fields
     }
-    
-    
+
     private Profile getBasicProfile() {
         try{
             String basicProfilePath = "/basic_profile.ccpr";
