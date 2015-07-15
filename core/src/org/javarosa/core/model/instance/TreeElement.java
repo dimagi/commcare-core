@@ -1010,13 +1010,13 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     }
                 }
             }
-            for (int i = 0; i < incoming.getAttributeCount(); i++) {
-                String name = incoming.getAttributeName(i);
-                String ns = incoming.getAttributeNamespace(i);
-                String value = incoming.getAttributeValue(i);
+        }
+        for (int i = 0; i < incoming.getAttributeCount(); i++) {
+            String name = incoming.getAttributeName(i);
+            String ns = incoming.getAttributeNamespace(i);
+            String value = incoming.getAttributeValue(i);
 
-                this.setAttribute(ns, name, value);
-            }
+            this.setAttribute(ns, name, value);
         }
     }
 
