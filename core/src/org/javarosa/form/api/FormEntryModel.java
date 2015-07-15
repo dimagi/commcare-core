@@ -71,7 +71,6 @@ public class FormEntryModel {
      * Creates a new entry model for the form with the appropriate
      * repeat structure
      *
-     * @param form
      * @param repeatStructure The structure of repeats (the repeat signals which should
      *                        be sent during form entry)
      * @throws IllegalArgumentException If repeatStructure is not valid
@@ -128,10 +127,6 @@ public class FormEntryModel {
         }
     }
 
-    /**
-     * @param index
-     * @return
-     */
     protected TreeElement getTreeElement(FormIndex index) {
         return form.getMainInstance().resolveReference(index.getReference());
     }
@@ -145,17 +140,11 @@ public class FormEntryModel {
         return getEvent(currentFormIndex);
     }
 
-
-    /**
-     * @return Form title
-     */
     public String getFormTitle() {
         return form.getTitle();
     }
 
-
     /**
-     * @param index
      * @return Returns the FormEntryPrompt for the specified FormIndex if the
      * index represents a question.
      */
@@ -168,9 +157,7 @@ public class FormEntryModel {
         }
     }
 
-
     /**
-     * @param index
      * @return Returns the FormEntryPrompt for the current FormIndex if the
      * index represents a question.
      */
@@ -178,12 +165,10 @@ public class FormEntryModel {
         return getQuestionPrompt(currentFormIndex);
     }
 
-
     /**
      * When you have a non-question event, a CaptionPrompt will have all the
      * information needed to display to the user.
      *
-     * @param index
      * @return Returns the FormEntryCaption for the given FormIndex if is not a
      * question.
      */
@@ -196,7 +181,6 @@ public class FormEntryModel {
      * When you have a non-question event, a CaptionPrompt will have all the
      * information needed to display to the user.
      *
-     * @param index
      * @return Returns the FormEntryCaption for the current FormIndex if is not
      * a question.
      */
@@ -245,7 +229,6 @@ public class FormEntryModel {
         return form.getDeepChildCount();
     }
 
-
     /**
      * @return Returns the current FormIndex referenced by the FormEntryModel.
      */
@@ -260,7 +243,6 @@ public class FormEntryModel {
         }
     }
 
-
     /**
      * @return Returns the currently selected language.
      */
@@ -271,8 +253,6 @@ public class FormEntryModel {
     /**
      * Set the FormIndex for the current question.
      * Creates any necessary models (i.e., expands repeat groups).
-     *
-     * @param index
      */
     public void setQuestionIndex(FormIndex index) {
         setQuestionIndex(index, true);
@@ -281,7 +261,6 @@ public class FormEntryModel {
     /**
      * Set the FormIndex for the current question.
      *
-     * @param index
      * @param expandRepeats Expand any unexpanded repeat groups
      */
     public void setQuestionIndex(FormIndex index, boolean expandRepeats) {
@@ -295,20 +274,14 @@ public class FormEntryModel {
         }
     }
 
-
-    /**
-     * @return
-     */
     public FormDef getForm() {
         return form;
     }
-
 
     /**
      * Returns a hierarchical list of FormEntryCaption objects for the given
      * FormIndex
      *
-     * @param index
      * @return list of FormEntryCaptions in hierarchical order
      */
     public FormEntryCaption[] getCaptionHierarchy(FormIndex index) {
@@ -340,7 +313,6 @@ public class FormEntryModel {
      * Returns a hierarchical list of FormEntryCaption objects for the current
      * FormIndex
      *
-     * @param index
      * @return list of FormEntryCaptions in hierarchical order
      */
     public FormEntryCaption[] getCaptionHierarchy() {
@@ -349,7 +321,6 @@ public class FormEntryModel {
 
 
     /**
-     * @param index
      * @return true if the element at the specified index is read only
      */
     public boolean isIndexReadonly(FormIndex index) {
@@ -370,7 +341,6 @@ public class FormEntryModel {
 
 
     /**
-     * @param index
      * @return true if the element at the current index is read only
      */
     public boolean isIndexReadonly() {
@@ -382,7 +352,6 @@ public class FormEntryModel {
      * Determine if the current FormIndex is relevant. Only relevant indexes
      * should be returned when filling out a form.
      *
-     * @param index
      * @return true if current element at FormIndex is relevant
      */
     public boolean isIndexRelevant(FormIndex index) {
@@ -428,7 +397,6 @@ public class FormEntryModel {
      * Determine if the current FormIndex is relevant. Only relevant indexes
      * should be returned when filling out a form.
      *
-     * @param index
      * @return true if current element at FormIndex is relevant
      */
     public boolean isIndexRelevant() {
@@ -449,8 +417,8 @@ public class FormEntryModel {
      * the interface, it will merely use the xforms repeat hint to create new
      * nodes that are assumed to exist
      *
-     * @param The index to be evaluated as to whether the underlying model is
-     *            hinted to exist
+     * @param index To be evaluated as to whether the underlying model is
+     *              hinted to exist
      */
     public void createModelIfNecessary(FormIndex index) {
         if (index.isInForm()) {
@@ -470,12 +438,11 @@ public class FormEntryModel {
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
                         if (element == null) {
                             if (index.getInstanceIndex() < fullcount) {
-
                                 try {
                                     getForm().createNewRepeat(index);
                                 } catch (InvalidReferenceException ire) {
                                     ire.printStackTrace();
-                                    throw new RuntimeException("Invalid Reference while creting new repeat!" + ire.getMessage());
+                                    throw new RuntimeException("Invalid Reference while creating new repeat!" + ire.getMessage());
                                 }
                             }
                         }

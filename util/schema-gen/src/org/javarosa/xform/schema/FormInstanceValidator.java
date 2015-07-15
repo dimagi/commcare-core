@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.xform.schema;
 
 import java.io.InputStream;

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xform.schema;
 
 import java.io.FileInputStream;
@@ -28,34 +12,31 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.javarosa.core.model.FormDef;
-import org.javarosa.engine.XFormPlayer;
-import org.javarosa.engine.models.Session;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormUtils;
-import org.json.simple.JSONObject;
-import org.kxml2.io.KXmlSerializer;
-import org.kxml2.kdom.Document;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option.Builder;
 import org.apache.commons.cli.ParseException;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.engine.XFormPlayer;
+import org.javarosa.xform.parse.XFormParseException;
+import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.util.XFormUtils;
+import org.kxml2.io.KXmlSerializer;
+import org.kxml2.kdom.Document;
 
 public class Harness {
     // Track specification extension keywords so we know what to do during
     // parsing when they are encountered.
-    private static Hashtable<String, Vector<String>> specExtensionKeywords =
+    private static final Hashtable<String, Vector<String>> specExtensionKeywords =
             new Hashtable<String, Vector<String>>();
     // Namespace for which inner elements should be parsed.
-    private static Vector<String> parseSpecExtensionsInnerElements =
+    private static final Vector<String> parseSpecExtensionsInnerElements =
             new Vector<String>();
     // Namespace for which we supress "unrecognized element" warnings
-    private static Vector<String> suppressSpecExtensionWarnings =
+    private static final Vector<String> suppressSpecExtensionWarnings =
             new Vector<String>();
 
     public static void main(String[] args) {
@@ -87,6 +68,10 @@ public class Harness {
             validateModel(leftOverArgs[1], leftOverArgs[2]);
         } else if (leftOverArgs[0].equals("validate")) {
             validateForm(leftOverArgs);
+        } else if (leftOverArgs[0].equals("runinstance")) {
+            // load a form and an incomplete instance into the form player
+            XFormPlayer xfp = new XFormPlayer(System.in, System.out, null);
+            xfp.start(loadFormAndInstance(leftOverArgs[1], leftOverArgs[2]));
         } else if (leftOverArgs[0].equals("run")) {
             XFormPlayer xfp = new XFormPlayer(System.in, System.out, null);
             try {
@@ -216,8 +201,6 @@ public class Harness {
         if (args.length > 1) {
             String formPath = args[1];
 
-            FileInputStream formInput = null;
-
             try {
                 inputStream = new FileInputStream(formPath);
             } catch (FileNotFoundException e) {
@@ -306,6 +289,48 @@ public class Harness {
         System.out.println("Form instance appears to be valid");
     }
 
+    /**
+     * Build a form definition and load a particular instance into it.
+     *
+     * @param formPath     Filepath to XML form definition
+     * @param instancePath Filepath to XML form instance
+     * @return The form definition with the given instance loaded. Triggers a
+     * system exit if any problems are encountered.
+     */
+    private static FormDef loadFormAndInstance(String formPath, String instancePath) {
+        FileInputStream formInput = null;
+        FileInputStream instanceInput = null;
+
+        try {
+            formInput = new FileInputStream(formPath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + formPath);
+            System.exit(1);
+        }
+
+        try {
+            instanceInput = new FileInputStream(instancePath);
+        } catch (FileNotFoundException e) {
+            System.out.println("Couldn't find file at: " + instancePath);
+            System.exit(1);
+        }
+
+        FormDef formDef = null;
+        try {
+            formDef = FormInstanceLoader.loadInstance(formInput, instanceInput);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        if (formDef == null) {
+            System.exit(1);
+        }
+
+        return formDef;
+    }
+
+
     private static void csvImport(String[] args) {
         // TODO: refactor so that instead of passing in args, we just pass in
         // individual arguments
@@ -359,8 +384,6 @@ public class Harness {
         // open form file
         if (args.length > 1) {
             String formPath = args[1];
-
-            FileInputStream formInput = null;
 
             try {
                 inputStream = new FileInputStream(formPath);

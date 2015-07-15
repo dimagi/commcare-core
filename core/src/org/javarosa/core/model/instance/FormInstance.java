@@ -291,7 +291,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             throw new RuntimeException("Saved form instance to restore does not match form definition");
         }
 
-        fixedInstanceRoot.populate(incomingRoot, f);
+        fixedInstanceRoot.populate(incomingRoot);
         return fixedInstanceRoot;
     }
 

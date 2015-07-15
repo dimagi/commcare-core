@@ -57,9 +57,13 @@ public class XFormEnvironment {
     }
 
     public FormEntryController setup() {
+        return setup(createIIF());
+    }
+    
+    public FormEntryController setup(InstanceInitializationFactory factory) {
         form.setEvaluationContext(getEC());
 
-        form.initialize(true, createIIF());
+        form.initialize(true, factory);
 
         if(recording) {
             session = new Session();

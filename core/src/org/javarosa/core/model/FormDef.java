@@ -98,7 +98,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // This list is topologically ordered, meaning for any tA
     // and tB in the list, where tA comes before tB, evaluating tA cannot
     // depend on any result from evaluating tB
-    public Vector<Triggerable> triggerables;
+    private Vector<Triggerable> triggerables;
 
     // true if triggerables has been ordered topologically (DON'T DELETE ME
     // EVEN THOUGH I'M UNUSED)
@@ -109,7 +109,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // arguments to captions
     private Vector outputFragments;
 
-    public Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
+    /**
+     * Map references to the calculate/relevancy conditions that depend on that
+     * reference's value. Used to trigger re-evaluation of those conditionals
+     * when the reference is updated.
+     */
+    private Hashtable<TreeReference, Vector<Triggerable>> triggerIndex;
 
     /**
      * Associates repeatable nodes with the Condition that determines their
@@ -174,19 +179,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return formInstances.get(name);
     }
 
-    /**
-     * Get the non main instances
-     *
-     * @return
-     */
     public Enumeration getNonMainInstances() {
         return formInstances.elements();
     }
 
     /**
      * Set the main instance
-     *
-     * @param fi
      */
     public void setInstance(FormInstance fi) {
         mainInstance = fi;
@@ -197,8 +195,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /**
      * Get the main instance
-     *
-     * @return
      */
     public FormInstance getMainInstance() {
         return mainInstance;
@@ -242,9 +238,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *
      * Ignore 'new-repeat' node for now; just return/stop at ref to
      * yet-to-be-created repeat node (similar to repeats that already exist)
-     *
-     * @param index
-     * @return
      */
     public Vector explodeIndex(FormIndex index) {
         Vector<Integer> indexes = new Vector();
@@ -258,10 +251,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     // take a reference, find the instance node it refers to (factoring in
     // multiplicities)
 
-    /**
-     * @param index
-     * @return
-     */
     public TreeReference getChildInstanceRef(FormIndex index) {
         Vector<Integer> indexes = new Vector();
         Vector<Integer> multiplicities = new Vector();
@@ -274,10 +263,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Return a tree reference which follows the path down the concrete elements provided
      * along with the multiplicities provided.
-     *
-     * @param elements
-     * @param multiplicities
-     * @return
      */
     public TreeReference getChildInstanceRef(Vector<IFormElement> elements,
                                              Vector<Integer> multiplicities) {
@@ -351,9 +336,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Deletes the inner-most repeat that this node belongs to and returns the
      * corresponding FormIndex. Behavior is currently undefined if you call this
      * method on a node that is not contained within a repeat.
-     *
-     * @param index
-     * @return
      */
     public FormIndex deleteRepeat(FormIndex index) {
         Vector indexes = new Vector();
@@ -564,8 +546,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /**
      * Add a Condition to the form's Collection.
-     *
-     * @param condition the condition to be set
      */
     public Triggerable addTriggerable(Triggerable t) {
         int existingIx = triggerables.indexOf(t);
@@ -605,6 +585,36 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
             return t;
         }
+    }
+
+    /**
+     * Dependency-sorted enumerator for the triggerables present in the form.
+     *
+     * @return Enumerator of triggerables such that when an element X precedes
+     * Y then X doesn't have any references that are dependent on Y.
+     */
+    public Enumeration getTriggerables() {
+        return triggerables.elements();
+    }
+
+    /**
+     * @return All references in the form that are depended on by
+     * calculate/relevancy conditions.
+     */
+    public Enumeration refWithTriggerDependencies() {
+        return triggerIndex.keys();
+    }
+
+    /**
+     * Get the triggerable conditions, like relevancy/calculate, that depend on
+     * the given reference.
+     *
+     * @param ref An absolute reference that is used in relevancy/calculate
+     *            expressions.
+     * @return All the triggerables that depend on the given reference.
+     */
+    public Vector conditionsTriggeredByRef(TreeReference ref) {
+        return triggerIndex.get(ref);
     }
 
     /**
@@ -681,9 +691,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         triggerablesInOrder = true;
 
-        //
         //build the condition index for repeatable nodes
-        //
 
         conditionRepeatTargetIndex = new Hashtable();
         for (int i = 0; i < triggerables.size(); i++) {
@@ -704,9 +712,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Get all of the elements which will need to be evaluated (in order) when the
      * triggerable is fired.
-     *
-     * @param t
-     * @param destination
      */
     public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
         if (t.canCascade()) {
@@ -890,13 +895,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * due to their update, and then dispatching all of the evaluations.
      *
      * @param tv        A vector of all of the trigerrables directly triggered by the
-     *                  value changed
+     *                  value changed. Will be mutated by this method.
      * @param anchorRef The reference to original value that was updated
      */
-    private void evaluateTriggerables(Vector tv, TreeReference anchorRef) {
-        //add all cascaded triggerables to queue
-
-        //Iterate through all of the currently known triggerables to be triggered
+    private void evaluateTriggerables(Vector<Triggerable> tv,
+                                      TreeReference anchorRef) {
+        // Update the list of triggerables that need to be evaluated.
+        // XXX PLM: tv changes in size throughout this loop.
+        //          Do we actually want to loop over the newly added elements?
         for (int i = 0; i < tv.size(); i++) {
             Triggerable t = (Triggerable)tv.elementAt(i);
             fillTriggeredElements(t, tv);
@@ -1257,16 +1263,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         itemset.setChoices(choices, this.getLocalizer());
     }
 
-    /**
-     * @return the preloads
-     */
     public QuestionPreloader getPreloader() {
         return preloader;
     }
 
-    /**
-     * @param preloads the preloads to set
-     */
     public void setPreloader(QuestionPreloader preloads) {
         this.preloader = preloads;
     }
