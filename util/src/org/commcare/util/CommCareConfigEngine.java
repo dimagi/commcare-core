@@ -46,8 +46,8 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
-import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.xpath.XPathMissingInstanceException;
 
 /**
  * @author ctsims
@@ -324,5 +324,9 @@ public class CommCareConfigEngine {
                 print.print("\n");
             }
         }
+    }
+
+    public CommCareInstance getInstance() {
+        return instance;
     }
 }
