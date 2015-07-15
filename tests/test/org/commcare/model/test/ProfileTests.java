@@ -78,8 +78,7 @@ public class ProfileTests {
             ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile", 
                     Resource.RESOURCE_VERSION_UNKNOWN, false);
             
-            Profile p = parser.parse();
-            return p;
+            return parser.parse();
         } catch(Exception e) {
             throw PersistableSandbox.wrap("Error during profile test setup", e);
         }
