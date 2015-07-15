@@ -71,7 +71,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
     }
 
     public static ExternalizableWrapper readTag(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        byte[] tag = new byte[PrototypeFactory.CLASS_HASH_SIZE];
+        byte[] tag = new byte[pf.getClassHashSize()];
         in.read(tag, 0, tag.length);
 
         if (PrototypeFactory.compareHash(tag, WRAPPER_TAG)) {
@@ -107,7 +107,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
 
     public static void writeTag(DataOutputStream out, Object o) throws IOException {
         if (o instanceof ExternalizableWrapper && !(o instanceof ExtWrapBase)) {
-            out.write(WRAPPER_TAG, 0, PrototypeFactory.CLASS_HASH_SIZE);
+            out.write(WRAPPER_TAG, 0, PrototypeFactory.getClassHashSize());
             ExtUtil.writeNumeric(out, ((Integer)WRAPPER_CODES.get(o.getClass())).intValue());
             ((ExternalizableWrapper)o).metaWriteExternal(out);
         } else {

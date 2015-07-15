@@ -16,14 +16,14 @@
 
 package org.javarosa.core.util.externalizable;
 
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.util.MD5;
 import org.javarosa.core.util.PrefixTree;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Vector;
+
 public class PrototypeFactory {
-    public final static int CLASS_HASH_SIZE = 4;
 
     static Hasher mStaticHasher;
 
@@ -138,7 +138,7 @@ public class PrototypeFactory {
         if (mStaticHasher != null) {
             return mStaticHasher.getClassHashValue(type);
         }
-        byte[] hash = new byte[CLASS_HASH_SIZE];
+        byte[] hash = new byte[mStaticHasher.getHashSize()];
         byte[] md5 = MD5.hash(type.getName().getBytes()); //add support for a salt, in case of collision?
 
         for (int i = 0; i < hash.length; i++)
@@ -152,6 +152,11 @@ public class PrototypeFactory {
     }
 
     public static boolean compareHash(byte[] a, byte[] b) {
+
+        if(Arrays.equals(a, b)){
+            return true;
+        }
+
         if (a.length != b.length) {
             return false;
         }
@@ -166,5 +171,9 @@ public class PrototypeFactory {
 
     public static void setStaticHasher(Hasher staticHasher) {
         mStaticHasher = staticHasher;
+    }
+
+    public static int getClassHashSize(){
+        return mStaticHasher.getHashSize();
     }
 }
