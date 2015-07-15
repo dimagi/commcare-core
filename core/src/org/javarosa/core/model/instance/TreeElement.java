@@ -70,7 +70,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //take up a huuuge amount of space together.
     private Vector observers = null;
     protected Vector<TreeElement> attributes = null;
-    protected Vector children = null;
+    protected Vector<TreeElement> children = null;
 
     /* model properties */
     protected int dataType = Constants.DATATYPE_NULL; //TODO
@@ -123,8 +123,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      * Construct a TreeElement which represents an attribute with the provided
      * namespace and name.
      *
-     * @param namespace
-     * @param name
      * @return A new instance of a TreeElement
      */
     public static TreeElement constructAttributeElement(String namespace, String name) {
@@ -919,11 +917,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         ExtUtil.write(out, new ExtWrapList(ExtUtil.emptyIfNull(attStrings)));
     }
 
-    //rebuilding a node from an imported instance
-    //  there's a lot of error checking we could do on the received instance, but it's
-    //  easier to just ignore the parts that are incorrect
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#populate(org.javarosa.core.model.instance.TreeElement, org.javarosa.core.model.FormDef)
+    /**
+     * Rebuilding this node from an imported instance
      */
     public void populate(TreeElement incoming, FormDef f) {
         if (this.isLeaf()) {
@@ -936,55 +931,15 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                 this.setValue(AnswerDataFactory.templateByDataType(this.dataType).cast(value.uncast()));
             }
         } else {
-            Vector names = new Vector();
-
-            // remove all default repetitions from skeleton data model (_preserving_ templates, though)
+            // remove all default repetitions from skeleton data model, preserving templates
             for (int i = 0; i < this.getNumChildren(); i++) {
                 TreeElement child = this.getChildAt(i);
-                if (child.getMaskVar(MASK_REPEATABLE) && child.getMult() != TreeReference.INDEX_TEMPLATE) {
+                if (child.getMaskVar(MASK_REPEATABLE) &&
+                        child.getMult() != TreeReference.INDEX_TEMPLATE) {
                     this.removeChildAt(i);
                     i--;
                 }
             }
-
-            //We used to wipe out non-repeated elements, but we won't anymore
-            //since we commonly use the pattern.
-            for (int i = 0; i < this.getNumChildren(); i++) {
-                TreeElement child = this.getChildAt(i);
-                names.addElement(child.getName());
-            }
-
-            // make sure ordering is preserved (needed for compliance with xsd schema)
-            if (this.getNumChildren() != names.size()) {
-                throw new RuntimeException("sanity check failed");
-            }
-
-            for (int i = 0; i < this.getNumChildren(); i++) {
-                TreeElement child = this.getChildAt(i);
-                String expectedName = (String)names.elementAt(i);
-
-                if (!child.getName().equals(expectedName)) {
-                    TreeElement child2 = null;
-                    int j;
-
-                    for (j = i + 1; j < this.getNumChildren(); j++) {
-                        child2 = this.getChildAt(j);
-                        if (child2.getName().equals(expectedName)) {
-                            break;
-                        }
-                    }
-                    if (j == this.getNumChildren()) {
-                        throw new RuntimeException("sanity check failed");
-                    }
-
-                    this.removeChildAt(j);
-                    if (children == null) {
-                        children = new Vector();
-                    }
-                    this.children.insertElementAt(child2, i);
-                }
-            }
-            // java i hate you so much
 
             for (int i = 0; i < this.getNumChildren(); i++) {
                 TreeElement child = this.getChildAt(i);
@@ -1010,6 +965,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     }
                 }
             }
+
             for (int i = 0; i < incoming.getAttributeCount(); i++) {
                 String name = incoming.getAttributeName(i);
                 String ns = incoming.getAttributeNamespace(i);
