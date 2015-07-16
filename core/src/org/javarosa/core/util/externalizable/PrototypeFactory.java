@@ -22,6 +22,12 @@ import org.javarosa.core.util.PrefixTree;
 import java.util.Date;
 import java.util.Vector;
 
+/**
+ * ProtoType factory for serializing and deserializing persisted classes using
+ * their hash codes. To use a non-default hasher, use one of the overriding constructors
+ * or call setStaticHasher().
+ */
+
 public class PrototypeFactory {
 
     static Hasher mStaticHasher;
