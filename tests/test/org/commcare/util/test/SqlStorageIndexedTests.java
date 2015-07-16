@@ -1,5 +1,6 @@
 package org.commcare.util.test;
 
+import org.commcare.api.models.LivePrototypeFactory;
 import org.commcare.api.persistence.SqlIndexedStorageUtility;
 import org.commcare.api.persistence.SqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
@@ -12,7 +13,8 @@ import java.util.Vector;
 
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SqlStorageIndexedTests {
 
@@ -67,7 +69,7 @@ public class SqlStorageIndexedTests {
 
             try {
 
-                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
+                LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
                 mPrototypeFactory.addClass(Case.class);
 
                 String storageKey = "tfcase";
