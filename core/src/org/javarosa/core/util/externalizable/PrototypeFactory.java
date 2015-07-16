@@ -16,6 +16,7 @@
 
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.MD5;
 import org.javarosa.core.util.PrefixTree;
 
@@ -78,7 +79,8 @@ public class PrototypeFactory {
                 Float.class,
                 Double.class,
                 String.class,
-                Date.class
+                Date.class,
+                UncastData.class
         };
 
         for (int i = 0; i < baseTypes.length; i++) {
