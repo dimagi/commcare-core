@@ -393,7 +393,7 @@ public class ResourceTable {
      *
      * @param master   The global resource to prepare against. Used to
      *                 establish whether resources need to be fetched remotely
-     * @param instance The instance to prepare against
+     * @param instance The instance (version and profile) to prepare against
      * @throws UnresolvedResourceException       If a resource could not be
      *                                           identified and is required
      * @throws UnfullfilledRequirementsException If some resources are
@@ -411,7 +411,7 @@ public class ResourceTable {
      *
      * @param master       The global resource to prepare against. Used to
      *                     establish whether resources need to be fetched remotely
-     * @param instance     The instance to prepare against
+     * @param instance     The instance (version and profile) to prepare against
      * @param toInitialize The ID of a single resource after which the table
      *                     preparation can stop.
      * @throws UnresolvedResourceException       Required resource couldn't be
