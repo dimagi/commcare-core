@@ -5,7 +5,6 @@ package org.commcare.cases.util;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Stack;
 import java.util.Vector;
 
 import org.javarosa.core.model.condition.EvaluationContext;

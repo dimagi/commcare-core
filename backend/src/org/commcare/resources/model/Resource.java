@@ -6,7 +6,6 @@ package org.commcare.resources.model;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 

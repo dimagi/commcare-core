@@ -200,7 +200,7 @@ public class CasePurgeFilterTests {
     }
 
     @Test
-    public void testDependenceDirection() {;
+    public void testDependenceDirection() {
         d.setIndex("b", "b", b.getCaseId());
         d.setClosed(true);
 

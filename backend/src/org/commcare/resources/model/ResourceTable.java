@@ -129,18 +129,18 @@ public class ResourceTable {
     }
 
     public void addResource(Resource resource, ResourceInstaller initializer,
-                            String parentId, int status) throws StorageFullException {
+                            String parentId, int status) {
         resource.setInstaller(initializer);
         resource.setParentId(parentId);
         addResource(resource, status);
     }
 
     public void addResource(Resource resource, ResourceInstaller initializer,
-                            String parentId) throws StorageFullException {
+                            String parentId) {
         addResource(resource, initializer, parentId, Resource.RESOURCE_STATUS_UNINITIALIZED);
     }
 
-    public void addResource(Resource resource, int status) throws StorageFullException {
+    public void addResource(Resource resource, int status) {
         // only add resource if they don't already exist
         if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
                 resource.getResourceId()).size() == 0) {

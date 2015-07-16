@@ -86,11 +86,6 @@ public class MockDataUtils {
 
     /**
      * Load the referenced fixture out of storage for the provided user
-     *
-     * @param sandbox
-     * @param refId
-     * @param userId
-     * @return
      */
     private static FormInstance loadFixture(MockUserDataSandbox sandbox,
                                             String refId, String userId) {

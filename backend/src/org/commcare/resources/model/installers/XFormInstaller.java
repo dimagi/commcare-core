@@ -17,10 +17,7 @@ import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.OrderedHashtable;
@@ -28,8 +25,6 @@ import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.parse.XFormParserFactory;
 import org.javarosa.xform.util.XFormUtils;
 
 /**
