@@ -922,8 +922,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     public void populate(TreeElement incoming) {
         if (this.isLeaf()) {
-            // check that incoming doesn't have children?
-
+            // copy incoming element's value over
             IAnswerData value = incoming.getValue();
             if (value == null) {
                 this.setValue(null);
@@ -931,6 +930,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                 this.setValue(AnswerDataFactory.templateByDataType(this.dataType).cast(value.uncast()));
             }
         } else {
+            // recur on children
             // remove all default repetitions from skeleton data model, preserving templates
             for (int i = 0; i < this.getNumChildren(); i++) {
                 TreeElement child = this.getChildAt(i);
@@ -957,7 +957,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     }
                     i += newChildren.size();
                 } else {
-
                     if (newChildren.size() == 0) {
                         child.setRelevant(false);
                     } else {
@@ -966,13 +965,15 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                 }
             }
 
-            for (int i = 0; i < incoming.getAttributeCount(); i++) {
-                String name = incoming.getAttributeName(i);
-                String ns = incoming.getAttributeNamespace(i);
-                String value = incoming.getAttributeValue(i);
+        }
 
-                this.setAttribute(ns, name, value);
-            }
+        // copy incoming element's attributes over
+        for (int i = 0; i < incoming.getAttributeCount(); i++) {
+            String name = incoming.getAttributeName(i);
+            String ns = incoming.getAttributeNamespace(i);
+            String value = incoming.getAttributeValue(i);
+
+            this.setAttribute(ns, name, value);
         }
     }
 
