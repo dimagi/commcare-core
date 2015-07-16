@@ -1,6 +1,5 @@
 package org.commcare.util.test;
 
-import org.commcare.api.models.LivePrototypeFactory;
 import org.commcare.api.persistence.SqlIndexedStorageUtility;
 import org.commcare.api.persistence.SqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
@@ -69,17 +68,18 @@ public class SqlStorageIndexedTests {
 
             try {
 
-                LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
                 mPrototypeFactory.addClass(Case.class);
 
-                String storageKey = "tfcase";
+                String storageKey = "TFCase";
                 String username = "wspride";
 
                 caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, mPrototypeFactory, username, storageKey);
+                caseStorage.resetTable();
 
                 caseStorage.write(a);
 
-                Case readCase = caseStorage.read(123456);
+                Case readCase = caseStorage.read(1);
 
                 assertEquals("case_name_ipsum", readCase.getName());
 
@@ -104,16 +104,17 @@ public class SqlStorageIndexedTests {
                 PrototypeFactory mPrototypeFactory = new PrototypeFactory();
                 mPrototypeFactory.addClass(Ledger.class);
 
-                String storageKey = "tfledger";
+                String storageKey = "Ledger";
                 String username = "wspride";
 
                 ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, mPrototypeFactory, username, storageKey);
+                ledgerStorage.resetTable();
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);
                 ledgerStorage.write(l3);
 
-                Ledger readLedger = ledgerStorage.read(12345);
+                Ledger readLedger = ledgerStorage.read(1);
 
                 assertEquals("ledger_entity_id", readLedger.getEntiyId());
                 assertEquals("test_section_id", readLedger.getSectionList()[0]);
@@ -122,8 +123,8 @@ public class SqlStorageIndexedTests {
                 Vector<Object> ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
 
                 assertEquals(2, ids.size());
-                assertTrue(ids.contains(12345));
-                assertTrue(ids.contains(1234567));
+                assertTrue(ids.contains(1));
+                assertTrue(ids.contains(2));
 
                 Ledger readLedger2 = ledgerStorage.getRecordForValue("entity_id", "ledger_entity_id_3");
 
@@ -131,7 +132,7 @@ public class SqlStorageIndexedTests {
 
                 assertEquals(count, 3);
 
-                assertTrue(ledgerStorage.exists(12345));
+                assertTrue(ledgerStorage.exists(1));
                 assertFalse(ledgerStorage.exists(-123));
 
                 SqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
@@ -139,9 +140,9 @@ public class SqlStorageIndexedTests {
                 assertEquals(3, mIterator.numRecords());
 
 
-                assertEquals(12345, mIterator.nextID());
-                assertEquals(1234567, mIterator.nextID());
-                assertEquals(12345678, mIterator.nextID());
+                assertEquals(1, mIterator.nextID());
+                assertEquals(2, mIterator.nextID());
+                assertEquals(3, mIterator.nextID());
                 assertEquals(-1, mIterator.nextID());
 
             } catch ( Exception e ) {

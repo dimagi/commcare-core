@@ -78,33 +78,6 @@ public class CaseAPITests {
             Statement stmt = null;
 
             try {
-                /*
-                Class.forName("org.sqlite.JDBC");
-                c = DriverManager.getConnection("jdbc:sqlite:test.db");
-
-                UserDatabaseHelper.dropTable(c, "TFCase");
-
-                UserDatabaseHelper.createTable(c, "TFCase", new Case());
-
-                UserDatabaseHelper.insertToTable(c, "TFCase", a);
-
-                ResultSet rs = UserDatabaseHelper.selectFromTable(c, "TFCase", new String[]{"case_id"}, new String[]{"a"}, new Case());
-                byte[] caseBytes = rs.getBytes("commcare_sql_record");
-                System.out.println("result bytes: " + caseBytes);
-                DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
-
-                Case readCase = new Case();
-                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
-                mPrototypeFactory.addClass(Case.class);
-                readCase.readExternal(is, mPrototypeFactory);
-
-                assertEquals("a",readCase.getCaseId());
-                assertEquals(owner, readCase.getUserId());
-
-
-                c.close();
-
-                */
 
                 c = DriverManager.getConnection("jdbc:sqlite:test.db");
 
