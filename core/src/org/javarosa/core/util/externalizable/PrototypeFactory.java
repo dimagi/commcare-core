@@ -17,10 +17,8 @@
 package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.util.MD5;
 import org.javarosa.core.util.PrefixTree;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
@@ -36,12 +34,21 @@ public class PrototypeFactory {
     protected boolean initialized;
 
     public PrototypeFactory() {
-        this(null);
+        this(null, new DefaultHasher());
+    }
+
+    public PrototypeFactory(Hasher hasher) {
+        this(null, hasher);
     }
 
     public PrototypeFactory(PrefixTree classNames) {
+        this(classNames, new DefaultHasher());
+    }
+
+    public PrototypeFactory(PrefixTree classNames, Hasher hasher) {
         this.classNames = classNames;
         initialized = false;
+        mStaticHasher = hasher;
     }
 
     protected void lazyInit() {
@@ -137,27 +144,10 @@ public class PrototypeFactory {
     }
 
     public static byte[] getClassHash(Class type) {
-        if (mStaticHasher != null) {
-            return mStaticHasher.getClassHashValue(type);
-        }
-        byte[] hash = new byte[mStaticHasher.getHashSize()];
-        byte[] md5 = MD5.hash(type.getName().getBytes()); //add support for a salt, in case of collision?
-
-        for (int i = 0; i < hash.length; i++)
-            hash[i] = md5[i];
-        byte[] badHash = new byte[]{0, 4, 78, 97};
-        if (PrototypeFactory.compareHash(badHash, hash)) {
-            System.out.println("BAD CLASS: " + type.getName());
-        }
-
-        return hash;
+        return mStaticHasher.getClassHashValue(type);
     }
 
     public static boolean compareHash(byte[] a, byte[] b) {
-
-        if(Arrays.equals(a, b)){
-            return true;
-        }
 
         if (a.length != b.length) {
             return false;
