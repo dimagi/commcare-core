@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 import java.io.DataInputStream;
@@ -145,7 +142,6 @@ public class Resource implements Persistable, IMetaData {
      * @param locations  A set of locations from which this resource's definition
      *                   can be retrieved. Note that this vector is copied and should not be changed
      *                   after being passed in here.
-     * @param descriptor
      */
     public Resource(int version, String id, Vector<ResourceLocation> locations, String descriptor) {
         this.version = version;
@@ -291,8 +287,6 @@ public class Resource implements Persistable, IMetaData {
     /**
      * Take on all identifiers from the incoming
      * resouce, so as to replace it in a different table.
-     *
-     * @param source
      */
     public void mimick(Resource source) {
         this.guid = source.guid;

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -348,9 +345,6 @@ public class DetailField implements Externalizable {
             field.sortDirection = sortDirection;
         }
 
-        /**
-         * @param sortType
-         */
         public void setSortType(int sortType) {
             field.sortType = sortType;
         }
@@ -386,12 +380,10 @@ public class DetailField implements Externalizable {
 
         public void setCssID(String id) {
             field.cssID = id;
-
         }
 
         public void setBackground(Text background) {
             field.background = background;
-
         }
     }
 }

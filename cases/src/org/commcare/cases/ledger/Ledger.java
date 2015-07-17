@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.ledger;
 
 import java.io.DataInputStream;
@@ -47,8 +44,6 @@ public class Ledger implements Persistable, IMetaData {
 
     /**
      * Get the ID of the linked entity associated with this Ledger record
-     *
-     * @return
      */
     public String getEntiyId() {
         return entityId;
@@ -140,10 +135,6 @@ public class Ledger implements Persistable, IMetaData {
 
     /**
      * Sets the value of an entry in the specified section of this ledger
-     *
-     * @param sectionId
-     * @param entryId
-     * @param quantity
      */
     public void setEntry(String sectionId, String entryId, int quantity) {
         if (!sections.containsKey(sectionId)) {

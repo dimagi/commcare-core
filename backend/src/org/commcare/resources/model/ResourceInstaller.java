@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model;
 
 import java.util.Vector;
@@ -49,11 +46,7 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      * current, and maintaining upgrade status against master.
      *
      * @param r        The resource to be stepped
-     * @param location
-     * @param ref
      * @param table    the table where the resource is being managed
-     * @param instance
-     * @param upgrade
      * @return Whether the resource was able to complete an installation
      * step in the current circumstances.
      * @throws UnresolvedResourceException       If the local resource

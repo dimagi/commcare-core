@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.util.Enumeration;
@@ -242,10 +239,6 @@ public class CommCarePlatform implements CommCareInstance {
      *
      * NOTE: this does not currently repair resources which have been corrupted, merely returns all of the
      * tables to the appropriate states
-     *
-     * @param global
-     * @param incoming
-     * @param recovery
      */
     private void repair(ResourceTable global, ResourceTable incoming, ResourceTable recovery) {
         //First we need to figure out what state we're in currently. There are a few possibilities
