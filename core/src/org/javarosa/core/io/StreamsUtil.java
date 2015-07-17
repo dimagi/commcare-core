@@ -14,10 +14,6 @@ public class StreamsUtil {
     /**
      * Write everything from input stream to output stream, byte by byte then
      * close the streams
-     *
-     * @param in
-     * @param out
-     * @throws IOException
      */
     public static void writeFromInputToOutput(InputStream in, OutputStream out, long[] tally) throws InputIOException, OutputIOException {
         //TODO: God this is naive
@@ -60,10 +56,6 @@ public class StreamsUtil {
 
     /**
      * Write the byte array to the output stream
-     *
-     * @param bytes
-     * @param out
-     * @throws IOException
      */
     public static void writeToOutput(byte[] bytes, OutputStream out, long[] tally) throws IOException {
         int offset = 0;
@@ -94,9 +86,6 @@ public class StreamsUtil {
      * Read bytes from an input stream into a byte array then close the input
      * stream
      *
-     * @param in
-     * @param len
-     * @return
      * @throws IOException
      */
     public static byte[] readFromStream(InputStream in, int len)

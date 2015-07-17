@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util;
 
 import java.io.DataInputStream;
@@ -74,9 +58,6 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
     /**
      * Places the key/value pair in this map. Any existing
      * mapping keyed by the key parameter is removed.
-     *
-     * @param key
-     * @param value
      */
     public V put(K key, V value) {
         if (sealed) {
@@ -99,7 +80,6 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
     }
 
     /**
-     * @param key
      * @return The object bound to the given key, if one exists.
      * null otherwise.
      */
@@ -117,8 +97,6 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
 
     /**
      * Removes any mapping from the given key
-     *
-     * @param key
      */
     public V remove(Object key) {
         if (sealed) {
@@ -157,7 +135,6 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
     /**
      * Whether or not the key is bound in this map
      *
-     * @param key
      * @return True if there is an object bound to the given
      * key in this map. False otherwise.
      */

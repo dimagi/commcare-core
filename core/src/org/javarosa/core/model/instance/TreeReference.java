@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.instance;
 
 import java.io.DataInputStream;
@@ -555,10 +539,6 @@ public class TreeReference implements Externalizable {
 
     /**
      * clone and extend a reference by one level
-     *
-     * @param name
-     * @param mult
-     * @return
      */
     public TreeReference extendRef(String name, int mult) {
         //TODO: Shouldn't work for this if this is an attribute ref;

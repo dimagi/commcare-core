@@ -44,22 +44,16 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
     public interface SerializationWrapper extends Externalizable {
         /**
          * set the underlying object (to be followed by a call to writeExternal)
-         *
-         * @param e
          */
         void setData(Externalizable e);
 
         /**
          * retrieve the underlying object (to be followed by a call to readExternal)
-         *
-         * @return
          */
         Externalizable getData();
 
         /**
          * return type of underlying object
-         *
-         * @return
          */
         Class baseType();
 
@@ -223,5 +217,4 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
     public void registerIndex(String filterIndex) {
         indexedStorage().registerIndex(filterIndex);
     }
-
 }

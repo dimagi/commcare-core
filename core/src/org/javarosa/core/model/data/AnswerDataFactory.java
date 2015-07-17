@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.data;
 
 import org.javarosa.core.model.Constants;
@@ -23,10 +20,6 @@ public class AnswerDataFactory {
      * which to cast incoming values.
      *
      * All enormous spaghetti ifs should be replaced with a call to this
-     *
-     * @param controlType
-     * @param dataType
-     * @return
      */
     public static IAnswerData template(int controlType, int datatype) {
         //First take care of the easy two, selections, since their

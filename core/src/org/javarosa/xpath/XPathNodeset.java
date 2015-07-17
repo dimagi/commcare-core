@@ -40,9 +40,6 @@ public class XPathNodeset {
 
     /**
      * for lazy evaluation
-     *
-     * @param instance
-     * @param ec
      */
     protected XPathNodeset(DataInstance instance, EvaluationContext ec) {
         this.instance = instance;
@@ -52,10 +49,6 @@ public class XPathNodeset {
 
     /**
      * Construct an XPath nodeset.
-     *
-     * @param nodes
-     * @param instance
-     * @param ec
      */
     public XPathNodeset(Vector<TreeReference> nodes, DataInstance instance, EvaluationContext ec) {
         if (nodes == null) {

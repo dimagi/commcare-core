@@ -33,10 +33,6 @@ public class XPathLazyNodeset extends XPathNodeset {
 
     /**
      * Construct an XPath nodeset.
-     *
-     * @param nodes
-     * @param instance
-     * @param ec
      */
     public XPathLazyNodeset(TreeReference unExpandedRef, DataInstance instance, EvaluationContext ec) {
         super(instance, ec);

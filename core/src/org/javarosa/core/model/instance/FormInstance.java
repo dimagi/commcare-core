@@ -96,7 +96,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     /**
      * Sets the root element of this Model's tree
      *
-     * @param root The root of the tree for this data model.
+     * @param topLevel root of the tree for this data model.
      */
     public void setRoot(TreeElement topLevel) {
         root = new TreeElement();

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.reference;
 
 import java.io.DataInputStream;
@@ -41,9 +38,6 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
      * Creates a translator which will create references of the
      * type described by translatedPrefix whenever references of
      * the type prefix are being derived.
-     *
-     * @param prefix
-     * @param translatedPrefix
      */
     public RootTranslator(String prefix, String translatedPrefix) {
         //TODO: Manage semantics of "ends with /" etc here?
@@ -86,5 +80,4 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
         ExtUtil.writeString(out, prefix);
         ExtUtil.writeString(out, translatedPrefix);
     }
-
 }

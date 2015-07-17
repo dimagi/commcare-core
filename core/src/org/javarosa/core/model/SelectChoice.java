@@ -40,7 +40,6 @@ public class SelectChoice implements Externalizable, Localizable {
      * @param labelID        can be null
      * @param labelInnerText can be null
      * @param value          should not be null
-     * @param isLocalizable
      * @throws XFormParseException if value is null
      */
     public SelectChoice(String labelID, String labelInnerText, String value, boolean isLocalizable) {
@@ -131,5 +130,4 @@ public class SelectChoice implements Externalizable, Localizable {
     public void setTextID(String textID) {
         this.textID = textID;
     }
-
 }
