@@ -1,7 +1,6 @@
 package org.javarosa.xml;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Hashtable;
 
 import org.javarosa.xml.util.InvalidStructureException;

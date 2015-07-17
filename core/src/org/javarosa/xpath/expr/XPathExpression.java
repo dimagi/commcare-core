@@ -7,7 +7,6 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.xpath.XPathLazyNodeset;
 
 public abstract class XPathExpression implements Externalizable {
 

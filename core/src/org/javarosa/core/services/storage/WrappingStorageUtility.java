@@ -1,15 +1,10 @@
 package org.javarosa.core.services.storage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.javarosa.core.util.InvalidIndexException;
-import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A wrapper implementation of IStorageUtility that lets you serialize an object with a serialization
