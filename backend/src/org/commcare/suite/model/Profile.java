@@ -37,13 +37,18 @@ public class Profile implements Persistable {
 
     int recordId = -1;
     int version;
-    String uniqueId;
-    String displayName;
     String authRef;
     Vector<PropertySetter> properties;
     Vector<RootTranslator> roots;
-    boolean fromOld; //whether it is from an old version of the profile file (pre-multiple apps changes)
     Hashtable<String, Boolean> featureStatus;
+
+    String uniqueId;
+    String displayName;
+    /**
+     * Indicates if this was generated from an old version of the profile file, before fields
+     * were added for multiple app seating functionality
+     */
+    boolean fromOld;
 
     /**
      * Serialization Only!
