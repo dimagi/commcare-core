@@ -358,6 +358,11 @@ public class CommCarePlatform implements CommCareInstance {
         this.suites.addElement(new Integer(s.getID()));
     }
 
+    /**
+     * Register installed resources in the table with this CommCare instance
+     *
+     * @param global Table with fully-installed resources
+     */
     public void initialize(ResourceTable global) {
         try {
             global.initializeResources(this);

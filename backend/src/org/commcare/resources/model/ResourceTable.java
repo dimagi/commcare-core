@@ -804,6 +804,13 @@ public class ResourceTable {
         }
     }
 
+    /**
+     * Register the available resources in this table with the provided
+     * CommCare instance.
+     *
+     * @param instance
+     * @throws ResourceInitializationException
+     */
     public void initializeResources(CommCareInstance instance)
             throws ResourceInitializationException {
         // HHaaaacckkk. (Some properties cannot be handled until after others
