@@ -90,6 +90,8 @@ public class ProfileTests {
         assertEquals("Mismatched profile display names", a.getDisplayName(), b.getDisplayName());
 
         assertEquals("Mismatched profiles on old version", a.isOldVersion(), b.isOldVersion());
+
+        //TODO: compare root references and other mismatched fields
     }
 
     private Profile getBasicProfile() {
