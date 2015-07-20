@@ -112,7 +112,7 @@ public class Profile implements Persistable {
     /**
      * @return if this object was generated from an old version of the profile.ccpr file
      */
-	public boolean oldVersion() {
+	public boolean isOldVersion() {
 	    return this.fromOld;
 	}
 
