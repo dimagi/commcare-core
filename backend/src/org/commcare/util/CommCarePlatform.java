@@ -51,9 +51,15 @@ public class CommCarePlatform implements CommCareInstance {
     }
 
     /**
-     * @param profileReference
-     * @param global
-     * @param forceInstall
+     * Installs resources described by profile reference into the provided
+     * resource table. If the resource table is ready or already has a profile,
+     * don't do anything.
+     *
+     * @param profileReference URL to profile file
+     * @param global           Add profile ref to this table and install its
+     *                         resources
+     * @param forceInstall     Should installation be performed regardless of
+     *                         version numbers?
      */
     public void init(String profileReference, ResourceTable global,
                      boolean forceInstall)
