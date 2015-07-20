@@ -18,7 +18,7 @@ public class LocalizerTest {
     private void testSerialize(Localizer l, String msg) {
         PrototypeFactory pf = new PrototypeFactory();
         pf.addClass(TableLocaleSource.class);
-        ExternalizableTest.testExternalizable(l, this, pf, "Localizer [" + msg + "]");
+        ExternalizableTest.testExternalizable(l, pf, "Localizer [" + msg + "]");
     }
 
     @Test
