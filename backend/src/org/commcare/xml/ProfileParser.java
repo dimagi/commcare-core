@@ -10,6 +10,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -91,18 +92,23 @@ public class ProfileParser extends ElementParser<Profile> {
 
         String registrationNamespace = null;
 
-        // If this is an old version of the profile file and is therefore missing uniqueId,
-        // get it from the update URL
-        boolean fromOld = false;
+        // Handle possibility of the profile file missing fields that are needed for multiple apps support
+        // Mark as an old version of the profile if missing either necessary field
+        boolean fromOld = (uniqueId == null) || (displayName == null);
         if (uniqueId == null) {
-            fromOld = true;
-            int startIndex = authRef.indexOf("download") + 9;
-            int endIndex = authRef.indexOf("profile", startIndex) - 1;
-            uniqueId = authRef.substring(startIndex, endIndex);
+            // Note that this version of unique ID generation will not protect against a user
+            // installing the same app multiple times, but this case is sufficiently rare that we are
+            // calling that fine. All HQ-generated profile.ccpr files now have the correct fields,
+            // so we are only talking about cases where either an app hasn't been updated in a very
+            // long time, or someone is doing their own weird thing outside of HQ
+            uniqueId = PropertyUtils.genUUID();
+        }
+        if (displayName == null) {
             // Make the displayName an empty string instead of just null, which will signal the app
-            // to use the display name from localizations instead
+            // to use the display name from localizations instead later on
             displayName = "";
         }
+
         Profile profile = new Profile(version, authRef, uniqueId, displayName, fromOld);
         try {
 

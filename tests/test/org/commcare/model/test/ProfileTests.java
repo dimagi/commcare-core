@@ -1,6 +1,7 @@
 package org.commcare.model.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.InputStream;
@@ -44,7 +45,7 @@ public class ProfileTests {
     }
     
     @Test
-    public void testProfileSerialization() {
+    public void testBasicProfileSerialization() {
         Profile p = getBasicProfile();
         byte[] serializedProfile = mSandbox.serialize(p);
         
@@ -56,28 +57,26 @@ public class ProfileTests {
     }
 
     @Test
-    public void testProfileSerializationMultipleApps() {
-        Profile p = getBasicProfile();
+    public void testMultipleAppsProfileSerialization() {
+        Profile p = getMultipleAppsProfile();
         byte[] serializedProfile = mSandbox.serialize(p);
 
         Profile deserialized = mSandbox.deserialize(serializedProfile, Profile.class);
 
-        compareProfilesMultipleApps(p, deserialized);
+        compareProfiles(p, deserialized);
+    }
+
+    // Tests that a profile.ccpr which was missing the necessary fields for multiple apps has
+    // them generated correctly by the parser
+    @Test
+    public void testGeneratedProfileFields() {
+        Profile p = getBasicProfile();
+
+        assertNotNull("Profile uniqueId was null", p.getUniqueId());
+        assertNotNull("Profile display name was null", p.getDisplayName());
     }
 
     private void compareProfiles(Profile a, Profile b) {
-        if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
-            fail("Mismatch of property setters between profiles");
-        }
-        
-        assertEquals("Mismatched auth references", a.getAuthReference(), b.getAuthReference());
-
-        assertEquals("Mismatched profile versions", a.getVersion(), b.getVersion());
-        
-        //TOOD: compare root references and other mismatched fields
-    }
-
-    private void compareProfilesMultipleApps(Profile a, Profile b) {
         if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
             fail("Mismatch of property setters between profiles");
         }
@@ -90,7 +89,7 @@ public class ProfileTests {
 
         assertEquals("Mismatched profile display names", a.getDisplayName(), b.getDisplayName());
 
-        assertEquals("Mismatched profiles on old version", a.oldVersion(), b.oldVersion());
+        assertEquals("Mismatched profiles on old version", a.isOldVersion(), b.isOldVersion());
     }
 
     private Profile getBasicProfile() {
@@ -104,6 +103,25 @@ public class ProfileTests {
             ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile", 
                     Resource.RESOURCE_VERSION_UNKNOWN, false);
             
+            return parser.parse();
+        } catch(Exception e) {
+            throw PersistableSandbox.wrap("Error during profile test setup", e);
+        }
+    }
+
+    // Return a Profile object constructed from a profile.ccpr file explicitly containing the
+    // fields necessary for multiple apps support
+    private Profile getMultipleAppsProfile() {
+        try{
+            String basicProfilePath = "/multiple_apps_profile.ccpr";
+            InputStream is = this.getClass().getResourceAsStream(basicProfilePath);
+            if(is == null) {
+                throw new RuntimeException("Test resource missing: " + basicProfilePath);
+            }
+
+            ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile",
+                    Resource.RESOURCE_VERSION_UNKNOWN, false);
+
             return parser.parse();
         } catch(Exception e) {
             throw PersistableSandbox.wrap("Error during profile test setup", e);
