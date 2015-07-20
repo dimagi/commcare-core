@@ -54,10 +54,5 @@ public class PrefixTreeTest {
         if (!node.render().equals(s)) {
             fail("Prefix tree mangled: " + s + " into " + node.render());
         }
-
-        Vector v = t.getStrings();
-        for (int i = 0; i < v.size(); i++) {
-            //System.out.println((String)v.elementAt(i));
-        }
     }
 }

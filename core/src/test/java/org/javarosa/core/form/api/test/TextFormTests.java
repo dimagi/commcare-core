@@ -67,7 +67,7 @@ public class TextFormTests {
     public void testTextForms() {
         FormEntryController fec = fpi.getFormEntryController();
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-        boolean foundFlag = false;
+
         Localizer l = fpi.getFormDef().getLocalizer();
 
         l.setDefaultLocale(l.getAvailableLocales()[0]);
@@ -77,11 +77,15 @@ public class TextFormTests {
             state = fec.stepToNextEvent();
         }
 
-        if (!fep.getLongText().equals("Patient ID"))
+        if (!fep.getLongText().equals("Patient ID")) {
             fail("getLongText() not returning correct value");
-        if (!fep.getShortText().equals("ID")) fail("getShortText() not returning correct value");
-        if (!fep.getAudioText().equals("jr://audio/hah.mp3"))
+        }
+        if (!fep.getShortText().equals("ID")) {
+            fail("getShortText() not returning correct value");
+        }
+        if (!fep.getAudioText().equals("jr://audio/hah.mp3")) {
             fail("getAudioText() not returning correct value");
+        }
 
         state = -99;
         while (state != FormEntryController.EVENT_QUESTION) {

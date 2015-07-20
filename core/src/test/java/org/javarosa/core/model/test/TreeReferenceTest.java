@@ -130,11 +130,10 @@ public class TreeReferenceTest {
     }
 
 
-
-    //Tests ensuring that original references aren't mutated.
-    // TODO PLM: the following test wasn't being run by the ant test suite.
-    // Figure out if it is broken or should be included.
-    // @Test
+    /**
+     * Ensures that original references aren't mutated.
+     */
+    @Test
     public void testMutation() {
         assertTrue("/a/c[] predicate set illegally modified", acPredRef.getPredicate(0).size() != 1);
     }
@@ -151,12 +150,6 @@ public class TreeReferenceTest {
         } catch (IllegalArgumentException e) {
         }
     }
-
-    @Test
-    public void testSerialization() {
-        //TODO: That ^
-    }
-
 
     @Test
     public void testParentage() {
