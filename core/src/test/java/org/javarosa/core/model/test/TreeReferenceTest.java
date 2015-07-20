@@ -129,13 +129,12 @@ public class TreeReferenceTest {
         acPredRefClone.addPredicate(0, acPredRefClonePredicates);
     }
 
-
     /**
      * Ensures that original references aren't mutated.
      */
     @Test
     public void testMutation() {
-        assertTrue("/a/c[] predicate set illegally modified", acPredRef.getPredicate(0).size() != 1);
+        assertTrue("/a/c[] predicate set illegally modified", acPredRef.getPredicate(0).size() == 1);
     }
 
     @Test
