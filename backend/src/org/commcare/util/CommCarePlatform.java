@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.util.Enumeration;
@@ -282,11 +279,9 @@ public class CommCarePlatform implements CommCareInstance {
      * NOTE: this does not currently repair resources which have been
      * corrupted, merely returns all of the tables to the appropriate states
      *
-     * @param global
      * @param incoming      The last table that an install was attempted on.
      *                      Might be partially populated. Is empty if the last
      *                      install was successful.
-     * @param recovery
      */
     private void repair(ResourceTable global, ResourceTable incoming,
                         ResourceTable recovery) {
