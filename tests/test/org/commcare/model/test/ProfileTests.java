@@ -54,7 +54,17 @@ public class ProfileTests {
         //models of this type.
         compareProfiles(p, deserialized);
     }
-    
+
+    @Test
+    public void testProfileSerializationMultipleApps() {
+        Profile p = getBasicProfile();
+        byte[] serializedProfile = mSandbox.serialize(p);
+
+        Profile deserialized = mSandbox.deserialize(serializedProfile, Profile.class);
+
+        compareProfilesMultipleApps(p, deserialized);
+    }
+
     private void compareProfiles(Profile a, Profile b) {
         if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
             fail("Mismatch of property setters between profiles");
@@ -65,6 +75,22 @@ public class ProfileTests {
         assertEquals("Mismatched profile versions", a.getVersion(), b.getVersion());
         
         //TOOD: compare root references and other mismatched fields
+    }
+
+    private void compareProfilesMultipleApps(Profile a, Profile b) {
+        if(!ArrayUtilities.arraysEqual(a.getPropertySetters(), b.getPropertySetters())) {
+            fail("Mismatch of property setters between profiles");
+        }
+
+        assertEquals("Mismatched auth references", a.getAuthReference(), b.getAuthReference());
+
+        assertEquals("Mismatched profile versions", a.getVersion(), b.getVersion());
+
+        assertEquals("Mismatched profile unique ids", a.getUniqueId(), b.getUniqueId());
+
+        assertEquals("Mismatched profile display names", a.getDisplayName(), b.getDisplayName());
+
+        assertEquals("Mismatched profiles on old version", a.oldVersion(), b.oldVersion());
     }
 
     private Profile getBasicProfile() {

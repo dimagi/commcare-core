@@ -99,6 +99,9 @@ public class ProfileParser extends ElementParser<Profile> {
             int startIndex = authRef.indexOf("download") + 9;
             int endIndex = authRef.indexOf("profile", startIndex) - 1;
             uniqueId = authRef.substring(startIndex, endIndex);
+            // Make the displayName an empty string instead of just null, which will signal the app
+            // to use the display name from localizations instead
+            displayName = "";
         }
         Profile profile = new Profile(version, authRef, uniqueId, displayName, fromOld);
         try {
