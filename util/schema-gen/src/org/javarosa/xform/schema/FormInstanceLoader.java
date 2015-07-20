@@ -63,7 +63,7 @@ public class FormInstanceLoader {
             // populate the data model
             TreeReference tr = TreeReference.rootRef();
             tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
-            templateRoot.populate(savedRoot, formDef);
+            templateRoot.populate(savedRoot);
 
             // populated model to current form
             formDef.getInstance().setRoot(templateRoot);
