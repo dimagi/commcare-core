@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.commcare.util.GridCoordinate;
@@ -148,8 +145,6 @@ public class Detail implements Externalizable {
      * Whether this detail is expected to be so huge in scope that
      * the platform should limit its strategy for loading it to be asynchronous
      * and cached on special keys.
-     *
-     * @return
      */
     public boolean useAsyncStrategy() {
         for (DetailField f : getFields()) {
