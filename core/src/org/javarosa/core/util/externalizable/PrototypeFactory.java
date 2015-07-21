@@ -40,7 +40,7 @@ public class PrototypeFactory {
     protected boolean initialized;
 
     public PrototypeFactory() {
-        this(null, new DefaultHasher());
+        this(null, mStaticHasher == null ? new DefaultHasher() : mStaticHasher);
     }
 
     public PrototypeFactory(Hasher hasher) {
@@ -48,7 +48,7 @@ public class PrototypeFactory {
     }
 
     public PrototypeFactory(PrefixTree classNames) {
-        this(classNames, new DefaultHasher());
+        this(classNames, mStaticHasher == null ? new DefaultHasher() : mStaticHasher);
     }
 
     public PrototypeFactory(PrefixTree classNames, Hasher hasher) {
