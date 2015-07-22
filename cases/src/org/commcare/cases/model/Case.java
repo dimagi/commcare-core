@@ -1,22 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-/**
- *
- */
 package org.commcare.cases.model;
 
 import java.io.DataInputStream;
@@ -83,51 +64,30 @@ public class Case implements Persistable, IMetaData, Secure {
         setLastModified(dateOpened);
     }
 
-    /**
-     * @return the typeId
-     */
     public String getTypeId() {
         return typeId;
     }
 
-    /**
-     * @param typeId the typeId to set
-     */
     public void setTypeId(String typeId) {
         this.typeId = typeId;
     }
 
-    /**
-     * @return The name of this case
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param The name of this case
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return True if this case is closed, false otherwise.
-     */
     public boolean isClosed() {
         return closed;
     }
 
-    /**
-     * @param Whether or not this case should be recorded as closed
-     */
     public void setClosed(boolean closed) {
         this.closed = closed;
     }
 
-    /**
-     * @return the recordId
-     */
     public int getID() {
         return recordId;
     }
@@ -144,9 +104,6 @@ public class Case implements Persistable, IMetaData, Secure {
         data.put(org.javarosa.core.api.Constants.USER_ID_KEY, id);
     }
 
-    /**
-     * @param id the id to set
-     */
     public void setCaseId(String id) {
         this.id = id;
     }
@@ -155,16 +112,10 @@ public class Case implements Persistable, IMetaData, Secure {
         return id;
     }
 
-    /**
-     * @return the dateOpened
-     */
     public Date getDateOpened() {
         return dateOpened;
     }
 
-    /**
-     * @param dateOpened the dateOpened to set
-     */
     public void setDateOpened(Date dateOpened) {
         this.dateOpened = dateOpened;
     }
@@ -319,9 +270,6 @@ public class Case implements Persistable, IMetaData, Secure {
 
     private static final String LAST_MODIFIED = "last_modified";
 
-    /**
-     * @param lastModified
-     */
     public void setLastModified(Date lastModified) {
         if (lastModified == null) {
             throw new NullPointerException("Case date last modified cannot be null");

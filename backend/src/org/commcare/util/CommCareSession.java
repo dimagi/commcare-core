@@ -448,9 +448,6 @@ public class CommCareSession {
 
     /**
      * Deprecated. Fires a single stack operation.
-     *
-     * @param op
-     * @param ec
      */
     public boolean executeStackOperation(StackOperation op, EvaluationContext ec) {
         Vector<StackOperation> ops = new Vector<StackOperation>();
@@ -466,9 +463,6 @@ public class CommCareSession {
      * against the most recent frame. (IE: If a new frame is pushed here, xpath expressions
      * calculated within it will be evaluated against the starting, but <push> actions
      * will happen against the newly pushed frame)
-     *
-     * @param ops
-     * @param ec
      */
     public boolean executeStackOperations(Vector<StackOperation> ops, EvaluationContext ec) {
         //the on deck frame is the frame that is the target of operations that execute

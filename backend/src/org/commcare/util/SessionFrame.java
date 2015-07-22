@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.util.Vector;
@@ -109,8 +106,6 @@ public class SessionFrame {
      *
      * Compatibility is determined by checking that each step in the previous
      * snapshot is matched by an identical step in the current snapshot.
-     *
-     * @return
      */
     public boolean isSnapshotIncompatible() {
         synchronized (steps) {
@@ -140,7 +135,6 @@ public class SessionFrame {
             this.snapshot = null;
         }
     }
-
 
     /**
      * @return Whether this frame is dead or not. Dead frames have finished their session

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -36,9 +33,6 @@ public class Action implements Externalizable {
     /**
      * Creates an Action model with the associated display details and stack
      * operations set.
-     *
-     * @param display
-     * @param stackOps
      */
     public Action(DisplayUnit display, Vector<StackOperation> stackOps) {
         this.display = display;
