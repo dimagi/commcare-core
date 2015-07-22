@@ -23,6 +23,10 @@ public class QuestionString implements Externalizable {
     private String textInner;
     private String textFallback;
 
+    public QuestionString(){
+        
+    }
+    
     public QuestionString(String name){
         this.name = name;
     }
