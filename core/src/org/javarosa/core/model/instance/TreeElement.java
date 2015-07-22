@@ -964,7 +964,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                     }
                 }
             }
-
         }
 
         // copy incoming element's attributes over

@@ -72,6 +72,11 @@ public class QuestionDef implements IFormElement, Localizable {
         setControlType(controlType);
         observers = new Vector();
         mQuestionStrings = new Hashtable<String, QuestionString>();
+        
+        //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label 
+        //defined, which is causing problems with blank questions. Adding this for now to ensure things
+        //work reliably
+        mQuestionStrings.put(XFormParser.LABEL_ELEMENT, new QuestionString(XFormParser.LABEL_ELEMENT, null));
     }
 
     public void putQuestionString(String key, QuestionString value){
@@ -248,7 +253,7 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.writeNumeric(dos, getControlType());
         ExtUtil.write(dos, new ExtWrapList(ExtUtil.emptyIfNull(choices)));
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
-        ExtUtil.write(dos, new ExtWrapMap(String.class, QuestionString.class));
+        ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
     }
 
     /* === MANAGING OBSERVERS === */
