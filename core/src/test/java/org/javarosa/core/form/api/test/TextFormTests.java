@@ -1,10 +1,5 @@
 package org.javarosa.core.form.api.test;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
