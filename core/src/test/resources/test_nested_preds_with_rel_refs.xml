@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns="http://www.w3.org/2002/xforms"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Nested predicates with relative references</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+                      xmlns="http://openrosa.org/formdesigner/73BD6623-B13A-4C07-850E-583899531924"
+                      uiVersion="1"
+                      version="1"
+                      name="New Form">
+
+                    <display/>
+
+                    <query-one/>
+                    <query-two/>
+
+                    <a>
+                        <b id="one">
+                            <c> </c>
+                        </b>
+
+                        <b id="two">
+                            <c> </c>
+                            <d id="sesame-streets-letter-of-the-day"/>
+                            <e id="nobody-cares-about-e"/>
+                        </b>
+                    </a>
+                </data>
+            </instance>
+
+            <instance id="groups">
+                <root>
+                    <groups id="north-america">
+                        <team id="mobile"></team>
+                        <group id="inc">
+                            <group_data>
+                                <data key="all_field_staff">yes</data>
+                            </group_data>
+                        </group>
+                    </groups>
+
+                    <groups id="africa">
+                        <group id="dwa">
+                            <group_data>
+                                <data key="all_field_staff">no</data>
+                            </group_data>
+                        </group>
+                    </groups>
+                </root>
+            </instance>
+
+            <!-- should make display irrelevant -->
+            <bind nodeset="/data/display"
+                relevant="count(instance('groups')/root/groups[1]/group[count(../team[@id = 'mobile']) > 0]) = 0"/>
+
+            <bind nodeset="/data/a/b/c" relevant="count(../../b[@id = 'two']) = 0"/>
+            <bind nodeset="/data/a/b/d" relevant="count(../../b[@id = 'two']) = 1"/>
+            <!-- <bind nodeset="/data/a/b/e" relevant="false()"/> -->
+
+            <setvalue event="xforms-ready" ref="/data/query-one"
+                value="count(instance('groups')/root/groups[1]/group[count(../team[@id = 'mobile']) > 0]) = 0"/>
+        </model>
+    </h:head>
+
+    <h:body>
+        <trigger ref="/data/a/b/c">
+            <label>This should be shown:
+                <output ref="/data/query-one"/>
+            </label>
+        </trigger>
+        <!-- Currently crashes, need to fix form entry controller index traversal -->
+        <!-- <trigger ref="/data/a/b/d"> -->
+        <!--     <label>This should be shown: -->
+        <!--         <output ref="/data/query-one"/> -->
+        <!--     </label> -->
+        <!-- </trigger> -->
+        <trigger ref="/data/display">
+            <label>The following group has a team sibling:
+                <output ref="instance('groups')/root/groups[1]/group[1]/@id"/>
+            </label>
+        </trigger>
+        <!-- Currently crashes, need to fix form entry controller index traversal -->
+        <!-- <trigger ref="/data/a/b/e"> -->
+        <!--     <label>This should not be shown: -->
+        <!--         <output ref="/data/query-one"/> -->
+        <!--     </label> -->
+        <!-- </trigger> -->
+    </h:body>
+</h:html>

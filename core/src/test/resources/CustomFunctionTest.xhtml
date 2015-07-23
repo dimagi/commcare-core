@@ -1,0 +1,34 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+        xmlns:ev="http://www.w3.org/2001/xml-events"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Custom Function Test</h:title>
+        <meta jr:name="rm-subforms-test-images"/>
+        <model>
+            <instance>
+                <data>
+                    <id/>
+                    <my_calculation/>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/id" type="xsd:int"/>
+
+            <bind nodeset="/data/my_calculation" calculate="my_double(/data/id)"/>
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="id">
+                        <value>Will</value>
+                    </text>
+                </translation>
+            </itext>
+
+        </model>
+    </h:head>
+    <h:body>
+        <input ref="id"><label ref="jr:itext('id')"/></input>
+    </h:body>
+</h:html>

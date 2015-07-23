@@ -1,0 +1,140 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>External Callouts</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
+                      xmlns="http://openrosa.org/formdesigner/72AE4C2A-D6C3-4038-B128-C2AA7EFAF014"
+                      uiVersion="1" version="657" name="External Callouts">
+                    <breath_count/>
+                    <smsCallout/>
+                    <smsCallout-KitKat/>
+                    <callout_label_1/>
+                    <test_app_callout/>
+                    <callout_label_2/>
+                    <question4/>
+                    <content>This is the text message text</content>
+                    <address>1234567890</address>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                        <cc:location/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/breath_count" type="intent"/>
+            <bind nodeset="/data/smsCallout" type="intent"/>
+            <bind nodeset="/data/smsCallout-KitKat" type="intent"/>
+            <bind nodeset="/data/callout_label_1"/>
+            <bind nodeset="/data/test_app_callout" type="intent"/>
+            <bind nodeset="/data/callout_label_2"/>
+            <bind nodeset="/data/question4"/>
+            <bind nodeset="/data/content"/>
+            <bind nodeset="/data/address"/>
+            <itext>
+                <translation lang="en" default="">
+                    <text id="breath_count-label">
+                        <value>Clicking this button should open up the Breath Counter application.
+                            Use the application, clicking the button during the 60 seconds. On
+                            returning form the application, the question should be populate with the
+                            result of the application (the number of times you pressed the "breath"
+                            button.
+                        </value>
+                    </text>
+                    <text id="smsCallout-label">
+                        <value>4.3 and earlier: Clicking this button should open up your SMS
+                            application with the body filled out with example text and the recipient
+                            number set to 1234567890
+                        </value>
+                    </text>
+                    <text id="smsCallout-KitKat-label">
+                        <value>4.4 And Later: Clicking this button should open up your SMS
+                            application with the body filled out with example text and the recipient
+                            number set to 1234567890
+                        </value>
+                    </text>
+                    <text id="callout_label_1-label">
+                        <value>When you swipe to the next question, you should automatically launch
+                            into an external application. Enter some value into the top text box of
+                            this application. Then, click "return to application." The application
+                            should auto advance to the next question.
+                        </value>
+                    </text>
+                    <text id="test_app_callout-label">
+                        <value>Test App</value>
+                    </text>
+                    <text id="callout_label_2-label">
+                        <value>You should have auto-advanced here from the external application.
+                            From here, swipe backwards. You should see the normal intent call out
+                            result form, with whatever value you wrote displayed under the "Update
+                            Data" button. If so, swipe forward (back to this question) and finish
+                            the form.
+                        </value>
+                    </text>
+                </translation>
+            </itext>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+            <orx:pollsensor event="xforms-ready" ref="/data/meta/location"/>
+            <bind nodeset="/data/meta/location" type="geopoint"/>
+        </model>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="breath_count"
+                     class="org.commcare.respiratory.BREATHCOUNT">
+            <extra key="display_text" ref="data/text_Entry"/>
+        </odkx:intent>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="smsCallout"
+                     type="vnd.android-dir/mms-sms" class="android.intent.action.VIEW"
+                     button-label="Send SMS">
+            <extra key="sms_body" ref="/data/content"/>
+            <extra xmlns="http://www.w3.org/2002/xforms" key="address" ref="/data/address"/>
+        </odkx:intent>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="smsCalloutKitKat"
+                     type="text/plain" class="android.intent.action.SEND" button-label="Send SMS">
+            <extra key="android.intent.extra.TEXT" ref="/data/content"/>
+            <extra xmlns="http://www.w3.org/2002/xforms" key="address" ref="/data/address"/>
+        </odkx:intent>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="smsCallout" class=""/>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="smsCallout-KitKat" class=""/>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="test_app_callout"
+                     class="org.opencv.pocdiagnostics" appearance="quick"/>
+    </h:head>
+    <h:body>
+        <input ref="/data/breath_count" appearance="intent:breath_count">
+            <label ref="jr:itext('breath_count-label')"/>
+        </input>
+        <input ref="/data/smsCallout" appearance="intent:smsCallout">
+            <label ref="jr:itext('smsCallout-label')"/>
+        </input>
+        <input ref="/data/smsCallout-KitKat" appearance="intent:smsCallout-KitKat">
+            <label ref="jr:itext('smsCallout-KitKat-label')"/>
+        </input>
+        <trigger ref="/data/callout_label_1" appearance="minimal">
+            <label ref="jr:itext('callout_label_1-label')"/>
+        </trigger>
+        <input ref="/data/test_app_callout" appearance="intent:test_app_callout">
+            <label ref="jr:itext('test_app_callout-label')"/>
+        </input>
+        <trigger ref="/data/callout_label_2" appearance="minimal">
+            <label ref="jr:itext('callout_label_2-label')"/>
+        </trigger>
+    </h:body>
+</h:html>
