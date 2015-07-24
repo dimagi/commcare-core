@@ -29,7 +29,11 @@ public class ProfileTests {
     private PersistableSandbox mSandbox;
     private CommCareConfigEngine mAppPlatform;
     private ResourceTable mFreshResourceTable;
-    
+
+    private final static String BASIC_PROFILE_PATH = "/basic_profile.ccpr";
+    private final static String MULT_APPS_PROFILE_PATH = "/multiple_apps_profile.ccpr";
+
+
     @Before
     public void setUp() {
         mSandbox = new PersistableSandbox();
@@ -40,13 +44,13 @@ public class ProfileTests {
     
     @Test
     public void testProfileParse() {
-        Profile p = getBasicProfile();
+        Profile p = getProfile(BASIC_PROFILE_PATH);
         assertEquals("Profile is not set to the correct version: (102)", p.getVersion(), 102);
     }
     
     @Test
     public void testBasicProfileSerialization() {
-        Profile p = getBasicProfile();
+        Profile p = getProfile(BASIC_PROFILE_PATH);
         byte[] serializedProfile = mSandbox.serialize(p);
         
         Profile deserialized = mSandbox.deserialize(serializedProfile, Profile.class);
@@ -58,11 +62,9 @@ public class ProfileTests {
 
     @Test
     public void testMultipleAppsProfileSerialization() {
-        Profile p = getMultipleAppsProfile();
+        Profile p = getProfile(MULT_APPS_PROFILE_PATH);
         byte[] serializedProfile = mSandbox.serialize(p);
-
         Profile deserialized = mSandbox.deserialize(serializedProfile, Profile.class);
-
         compareProfiles(p, deserialized);
     }
 
@@ -70,8 +72,7 @@ public class ProfileTests {
     // them generated correctly by the parser
     @Test
     public void testGeneratedProfileFields() {
-        Profile p = getBasicProfile();
-
+        Profile p = getProfile(BASIC_PROFILE_PATH);
         assertNotNull("Profile uniqueId was null", p.getUniqueId());
         assertNotNull("Profile display name was null", p.getDisplayName());
     }
@@ -82,24 +83,19 @@ public class ProfileTests {
         }
 
         assertEquals("Mismatched auth references", a.getAuthReference(), b.getAuthReference());
-
         assertEquals("Mismatched profile versions", a.getVersion(), b.getVersion());
-
         assertEquals("Mismatched profile unique ids", a.getUniqueId(), b.getUniqueId());
-
         assertEquals("Mismatched profile display names", a.getDisplayName(), b.getDisplayName());
-
         assertEquals("Mismatched profiles on old version", a.isOldVersion(), b.isOldVersion());
 
         //TODO: compare root references and other mismatched fields
     }
 
-    private Profile getBasicProfile() {
+    private Profile getProfile(String path) {
         try{
-            String basicProfilePath = "/basic_profile.ccpr";
-            InputStream is = this.getClass().getResourceAsStream(basicProfilePath);
+            InputStream is = this.getClass().getResourceAsStream(path);
             if(is == null) {
-                throw new RuntimeException("Test resource missing: " + basicProfilePath);
+                throw new RuntimeException("Test resource missing: " + path);
             }
             
             ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile", 
@@ -111,22 +107,4 @@ public class ProfileTests {
         }
     }
 
-    // Return a Profile object constructed from a profile.ccpr file explicitly containing the
-    // fields necessary for multiple apps support
-    private Profile getMultipleAppsProfile() {
-        try{
-            String basicProfilePath = "/multiple_apps_profile.ccpr";
-            InputStream is = this.getClass().getResourceAsStream(basicProfilePath);
-            if(is == null) {
-                throw new RuntimeException("Test resource missing: " + basicProfilePath);
-            }
-
-            ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile",
-                    Resource.RESOURCE_VERSION_UNKNOWN, false);
-
-            return parser.parse();
-        } catch(Exception e) {
-            throw PersistableSandbox.wrap("Error during profile test setup", e);
-        }
-    }
 }
