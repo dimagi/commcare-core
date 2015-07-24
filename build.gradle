@@ -3,7 +3,8 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
-sourceCompatibility = 1.7
+
+sourceCompatibility = 7
 
 repositories {
     mavenCentral()
@@ -36,6 +37,15 @@ sourceSets {
             srcDir 'api'
         }
   }
+  test {
+      java {
+          srcDir 'tests/test'
+          srcDir 'util/src'
+      }
+      resources{
+          srcDir 'tests/resources'
+      }
+  }
 }
 
 dependencies {
@@ -46,3 +56,5 @@ dependencies {
 jar {
     baseName = "commcare-libraries"
 }
+
+jar.dependsOn test
