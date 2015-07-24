@@ -18,10 +18,7 @@ package org.commcare.api.persistence;
 
 import org.commcare.api.util.NameHasher;
 import org.javarosa.core.util.externalizable.CannotCreateObjectException;
-import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-
-import java.util.Arrays;
 
 /**
  * ProtoType factory for serializing and deserializing persisted classes using
@@ -31,26 +28,15 @@ import java.util.Arrays;
 
 public class NamedPrototypeFactory extends PrototypeFactory{
 
-    static Hasher mStaticHasher;
-
     public NamedPrototypeFactory() {
         super();
-        mStaticHasher = (mStaticHasher == null ? new NameHasher() : mStaticHasher);
+        setStaticHasher(new NameHasher());
     }
 
 
     public Class getClass(byte[] hash) {
-
-        String className = new String(hash);
-
-        System.out.println("Got classname: " + className + " from hash: " + Arrays.toString(hash));
-
-        try {
-            Class<?> c = Class.forName(className);
-            return c;
-        } catch(ClassNotFoundException e) {
-            return null;
-        }
+        Class<?> c = getClass(hash);
+        return c;
     }
 
     public Object getInstance(byte[] hash) {
@@ -65,5 +51,9 @@ public class NamedPrototypeFactory extends PrototypeFactory{
         } catch (InstantiationException e) {
             throw new CannotCreateObjectException(c.getName() + ": not instantiable");
         }
+    }
+
+    public static int getClassHashSize(){
+        return 32;
     }
 }
