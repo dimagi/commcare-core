@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -37,10 +34,6 @@ public class AssertionSet implements Externalizable {
      * NOTE: The tests are _not parsed here_ to test their xpath expressions.
      * They should be tested _before_ being passed in (we don't do so here
      * to permit retaining the locality of which expression failed).
-     *
-     * @param xpathExpressions
-     * @param messages
-     * @throws XPathSyntaxException
      */
     public AssertionSet(Vector<String> xpathExpressions, Vector<Text> messages) {
         //First, make sure things are set up correctly
