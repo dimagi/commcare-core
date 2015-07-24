@@ -1,2 +1,0 @@
-include ':javarosa'
-project(':javarosa').projectDir = new File('../javarosa/core')
