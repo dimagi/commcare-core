@@ -3,9 +3,6 @@
  */
 package org.commcare.cases.instance;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -19,6 +16,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -35,6 +35,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     int numChildren = -1;
 
     public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
+        System.out.println("Case child constructor");
         if (recordId == -1 && caseId == null) {
             throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
         }
@@ -42,6 +43,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         this.recordId = recordId;
         this.caseId = caseId;
         this.mult = mult;
+        System.out.println("Case child constructor exeunt");
     }
 
     /*
@@ -212,12 +214,15 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
      */
     public TreeElement getAttribute(String namespace, String name) {
+        System.out.print("Get attribute " + namespace + " name: "  + name);
         if (name.equals("case_id")) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
+                System.out.println("first if");
                 //if we're already cached, don't bother with this nonsense
                 synchronized (parent.treeCache) {
                     TreeElement element = parent.treeCache.retrieve(recordId);
                     if (element != null) {
+                        System.out.println("return cache");
                         return cache().getAttribute(namespace, name);
                     }
                 }
@@ -225,6 +230,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             //TODO: CACHE GET ID THING
             if (caseId == null) {
+                System.out.println("return cache 2");
                 return cache().getAttribute(namespace, name);
             }
 
@@ -232,6 +238,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             TreeElement caseid = TreeElement.constructAttributeElement(null, name);
             caseid.setValue(new StringData(caseId));
             caseid.setParent(this);
+            System.out.println("return case id");
             return caseid;
         }
         return cache().getAttribute(namespace, name);

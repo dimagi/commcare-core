@@ -25,7 +25,8 @@ public class SqlSandboxTest {
     @Before
     public void setUp() throws Exception {
         sandbox = UserDataUtils.getClearedStaticStorage(username);
-        UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ipm_restore.xml"), sandbox);
+        System.out.println("get resource as stream: " + this.getClass().getResourceAsStream("ipm_restore.xml"));
+        UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
     }
 

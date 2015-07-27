@@ -162,10 +162,13 @@ public class UserDatabaseHelper {
 
     public static ResultSet selectForId(Connection c, String storageKey, int id){
         try {
+            System.out.println("STATEMENT: " + "SELECT * FROM " + storageKey + " WHERE "
+                    + TableBuilder.ID_COL + " = ?; " + id);
             PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                     + TableBuilder.ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();
+            System.out.println("rs: " + rs.isClosed());
             return rs;
 
         } catch (SQLException e) {

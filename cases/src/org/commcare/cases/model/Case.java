@@ -1,13 +1,5 @@
 package org.commcare.cases.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -18,6 +10,14 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * NOTE: All new fields should be added to the case class using the "data" class,
@@ -124,14 +124,19 @@ public class Case implements Persistable, IMetaData, Secure {
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        System.out.println("Reading external case: " + pf);
         typeId = ExtUtil.readString(in);
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         closed = ExtUtil.readBool(in);
+        System.out.println("date opened");
         dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
+        System.out.println("indices");
         indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class));
+        System.out.println("data");
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
+        System.out.println("Read external case exit.");
     }
 
     /* (non-Javadoc)
