@@ -24,7 +24,7 @@ public class CasePurgeIntegrationTest {
     public void setUp() throws Exception {
         sandbox = MockDataUtils.getStaticStorage();
 
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("case_create_purge.xml"), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("case_create_purge.xml"), sandbox);
         owners = MockDataUtils.extractEntityOwners(sandbox);
     }
 

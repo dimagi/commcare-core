@@ -1,14 +1,13 @@
 package org.commcare.test.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import org.commcare.util.mocks.LivePrototypeFactory;
+import org.javarosa.core.api.NamedPrototypeFactory;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * A persistable sandbox provides an environment to handle 
@@ -17,11 +16,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  * @author ctsims
  */
 public class PersistableSandbox {
-    private LivePrototypeFactory factory;
+    private NamedPrototypeFactory factory;
     
     public PersistableSandbox() {
-        LivePrototypeFactory factory = new LivePrototypeFactory();
-        PrototypeFactory.setStaticHasher(factory);
+        factory = new NamedPrototypeFactory();
     }
     
     public <T extends Persistable> byte[] serialize(T t) {

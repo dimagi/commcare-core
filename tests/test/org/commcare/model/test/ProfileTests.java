@@ -1,10 +1,5 @@
 package org.commcare.model.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.InputStream;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
@@ -15,6 +10,11 @@ import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.ArrayUtilities;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Regressions and unit tests for the profile model.
@@ -69,8 +69,8 @@ public class ProfileTests {
 
     private Profile getBasicProfile() {
         try{
-            String basicProfilePath = "/basic_profile.ccpr";
-            InputStream is = this.getClass().getResourceAsStream(basicProfilePath);
+            String basicProfilePath = "basic_profile.ccpr";
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("basic_profile.ccpr");
             if(is == null) {
                 throw new RuntimeException("Test resource missing: " + basicProfilePath);
             }
@@ -80,6 +80,7 @@ public class ProfileTests {
             
             return parser.parse();
         } catch(Exception e) {
+            e.printStackTrace();
             throw PersistableSandbox.wrap("Error during profile test setup", e);
         }
     }
