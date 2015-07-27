@@ -35,7 +35,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     int numChildren = -1;
 
     public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
-        System.out.println("Case child constructor");
         if (recordId == -1 && caseId == null) {
             throw new RuntimeException("Cannot create a lazy case element with no lookup identifiers!");
         }
@@ -43,7 +42,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         this.recordId = recordId;
         this.caseId = caseId;
         this.mult = mult;
-        System.out.println("Case child constructor exeunt");
     }
 
     /*

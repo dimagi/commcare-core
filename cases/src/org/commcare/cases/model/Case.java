@@ -124,19 +124,14 @@ public class Case implements Persistable, IMetaData, Secure {
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        System.out.println("Reading external case: " + pf);
         typeId = ExtUtil.readString(in);
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         closed = ExtUtil.readBool(in);
-        System.out.println("date opened");
         dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        System.out.println("indices");
         indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndex.class));
-        System.out.println("data");
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
-        System.out.println("Read external case exit.");
     }
 
     /* (non-Javadoc)

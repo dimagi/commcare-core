@@ -57,7 +57,6 @@ public class SqlSandbox {
     }
 
     public SqlIndexedStorageUtility<Case> getCaseStorage() {
-        System.out.println("returning case storage: " + caseStorage.tableName);
         return caseStorage;
     }
 

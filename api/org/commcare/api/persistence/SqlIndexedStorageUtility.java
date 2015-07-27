@@ -97,14 +97,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
     public T readFromBytes(byte[] mBytes){
 
-        System.out.println("Read from bytes: " + Arrays.toString(mBytes));
-
         T t = null;
         try {
             t = prototype.newInstance();
-
-            System.out.println("t: " + t);
-
             ByteArrayInputStream mByteStream = new ByteArrayInputStream(mBytes);
             t.readExternal(new DataInputStream(mByteStream), mFactory);
             return t;
@@ -124,7 +119,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
     */
     public T read(int id) {
-        System.out.println("Read ID: " + id);
         byte[] mBytes = readBytes(id);
         return readFromBytes(mBytes);
 
@@ -257,8 +251,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     @Override
     public SqlStorageIterator<T> iterate() {
 
-        System.out.println("iterate");
-
         Connection connection = null;
         ResultSet resultSet = null;
 
@@ -292,9 +284,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
      */
     public byte[] readBytes(int id) {
-
-        System.out.println("Read bytes: " + id);
-
         try {
             Connection c = getConnection();
             ResultSet rs = UserDatabaseHelper.selectForId(c, this.tableName, id);

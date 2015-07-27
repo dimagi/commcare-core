@@ -4,7 +4,7 @@
     <property name="jar" value="${name}.jar"/>
     <property name="dir.root" value="${basedir}/../"/>
     <property name="dir.lib" value="${dir.root}/../javarosa/lib/"/>
-    <property name="dir.jrlib" value="${dir.root}/../javarosa/core/dist/"/>
+    <property name="dir.jrlib" value="${dir.root}/../javarosa/core/build/libs/"/>
     <property name="dir.root.case" value="${dir.root}/cases/"/>
 	<property name="dir.root.api" value="${dir.root}/api/"/>
 

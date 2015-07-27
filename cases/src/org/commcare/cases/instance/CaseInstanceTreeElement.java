@@ -57,9 +57,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, boolean reportMode) {
-
-        System.out.println("Case Instance Tree element: " + instanceRoot + " storagE " + storage);
-
         this.instanceRoot = instanceRoot;
         this.storage = storage;
         this.reportMode = reportMode;

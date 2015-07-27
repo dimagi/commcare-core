@@ -2,6 +2,7 @@ package org.commcare.util.mocks;
 
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.util.CommCareTransactionParserFactory;
+import org.javarosa.core.api.NamedPrototypeFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -10,7 +11,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -31,8 +31,7 @@ import java.util.Vector;
 public class MockDataUtils {
 
     public static MockUserDataSandbox getStaticStorage() {
-        LivePrototypeFactory factory = new LivePrototypeFactory();
-        PrototypeFactory.setStaticHasher(factory);
+        NamedPrototypeFactory factory = new NamedPrototypeFactory();
         return new MockUserDataSandbox(factory);
     }
 
