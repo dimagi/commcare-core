@@ -16,6 +16,7 @@
 
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.api.NameHasher;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
 
@@ -30,7 +31,7 @@ import java.util.Vector;
 
 public class PrototypeFactory {
 
-    static Hasher mStaticHasher;
+    public static Hasher mStaticHasher;
 
     private Vector classes;
     private Vector hashes;
@@ -40,21 +41,15 @@ public class PrototypeFactory {
     protected boolean initialized;
 
     public PrototypeFactory() {
-        this(null, mStaticHasher == null ? new DefaultHasher() : mStaticHasher);
-    }
-
-    public PrototypeFactory(Hasher hasher) {
-        this(null, hasher);
+        this(null);
     }
 
     public PrototypeFactory(PrefixTree classNames) {
-        this(classNames, mStaticHasher == null ? new DefaultHasher() : mStaticHasher);
-    }
-
-    public PrototypeFactory(PrefixTree classNames, Hasher hasher) {
         this.classNames = classNames;
         initialized = false;
-        mStaticHasher = hasher;
+        if(mStaticHasher == null){
+            mStaticHasher = new NameHasher();
+        }
     }
 
     protected void lazyInit() {
@@ -117,8 +112,7 @@ public class PrototypeFactory {
             throw new Error("Hash collision! " + c.getName() + " and " + d.getName());
         }
 
-        classes.addElement(c);
-        hashes.addElement(hash);
+        storeHash(c, hash);
     }
 
     public Class getClass(byte[] hash) {
@@ -173,5 +167,10 @@ public class PrototypeFactory {
 
     public static int getClassHashSize(){
         return mStaticHasher.getHashSize();
+    }
+
+    public void storeHash(Class c, byte[] hash){
+        classes.addElement(c);
+        hashes.addElement(hash);
     }
 }
