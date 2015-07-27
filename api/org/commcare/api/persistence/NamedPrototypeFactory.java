@@ -34,11 +34,6 @@ public class NamedPrototypeFactory extends PrototypeFactory{
     }
 
 
-    public Class getClass(byte[] hash) {
-        Class<?> c = getClass(hash);
-        return c;
-    }
-
     public Object getInstance(byte[] hash) {
         return getInstance(getClass(hash));
     }
