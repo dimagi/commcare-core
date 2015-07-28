@@ -16,7 +16,6 @@
 
 package org.javarosa.core.util.externalizable;
 
-import org.javarosa.core.api.NameHasher;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
 
@@ -48,7 +47,7 @@ public class PrototypeFactory {
         this.classNames = classNames;
         initialized = false;
         if(mStaticHasher == null){
-            mStaticHasher = new NameHasher();
+            mStaticHasher = new DefaultHasher();
         }
     }
 
