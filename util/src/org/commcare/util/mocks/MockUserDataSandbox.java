@@ -24,6 +24,8 @@ public class MockUserDataSandbox {
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
     private final IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
+    private User mUser;
+    
     private String mSyncToken;
 
     /**
@@ -66,5 +68,13 @@ public class MockUserDataSandbox {
     
     public String getSyncToken() {
         return mSyncToken;
+    }
+    
+    public void setLoggedInUser(User user) {
+        this.mUser = user;
+    }
+    
+    public User getLoggedInUser() {
+        return mUser;
     }
 }

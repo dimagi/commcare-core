@@ -9,14 +9,15 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * TODO: This isn't really a great candidate for a
@@ -348,6 +349,16 @@ public class CommCarePlatform implements CommCareInstance {
             installedSuites.addElement((Suite)(utility.read(i.intValue())));
         }
         return installedSuites;
+    }
+    
+    public Detail getDetail(String detailId) {
+        for(Suite s : getInstalledSuites()) {
+           Detail d = s.getDetail(detailId);
+           if(d != null) {
+               return d;
+           }
+        }
+        return null;
     }
 
     public void setProfile(Profile p) {
