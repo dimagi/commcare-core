@@ -1,10 +1,10 @@
 package org.commcare.util.test;
 
-import org.commcare.api.models.User;
 import org.commcare.api.persistence.SqlSandbox;
 import org.commcare.api.util.UserDataUtils;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.Before;
 import org.junit.Test;
