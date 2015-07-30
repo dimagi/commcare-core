@@ -125,38 +125,6 @@ public class TableBuilder {
         return built;
     }
 
-    public String getTableInsertString(Persistable p){
-        String built = "INSERT INTO " + scrubName(name) + " (";
-        HashMap<String, Object> contentValues = UserDatabaseHelper.getContentValues(p);
-
-
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
-            built += rawCols.elementAt(i);
-            if(i < rawCols.size() - 1) {
-                built += ", ";
-            }
-        }
-
-        byte[] blob = toBlob(p);
-
-        built += ") VALUES (";
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
-            Object currentValue = contentValues.get(rawCols.elementAt(i));
-            if(currentValue instanceof String){
-                built += "`" + contentValues.get(rawCols.elementAt(i)) + "`";
-            } else {
-                built += contentValues.get(rawCols.elementAt(i));
-            }
-            if(i < rawCols.size() - 1) {
-                built += ", ";
-            }
-        }
-        built += ");";
-
-        return built;
-    }
-
-
     public Pair<String, List<Object>> getTableInsertData(Persistable p){
         String built = "INSERT INTO " + scrubName(name) + " (";
         HashMap<String, Object> contentValues = UserDatabaseHelper.getContentValues(p);
@@ -190,42 +158,6 @@ public class TableBuilder {
     public static String scrubName(String input) {
         //Scrub
         return input.replace("-", "_");
-    }
-
-    //TODO: Read this from SQL, not assume from context
-    private static final int MAX_SQL_ARGS = 950;
-
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input) {
-        return sqlList(input, MAX_SQL_ARGS);
-    }
-
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
-
-        List<Pair<String, String[]>> ops = new ArrayList<Pair<String, String[]>>();
-
-        //figure out how many iterations we'll need
-        int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
-
-        for(int currentRound = 0 ; currentRound < numIterations ; ++currentRound) {
-
-            int startPoint = currentRound * maxArgs;
-            int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
-
-            String ret = "(";
-            for(int i = startPoint ; i < lastIndex ; ++i) {
-                ret += "?" + ",";
-            }
-
-            String[] array = new String[lastIndex - startPoint];
-            int count = 0 ;
-            for(int i = startPoint ; i < lastIndex ; ++i) {
-                array[count++] = String.valueOf(input.get(i));
-            }
-
-            ops.add(new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array));
-
-        }
-        return ops;
     }
 
     public static byte[] toBlob(Persistable p){

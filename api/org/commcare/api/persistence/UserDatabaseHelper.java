@@ -8,15 +8,24 @@ import org.commcare.api.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * @author ctsims
+ * @author wspride
  *
  */
 public class UserDatabaseHelper {
@@ -36,23 +45,33 @@ public class UserDatabaseHelper {
         }
 
         String ret = "";
-        String[] arguments = new String[fieldNames.length];
+        ArrayList<String> arguments = new ArrayList<String>();
+        boolean set = false;
         for(int i = 0 ; i < fieldNames.length; ++i) {
             String columnName = TableBuilder.scrubName(fieldNames[i]);
             if(fields != null) {
                 if(!fields.contains(columnName)) {
-                    throw new IllegalArgumentException("Model does not contain the column " + columnName + "!");
+                    continue;
                 }
             }
-            ret += columnName + "=?";
 
-            arguments[i] = values[i].toString();
-
-            if(i + 1 < fieldNames.length) {
+            if(set){
                 ret += " AND ";
             }
+
+            ret += columnName + "=?";
+
+            arguments.add(values[i].toString());
+
+            set = true;
         }
-        return new Pair<String, String[]>(ret, arguments);
+
+        String[] retArray = new String[arguments.size()];
+        for(int i =0; i< arguments.size(); i++){
+            retArray[i] = arguments.get(i);
+        }
+
+        return new Pair<String, String[]>(ret, retArray);
     }
 
     public static Set<String> getMetaDataFields(Persistable p){
@@ -104,12 +123,6 @@ public class UserDatabaseHelper {
         TableBuilder mTableBuilder = new TableBuilder(storageKey);
         mTableBuilder.addData(p);
         return mTableBuilder.getTableCreateString();
-    }
-
-    public static String getTableInsertString(String storageKey, Persistable p){
-        TableBuilder mTableBuilder = new TableBuilder(storageKey);
-        mTableBuilder.addData(p);
-        return mTableBuilder.getTableInsertString(p);
     }
 
     public static Pair<String, List<Object>> getTableInsertData(String storageKey, Persistable p){
@@ -194,7 +207,7 @@ public class UserDatabaseHelper {
         }
     }
 
-    public static void insertToTable(Connection c, String storageKey, Persistable p){
+    public static int insertToTable(Connection c, String storageKey, Persistable p){
 
         Pair<String, List<Object>> mPair = getTableInsertData(storageKey, p);
 
@@ -221,7 +234,9 @@ public class UserDatabaseHelper {
 
             try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    p.setID(generatedKeys.getInt(1));
+                    int id = generatedKeys.getInt(1);
+                    p.setID(id);
+                    return id;
                 }
                 else {
                     throw new SQLException("Creating user failed, no ID obtained.");
@@ -232,6 +247,7 @@ public class UserDatabaseHelper {
             System.out.println("e: " + e);
             e.printStackTrace();
         }
+        return -1;
     }
 
     public static byte[] getRecordForValue(Connection c, String storageKey, String id){
@@ -247,10 +263,77 @@ public class UserDatabaseHelper {
         }
     }
 
+    /**
+     * Update Peristable p with sql_id id
+     * @param c Database Connection
+     * @param storageKey name of table
+     * @param p peristable to be updated
+     * @param id ID to update with
+     */
 
-    /*
-    public PrototypeFactory getPrototypeFactory() {
-        return DbUtil.getPrototypeFactory(c);
+    public static void updateId(Connection c, String storageKey, Persistable p, int id) {
+
+        HashMap<String, Object> map = getContentValues(p);
+
+        String[] fieldnames = map.keySet().toArray(new String[0]);
+        Object[] values = map.values().toArray(new Object[0]);
+
+        Pair<String, String[]> where = UserDatabaseHelper.createWhere(fieldnames, values, p);
+
+        String query = "UPDATE " + storageKey + " SET " + DATA_COL + " = ? WHERE " + where.first + ";";
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = c.prepareStatement(query);
+
+            byte[] blob = TableBuilder.toBlob(p);
+
+            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
+
+            for(int i=2; i<where.second.length + 2; i++){
+                Object obj = where.second[i-2];
+                if(obj instanceof String){
+                    preparedStatement.setString(i, (String) obj);
+                } else if(obj instanceof Blob){
+                    preparedStatement.setBlob(i, (Blob) obj);
+                } else if(obj instanceof Integer){
+                    preparedStatement.setInt(i, ((Integer) obj).intValue());
+                } else if(obj instanceof byte[]){
+                    preparedStatement.setBinaryStream(i,new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
+                } else if(obj == null) {
+                    preparedStatement.setNull(i, 0);
+                }
+            }
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
-    */
+
+    /**
+     * Update entry under id with persistable p
+     * @param c Database Connection
+     * @param tableName name of table
+     * @param p peristable to udpate with
+     * @param id sql record to update
+     */
+    public static void updateToTable(Connection c, String tableName, Persistable p, int id) {
+        String query = "UPDATE " + tableName + " SET " + DATA_COL + " = ? " + " WHERE " + ID_COL + " = ?;";
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = c.prepareStatement(query);
+
+            byte[] blob = TableBuilder.toBlob(p);
+
+            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
+            preparedStatement.setInt(2, id);
+
+            int affectedRows = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

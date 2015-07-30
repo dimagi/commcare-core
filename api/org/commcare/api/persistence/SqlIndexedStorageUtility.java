@@ -8,7 +8,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -20,7 +19,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * IStorageIndexedUtility implemented on SQLite using JDBC
@@ -29,12 +30,6 @@ import java.util.*;
  */
 public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>,Iterable<T>  {
 
-    private Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
-
-    private Hashtable<Integer, T> data;
-
-    int curCount;
-
     Class<T> prototype;
 
     PrototypeFactory mFactory;
@@ -42,17 +37,20 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     String tableName;
     String userName;
 
-    public SqlIndexedStorageUtility(Class<T> prototype, String userName){
-        this(prototype, PrototypeManager.getDefault(), userName, prototype.getName());
+    public SqlIndexedStorageUtility(Class<T> prototype, String userName, String tableName, boolean reset){
+        this(prototype, PrototypeManager.getDefault(), userName, tableName, reset);
     }
 
     public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName) {
+        this(prototype, factory, userName, tableName, false);
+    }
+
+    public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName, boolean reset) {
         this.tableName = tableName;
         this.userName = userName;
         this.prototype = prototype;
         this.mFactory = factory;
-
-        //resetTable();
+        if(reset){resetTable();}
     }
 
     public Connection getConnection() throws SQLException {
@@ -69,10 +67,20 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
     */
     public void write(Persistable p) throws StorageFullException {
+        if(p.getID() != -1) {
+            update(p.getID(), p);
+            return;
+        }
+
         Connection c = null;
         try {
             c = getConnection();
-            UserDatabaseHelper.insertToTable(c, tableName, p);
+            int id = UserDatabaseHelper.insertToTable(c, tableName, p);
+            c.close();
+
+            c = getConnection();
+            p.setID(id);
+            UserDatabaseHelper.updateId(c, tableName, p, id);
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -101,7 +109,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             t = prototype.newInstance();
             ByteArrayInputStream mByteStream = new ByteArrayInputStream(mBytes);
-            t.readExternal(new DataInputStream(mByteStream), mFactory);
+            t.readExternal(new DataInputStream(mByteStream), PrototypeManager.getDefault());
             return t;
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -300,7 +308,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
      */
     public void remove(int id) {
-        data.remove(DataUtil.integer(id));
+
     }
 
     /* (non-Javadoc)
@@ -314,34 +322,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
      */
     public void removeAll() {
-        data.clear();
 
-        meta.clear();
     }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
     public Vector<Integer> removeAll(EntityFilter ef) {
-        Vector<Integer> removed = new Vector<Integer>();
-        for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
-            Integer i = (Integer)en.nextElement();
-            switch (ef.preFilter(i.intValue(), null)) {
-                case EntityFilter.PREFILTER_INCLUDE:
-                    removed.addElement(i);
-                    break;
-                case EntityFilter.PREFILTER_EXCLUDE:
-                    continue;
-            }
-            if (ef.matches(data.get(i))) {
-                removed.addElement(i);
-            }
-        }
-        for (Integer i : removed) {
-            data.remove(i);
-        }
-
-        return removed;
+        return null;
     }
 
     /* (non-Javadoc)
@@ -361,8 +349,15 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
-    public void update(int id, T e) throws StorageFullException {
-        data.put(DataUtil.integer(id), e);
+    public void update(int id, Persistable p) throws StorageFullException {
+        Connection c = null;
+        try {
+            c = getConnection();
+            UserDatabaseHelper.updateToTable(c, tableName, p, id);
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setReadOnly() {

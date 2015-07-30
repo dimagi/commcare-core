@@ -1,8 +1,8 @@
 package org.commcare.api.persistence;
 
 import org.commcare.api.exceptions.SessionUnavailableException;
-import org.commcare.api.models.User;
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.suite.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
