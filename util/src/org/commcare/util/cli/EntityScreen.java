@@ -3,15 +3,12 @@
  */
 package org.commcare.util.cli;
 
-import java.io.PrintStream;
-import java.util.Vector;
-
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -19,6 +16,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
+
+import java.io.PrintStream;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -32,7 +32,7 @@ public class EntityScreen extends Screen {
     private String[] rows;
     CommCarePlatform mPlatform;
     SessionWrapper mSession;
-    MockUserDataSandbox mSandbox;
+    UserDataInterface mSandbox;
     SessionDatum needed;
     String mHeader;
     
@@ -41,7 +41,7 @@ public class EntityScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
+    public void init(CommCarePlatform platform, SessionWrapper session, UserDataInterface sandbox) {
         
         this.mPlatform = platform;
         this.mSandbox = sandbox;

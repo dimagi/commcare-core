@@ -3,17 +3,13 @@
  */
 package org.commcare.util.cli;
 
-import java.io.PrintStream;
-import java.util.Hashtable;
-import java.util.Vector;
-
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
@@ -24,6 +20,10 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.PrintStream;
+import java.util.Hashtable;
+import java.util.Vector;
+
 /**
  * @author ctsims
  *
@@ -33,14 +33,14 @@ public class MenuScreen extends Screen {
     private MenuDisplayable[] mChoices;
     CommCarePlatform mPlatform;
     SessionWrapper mSession;
-    MockUserDataSandbox mSandbox;
+    UserDataInterface mSandbox;
     
     String mTitle;
     
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
+    public void init(CommCarePlatform platform, SessionWrapper session, UserDataInterface sandbox) {
         
         String root = deriveMenuRoot(session);
         
