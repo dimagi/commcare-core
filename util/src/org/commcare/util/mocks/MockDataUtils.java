@@ -1,6 +1,8 @@
 package org.commcare.util.mocks;
 
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.suite.model.User;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.javarosa.core.api.NamedPrototypeFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -35,7 +37,7 @@ public class MockDataUtils {
         return new MockUserDataSandbox(factory);
     }
 
-    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) {
+    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox) {
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
         try {
             DataModelPullParser parser = new DataModelPullParser(stream, factory);
@@ -86,7 +88,7 @@ public class MockDataUtils {
     /**
      * Load the referenced fixture out of storage for the provided user
      */
-    public static FormInstance loadFixture(MockUserDataSandbox sandbox,
+    public static FormInstance loadFixture(UserDataInterface sandbox,
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
