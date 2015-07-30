@@ -3,8 +3,10 @@
  */
 package org.commcare.util.mocks;
 
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
+import org.commcare.suite.model.User;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -21,13 +23,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     CommCareSession session;
     CaseInstanceTreeElement casebase;
     LedgerInstanceTreeElement stockbase;
-    MockUserDataSandbox mSandbox;
+    UserDataInterface mSandbox;
     CommCarePlatform mPlatform;
     
     public CommCareInstanceInitializer(MockUserDataSandbox sandbox, CommCarePlatform platform){ 
         this(null, sandbox, platform);
     }
-    public CommCareInstanceInitializer(CommCareSession session, MockUserDataSandbox sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(CommCareSession session, UserDataInterface sandbox, CommCarePlatform platform) {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
