@@ -4,7 +4,6 @@
 package org.commcare.util.mocks;
 
 import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -50,5 +49,11 @@ public class SessionWrapper extends CommCareSession {
         } 
         
         return initializer;
+    }
+    public CommCarePlatform getPlatform(){
+        return this.mPlatform;
+    }
+    public UserDataInterface getSandbox(){
+        return this.mSandbox;
     }
 }
