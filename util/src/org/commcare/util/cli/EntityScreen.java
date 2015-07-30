@@ -41,10 +41,10 @@ public class EntityScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, UserDataInterface sandbox) {
+    public void init(SessionWrapper session) {
         
-        this.mPlatform = platform;
-        this.mSandbox = sandbox;
+        this.mPlatform = session.getPlatform();
+        this.mSandbox = session.getSandbox();
         this.mSession = session;
         
         needed = session.getNeededDatum();
@@ -53,7 +53,7 @@ public class EntityScreen extends Screen {
             error("Can't handle entity selection with blank detail definition for datum " + needed.getDataId());
         }
         
-        Detail shortDetail = platform.getDetail(detail);
+        Detail shortDetail = mPlatform.getDetail(detail);
         if(shortDetail == null) {
             error("Missing detail definition for: " + detail);
         }

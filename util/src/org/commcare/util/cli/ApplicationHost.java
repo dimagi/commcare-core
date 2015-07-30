@@ -3,24 +3,15 @@
  */
 package org.commcare.util.cli;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-
+import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.api.persistence.SqlSandbox;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.User;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
-import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockDataUtils;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
-import org.commcare.util.mocks.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -32,6 +23,15 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
+import java.net.URL;
+
 /**
  * @author ctsims
  *
@@ -41,10 +41,10 @@ public class ApplicationHost {
     CommCarePlatform mPlatform;
     String mUsername;
     String mPassword;
-    MockUserDataSandbox mSandbox;
+    UserDataInterface mSandbox;
     SessionWrapper mSession;
     
-    LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+    PrototypeFactory mPrototypeFactory = new PrototypeFactory();
     
     BufferedReader reader;
     
@@ -78,7 +78,7 @@ public class ApplicationHost {
         Screen s = getNextScreen();
         
         while(s != null) {
-            s.init(mPlatform, mSession, mSandbox);
+            s.init(mSession);
             System.out.println("");
             System.out.println("");
             System.out.println("");
@@ -159,8 +159,7 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        PrototypeFactory.setStaticHasher(mPrototypeFactory);
-        mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+        mSandbox = new SqlSandbox(mPrototypeFactory, mUsername, true);
         
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
@@ -185,7 +184,8 @@ public class ApplicationHost {
             e.printStackTrace();
             System.exit(-1);
         }
-                //Initialize our User
+        
+        //Initialize our User
         for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
             if(mUsername.equalsIgnoreCase(u.getUsername())) {

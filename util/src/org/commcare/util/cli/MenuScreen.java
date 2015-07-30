@@ -40,18 +40,18 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, UserDataInterface sandbox) {
+    public void init(SessionWrapper session) {
         
         String root = deriveMenuRoot(session);
         
-        this.mPlatform = platform;
-        this.mSandbox = sandbox;
+        this.mPlatform = session.getPlatform();
+        this.mSandbox = session.getSandbox();
         
         Vector<MenuDisplayable> choices = new Vector<MenuDisplayable>();
         
-        Hashtable<String, Entry> map = platform.getMenuMap();
+        Hashtable<String, Entry> map = mPlatform.getMenuMap();
         EvaluationContext ec = null;
-        for(Suite s : platform.getInstalledSuites()) {
+        for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
                 String xpathExpression = "";
                 try {

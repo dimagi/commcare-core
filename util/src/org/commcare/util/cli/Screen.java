@@ -3,8 +3,6 @@
  */
 package org.commcare.util.cli;
 
-import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.mocks.SessionWrapper;
 
@@ -16,7 +14,7 @@ import java.io.PrintStream;
  */
 public abstract class Screen {
     
-    public abstract void init(CommCarePlatform platform, SessionWrapper session, UserDataInterface sandbox);
+    public abstract void init(SessionWrapper session);
 
     
     public abstract void prompt(PrintStream out);
