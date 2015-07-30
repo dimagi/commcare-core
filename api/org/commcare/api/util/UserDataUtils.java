@@ -1,9 +1,9 @@
 package org.commcare.api.util;
 
 import org.commcare.api.models.CommCareTransactionParserFactory;
-import org.commcare.api.models.User;
 import org.commcare.api.persistence.SqlSandbox;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.suite.model.User;
 import org.javarosa.core.api.NamedPrototypeFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
