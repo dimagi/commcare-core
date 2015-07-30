@@ -212,15 +212,12 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
      */
     public TreeElement getAttribute(String namespace, String name) {
-        System.out.print("Get attribute " + namespace + " name: "  + name);
         if (name.equals("case_id")) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
-                System.out.println("first if");
                 //if we're already cached, don't bother with this nonsense
                 synchronized (parent.treeCache) {
                     TreeElement element = parent.treeCache.retrieve(recordId);
                     if (element != null) {
-                        System.out.println("return cache");
                         return cache().getAttribute(namespace, name);
                     }
                 }
@@ -228,7 +225,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             //TODO: CACHE GET ID THING
             if (caseId == null) {
-                System.out.println("return cache 2");
                 return cache().getAttribute(namespace, name);
             }
 
@@ -236,7 +232,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             TreeElement caseid = TreeElement.constructAttributeElement(null, name);
             caseid.setValue(new StringData(caseId));
             caseid.setParent(this);
-            System.out.println("return case id");
             return caseid;
         }
         return cache().getAttribute(namespace, name);

@@ -1,9 +1,5 @@
 package org.commcare.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -14,14 +10,19 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 /**
  * TODO: This isn't really a great candidate for a
- * singleton interface. It should almost certainly be
+ * singleton interfaces. It should almost certainly be
  * a more broad code-based installer/registration
  * process or something.
  *
@@ -345,9 +346,16 @@ public class CommCarePlatform implements CommCareInstance {
     public Vector<Suite> getInstalledSuites() {
         Vector<Suite> installedSuites = new Vector<Suite>();
         IStorageUtility utility = StorageManager.getStorage(Suite.STORAGE_KEY);
+
+        IStorageIterator iterator = utility.iterate();
+
+        while(iterator.hasMore()){
+            installedSuites.add((Suite)utility.read(iterator.nextID()));
+        }
+        /*
         for (Integer i : suites) {
             installedSuites.addElement((Suite)(utility.read(i.intValue())));
-        }
+        }*/
         return installedSuites;
     }
     
