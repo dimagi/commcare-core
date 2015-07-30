@@ -1,7 +1,6 @@
 package org.commcare.util;
 
-import java.io.IOException;
-
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
@@ -17,6 +16,8 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * A factory for covering all of the basic transactions expected in userspace
@@ -35,12 +36,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     private TransactionParserFactory stockParser;
     private TransactionParserFactory fixtureParser;
 
-    private final MockUserDataSandbox sandbox;
+    private final UserDataInterface sandbox;
 
     private int requests = 0;
     private String syncToken;
 
-    public CommCareTransactionParserFactory(MockUserDataSandbox sandbox) {
+    public CommCareTransactionParserFactory(UserDataInterface sandbox) {
         this.sandbox = sandbox;
 
         this.initFixtureParser();

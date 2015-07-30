@@ -1,7 +1,9 @@
 package org.commcare.util.mocks;
 
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -17,7 +19,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  * @author ctsims
  */
-public class MockUserDataSandbox {
+public class MockUserDataSandbox implements UserDataInterface{
+
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
