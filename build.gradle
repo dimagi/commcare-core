@@ -52,6 +52,7 @@ dependencies {
     compile project(':javarosa')
     testCompile 'junit:junit:4.+'
     compile 'org.xerial:sqlite-jdbc:3.8.10.1'
+    compile 'org.json:json:20090211'
 }
 
 jar {
