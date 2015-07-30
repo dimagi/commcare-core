@@ -1,4 +1,4 @@
-package org.commcare.util.mocks;
+package org.commcare.suite.model;
 
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -33,23 +33,23 @@ public class User implements Persistable, Restorable, IMetaData {
     private static final String KEY_USER_TYPE = "user_type";
 
     public static final String META_UID = "uid";
-    private static final String META_USERNAME = "username";
-    private static final String META_ID = "id";
+    public static final String META_USERNAME = "username";
+    public static final String META_ID = "id";
 
-    private int recordId = -1; //record id on device
-    private String username;
-    private String password;
-    private String uniqueId;  //globally-unique id
+    public int recordId = -1; //record id on device
+    public String username;
+    public String password;
+    public String uniqueId;  //globally-unique id
 
     static private User demo_user;
 
     private boolean rememberMe = false;
 
-    private String syncToken;
+    public String syncToken;
 
-    private Hashtable<String, String> properties = new Hashtable<String, String>();
+    public Hashtable<String, String> properties = new Hashtable<String, String>();
 
-    private User() {
+    public User() {
         setUserType(STANDARD);
     }
 
