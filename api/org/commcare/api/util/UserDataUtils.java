@@ -19,8 +19,13 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Vector;
 
@@ -42,6 +47,21 @@ public class UserDataUtils {
     public static SqlSandbox getClearedStaticStorage(String username) {
         PrototypeFactory factory = new NamedPrototypeFactory();
         return new SqlSandbox(factory, username, true);
+    }
+
+    public static void clearStaticStorage(String username){
+        SqlSandbox storage = getStaticStorage(username);
+        storage.clearTables();
+    }
+
+    public static void parseXMLIntoSandbox(String restore, SqlSandbox sandbox) {
+        InputStream stream = new ByteArrayInputStream(restore.getBytes(StandardCharsets.UTF_8));
+        parseIntoSandbox(stream, sandbox);
+    }
+
+    public static void parseFileIntoSandbox(File restore, SqlSandbox sandbox) throws FileNotFoundException {
+        InputStream stream = new FileInputStream(restore);
+        parseIntoSandbox(stream, sandbox);
     }
 
     public static void parseIntoSandbox(InputStream stream, SqlSandbox sandbox) {

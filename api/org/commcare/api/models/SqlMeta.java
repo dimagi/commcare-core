@@ -20,10 +20,11 @@ public class SqlMeta implements Persistable, IMetaData {
     public static final String META_LAST_SYNC = "LAST_SYNC";
 
     private Date lastSync;
-    private int metaId = 1;
+    private int metaId = -1;
 
     public SqlMeta(){
         this.lastSync = new Date();
+        this.setID(-1);
     }
 
     @Override

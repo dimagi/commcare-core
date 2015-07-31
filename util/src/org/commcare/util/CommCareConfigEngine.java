@@ -3,18 +3,7 @@
  */
 package org.commcare.util;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.zip.ZipFile;
-
+import org.commcare.api.persistence.SqlIndexedStorageUtility;
 import org.commcare.cases.CaseManagementModule;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -36,6 +25,9 @@ import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.graph.BubbleSeries;
+import org.commcare.suite.model.graph.Graph;
+import org.commcare.suite.model.graph.XYSeries;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
@@ -52,10 +44,21 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Hashtable;
+import java.util.Vector;
+import java.util.zip.ZipFile;
 
 /**
  * @author ctsims
@@ -69,7 +72,7 @@ public class CommCareConfigEngine {
     private Vector<Suite> suites;
     private Profile profile;
     private int fileuricount = 0;
-    
+
     ArchiveFileRoot mArchiveRoot;
 
     private void initModules()
@@ -80,7 +83,6 @@ public class CommCareConfigEngine {
         String[] prototypes = new String[] {
                 ResourceFileDataSource.class.getName(),
                 TableLocaleSource.class.getName(),
-
                 BasicInstaller.class.getName(),
                 LocaleFileInstaller.class.getName(),
                 SuiteInstaller.class.getName(),
@@ -88,8 +90,11 @@ public class CommCareConfigEngine {
                 MediaInstaller.class.getName(),
                 XFormInstaller.class.getName(),
                 Text.class.getName(),
-                PropertySetter.class.getName()};
-        PrototypeManager.registerPrototypes(prototypes);
+                PropertySetter.class.getName(),
+                Graph.class.getName(),
+                XYSeries.class.getName(),
+                BubbleSeries.class.getName()};
+                PrototypeManager.registerPrototypes(prototypes);
 
     }
 
@@ -105,7 +110,7 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(ResourceTable.class));
+        table = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility(Resource.class, "will", "ResourceTable", true));
 
 
         //All of the below is on account of the fact that the installers
@@ -114,7 +119,11 @@ public class CommCareConfigEngine {
         StorageManager.setStorageFactory(new IStorageFactory() {
 
             public IStorageUtility newStorage(String name, Class type) {
-                return new DummyIndexedStorageUtility(type);
+                String tableName = "ACase";
+                if(!type.getSimpleName().equals("Case")){
+                    tableName = type.getSimpleName();
+                }
+                return new SqlIndexedStorageUtility(type, "will", tableName, true);
             }
 
         });
@@ -124,19 +133,19 @@ public class CommCareConfigEngine {
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, Suite.class);
+        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage("fixture", FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }
 
     private void setRoots() {
         ReferenceManager._().addReferenceFactory(new JavaHttpRoot());
-        
+
         this.mArchiveRoot = new ArchiveFileRoot();
-        
+
         ReferenceManager._().addReferenceFactory(mArchiveRoot);
     }
-    
+
     public void initFromArchive(String archiveURL) {
         String fileName;
         if(archiveURL.startsWith("http")) {
@@ -154,9 +163,9 @@ public class CommCareConfigEngine {
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
-        
+
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
-        
+
     }
 
     public void initFromLocalFileResource(String resource) {
@@ -177,7 +186,7 @@ public class CommCareConfigEngine {
 
         //Now build the testing reference we'll use
         String reference = "jr://file/" + resource;
-        
+
         init(reference);
     }
 
@@ -187,9 +196,9 @@ public class CommCareConfigEngine {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
             HttpURLConnection.setFollowRedirects(true);
-            
+
             File file = File.createTempFile("commcare_", ".ccz");
-            
+
             FileOutputStream fos = new FileOutputStream(file);
             StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
             return file.getAbsolutePath();
@@ -264,9 +273,9 @@ public class CommCareConfigEngine {
     public void initEnvironment() {
         try {
             table.initializeResources(platform);
-            
+
             Localization.setDefaultLocale("default");
-            
+
             print.println("Locales defined: ");
             String newLocale = null;
             for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
@@ -275,11 +284,11 @@ public class CommCareConfigEngine {
                 }
                 System.out.println("* " + locale);
             }
-            
+
             print.println("Setting locale to: " + newLocale);
             Localization.setLocale(newLocale);
-            
-            
+
+
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
@@ -343,11 +352,11 @@ public class CommCareConfigEngine {
             }
         }
     }
-    
+
     public CommCarePlatform getPlatform() {
         return platform;
     }
-    
+
     public FormDef loadFormByXmlns(String xmlns) {
         IStorageUtilityIndexed<FormDef> formStorage = (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);
@@ -380,9 +389,5 @@ public class CommCareConfigEngine {
                 }
             }
         }
-    }
-
-    public CommCareInstance getInstance() {
-        return instance;
     }
 }

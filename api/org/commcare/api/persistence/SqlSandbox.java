@@ -39,13 +39,17 @@ public class SqlSandbox implements UserDataInterface{
         metaDataStorage = new SqlIndexedStorageUtility<SqlMeta>(SqlMeta.class, factory, username, "Meta");
 
         if(clear){
-            caseStorage.resetTable();
-            ledgerStorage.resetTable();
-            userStorage.resetTable();
-            userFixtureStorage.resetTable();
-            appFixtureStorage.resetTable();
-            metaDataStorage.resetTable();
+            clearTables();
         }
+    }
+
+    public void clearTables(){
+        caseStorage.resetTable();
+        ledgerStorage.resetTable();
+        userStorage.resetTable();
+        userFixtureStorage.resetTable();
+        appFixtureStorage.resetTable();
+        metaDataStorage.resetTable();
     }
 
     /**
