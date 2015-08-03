@@ -40,7 +40,7 @@ public class PrototypeFactory {
     protected boolean initialized;
 
     public PrototypeFactory() {
-        this(null);
+        this(null, null);
     }
 
     public PrototypeFactory(PrefixTree classNames) {
@@ -48,6 +48,23 @@ public class PrototypeFactory {
         initialized = false;
         if(mStaticHasher == null){
             mStaticHasher = new DefaultHasher();
+        }
+    }
+
+
+    public PrototypeFactory(Hasher hasher) {
+        this(hasher, null);
+    }
+
+    public PrototypeFactory(Hasher hasher, PrefixTree classNames) {
+        this.classNames = classNames;
+        initialized = false;
+        if(mStaticHasher == null){
+            if(hasher == null) {
+                mStaticHasher = new DefaultHasher();
+            } else{
+                this.setStaticHasher(hasher);
+            }
         }
     }
 
