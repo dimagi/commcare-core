@@ -14,12 +14,12 @@ import org.javarosa.core.util.MD5;
  * @author ctsims
  */
 public class DefaultHasher implements Hasher {
-    public final static int CLASS_HASH_SIZE = 4;
+    private final static int CLASS_HASH_SIZE = 4;
 
     public byte[] getClassHashValue(Class type) {
 
         byte[] hash = new byte[this.getHashSize()];
-        byte[] md5 = doHash(type); //add support for a salt, in case of collision?
+        byte[] md5 = getHash(type); //add support for a salt, in case of collision?
 
         for(int i=0; i< hash.length && i<md5.length; i++){
             hash[i] = md5[i];
@@ -33,7 +33,7 @@ public class DefaultHasher implements Hasher {
         return hash;
     }
 
-    public byte[] doHash(Class c){
+    public byte[] getHash(Class c){
         return MD5.hash(c.getName().getBytes());
     }
 

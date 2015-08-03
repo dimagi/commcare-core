@@ -10,13 +10,14 @@ import org.javarosa.core.util.externalizable.DefaultHasher;
  */
 public class NameHasher extends DefaultHasher {
 
-    public final static int CLASS_HASH_SIZE = 32;
+    private final static int CLASS_HASH_SIZE = 32;
 
-    public byte[] doHash(Class c){
+    // Overrides the DefaultHasher doHash()
+    public byte[] getHash(Class c){
         // reverse because the beginning of the classpath is less likely to be unique than the name
         return new StringBuilder(c.getName()).reverse().toString().getBytes();
     }
-
+    // Overrides the DefaultHasher getHashSize()
     public int getHashSize(){
         return CLASS_HASH_SIZE;
     }

@@ -16,6 +16,6 @@ package org.javarosa.core.util.externalizable;
  * @author ctsims
  */
 public interface Hasher {
-    public byte[] getClassHashValue(Class type);
-    public int getHashSize();
+    byte[] getClassHashValue(Class type);
+    int getHashSize();
 }

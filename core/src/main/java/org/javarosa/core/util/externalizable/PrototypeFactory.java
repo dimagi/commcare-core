@@ -30,7 +30,7 @@ import java.util.Vector;
 
 public class PrototypeFactory {
 
-    public static Hasher mStaticHasher;
+    private static Hasher mStaticHasher;
 
     private Vector classes;
     private Vector hashes;
@@ -168,7 +168,7 @@ public class PrototypeFactory {
         return mStaticHasher.getHashSize();
     }
 
-    public void storeHash(Class c, byte[] hash){
+    private void storeHash(Class c, byte[] hash){
         classes.addElement(c);
         hashes.addElement(hash);
     }
