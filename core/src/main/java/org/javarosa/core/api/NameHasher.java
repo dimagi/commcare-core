@@ -13,7 +13,8 @@ public class NameHasher extends DefaultHasher {
     public final static int CLASS_HASH_SIZE = 32;
 
     public byte[] doHash(Class c){
-        return c.getName().getBytes();
+        // reverse because the beginning of the classpath is less likely to be unique than the name
+        return new StringBuilder(c.getName()).reverse().toString().getBytes();
     }
 
     public int getHashSize(){
