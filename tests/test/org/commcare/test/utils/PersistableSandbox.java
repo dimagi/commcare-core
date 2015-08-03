@@ -1,9 +1,10 @@
 package org.commcare.test.utils;
 
-import org.javarosa.core.api.NamedPrototypeFactory;
+import org.javarosa.core.api.NameHasher;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,10 +17,10 @@ import java.io.IOException;
  * @author ctsims
  */
 public class PersistableSandbox {
-    private NamedPrototypeFactory factory;
+    private PrototypeFactory factory;
     
     public PersistableSandbox() {
-        factory = new NamedPrototypeFactory();
+        factory = new PrototypeFactory(new NameHasher());
     }
     
     public <T extends Persistable> byte[] serialize(T t) {
