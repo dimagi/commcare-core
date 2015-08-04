@@ -383,6 +383,6 @@ public class CommCareConfigEngine {
     }
 
     public CommCareInstance getInstance() {
-        return instance;
+        return platform;
     }
 }
