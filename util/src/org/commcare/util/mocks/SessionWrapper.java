@@ -1,9 +1,5 @@
-/**
- *
- */
 package org.commcare.util.mocks;
 
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -15,16 +11,15 @@ import org.javarosa.core.model.condition.EvaluationContext;
  * @author ctsims
  */
 public class SessionWrapper extends CommCareSession {
-
-    MockUserDataSandbox mSandbox;
-    CommCarePlatform mPlatform;
+    private final MockUserDataSandbox mSandbox;
+    private final CommCarePlatform mPlatform;
+    private CommCareInstanceInitializer initializer;
 
     public SessionWrapper(CommCarePlatform platform, MockUserDataSandbox sandbox) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
     }
-
 
     /**
      * @return The evaluation context for the current state.
@@ -40,8 +35,6 @@ public class SessionWrapper extends CommCareSession {
     public EvaluationContext getEvaluationContext(String commandId) {
         return getEvaluationContext(getIIF(), commandId);
     }
-
-    CommCareInstanceInitializer initializer;
 
     public CommCareInstanceInitializer getIIF() {
         if (initializer == null) {
