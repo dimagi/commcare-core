@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.util;
 
@@ -13,12 +13,10 @@ import java.util.zip.ZipFile;
 import org.javarosa.core.reference.Reference;
 
 /**
- * 
- * An archive file reference retrieves a binary file from a path within a zip 
+ * An archive file reference retrieves a binary file from a path within a zip
  * file registerd with the appropriate root.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class ArchiveFileReference implements Reference {
 
@@ -27,8 +25,8 @@ public class ArchiveFileReference implements Reference {
     ZipFile mZipFile;
 
     /**
-     * @param zipFile The host file
-     * @param GUID The guid registered with the existing root
+     * @param zipFile    The host file
+     * @param GUID       The guid registered with the existing root
      * @param archiveURI a local path to the file being referenced
      */
     public ArchiveFileReference(ZipFile zipFile, String GUID, String archiveURI) {
@@ -66,6 +64,6 @@ public class ArchiveFileReference implements Reference {
     }
 
     public Reference[] probeAlternativeReferences() {
-        return new Reference [0];
+        return new Reference[0];
     }
 }
