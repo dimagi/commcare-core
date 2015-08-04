@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util.cli;
 
 import java.io.PrintStream;
@@ -24,25 +21,21 @@ import org.javarosa.model.xform.XPathReference;
  * @author ctsims
  */
 public class EntityScreen extends Screen {
-
     private final int SCREEN_WIDTH = 100;
 
     private TreeReference[] mChoices;
     private String[] rows;
-    CommCarePlatform mPlatform;
-    SessionWrapper mSession;
-    MockUserDataSandbox mSandbox;
-    SessionDatum needed;
-    String mHeader;
+    private SessionWrapper mSession;
+    private MockUserDataSandbox mSandbox;
+    private SessionDatum needed;
+    private String mHeader;
 
-    String mTitle;
+    private String mTitle;
 
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
     public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
-
-        this.mPlatform = platform;
         this.mSandbox = sandbox;
         this.mSession = session;
 
@@ -55,9 +48,9 @@ public class EntityScreen extends Screen {
         Detail shortDetail = platform.getDetail(detail);
         if (shortDetail == null) {
             error("Missing detail definition for: " + detail);
+        } else {
+            mTitle = shortDetail.getTitle().evaluate(session.getEvaluationContext()).getName();
         }
-
-        mTitle = shortDetail.getTitle().evaluate(session.getEvaluationContext()).getName();
 
         mHeader = this.createHeader(shortDetail);
 
@@ -74,7 +67,7 @@ public class EntityScreen extends Screen {
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
-        setTitle(mTitle);
+        setTitle();
     }
 
     private String createRow(TreeReference entity, Detail shortDetail) {
@@ -117,13 +110,7 @@ public class EntityScreen extends Screen {
         StringBuilder row = new StringBuilder();
         int i = 0;
         for (DetailField field : fields) {
-            Object o = field.getHeader().evaluate(context);
-            String s;
-            if (!(o instanceof String)) {
-                s = "";
-            } else {
-                s = (String)o;
-            }
+            String s = field.getHeader().evaluate(context);
 
             int widthHint = SCREEN_WIDTH / fields.length;
             try {
@@ -147,10 +134,8 @@ public class EntityScreen extends Screen {
             return;
         }
         builder.append(s);
-        if (s.length() == width) {
-            //nothing
-        } else {
-            //pad
+        if (s.length() != width) {
+            // add whitespace padding
             for (int i = 0; i < width - s.length(); ++i) {
                 builder.append(' ');
             }
@@ -168,7 +153,7 @@ public class EntityScreen extends Screen {
         return parent.expandReference(nodeset);
     }
 
-    private void setTitle(String titleGuess) {
+    private void setTitle() {
         String title = this.mTitle;
         if (title == null) {
             try {
@@ -200,7 +185,7 @@ public class EntityScreen extends Screen {
         }
     }
 
-    public String getValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
+    private String getValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference(true);

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util.cli;
 
 import java.io.PrintStream;
