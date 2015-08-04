@@ -6,6 +6,11 @@ import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
+/**
+ *  Interface to be implemented by sandboxes for a user's CommCare instance data
+ *  @author wpride1
+ */
+
 public interface UserDataInterface{
 
     IStorageUtilityIndexed<Case> getCaseStorage();

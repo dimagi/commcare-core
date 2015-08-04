@@ -5,7 +5,6 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.UserXmlParser;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;

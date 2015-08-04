@@ -22,15 +22,15 @@ package org.commcare.api.models;
 import org.commcare.cases.model.Case;
 
 
-public class TFCase extends Case{
+public class CCase extends Case{
 
-    public static final String STORAGE_KEY = "TFCase";
+    public static final String STORAGE_KEY = "CCase";
     
-    public TFCase() {
+    public CCase() {
         super();
     }
     
-    public TFCase(String a, String b) {
+    public CCase(String a, String b) {
         super(a,b);
     }
 
