@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.util.HashMap;
@@ -12,7 +9,6 @@ import org.javarosa.core.reference.ReferenceFactory;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 
-
 /**
  * @author wspride
  *         This class managers references between GUIDs and the associated path in the file system
@@ -21,9 +17,9 @@ import org.javarosa.core.util.PropertyUtils;
  */
 public class ArchiveFileRoot implements ReferenceFactory {
 
-    private HashMap<String, ZipFile> guidToFolderMap = new HashMap<String, ZipFile>();
+    private final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
 
-    private final int guidLength = 10;
+    private final int GUID_LENGTH = 10;
 
     public ArchiveFileRoot() {
     }
@@ -44,18 +40,18 @@ public class ArchiveFileRoot implements ReferenceFactory {
     }
 
     public String addArchiveFile(ZipFile zip) {
-        String mGUID = PropertyUtils.genGUID(guidLength);
+        String mGUID = PropertyUtils.genGUID(GUID_LENGTH);
         guidToFolderMap.put(mGUID, zip);
         return mGUID;
     }
 
-    public String getGUID(String jrpath) {
+    private String getGUID(String jrpath) {
         String prependRemoved = jrpath.substring("jr://archive/".length());
         int slashindex = prependRemoved.indexOf("/");
         return prependRemoved.substring(0, slashindex);
     }
 
-    public String getPath(String jrpath) {
+    private String getPath(String jrpath) {
         String mGUID = getGUID(jrpath);
         int mIndex = jrpath.indexOf(mGUID);
         return jrpath.substring(mIndex + mGUID.length() + 1);

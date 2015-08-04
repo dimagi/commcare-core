@@ -1,13 +1,8 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.javarosa.core.reference.Reference;
@@ -20,9 +15,9 @@ import org.javarosa.core.reference.Reference;
  */
 public class ArchiveFileReference implements Reference {
 
-    String GUID;
-    String archiveURI;
-    ZipFile mZipFile;
+    private final String GUID;
+    private final String archiveURI;
+    private final ZipFile mZipFile;
 
     /**
      * @param zipFile    The host file
