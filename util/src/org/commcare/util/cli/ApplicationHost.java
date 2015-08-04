@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util.cli;
 
 import java.io.BufferedInputStream;
@@ -36,16 +33,16 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author ctsims
  */
 public class ApplicationHost {
-    CommCareConfigEngine mEngine;
-    CommCarePlatform mPlatform;
-    String mUsername;
-    String mPassword;
-    MockUserDataSandbox mSandbox;
-    SessionWrapper mSession;
+    private final CommCareConfigEngine mEngine;
+    private final CommCarePlatform mPlatform;
+    private final String mUsername;
+    private final String mPassword;
+    private MockUserDataSandbox mSandbox;
+    private SessionWrapper mSession;
 
-    LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+    private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
 
-    BufferedReader reader;
+    private final BufferedReader reader;
 
     public ApplicationHost(CommCareConfigEngine engine, String username, String password) {
         this.mUsername = username;
@@ -65,7 +62,6 @@ public class ApplicationHost {
         loop();
     }
 
-
     private void loop() {
         while (true) {
             mSession.clearAllState();
@@ -78,13 +74,7 @@ public class ApplicationHost {
 
         while (s != null) {
             s.init(mPlatform, mSession, mSandbox);
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
+            System.out.println("\n\n\n\n\n\n");
             s.prompt(System.out);
             System.out.print("> ");
             try {
@@ -97,14 +87,12 @@ public class ApplicationHost {
         }
         //We have a session and are ready to fill out a form!
 
-
         //Get our form object
         String formXmlns = mSession.getForm();
 
         XFormPlayer player = new XFormPlayer(System.in, System.out, null);
         player.setSessionIIF(mSession.getIIF());
         player.start(mEngine.loadFormByXmlns(formXmlns));
-
     }
 
     private Screen getNextScreen() {
@@ -144,11 +132,9 @@ public class ApplicationHost {
                 mSession.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
-                return;
             }
         }
     }
-
 
     private void error(Exception e) {
         e.printStackTrace();
@@ -192,5 +178,4 @@ public class ApplicationHost {
             }
         }
     }
-
 }
