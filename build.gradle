@@ -38,16 +38,27 @@ sourceSets {
   test {
       java {
           srcDir 'tests/test'
-          srcDir 'util/src'
       }
       resources{
           srcDir 'tests/resources'
+      }
+  }
+
+  cli {
+      java {
+          srcDir 'util/src'
       }
   }
 }
 
 dependencies {
       compile project(':javarosa')
+
+      cliCompile project(path: ':javarosa', configuration: 'harnessOutput')
+      cliCompile sourceSets.main.output
+
+      testCompile sourceSets.main.output
+      testCompile sourceSets.cli.output
       testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
@@ -56,6 +67,19 @@ jar {
 }
 
 jar.dependsOn test
+
+configurations {
+  cliOutput.extendsFrom (cliCompile)
+}
+
+task cliJar(type: Jar, dependsOn: cliClasses) {
+    baseName = "commcare-cli"
+    from sourceSets.cli.output
+}
+
+artifacts {
+  cliOutput cliJar
+}
 
 task copyTestResources(type: Copy) {
     from sourceSets.test.resources
