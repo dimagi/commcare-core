@@ -24,3 +24,4 @@ application/weblib*/*
 *.orig
 *.swp
 .hg*
+**.DS_STORE
