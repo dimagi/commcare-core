@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import java.io.DataInputStream;
@@ -150,15 +147,11 @@ public class SessionDatum implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
     }
 
-
     /**
      * Takes an ID and identifies a reference in the provided context which corresponds
      * to that element if one can be found.
      *
      * NOT GUARANTEED TO WORK! May return an entity if one exists
-     *
-     * @param uniqueid
-     * @return
      */
     public TreeReference getEntityFromID(EvaluationContext ec, String elementId) {
         //The uniqueid here is the value selected, so we can in theory track down the value we're looking for.

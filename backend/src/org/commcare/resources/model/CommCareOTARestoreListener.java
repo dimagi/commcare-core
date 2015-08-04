@@ -31,16 +31,12 @@ public abstract interface CommCareOTARestoreListener {
     /**
      * Called by the parseBlock method every time the restore task successfully
      * parses a new block of the restore form
-     *
-     * @param numberCompleted
      */
     public abstract void onUpdate(int numberCompleted);
 
     /**
      * Called when the parser encounters the "<items>" property in the restore file
      * Enables the progress bar
-     *
-     * @param totalItemCount
      */
     public abstract void setTotalForms(int totalItemCount);
 

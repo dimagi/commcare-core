@@ -1,0 +1,74 @@
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+sourceCompatibility = 7
+
+repositories {
+    mavenCentral()
+}
+
+checkstyle {
+    toolVersion = "6.7"
+}
+
+findbugs {
+  ignoreFailures = true
+  sourceSets = [sourceSets.main]
+  effort = "max"
+}
+
+pmd {
+  ignoreFailures = true
+  sourceSets = [sourceSets.main]
+}
+
+test {
+  reports.junitXml.destination = file('build/reports/tests')
+}
+
+sourceSets {
+  main {
+        java {
+            srcDir 'cases/src'
+            srcDir 'backend/src'
+        }
+  }
+  test {
+      java {
+          srcDir 'tests/test'
+          srcDir 'util/src'
+      }
+      resources{
+          srcDir 'tests/resources'
+      }
+  }
+}
+
+dependencies {
+      compile project(':javarosa')
+      testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+jar {
+    baseName = "commcare-libraries"
+}
+
+jar.dependsOn test
+
+task copyTestResources(type: Copy) {
+    from sourceSets.test.resources
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
+task jenkinsTest {
+    inputs.files test.outputs.files
+    doLast {
+        def timestamp = System.currentTimeMillis()
+        test.getReports().getJunitXml().getDestination().eachFile { it.lastModified = timestamp }
+    }
+}
+
+check.dependsOn(jenkinsTest)

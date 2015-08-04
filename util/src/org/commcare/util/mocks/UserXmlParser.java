@@ -1,7 +1,6 @@
 package org.commcare.util.mocks;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.commcare.data.xml.TransactionParser;

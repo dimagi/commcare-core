@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import java.util.Enumeration;
@@ -51,7 +48,20 @@ public class CommCarePlatform implements CommCareInstance {
         this.minorVersion = minorVersion;
     }
 
-    public void init(String profileReference, ResourceTable global, boolean forceInstall) throws UnfullfilledRequirementsException, UnresolvedResourceException {
+    /**
+     * Installs resources described by profile reference into the provided
+     * resource table. If the resource table is ready or already has a profile,
+     * don't do anything.
+     *
+     * @param profileReference URL to profile file
+     * @param global           Add profile ref to this table and install its
+     *                         resources
+     * @param forceInstall     Should installation be performed regardless of
+     *                         version numbers?
+     */
+    public void init(String profileReference, ResourceTable global,
+                     boolean forceInstall)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException {
         try {
             if (!global.isReady()) {
                 global.prepareResources(null, this);
@@ -60,24 +70,22 @@ public class CommCarePlatform implements CommCareInstance {
             // First, see if the appropriate profile exists
             Resource profile = global.getResourceWithId(APP_PROFILE_RESOURCE_ID);
 
-            // If it does not, we need to grab it locally, and get parsing...
             if (profile == null) {
+                // grab the local profile and parse it
                 Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
                 locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 
                 // We need a way to identify this version...
-                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN, APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
-
-                System.out.println("adding profile resource");
+                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                        APP_PROFILE_RESOURCE_ID,
+                        locations, "Application Descriptor");
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, this);
-            } else {
-                // Assuming it does exist, we might want to do an automatic
-                // upgrade here, leaving that for a future date....
             }
+            // If the profile does exist we might want to do an automatic
+            // upgrade. Leaving this for a future date....
         } catch (StorageFullException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -90,21 +98,46 @@ public class CommCarePlatform implements CommCareInstance {
         return minorVersion;
     }
 
+    /**
+     * @param global        The master resource table.
+     * @param incoming      The last table that an install was attempted on.
+     *                      Might be partially populated. Is empty if the last
+     *                      install was successful.
+     * @param recovery      Used as a data redunancy during upgrades. It holds
+     *                      a copy of the global table while the upgrade copies
+     *                      the incoming table over to the global.
+     * @param clearProgress Clear the 'incoming' table of any partial update info.
+     */
     public ResourceTable stageUpgradeTable(ResourceTable global,
                                            ResourceTable incoming,
                                            ResourceTable recovery,
                                            boolean clearProgress) 
-        throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+        throws UnfullfilledRequirementsException,
+                          StorageFullException,
+                          UnresolvedResourceException {
         Profile current = getCurrentProfile();
         return stageUpgradeTable(global, incoming, recovery, current.getAuthReference(), clearProgress);
     }
 
+    /**
+     * @param global        The master resource table.
+     * @param incoming      The last table that an install was attempted on.
+     *                      Might be partially populated. Is empty if the last
+     *                      install was successful.
+     * @param recovery      Used as a data redunancy during upgrades. It holds
+     *                      a copy of the global table while the upgrade copies
+     *                      the incoming table over to the global.
+     * @param profileRef    Add this profile to the incoming table
+     * @param clearProgress Clear the 'incoming' table of any partial update info.
+     */
     public ResourceTable stageUpgradeTable(ResourceTable global,
                                            ResourceTable incoming,
                                            ResourceTable recovery,
                                            String profileRef,
                                            boolean clearProgress)
-            throws UnfullfilledRequirementsException, StorageFullException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException,
+                              StorageFullException,
+                              UnresolvedResourceException {
 
         // Make sure everything's in a good state
         if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
@@ -115,13 +148,7 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
 
-        /* TODO:
-         * -KEY: This is the flag that determines whether the incoming table gets cleared away
-         * -incoming always represents the last ResourceTable that was attempted to be installed
-         * -if the last install was successful, then incoming will just be empty
-         */
         if (clearProgress) {
-            // In the future: Continuable upgrades. Now: Clear old upgrade info
             incoming.clear();
         }
 
@@ -138,7 +165,16 @@ public class CommCarePlatform implements CommCareInstance {
         return incoming;
     }
 
-    public void upgrade(ResourceTable global, ResourceTable incoming, ResourceTable recovery) throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
+    /**
+     * @param recovery Used as a data redunancy, holding a copy of the global
+     *                 table while the upgrade copies the incoming table over
+     *                 to the global.
+     */
+    public void upgrade(ResourceTable global, ResourceTable incoming,
+                        ResourceTable recovery) 
+        throws UnfullfilledRequirementsException,
+                          UnresolvedResourceException,
+                          IllegalArgumentException {
 
         if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair(global, incoming, recovery);
@@ -221,7 +257,6 @@ public class CommCarePlatform implements CommCareInstance {
             recovery.completeUninstall();
 
             //good to go.
-
         } finally {
             if (!upgradeSuccess) {
                 repair(global, incoming, recovery);
@@ -238,33 +273,39 @@ public class CommCarePlatform implements CommCareInstance {
     }
 
     /**
-     * This method is responsible for recovering the state of the application to installed after anything
-     * happens during an upgrade. After it is finished, the global resource table should be valid.
+     * This method is responsible for recovering the state of the application
+     * to installed after anything happens during an upgrade. After it is
+     * finished, the global resource table should be valid.
      *
-     * NOTE: this does not currently repair resources which have been corrupted, merely returns all of the
-     * tables to the appropriate states
+     * NOTE: this does not currently repair resources which have been
+     * corrupted, merely returns all of the tables to the appropriate states
      *
-     * @param global
-     * @param incoming
-     * @param recovery
+     * @param incoming      The last table that an install was attempted on.
+     *                      Might be partially populated. Is empty if the last
+     *                      install was successful.
      */
-    private void repair(ResourceTable global, ResourceTable incoming, ResourceTable recovery) {
-        //First we need to figure out what state we're in currently. There are a few possibilities
+    private void repair(ResourceTable global, ResourceTable incoming,
+                        ResourceTable recovery) {
+        // First we need to figure out what state we're in currently. There are
+        // a few possibilities
 
-        //TODO: Handle: Upgrade complete (upgrade table empty, all resources pushed to global), recovery table
-        //not empty
+        // TODO: Handle: Upgrade complete (upgrade table empty, all resources
+        // pushed to global), recovery table not empty
 
-        //First possibility is needing to restore from the recovery table.
+        // First possibility is needing to restore from the recovery table.
         if (!recovery.isEmpty()) {
-            //If the recovery table isn't empty, we're likely restoring from there. We need to check first whether
-            //the global table has the same profile, or the recovery table simply doesn't have one in which case
-            //the recovery table didn't get copied correctly.
-            if (recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID) == null || (global.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion() == recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion())) {
+            // If the recovery table isn't empty, we're likely restoring from
+            // there. We need to check first whether the global table has the
+            // same profile, or the recovery table simply doesn't have one in
+            // which case the recovery table didn't get copied correctly.
+            if (recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID) == null ||
+                    (global.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion() == recovery.getResourceWithId(APP_PROFILE_RESOURCE_ID).getVersion())) {
                 Logger.log("resource", "Invalid recovery table detected. Wiping recovery table");
-                //This means the recovery table should be empty. Invalid copy.
+                // This means the recovery table should be empty. Invalid copy.
                 recovery.destroy();
             } else {
-                //We need to recover the global resources from the recovery table.
+                // We need to recover the global resources from the recovery
+                // table.
                 Logger.log("resource", "Recovering global resources from recovery table");
 
                 global.destroy();
@@ -275,31 +316,26 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
 
-        //Ok, so global and incoming are now in the right places. Make sure we have no uncommitted resources
-
+        // Global and incoming are now in the right places. Ensure we have no
+        // uncommitted resources.
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             global.rollbackCommits();
         }
-
 
         if (incoming.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             incoming.rollbackCommits();
         }
 
-
-        //Ok, so now if the global table needed to be recovered from the recovery table, it has. There are
-        //now two states: Either the global table is fully installed (no conflicts with the upgrade table)
-        //or it has unstaged resources to restage
-
+        // If the global table needed to be recovered from the recovery table,
+        // it has. There are now two states: Either the global table is fully
+        // installed (no conflicts with the upgrade table) or it has unstaged
+        // resources to restage
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
             Logger.log("resource", "Global table in fully installed mode. Repair complete");
-            //We're actually just good to go, here.
         } else if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
-            //The global table needs to restage itself.
             Logger.log("resource", "Global table needs to restage some resources");
             global.repairTable(incoming);
         }
-
     }
 
     public Profile getCurrentProfile() {
@@ -334,6 +370,11 @@ public class CommCarePlatform implements CommCareInstance {
         this.suites.addElement(new Integer(s.getID()));
     }
 
+    /**
+     * Register installed resources in the table with this CommCare instance
+     *
+     * @param global Table with fully-installed resources
+     */
     public void initialize(ResourceTable global) {
         try {
             global.initializeResources(this);
