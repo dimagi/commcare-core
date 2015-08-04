@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util.cli;
 
 import java.io.PrintStream;
@@ -28,37 +25,30 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
  * @author ctsims
  */
 public class MenuScreen extends Screen {
-
     private MenuDisplayable[] mChoices;
-    CommCarePlatform mPlatform;
-    SessionWrapper mSession;
-    MockUserDataSandbox mSandbox;
+    private MockUserDataSandbox mSandbox;
 
-    String mTitle;
+    private String mTitle;
 
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
     public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
-
         String root = deriveMenuRoot(session);
 
-        this.mPlatform = platform;
         this.mSandbox = sandbox;
 
-        Vector<MenuDisplayable> choices = new Vector<MenuDisplayable>();
+        Vector<MenuDisplayable> choices = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
-        EvaluationContext ec = null;
+        EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
-                String xpathExpression = "";
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
-                        xpathExpression = m.getMenuRelevanceRaw();
                         ec = session.getEvaluationContext(m.getId());
-                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
                             continue;
                         }
                     }
@@ -74,10 +64,8 @@ public class MenuScreen extends Screen {
                         }
 
                         for (String command : m.getCommandIds()) {
-                            xpathExpression = "";
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
                             if (mRelevantCondition != null) {
-                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                                 ec = session.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
@@ -123,11 +111,8 @@ public class MenuScreen extends Screen {
                             choices.add(m);
                         }
                     }
-                } catch (XPathSyntaxException xpse) {
+                } catch (XPathSyntaxException | XPathException xpse) {
                     error(xpse);
-                    return;
-                } catch (XPathException xpe) {
-                    error(xpe);
                     return;
                 }
             }
@@ -135,10 +120,10 @@ public class MenuScreen extends Screen {
 
         this.mChoices = new MenuDisplayable[choices.size()];
         choices.copyInto(mChoices);
-        setTitle(mTitle);
+        setTitle();
     }
 
-    private void setTitle(String titleGuess) {
+    private void setTitle() {
         String title = this.mTitle;
         if (title == null) {
             try {
