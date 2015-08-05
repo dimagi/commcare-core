@@ -56,3 +56,19 @@ jar {
 }
 
 jar.dependsOn test
+
+task copyTestResources(type: Copy) {
+    from sourceSets.test.resources
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
+task jenkinsTest {
+    inputs.files test.outputs.files
+    doLast {
+        def timestamp = System.currentTimeMillis()
+        test.getReports().getJunitXml().getDestination().eachFile { it.lastModified = timestamp }
+    }
+}
+
+check.dependsOn(jenkinsTest)

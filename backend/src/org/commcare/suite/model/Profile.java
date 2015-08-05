@@ -40,8 +40,15 @@ public class Profile implements Persistable {
     String authRef;
     Vector<PropertySetter> properties;
     Vector<RootTranslator> roots;
-
     Hashtable<String, Boolean> featureStatus;
+
+    String uniqueId;
+    String displayName;
+    /**
+     * Indicates if this was generated from an old version of the profile file, before fields
+     * were added for multiple app seating functionality
+     */
+    boolean fromOld;
 
     /**
      * Serialization Only!
@@ -62,9 +69,13 @@ public class Profile implements Persistable {
      *                version number than this profile's version, this profile
      *                is obsoleted by it.
      */
-    public Profile(int version, String authRef) {
+    public Profile(int version, String authRef, String uniqueId, String displayName,
+                   boolean fromOld) {
         this.version = version;
         this.authRef = authRef;
+        this.uniqueId = uniqueId;
+        this.displayName = displayName;
+        this.fromOld = fromOld;
         properties = new Vector<PropertySetter>();
         roots = new Vector<RootTranslator>();
         featureStatus = new Hashtable<String, Boolean>();
@@ -80,6 +91,30 @@ public class Profile implements Persistable {
     public int getID() {
         return recordId;
     }
+
+    /**
+     * @return the uniqueId assigned to this app from HQ
+     */
+	public String getUniqueId() {
+		return this.uniqueId;
+	}
+
+    /**
+     * @return the displayName assigned to this app from HQ if it was assigned, or an empty string
+     * (If this object was generated from an old version of the profile file, there will be no
+     * displayName given and this method will return an empty string, signalling CommCareApp to
+     * use the app name from Localization strings instead)
+     */
+	public String getDisplayName() {
+	    return this.displayName;
+	}
+
+    /**
+     * @return if this object was generated from an old version of the profile.ccpr file
+     */
+	public boolean isOldVersion() {
+	    return this.fromOld;
+	}
 
     /*
      * (non-Javadoc)
@@ -181,6 +216,9 @@ public class Profile implements Persistable {
         recordId = ExtUtil.readInt(in);
         version = ExtUtil.readInt(in);
         authRef = ExtUtil.readString(in);
+        uniqueId = ExtUtil.readString(in);
+        displayName = ExtUtil.readString(in);
+        fromOld = ExtUtil.readBool(in);
 
         properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
@@ -195,6 +233,9 @@ public class Profile implements Persistable {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, version);
         ExtUtil.writeString(out, authRef);
+        ExtUtil.writeString(out, uniqueId);
+        ExtUtil.writeString(out, displayName);
+        ExtUtil.writeBool(out, fromOld);
 
         ExtUtil.write(out, new ExtWrapList(properties));
         ExtUtil.write(out, new ExtWrapList(roots));
