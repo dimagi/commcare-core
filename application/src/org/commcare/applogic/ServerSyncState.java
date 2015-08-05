@@ -1,7 +1,5 @@
 package org.commcare.applogic;
 
-import java.util.Hashtable;
-
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
 import org.commcare.util.CommCareUtil;
@@ -17,6 +15,8 @@ import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
+
+import java.util.Hashtable;
 
 public abstract class ServerSyncState implements State {
     SendAllUnsentState send;

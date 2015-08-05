@@ -16,19 +16,19 @@
 
 package org.javarosa.cases.util.test;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
-
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.DataUtil;
+
+import java.util.Vector;
+
+import j2meunit.framework.Test;
+import j2meunit.framework.TestCase;
+import j2meunit.framework.TestMethod;
+import j2meunit.framework.TestSuite;
 
 public class CasePurgeFilterTests extends TestCase {
 

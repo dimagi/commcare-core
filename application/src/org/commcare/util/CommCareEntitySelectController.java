@@ -3,14 +3,13 @@
  */
 package org.commcare.util;
 
-import javax.microedition.io.ConnectionNotFoundException;
-
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.entity.api.EntitySelectController;
 import org.javarosa.entity.model.Entity;
 import org.javarosa.entity.model.EntitySet;
 import org.javarosa.j2me.view.J2MEDisplay;
+
+import javax.microedition.io.ConnectionNotFoundException;
 
 /**
  * Wrapper entity select controller to handle telephone callouts

@@ -3,13 +3,13 @@
  */
 package org.commcare.view;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-
 import org.commcare.api.transitions.FirstStartupTransitions;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.StringItem;

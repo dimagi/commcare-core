@@ -3,15 +3,14 @@
  */
 package org.commcare.services;
 
+import org.javarosa.core.services.Logger;
+import org.javarosa.j2me.log.HandledTimerTask;
+import org.javarosa.services.transport.TransportService;
+import org.javarosa.services.transport.impl.TransportException;
+
 import java.util.Date;
 import java.util.Stack;
 import java.util.Timer;
-
-import org.javarosa.core.services.Logger;
-import org.javarosa.j2me.log.HandledTimerTask;
-import org.javarosa.services.transport.TransportListener;
-import org.javarosa.services.transport.TransportService;
-import org.javarosa.services.transport.impl.TransportException;
 
 /**
  * The automated sender service is responsible for taking over the

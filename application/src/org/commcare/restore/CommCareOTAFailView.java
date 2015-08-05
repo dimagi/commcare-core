@@ -3,11 +3,10 @@
  */
 package org.commcare.restore;
 
+import org.javarosa.core.services.locale.Localization;
+
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Gauge;
-
-import org.javarosa.core.services.locale.Localization;
 
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.StringItem;

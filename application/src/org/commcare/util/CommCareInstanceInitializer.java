@@ -4,10 +4,6 @@
 package org.commcare.util;
 
 
-
-import java.util.Date;
-import java.util.Vector;
-
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
@@ -27,6 +23,9 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.Interner;
 import org.javarosa.user.model.User;
+
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author ctsims

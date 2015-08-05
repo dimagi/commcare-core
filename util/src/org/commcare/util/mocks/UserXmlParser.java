@@ -1,8 +1,5 @@
 package org.commcare.util.mocks;
 
-import java.io.IOException;
-import java.util.NoSuchElementException;
-
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -10,6 +7,9 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 /**
  * Mock copied from Android app.

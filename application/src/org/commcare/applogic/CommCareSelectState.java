@@ -1,7 +1,6 @@
 package org.commcare.applogic;
 
 import org.commcare.util.CommCareEntitySelectController;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.entity.api.EntitySelectController;
 import org.javarosa.entity.api.EntitySelectState;

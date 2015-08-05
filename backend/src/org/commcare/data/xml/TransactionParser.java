@@ -1,9 +1,9 @@
 package org.commcare.data.xml;
 
-import java.io.IOException;
-
 import org.javarosa.xml.ElementParser;
 import org.kxml2.io.KXmlParser;
+
+import java.io.IOException;
 
 /**
  * @author ctsims

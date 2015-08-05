@@ -1,8 +1,8 @@
 package org.commcare.util;
 
-import java.util.Vector;
-
 import org.commcare.suite.model.StackFrameStep;
+
+import java.util.Vector;
 
 /**
  * A Session Frame contains the actions that a user has taken while

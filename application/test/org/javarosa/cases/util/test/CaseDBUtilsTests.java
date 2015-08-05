@@ -16,15 +16,15 @@
 
 package org.javarosa.cases.util.test;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseDBUtils;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.MD5;
+
+import j2meunit.framework.Test;
+import j2meunit.framework.TestCase;
+import j2meunit.framework.TestMethod;
+import j2meunit.framework.TestSuite;
 
 public class CaseDBUtilsTests extends TestCase {
 

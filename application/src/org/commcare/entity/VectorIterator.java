@@ -3,9 +3,9 @@
  */
 package org.commcare.entity;
 
-import java.util.Vector;
-
 import org.javarosa.core.util.Iterator;
+
+import java.util.Vector;
 
 /**
  * @author ctsims

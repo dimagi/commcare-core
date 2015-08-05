@@ -1,10 +1,10 @@
 package org.commcare.util.mocks;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.util.Hashtable;
 
 /**
  * A prototype factory that is configured to keep track of all of the

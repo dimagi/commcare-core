@@ -1,14 +1,12 @@
 package org.commcare.util;
 
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
-import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
+
+import java.util.Vector;
 
 public class HouseholdExistsFuncHandler implements IFunctionHandler {
 

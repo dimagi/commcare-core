@@ -1,10 +1,5 @@
 package org.commcare.entity;
 
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
@@ -13,6 +8,11 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.entity.model.Entity;
+
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class RecentFormEntity extends Entity<FormInstance> {
     public String schema;

@@ -3,8 +3,6 @@
  */
 package org.commcare.applogic;
 
-import java.util.Vector;
-
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -18,17 +16,14 @@ import org.commcare.util.InitializationListener;
 import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.api.State;
-import org.javarosa.core.io.BufferedInputStream;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import de.enough.polish.util.StreamUtil;
+import java.util.Vector;
 
 /**
  * @author ctsims

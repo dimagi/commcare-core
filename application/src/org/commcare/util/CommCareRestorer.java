@@ -3,12 +3,6 @@
  */
 package org.commcare.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.Hashtable;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
@@ -44,6 +38,12 @@ import org.javarosa.services.transport.impl.simplehttp.StreamingHTTPMessage;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.Hashtable;
 
 
 /**

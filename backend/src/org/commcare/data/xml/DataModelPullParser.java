@@ -3,16 +3,16 @@
  */
 package org.commcare.data.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Vector;
-
 import org.commcare.resources.model.CommCareOTARestoreListener;
+import org.javarosa.core.log.WrappedException;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.log.WrappedException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Vector;
 
 /**
  * A DataModelPullParser pulls together the parsing of

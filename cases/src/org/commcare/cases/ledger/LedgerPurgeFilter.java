@@ -3,15 +3,15 @@
  */
 package org.commcare.cases.ledger;
 
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
+
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * @author ctsims

@@ -1,11 +1,11 @@
 package org.commcare.util;
 
+import org.javarosa.core.reference.Reference;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.ZipFile;
-
-import org.javarosa.core.reference.Reference;
 
 /**
  * An archive file reference retrieves a binary file from a path within a zip

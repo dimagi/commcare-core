@@ -3,11 +3,6 @@
  */
 package org.commcare.cases.util;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.data.DateTimeData;
@@ -23,6 +18,11 @@ import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
+
+import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * @author ctsims

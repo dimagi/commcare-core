@@ -1,7 +1,5 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-
 import org.commcare.suite.model.Text;
 import org.commcare.suite.model.graph.Annotation;
 import org.commcare.suite.model.graph.BubbleSeries;
@@ -14,6 +12,8 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /*
  * Parser for a <graph> element, typically used as a detail field's template.

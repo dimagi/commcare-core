@@ -1,11 +1,11 @@
 package org.commcare.util.cli;
 
-import java.io.PrintStream;
-
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
+
+import java.io.PrintStream;
 
 /**
  * A screen is a user interaction component which provides the session state needed to display

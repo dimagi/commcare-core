@@ -3,11 +3,6 @@
  */
 package org.commcare.cases.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.services.storage.EntityFilter;
@@ -16,6 +11,11 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DAG;
 import org.javarosa.core.util.DAG.Edge;
 import org.javarosa.core.util.DataUtil;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * @author ctsims

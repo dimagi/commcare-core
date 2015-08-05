@@ -3,9 +3,6 @@
  */
 package org.commcare.midlet;
 
-import javax.microedition.midlet.MIDlet;
-import javax.microedition.midlet.MIDletStateChangeException;
-
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareStatic;
 import org.commcare.util.CommCareUtil;
@@ -13,6 +10,9 @@ import org.commcare.util.InitializationListener;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.services.transport.TransportService;
+
+import javax.microedition.midlet.MIDlet;
+import javax.microedition.midlet.MIDletStateChangeException;
 
 /**
  * @author ctsims

@@ -1,13 +1,13 @@
 package org.commcare.util;
 
-import java.util.HashMap;
-import java.util.zip.ZipFile;
-
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
+
+import java.util.HashMap;
+import java.util.zip.ZipFile;
 
 /**
  * @author wspride

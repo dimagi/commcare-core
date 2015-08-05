@@ -3,13 +3,13 @@
  */
 package org.commcare.xml;
 
-import java.io.IOException;
-
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * @author ctsims

@@ -3,12 +3,6 @@
  */
 package org.commcare.resources.model.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -18,15 +12,21 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.ProfileParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 /**
  * @author ctsims

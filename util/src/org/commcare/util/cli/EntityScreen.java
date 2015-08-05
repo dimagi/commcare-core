@@ -1,8 +1,5 @@
 package org.commcare.util.cli;
 
-import java.io.PrintStream;
-import java.util.Vector;
-
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
@@ -16,6 +13,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
+
+import java.io.PrintStream;
+import java.util.Vector;
 
 /**
  * Screen for allowing the user to make a selection for an entity datum.

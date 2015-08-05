@@ -1,12 +1,5 @@
 package org.commcare.suite.model.graph;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -19,6 +12,13 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Defines a graph: type, set of series, set of text annotations, and key-value-based configuration.

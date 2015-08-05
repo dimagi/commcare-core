@@ -3,12 +3,6 @@
  */
 package org.commcare.resources.model.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Vector;
-
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -20,6 +14,12 @@ import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Vector;
 
 /**
  * TODO: This is... not useful

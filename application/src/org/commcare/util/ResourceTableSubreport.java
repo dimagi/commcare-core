@@ -3,13 +3,13 @@
  */
 package org.commcare.util;
 
-import java.io.IOException;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.util.DeviceReportElement;
 import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
 
 /**
  * @author ctsims

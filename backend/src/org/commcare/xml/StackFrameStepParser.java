@@ -3,8 +3,6 @@
  */
 package org.commcare.xml;
 
-import java.io.IOException;
-
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
 import org.javarosa.xml.ElementParser;
@@ -12,6 +10,8 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * @author ctsims

@@ -3,11 +3,6 @@
  */
 package org.commcare.resources.model.installers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Vector;
-
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -19,13 +14,18 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * @author ctsims
