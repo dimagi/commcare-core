@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
+ * Persistable object for tracking meta-data about a user's
+ * sandbox status
+ *
  * Created by wpride1 on 7/20/15.
  */
 public class SqlMeta implements Persistable, IMetaData {

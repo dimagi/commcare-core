@@ -4,9 +4,11 @@
 
 package org.commcare.api.persistence;
 
+import org.commcare.api.models.EncryptedModel;
 import org.commcare.api.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,12 +35,26 @@ public class UserDatabaseHelper {
     public static String ID_COL = "commcare_sql_id";
     public static String DATA_COL = "commcare_sql_record";
 
-    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, Persistable p)  throws IllegalArgumentException {
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  Persistable p)  throws IllegalArgumentException {
+        return createWhere(fieldNames, values, null, p);
+    }
+
+    public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  EncryptedModel em, Persistable p)  throws IllegalArgumentException {
         Set<String> fields = null;
         if(p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<String>();
+            for(String s : thefields) {
+                fields.add(TableBuilder.scrubName(s));
+            }
+        }
+
+
+        if(em instanceof IMetaData) {
+            IMetaData m = (IMetaData)em;
+            String[] thefields = m.getMetaDataFields();
+            //fields = new HashSet<String>();
             for(String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
@@ -88,7 +104,7 @@ public class UserDatabaseHelper {
     }
 
 
-    public static HashMap<String, Object> getContentValues(Persistable e) {
+    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream out = bos;
@@ -136,7 +152,7 @@ public class UserDatabaseHelper {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = c.prepareStatement(sqlStatement);
-            boolean createdTable = preparedStatement.execute();
+            preparedStatement.execute();
         } catch (SQLException e) {
             System.out.println("SQLE: " + e);
             e.printStackTrace();
@@ -176,7 +192,7 @@ public class UserDatabaseHelper {
     public static ResultSet selectForId(Connection c, String storageKey, int id){
         try {
             PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
-                    + TableBuilder.ID_COL + " = ?;");
+                    + ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();
             return rs;
@@ -264,16 +280,15 @@ public class UserDatabaseHelper {
     }
 
     /**
-     * Update Peristable p with sql_id id
+     * Update SQLite DB with Persistable p
      * @param c Database Connection
      * @param storageKey name of table
      * @param p peristable to be updated
-     * @param id ID to update with
      */
 
-    public static void updateId(Connection c, String storageKey, Persistable p, int id) {
+    public static void updateId(Connection c, String storageKey, Persistable p) {
 
-        HashMap<String, Object> map = getContentValues(p);
+        HashMap<String, Object> map = getMetaFieldsAndValues(p);
 
         String[] fieldnames = map.keySet().toArray(new String[0]);
         Object[] values = map.values().toArray(new Object[0]);
@@ -289,7 +304,10 @@ public class UserDatabaseHelper {
             byte[] blob = TableBuilder.toBlob(p);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
-
+            /*
+             * We have to do this weird number stuff because 1) our first arg has already been set
+             * (DATA_COL above) and 2) preparedStatement arguments are 1-indexed
+             */
             for(int i=2; i<where.second.length + 2; i++){
                 Object obj = where.second[i-2];
                 if(obj instanceof String){
@@ -327,10 +345,10 @@ public class UserDatabaseHelper {
 
             byte[] blob = TableBuilder.toBlob(p);
 
-            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
+            preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
             preparedStatement.setInt(2, id);
+            preparedStatement.executeUpdate();
 
-            int affectedRows = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }

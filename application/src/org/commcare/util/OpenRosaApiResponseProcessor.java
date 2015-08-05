@@ -6,6 +6,7 @@ package org.commcare.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.commcare.api.parser.CommCareTransactionParserFactory;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.util.OrderedHashtable;

@@ -3,7 +3,7 @@ package org.commcare.util.mocks;
 import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.User;
-import org.commcare.util.CommCareTransactionParserFactory;
+import org.commcare.api.parser.CommCareTransactionParserFactory;
 import org.javarosa.core.api.NameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;

@@ -37,7 +37,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
     @Override
     public int peekID() {
         try {
-            return resultSet.getInt(TableBuilder.ID_COL);
+            return resultSet.getInt(UserDatabaseHelper.ID_COL);
         } catch (SQLException e) {
             return -1;
         }
@@ -60,7 +60,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
     public E nextRecord() {
         byte[] data = new byte[0];
         try {
-            data = resultSet.getBytes(TableBuilder.DATA_COL);
+            data = resultSet.getBytes(UserDatabaseHelper.DATA_COL);
         } catch (SQLException e) {
             e.printStackTrace();
         }

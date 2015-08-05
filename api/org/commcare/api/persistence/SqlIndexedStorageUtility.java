@@ -24,7 +24,8 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
- * IStorageIndexedUtility implemented on SQLite using JDBC
+ * IStorageIndexedUtility implemented on SQLite using JDBC. Contains all the functionality
+ * for interacting with the user's SQLite representation.
  *
  * @author wspride
  */
@@ -80,7 +81,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
             c = getConnection();
             p.setID(id);
-            UserDatabaseHelper.updateId(c, tableName, p, id);
+            UserDatabaseHelper.updateId(c, tableName, p);
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -143,7 +144,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                     new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
             Vector<Integer> ids = new Vector<Integer>();
             while(rs.next()){
-                ids.add(rs.getInt(TableBuilder.ID_COL));
+                ids.add(rs.getInt(UserDatabaseHelper.ID_COL));
             }
             return ids;
         } catch (InstantiationException e) {
@@ -169,7 +170,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             if(!rs.next()){
                 throw new NoSuchElementException();
             }
-            byte[] mBytes = rs.getBytes(TableBuilder.DATA_COL);
+            byte[] mBytes = rs.getBytes(UserDatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
         } catch (SQLException e) {
@@ -264,8 +265,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             connection = this.getConnection();
-            resultSet = UserDatabaseHelper.executeSql(connection, "SELECT " + TableBuilder.ID_COL + " , " +
-                    TableBuilder.DATA_COL + " FROM " + this.tableName + ";");
+            resultSet = UserDatabaseHelper.executeSql(connection, "SELECT " + UserDatabaseHelper.ID_COL + " , " +
+                    UserDatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -295,7 +296,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Connection c = getConnection();
             ResultSet rs = UserDatabaseHelper.selectForId(c, this.tableName, id);
-            byte[] caseBytes = rs.getBytes(TableBuilder.DATA_COL);
+            byte[] caseBytes = rs.getBytes(UserDatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
         } catch (Exception e){

@@ -1,6 +1,6 @@
 package org.commcare.api.persistence;
 
-import org.commcare.api.util.MetaField;
+import org.commcare.api.models.MetaField;
 import org.commcare.api.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -11,35 +11,52 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 /**
- * @author ctsims
+ * Functions for generating CommCare SQL statements based on classes
  *
+ * Largely taken from renamed AndroidTableBuilder and moved into api to be used
+ * externally.
+ *
+ * @author ctsims
+ * @author wspride
  */
 public class TableBuilder {
 
     private String name;
-    private Class c;
 
     private Vector<String> cols;
     private Vector<String> rawCols;
 
-    public static String ID_COL = "commcare_sql_id";
-    public static String DATA_COL = "commcare_sql_record";
-
-    public TableBuilder(Class c) {
-        this.c = c;
-        this.name = "name";
-
+    public TableBuilder(Class c, String name) {
+        this.name = name;
         cols = new Vector<String>();
         rawCols = new Vector<String>();
+        this.addData(c);
+    }
 
+
+    public TableBuilder(Class c) {
+        this.name = c.getSimpleName();
+        cols = new Vector<String>();
+        rawCols = new Vector<String>();
         addData(c);
     }
+
+    public TableBuilder(String name) {
+        this.name = name;
+        cols = new Vector<String>();
+        rawCols = new Vector<String>();
+    }
+
     public void addData(Class c) {
-        cols.add(ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(ID_COL);
+        cols.add(UserDatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(UserDatabaseHelper.ID_COL);
 
         for(Field f : c.getDeclaredFields()) {
             if(f.isAnnotationPresent(MetaField.class)) {
@@ -55,12 +72,12 @@ public class TableBuilder {
             }
         }
 
-        cols.add(DATA_COL + " BLOB");
-        rawCols.add(DATA_COL);
+        cols.add(UserDatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(UserDatabaseHelper.DATA_COL);
     }
 
 
-    private void addMetaField(MetaField mf) {
+    protected void addMetaField(MetaField mf) {
         String key = mf.value();
         String columnName = scrubName(key);
         rawCols.add(columnName);
@@ -74,16 +91,9 @@ public class TableBuilder {
         cols.add(columnDef);
     }
 
-    //Option Two - For models not made natively
-    public TableBuilder(String name) {
-        this.name = name;
-        cols = new Vector<String>();
-        rawCols = new Vector<String>();
-    }
-
     public void addData(Persistable p) {
-        cols.add(ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(ID_COL);
+        cols.add(UserDatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(UserDatabaseHelper.ID_COL);
 
         if(p instanceof IMetaData) {
             String[] keys = ((IMetaData)p).getMetaDataFields();
@@ -102,8 +112,8 @@ public class TableBuilder {
             }
         }
 
-        cols.add(DATA_COL + " BLOB");
-        rawCols.add(DATA_COL);
+        cols.add(UserDatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(UserDatabaseHelper.DATA_COL);
     }
 
 
@@ -127,7 +137,7 @@ public class TableBuilder {
 
     public Pair<String, List<Object>> getTableInsertData(Persistable p){
         String built = "INSERT INTO " + scrubName(name) + " (";
-        HashMap<String, Object> contentValues = UserDatabaseHelper.getContentValues(p);
+        HashMap<String, Object> contentValues = UserDatabaseHelper.getMetaFieldsAndValues(p);
 
         ArrayList<Object> params = new ArrayList<Object>();
 
@@ -155,15 +165,14 @@ public class TableBuilder {
         return new Pair(built, params);
     }
 
+    //sqlite doesn't like dashes
     public static String scrubName(String input) {
-        //Scrub
         return input.replace("-", "_");
     }
 
     public static byte[] toBlob(Persistable p){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream out = bos;
-
         try {
             p.writeExternal(new DataOutputStream(out));
             out.close();

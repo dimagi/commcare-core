@@ -3,14 +3,12 @@ package org.commcare.api.persistence;
 import org.commcare.api.exceptions.SessionUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.suite.model.User;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 public class UserXmlParser extends TransactionParser<User> {
@@ -36,8 +34,6 @@ public class UserXmlParser extends TransactionParser<User> {
         String uuid = parser.nextText();
         
         this.nextTag("date");
-        String dateModified = parser.nextText();
-        Date modified = DateUtils.parseDateTime(dateModified);
         
         User u = retrieve(uuid);
         

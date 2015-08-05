@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.commcare.api.parser.CommCareTransactionParserFactory;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
