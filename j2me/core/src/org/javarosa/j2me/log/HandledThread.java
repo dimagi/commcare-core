@@ -1,7 +1,6 @@
 package org.javarosa.j2me.log;
 
 import org.javarosa.core.log.FatalException;
-import org.javarosa.core.services.Logger;
 
 /**
  * This is a wrapper class around Thread that provides top-level exception trapping and logging

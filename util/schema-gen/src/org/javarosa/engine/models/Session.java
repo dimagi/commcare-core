@@ -3,9 +3,9 @@
  */
 package org.javarosa.engine.models;
 
-import java.util.Vector;
-
 import org.javarosa.core.util.PropertyUtils;
+
+import java.util.Vector;
 
 
 /**

@@ -3,11 +3,11 @@
  */
 package org.javarosa.engine.models;
 
+import org.javarosa.core.model.instance.FormInstance;
+
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.javarosa.core.model.instance.FormInstance;
 
 /**
  * @author ctsims

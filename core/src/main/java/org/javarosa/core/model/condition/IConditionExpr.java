@@ -1,11 +1,11 @@
 package org.javarosa.core.model.condition;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.Externalizable;
+
+import java.util.Vector;
 
 /**
  * A condition expression is an expression which is evaluated against the current

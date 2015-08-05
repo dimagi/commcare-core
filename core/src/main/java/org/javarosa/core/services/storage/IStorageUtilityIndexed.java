@@ -1,10 +1,10 @@
 package org.javarosa.core.services.storage;
 
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
+
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 public interface IStorageUtilityIndexed<E extends Externalizable> extends IStorageUtility<E> {
 

@@ -1,10 +1,5 @@
 package org.javarosa.shellformtest.shell;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Vector;
-
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -18,6 +13,11 @@ import org.javarosa.formmanager.utility.FormDefFetcher;
 import org.javarosa.formmanager.utility.RMSRetreivalMethod;
 import org.javarosa.formmanager.view.chatterbox.Chatterbox;
 import org.javarosa.model.xform.XFormSerializingVisitor;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Vector;
 
 public class JRFormTestState extends FormEntryState {
 

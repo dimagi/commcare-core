@@ -16,14 +16,14 @@
 
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.util.Map;
+import org.javarosa.core.util.OrderedHashtable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import org.javarosa.core.util.Map;
-import org.javarosa.core.util.OrderedHashtable;
 
 //map of objects where key and data are all of single (non-polymorphic) type (key and value can be of separate types)
 public class ExtWrapMap extends ExternalizableWrapper {

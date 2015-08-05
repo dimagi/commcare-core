@@ -1,10 +1,10 @@
 package org.javarosa.core.services.storage;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * Manages StorageProviders for JavaRosa, which maintain persistent

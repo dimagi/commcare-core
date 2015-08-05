@@ -1,13 +1,10 @@
 package org.javarosa.core.util.test;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.util.Vector;
-
-import org.javarosa.core.model.test.QuestionDefTest;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.PrefixTreeNode;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 public class PrefixTreeTest {
     private int[] prefixLengths = new int[]{0, 1, 2, 10, 50};

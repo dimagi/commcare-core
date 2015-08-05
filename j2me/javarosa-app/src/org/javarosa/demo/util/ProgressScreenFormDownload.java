@@ -1,9 +1,9 @@
 package org.javarosa.demo.util;
 
+import org.javarosa.formmanager.view.ProgressScreen;
+
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Gauge;
-
-import org.javarosa.formmanager.view.ProgressScreen;
 
 import de.enough.polish.ui.UiAccess;
 

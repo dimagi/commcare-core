@@ -3,10 +3,10 @@
  */
 package org.javarosa.j2me.view;
 
+import org.javarosa.core.services.locale.Localization;
+
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Gauge;
-
-import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims

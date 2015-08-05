@@ -1,16 +1,15 @@
 package org.javarosa.j2me.storage.rms;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Random;
-import java.util.Vector;
-
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.MathUtils;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * This class enables basic transactions when writing to RMS -- that is, you can begin a transaction,

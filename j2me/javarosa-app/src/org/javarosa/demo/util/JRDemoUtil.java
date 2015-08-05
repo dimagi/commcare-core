@@ -1,10 +1,6 @@
 package org.javarosa.demo
 .util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
@@ -23,6 +19,10 @@ import org.javarosa.demo.applogic.JRDemoSplashScreenState;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 
 public class JRDemoUtil {

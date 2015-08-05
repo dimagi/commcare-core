@@ -16,6 +16,11 @@
 
 package org.javarosa.j2me.view;
 
+import org.javarosa.core.api.State;
+import org.javarosa.core.util.MemoryUtils;
+import org.javarosa.j2me.log.CrashHandler;
+import org.javarosa.j2me.log.HandledThread;
+
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
@@ -23,11 +28,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.Screen;
 import javax.microedition.midlet.MIDlet;
-
-import org.javarosa.core.api.State;
-import org.javarosa.core.util.MemoryUtils;
-import org.javarosa.j2me.log.CrashHandler;
-import org.javarosa.j2me.log.HandledThread;
 
 import de.enough.polish.ui.Alert;
 import de.enough.polish.ui.AlertType;

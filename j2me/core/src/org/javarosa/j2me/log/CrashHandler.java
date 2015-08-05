@@ -1,14 +1,14 @@
 package org.javarosa.j2me.log;
 
+import org.javarosa.core.services.Logger;
+import org.javarosa.j2me.util.CommCareHandledExceptionState;
+import org.javarosa.j2me.view.J2MEDisplay;
+
 import java.lang.ref.WeakReference;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Item;
-
-import org.javarosa.core.services.Logger;
-import org.javarosa.j2me.util.CommCareHandledExceptionState;
-import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * This class provides exception-handling wrappers for the GUI event interfaces CommandListener,

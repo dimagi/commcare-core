@@ -1,13 +1,12 @@
 package org.javarosa.j2me.storage.rms;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.core.util.SortedIntSet;
 import org.javarosa.core.util.externalizable.Externalizable;
+
+import java.util.Enumeration;
+import java.util.Vector;
 
 public class RMSStorageIterator implements IStorageIterator {
     private RMSStorageUtility store;

@@ -1,13 +1,13 @@
 <h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms"
         xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-        xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+        xmlns:jr="http://openrosa.org/javarosa">
     <h:head>
         <h:title>External Callouts</h:title>
         <model>
             <instance>
-                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms"
-                      xmlns="http://openrosa.org/formdesigner/72AE4C2A-D6C3-4038-B128-C2AA7EFAF014"
-                      uiVersion="1" version="657" name="External Callouts">
+                <data
+                    xmlns="http://openrosa.org/formdesigner/72AE4C2A-D6C3-4038-B128-C2AA7EFAF014"
+                    uiVersion="1" version="657" name="External Callouts">
                     <breath_count/>
                     <smsCallout/>
                     <smsCallout-KitKat/>

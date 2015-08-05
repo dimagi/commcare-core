@@ -1,8 +1,5 @@
 package org.javarosa.core.model.utils;
 
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -10,6 +7,9 @@ import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.LongData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.StringData;
+
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author Clayton Sims

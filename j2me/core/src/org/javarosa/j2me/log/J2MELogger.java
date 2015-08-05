@@ -19,14 +19,6 @@
  */
 package org.javarosa.j2me.log;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import javax.microedition.rms.RecordStore;
-import javax.microedition.rms.RecordStoreException;
-
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
@@ -38,6 +30,14 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.SortedIntSet;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.microedition.rms.RecordStore;
+import javax.microedition.rms.RecordStoreException;
 
 /**
  * @author Clayton Sims

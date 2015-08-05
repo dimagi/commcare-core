@@ -1,12 +1,5 @@
 package org.javarosa.j2me.log.viewer;
 
-import java.io.IOException;
-
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.StringItem;
-
 import org.javarosa.core.api.State;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
@@ -16,6 +9,13 @@ import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
+
+import java.io.IOException;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.StringItem;
 
 public abstract class LogViewerState implements State, TrivialTransitions, HandledCommandListener {
 

@@ -1,14 +1,14 @@
 package org.javarosa.core.model.instance;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * An element of a FormInstance.

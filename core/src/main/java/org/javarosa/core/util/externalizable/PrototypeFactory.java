@@ -16,11 +16,11 @@
 
 package org.javarosa.core.util.externalizable;
 
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.util.MD5;
 import org.javarosa.core.util.PrefixTree;
+
+import java.util.Date;
+import java.util.Vector;
 
 public class PrototypeFactory {
     public final static int CLASS_HASH_SIZE = 4;

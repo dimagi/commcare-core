@@ -1,5 +1,9 @@
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.services.PrototypeManager;
+import org.javarosa.core.util.Interner;
+import org.javarosa.core.util.OrderedHashtable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -11,10 +15,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.javarosa.core.services.PrototypeManager;
-import org.javarosa.core.util.Interner;
-import org.javarosa.core.util.OrderedHashtable;
 
 public class ExtUtil {
     public static boolean interning = true;

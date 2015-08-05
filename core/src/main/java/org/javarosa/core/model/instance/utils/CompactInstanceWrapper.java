@@ -1,11 +1,5 @@
 package org.javarosa.core.model.instance.utils;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.BooleanData;
@@ -33,6 +27,12 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * An alternate serialization format for FormInstances (saved form instances) that drastically reduces the

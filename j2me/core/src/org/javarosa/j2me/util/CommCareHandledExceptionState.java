@@ -6,14 +6,11 @@ package org.javarosa.j2me.util;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.TrivialTransitions;
-import org.javarosa.j2me.util.GPRSTestState;
-import org.javarosa.j2me.util.PermissionsTestState;
 import org.javarosa.j2me.view.J2MEDisplay;
 
 import de.enough.polish.ui.Command;
 import de.enough.polish.ui.CommandListener;
 import de.enough.polish.ui.Displayable;
-import de.enough.polish.ui.FramedForm;
 import de.enough.polish.ui.TextBox;
 import de.enough.polish.ui.TextField;
 

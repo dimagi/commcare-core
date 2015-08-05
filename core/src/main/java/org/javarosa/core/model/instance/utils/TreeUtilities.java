@@ -1,8 +1,5 @@
 package org.javarosa.core.model.instance.utils;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeElement;
@@ -17,6 +14,9 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.expr.XPathStep;
 import org.javarosa.xpath.expr.XPathStringLiteral;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Helper methods for procedures which are common to different Tree model

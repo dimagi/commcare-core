@@ -3,17 +3,17 @@
  */
 package org.javarosa.engine.xml.serializer;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.kxml2.io.KXmlSerializer;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  * @author ctsims

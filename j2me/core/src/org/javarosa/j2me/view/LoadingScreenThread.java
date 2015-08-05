@@ -3,11 +3,11 @@
  */
 package org.javarosa.j2me.view;
 
+import org.javarosa.j2me.log.HandledTimerTask;
+
 import java.util.Timer;
 
 import javax.microedition.lcdui.Display;
-
-import org.javarosa.j2me.log.HandledTimerTask;
 
 /**
  * @author ctsims

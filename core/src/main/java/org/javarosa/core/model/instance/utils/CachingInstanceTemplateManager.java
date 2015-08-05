@@ -1,9 +1,9 @@
 package org.javarosa.core.model.instance.utils;
 
+import org.javarosa.core.model.instance.FormInstance;
+
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.javarosa.core.model.instance.FormInstance;
 
 /**
  * Instance template manager that caches the template instances in memory. Useful for when deserializing
