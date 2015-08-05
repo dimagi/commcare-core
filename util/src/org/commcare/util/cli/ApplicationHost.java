@@ -33,6 +33,9 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
+ * CLI host for running a commcare application which has been configured and instatiated
+ * for the provided user.
+ *
  * @author ctsims
  *
  */
@@ -62,38 +65,51 @@ public class ApplicationHost {
         setupSandbox();
         
         mSession = new SessionWrapper(mPlatform, mSandbox);
-        
-        loop();
+
+        try {
+            loop();
+        }catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
     
     
-    private void loop() {        
+    private void loop() throws IOException {
         while(true) {
             mSession.clearAllState();
             loopSession();
         }
     }
     
-    private void loopSession() {
+    private void loopSession() throws IOException {
         Screen s = getNextScreen();
         
         while(s != null) {
-            s.init(mPlatform, mSession, mSandbox);
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            s.prompt(System.out);
-            System.out.print("> ");
             try {
+                s.init(mPlatform, mSession, mSandbox);
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                s.prompt(System.out);
+                System.out.print("> ");
+
                 String input = reader.readLine();
                 s.updateSession(mSession, input);
                 s = getNextScreen();
-            } catch(IOException e) {
-                e.printStackTrace();
+            } catch(CommCareSessionException ccse) {
+                System.out.println("Error during session execution:");
+                ccse.printStackTrace();
+                System.out.println("Press return to restart the session");
+                reader.readLine();
+
+                //Restart
+                mSession.clearAllState();
+                loopSession();
             }
         }
         //We have a session and are ready to fill out a form!
@@ -185,7 +201,8 @@ public class ApplicationHost {
             e.printStackTrace();
             System.exit(-1);
         }
-                //Initialize our User
+        
+        //Initialize our User
         for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
             if(mUsername.equalsIgnoreCase(u.getUsername())) {

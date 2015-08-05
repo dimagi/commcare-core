@@ -25,6 +25,8 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 /**
+ * Screen to allow users to choose items from session menus.
+ *
  * @author ctsims
  *
  */
@@ -40,7 +42,7 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
+    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException{
         
         String root = deriveMenuRoot(session);
         
@@ -87,7 +89,7 @@ public class MenuScreen extends Screen {
                                     }
                                 } catch(XPathTypeMismatchException e) {
                                     e.printStackTrace();
-                                    error("relevancy condition for menu item returned non-boolean value : " + ret);
+                                    throw new CommCareSessionException("relevancy condition for menu item returned non-boolean value : " + ret, e);
                                     
                                 }
                                 if(!XPathFuncExpr.toBoolean(ret)) { continue;}
@@ -123,11 +125,9 @@ public class MenuScreen extends Screen {
                         }
                     }
                 } catch(XPathSyntaxException xpse) {
-                    error(xpse);
-                    return;
+                    throw new CommCareSessionException("Invalid XPath Expression in Text entry or module condition", xpse);
                 } catch(XPathException xpe) {
-                    error(xpe);
-                    return;
+                    throw new CommCareSessionException("Error evaluating expression in Text or module condition",xpe);
                 }
             }
         }

@@ -21,6 +21,10 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
 /**
+ * Screen for allowing the user to make a selection for an entity datum.
+ *
+ * Does not currently support tile based selects or detail screens.
+ *
  * @author ctsims
  *
  */
@@ -41,7 +45,7 @@ public class EntityScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) {
+    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException{
         
         this.mPlatform = platform;
         this.mSandbox = sandbox;
@@ -50,12 +54,12 @@ public class EntityScreen extends Screen {
         needed = session.getNeededDatum();
         String detail = needed.getShortDetail();
         if(detail == null) { 
-            error("Can't handle entity selection with blank detail definition for datum " + needed.getDataId());
+            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + needed.getDataId());
         }
         
         Detail shortDetail = platform.getDetail(detail);
         if(shortDetail == null) {
-            error("Missing detail definition for: " + detail);
+            throw new CommCareSessionException("Missing detail definition for: " + detail);
         }
         
         mTitle = shortDetail.getTitle().evaluate(session.getEvaluationContext()).getName();
