@@ -65,14 +65,14 @@ public abstract class CommCareElementParser<T> extends ElementParser<T> {
             }
             // check and parse media stuff
             // still default to using this for now if it exists
-            else if (parser.getName().equals("media")) {
+            else if ("media".equals(parser.getName())) {
                 String imagePath = parser.getAttributeValue(null, "image");
-                if(imagePath != null) {
+                if (imagePath != null) {
                     imageValue = Text.PlainText(imagePath);
                 }
-                
+
                 String audioPath = parser.getAttributeValue(null, "audio");
-                if(audioPath != null) {
+                if (audioPath != null) {
                     audioValue = Text.PlainText(audioPath);
                 }
                 //only ends up grabbing the last entries with

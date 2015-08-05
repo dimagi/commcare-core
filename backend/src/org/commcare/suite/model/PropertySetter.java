@@ -62,4 +62,14 @@ public class PropertySetter implements Externalizable {
         ExtUtil.writeBool(out, force);
     }
 
+    public boolean equals(Object o) {
+        if(!(o instanceof PropertySetter)) {
+            return false;
+        }
+        
+        PropertySetter p = (PropertySetter)o;
+        return this.key.equals(p.getKey()) && 
+               this.value.equals(p.getValue()) && 
+               force == p.force;
+    }
 }

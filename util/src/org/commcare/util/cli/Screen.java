@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.util.cli;
 
 import java.io.PrintStream;
@@ -16,10 +13,8 @@ import org.commcare.util.mocks.SessionWrapper;
  * the user's decision.
  *
  * @author ctsims
- *
  */
 public abstract class Screen {
-    
     public abstract void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException;
 
     
