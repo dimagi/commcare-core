@@ -8,7 +8,6 @@ import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
 import org.commcare.util.mocks.MockDataUtils;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
@@ -41,10 +40,10 @@ public class ApplicationHost {
     private final CommCarePlatform mPlatform;
     private final String mUsername;
     private final String mPassword;
-    private MockUserDataSandbox mSandbox;
+    private UserDataInterface mSandbox;
     private SessionWrapper mSession;
 
-    private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+    private final PrototypeFactory mPrototypeFactory = new PrototypeFactory();
 
     private final BufferedReader reader;
 
@@ -84,11 +83,11 @@ public class ApplicationHost {
 
         while (s != null) {
             try {
-                s.init(mPlatform, mSession, mSandbox);
+                s.init(mSession);
                 System.out.println("\n\n\n\n\n\n");
                 s.prompt(System.out);
                 System.out.print("> ");
-                s.init(mPlatform, mSession, mSandbox);
+                s.init(mSession);
                 System.out.println("");
                 System.out.println("");
                 System.out.println("");
@@ -182,8 +181,7 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        PrototypeFactory.setStaticHasher(mPrototypeFactory);
-        mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+        mSandbox = new SqlSandbox(mPrototypeFactory, mUsername, true);
 
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
