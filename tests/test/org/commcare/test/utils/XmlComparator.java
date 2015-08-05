@@ -1,14 +1,5 @@
-/**
- *
- */
 package org.commcare.test.utils;
 
-import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.util.mocks.MockUserDataSandbox;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -20,7 +11,6 @@ import java.util.Hashtable;
 
 /**
  * @author ctsims
- *
  */
 public class XmlComparator {
 
@@ -45,7 +35,7 @@ public class XmlComparator {
         compareXmlDOMsLeftToRight(b.getRootElement(), a.getRootElement());
     }
 
-    public static void compareXmlDOMsLeftToRight(Element left, Element right) throws RuntimeException {
+    private static void compareXmlDOMsLeftToRight(Element left, Element right) throws RuntimeException {
         if(!left.getName().equals(right.getName())) {
             throw new RuntimeException(String.format("Mismatched element names '%n' and '%n'", left.getName(), right.getName()));
         }
@@ -83,7 +73,7 @@ public class XmlComparator {
                 compareXmlDOMsLeftToRight((Element)l, (Element)r);
             } else if(l instanceof String) {
                 if(!l.equals(r)) {
-                    throw new RuntimeException(String.format("Mismatched element values '%s' and '%s'", (String)l, (String)r));
+                    throw new RuntimeException(String.format("Mismatched element values '%s' and '%s'", l, r));
                 }
             }
         }
@@ -91,7 +81,7 @@ public class XmlComparator {
     }
 
     private static Hashtable<String, String> attrTable(Element element) {
-        Hashtable<String, String> attr = new Hashtable<String, String>();
+        Hashtable<String, String> attr = new Hashtable<>();
         for(int i = 0 ; i < element.getAttributeCount() ; ++i ) {
             attr.put(element.getAttributeName(i), element.getAttributeValue(i));
         }
