@@ -29,8 +29,6 @@ import org.xmlpull.v1.XmlPullParserException;
 public abstract class ElementParser<T> {
     protected KXmlParser parser;
 
-    T element;
-
     int level = 0;
 
     /**

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.condition;
 
 import java.util.Vector;
@@ -42,10 +26,6 @@ public interface IConditionExpr extends Externalizable {
     /**
      * Evaluate this expression against the current models and
      * context and provide a true or false value.
-     *
-     * @param model
-     * @param evalContext
-     * @return
      */
     boolean eval(DataInstance model, EvaluationContext evalContext);
 
@@ -53,28 +33,16 @@ public interface IConditionExpr extends Externalizable {
      * Evaluate this expression against the current models and
      * context and provide the final value of the expression, without
      * forcing a cast to a boolean value.
-     *
-     * @param model
-     * @param evalContext
-     * @return
      */
     Object evalRaw(DataInstance model, EvaluationContext evalContext);
 
     /**
      * Used for itemsets. Fill this documentation in.
-     *
-     * @param model
-     * @param evalContext
-     * @return
      */
     String evalReadable(DataInstance model, EvaluationContext evalContext);
 
     /**
      * Used for itemsets. Fill this documentation in.
-     *
-     * @param model
-     * @param evalContext
-     * @return
      */
     Vector<TreeReference> evalNodeset(DataInstance model, EvaluationContext evalContext);
 
@@ -94,11 +62,6 @@ public interface IConditionExpr extends Externalizable {
      *
      * Optional to implement. If not implemented, throw an Unpivotable Expression exception
      * to signal that the expression cannot be statically evaluated.
-     *
-     * @param model
-     * @param evalContext
-     * @return
-     * @throws UnpivotableExpressionException
      */
     Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException;
 }

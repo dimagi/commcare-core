@@ -1,25 +1,8 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
 
 import java.util.Vector;
 
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 
 /**
  * A Form Index is an immutable index into a specific question definition that
@@ -342,9 +325,6 @@ public class FormIndex {
      * b = 1,3
      *
      * a.diff(b) = 1_0,2
-     *
-     * @param subIndex
-     * @return
      */
     public FormIndex diff(FormIndex subIndex) {
         if (subIndex == null) {
@@ -387,9 +367,6 @@ public class FormIndex {
 
     /**
      * Trims any negative indices from the end of the passed in index.
-     *
-     * @param index
-     * @return
      */
     public static FormIndex trimNegativeIndices(FormIndex index) {
         if (!index.isTerminal()) {

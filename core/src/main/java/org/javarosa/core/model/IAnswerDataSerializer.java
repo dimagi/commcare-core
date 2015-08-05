@@ -47,9 +47,7 @@ public interface IAnswerDataSerializer {
      * Serializes the given data object into a format that can
      * be stored externally using the defined schemas
      *
-     * @param element The element whose data is to be serialzed
-     * @param schema  the schema containing the necessary bindings to determine
-     *                the elements data type
+     * @param data    The element whose data is to be serialzed
      * @return An implementation-specific representation of the
      * given object if canSerialize() would return true for that
      * object. False otherwise.

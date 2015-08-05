@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.instance.utils;
 
 import java.io.DataInputStream;
@@ -22,21 +6,16 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Vector;
 
-import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.BooleanData;
 import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.DecimalData;
-import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.data.LongData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
-import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InvalidReferenceException;
@@ -155,9 +134,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * load a template instance fresh from the original FormDef, retrieved from RMS
-     *
-     * @param formID
-     * @return
      */
     public static FormInstance loadTemplateInstance(int formID) {
         IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
@@ -167,13 +143,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * recursively read in a node of the instance, by filling out the template instance
-     *
-     * @param e
-     * @param ref
-     * @param in
-     * @param pf
-     * @throws IOException
-     * @throws DeserializationException
      */
     private void readTreeElement(TreeElement e, DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         TreeElement templ = instance.getTemplatePath(e.getRef());
@@ -243,11 +212,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * recursively write out a node of the instance
-     *
-     * @param out
-     * @param e
-     * @param ref
-     * @throws IOException
      */
     private void writeTreeElement(DataOutputStream out, TreeElement e) throws IOException {
         TreeElement templ = instance.getTemplatePath(e.getRef());
@@ -389,8 +353,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * reduce a SelectOneData to an integer (index mode) or string (value mode)
-     *
-     * @param data
      * @return Integer or String
      */
     private Object compactSelectOne(SelectOneData data) {
@@ -400,9 +362,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * reduce a SelectMultiData to a vector of integers (index mode) or strings (value mode)
-     *
-     * @param data
-     * @return
      */
     private Vector compactSelectMulti(SelectMultiData data) {
         Vector val = (Vector)data.getValue();
@@ -434,7 +393,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
     /**
      * extract the value out of a Selection according to the current CHOICE_MODE
      *
-     * @param s
      * @return Integer or String
      */
     private Object extractSelection(Selection s) {
@@ -453,9 +411,6 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     /**
      * build a Selection from an integer or string, according to the current CHOICE_MODE
-     *
-     * @param o
-     * @return
      */
     private Selection makeSelection(Object o) {
         if (o instanceof String) {
@@ -469,7 +424,5 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
 
     public void clean() {
         // TODO Auto-generated method stub
-
     }
-
 }

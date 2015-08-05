@@ -6,8 +6,6 @@ import java.util.Vector;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-/* TEMPORARY / EXPERIMENTAL */
-
 public interface IStorageUtilityIndexed<E extends Externalizable> extends IStorageUtility<E> {
 
     /**
@@ -41,9 +39,6 @@ public interface IStorageUtilityIndexed<E extends Externalizable> extends IStora
     /**
      * Optional. Register a new index for this storage which may optionally be able for indexed operations
      * going forward. This will likely take a substantial amount of time for larger storage utilities.
-     *
-     * @param filterIndex
      */
     void registerIndex(String filterIndex);
-
 }

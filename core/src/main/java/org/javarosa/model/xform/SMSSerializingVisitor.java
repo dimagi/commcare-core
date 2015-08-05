@@ -1,37 +1,17 @@
 package org.javarosa.model.xform;
 
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Vector;
 
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.IInstanceSerializingVisitor;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
-import org.javarosa.core.services.transport.payload.DataPointerPayload;
 import org.javarosa.core.services.transport.payload.IDataPayload;
-import org.javarosa.core.services.transport.payload.MultiMessagePayload;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;

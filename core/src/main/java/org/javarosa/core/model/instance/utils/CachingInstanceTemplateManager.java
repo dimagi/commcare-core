@@ -50,8 +50,6 @@ public class CachingInstanceTemplateManager implements InstanceTemplateManager {
 
     /**
      * Set a form type as allowed for caching. Only has an effect if this class has been set to restrict form types
-     *
-     * @param formID
      */
     public void addFormType(int formID) {
         if (!allowedFormTypes.contains(new Integer(formID))) {
@@ -85,5 +83,4 @@ public class CachingInstanceTemplateManager implements InstanceTemplateManager {
         }
         return template;
     }
-
 }

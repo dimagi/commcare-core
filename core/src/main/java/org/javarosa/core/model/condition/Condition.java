@@ -104,10 +104,8 @@ public class Condition extends Triggerable {
                 node.setEnabled(false);
                 break;
             case ACTION_LOCK:         /* not supported */
-                ;
                 break;
             case ACTION_UNLOCK:       /* not supported */
-                ;
                 break;
             case ACTION_REQUIRE:
                 node.setRequired(true);

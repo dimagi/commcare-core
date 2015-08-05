@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.Action;
@@ -368,7 +352,7 @@ public class XFormParser {
      *                           the correct namespace.
      * @param keywords           are the commands are to be expected in the specification
      *                           extension.
-     * @param supressWarnings    do we want to show warnings if parser attempts to
+     * @param suppressWarnings   do we want to show warnings if parser attempts to
      *                           work on a given keyword in the namespace?
      * @param parseInnerElements do we want the parser to work on children of
      *                           the element from the spec extension?
@@ -393,7 +377,7 @@ public class XFormParser {
      *                                     of keywords that we should apply spec extension parsing logic to.
      * @param namespacesToSuppressWarnings is a Vector of namespaces for which
      *                                     we should suppress parsing warnings on
-     * @param namespaceParseInner          is a Vector of namespaces for which
+     * @param namespacesParseInner         is a Vector of namespaces for which
      *                                     we should continue parsing inner elements
      */
     public void setupAllSpecExtensions(Hashtable<String, Vector<String>> namespacesToKeywords,
@@ -426,7 +410,7 @@ public class XFormParser {
      *
      * @param namespace String that is usually a url i.e. "http://opendatakit.org/xforms"
      * @param name      String representing tag name i.e. "extra" for an element like <extra ...>
-     * @param element   is the current element we are parsing
+     * @param e         is the current element we are parsing
      * @param parent    is the parent to the element we are parsing
      * @param handlers  maps tags to IElementHandlers, used to perform parsing of that tag
      */
@@ -2944,8 +2928,8 @@ public class XFormParser {
     /**
      * Register a type to datatype id mapping
      *
-     * @param type is the String value of a elements's type attribute.
-     * @param int  representing datatype id defined in Constants
+     * @param type     is the String value of a elements's type attribute.
+     * @param dataType representing datatype id defined in Constants
      */
     public static void addDataType(String type, int dataType) {
         typeMappings.put(type, DataUtil.integer(dataType));
@@ -2978,8 +2962,6 @@ public class XFormParser {
 
     /**
      * Notify parser about a node that will later be relevant to an action.
-     *
-     * @param target
      */
     public void registerActionTarget(TreeReference target) {
         actionTargets.addElement(target);

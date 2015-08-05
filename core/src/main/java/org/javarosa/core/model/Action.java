@@ -36,9 +36,6 @@ public class Action implements Externalizable {
      * NOTE: Currently actions are only processed on nodes that are
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
-     *
-     * @param model
-     * @param context
      */
     public void processAction(FormDef model, TreeReference context) {
         //TODO: Big block of handlers for basic named action types

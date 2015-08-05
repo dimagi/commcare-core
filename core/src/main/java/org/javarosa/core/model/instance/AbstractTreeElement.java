@@ -25,9 +25,6 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     /**
      * Get all the child nodes of this element, with specific name
-     *
-     * @param name
-     * @return
      */
     public abstract Vector<T> getChildrenWithName(String name);
 
@@ -57,25 +54,16 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     /**
      * get namespace of attribute at 'index' in the vector
-     *
-     * @param index
-     * @return String
      */
     public abstract String getAttributeNamespace(int index);
 
     /**
      * get name of attribute at 'index' in the vector
-     *
-     * @param index
-     * @return String
      */
     public abstract String getAttributeName(int index);
 
     /**
      * get value of attribute at 'index' in the vector
-     *
-     * @param index
-     * @return String
      */
     public abstract String getAttributeValue(int index);
 
@@ -85,17 +73,11 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      *
      * If 'null' is provided for the namespace, it will match the first
      * attribute with the matching name.
-     *
-     * @param index
-     * @return TreeElement
      */
     public abstract T getAttribute(String namespace, String name);
 
     /**
      * get value of attribute with namespace:name' in the vector
-     *
-     * @param index
-     * @return String
      */
     public abstract String getAttributeValue(String namespace, String name);
 
@@ -124,12 +106,8 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
     /**
      * TODO: Worst method name ever. Don't use this unless you know what's up.
      *
-     * @param name
-     * @param mult
      * @param predicates  possibly list of predicates to be evaluated. predicates will be removed from list if they are
      *                    able to be evaluated
-     * @param evalContext
-     * @return
      */
     public abstract Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext);
 }
