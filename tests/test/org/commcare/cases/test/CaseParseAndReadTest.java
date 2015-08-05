@@ -55,15 +55,6 @@ public class CaseParseAndReadTest {
         }
     }
 
-    private byte[] dumpStream(String inputResource) throws IOException {
-        InputStream is = this.getClass().getResourceAsStream(inputResource);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        StreamsUtil.writeFromInputToOutput(is, bos);
-
-        return bos.toByteArray();
-    }
-
     private byte[] dumpInstance(String instanceRef) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -76,4 +67,12 @@ public class CaseParseAndReadTest {
         }
     }
 
+    private byte[] dumpStream(String inputResource) throws IOException {
+        InputStream is = this.getClass().getResourceAsStream(inputResource);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        StreamsUtil.writeFromInputToOutput(is, bos);
+
+        return bos.toByteArray();
+    }
 }

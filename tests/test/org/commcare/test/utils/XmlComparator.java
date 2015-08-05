@@ -25,7 +25,7 @@ public class XmlComparator {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             document.parse(parser);
             return document;
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -36,53 +36,52 @@ public class XmlComparator {
     }
 
     private static void compareXmlDOMsLeftToRight(Element left, Element right) throws RuntimeException {
-        if(!left.getName().equals(right.getName())) {
+        if (!left.getName().equals(right.getName())) {
             throw new RuntimeException(String.format("Mismatched element names '%n' and '%n'", left.getName(), right.getName()));
         }
 
-        if(left.getAttributeCount() != right.getAttributeCount()) {
+        if (left.getAttributeCount() != right.getAttributeCount()) {
             throw new RuntimeException(String.format("Mismatched attributes for node '%n' ", left.getName()));
         }
 
         Hashtable<String, String> leftAttr = attrTable(left);
         Hashtable<String, String> rightAttr = attrTable(right);
 
-        for(String key : leftAttr.keySet()) {
-            if(!rightAttr.containsKey(key)) {
+        for (String key : leftAttr.keySet()) {
+            if (!rightAttr.containsKey(key)) {
                 throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
             }
 
-            if(!leftAttr.get(key).equals(rightAttr.get(key))) {
+            if (!leftAttr.get(key).equals(rightAttr.get(key))) {
                 throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
             }
         }
 
-        if(left.getChildCount() != right.getChildCount()) {
-            throw new RuntimeException(String.format("Mismatched child count (%d,%d) for node '%s' ",left.getChildCount(), right.getChildCount(), left.getName()));
+        if (left.getChildCount() != right.getChildCount()) {
+            throw new RuntimeException(String.format("Mismatched child count (%d,%d) for node '%s' ", left.getChildCount(), right.getChildCount(), left.getName()));
         }
 
-        for(int i = 0 ; i < left.getChildCount() ; ++i ){
+        for (int i = 0; i < left.getChildCount(); ++i) {
             Object l = left.getChild(i);
             Object r = right.getChild(i);
 
-            if(left.getType(i) != right.getType(i)) {
+            if (left.getType(i) != right.getType(i)) {
                 throw new RuntimeException(String.format("Mismatched children for node '%s' ", left.getName()));
             }
 
-            if(l instanceof Element) {
+            if (l instanceof Element) {
                 compareXmlDOMsLeftToRight((Element)l, (Element)r);
-            } else if(l instanceof String) {
-                if(!l.equals(r)) {
+            } else if (l instanceof String) {
+                if (!l.equals(r)) {
                     throw new RuntimeException(String.format("Mismatched element values '%s' and '%s'", l, r));
                 }
             }
         }
-
     }
 
     private static Hashtable<String, String> attrTable(Element element) {
         Hashtable<String, String> attr = new Hashtable<>();
-        for(int i = 0 ; i < element.getAttributeCount() ; ++i ) {
+        for (int i = 0; i < element.getAttributeCount(); ++i) {
             attr.put(element.getAttributeName(i), element.getAttributeValue(i));
         }
         return attr;
