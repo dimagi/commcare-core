@@ -27,10 +27,10 @@ import java.util.Hashtable;
 public class User implements Persistable, Restorable, IMetaData {
     public static final String STORAGE_KEY = "USER";
 
-    private static final String ADMINUSER = "admin";
-    private static final String STANDARD = "standard";
-    private static final String DEMO_USER = "demo_user";
-    private static final String KEY_USER_TYPE = "user_type";
+    protected static final String ADMINUSER = "admin";
+    protected static final String STANDARD = "standard";
+    protected static final String DEMO_USER = "demo_user";
+    protected static final String KEY_USER_TYPE = "user_type";
 
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
@@ -43,7 +43,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     static private User demo_user;
 
-    private boolean rememberMe = false;
+    protected boolean rememberMe = false;
 
     public String syncToken;
 
@@ -107,7 +107,7 @@ public class User implements Persistable, Restorable, IMetaData {
         return recordId;
     }
 
-    String getUserType() {
+    public String getUserType() {
         if (properties.containsKey(KEY_USER_TYPE)) {
             return properties.get(KEY_USER_TYPE);
         } else {
@@ -115,11 +115,11 @@ public class User implements Persistable, Restorable, IMetaData {
         }
     }
 
-    void setUserType(String userType) {
+    public void setUserType(String userType) {
         properties.put(KEY_USER_TYPE, userType);
     }
 
-    void setUsername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -135,7 +135,7 @@ public class User implements Persistable, Restorable, IMetaData {
         this.rememberMe = rememberMe;
     }
 
-    void setUuid(String uuid) {
+    public void setUuid(String uuid) {
         this.uniqueId = uuid;
     }
 
