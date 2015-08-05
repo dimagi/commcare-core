@@ -85,4 +85,12 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapNullable(audioReference));
     }
 
+    @Override
+    public String toString() {
+        return "DisplayUnit{" +
+                "name=" + name +
+                ", imageReference=" + imageReference +
+                ", audioReference=" + audioReference +
+                '}';
+    }
 }

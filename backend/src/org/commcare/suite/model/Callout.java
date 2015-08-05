@@ -15,6 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -123,5 +124,16 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public Vector<String> getResponses() {
         return responses;
+    }
+
+    @Override
+    public String toString() {
+        return "Callout{" +
+                "actionName='" + actionName + '\'' +
+                ", image='" + image + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", extras=" + Arrays.toString(extras.entrySet().toArray()) +
+                ", responses=" + responses +
+                '}';
     }
 }

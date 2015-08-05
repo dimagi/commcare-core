@@ -715,6 +715,21 @@ public class CommCareSession {
         // commcare core for release issues
         return (entries.size() == 1 &&
                 (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals("")));
+                        prototype.getXFormNamespace().equals("")) &&
+                // Commcare-167204 by dcluna on 06/10/2015: If we have more than 1 datum for this Entry, we want to show them all
+                prototype.getSessionDataReqs().size() < 2);
+    }
+
+    @Override
+    public String toString() {
+        return "CommCareSession{" +
+                "platform=" + platform +
+                ", popped=" + popped +
+                ", currentCmd='" + currentCmd + '\'' +
+                ", data=" + data +
+                ", currentXmlns='" + currentXmlns + '\'' +
+                ", frame=" + frame +
+                ", frameStack=" + frameStack +
+                '}';
     }
 }

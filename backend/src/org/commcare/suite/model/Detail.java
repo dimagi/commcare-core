@@ -18,6 +18,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -369,5 +370,15 @@ public class Detail implements Externalizable {
             }
             return a;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "id: " + this.id + " " +
+                "title: " + this.title + " " +
+                "details: " + Arrays.toString(this.details) + " " +
+                super.toString()
+                + "]";
     }
 }

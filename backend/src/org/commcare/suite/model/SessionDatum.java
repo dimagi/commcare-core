@@ -172,4 +172,18 @@ public class SessionDatum implements Externalizable {
             return null;
         }
     }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "id: " + this.id + " "
+                + "shortDetail: " + this.shortDetail + " "
+                + "longDetail: " + this.longDetail + " "
+                + "inlineDetail: " + this.inlineDetail + " "
+                + "persistentDetail: " + this.persistentDetail + " "
+                + "value: " + this.value + " " +
+                super.toString()
+                + "]"
+                ;
+    }
 }
