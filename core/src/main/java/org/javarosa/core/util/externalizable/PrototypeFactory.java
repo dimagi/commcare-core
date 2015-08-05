@@ -127,7 +127,6 @@ public class PrototypeFactory {
         if (d != null && d != c) {
             throw new Error("Hash collision! " + c.getName() + " and " + d.getName());
         }
-
         storeHash(c, hash);
     }
 
@@ -185,7 +184,7 @@ public class PrototypeFactory {
         return mStaticHasher.getHashSize();
     }
 
-    private void storeHash(Class c, byte[] hash){
+    public void storeHash(Class c, byte[] hash){
         classes.addElement(c);
         hashes.addElement(hash);
     }
