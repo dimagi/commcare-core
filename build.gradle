@@ -40,10 +40,15 @@ sourceSets {
   test {
       java {
           srcDir 'tests/test'
-          srcDir 'util/src'
       }
       resources{
           srcDir 'tests/resources'
+      }
+  }
+
+  cli {
+      java {
+          srcDir 'util/src'
       }
   }
 }
@@ -53,6 +58,11 @@ dependencies {
     testCompile 'junit:junit:4.+'
     compile 'org.xerial:sqlite-jdbc:3.8.10.1'
     compile 'org.json:json:20090211'
+    cliCompile project(path: ':javarosa', configuration: 'harnessOutput')
+    cliCompile sourceSets.main.output
+    testCompile sourceSets.main.output
+    testCompile sourceSets.cli.output
+    testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
 jar {
@@ -60,3 +70,32 @@ jar {
 }
 
 jar.dependsOn test
+
+configurations {
+  cliOutput.extendsFrom (cliCompile)
+}
+
+task cliJar(type: Jar, dependsOn: cliClasses) {
+    baseName = "commcare-cli"
+    from sourceSets.cli.output
+}
+
+artifacts {
+  cliOutput cliJar
+}
+
+task copyTestResources(type: Copy) {
+    from sourceSets.test.resources
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
+task jenkinsTest {
+    inputs.files test.outputs.files
+    doLast {
+        def timestamp = System.currentTimeMillis()
+        test.getReports().getJunitXml().getDestination().eachFile { it.lastModified = timestamp }
+    }
+}
+
+check.dependsOn(jenkinsTest)

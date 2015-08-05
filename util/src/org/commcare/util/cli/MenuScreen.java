@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.util.cli;
 
 import org.commcare.api.interfaces.UserDataInterface;
@@ -25,11 +22,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * @author ctsims
+ * Screen to allow users to choose items from session menus.
  *
+ * @author ctsims
  */
 public class MenuScreen extends Screen {
-    
     private MenuDisplayable[] mChoices;
     CommCarePlatform mPlatform;
     SessionWrapper mSession;
@@ -40,7 +37,7 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(SessionWrapper session) {
+    public void init(SessionWrapper session) throws CommCareSessionException{
         
         String root = deriveMenuRoot(session);
         
@@ -57,104 +54,97 @@ public class MenuScreen extends Screen {
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {
-                        xpathExpression = m.getMenuRelevanceRaw();
                         ec = session.getEvaluationContext(m.getId());
-                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
                             continue;
                         }
                     }
-                    if(m.getId().equals(root)) {
-                        
-                        if(mTitle == null) {
+                    if (m.getId().equals(root)) {
+
+                        if (mTitle == null) {
                             //TODO: Do I need args, here?
                             try {
                                 mTitle = m.getName().evaluate();
-                            }catch(Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
-                        
-                        for(String command : m.getCommandIds()) {
-                            xpathExpression = "";
+
+                        for (String command : m.getCommandIds()) {
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-                            if(mRelevantCondition != null) {                            
-                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                            if (mRelevantCondition != null) {
                                 ec = session.getEvaluationContext();
                                 Object ret = mRelevantCondition.eval(ec);
                                 try {
-                                    if(!XPathFuncExpr.toBoolean(ret)) {
+                                    if (!XPathFuncExpr.toBoolean(ret)) {
                                         continue;
                                     }
-                                } catch(XPathTypeMismatchException e) {
-                                    e.printStackTrace();
-                                    error("relevancy condition for menu item returned non-boolean value : " + ret);
-                                    
+                                } catch (XPathTypeMismatchException e) {
+                                    throw new CommCareSessionException("relevancy condition for menu item returned non-boolean value : " + ret, e);
+
                                 }
-                                if(!XPathFuncExpr.toBoolean(ret)) { continue;}
                             }
-                            
+
                             Entry e = map.get(command);
-                            if(e.getXFormNamespace() == null) {
+                            if (e.getXFormNamespace() == null) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 
                                 //datums are not already present
-                                if(session.getNeededDatum(e) == null) {
+                                if (session.getNeededDatum(e) == null) {
                                     continue;
                                 }
                             }
-                            
+
                             choices.add(e);
                         }
                         continue;
                     }
-                    if(root.equals(m.getRoot())){
+                    if (root.equals(m.getRoot())) {
                         //make sure we didn't already add this ID
                         boolean idExists = false;
-                        for(Object o : choices) {
-                            if(o instanceof Menu) {
-                                if(((Menu)o).getId().equals(m.getId())){
+                        for (Object o : choices) {
+                            if (o instanceof Menu) {
+                                if (((Menu)o).getId().equals(m.getId())) {
                                     idExists = true;
                                     break;
                                 }
                             }
                         }
-                        if(!idExists) {
+                        if (!idExists) {
                             choices.add(m);
                         }
                     }
                 } catch(XPathSyntaxException xpse) {
-                    error(xpse);
-                    return;
+                    throw new CommCareSessionException("Invalid XPath Expression in Text entry or module condition", xpse);
                 } catch(XPathException xpe) {
-                    error(xpe);
-                    return;
+                    throw new CommCareSessionException("Error evaluating expression in Text or module condition",xpe);
                 }
             }
         }
-        
+
         this.mChoices = new MenuDisplayable[choices.size()];
         choices.copyInto(mChoices);
-        setTitle(mTitle);
+        setTitle();
     }
-    
-    private void setTitle(String titleGuess) {
+
+    private void setTitle() {
         String title = this.mTitle;
-        if(title == null) {
+        if (title == null) {
             try {
                 title = Localization.get("app.display.name");
-            } catch(NoLocalizedTextException e) {
+            } catch (NoLocalizedTextException e) {
                 //swallow. Unimportant
                 title = "CommCare";
             }
         }
-        
-        String userSuffix = mSandbox.getLoggedInUser() != null ? " | " + mSandbox.getLoggedInUser().getUsername() : ""; 
-        
+
+        String userSuffix = mSandbox.getLoggedInUser() != null ? " | " + mSandbox.getLoggedInUser().getUsername() : "";
+
         this.mTitle = title + userSuffix;
     }
 
     private String deriveMenuRoot(SessionWrapper session) {
-        if(session.getCommand() == null) {
+        if (session.getCommand() == null) {
             return "root";
         } else {
             return session.getCommand();
@@ -163,11 +153,11 @@ public class MenuScreen extends Screen {
 
     @Override
     public void prompt(PrintStream out) {
-        if(this.mTitle != null) {
+        if (this.mTitle != null) {
             out.println(this.mTitle);
             out.println("====================");
         }
-        for(int i =0 ; i < mChoices.length ; ++ i) {
+        for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
             out.println(i + ")" + d.getDisplayText());
         }
@@ -175,17 +165,17 @@ public class MenuScreen extends Screen {
 
     @Override
     public void updateSession(CommCareSession session, String input) {
-        try {  
+        try {
             int i = Integer.parseInt(input);
             String commandId;
-            if(mChoices[i] instanceof Entry) {
+            if (mChoices[i] instanceof Entry) {
                 commandId = ((Entry)mChoices[i]).getCommandId();
             } else {
                 commandId = ((Menu)mChoices[i]).getId();
             }
             session.setCommand(commandId);
-        } catch(NumberFormatException e) {
-            
+        } catch (NumberFormatException e) {
+            //This will result in things just executing again, which is fine.
         }
     }
 }

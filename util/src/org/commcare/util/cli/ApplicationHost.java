@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.util.cli;
 
 import org.commcare.api.interfaces.UserDataInterface;
@@ -11,6 +8,7 @@ import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
 import org.commcare.util.mocks.MockDataUtils;
+import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
@@ -33,99 +31,126 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 /**
- * @author ctsims
+ * CLI host for running a commcare application which has been configured and instatiated
+ * for the provided user.
  *
+ * @author ctsims
  */
 public class ApplicationHost {
-    CommCareConfigEngine mEngine;
-    CommCarePlatform mPlatform;
-    String mUsername;
-    String mPassword;
-    UserDataInterface mSandbox;
-    SessionWrapper mSession;
-    
-    PrototypeFactory mPrototypeFactory = new PrototypeFactory();
-    
-    BufferedReader reader;
-    
+    private final CommCareConfigEngine mEngine;
+    private final CommCarePlatform mPlatform;
+    private final String mUsername;
+    private final String mPassword;
+    private MockUserDataSandbox mSandbox;
+    private SessionWrapper mSession;
+
+    private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+
+    private final BufferedReader reader;
+
     public ApplicationHost(CommCareConfigEngine engine, String username, String password) {
         this.mUsername = username;
         this.mPassword = password;
         this.mEngine = engine;
-        
         this.mPlatform = engine.getPlatform();
-        
+
         reader = new BufferedReader(new InputStreamReader(System.in));
     }
 
     public void run() {
         setupSandbox();
-        
+
         mSession = new SessionWrapper(mPlatform, mSandbox);
-        
-        loop();
-    }
-    
-    
-    private void loop() {        
-        while(true) {
-            mSession.clearAllState();
-            loopSession();
+
+        try {
+            loop();
+        }catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
     }
     
-    private void loopSession() {
+    
+    private void loop() throws IOException {
+        boolean keepExecuting = true;
+        while (keepExecuting) {
+            mSession.clearAllState();
+            keepExecuting = loopSession();
+        }
+    }
+    
+    private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
-        
-        while(s != null) {
-            s.init(mSession);
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("");
-            s.prompt(System.out);
-            System.out.print("> ");
+
+        while (s != null) {
             try {
+                s.init(mPlatform, mSession, mSandbox);
+                System.out.println("\n\n\n\n\n\n");
+                s.prompt(System.out);
+                System.out.print("> ");
+                s.init(mPlatform, mSession, mSandbox);
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                System.out.println("");
+                s.prompt(System.out);
+                System.out.print("> ");
+
                 String input = reader.readLine();
+
+                //TODO: Command language
+                if(input.startsWith(":")) {
+                    if(input.equals(":exit") || input.equals(":quit")) {
+
+                    }
+                }
+
                 s.updateSession(mSession, input);
                 s = getNextScreen();
-            } catch(IOException e) {
-                e.printStackTrace();
+            } catch (CommCareSessionException ccse) {
+                System.out.println("Error during session execution:");
+                ccse.printStackTrace();
+                System.out.println("Press return to restart the session");
+                reader.readLine();
+
+                //Restart
+                return true;
             }
         }
         //We have a session and are ready to fill out a form!
-        
-        
+
         //Get our form object
         String formXmlns = mSession.getForm();
-        
+
         XFormPlayer player = new XFormPlayer(System.in, System.out, null);
         player.setSessionIIF(mSession.getIIF());
         player.start(mEngine.loadFormByXmlns(formXmlns));
 
+        //After we finish, continue executing from a clean session
+        //TODO: Process stack frames upon return
+        return true;
     }
-    
+
     private Screen getNextScreen() {
         String next = mSession.getNeededData();
-        
-        if(next == null) {
+
+        if (next == null) {
             //XFORM TIME!
             return null;
-        }
-        else if(next.equals(SessionFrame.STATE_COMMAND_ID)) {
+        } else if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             return new MenuScreen();
-        } else if(next.equals(SessionFrame.STATE_DATUM_VAL)) {
+        } else if (next.equals(SessionFrame.STATE_DATUM_VAL)) {
             return new EntityScreen();
-        } else if(next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
+        } else if (next.equalsIgnoreCase(SessionFrame.STATE_DATUM_COMPUTED)) {
             computeDatum();
             return getNextScreen();
         }
         throw new RuntimeException("Unexpected Frame Request: " + mSession.getNeededData());
     }
-    
+
     private void computeDatum() {
         //compute
         SessionDatum datum = mSession.getNeededDatum();
@@ -146,11 +171,9 @@ public class ApplicationHost {
                 mSession.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
             } catch (XPathException e) {
                 error(e);
-                return;
             }
         }
     }
-    
 
     private void error(Exception e) {
         e.printStackTrace();
@@ -159,39 +182,39 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        mSandbox = new SqlSandbox(mPrototypeFactory, mUsername, true);
-        
+        PrototypeFactory.setStaticHasher(mPrototypeFactory);
+        mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");
         final String qualifiedUsername = mUsername + "@" + domain;
-        
-        Authenticator.setDefault (new Authenticator() {
+
+        Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication (qualifiedUsername, mPassword.toCharArray());
+                return new PasswordAuthentication(qualifiedUsername, mPassword.toCharArray());
             }
         });
-        
+
         //Go get our sandbox!
-        try{
+        try {
             URL url = new URL(otaRestoreURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
             System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
-            
+
             MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
-        
+
         //Initialize our User
-        for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
+        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
-            if(mUsername.equalsIgnoreCase(u.getUsername())) {
+            if (mUsername.equalsIgnoreCase(u.getUsername())) {
                 mSandbox.setLoggedInUser(u);
             }
         }
     }
-
 }

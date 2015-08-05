@@ -68,12 +68,11 @@ public class CommCareConfigEngine {
     private OutputStream output;
     private ResourceTable table;
     private PrintStream print;
-    private CommCarePlatform platform;
+    private final CommCarePlatform platform;
     private Vector<Suite> suites;
     private Profile profile;
     private int fileuricount = 0;
-
-    ArchiveFileRoot mArchiveRoot;
+    private ArchiveFileRoot mArchiveRoot;
 
     private void initModules()
     {
@@ -165,7 +164,26 @@ public class CommCareConfigEngine {
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
 
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
+    }
 
+    private String downloadToTemp(String resource) {
+        try{
+            URL url = new URL(resource);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
+            HttpURLConnection.setFollowRedirects(true);
+
+            File file = File.createTempFile("commcare_", ".ccz");
+
+            FileOutputStream fos = new FileOutputStream(file);
+            StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
+            return file.getAbsolutePath();
+        } catch(IOException e) {
+            print.println("Issue downloading or create stream for " +resource);
+            e.printStackTrace(print);
+            System.exit(-1);
+            return null;
+        }
     }
 
     public void initFromLocalFileResource(String resource) {
@@ -188,26 +206,6 @@ public class CommCareConfigEngine {
         String reference = "jr://file/" + resource;
 
         init(reference);
-    }
-
-    private String downloadToTemp(String resource) {
-        try{
-            URL url = new URL(resource);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
-            HttpURLConnection.setFollowRedirects(true);
-
-            File file = File.createTempFile("commcare_", ".ccz");
-
-            FileOutputStream fos = new FileOutputStream(file);
-            StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
-            return file.getAbsolutePath();
-        } catch(IOException e) {
-            print.println("Issue downloading or create stream for " +resource);
-            e.printStackTrace(print);
-            System.exit(-1);
-            return null;
-        }
     }
 
     /**
@@ -254,7 +252,7 @@ public class CommCareConfigEngine {
 
     }
 
-    public void init(String profileRef) {
+    private void init(String profileRef) {
             try {
                 platform.init(profileRef, this.table, true);
                 print.println("Table resources intialized and fully resolved.");
@@ -287,8 +285,6 @@ public class CommCareConfigEngine {
 
             print.println("Setting locale to: " + newLocale);
             Localization.setLocale(newLocale);
-
-
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
@@ -358,7 +354,8 @@ public class CommCareConfigEngine {
     }
 
     public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage = (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+        IStorageUtilityIndexed<FormDef> formStorage =
+                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 

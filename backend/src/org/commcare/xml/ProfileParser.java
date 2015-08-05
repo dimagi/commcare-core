@@ -10,6 +10,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
+import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -29,7 +30,9 @@ public class ProfileParser extends ElementParser<Profile> {
     CommCareInstance instance;
     boolean forceVersion = false;
 
-    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table, String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
+    public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
+            String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
+
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceId = resourceId;
@@ -49,12 +52,16 @@ public class ProfileParser extends ElementParser<Profile> {
         String sMajor = parser.getAttributeValue(null, "requiredMajor");
         String sMinor = parser.getAttributeValue(null, "requiredMinor");
 
+        String uniqueId = parser.getAttributeValue(null, "uniqueid");
+        String displayName = parser.getAttributeValue(null, "name");
+
         int major = -1;
         int minor = -1;
-
+        
         if (sMajor != null) {
             major = parseInt(sMajor);
         }
+
 
         if (sMinor != null) {
             minor = parseInt(sMinor);
@@ -85,7 +92,24 @@ public class ProfileParser extends ElementParser<Profile> {
 
         String registrationNamespace = null;
 
-        Profile profile = new Profile(version, authRef);
+        // Handle possibility of the profile file missing fields that are needed for multiple apps support
+        // Mark as an old version of the profile if missing either necessary field
+        boolean fromOld = (uniqueId == null) || (displayName == null);
+        if (uniqueId == null) {
+            // Note that this version of unique ID generation will not protect against a user
+            // installing the same app multiple times, but this case is sufficiently rare that we are
+            // calling that fine. All HQ-generated profile.ccpr files now have the correct fields,
+            // so we are only talking about cases where either an app hasn't been updated in a very
+            // long time, or someone is doing their own weird thing outside of HQ
+            uniqueId = PropertyUtils.genUUID();
+        }
+        if (displayName == null) {
+            // Make the displayName an empty string instead of just null, which will signal the app
+            // to use the display name from localizations instead later on
+            displayName = "";
+        }
+
+        Profile profile = new Profile(version, authRef, uniqueId, displayName, fromOld);
         try {
 
             // Now that we've covered being inside of the profile,
@@ -115,7 +139,7 @@ public class ProfileParser extends ElementParser<Profile> {
                         RootTranslator root = new RootParser(this.parser).parse();
                         profile.addRoot(root);
                     } else if (parser.getName().toLowerCase().equals("login")) {
-                        //Get the resource block or fail out
+                        // Get the resource block or fail out
                         getNextTagInBlock("login");
                         Resource resource = new ResourceParser(parser, maximumResourceAuthority).parse();
                         table.addResource(resource, table.getInstallers().getLoginImageInstaller(), resourceId, initialResourceStatus);
