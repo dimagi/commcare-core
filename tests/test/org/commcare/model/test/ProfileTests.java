@@ -98,7 +98,7 @@ public class ProfileTests {
                 throw new RuntimeException("Test resource missing: " + path);
             }
             
-            ProfileParser parser = new ProfileParser(is, mAppPlatform.getInstance(), mFreshResourceTable, "profile", 
+            ProfileParser parser = new ProfileParser(is, mAppPlatform.getPlatform(), mFreshResourceTable, "profile",
                     Resource.RESOURCE_VERSION_UNKNOWN, false);
             
             return parser.parse();

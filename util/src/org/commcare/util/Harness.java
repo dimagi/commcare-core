@@ -3,7 +3,7 @@
  */
 package org.commcare.util;
 
-import java.io.File;
+import org.commcare.util.cli.ApplicationHost;
 
 /**
  * @author ctsims
@@ -24,27 +24,48 @@ public class Harness {
                 printvalidateformat();
                 System.exit(-1);
             }
-            CommCareConfigEngine engine = new CommCareConfigEngine(System.out);
-
-            //TODO: check arg for whether it's a local or global file resource and
-            //make sure it's absolute
-
-            engine.addLocalFileResource(args[1]);
-            if(args.length > 2) {
-                if(args[2].equals("-nojarresources")) {
-                    //Skip it
-                } else {
-                    engine.addJarResources(args[2]);
-                }
-            } else {
-                engine.addJarResources(".." + File.separator + "application"  + File.separator + "resources");
-                engine.addJarResources(".." + File.separator + ".."  + File.separator + "javarosa" + File.separator + "j2me" + File.separator + "shared-resources" + File.separator + "resources");
-            }
-            engine.resolveTable();
-            engine.validateResources();
+            
+            CommCareConfigEngine engine = configureApp(args);
             engine.describeApplication();
+            
             System.exit(0);
         }
+
+        if ("play".equals(args[0])) {
+            if (args.length < 4) {
+                printplayformat();
+                System.exit(-1);
+            }
+            CommCareConfigEngine engine = configureApp(args);
+            String username = args[2];
+            String password = args[3];
+
+            ApplicationHost host = new ApplicationHost(engine, username, password);
+
+            host.run();
+            
+            System.exit(0);
+        }
+    }
+
+    private static void printplayformat() {
+        System.out.println("Usage: java -jar thejar.jar play path/to/commcare.ccz username password");
+    }
+
+    private static CommCareConfigEngine configureApp(String[] args) {
+        CommCareConfigEngine engine = new CommCareConfigEngine(System.out);
+
+        //TODO: check arg for whether it's a local or global file resource and
+        //make sure it's absolute
+
+        String resourcePath = args[1];
+        if (resourcePath.endsWith(".ccz")) {
+            engine.initFromArchive(resourcePath);
+        } else {
+            engine.initFromLocalFileResource(resourcePath);
+        }
+        engine.initEnvironment();
+        return engine;
     }
 
     private static void printformat() {

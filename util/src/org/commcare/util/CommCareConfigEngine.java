@@ -3,11 +3,17 @@
  */
 package org.commcare.util;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.zip.ZipFile;
 
 import org.commcare.cases.CaseManagementModule;
 import org.commcare.resources.model.Resource;
@@ -30,6 +36,7 @@ import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -42,6 +49,7 @@ import org.javarosa.core.services.locale.ResourceFileDataSource;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -57,10 +65,12 @@ public class CommCareConfigEngine {
     private OutputStream output;
     private ResourceTable table;
     private PrintStream print;
-    private CommCareInstance instance;
+    private final CommCarePlatform platform;
     private Vector<Suite> suites;
     private Profile profile;
     private int fileuricount = 0;
+    
+    private ArchiveFileRoot mArchiveRoot;
 
     private void initModules()
     {
@@ -91,24 +101,7 @@ public class CommCareConfigEngine {
         this.output = output;
         this.print = new PrintStream(output);
         suites = new Vector<Suite>();
-        this.instance = new CommCareInstance() {
-
-            public void registerSuite(Suite s) {
-                CommCareConfigEngine.this.suites.add(s);
-            }
-
-            public void setProfile(Profile p) {
-                CommCareConfigEngine.this.profile = p;
-            }
-
-            public int getMajorVersion() {
-                return 2;
-            }
-
-            public int getMinorVersion() {
-                return 23;
-            }
-        };
+        this.platform = new CommCarePlatform(2, 23);
 
         setRoots();
 
@@ -138,9 +131,54 @@ public class CommCareConfigEngine {
 
     private void setRoots() {
         ReferenceManager._().addReferenceFactory(new JavaHttpRoot());
+        
+        this.mArchiveRoot = new ArchiveFileRoot();
+        
+        ReferenceManager._().addReferenceFactory(mArchiveRoot);
+    }
+    
+    public void initFromArchive(String archiveURL) {
+        String fileName;
+        if(archiveURL.startsWith("http")) {
+            fileName = downloadToTemp(archiveURL);
+        } else {
+            fileName = archiveURL;
+        }
+        ZipFile zip;
+        try {
+            zip = new ZipFile(fileName);
+        } catch (IOException e) {
+            print.println("File at " + archiveURL + ": is not a valid CommCare Package. Downloaded to: " + fileName);
+            e.printStackTrace(print);
+            System.exit(-1);
+            return;
+        }
+        String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
+        
+        init("jr://archive/" + archiveGUID + "/profile.ccpr");
     }
 
-    public void addLocalFileResource(String resource) {
+    private String downloadToTemp(String resource) {
+        try{
+            URL url = new URL(resource);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);  //you still need to handle redirect manully.
+            HttpURLConnection.setFollowRedirects(true);
+
+            File file = File.createTempFile("commcare_", ".ccz");
+
+            FileOutputStream fos = new FileOutputStream(file);
+            StreamsUtil.writeFromInputToOutput(new BufferedInputStream(conn.getInputStream()), fos);
+            return file.getAbsolutePath();
+        } catch(IOException e) {
+            print.println("Issue downloading or create stream for " +resource);
+            e.printStackTrace(print);
+            System.exit(-1);
+            return null;
+        }
+    }
+
+    public void initFromLocalFileResource(String resource) {
         //Get the location of the file. In the future, we'll treat this as the resource root
         String root = resource.substring(0,resource.lastIndexOf(File.separator));
 
@@ -158,18 +196,8 @@ public class CommCareConfigEngine {
 
         //Now build the testing reference we'll use
         String reference = "jr://file/" + resource;
-
-        ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, reference);
-        Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-        locations.add(location);
-        Resource test = new Resource(-2, resource.replace("\\",""), locations, "Application Descriptor");
-        try {
-            table.addResource(test, new ProfileInstaller(),null);
-        } catch (StorageFullException e) {
-            print.println("Error with Configuration Engine, ran out of room somehow");
-            e.printStackTrace(print);
-            System.exit(-1);
-        }
+        
+        init(reference);
     }
 
     /**
@@ -216,9 +244,9 @@ public class CommCareConfigEngine {
 
     }
 
-    public void resolveTable() {
+    private void init(String profileRef) {
             try {
-                table.prepareResources(null, instance);
+                platform.init(profileRef, this.table, true);
                 print.println("Table resources intialized and fully resolved.");
                 print.println(table);
             } catch (UnresolvedResourceException e) {
@@ -232,9 +260,23 @@ public class CommCareConfigEngine {
             }
     }
 
-    public void validateResources() {
+    public void initEnvironment() {
         try {
-            table.initializeResources(instance);
+            table.initializeResources(platform);
+            
+            Localization.setDefaultLocale("default");
+            
+            print.println("Locales defined: ");
+            String newLocale = null;
+            for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+                if(newLocale == null) {
+                    newLocale = locale;
+                }
+                System.out.println("* " + locale);
+            }
+
+            print.println("Setting locale to: " + newLocale);
+            Localization.setLocale(newLocale);
         } catch (ResourceInitializationException e) {
             print.println("Error while initializing one of the resolved resources");
             e.printStackTrace(print);
@@ -298,6 +340,16 @@ public class CommCareConfigEngine {
             }
         }
     }
+    
+    public CommCarePlatform getPlatform() {
+        return platform;
+    }
+    
+    public FormDef loadFormByXmlns(String xmlns) {
+        IStorageUtilityIndexed<FormDef> formStorage =
+                (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);
+        return formStorage.getRecordForValue("XMLNS", xmlns);
+    }
 
     private void print(Suite s, Entry e, int level) {
         String head = "";
@@ -311,22 +363,20 @@ public class CommCareConfigEngine {
             if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else {
-                Detail d = s.getDetail(datum.getShortDetail());
-                try {
-                    print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
-                } catch(XPathMissingInstanceException ex) {
-                    print.println(emptyhead + "|Select: " + "(dynamic title)");
+                if(datum.getShortDetail() != null) {
+                    Detail d = s.getDetail(datum.getShortDetail());
+                    try {
+                        print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
+                    } catch(XPathMissingInstanceException ex) {
+                        print.println(emptyhead + "|Select: " + "(dynamic title)");
+                    }
+                    print.print(emptyhead + "| ");
+                    for(DetailField f : d.getFields()) {
+                        print.print(f.getHeader().evaluate() + " | ");
+                    }
+                    print.print("\n");
                 }
-                print.print(emptyhead + "| ");
-                for(DetailField f : d.getFields()) {
-                    print.print(f.getHeader().evaluate() + " | ");
-                }
-                print.print("\n");
             }
         }
-    }
-
-    public CommCareInstance getInstance() {
-        return instance;
     }
 }
