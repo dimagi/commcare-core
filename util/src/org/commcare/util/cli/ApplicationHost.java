@@ -2,12 +2,12 @@ package org.commcare.util.cli;
 
 import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.util.UserDataUtils;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.User;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
-import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
@@ -201,7 +201,7 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
 
-            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
+            UserDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);

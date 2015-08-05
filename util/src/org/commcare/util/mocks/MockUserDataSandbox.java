@@ -9,6 +9,8 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.util.Date;
+
 /**
  * A placeholder for the in-memory storage elements needed for an individual
  * CommCare user.
@@ -30,6 +32,8 @@ public class MockUserDataSandbox implements UserDataInterface{
     private User mUser;
     
     private String mSyncToken;
+
+    private Date lastSync;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -79,5 +83,9 @@ public class MockUserDataSandbox implements UserDataInterface{
     
     public User getLoggedInUser() {
         return mUser;
+    }
+
+    public void updateLastSync(){
+        lastSync = new Date();
     }
 }

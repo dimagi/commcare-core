@@ -1,6 +1,7 @@
 package org.commcare.util.mocks;
 
 import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.api.util.UserDataUtils;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.suite.model.User;
@@ -60,7 +61,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
             String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
             try {
-                FormInstance fixture = MockDataUtils.loadFixture(mSandbox, refId, userId);
+                FormInstance fixture = UserDataUtils.loadFixture(mSandbox, refId, userId);
 
                 if (fixture == null) {
                     throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);

@@ -1,5 +1,6 @@
 package org.commcare.api.util;
 
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.api.persistence.SqlSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.User;
@@ -54,17 +55,17 @@ public class UserDataUtils {
         storage.clearTables();
     }
 
-    public static void parseXMLIntoSandbox(String restore, SqlSandbox sandbox) {
+    public static void parseXMLIntoSandbox(String restore, UserDataInterface sandbox) {
         InputStream stream = new ByteArrayInputStream(restore.getBytes(StandardCharsets.UTF_8));
         parseIntoSandbox(stream, sandbox);
     }
 
-    public static void parseFileIntoSandbox(File restore, SqlSandbox sandbox) throws FileNotFoundException {
+    public static void parseFileIntoSandbox(File restore, UserDataInterface sandbox) throws FileNotFoundException {
         InputStream stream = new FileInputStream(restore);
         parseIntoSandbox(stream, sandbox);
     }
 
-    public static void parseIntoSandbox(InputStream stream, SqlSandbox sandbox) {
+    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox) {
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
         try {
             DataModelPullParser parser = new DataModelPullParser(stream, factory);
@@ -89,7 +90,7 @@ public class UserDataUtils {
      *
      * TODO: Move this static functionality into CommCare generally.
      */
-    public static Vector<String> extractEntityOwners(SqlSandbox sandbox) {
+    public static Vector<String> extractEntityOwners(UserDataInterface sandbox) {
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>();
 
@@ -126,7 +127,7 @@ public class UserDataUtils {
      * @param userId
      * @return
      */
-    public static FormInstance loadFixture(SqlSandbox sandbox,
+    public static FormInstance loadFixture(UserDataInterface sandbox,
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
