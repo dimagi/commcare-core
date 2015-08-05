@@ -82,7 +82,7 @@ public class CommCareSessionController {
                         if (ec == null) {
                             ec = session.getEvaluationContext(getIif(), m.getId());
                         }
-                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue()) {
                             continue;
                         }
                     }
