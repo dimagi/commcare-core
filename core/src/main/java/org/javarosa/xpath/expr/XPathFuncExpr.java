@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -461,11 +445,6 @@ public class XPathFuncExpr extends XPathExpression {
      * Note that if the handler supports 'raw args', it will receive the full,
      * unaltered argument list if no prototype matches. (this lets functions
      * support variable-length argument lists)
-     *
-     * @param handler
-     * @param args
-     * @param ec
-     * @return
      */
     private static Object evalCustomFunction(IFunctionHandler handler, Object[] args,
                                              EvaluationContext ec) {
@@ -506,10 +485,6 @@ public class XPathFuncExpr extends XPathExpression {
      * conversion, etc.). If it is coercible, return the type-converted
      * argument list -- these will be the arguments used to evaluate the
      * function.  If not coercible, return null.
-     *
-     * @param args
-     * @param prototype
-     * @return
      */
     private static Object[] matchPrototype(Object[] args, Class[] prototype) {
         Object[] typed = null;
@@ -589,9 +564,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * convert a value to a boolean using xpath's type conversion rules
-     *
-     * @param o
-     * @return
      */
     public static Boolean toBoolean(Object o) {
         Boolean val = null;
@@ -630,9 +602,6 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * convert a value to a number using xpath's type conversion rules (note that xpath itself makes
      * no distinction between integer and floating point numbers)
-     *
-     * @param o
-     * @return
      */
     public static Double toNumeric(Object o) {
         Double val = null;
@@ -680,9 +649,6 @@ public class XPathFuncExpr extends XPathExpression {
      * convert a number to an integer by truncating the fractional part. if non-numeric, coerce the
      * value to a number first. note that the resulting return value is still a Double, as required
      * by the xpath engine
-     *
-     * @param o
-     * @return
      */
     public static Double toInt(Object o) {
         Double val = toNumeric(o);
@@ -703,9 +669,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * convert a value to a string using xpath's type conversion rules
-     *
-     * @param o
-     * @return
      */
     public static String toString(Object o) {
         String val = null;
@@ -758,9 +721,6 @@ public class XPathFuncExpr extends XPathExpression {
      * null, which the xpath engine can't handle))
      * * note, however, than non-empty strings that aren't valid dates _will_ cause an error
      * during conversion
-     *
-     * @param o
-     * @return
      */
     public static Object toDate(Object o) {
         o = unpack(o);
@@ -844,7 +804,6 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
      * @param o2 choice to look for
-     * @return
      */
     public static Boolean multiSelected(Object o1, Object o2) {
         o2 = unpack(o2);
@@ -865,7 +824,6 @@ public class XPathFuncExpr extends XPathExpression {
      * return the number of choices in a multi-select answer
      *
      * @param o XML-serialized answer to multi-select question (i.e, space-delimited choice values)
-     * @return
      */
     public static Double countSelected(Object o) {
 
@@ -882,7 +840,6 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * @param o1 XML-serialized answer to multi-select question (i.e, space-delimited choice values)
      * @param o2 the integer index into the list to return
-     * @return
      */
     public static String selectedAt(Object o1, Object o2) {
         String selection = (String)unpack(o1);
@@ -893,9 +850,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * count the number of nodes in a nodeset
-     *
-     * @param o
-     * @return
      */
     public static Double count(Object o) {
         if (o instanceof XPathNodeset) {
@@ -907,9 +861,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * sum the values in a nodeset; each element is coerced to a numeric value
-     *
-     * @param argVals
-     * @return
      */
     public static Double sum(Object argVals[]) {
         double sum = 0.0;
@@ -921,9 +872,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * Identify the largest value from the list of provided values.
-     *
-     * @param argVals
-     * @return
      */
     private static Object max(Object[] argVals) {
         double max = Double.MIN_VALUE;
@@ -943,9 +891,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * concatenate an abritrary-length argument list of string values together
-     *
-     * @param argVals
-     * @return
      */
     public static String join(Object oSep, Object[] argVals) {
         String sep = toString(oSep);
@@ -993,10 +938,6 @@ public class XPathFuncExpr extends XPathExpression {
 
     /**
      * Perform toUpperCase or toLowerCase on given object.
-     *
-     * @param o
-     * @param toUpper
-     * @return
      */
     private String normalizeCase(Object o, boolean toUpper) {
         String s = toString(o);
@@ -1019,7 +960,6 @@ public class XPathFuncExpr extends XPathExpression {
      * @param o1 String to manipulate
      * @param o2 String of characters to replace
      * @param o3 String of replacement characters
-     * @return String
      */
     private String translate(Object o1, Object o2, Object o3) {
         String source = toString(o1);
@@ -1100,12 +1040,6 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * the weights of all the 'true' factors are summed, and the function returns whether
      * this sum is between the min and max
-     *
-     * @param oMin
-     * @param oMax
-     * @param flags
-     * @param weights
-     * @return
      */
     public static Boolean checklistWeighted(Object oMin, Object oMax, Object[] flags, Object[] weights) {
         double min = toNumeric(oMin).doubleValue();
@@ -1128,7 +1062,6 @@ public class XPathFuncExpr extends XPathExpression {
      *
      * @param o1 string being matched
      * @param o2 regular expression
-     * @return
      */
     public static Boolean regex(Object o1, Object o2) {
         String str = toString(o1);
@@ -1146,10 +1079,8 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * return a subset of an argument list as a new arguments list
      *
-     * @param args
      * @param start index to start at
      * @param skip  sub-list will contain every nth argument, where n == skip (default: 1)
-     * @return
      */
     private static Object[] subsetArgList(Object[] args, int start, int skip) {
         if (start > args.length || skip < 1) {
@@ -1367,7 +1298,6 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Implementation of logarithm with base ten
      *
-     * @param o Value
      * @return Base ten log of value
      */
     private Double pi() {
@@ -1467,10 +1397,6 @@ public class XPathFuncExpr extends XPathExpression {
      * This code is fairly legit, but it not compliant with actual
      * floating point math reqs. I don't know whether we
      * should expose the option of using it, exactly.
-     *
-     * @param a
-     * @param b
-     * @return
      */
     public static double pow(final double a, final double b) {
         final long tmp = Double.doubleToLongBits(a);

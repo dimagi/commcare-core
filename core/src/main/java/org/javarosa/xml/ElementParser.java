@@ -1,15 +1,15 @@
 package org.javarosa.xml;
 
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * <p>Element Parser is the core parsing element for XML files. Implementations
@@ -28,8 +28,6 @@ import org.xmlpull.v1.XmlPullParserException;
  */
 public abstract class ElementParser<T> {
     protected KXmlParser parser;
-
-    T element;
 
     int level = 0;
 

@@ -1,5 +1,14 @@
 package org.javarosa.j2me.util;
 
+import org.javarosa.core.api.State;
+import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.TrivialTransitions;
+import org.javarosa.j2me.log.CrashHandler;
+import org.javarosa.j2me.log.HandledCommandListener;
+import org.javarosa.j2me.log.HandledThread;
+import org.javarosa.j2me.view.J2MEDisplay;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
@@ -11,15 +20,6 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.StringItem;
-
-import org.javarosa.core.api.State;
-import org.javarosa.core.log.WrappedException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.TrivialTransitions;
-import org.javarosa.j2me.log.CrashHandler;
-import org.javarosa.j2me.log.HandledCommandListener;
-import org.javarosa.j2me.log.HandledThread;
-import org.javarosa.j2me.view.J2MEDisplay;
 
 /**
  * The PermissionsTestState is used to identify whether CommCare can properly access

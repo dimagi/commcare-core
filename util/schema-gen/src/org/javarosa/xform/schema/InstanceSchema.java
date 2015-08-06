@@ -16,9 +16,6 @@
 
 package org.javarosa.xform.schema;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IFormElement;
@@ -30,6 +27,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class InstanceSchema {
     private static Hashtable choiceTypeMapping;

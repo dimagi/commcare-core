@@ -1,25 +1,4 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.condition;
-
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -32,6 +11,11 @@ import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * A collection of objects that affect the evaluation of an expression, like
@@ -254,7 +238,6 @@ public class EvaluationContext {
      * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
      *
      * @param ref              Potentially ambiguous reference
-     * @param includeTemplates
      * @return Null if 'ref' is relative reference. Otherwise, returns a vector
      * of references that point to nodes that match 'ref' argument. These
      * references are unambiguous (no index will ever be INDEX_UNBOUND) template
@@ -283,7 +266,6 @@ public class EvaluationContext {
      *                         references are unambiguous. Template nodes won't be included when
      *                         matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
      *                         set.
-     * @param includeTemplates
      */
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
@@ -518,9 +500,6 @@ public class EvaluationContext {
 
     /**
      * Get the relevant cache host for the provided ref, if one exists.
-     *
-     * @param ref
-     * @return
      */
     public CacheHost getCacheHost(TreeReference ref) {
         DataInstance instance = retrieveInstance(ref);

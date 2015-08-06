@@ -16,6 +16,9 @@
 
 package org.javarosa.j2me.util;
 
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.externalizable.ExtUtil;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,9 +32,6 @@ import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.rms.RecordStoreNotFoundException;
-
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.externalizable.ExtUtil;
 
 public class DumpRMS {
     public static final String DUMP_PATH_PREFIX_DEFAULT = "E:/rmsdump";

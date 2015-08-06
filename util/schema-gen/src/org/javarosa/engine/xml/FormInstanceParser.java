@@ -3,12 +3,12 @@
  */
 package org.javarosa.engine.xml;
 
-import java.io.IOException;
-
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * The CaseXML Parser is responsible for processing and performing

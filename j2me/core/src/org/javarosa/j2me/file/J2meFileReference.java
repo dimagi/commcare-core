@@ -3,6 +3,9 @@
  */
 package org.javarosa.j2me.file;
 
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.reference.Reference;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,9 +15,6 @@ import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
-
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.reference.Reference;
 
 /**
  * A J2ME File reference is a reference type which refers to a

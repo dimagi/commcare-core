@@ -16,10 +16,10 @@
 
 package org.javarosa.demo.util;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+
+import java.util.Vector;
 
 public class TestFunctionHandler implements IFunctionHandler {
 

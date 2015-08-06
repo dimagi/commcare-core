@@ -16,13 +16,13 @@
 
 package org.javarosa.core.util.externalizable;
 
+import org.javarosa.core.util.OrderedHashtable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import org.javarosa.core.util.OrderedHashtable;
 
 //map of objects where elements are multiple types, keys are still assumed to be of a single (non-polymorphic) type
 //if elements are compound types (i.e., need wrappers), they must be pre-wrapped before invoking this wrapper, because... come on now.

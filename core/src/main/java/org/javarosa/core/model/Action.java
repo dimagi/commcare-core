@@ -1,14 +1,14 @@
 package org.javarosa.core.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @author ctsims
@@ -36,9 +36,6 @@ public class Action implements Externalizable {
      * NOTE: Currently actions are only processed on nodes that are
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
-     *
-     * @param model
-     * @param context
      */
     public void processAction(FormDef model, TreeReference context) {
         //TODO: Big block of handlers for basic named action types

@@ -2,9 +2,9 @@ package org.javarosa.core.util.test;
 
 import org.javarosa.core.services.locale.LocalizationUtils;
 import org.javarosa.core.util.OrderedHashtable;
-
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertTrue;
 
 public class LocalizationTests {
     @Test

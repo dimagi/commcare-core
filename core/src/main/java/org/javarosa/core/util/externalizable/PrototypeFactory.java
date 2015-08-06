@@ -18,7 +18,6 @@ package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
-
 import java.util.Date;
 import java.util.Vector;
 

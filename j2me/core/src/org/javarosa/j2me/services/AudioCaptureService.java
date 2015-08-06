@@ -22,11 +22,11 @@
 
 package org.javarosa.j2me.services;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.javarosa.j2me.services.exception.AudioException;
 import org.javarosa.j2me.services.exception.FileException;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 public interface AudioCaptureService extends DataCaptureService
 {

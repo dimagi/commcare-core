@@ -6,17 +6,16 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
-import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.model.xform.XPathReference;
-
+import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)

@@ -1,5 +1,17 @@
 package org.javarosa.j2me.util;
 
+import org.javarosa.core.api.State;
+import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
+import org.javarosa.core.util.TrivialTransitions;
+import org.javarosa.j2me.log.CrashHandler;
+import org.javarosa.j2me.log.HandledCommandListener;
+import org.javarosa.j2me.log.HandledThread;
+import org.javarosa.j2me.util.media.ImageUtils;
+import org.javarosa.j2me.view.J2MEDisplay;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,22 +28,8 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.StringItem;
 
-import org.javarosa.core.api.State;
-import org.javarosa.core.log.WrappedException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.core.util.TrivialTransitions;
-import org.javarosa.j2me.log.CrashHandler;
-import org.javarosa.j2me.log.HandledCommandListener;
-import org.javarosa.j2me.log.HandledThread;
-import org.javarosa.j2me.util.media.ImageUtils;
-import org.javarosa.j2me.view.J2MEDisplay;
-
-import de.enough.polish.ui.Dimension;
 import de.enough.polish.ui.FramedForm;
 import de.enough.polish.ui.ImageItem;
-import de.enough.polish.ui.ScaledImageItem;
 
 public abstract class GPRSTestState implements State, TrivialTransitions, HandledCommandListener {
 

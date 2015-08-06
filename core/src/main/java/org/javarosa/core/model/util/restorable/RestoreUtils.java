@@ -16,9 +16,6 @@
 
 package org.javarosa.core.model.util.restorable;
 
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.DateData;
@@ -39,6 +36,9 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.util.Date;
+import java.util.Vector;
 
 public class RestoreUtils {
     public static final String RECORD_ID_TAG = "rec-id";

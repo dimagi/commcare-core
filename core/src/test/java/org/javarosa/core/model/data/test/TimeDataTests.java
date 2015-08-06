@@ -1,12 +1,13 @@
 package org.javarosa.core.model.data.test;
 
-import org.junit.Test;
+import org.javarosa.core.model.data.TimeData;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.Date;
 
-import org.javarosa.core.model.data.TimeData;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TimeDataTests {
     static Date now;

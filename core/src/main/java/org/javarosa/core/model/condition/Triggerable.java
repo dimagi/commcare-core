@@ -1,26 +1,4 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.condition;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.FormInstance;
@@ -32,6 +10,12 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * A triggerable represents an action that should be processed based
@@ -137,11 +121,6 @@ public abstract class Triggerable implements Externalizable {
 
     /**
      * Not for re-implementation, dispatches all of the evaluation
-     *
-     * @param instance
-     * @param parentContext
-     * @param context
-     * @param f
      */
     public final void apply(FormInstance instance, EvaluationContext parentContext,
                             TreeReference context, FormDef f) {

@@ -1,11 +1,11 @@
 package org.javarosa.core.services;
 
-import java.util.Date;
-
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
+
+import java.util.Date;
 
 public class Logger {
     public static final int MAX_MSG_LENGTH = 2048;

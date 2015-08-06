@@ -1,8 +1,8 @@
 package org.javarosa.core.services.storage;
 
-import java.util.Vector;
-
 import org.javarosa.core.util.externalizable.Externalizable;
+
+import java.util.Vector;
 
 /**
  * IStorageUtility

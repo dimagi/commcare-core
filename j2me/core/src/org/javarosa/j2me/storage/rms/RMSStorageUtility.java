@@ -1,18 +1,5 @@
 package org.javarosa.j2me.storage.rms;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import javax.microedition.rms.InvalidRecordIDException;
-import javax.microedition.rms.RecordEnumeration;
-import javax.microedition.rms.RecordStore;
-import javax.microedition.rms.RecordStoreException;
-import javax.microedition.rms.RecordStoreFullException;
-import javax.microedition.rms.RecordStoreNotFoundException;
-import javax.microedition.rms.RecordStoreNotOpenException;
-
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.utils.DateUtils;
@@ -32,6 +19,18 @@ import org.javarosa.j2me.log.XmlStatusProvider;
 import org.javarosa.j2me.storage.rms.raw.RMS;
 import org.javarosa.j2me.storage.rms.raw.RMSFactory;
 import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.microedition.rms.RecordEnumeration;
+import javax.microedition.rms.RecordStore;
+import javax.microedition.rms.RecordStoreException;
+import javax.microedition.rms.RecordStoreFullException;
+import javax.microedition.rms.RecordStoreNotFoundException;
+import javax.microedition.rms.RecordStoreNotOpenException;
 
 /**
  * class StorageUtility

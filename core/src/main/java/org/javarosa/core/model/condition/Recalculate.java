@@ -16,8 +16,6 @@
 
 package org.javarosa.core.model.condition;
 
-import java.util.Date;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.data.BooleanData;
@@ -35,6 +33,8 @@ import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
+
+import java.util.Date;
 
 public class Recalculate extends Triggerable {
     public Recalculate() {

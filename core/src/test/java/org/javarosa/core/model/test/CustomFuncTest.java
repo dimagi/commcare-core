@@ -9,11 +9,12 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathUnhandledException;
+import org.junit.Test;
 
 import java.util.Vector;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Will Pride

@@ -1,15 +1,15 @@
 package org.javarosa.core.io.test;
 
-import org.junit.Test;
+import org.javarosa.core.io.BufferedInputStream;
+import org.javarosa.core.util.ArrayUtilities;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
 
-import org.javarosa.core.io.BufferedInputStream;
-import org.javarosa.core.util.ArrayUtilities;
+import static org.junit.Assert.fail;
 
 public class BufferedInputStreamTests {
 

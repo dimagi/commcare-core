@@ -1,11 +1,12 @@
 package org.javarosa.log.util;
-import java.util.Date;
 
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.log.properties.LogPropertyRules;
+
+import java.util.Date;
 
 /**
  *

@@ -1,8 +1,5 @@
 package org.javarosa.xform.schema;
 
-import java.io.InputStream;
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -26,6 +23,9 @@ import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.util.XFormUtils;
+
+import java.io.InputStream;
+import java.util.Vector;
 
 /**
  * @author ctsims

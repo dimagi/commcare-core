@@ -3,9 +3,9 @@
  */
 package org.javarosa.entity.util;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.services.storage.EntityFilter;
+
+import java.util.Hashtable;
 
 
 /**

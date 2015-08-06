@@ -16,10 +16,10 @@
 
 package org.javarosa.j2me.services;
 
-import javax.microedition.lcdui.Image;
-
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.j2me.services.exception.ImageProcessingException;
+
+import javax.microedition.lcdui.Image;
 
 /**
  * @author mel

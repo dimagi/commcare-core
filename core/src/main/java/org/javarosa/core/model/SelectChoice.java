@@ -1,9 +1,5 @@
 package org.javarosa.core.model;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizable;
@@ -12,8 +8,11 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.parse.XFormParseException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class SelectChoice implements Externalizable, Localizable {
 
@@ -40,7 +39,6 @@ public class SelectChoice implements Externalizable, Localizable {
      * @param labelID        can be null
      * @param labelInnerText can be null
      * @param value          should not be null
-     * @param isLocalizable
      * @throws XFormParseException if value is null
      */
     public SelectChoice(String labelID, String labelInnerText, String value, boolean isLocalizable) {
@@ -131,5 +129,4 @@ public class SelectChoice implements Externalizable, Localizable {
     public void setTextID(String textID) {
         this.textID = textID;
     }
-
 }

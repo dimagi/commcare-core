@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.util;
 
 import org.javarosa.core.model.instance.TreeReferenceLevel;
@@ -78,8 +75,6 @@ public class MemoryUtils {
      * with a tag to reference
      * Requires memory printing to be enabled, otherwise
      * is a no-op
-     *
-     * @param tag
      */
     public static void printMemoryTest(String tag) {
         printMemoryTest(tag, -1);
@@ -92,9 +87,6 @@ public class MemoryUtils {
      *
      * Requires memory printing to be enabled, otherwise
      * is a no-op
-     *
-     * @param tag
-     * @param pause
      */
     public static void printMemoryTest(String tag, int pause) {
         if (!MEMORY_PRINT_ENABLED) {

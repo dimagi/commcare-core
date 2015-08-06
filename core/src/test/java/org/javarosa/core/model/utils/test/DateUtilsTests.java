@@ -1,15 +1,15 @@
 package org.javarosa.core.model.utils.test;
 
-import org.junit.Test;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.model.utils.DateUtils.DateFields;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.model.utils.DateUtils.DateFields;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
     static Date currentTime;

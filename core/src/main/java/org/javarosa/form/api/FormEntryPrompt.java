@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.Constants;
@@ -61,9 +45,6 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     /**
      * Creates a FormEntryPrompt for the element at the given index in the form.
-     *
-     * @param form
-     * @param index
      */
     public FormEntryPrompt(FormDef form, FormIndex index) {
         super(form, index);
@@ -276,8 +257,6 @@ public class FormEntryPrompt extends FormEntryCaption {
      * ONLY RELEVANT to Question elements!
      * Will throw runTimeException if this is called for anything that isn't a Question.
      * Returns null if no hint text is available
-     *
-     * @return
      */
     public String getHintText() {
         if (!(element instanceof QuestionDef)) {
@@ -290,8 +269,6 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     /**
      * Determine if this prompt has any help, whether text or multimedia.
-     *
-     * @return
      */
     public boolean hasHelp() {
 
@@ -318,8 +295,6 @@ public class FormEntryPrompt extends FormEntryCaption {
      * ONLY RELEVANT to Question elements!
      * Will throw runTimeException if this is called for anything that isn't a Question.
      * Returns null if no hint text is available
-     *
-     * @return
      */
     public String getHelpText() {
         if (!(element instanceof QuestionDef)) {
@@ -333,9 +308,6 @@ public class FormEntryPrompt extends FormEntryCaption {
     /**
      * Helper for getHintText, getHelpText, getConstraintText. Tries to localize text form textID,
      * falls back to innerText if not available.
-     *
-     * @param mQuestionString
-     * @return
      */
     private String localizeText(QuestionString mQuestionString) {
 
@@ -364,7 +336,6 @@ public class FormEntryPrompt extends FormEntryCaption {
      * Get a particular type of multimedia help associated with this question.
      *
      * @param form TEXT_FORM_AUDIO, etc.
-     * @return
      */
     public String getHelpMultimedia(String form) {
         if (!(element instanceof QuestionDef)) {
