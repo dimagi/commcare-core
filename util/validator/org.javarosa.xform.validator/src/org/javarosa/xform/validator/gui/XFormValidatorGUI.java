@@ -16,6 +16,13 @@
 
 package org.javarosa.xform.validator.gui;
 
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.util.Interner;
+import org.javarosa.xform.parse.XFormParseException;
+import org.javarosa.xform.parse.XFormParserFactory;
+import org.javarosa.xform.schema.FormOverview;
+import org.javarosa.xform.util.XFormUtils;
+
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
@@ -67,13 +74,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
-
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.util.Interner;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParserFactory;
-import org.javarosa.xform.schema.FormOverview;
-import org.javarosa.xform.util.XFormUtils;
 
 /*
  * Written by Brian DeRenzi 2009.

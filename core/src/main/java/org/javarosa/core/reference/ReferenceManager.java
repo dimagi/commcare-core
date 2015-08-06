@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.reference;
 
 import java.util.Vector;
@@ -66,8 +63,6 @@ public class ReferenceManager {
 
     /**
      * Adds a new Translator to the current environment.
-     *
-     * @param translator
      */
     public void addRootTranslator(RootTranslator translator) {
         if (!translators.contains(translator)) {
@@ -251,7 +246,6 @@ public class ReferenceManager {
     }
 
     /**
-     * @param URI
      * @return Whether the provided URI describe a relative reference.
      */
     public static boolean isRelative(String URI) {

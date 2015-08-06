@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.xml.util;
 
 /**
@@ -36,14 +33,6 @@ public class UnfullfilledRequirementsException extends Exception {
 
     /**
      * Constructor for unfulfilled version requirements.
-     *
-     * @param message
-     * @param severity
-     * @param requirement
-     * @param requiredMajor
-     * @param requiredMinor
-     * @param availableMajor
-     * @param availableMinor
      */
     public UnfullfilledRequirementsException(String message, int severity,
                                              int requirement,

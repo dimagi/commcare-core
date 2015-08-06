@@ -1,7 +1,5 @@
 package org.javarosa.xpath.test;
 
-import static org.junit.Assert.*;
-
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
@@ -15,6 +13,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
 public class XPathParseTest {

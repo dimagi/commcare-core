@@ -16,15 +16,15 @@
 
 package org.javarosa.core.services;
 
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * PropertyManager is a class that is used to set and retrieve name/value pairs

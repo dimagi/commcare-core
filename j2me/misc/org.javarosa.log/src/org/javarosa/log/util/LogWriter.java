@@ -3,13 +3,13 @@
  */
 package org.javarosa.log.util;
 
+import org.javarosa.core.log.LogEntry;
+import org.javarosa.core.log.StreamLogSerializer;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-
-import org.javarosa.core.log.StreamLogSerializer;
-import org.javarosa.core.log.LogEntry;
 
 /**
  * @author ctsims

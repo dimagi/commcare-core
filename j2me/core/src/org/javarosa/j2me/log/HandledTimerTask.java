@@ -1,8 +1,8 @@
 package org.javarosa.j2me.log;
 
-import java.util.TimerTask;
-
 import org.javarosa.core.services.Logger;
+
+import java.util.TimerTask;
 
 /**
  * This is a wrapper class around TimerTask that provides top-level exception trapping and logging

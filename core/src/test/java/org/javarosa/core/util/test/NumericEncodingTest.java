@@ -1,11 +1,9 @@
 package org.javarosa.core.util.test;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.javarosa.core.util.externalizable.ExtWrapIntEncoding;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingSmall;
 import org.javarosa.core.util.externalizable.ExtWrapIntEncodingUniform;
+import org.junit.Test;
 
 public class NumericEncodingTest {
     @Test

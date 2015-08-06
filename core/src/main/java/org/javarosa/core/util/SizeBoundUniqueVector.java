@@ -1,7 +1,4 @@
-
 package org.javarosa.core.util;
-
-import java.util.Vector;
 
 /**
  * Only use for J2ME Compatible Vectors

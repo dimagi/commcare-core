@@ -3,13 +3,13 @@
  */
 package org.javarosa.j2me.storage.rms;
 
-import java.util.Hashtable;
-
-import javax.microedition.rms.RecordStoreNotOpenException;
-
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.j2me.storage.rms.raw.RMS;
+
+import java.util.Hashtable;
+
+import javax.microedition.rms.RecordStoreNotOpenException;
 
 /**
  * @author ctsims

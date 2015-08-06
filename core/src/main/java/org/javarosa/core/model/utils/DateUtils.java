@@ -1,28 +1,12 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.utils;
+
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.MathUtils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
-
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.MathUtils;
 
 /**
  * Static utility methods for Dates in j2me
@@ -385,8 +369,6 @@ public class DateUtils {
      * Parse string into date, save result to DateFields argument, and return
      * true if it was successfully parsed into a valid date.
      *
-     * @param dateStr
-     * @param df
      * @return Was the string successfully parsed into a valid date
      */
     private static boolean parseDateAndStore(String dateStr, DateFields df) {
@@ -739,10 +721,6 @@ public class DateUtils {
 
     /**
      * add n days to date d
-     *
-     * @param d
-     * @param n
-     * @return
      */
     public static Date dateAdd(Date d, int n) {
         return roundDate(new Date(roundDate(d).getTime() + DAY_IN_MS * n + DAY_IN_MS / 2));
@@ -752,8 +730,6 @@ public class DateUtils {
     /**
      * return the number of days between a and b, positive if b is later than a
      *
-     * @param a
-     * @param b
      * @return # days difference
      */
     public static int dateDiff(Date a, Date b) {
@@ -766,7 +742,7 @@ public class DateUtils {
     /**
      * Tokenizes a string based on the given delimiter string
      *
-     * @param original                  The string to be split
+     * @param str                       The string to be split
      * @param delimiter                 The delimeter to be used
      * @param combineMultipleDelimiters If two delimiters occur in a row,
      *                                  remove the empty strings created by their split

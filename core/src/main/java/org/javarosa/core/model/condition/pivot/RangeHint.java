@@ -3,13 +3,13 @@
  */
 package org.javarosa.core.model.condition.pivot;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+
+import java.util.Vector;
 
 /**
  * @author ctsims

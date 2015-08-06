@@ -1,16 +1,17 @@
 package org.javarosa.core.model.data.test;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import static org.junit.Assert.*;
-
-import java.util.Vector;
-
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.util.OrderedHashtable;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.Vector;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SelectOneDataTests {
     static QuestionDef question;

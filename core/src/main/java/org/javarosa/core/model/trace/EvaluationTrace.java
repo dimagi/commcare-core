@@ -1,9 +1,9 @@
 package org.javarosa.core.model.trace;
 
-import java.util.Vector;
-
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+
+import java.util.Vector;
 
 /**
  * Captures details about the outcome of a "Step" of expression execution, and

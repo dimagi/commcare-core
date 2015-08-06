@@ -3,13 +3,13 @@
  */
 package org.javarosa.engine.xml;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * @author ctsims

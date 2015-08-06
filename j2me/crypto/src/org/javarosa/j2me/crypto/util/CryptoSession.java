@@ -3,11 +3,7 @@
  */
 package org.javarosa.j2me.crypto.util;
 
-import org.bouncycastle.crypto.BlockCipher;
 import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.modes.CTSBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 
 /**

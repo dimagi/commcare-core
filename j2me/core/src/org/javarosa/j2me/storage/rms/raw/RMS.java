@@ -1,5 +1,10 @@
 package org.javarosa.j2me.storage.rms.raw;
 
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExternalizableWrapper;
+import org.javarosa.j2me.storage.rms.RMSRecordLoc;
+
 import java.util.Hashtable;
 
 import javax.microedition.rms.InvalidRecordIDException;
@@ -8,11 +13,6 @@ import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.rms.RecordStoreFullException;
 import javax.microedition.rms.RecordStoreNotOpenException;
-
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExternalizableWrapper;
-import org.javarosa.j2me.storage.rms.RMSRecordLoc;
 
 /**
  * A simple wrapper around an RMS RecordStore that handles common exceptions and

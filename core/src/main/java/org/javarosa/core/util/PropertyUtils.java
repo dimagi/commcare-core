@@ -16,11 +16,11 @@
 
 package org.javarosa.core.util;
 
-import java.util.Random;
-import java.util.Vector;
-
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
+
+import java.util.Random;
+import java.util.Vector;
 
 public class PropertyUtils {
 

@@ -16,10 +16,10 @@
 
 package org.javarosa.j2me.services;
 
-import java.util.Vector;
-
 import org.javarosa.core.api.State;
 import org.javarosa.j2me.services.exception.LocationServiceException;
+
+import java.util.Vector;
 
 /**
  *

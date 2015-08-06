@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.condition.pivot;
 
 /**
@@ -18,8 +15,6 @@ public class UnpivotableExpressionException extends Exception {
 
     /**
      * Message constructor. Should be used when something unusual happens.
-     *
-     * @param message
      */
     public UnpivotableExpressionException(String message) {
         super(message);

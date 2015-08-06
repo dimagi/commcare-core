@@ -1,9 +1,5 @@
 package org.javarosa.core.test;
 
-import java.io.InputStream;
-import java.util.Vector;
-
-import org.javarosa.core.form.api.test.TextFormTests;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
@@ -12,6 +8,9 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.util.XFormUtils;
+
+import java.io.InputStream;
+import java.util.Vector;
 
 /* TODO
  * Priority: Top priority is getting the localizations tested so that test coverage isn't lost

@@ -1,11 +1,5 @@
 package org.javarosa.core.model.instance;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Vector;
-
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.CacheTable;
@@ -13,6 +7,12 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * A data instance represents a tree structure of abstract tree

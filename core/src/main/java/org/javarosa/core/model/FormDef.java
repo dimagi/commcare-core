@@ -1,28 +1,4 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.model.condition.Condition;
@@ -63,6 +39,14 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * Definition of a form. This has some meta data about the form definition and a
@@ -168,9 +152,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /**
      * Get an instance based on a name
-     *
-     * @param name string name
-     * @return
      */
     public DataInstance getNonMainInstance(String name) {
         if (!formInstances.containsKey(name)) {
@@ -207,7 +188,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public void fireEvent() {
 
     }
-
 
     // ---------- child elements
     public void addChild(IFormElement fe) {
@@ -1362,9 +1342,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * should be used for deserialization.
      *
      * @param dis - the stream to read from.
-     * @throws IOException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));

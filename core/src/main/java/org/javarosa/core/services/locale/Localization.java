@@ -1,8 +1,8 @@
 package org.javarosa.core.services.locale;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.reference.ReferenceDataSource;
+
+import java.util.Hashtable;
 
 public class Localization {
     private static Localizer globalLocalizer;

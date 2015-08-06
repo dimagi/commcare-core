@@ -16,11 +16,11 @@
 
 package org.javarosa.shellformtest.midlet;
 
-import javax.microedition.midlet.MIDlet;
-import javax.microedition.midlet.MIDletStateChangeException;
-
 import org.javarosa.shellformtest.shell.JRFormTestState;
 import org.javarosa.shellformtest.shell.JRFormTestUtil;
+
+import javax.microedition.midlet.MIDlet;
+import javax.microedition.midlet.MIDletStateChangeException;
 
 /**
  * This is the starting point for the JavarosaDemo application

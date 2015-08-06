@@ -4,11 +4,11 @@
 package org.javarosa.xform.parse;
 
 
-import java.util.Hashtable;
-
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.SubmissionProfile;
+import org.javarosa.model.xform.XPathReference;
 import org.kxml2.kdom.Element;
+
+import java.util.Hashtable;
 
 /**
  * A Submission Profile

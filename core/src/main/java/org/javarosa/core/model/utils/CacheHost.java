@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.instance.TreeReference;
@@ -21,9 +18,6 @@ public interface CacheHost {
      * This behavior can be platform dependent, it is preferred that cache entities
      * are constant time entities that require no side computation, and is unlikely
      * that optimizations will work if they are not.
-     *
-     * @param ref
-     * @return
      */
     public String getCacheIndex(TreeReference ref);
 
@@ -39,9 +33,6 @@ public interface CacheHost {
      * or for other refs following this pattern will return a non-null
      * cache index, but merely that if one is returned that it will
      * be meaningful
-     *
-     * @param ref
-     * @return
      */
     public boolean isReferencePatternCachable(TreeReference ref);
 

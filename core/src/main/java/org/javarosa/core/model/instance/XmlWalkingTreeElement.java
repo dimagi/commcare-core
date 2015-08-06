@@ -3,11 +3,6 @@
  */
 package org.javarosa.core.model.instance;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
@@ -15,6 +10,11 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Vector;
 
 /**
  * The root element for the <casedb> abstract type. All children are

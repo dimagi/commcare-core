@@ -1,16 +1,17 @@
 package org.javarosa.core.model.test;
 
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
-
-import java.util.Vector;
-
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Vector;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TreeReferenceTest {
     private TreeReference root;

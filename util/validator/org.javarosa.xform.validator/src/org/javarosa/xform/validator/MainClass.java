@@ -19,10 +19,10 @@
  */
 package org.javarosa.xform.validator;
 
+import org.javarosa.xform.util.XFormUtils;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-import org.javarosa.xform.util.XFormUtils;
 
 
 /**

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.util;
 
 import java.util.Enumeration;
@@ -37,9 +34,6 @@ public class DAG<I, N, E> {
 
     /**
      * Connect Source -> Destination
-     *
-     * @param source
-     * @param destination
      */
     public void setEdge(I source, I destination, E edgeData) {
         addToEdge(edge, source, destination, edgeData);

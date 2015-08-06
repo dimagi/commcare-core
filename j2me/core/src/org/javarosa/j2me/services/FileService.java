@@ -16,10 +16,10 @@
 
 package org.javarosa.j2me.services;
 
+import org.javarosa.j2me.services.exception.FileException;
+
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.javarosa.j2me.services.exception.FileException;
 
 /**
  *

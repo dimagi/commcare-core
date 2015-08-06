@@ -1,11 +1,5 @@
 package org.javarosa.xpath.test;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.IAnswerData;
@@ -17,9 +11,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.IExprDataType;
+import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.javarosa.xpath.XPathUnsupportedException;
@@ -28,6 +22,11 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.Date;
+import java.util.Vector;
+
+import static org.junit.Assert.fail;
 
 public class XPathEvalTest {
     private void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {

@@ -1,10 +1,11 @@
 package org.javarosa.core.model.data.test;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import static org.junit.Assert.*;
-
 import org.javarosa.core.model.data.StringData;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StringDataTests {
     static String stringA;
