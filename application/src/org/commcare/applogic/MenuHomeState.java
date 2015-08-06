@@ -4,11 +4,8 @@
 package org.commcare.applogic;
 
 import org.commcare.api.transitions.MenuTransitions;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareSessionController;
-import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareSuiteController;
 import org.javarosa.core.api.State;
 

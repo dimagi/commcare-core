@@ -1,16 +1,16 @@
 package org.commcare.core.properties;
 
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.model.PeriodicEvent;
 import org.commcare.util.time.AutoSyncEvent;
 import org.commcare.util.time.AutoUpdateEvent;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
+
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class CommCareProperties implements IPropertyRules {
     Hashtable rules;

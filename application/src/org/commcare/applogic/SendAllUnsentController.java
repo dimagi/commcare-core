@@ -3,11 +3,6 @@
  */
 package org.commcare.applogic;
 
-import java.util.Vector;
-
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-
 import org.commcare.services.AutomatedSenderService;
 import org.commcare.services.AutomatedTransportListener;
 import org.javarosa.core.services.Logger;
@@ -21,6 +16,11 @@ import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportException;
+
+import java.util.Vector;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 
 /**
  * @author ctsims

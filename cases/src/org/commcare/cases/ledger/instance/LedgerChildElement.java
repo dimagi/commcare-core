@@ -3,9 +3,6 @@
  */
 package org.commcare.cases.ledger.instance;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.cases.ledger.Ledger;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
@@ -18,6 +15,9 @@ import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.instance.utils.TreeUtilities;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathPathExpr;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims

@@ -1,14 +1,14 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 public class ResourceParser extends ElementParser<Resource> {
 

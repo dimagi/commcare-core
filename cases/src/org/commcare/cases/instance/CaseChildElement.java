@@ -387,7 +387,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
                         //If we haven't finished caching yet, we can safely not return
                         //something useful here, so we can construct as normal.
-                        if (done[0] == false) {
+                        if (!done[0]) {
                             return child;
                         }
 
@@ -410,7 +410,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
                         //If we haven't finished caching yet, we can safely not return
                         //something useful here, so we can construct as normal.
-                        if (done[0] == false) {
+                        if (!done[0]) {
                             return children;
                         }
 
@@ -445,7 +445,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
                         //If we haven't finished caching yet, we can safely not return
                         //something useful here, so we can construct as normal.
-                        if (done[0] == false) {
+                        if (!done[0]) {
                             return child;
                         }
                         if (multiplicity >= 0 && child == null) {

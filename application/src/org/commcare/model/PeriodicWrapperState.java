@@ -3,10 +3,6 @@
  */
 package org.commcare.model;
 
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Stack;
-
 import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -16,6 +12,10 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.j2me.view.J2MEDisplay;
+
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Stack;
 
 /**
  * The periodic wrapper state is responsible for handling the execution of scheduled

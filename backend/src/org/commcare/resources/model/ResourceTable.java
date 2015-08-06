@@ -1,13 +1,7 @@
 package org.commcare.resources.model;
 
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.util.CommCareInstance;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -15,6 +9,12 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+import java.util.Vector;
 
 /**
  * <p>A Resource Table maintains a set of Resource Records,

@@ -3,14 +3,14 @@
  */
 package org.commcare.entity;
 
-import java.util.Hashtable;
-import java.util.Stack;
-
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.util.Hashtable;
+import java.util.Stack;
 
 /**
  * @author ctsims

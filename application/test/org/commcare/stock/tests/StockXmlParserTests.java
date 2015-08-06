@@ -16,21 +16,21 @@
 
 package org.commcare.stock.tests;
 
-import j2meunit.framework.Test;
-import j2meunit.framework.TestCase;
-import j2meunit.framework.TestMethod;
-import j2meunit.framework.TestSuite;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.LedgerXmlParsers;
 import org.kxml2.io.KXmlParser;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Vector;
+
+import j2meunit.framework.Test;
+import j2meunit.framework.TestCase;
+import j2meunit.framework.TestMethod;
+import j2meunit.framework.TestSuite;
 
 public class StockXmlParserTests extends TestCase {
 

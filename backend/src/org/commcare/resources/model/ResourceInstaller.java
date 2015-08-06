@@ -1,11 +1,11 @@
 package org.commcare.resources.model;
 
-import java.util.Vector;
-
 import org.commcare.util.CommCareInstance;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.util.Vector;
 
 /**
  * <p>A Resource Installer (Possible name change pending) is

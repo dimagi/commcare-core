@@ -3,15 +3,6 @@
  */
 package org.commcare.util;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.midlet.MIDlet;
-
 import org.commcare.applogic.CommCareUpgradeState;
 import org.commcare.cases.CaseManagementModule;
 import org.commcare.cases.ledger.Ledger;
@@ -91,6 +82,15 @@ import org.javarosa.user.utility.UserPreloadHandler;
 import org.javarosa.user.utility.UserUtility;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.microedition.io.file.FileConnection;
+import javax.microedition.midlet.MIDlet;
 
 import de.enough.polish.ui.Display;
 

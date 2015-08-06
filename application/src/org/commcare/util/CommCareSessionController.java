@@ -3,10 +3,6 @@
  */
 package org.commcare.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.applogic.CommCareFormEntryState;
 import org.commcare.applogic.CommCareHomeState;
 import org.commcare.applogic.CommCareSelectState;
@@ -37,6 +33,10 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import de.enough.polish.ui.List;
 
@@ -82,7 +82,7 @@ public class CommCareSessionController {
                         if (ec == null) {
                             ec = session.getEvaluationContext(getIif(), m.getId());
                         }
-                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue()) {
                             continue;
                         }
                     }

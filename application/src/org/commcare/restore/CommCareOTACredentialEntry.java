@@ -3,13 +3,12 @@
  */
 package org.commcare.restore;
 
-import javax.microedition.lcdui.Command;
-
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.user.api.CreateUserController;
-import org.javarosa.user.api.LoginController;
+
+import javax.microedition.lcdui.Command;
 
 import de.enough.polish.ui.Form;
 import de.enough.polish.ui.StringItem;

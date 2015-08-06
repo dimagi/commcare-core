@@ -3,15 +3,14 @@
  */
 package org.commcare.util;
 
-import java.util.Date;
-import java.util.Hashtable;
-
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.EntityFilter;
+
+import java.util.Date;
 
 /**
  * The RecentFormFilter specifies whether a form is currently

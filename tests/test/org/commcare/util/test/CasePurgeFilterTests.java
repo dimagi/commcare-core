@@ -1,9 +1,5 @@
 package org.commcare.util.test;
 
-import static org.junit.Assert.fail;
-
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
@@ -13,6 +9,10 @@ import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.DataUtil;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Vector;
+
+import static org.junit.Assert.fail;
 
 
 public class CasePurgeFilterTests {

@@ -3,9 +3,6 @@
  */
 package org.commcare.api.transitions;
 
-import org.commcare.suite.model.Menu;
-import org.commcare.suite.model.Suite;
-
 /**
  * @author ctsims
  *

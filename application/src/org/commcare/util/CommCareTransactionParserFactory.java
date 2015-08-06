@@ -3,8 +3,6 @@
  */
 package org.commcare.util;
 
-import java.io.IOException;
-
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
@@ -21,6 +19,8 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current

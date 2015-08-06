@@ -1,31 +1,33 @@
-package org.commcare.xml;
+package org.commcare.api.parser;
 
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.suite.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.user.model.User;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
+/**
+ * Mock copied from Android app.
+ *
+ * TODO:unify into CommCare Global Project
+ *
+ * @author ctsims
+ */
 public class UserXmlParser extends TransactionParser<User> {
 
-    IStorageUtilityIndexed storage;
-    String syncToken;
+    IStorageUtilityIndexed<User> storage;
+    byte[] wrappedKey;
 
-    public UserXmlParser(KXmlParser parser) {
-        this(parser, null);
-    }
 
-    public UserXmlParser(KXmlParser parser, String syncToken) {
+    public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
-        this.syncToken = syncToken;
+        this.storage = storage;
     }
 
     public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -43,28 +45,29 @@ public class UserXmlParser extends TransactionParser<User> {
 
         this.nextTag("date");
         String dateModified = parser.nextText();
-        Date modified = DateUtils.parseDateTime(dateModified);
+        DateUtils.parseDateTime(dateModified);
 
         User u = retrieve(uuid);
 
-        if(u == null) {
+        if (u == null) {
             u = new User(username, passwordHash, uuid);
         } else {
-            u.setPassword(passwordHash);
-            u.setUsername(username);
+            if (passwordHash != null && !passwordHash.equals(u.getPassword())) {
+                u.setPassword(passwordHash);
+            }
         }
 
         //Now look for optional components
-        while(this.nextTagInBlock("registration")) {
+        while (this.nextTagInBlock("registration")) {
 
             String tag = parser.getName().toLowerCase();
 
-            if(tag.equals("registering_phone_id")) {
-                String phoneid = parser.nextText();
-            } else if(tag.equals("token")) {
-                String token = parser.nextText();
-            } else if(tag.equals("user_data")) {
-                while(this.nextTagInBlock("user_data")) {
+            if (tag.equals("registering_phone_id")) {
+                parser.nextText();
+            } else if (tag.equals("token")) {
+                parser.nextText();
+            } else if (tag.equals("user_data")) {
+                while (this.nextTagInBlock("user_data")) {
                     this.checkNode("data");
 
                     String key = this.parser.getAttributeValue(null, "key");
@@ -76,14 +79,10 @@ public class UserXmlParser extends TransactionParser<User> {
                 //This should be the last block in the registration stuff...
                 break;
             } else {
-                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag,parser);
+                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag, parser);
             }
         }
 
-        //If this user's being restored as part of a sync action, we want the phone to know what the root of that action was!
-        if(syncToken != null) {
-            u.setLastSyncToken(syncToken);
-        }
         commit(u);
         return u;
     }
@@ -99,18 +98,14 @@ public class UserXmlParser extends TransactionParser<User> {
 
     public User retrieve(String entityId) {
         IStorageUtilityIndexed storage = storage();
-        try{
+        try {
             return (User)storage.getRecordForValue(User.META_UID, entityId);
-        } catch(NoSuchElementException nsee) {
+        } catch (NoSuchElementException nsee) {
             return null;
         }
     }
 
     public IStorageUtilityIndexed storage() {
-        if(storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(User.STORAGE_KEY);
-        }
         return storage;
     }
-
 }
