@@ -1,22 +1,14 @@
 package org.javarosa.form.api.test;
 
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
-
-import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.test.FormParseInit;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntryPrompt;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)

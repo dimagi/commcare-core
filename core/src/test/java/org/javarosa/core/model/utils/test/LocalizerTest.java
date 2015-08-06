@@ -1,10 +1,5 @@
 package org.javarosa.core.model.utils.test;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.util.Hashtable;
-
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
@@ -13,6 +8,13 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
+import org.junit.Test;
+
+import java.util.Hashtable;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class LocalizerTest {
     private void testSerialize(Localizer l, String msg) {

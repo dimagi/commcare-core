@@ -3,12 +3,12 @@
  */
 package org.javarosa.xform.schema;
 
-import java.util.ArrayList;
-
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParserReporter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * @author ctsims

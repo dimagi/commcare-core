@@ -1,12 +1,11 @@
 package org.javarosa.j2me.log;
 
-import java.io.IOException;
-
-import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.log.LogEntry;
-import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
 import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
 
 public class XmlStreamLogSerializer extends StreamLogSerializer {
 

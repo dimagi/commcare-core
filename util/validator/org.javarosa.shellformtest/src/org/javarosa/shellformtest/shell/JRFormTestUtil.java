@@ -1,9 +1,5 @@
 package org.javarosa.shellformtest.shell;
 
-import java.util.Vector;
-
-import javax.microedition.midlet.MIDlet;
-
 import org.javarosa.core.model.CoreModelModule;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.utils.IPreloadHandler;
@@ -20,6 +16,10 @@ import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.resources.locale.LanguagePackModule;
 import org.javarosa.xform.util.XFormUtils;
+
+import java.util.Vector;
+
+import javax.microedition.midlet.MIDlet;
 
 public class JRFormTestUtil {
 

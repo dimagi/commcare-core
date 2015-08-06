@@ -3,13 +3,13 @@
  */
 package org.javarosa.engine;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
+
+import java.util.Hashtable;
 
 /**
  * @author ctsims

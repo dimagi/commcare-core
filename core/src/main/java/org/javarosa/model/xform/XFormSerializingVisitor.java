@@ -18,14 +18,9 @@ package org.javarosa.model.xform;
      */
 
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -39,6 +34,10 @@ import org.javarosa.xform.util.XFormSerializer;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A visitor-esque class which walks a FormInstance and constructs an XML document

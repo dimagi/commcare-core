@@ -1,17 +1,9 @@
 package org.javarosa.core.model.test;
 
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
-
-import java.util.Vector;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormElementStateListener;
-import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.QuestionDef;
-import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -20,14 +12,17 @@ import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XPathReference;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Vector;
+
+import static org.junit.Assert.fail;
 
 public class QuestionDefTest {
     QuestionDef q = null;

@@ -1,18 +1,19 @@
 package org.javarosa.xform.util.test;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import static org.junit.Assert.*;
-
-import java.util.Date;
-
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IntegerData;
-import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Note that this is just a start and doesn't cover direct comparisons

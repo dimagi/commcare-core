@@ -1,11 +1,11 @@
 package org.javarosa.xpath;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
+
+import java.util.Vector;
 
 /**
  * Represents a set of XPath nodes returned from a path or other operation which acts on multiple

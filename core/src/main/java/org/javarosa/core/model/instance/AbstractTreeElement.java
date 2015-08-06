@@ -1,11 +1,11 @@
 package org.javarosa.core.model.instance;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Vector;
 
 public interface AbstractTreeElement<T extends AbstractTreeElement> {
 

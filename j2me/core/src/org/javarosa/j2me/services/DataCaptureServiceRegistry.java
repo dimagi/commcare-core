@@ -16,9 +16,9 @@
 
 package org.javarosa.j2me.services;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.services.UnavailableServiceException;
+
+import java.util.Hashtable;
 
 /**
  * This is a registry of services to be passed to a state (such as form entry) that can perform data capture.

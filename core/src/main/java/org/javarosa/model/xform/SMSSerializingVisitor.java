@@ -1,8 +1,5 @@
 package org.javarosa.model.xform;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
@@ -15,6 +12,9 @@ import org.javarosa.core.services.transport.payload.IDataPayload;
 import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * A modified version of Clayton's XFormSerializingVisitor that constructs

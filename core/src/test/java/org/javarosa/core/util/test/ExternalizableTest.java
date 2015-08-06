@@ -1,15 +1,5 @@
 package org.javarosa.core.util.test;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
@@ -22,6 +12,16 @@ import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.ExternalizableWrapper;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import static org.junit.Assert.fail;
 
 public class ExternalizableTest {
     public static void testExternalizable(Object orig, Object template, PrototypeFactory pf, String failMessage) {

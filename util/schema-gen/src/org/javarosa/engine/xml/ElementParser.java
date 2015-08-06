@@ -3,11 +3,11 @@
  */
 package org.javarosa.engine.xml;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * <p>Element Parser is the core parsing element

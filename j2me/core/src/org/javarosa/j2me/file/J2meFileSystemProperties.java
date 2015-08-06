@@ -3,15 +3,15 @@
  */
 package org.javarosa.j2me.file;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
-import javax.microedition.io.file.FileSystemRegistry;
-
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
+
+import java.util.Enumeration;
+import java.util.Vector;
+
+import javax.microedition.io.file.FileSystemRegistry;
 
 /**
  * The J2meFileSystemProperties class provides a clean and quick

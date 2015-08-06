@@ -1,8 +1,8 @@
 package org.javarosa.core.model;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.instance.TreeReference;
+
+import java.util.Vector;
 
 /**
  * A Form Index is an immutable index into a specific question definition that

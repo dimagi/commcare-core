@@ -3,9 +3,9 @@
  */
 package org.javarosa.j2me.log;
 
-import java.io.IOException;
-
 import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
 
 /**
  * @author ctsims

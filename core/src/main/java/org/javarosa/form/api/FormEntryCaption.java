@@ -1,8 +1,5 @@
 package org.javarosa.form.api;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormElementStateListener;
 import org.javarosa.core.model.FormIndex;
@@ -11,6 +8,9 @@ import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.formmanager.view.IQuestionWidget;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * This class gives you all the information you need to display a caption when

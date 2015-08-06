@@ -16,9 +16,6 @@
 
 package org.javarosa.core.model.utils;
 
-import java.util.Date;
-import java.util.Vector;
-
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -27,6 +24,9 @@ import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.util.Map;
 import org.javarosa.core.util.PropertyUtils;
+
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * The Question Preloader is responsible for maintaining a set of handlers which are capable

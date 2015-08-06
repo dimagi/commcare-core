@@ -1,10 +1,10 @@
 package org.javarosa.core.model;
 
-import java.util.Vector;
-
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.XPathReference;
+
+import java.util.Vector;
 
 /**
  * An IFormDataElement is an element of the physical interaction for
