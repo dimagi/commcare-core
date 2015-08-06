@@ -3,12 +3,6 @@
  */
 package org.commcare.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Vector;
-
-import javax.microedition.lcdui.StringItem;
-
 import org.commcare.applogic.CommCareAlertState;
 import org.commcare.applogic.CommCareFirstStartState;
 import org.commcare.applogic.CommCareHomeState;
@@ -41,6 +35,12 @@ import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
 import org.javarosa.user.model.User;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Vector;
+
+import javax.microedition.lcdui.StringItem;
 
 import de.enough.polish.ui.Style;
 import de.enough.polish.ui.StyleSheet;

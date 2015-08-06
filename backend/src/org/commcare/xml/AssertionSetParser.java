@@ -3,9 +3,6 @@
  */
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Text;
 import org.javarosa.xml.ElementParser;
@@ -14,6 +11,9 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims

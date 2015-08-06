@@ -3,7 +3,6 @@
  */
 package org.commcare.applogic;
 
-import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareListView;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.locale.Localization;

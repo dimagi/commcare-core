@@ -3,15 +3,14 @@
  */
 package org.commcare.entity;
 
-import java.util.Vector;
-
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.Iterator;
 import org.javarosa.entity.model.EntitySet;
 import org.javarosa.j2me.view.ProgressIndicator;
-import org.javarosa.model.xform.XPathReference;
+
+import java.util.Vector;
 
 /**
  * NOTE: Definitely not thread-safe.

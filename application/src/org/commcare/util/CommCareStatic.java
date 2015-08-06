@@ -3,10 +3,6 @@
  */
 package org.commcare.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.view.CommCareStartupInteraction;
@@ -17,6 +13,10 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.expr.XPathStep;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims

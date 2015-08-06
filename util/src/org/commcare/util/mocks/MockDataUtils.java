@@ -1,9 +1,5 @@
 package org.commcare.util.mocks;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Vector;
-
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.util.CommCareTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -19,6 +15,10 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Vector;
 
 /**
  * Methods that mostly are used around the mocks that replicate stuff from

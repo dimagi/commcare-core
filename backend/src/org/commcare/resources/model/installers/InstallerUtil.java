@@ -1,13 +1,13 @@
 package org.commcare.resources.model.installers;
 
-import java.io.IOException;
-
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.SizeBoundUniqueVector;
+
+import java.io.IOException;
 
 public class InstallerUtil {
 

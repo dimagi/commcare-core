@@ -1,12 +1,12 @@
 package org.commcare.util.test;
 
-import java.util.Vector;
-
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Vector;
 
 /**
  * Quick test to be able to restore a set of user data

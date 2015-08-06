@@ -3,9 +3,6 @@
  */
 package org.commcare.cases.instance;
 
-import java.util.Enumeration;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -19,6 +16,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.ITreeVisitor;
 import org.javarosa.core.model.utils.PreloadUtils;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author ctsims

@@ -3,9 +3,6 @@
  */
 package org.commcare.cases.instance;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.StorageBackedTreeRoot;
 import org.javarosa.core.model.data.IAnswerData;
@@ -19,6 +16,9 @@ import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathPathExpr;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * The root element for the <casedb> abstract type. All children are

@@ -3,12 +3,12 @@
  */
 package org.commcare.view;
 
-import java.util.Vector;
-
 import org.commcare.util.CommCareSense;
 import org.commcare.util.MultimediaListener;
 import org.javarosa.formmanager.view.CustomChoiceGroup;
 import org.javarosa.utilities.media.MediaUtils;
+
+import java.util.Vector;
 
 import de.enough.polish.ui.ChoiceGroup;
 import de.enough.polish.ui.Command;

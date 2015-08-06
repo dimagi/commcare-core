@@ -1,8 +1,5 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Menu;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -11,6 +8,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims

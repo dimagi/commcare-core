@@ -3,11 +3,6 @@
  */
 package org.commcare.restore;
 
-import java.util.Hashtable;
-
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-
 import org.commcare.model.PeriodicEvent;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.util.CommCareRestorer;
@@ -22,10 +17,14 @@ import org.javarosa.core.services.storage.StorageModifiedException;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
 import org.javarosa.user.model.User;
+
+import java.util.Hashtable;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 
 /**
  *

@@ -1,9 +1,5 @@
 package org.commcare.util.cli;
 
-import java.io.PrintStream;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -20,6 +16,10 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.io.PrintStream;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Screen to allow users to choose items from session menus.

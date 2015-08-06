@@ -1,15 +1,8 @@
 package org.commcare.view;
 
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Vector;
-
-import javax.microedition.lcdui.Image;
-
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSense;
 import org.commcare.util.CommCareUtil;
@@ -19,6 +12,10 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.user.model.User;
+
+import java.util.Date;
+
+import javax.microedition.lcdui.Image;
 
 import de.enough.polish.ui.ChoiceItem;
 import de.enough.polish.ui.Command;

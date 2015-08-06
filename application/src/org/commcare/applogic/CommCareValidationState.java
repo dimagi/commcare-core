@@ -7,17 +7,10 @@ package org.commcare.applogic;
  * @author wspride
  */
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareStatic;
 import org.commcare.view.CommCareStartupInteraction;
 import org.javarosa.core.api.State;
-import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.TrivialTransitions;
 import org.javarosa.j2me.view.J2MEDisplay;
 

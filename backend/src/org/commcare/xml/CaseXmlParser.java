@@ -3,19 +3,19 @@
  */
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.NoSuchElementException;
-
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.NoSuchElementException;
 
 /**
  * The CaseXML Parser is responsible for processing and performing

@@ -1,10 +1,5 @@
 package org.commcare.util;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.commcare.model.PeriodicEvent;
 import org.commcare.util.time.TimeMessageEvent;
 import org.javarosa.core.model.utils.DateUtils;
@@ -20,6 +15,11 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class CommCareHQResponder implements TransportResponseProcessor {
 

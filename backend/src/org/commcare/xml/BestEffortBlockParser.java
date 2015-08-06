@@ -3,14 +3,14 @@
  */
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * This parser is for scanning through a block making a best-effort to identify a few

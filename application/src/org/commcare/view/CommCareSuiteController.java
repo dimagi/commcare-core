@@ -3,10 +3,6 @@
  */
 package org.commcare.view;
 
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-import javax.microedition.lcdui.List;
-
 import org.commcare.api.transitions.MenuTransitions;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCareSessionController;
@@ -15,6 +11,10 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.List;
 
 /**
  * @author ctsims

@@ -1,15 +1,12 @@
 package org.commcare.applogic;
 
-import java.io.IOException;
-
-import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.formmanager.api.FormTransportState;
-import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.services.transport.TransportMessage;
+
+import java.io.IOException;
 
 public abstract class CommCareFormSendState extends FormTransportState {
 

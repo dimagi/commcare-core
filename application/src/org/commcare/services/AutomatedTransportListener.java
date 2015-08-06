@@ -6,7 +6,6 @@ package org.commcare.services;
 import org.commcare.util.CommCareHQResponder;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
-import org.javarosa.formmanager.view.transport.MultiSubmitStatusScreen;
 import org.javarosa.services.transport.TransportListener;
 import org.javarosa.services.transport.TransportMessage;
 import org.javarosa.services.transport.TransportService;

@@ -1,9 +1,5 @@
 package org.commcare.applogic;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Vector;
-
 import org.commcare.cases.util.CaseModelProcessor;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
@@ -51,6 +47,10 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.XPathTypeMismatchException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Vector;
 
 //can't support editing saved forms; for new forms only
 public abstract class CommCareFormEntryState extends FormEntryState {

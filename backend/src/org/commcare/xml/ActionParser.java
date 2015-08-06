@@ -1,14 +1,14 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.StackOperation;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims

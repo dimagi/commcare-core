@@ -1,7 +1,5 @@
 package org.commcare.applogic;
 
-import java.util.Vector;
-
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.OpenRosaApiResponseProcessor;
@@ -19,6 +17,8 @@ import org.javarosa.user.api.RegisterUserController;
 import org.javarosa.user.api.RegisterUserState;
 import org.javarosa.user.model.User;
 import org.javarosa.user.transport.HttpUserRegistrationTranslator;
+
+import java.util.Vector;
 
 public class CommCareAddUserState extends CreateUserFormEntryState {
 

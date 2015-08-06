@@ -3,20 +3,17 @@
  */
 package org.commcare.view;
 
-import java.util.Vector;
-
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.Displayable;
-
 import org.commcare.api.transitions.CommCareHomeTransitions;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareSessionController;
 import org.javarosa.j2me.log.CrashHandler;
 import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.user.model.User;
+
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Displayable;
 
 
 /**
