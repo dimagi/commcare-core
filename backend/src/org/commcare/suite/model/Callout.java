@@ -124,4 +124,14 @@ public class Callout implements Externalizable, DetailTemplate {
     public Vector<String> getResponses() {
         return responses;
     }
+
+    //region Interfaces for implementing Callout-related actions
+    public interface CalloutActionSetup {
+        void onImageFound(CalloutData calloutData);
+    }
+
+    public interface CalloutAction {
+        void callout();
+    }
+    //endregion
 }
