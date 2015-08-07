@@ -402,75 +402,17 @@ public class ResourceTable {
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
-        this.prepareResources(master, instance, null);
-    }
-
-
-    /**
-     * Makes some (or all) of the table's resources available
-     *
-     * @param master       The global resource to prepare against. Used to
-     *                     establish whether resources need to be fetched remotely
-     * @param instance     The instance (version and profile) to prepare against
-     * @param toInitialize The ID of a single resource after which the table
-     *                     preparation can stop.
-     * @throws UnresolvedResourceException       Required resource couldn't be
-     *                                           identified
-     * @throws UnfullfilledRequirementsException resource(s) incompatible with
-     *                                           current CommCare version
-     */
-    public void prepareResources(ResourceTable master,
-                                 CommCareInstance instance,
-                                 String toInitialize)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
         Stack<Resource> unreadyResources = getUnreadyResources();
 
-        // install all unready resources. If toInitialize is set, stop after it
-        // has been installed.
-        while (idNeedsInit(toInitialize) && !unreadyResources.isEmpty()) {
+        // install all unready resources.
+        while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                boolean upgrade = false;
-
-                Vector<Reference> invalid = new Vector<Reference>();
-
-                // All operations regarding peers and master table
-                if (master != null) {
-                    // obtain resource peer by looking up the current resource
-                    // in the master table
-                    Resource peer = master.getResourceWithId(r.getResourceId());
-                    if (peer != null) {
-                        // TODO: For now we're assuming that Versions greater
-                        // than the current are always acceptable
-                        if (!r.isNewer(peer)) {
-                            // This resource doesn't need to be updated, copy
-                            // the existing resource into this table
-                            peer.mimick(r);
-                            commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
-                            continue;
-                        }
-
-                        // resource is newer than master version, so invalidate
-                        // old local resource locations.
-                        upgrade = true;
-                        invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
-                    }
-                }
-
-                findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
-
-                if (stateListener != null) {
-                    stateListener.resourceStateUpdated(this);
-                }
+                prepareResource(master, instance, r);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
             unreadyResources = getUnreadyResources();
-        }
-
-        if (toInitialize != null) {
-            // We will need to run  a full init later, so we can skip the next step
-            return;
         }
 
         // TODO: Nothing uses this status, really. Should this go away?
@@ -482,20 +424,76 @@ public class ResourceTable {
     }
 
     /**
-     * Is the id non-null and points to a resource that is uninitialized
+     * Makes all resources available until toInitialize is encountered.
      *
-     * @param id Points to a resource. If null, returns true
-     * @return Is the resource pointed to by the ID uninitialized?
+     * @param master       The global resource to prepare against. Used to
+     *                     establish whether resources need to be fetched remotely
+     * @param instance     The instance (version and profile) to prepare against
+     * @param toInitialize The ID of a single resource after which the table
+     *                     preparation can stop.
+     * @throws UnresolvedResourceException       Required resource couldn't be
+     *                                           identified
+     * @throws UnfullfilledRequirementsException resource(s) incompatible with
+     *                                           current CommCare version
      */
-    private boolean idNeedsInit(String id) {
-        if (id != null) {
-            Resource res = this.getResourceWithId(id);
-            if (res != null &&
-                    res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
-                return false;
+    public void prepareResourcesUpTo(ResourceTable master,
+                                     CommCareInstance instance,
+                                     String toInitialize)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+
+        Stack<Resource> unreadyResources = getUnreadyResources();
+
+        // install unready resources, until toInitialize has been installed.
+        while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
+            for (Resource r : unreadyResources) {
+                prepareResource(master, instance, r);
+            }
+            // Installing resources may have exposed more unready resources
+            // that need installing.
+            unreadyResources = getUnreadyResources();
+        }
+    }
+
+    private void prepareResource(ResourceTable master, CommCareInstance instance,
+                                 Resource r)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+        boolean upgrade = false;
+
+        Vector<Reference> invalid = new Vector<Reference>();
+
+        if (master != null) {
+            // obtain resource peer by looking up the current resource
+            // in the master table
+            Resource peer = master.getResourceWithId(r.getResourceId());
+            if (peer != null) {
+                // TODO: For now we're assuming that Versions greater
+                // than the current are always acceptable
+                if (!r.isNewer(peer)) {
+                    // This resource doesn't need to be updated, copy
+                    // the existing resource into this table
+                    peer.mimick(r);
+                    commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
+                    return;
+                }
+
+                // resource is newer than master version, so invalidate
+                // old local resource locations.
+                upgrade = true;
+                invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
             }
         }
-        return true;
+
+        findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
+
+        if (stateListener != null) {
+            stateListener.resourceStateUpdated(this);
+        }
+    }
+
+    private boolean isResourceUninitialized(String resourceId) {
+        Resource res = this.getResourceWithId(resourceId);
+        return ((res == null) ||
+                (res.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED));
     }
 
     /**
