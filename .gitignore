@@ -27,3 +27,4 @@ build/
 *.swp
 .hg*
 *.iml
+**.DS_STORE

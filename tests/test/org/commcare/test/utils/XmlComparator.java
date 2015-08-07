@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.test.utils;
 
 import org.kxml2.io.KXmlParser;
@@ -14,7 +11,6 @@ import java.util.Hashtable;
 
 /**
  * @author ctsims
- *
  */
 public class XmlComparator {
 
@@ -29,7 +25,7 @@ public class XmlComparator {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             document.parse(parser);
             return document;
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -61,25 +57,25 @@ public class XmlComparator {
         Hashtable<String, String> leftAttr = attrTable(left);
         Hashtable<String, String> rightAttr = attrTable(right);
 
-        for(String key : leftAttr.keySet()) {
-            if(!rightAttr.containsKey(key)) {
+        for (String key : leftAttr.keySet()) {
+            if (!rightAttr.containsKey(key)) {
                 throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
             }
 
-            if(!leftAttr.get(key).equals(rightAttr.get(key))) {
+            if (!leftAttr.get(key).equals(rightAttr.get(key))) {
                 throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
             }
         }
 
-        if(left.getChildCount() != right.getChildCount()) {
-            throw new RuntimeException(String.format("Mismatched child count (%d,%d) for node '%s' ",left.getChildCount(), right.getChildCount(), left.getName()));
+        if (left.getChildCount() != right.getChildCount()) {
+            throw new RuntimeException(String.format("Mismatched child count (%d,%d) for node '%s' ", left.getChildCount(), right.getChildCount(), left.getName()));
         }
 
-        for(int i = 0 ; i < left.getChildCount() ; ++i ){
+        for (int i = 0; i < left.getChildCount(); ++i) {
             Object l = left.getChild(i);
             Object r = right.getChild(i);
 
-            if(left.getType(i) != right.getType(i)) {
+            if (left.getType(i) != right.getType(i)) {
                 throw new RuntimeException(String.format("Mismatched children for node '%s' ", left.getName()));
             }
 
@@ -91,7 +87,6 @@ public class XmlComparator {
                 }
             }
         }
-
     }
 
     private static Hashtable<String, String> attrTable(Element element) {

@@ -21,24 +21,24 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test suite to verify end-to-end parsing of inbound case XML
  * and reading values back from the casedb model
- * 
+ *
  * @author ctsims
  */
 public class CaseParseAndReadTest {
 
-    MockUserDataSandbox sandbox;
-    
+    private MockUserDataSandbox sandbox;
+
     @Before
     public void setUp() {
         sandbox = MockDataUtils.getStaticStorage();
     }
-    
+
     @Test
     public void testReadCaseDB() throws IOException {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
     }
 
-    private void compareCaseDbState(String inputTransactions, String caseDbState) throws IOException{
+    private void compareCaseDbState(String inputTransactions, String caseDbState) throws IOException {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
 
         byte[] parsedDb = dumpInstance("jr://instance/casedb");
@@ -57,7 +57,19 @@ public class CaseParseAndReadTest {
         }
     }
 
-    private byte[] dumpStream(String inputResource) throws IOException{
+    private byte[] dumpInstance(String instanceRef) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
+
+            s.serialize(new ExternalDataInstance(instanceRef, "instance"), null);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private byte[] dumpStream(String inputResource) throws IOException {
         InputStream is = this.getClass().getResourceAsStream(inputResource);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -65,17 +77,4 @@ public class CaseParseAndReadTest {
 
         return bos.toByteArray();
     }
-
-    public byte[] dumpInstance(String instanceRef) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
-
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
 }
