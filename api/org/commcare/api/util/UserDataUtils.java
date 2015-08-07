@@ -5,7 +5,7 @@ import org.commcare.api.persistence.SqlSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.User;
 import org.commcare.api.parser.CommCareTransactionParserFactory;
-import org.javarosa.core.api.NameHasher;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -41,12 +41,12 @@ import java.util.Vector;
 public class UserDataUtils {
 
     public static SqlSandbox getStaticStorage(String username) {
-        PrototypeFactory factory = new PrototypeFactory(new NameHasher());
+        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
         return new SqlSandbox(factory, username);
     }
 
     public static SqlSandbox getClearedStaticStorage(String username) {
-        PrototypeFactory factory = new PrototypeFactory(new NameHasher());
+        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
         return new SqlSandbox(factory, username, true);
     }
 

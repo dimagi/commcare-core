@@ -1,6 +1,6 @@
 package org.commcare.util.mocks;
 
-import org.javarosa.core.api.NameHasher;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -14,7 +14,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 public class MockDataUtils {
 
     public static MockUserDataSandbox getStaticStorage() {
-        PrototypeFactory factory = new PrototypeFactory(new NameHasher());
+        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
         return new MockUserDataSandbox(factory);
     }
 }

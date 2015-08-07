@@ -1,6 +1,6 @@
 package org.commcare.test.utils;
 
-import org.javarosa.core.api.NameHasher;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -20,7 +20,7 @@ public class PersistableSandbox {
     private PrototypeFactory factory;
     
     public PersistableSandbox() {
-        factory = new PrototypeFactory(new NameHasher());
+        factory = new PrototypeFactory(new ClassNameHasher());
     }
     
     public <T extends Persistable> byte[] serialize(T t) {
