@@ -7,6 +7,7 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.model.xform.DataModelSerializer;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kxml2.kdom.Document;
@@ -15,8 +16,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test suite to verify end-to-end parsing of inbound case XML
@@ -53,7 +52,7 @@ public class CaseParseAndReadTest {
             //NOTE: The DOM's definitely don't match here, so the strings cannot be the same.
             //The reason we are asserting equality is because the delta between the strings is
             //likely to do a good job of contextualizing where the DOM's don't match.
-            assertEquals("CaseDB output did not match expected structure(" + e.getMessage()+ ")",new String(dumpStream(caseDbState)), new String(parsedDb));
+            Assert.assertEquals("CaseDB output did not match expected structure(" + e.getMessage() + ")", new String(dumpStream(caseDbState)), new String(parsedDb));
         }
     }
 

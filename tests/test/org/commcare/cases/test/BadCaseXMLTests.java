@@ -2,6 +2,7 @@ package org.commcare.cases.test;
 
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +26,8 @@ public class BadCaseXMLTests {
         //Expected - Fail silently (TODO: Fix?)
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_broken_no_caseid.xml"), sandbox);
 
+
         //Make sure that we didn't make a case entry for the bad case though
-        //assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
+        Assert.assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
     }
 }
