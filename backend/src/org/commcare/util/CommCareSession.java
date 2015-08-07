@@ -122,7 +122,17 @@ public class CommCareSession {
         return data;
     }
 
+
+    /**
+     * Based on the current state of the session, determine what information is needed next to
+     * proceed
+     *
+     * @return 1 of the 4 STATE strings declared at the top of SessionFrame.java, or null if
+     * could not be determined
+     */
     public String getNeededData() {
+
+        // If we don't have a command yet, then need to get that first
         if (this.getCommand() == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
