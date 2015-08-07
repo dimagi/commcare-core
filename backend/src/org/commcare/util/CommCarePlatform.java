@@ -165,17 +165,10 @@ public class CommCarePlatform implements CommCareInstance {
         return incoming;
     }
 
-    /**
-     * @param recovery Used as a data redunancy, holding a copy of the global
-     *                 table while the upgrade copies the incoming table over
-     *                 to the global.
-     */
-    public void upgrade(ResourceTable global, ResourceTable incoming,
-                        ResourceTable recovery) 
-        throws UnfullfilledRequirementsException,
-                          UnresolvedResourceException,
-                          IllegalArgumentException {
-
+    public void prepareUpgradeResources(ResourceTable global,
+                                        ResourceTable incoming,
+                                        ResourceTable recovery)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
         if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair(global, incoming, recovery);
 
@@ -198,6 +191,17 @@ public class CommCarePlatform implements CommCareInstance {
 
         // Fetch and prepare all resources (Likely exit point here if a resource can't be found)
         incoming.prepareResources(global, this);
+    }
+
+    /**
+     * @param recovery Used as a data redunancy, holding a copy of the global
+     *                 table while the upgrade copies the incoming table over
+     *                 to the global.
+     */
+    public void upgrade(ResourceTable global, ResourceTable incoming,
+                        ResourceTable recovery) 
+        throws UnresolvedResourceException, IllegalArgumentException {
+
 
         boolean upgradeSuccess = false;
         try {

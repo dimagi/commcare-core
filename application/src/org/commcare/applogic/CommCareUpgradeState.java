@@ -182,6 +182,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     upgradeAttemptPending = false;
 
                     try {
+                        CommCareContext._().getManager().prepareUpgradeResources(global, upgrade, recovery);
                         CommCareContext._().getManager().upgrade(global, upgrade, recovery);
                     } catch(UnreliableSourceException e) {
                         //We simply can't retrieve all of the resources that we're looking for.
