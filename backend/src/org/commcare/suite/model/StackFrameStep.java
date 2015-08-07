@@ -19,8 +19,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * TODO: Replace our sketchy string[] steps with this more broadly and re-use
- * the functionality there?
  *
  * @author ctsims
  */
