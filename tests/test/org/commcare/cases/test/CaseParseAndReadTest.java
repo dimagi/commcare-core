@@ -1,19 +1,11 @@
 package org.commcare.cases.test;
 
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.suite.model.Profile;
-import org.commcare.test.utils.PersistableSandbox;
 import org.commcare.test.utils.TestInstanceInitializer;
 import org.commcare.test.utils.XmlComparator;
-import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
-import org.commcare.xml.ProfileParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
-import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 /**
  * Test suite to verify end-to-end parsing of inbound case XML
@@ -56,11 +46,13 @@ public class CaseParseAndReadTest {
         Document loaded = XmlComparator.getDocumentFromStream(this.getClass().getResourceAsStream(caseDbState));
 
         try {
-            XmlComparator.compareXmlDOMs(parsed, loaded);
+            XmlComparator.isDOMEqual(parsed, loaded);
         } catch(Exception e) {
             System.out.print(new String(parsedDb));
 
-
+            //NOTE: The DOM's definitely don't match here, so the strings cannot be the same.
+            //The reason we are asserting equality is because the delta between the strings is
+            //likely to do a good job of contextualizing where the DOM's don't match.
             assertEquals("CaseDB output did not match expected structure(" + e.getMessage()+ ")",new String(dumpStream(caseDbState)), new String(parsedDb));
         }
     }

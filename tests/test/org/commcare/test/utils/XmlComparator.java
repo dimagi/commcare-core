@@ -3,12 +3,6 @@
  */
 package org.commcare.test.utils;
 
-import org.commcare.cases.instance.CaseInstanceTreeElement;
-import org.commcare.util.mocks.MockUserDataSandbox;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
@@ -40,18 +34,28 @@ public class XmlComparator {
         }
     }
 
-    public static void compareXmlDOMs(Document a, Document b) throws RuntimeException {
-        compareXmlDOMsLeftToRight(a.getRootElement(), b.getRootElement());
-        compareXmlDOMsLeftToRight(b.getRootElement(), a.getRootElement());
+    /**
+     * Takes two DOM documents and compares them to see whether they have semantically identical
+     * data. For our purposes semantic equality means:
+     * - Both documents have the same elements in the same order
+     * - All DOM elements have the same attributes with the same values
+     * - All DOM elements with values contain the same value
+     *
+     * If any of these conditions are not met, a runtime exception containing a user readable message
+     * will be thrown, but may be lacking robust context for where the DOM's fail to match.
+     */
+    public static void isDOMEqual(Document a, Document b) throws RuntimeException {
+        isDOMEqualRecursive(a.getRootElement(), b.getRootElement());
+        isDOMEqualRecursive(b.getRootElement(), a.getRootElement());
     }
 
-    public static void compareXmlDOMsLeftToRight(Element left, Element right) throws RuntimeException {
+    public static void isDOMEqualRecursive(Element left, Element right) throws RuntimeException {
         if(!left.getName().equals(right.getName())) {
-            throw new RuntimeException(String.format("Mismatched element names '%n' and '%n'", left.getName(), right.getName()));
+            throw new RuntimeException(String.format("Mismatched element names '%s' and '%s'", left.getName(), right.getName()));
         }
 
         if(left.getAttributeCount() != right.getAttributeCount()) {
-            throw new RuntimeException(String.format("Mismatched attributes for node '%n' ", left.getName()));
+            throw new RuntimeException(String.format("Mismatched attributes for node '%s' ", left.getName()));
         }
 
         Hashtable<String, String> leftAttr = attrTable(left);
@@ -80,10 +84,10 @@ public class XmlComparator {
             }
 
             if(l instanceof Element) {
-                compareXmlDOMsLeftToRight((Element)l, (Element)r);
+                isDOMEqualRecursive((Element)l, (Element)r);
             } else if(l instanceof String) {
                 if(!l.equals(r)) {
-                    throw new RuntimeException(String.format("Mismatched element values '%s' and '%s'", (String)l, (String)r));
+                    throw new RuntimeException(String.format("Mismatched element values '%s' and '%s'", l, r));
                 }
             }
         }
@@ -91,7 +95,7 @@ public class XmlComparator {
     }
 
     private static Hashtable<String, String> attrTable(Element element) {
-        Hashtable<String, String> attr = new Hashtable<String, String>();
+        Hashtable<String, String> attr = new Hashtable<>();
         for(int i = 0 ; i < element.getAttributeCount() ; ++i ) {
             attr.put(element.getAttributeName(i), element.getAttributeValue(i));
         }
