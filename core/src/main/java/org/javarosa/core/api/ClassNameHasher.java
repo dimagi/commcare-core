@@ -1,6 +1,6 @@
 package org.javarosa.core.api;
 
-import org.javarosa.core.util.externalizable.DefaultHasher;
+import org.javarosa.core.util.externalizable.MD5Hasher;
 
 
 /**
@@ -8,7 +8,7 @@ import org.javarosa.core.util.externalizable.DefaultHasher;
  *
  * @author wspride
  */
-public class NameHasher extends DefaultHasher {
+public class ClassNameHasher extends MD5Hasher {
 
     private final static int CLASS_HASH_SIZE = 32;
 

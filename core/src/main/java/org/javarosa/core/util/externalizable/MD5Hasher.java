@@ -13,7 +13,7 @@ import org.javarosa.core.util.MD5;
  *
  * @author ctsims
  */
-public class DefaultHasher implements Hasher {
+public class MD5Hasher implements Hasher {
     private final static int CLASS_HASH_SIZE = 4;
 
     public byte[] getClassHashValue(Class type) {
@@ -24,12 +24,6 @@ public class DefaultHasher implements Hasher {
         for(int i=0; i< hash.length && i<md5.length; i++){
             hash[i] = md5[i];
         }
-
-        byte[] badHash = new byte[]{0, 4, 78, 97};
-        if (PrototypeFactory.compareHash(badHash, hash)) {
-            System.out.println("BAD CLASS: " + type.getName());
-        }
-
         return hash;
     }
 
