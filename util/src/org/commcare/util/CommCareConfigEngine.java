@@ -109,7 +109,8 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility(Resource.class, "will", "ResourceTable", true));
+        table = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility(Resource.class, PrototypeManager.getDefault(),
+                                                "will", "ResourceTable"));
 
 
         //All of the below is on account of the fact that the installers
@@ -122,7 +123,8 @@ public class CommCareConfigEngine {
                 if(!type.getSimpleName().equals("Case")){
                     tableName = type.getSimpleName();
                 }
-                return new SqlIndexedStorageUtility(type, "will", tableName, true);
+                return new SqlIndexedStorageUtility(type, PrototypeManager.getDefault(),
+                                                        "will", tableName);
             }
 
         });

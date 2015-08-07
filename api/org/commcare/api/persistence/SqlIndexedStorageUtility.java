@@ -3,6 +3,7 @@
  */
 package org.commcare.api.persistence;
 
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -38,20 +39,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     String tableName;
     String userName;
 
-    public SqlIndexedStorageUtility(Class<T> prototype, String userName, String tableName, boolean reset){
-        this(prototype, PrototypeManager.getDefault(), userName, tableName, reset);
-    }
-
     public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName) {
-        this(prototype, factory, userName, tableName, false);
-    }
-
-    public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName, boolean reset) {
         this.tableName = tableName;
         this.userName = userName;
         this.prototype = prototype;
         this.mFactory = factory;
-        if(reset){resetTable();}
     }
 
     public Connection getConnection() throws SQLException {
@@ -76,30 +68,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = getConnection();
-            int id = UserDatabaseHelper.insertToTable(c, tableName, p);
+            int id = DatabaseHelper.insertToTable(c, tableName, p);
             c.close();
 
             c = getConnection();
             p.setID(id);
-            UserDatabaseHelper.updateId(c, tableName, p);
+            DatabaseHelper.updateId(c, tableName, p);
             c.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void resetTable(){
-        Connection c = null;
-
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
-            UserDatabaseHelper.dropTable(c, tableName);
-            UserDatabaseHelper.createTable(c, tableName, prototype.newInstance());
-            c.close();
-
-        } catch(Exception e){
-            System.out.println("Got exception creating table: " + tableName + " e: " + e);
             e.printStackTrace();
         }
     }
@@ -140,11 +116,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             Connection c = this.getConnection();
-            ResultSet rs = UserDatabaseHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+            ResultSet rs = DatabaseHelper.selectFromTable(c, this.tableName,
+                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             Vector<Integer> ids = new Vector<Integer>();
             while(rs.next()){
-                ids.add(rs.getInt(UserDatabaseHelper.ID_COL));
+                ids.add(rs.getInt(DatabaseHelper.ID_COL));
             }
             return ids;
         } catch (InstantiationException e) {
@@ -165,22 +141,17 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = this.getConnection();
-            ResultSet rs = UserDatabaseHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+            ResultSet rs = DatabaseHelper.selectFromTable(c, this.tableName,
+                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             if(!rs.next()){
                 throw new NoSuchElementException();
             }
-            byte[] mBytes = rs.getBytes(UserDatabaseHelper.DATA_COL);
+            byte[] mBytes = rs.getBytes(DatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (SQLException |InstantiationException | IllegalAccessException e) {
+            logAndWrap(e, "Error getting record for value: " + fieldName);
         }
-
         return null;
     }
 
@@ -214,7 +185,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public boolean exists(int id) {
         try {
             Connection c = getConnection();
-            ResultSet rs = UserDatabaseHelper.selectForId(c, this.tableName, id);
+            ResultSet rs = DatabaseHelper.selectForId(c, this.tableName, id);
             c.close();
             if(rs.next()){
                 return true;
@@ -239,7 +210,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public int getNumRecords() {
         try {
             Connection c = getConnection();
-            ResultSet rs = UserDatabaseHelper.executeSql(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
+            ResultSet rs = DatabaseHelper.executeSql(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
             int count = rs.getInt(1);
             c.close();
             return count;
@@ -265,8 +236,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             connection = this.getConnection();
-            resultSet = UserDatabaseHelper.executeSql(connection, "SELECT " + UserDatabaseHelper.ID_COL + " , " +
-                    UserDatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
+            resultSet = DatabaseHelper.executeSql(connection, "SELECT " + DatabaseHelper.ID_COL + " , " +
+                    DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -295,8 +266,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public byte[] readBytes(int id) {
         try {
             Connection c = getConnection();
-            ResultSet rs = UserDatabaseHelper.selectForId(c, this.tableName, id);
-            byte[] caseBytes = rs.getBytes(UserDatabaseHelper.DATA_COL);
+            ResultSet rs = DatabaseHelper.selectForId(c, this.tableName, id);
+            byte[] caseBytes = rs.getBytes(DatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
         } catch (Exception e){
@@ -354,7 +325,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = getConnection();
-            UserDatabaseHelper.updateToTable(c, tableName, p, id);
+            DatabaseHelper.updateToTable(c, tableName, p, id);
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -365,6 +336,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         //TODO: This should have a clear contract.
     }
 
+    private RuntimeException logAndWrap(Exception e, String message) {
+        RuntimeException re = new RuntimeException(message + " while inflating type " + prototype.getName());
+        re.initCause(e);
+        Logger.log("e", re.getMessage());
+        return re;
+    }
 
     Vector<String> dynamicIndices = new Vector<String>();
 

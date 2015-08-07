@@ -1,10 +1,10 @@
 package org.commcare.api.util;
 
 import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.parser.CommCareTransactionParserFactory;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.User;
-import org.commcare.api.parser.CommCareTransactionParserFactory;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -27,32 +27,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.Vector;
 
 /**
  * Methods that mostly are used around the mocks that replicate stuff from
  * other projects.
  *
- * TODO: We should try to centralize how these are used.
- *
  * @author ctsims
+ * @author wspride
  */
 public class UserDataUtils {
 
-    public static SqlSandbox getStaticStorage(String username) {
+    public static UserSqlSandbox getStaticStorage(String username) {
         PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
-        return new SqlSandbox(factory, username);
-    }
-
-    public static SqlSandbox getClearedStaticStorage(String username) {
-        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
-        return new SqlSandbox(factory, username, true);
-    }
-
-    public static void clearStaticStorage(String username){
-        SqlSandbox storage = getStaticStorage(username);
-        storage.clearTables();
+        return new UserSqlSandbox(factory, username);
     }
 
     public static void parseXMLIntoSandbox(String restore, UserDataInterface sandbox) {
@@ -77,18 +65,10 @@ public class UserDataUtils {
         }
     }
 
-    public static Date getLastSync(String username){
-        SqlSandbox mSandbox = getStaticStorage(username);
-        return mSandbox.getLastSync();
-    }
-
     /**
      * For the users and groups in the provided sandbox, extracts out the list
      * of valid "owners" for entities (cases, ledgers, etc) in the universe.
      *
-     * Borrowed from Android implementation, should likely be centralized.
-     *
-     * TODO: Move this static functionality into CommCare generally.
      */
     public static Vector<String> extractEntityOwners(UserDataInterface sandbox) {
         Vector<String> owners = new Vector<String>();

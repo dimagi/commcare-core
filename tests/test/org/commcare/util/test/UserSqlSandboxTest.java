@@ -1,6 +1,6 @@
 package org.commcare.util.test;
 
-import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.api.util.UserDataUtils;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
@@ -16,15 +16,15 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class SqlSandboxTest {
+public class UserSqlSandboxTest {
 
-    private SqlSandbox sandbox;
+    private UserSqlSandbox sandbox;
     private Vector<String> owners;
     String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {
-        sandbox = UserDataUtils.getClearedStaticStorage(username);
+        sandbox = UserDataUtils.getStaticStorage(username);
         UserDataUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
     }

@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author wspride
  */
-public class SqlSandbox implements UserDataInterface{
+public class UserSqlSandbox implements UserDataInterface{
     private final SqlIndexedStorageUtility<Case> caseStorage;
     private final SqlIndexedStorageUtility<Ledger> ledgerStorage;
     private final SqlIndexedStorageUtility<User> userStorage;
@@ -30,37 +30,15 @@ public class SqlSandbox implements UserDataInterface{
      *
      * @param factory A prototype factory for deserializing records
      */
-    public SqlSandbox(PrototypeFactory factory, String username, boolean clear) {
+    public UserSqlSandbox(PrototypeFactory factory, String username) {
         caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, factory, username, "TFCase");
         ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, factory, username, "Ledger");
         userStorage = new SqlIndexedStorageUtility<User>(User.class, factory, username, "User");
         userFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "UserFixture");
         appFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "AppFixture");
         metaDataStorage = new SqlIndexedStorageUtility<SqlMeta>(SqlMeta.class, factory, username, "Meta");
-
-        if(clear){
-            clearTables();
-        }
     }
 
-    public void clearTables(){
-        caseStorage.resetTable();
-        ledgerStorage.resetTable();
-        userStorage.resetTable();
-        userFixtureStorage.resetTable();
-        appFixtureStorage.resetTable();
-        metaDataStorage.resetTable();
-    }
-
-    /**
-     * Create a sandbox of the necessary storage objects with the shared
-     * factory.
-     *
-     * @param factory A prototype factory for deserializing records
-     */
-    public SqlSandbox(PrototypeFactory factory, String username) {
-        this(factory, username, false);
-    }
 
     public SqlIndexedStorageUtility<Case> getCaseStorage() {
         return caseStorage;
@@ -108,7 +86,6 @@ public class SqlSandbox implements UserDataInterface{
 
     public void updateLastSync(){
         SqlIndexedStorageUtility<SqlMeta> mStorage = getMetaStorage();
-        mStorage.resetTable();
         SqlMeta mSqlMeta = new SqlMeta();
         mStorage.write(mSqlMeta);
     }

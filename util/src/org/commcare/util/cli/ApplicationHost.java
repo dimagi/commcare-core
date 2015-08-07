@@ -1,7 +1,7 @@
 package org.commcare.util.cli;
 
 import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.api.util.UserDataUtils;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.User;
@@ -181,7 +181,7 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        mSandbox = new SqlSandbox(mPrototypeFactory, mUsername, true);
+        mSandbox = new UserSqlSandbox(mPrototypeFactory, mUsername);
 
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";

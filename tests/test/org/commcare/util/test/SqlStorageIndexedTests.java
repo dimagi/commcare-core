@@ -75,7 +75,7 @@ public class SqlStorageIndexedTests {
                 String username = "wspride";
 
                 caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, mPrototypeFactory, username, storageKey);
-                caseStorage.resetTable();
+                //caseStorage.resetTable();
 
                 caseStorage.write(a);
 
@@ -108,7 +108,7 @@ public class SqlStorageIndexedTests {
                 String username = "wspride";
 
                 ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, mPrototypeFactory, username, storageKey);
-                ledgerStorage.resetTable();
+                //ledgerStorage.resetTable();
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);

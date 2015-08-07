@@ -27,10 +27,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Setup of platform-agnostic DB helper functions IE for generating SQL
+ * statements, args, content values, etc.
+ *
  * @author wspride
  *
  */
-public class UserDatabaseHelper {
+public class DatabaseHelper {
 
     public static String ID_COL = "commcare_sql_id";
     public static String DATA_COL = "commcare_sql_record";
@@ -293,7 +296,7 @@ public class UserDatabaseHelper {
         String[] fieldnames = map.keySet().toArray(new String[0]);
         Object[] values = map.values().toArray(new Object[0]);
 
-        Pair<String, String[]> where = UserDatabaseHelper.createWhere(fieldnames, values, p);
+        Pair<String, String[]> where = DatabaseHelper.createWhere(fieldnames, values, p);
 
         String query = "UPDATE " + storageKey + " SET " + DATA_COL + " = ? WHERE " + where.first + ";";
 

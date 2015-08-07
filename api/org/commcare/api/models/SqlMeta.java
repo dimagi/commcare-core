@@ -12,14 +12,14 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Persistable object for tracking meta-data about a user's
- * sandbox status
+ * Persistable object for tracking information about the users sandbox. Stores
+ * last sync date at the moment, will be expanded to include versioning
+ * and sync token information
  *
  * Created by wpride1 on 7/20/15.
  */
 public class SqlMeta implements Persistable, IMetaData {
 
-    public static final String STORAGE_KEY = "SQL_META";
     public static final String META_LAST_SYNC = "LAST_SYNC";
 
     private Date lastSync;

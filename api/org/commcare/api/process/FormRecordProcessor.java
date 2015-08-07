@@ -1,6 +1,6 @@
 package org.commcare.api.process;
 
-import org.commcare.api.persistence.SqlSandbox;
+import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -20,12 +20,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * Utility methods for processing XML transactions against a user sandbox
+ *
  * Created by wpride1 on 7/21/15.
  */
 public class FormRecordProcessor {
 
-    public static void processXML(SqlSandbox sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-        System.out.println("First: " + fileText);
+    public static void processXML(UserDataInterface sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
 
         try {
             InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
@@ -36,8 +37,7 @@ public class FormRecordProcessor {
         }
     }
 
-    public static void processFile(SqlSandbox sandbox, File record) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-        System.out.println("Second: " + record);
+    public static void processFile(UserDataInterface sandbox, File record) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
         try {
             InputStream stream = new FileInputStream(record);
             process(sandbox, stream);
@@ -47,9 +47,9 @@ public class FormRecordProcessor {
         }
     }
 
-    public static void process(SqlSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public static void process(UserDataInterface sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         try {
-            final SqlSandbox mSandbox = sandbox;
+            final UserDataInterface mSandbox = sandbox;
 
             InputStream is = stream;
 
