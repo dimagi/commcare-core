@@ -2,7 +2,6 @@ package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.util.MD5;
 
-
 /**
  * Default class hasher implementation.
  *
@@ -13,24 +12,15 @@ import org.javarosa.core.util.MD5;
  *
  * @author ctsims
  */
-public class MD5Hasher implements Hasher {
+public class MD5Hasher extends org.javarosa.core.util.externalizable.Hasher {
     private final static int CLASS_HASH_SIZE = 4;
 
-    public byte[] getClassHashValue(Class type) {
-
-        byte[] hash = new byte[this.getHashSize()];
-        byte[] md5 = getHash(type); //add support for a salt, in case of collision?
-
-        for(int i=0; i< hash.length && i<md5.length; i++){
-            hash[i] = md5[i];
-        }
-        return hash;
-    }
-
+    // Overrides the Hasher getHash()
     public byte[] getHash(Class c){
         return MD5.hash(c.getName().getBytes());
     }
 
+    // Overrides the Hasher getHashSize()
     public int getHashSize(){
         return CLASS_HASH_SIZE;
     }

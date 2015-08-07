@@ -1,6 +1,6 @@
 package org.javarosa.core.api;
 
-import org.javarosa.core.util.externalizable.MD5Hasher;
+import org.javarosa.core.util.externalizable.Hasher;
 
 
 /**
@@ -8,17 +8,17 @@ import org.javarosa.core.util.externalizable.MD5Hasher;
  *
  * @author wspride
  */
-public class ClassNameHasher extends MD5Hasher {
+public class ClassNameHasher extends Hasher {
 
     private final static int CLASS_HASH_SIZE = 32;
 
-    // Overrides the DefaultHasher getHash()
+    // Overrides the Hasher getHash()
     public byte[] getHash(Class c){
         // reverse because the beginning of the classpath is less likely to be unique than the name
         return new StringBuilder(c.getName()).reverse().toString().getBytes();
     }
 
-    // Overrides the DefaultHasher getHashSize()
+    // Overrides the Hasher getHashSize()
     public int getHashSize(){
         return CLASS_HASH_SIZE;
     }

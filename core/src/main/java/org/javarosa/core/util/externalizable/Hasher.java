@@ -1,18 +1,24 @@
 package org.javarosa.core.util.externalizable;
 
 /**
- * A class capable of producing hash values. All implementations
- * must provide the same value as the reference implementation
- * (in PrototypeFactory), but can be capable of doing so in
- * an improved manner.
- *
- * This is a workaround for the fact that the serialization engine
- * doesn't provide a PrototypeFactory on serialization, only
- * deserialziation
+ * Abstract hashing class defining the basic outline of performing a hash. Hasher
+ * implementations must override getHash and getHashSize
  *
  * @author ctsims
+ * @author wspride
  */
-public interface Hasher {
-    byte[] getClassHashValue(Class type);
-    int getHashSize();
+public abstract class Hasher {
+
+    public byte[] getClassHashValue(Class type){
+        byte[] returnHash = new byte[this.getHashSize()];
+        byte[] computedHash = getHash(type); //add support for a salt, in case of collision?
+
+        for(int i=0; i< returnHash.length && i<computedHash.length; i++){
+            returnHash[i] = computedHash[i];
+        }
+
+        return returnHash;
+    }
+    public abstract int getHashSize();
+    public abstract byte[] getHash(Class c);
 }
