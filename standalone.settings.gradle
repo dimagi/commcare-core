@@ -1,2 +1,6 @@
 include ':javarosa'
-project(':javarosa').projectDir = new File('../javarosa')
+
+def javarosaHome = System.getenv("JAVAROSA_HOME")
+def javarosaHomeNormalized = buildNumber != null ? buildNumber : "../javarosa"
+
+project(':javarosa').projectDir = new File(javarosaHomeNormalized)
