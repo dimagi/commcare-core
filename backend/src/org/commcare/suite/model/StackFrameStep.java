@@ -19,8 +19,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * TODO: Replace our sketchy string[] steps with this more broadly and re-use
- * the functionality there?
  *
  * @author ctsims
  */
@@ -152,11 +150,11 @@ public class StackFrameStep implements Externalizable {
     }
 
     private boolean propertiesEqual(String a, String b) {
-        return
-                a == null && b != null
-                        || a != null && b == null
-                        || a != null && b != null && !a.equals(b)
-                ;
+        if (a == null) {
+            return b == null;
+        } else {
+            return (a.equals(b));
+        }
     }
 
 }

@@ -61,7 +61,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         this.checkNode("case");
 
         String caseId = parser.getAttributeValue(null, "case_id");
-        if (caseId == null) {
+        if (caseId == null || caseId.equals("")) {
             throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser);
         }
 
@@ -172,7 +172,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     String value = parser.nextText().trim();
 
                     //Remove any ambiguity associated with empty values
-                    if (value == "") {
+                    if (value.equals("")) {
                         value = null;
                     }
                     String relationship = parser.getAttributeValue(null, "relationship");
