@@ -3,7 +3,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
-sourceCompatibility = 7
+sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
