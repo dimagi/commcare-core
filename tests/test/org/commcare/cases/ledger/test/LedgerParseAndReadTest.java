@@ -18,6 +18,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * Test ledger parsing, loading, and xpath expressions that make ledger
+ * references
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class LedgerParseAndReadTest {
@@ -32,7 +35,8 @@ public class LedgerParseAndReadTest {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
 
         loadLedgerIntoSandbox();
-        evalContext = MockDataUtils.getInstanceContexts(this.sandbox, "ledger", "jr://instance/ledgerdb");
+        evalContext =
+            MockDataUtils.getInstanceContexts(this.sandbox, "ledger", "jr://instance/ledgerdb");
     }
 
     private void loadLedgerIntoSandbox() {
