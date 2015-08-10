@@ -46,9 +46,8 @@ sourceSets {
 
   cli {
       java {
-          compileClasspath += main.output
-          runtimeClasspath += main.output
           srcDir 'util/src'
+          compileClasspath += main.output
       }
   }
 }
@@ -76,6 +75,7 @@ configurations {
 task cliJar(type: Jar, dependsOn: [classes, cliClasses]) {
     baseName = "commcare-cli"
     from sourceSets.cli.output
+    from sourceSets.main.output
     from {
         configurations.cliCompile.collect {
             it.isDirectory() ? it : zipTree(it)
