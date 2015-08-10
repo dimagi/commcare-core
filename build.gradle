@@ -47,6 +47,7 @@ sourceSets {
   cli {
       java {
           srcDir 'util/src'
+          compileClasspath += main.output
       }
   }
 }
@@ -54,8 +55,7 @@ sourceSets {
 dependencies {
       compile project(':javarosa')
 
-      cliCompile project(path: ':javarosa', configuration: 'harnessOutput')
-      cliCompile sourceSets.main.output
+      cliCompile project(path: ':javarosa', configuration: 'harness')
 
       testCompile sourceSets.main.output
       testCompile sourceSets.cli.output
@@ -77,10 +77,10 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
     from sourceSets.cli.output
     from sourceSets.main.output
     from {
-        configurations.compile.collect {
+        configurations.cliCompile.collect {
             it.isDirectory() ? it : zipTree(it)
         }
-        configurations.runtime.collect {
+        configurations.cliRuntime.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
