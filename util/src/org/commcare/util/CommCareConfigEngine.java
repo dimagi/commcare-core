@@ -44,6 +44,7 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
@@ -109,8 +110,7 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility(Resource.class, PrototypeManager.getDefault(),
-                                                "will", "ResourceTable"));
+        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
 
 
         //All of the below is on account of the fact that the installers
