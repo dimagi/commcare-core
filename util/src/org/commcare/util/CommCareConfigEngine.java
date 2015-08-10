@@ -105,7 +105,7 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(ResourceTable.class));
+        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
 
 
         //All of the below is on account of the fact that the installers
@@ -124,7 +124,7 @@ public class CommCareConfigEngine {
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, Suite.class);
+        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
         StorageManager.registerStorage("fixture", FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }

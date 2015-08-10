@@ -49,7 +49,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     private Hashtable<String, String> properties = new Hashtable<String, String>();
 
-    private User() {
+    public User() {
         setUserType(STANDARD);
     }
 
