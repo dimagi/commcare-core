@@ -75,6 +75,19 @@ configurations {
 task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
     from sourceSets.cli.output
+    from sourceSets.main.output
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'org.commcare.util.Harness'
+    }
+    
 }
 
 artifacts {
