@@ -54,7 +54,7 @@ sourceSets {
 dependencies {
       compile project(':javarosa')
 
-      cliCompile project(path: ':javarosa', configuration: 'harnessOutput')
+      cliCompile project(path: ':javarosa', configuration: 'harness')
       cliCompile sourceSets.main.output
 
       testCompile sourceSets.main.output
@@ -75,12 +75,11 @@ configurations {
 task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
     from sourceSets.cli.output
-    from sourceSets.main.output
     from {
-        configurations.compile.collect {
+        configurations.cliCompile.collect {
             it.isDirectory() ? it : zipTree(it)
         }
-        configurations.runtime.collect {
+        configurations.cliRuntime.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
