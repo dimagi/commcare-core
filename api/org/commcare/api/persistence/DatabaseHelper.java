@@ -57,11 +57,12 @@ public class DatabaseHelper {
         if(em instanceof IMetaData) {
             IMetaData m = (IMetaData)em;
             String[] thefields = m.getMetaDataFields();
-            //fields = new HashSet<String>();
+            fields = new HashSet<String>();
             for(String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
         }
+
 
         String ret = "";
         ArrayList<String> arguments = new ArrayList<String>();

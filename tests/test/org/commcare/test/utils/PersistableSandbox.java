@@ -1,9 +1,9 @@
 package org.commcare.test.utils;
 
 import org.javarosa.core.api.ClassNameHasher;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -23,7 +23,7 @@ public class PersistableSandbox {
         factory = new PrototypeFactory(new ClassNameHasher());
     }
     
-    public <T extends Persistable> byte[] serialize(T t) {
+    public <T extends Externalizable> byte[] serialize(T t) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             t.writeExternal(new DataOutputStream(baos));
@@ -33,7 +33,7 @@ public class PersistableSandbox {
         }
     }
     
-    public <T extends Persistable> T deserialize(byte[] object, Class<T> c) {
+    public <T extends Externalizable> T deserialize(byte[] object, Class<T> c) {
         try {
             return (T)ExtUtil.deserialize(object, c, factory);
         } catch (IOException | DeserializationException e) {
