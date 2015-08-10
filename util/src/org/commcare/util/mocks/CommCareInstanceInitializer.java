@@ -20,6 +20,11 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     private final MockUserDataSandbox mSandbox;
     private final CommCarePlatform mPlatform;
 
+
+    public CommCareInstanceInitializer(MockUserDataSandbox sandbox) {
+        this(null, sandbox, null);
+    }
+
     public CommCareInstanceInitializer(MockUserDataSandbox sandbox, CommCarePlatform platform) {
         this(null, sandbox, platform);
     }
@@ -74,6 +79,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
         }
         if (instance.getReference().contains("session")) {
+            if(this.mPlatform == null) {
+                throw new RuntimeException("Cannot generate session instance with undeclared platform!");
+            }
             User u = mSandbox.getLoggedInUser();
             TreeElement root = session.getSessionInstance("----", "CommCare CLI: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
             root.setParent(instance.getBase());
