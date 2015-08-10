@@ -1,0 +1,29 @@
+<OpenRosaResponse>
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>sync_token_a</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$60441$53cf77c2ac3608a944db96af177a6dfe1579e4ba</password>
+        <uuid>test_example</uuid>
+        <date>2012-04-30</date>
+    </Registration>
+    <ns0:balance xmlns:ns0="http://commcarehq.org/ledger/v1" date="2015-05-29T00:00:00.000000Z" entity-id="b16411ef-a69c-472d-8f30-81602a588fd4" section-id="prev_stock_vendu">
+        <ns0:entry id="562e95b9f0403e47b2b1878016a1e82c" quantity="9"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a4d422" quantity="2"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a4db88" quantity="10"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a5861d" quantity="1"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a58ffc" quantity="7"/>
+        <ns0:entry id="7b72bfc486e7fce16798b4c82284a991" quantity="6"/>
+    </ns0:balance>
+
+    <ns0:balance xmlns:ns0="http://commcarehq.org/ledger/v1" date="2015-05-29T00:00:00.000000Z" entity-id="b16411ef-a69c-472d-8f30-81602a588fd4" section-id="stock">
+        <ns0:entry id="562e95b9f0403e47b2b1878016a1e82c" quantity="10"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a4d422" quantity="8"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a4db88" quantity="8"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a5861d" quantity="4"/>
+        <ns0:entry id="654b15ca40386d111605ad64a4a58ffc" quantity="9"/>
+        <ns0:entry id="7b72bfc486e7fce16798b4c82284a991" quantity="7"/>
+    </ns0:balance>
+</OpenRosaResponse>
