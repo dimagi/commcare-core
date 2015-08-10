@@ -40,7 +40,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     Class<T> prototype;
     
     PrototypeFactory mFactory;
-    
+
     public DummyIndexedStorageUtility(Class<T> prototype) {
         this(prototype, PrototypeManager.getDefault());
     }
@@ -51,6 +51,31 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         curCount = 0;
         this.prototype = prototype;
         this.mFactory = factory;
+        initMeta();
+    }
+
+    private void initMeta() {
+        Persistable p;
+        try {
+            p = (Persistable)prototype.newInstance();
+        } catch (java.lang.InstantiationException | java.lang.IllegalAccessException e) {
+            throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
+        }
+
+        if(!(p instanceof IMetaData)) {
+            return;
+        }
+        IMetaData m = (IMetaData)p;
+        for (String key : m.getMetaDataFields()) {
+            if (!meta.containsKey(key)) {
+                meta.put(key, new Hashtable<Object, Vector<Integer>>());
+            }
+        }
+        for (String key : dynamicIndices) {
+            if (!meta.containsKey(key)) {
+                meta.put(key, new Hashtable<Object, Vector<Integer>>());
+            }
+        }
     }
 
 
@@ -58,7 +83,11 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
     public Vector getIDsForValue(String fieldName, Object value) {
-        if (meta.get(fieldName) == null || meta.get(fieldName).get(value) == null) {
+        //We don't support all index types
+        if(meta.get(fieldName) == null) {
+            throw new IllegalArgumentException("Unsupported index: "+ fieldName + " for storage of " + prototype.getName());
+        }
+        if (meta.get(fieldName).get(value) == null) {
             return new Vector<Integer>();
         }
         return meta.get(fieldName).get(value);
@@ -68,7 +97,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
     public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-
         if (meta.get(fieldName) == null) {
             throw new NoSuchElementException("No record matching meta index " + fieldName + " with value " + value);
         }
@@ -300,6 +328,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     private void syncMeta() {
         meta.clear();
+        this.initMeta();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
             Externalizable e = (Externalizable)data.get(i);
@@ -307,16 +336,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             if (e instanceof IMetaData) {
 
                 IMetaData m = (IMetaData)e;
-                for (String key : m.getMetaDataFields()) {
-                    if (!meta.containsKey(key)) {
-                        meta.put(key, new Hashtable<Object, Vector<Integer>>());
-                    }
-                }
-                for (String key : dynamicIndices) {
-                    if (!meta.containsKey(key)) {
-                        meta.put(key, new Hashtable<Object, Vector<Integer>>());
-                    }
-                }
                 for (Enumeration keys = meta.keys(); keys.hasMoreElements(); ) {
                     String key = (String)keys.nextElement();
 
@@ -346,5 +365,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);
+        syncMeta();
     }
 }
