@@ -72,7 +72,7 @@ configurations {
   cliOutput.extendsFrom (cliCompile)
 }
 
-task cliJar(type: Jar, dependsOn: [classes, cliClasses]) {
+task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
     from sourceSets.cli.output
     from sourceSets.main.output
