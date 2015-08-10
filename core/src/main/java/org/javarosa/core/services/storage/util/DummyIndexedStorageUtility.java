@@ -58,7 +58,9 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         Persistable p;
         try {
             p = (Persistable)prototype.newInstance();
-        } catch (java.lang.InstantiationException | java.lang.IllegalAccessException e) {
+        } catch (java.lang.InstantiationException e) {
+            throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
+        } catch (java.lang.IllegalAccessException e) {
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
         }
 
