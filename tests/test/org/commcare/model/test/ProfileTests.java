@@ -39,7 +39,7 @@ public class ProfileTests {
         mSandbox = new PersistableSandbox();
         mAppPlatform = new CommCareConfigEngine();
         mFreshResourceTable = ResourceTable.RetrieveTable(
-                new DummyIndexedStorageUtility(ResourceTable.class));
+                new DummyIndexedStorageUtility(Resource.class));
     }
     
     @Test
