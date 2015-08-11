@@ -50,7 +50,7 @@ public class LedgerWithCaseTest {
     }
 
     @Test
-    public void ledgerQueriesWithoutLedgerData() {
+    public void ledgerQueriesWithoutReferencedLedgerData() {
         // case id 'star_market' exists but no ledger data has been attached to
         // it
         Assert.assertTrue(
@@ -61,5 +61,31 @@ public class LedgerWithCaseTest {
                 CaseTestUtils.xpathEval(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']",
                         ""));
+    }
+
+    @Test
+    public void ledgerQueriesWithNoLedgerData() {
+        // case id 'star_market' exists but no ledger data been loaded at all
+        EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
+        boolean result;
+        result = CaseTestUtils.xpathEval(evalContextWithoutLedgers,
+                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']",
+                        "");
+        result = CaseTestUtils.xpathEval(evalContextWithoutLedgers,
+                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']",
+                        "");
+        System.out.print(result);
+        // TODO PLM: Make this actually fail when 'result' is false
+    }
+
+    private EvaluationContext createContextWithNoLedgers() {
+        MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
+
+        // load cases that will be referenced by ledgers
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox);
+        CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
+
+        // create an evaluation context that has ledger and case instances setup
+        return MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
     }
 }
