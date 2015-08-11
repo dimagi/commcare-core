@@ -55,8 +55,8 @@ public class TableBuilder {
     }
 
     public void addData(Class c) {
-        cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(DatabaseHelper.ID_COL);
+        cols.add(org.commcare.core.database.DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(org.commcare.core.database.DatabaseHelper.ID_COL);
 
         for(Field f : c.getDeclaredFields()) {
             if(f.isAnnotationPresent(MetaField.class)) {
@@ -72,8 +72,8 @@ public class TableBuilder {
             }
         }
 
-        cols.add(DatabaseHelper.DATA_COL + " BLOB");
-        rawCols.add(DatabaseHelper.DATA_COL);
+        cols.add(org.commcare.core.database.DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(org.commcare.core.database.DatabaseHelper.DATA_COL);
     }
 
 
@@ -92,8 +92,8 @@ public class TableBuilder {
     }
 
     public void addData(Persistable p) {
-        cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(DatabaseHelper.ID_COL);
+        cols.add(org.commcare.core.database.DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(org.commcare.core.database.DatabaseHelper.ID_COL);
 
         if(p instanceof IMetaData) {
             String[] keys = ((IMetaData)p).getMetaDataFields();
@@ -112,8 +112,8 @@ public class TableBuilder {
             }
         }
 
-        cols.add(DatabaseHelper.DATA_COL + " BLOB");
-        rawCols.add(DatabaseHelper.DATA_COL);
+        cols.add(org.commcare.core.database.DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(org.commcare.core.database.DatabaseHelper.DATA_COL);
     }
 
 
@@ -137,7 +137,7 @@ public class TableBuilder {
 
     public Pair<String, List<Object>> getTableInsertData(Persistable p){
         String built = "INSERT INTO " + scrubName(name) + " (";
-        HashMap<String, Object> contentValues = DatabaseHelper.getMetaFieldsAndValues(p);
+        HashMap<String, Object> contentValues = org.commcare.core.database.DatabaseHelper.getMetaFieldsAndValues(p);
 
         ArrayList<Object> params = new ArrayList<Object>();
 

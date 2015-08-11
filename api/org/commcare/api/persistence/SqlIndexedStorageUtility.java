@@ -68,12 +68,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = getConnection();
-            int id = DatabaseHelper.insertToTable(c, tableName, p);
+            int id = SqlHelper.insertToTable(c, tableName, p);
             c.close();
 
             c = getConnection();
             p.setID(id);
-            DatabaseHelper.updateId(c, tableName, p);
+            SqlHelper.updateId(c, tableName, p);
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,11 +116,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             Connection c = this.getConnection();
-            ResultSet rs = DatabaseHelper.selectFromTable(c, this.tableName,
+            ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
                     new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             Vector<Integer> ids = new Vector<Integer>();
             while(rs.next()){
-                ids.add(rs.getInt(DatabaseHelper.ID_COL));
+                ids.add(rs.getInt(org.commcare.core.database.DatabaseHelper.ID_COL));
             }
             return ids;
         } catch (InstantiationException e) {
@@ -141,12 +141,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = this.getConnection();
-            ResultSet rs = DatabaseHelper.selectFromTable(c, this.tableName,
+            ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
                     new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             if(!rs.next()){
                 throw new NoSuchElementException();
             }
-            byte[] mBytes = rs.getBytes(DatabaseHelper.DATA_COL);
+            byte[] mBytes = rs.getBytes(org.commcare.core.database.DatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
         } catch (SQLException |InstantiationException | IllegalAccessException e) {
@@ -185,7 +185,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public boolean exists(int id) {
         try {
             Connection c = getConnection();
-            ResultSet rs = DatabaseHelper.selectForId(c, this.tableName, id);
+            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
             c.close();
             if(rs.next()){
                 return true;
@@ -210,7 +210,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public int getNumRecords() {
         try {
             Connection c = getConnection();
-            ResultSet rs = DatabaseHelper.executeSql(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
+            ResultSet rs = SqlHelper.executeSql(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
             int count = rs.getInt(1);
             c.close();
             return count;
@@ -236,8 +236,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             connection = this.getConnection();
-            resultSet = DatabaseHelper.executeSql(connection, "SELECT " + DatabaseHelper.ID_COL + " , " +
-                    DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
+            resultSet = SqlHelper.executeSql(connection, "SELECT " + org.commcare.core.database.DatabaseHelper.ID_COL + " , " +
+                    org.commcare.core.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -266,8 +266,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public byte[] readBytes(int id) {
         try {
             Connection c = getConnection();
-            ResultSet rs = DatabaseHelper.selectForId(c, this.tableName, id);
-            byte[] caseBytes = rs.getBytes(DatabaseHelper.DATA_COL);
+            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
+            byte[] caseBytes = rs.getBytes(org.commcare.core.database.DatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
         } catch (Exception e){
@@ -325,7 +325,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         Connection c = null;
         try {
             c = getConnection();
-            DatabaseHelper.updateToTable(c, tableName, p, id);
+            SqlHelper.updateToTable(c, tableName, p, id);
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -359,7 +359,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
-            DatabaseHelper.dropTable(c, tableName);
+            SqlHelper.dropTable(c, tableName);
             c.close();
         } catch(Exception e){
             System.out.println("Got exception creating table: " + tableName + " e: " + e);
@@ -372,7 +372,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
-            DatabaseHelper.createTable(c, tableName, prototype.newInstance());
+            SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
         } catch(Exception e){
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
@@ -380,16 +380,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     }
 
     public void resetTable(){
-        Connection c = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
-            DatabaseHelper.dropTable(c, tableName);
-            DatabaseHelper.createTable(c, tableName, prototype.newInstance());
-            c.close();
-        } catch(Exception e){
-            System.out.println("Got exception creating table: " + tableName + " e: " + e);
-            e.printStackTrace();
-        }
+        dropTable();
+        tryCreateTable();
     }
 }

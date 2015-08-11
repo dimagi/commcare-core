@@ -1,6 +1,6 @@
 package org.commcare.util.test;
 
-import org.commcare.api.persistence.DatabaseHelper;
+import org.commcare.api.persistence.SqlHelper;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -81,13 +81,13 @@ public class CaseAPITests {
 
                 c = DriverManager.getConnection("jdbc:sqlite:test.db");
 
-                DatabaseHelper.dropTable(c, "TFLedger");
+                SqlHelper.dropTable(c, "TFLedger");
 
-                DatabaseHelper.createTable(c, "TFLedger", new Ledger());
+                SqlHelper.createTable(c, "TFLedger", new Ledger());
 
-                DatabaseHelper.insertToTable(c, "TFLedger", l);
+                SqlHelper.insertToTable(c, "TFLedger", l);
 
-                ResultSet rs = DatabaseHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
+                ResultSet rs = SqlHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
                 byte[] caseBytes = rs.getBytes("commcare_sql_record");
                 System.out.println("result bytes: " + caseBytes);
                 DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
