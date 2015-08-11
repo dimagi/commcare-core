@@ -47,14 +47,6 @@ public class CaseParseAndReadTest {
     }
 
     @Test
-    public void queryUsingMissingCaseId() {
-        CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
-        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        boolean result = CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'missing-case']/case_name", "");
-        System.out.println(result);
-    }
-
-    @Test
     public void testReadCaseDB() throws Exception {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
     }
