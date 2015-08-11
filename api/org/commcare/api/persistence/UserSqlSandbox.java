@@ -1,7 +1,7 @@
 package org.commcare.api.persistence;
 
 import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.api.models.SqlMeta;
+import org.commcare.api.models.UserSandboxMetaData;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.suite.model.User;
@@ -21,8 +21,9 @@ public class UserSqlSandbox implements UserDataInterface{
     private final SqlIndexedStorageUtility<User> userStorage;
     private final SqlIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqlIndexedStorageUtility<FormInstance> appFixtureStorage;
-    private final SqlIndexedStorageUtility<SqlMeta> metaDataStorage;
+    private final SqlIndexedStorageUtility<UserSandboxMetaData> metaDataStorage;
     private User user;
+    String username;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -31,12 +32,13 @@ public class UserSqlSandbox implements UserDataInterface{
      * @param factory A prototype factory for deserializing records
      */
     public UserSqlSandbox(PrototypeFactory factory, String username) {
+        this.username = username;
         caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, factory, username, "TFCase");
         ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, factory, username, "Ledger");
         userStorage = new SqlIndexedStorageUtility<User>(User.class, factory, username, "User");
         userFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "UserFixture");
         appFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "AppFixture");
-        metaDataStorage = new SqlIndexedStorageUtility<SqlMeta>(SqlMeta.class, factory, username, "Meta");
+        metaDataStorage = new SqlIndexedStorageUtility<UserSandboxMetaData>(UserSandboxMetaData.class, factory, username, "Meta");
     }
 
 
@@ -80,26 +82,26 @@ public class UserSqlSandbox implements UserDataInterface{
         //TODO
     }
 
-    public SqlIndexedStorageUtility<SqlMeta> getMetaStorage() {
+    public SqlIndexedStorageUtility<UserSandboxMetaData> getMetaStorage() {
         return metaDataStorage;
     }
 
     public void updateLastSync(){
-        SqlIndexedStorageUtility<SqlMeta> mStorage = getMetaStorage();
-        SqlMeta mSqlMeta = new SqlMeta();
-        mStorage.write(mSqlMeta);
+        SqlIndexedStorageUtility<UserSandboxMetaData> mStorage = getMetaStorage();
+        UserSandboxMetaData mUserSandboxMetaData = new UserSandboxMetaData();
+        mStorage.write(mUserSandboxMetaData);
     }
 
     public Date getLastSync(){
-        SqlIndexedStorageUtility<SqlMeta> mStorage = getMetaStorage();
+        SqlIndexedStorageUtility<UserSandboxMetaData> mStorage = getMetaStorage();
         if(mStorage == null){
             return null;
         }
-        SqlMeta mSqlMeta = mStorage.read(1);
-        if(mSqlMeta == null){
+        UserSandboxMetaData mUserSandboxMetaData = mStorage.read(1);
+        if(mUserSandboxMetaData == null){
             return null;
         }
-        Date mDate = (Date)mSqlMeta.getMetaData(SqlMeta.META_LAST_SYNC);
+        Date mDate = (Date) mUserSandboxMetaData.getMetaData(UserSandboxMetaData.META_LAST_SYNC);
         return mDate;
     }
 

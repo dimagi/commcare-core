@@ -158,8 +158,7 @@ public class DatabaseHelper {
             preparedStatement = c.prepareStatement(sqlStatement);
             preparedStatement.execute();
         } catch (SQLException e) {
-            System.out.println("SQLE: " + e);
-            e.printStackTrace();
+            System.out.println("Caught create table exception: " + e);
         } finally{
             if (preparedStatement != null) {
                 try {

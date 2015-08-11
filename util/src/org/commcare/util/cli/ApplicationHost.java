@@ -87,16 +87,6 @@ public class ApplicationHost {
                 System.out.println("\n\n\n\n\n\n");
                 s.prompt(System.out);
                 System.out.print("> ");
-                s.init(mSession);
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                s.prompt(System.out);
-                System.out.print("> ");
 
                 String input = reader.readLine();
 
@@ -181,7 +171,7 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        mSandbox = new UserSqlSandbox(mPrototypeFactory, mUsername);
+        mSandbox = new UserSqlSandbox(mPrototypeFactory, "will");
 
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";

@@ -6,8 +6,12 @@ import org.commcare.test.utils.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.model.xform.DataModelSerializer;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +38,14 @@ public class CaseParseAndReadTest {
     }
 
     @Test
-    public void testReadCaseDB() throws IOException {
+    public void testReadCaseDB() throws Exception {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
     }
 
-    private void compareCaseDbState(String inputTransactions, String caseDbState) throws IOException {
+    private void compareCaseDbState(String inputTransactions, String caseDbState) throws Exception {
         UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        EvaluationContext ec = UserDataUtils.getInstanceContexts(this.sandbox, "casedb", "jr://instance/casedb");
+        testXPathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case");
 
         byte[] parsedDb = dumpInstance("jr://instance/casedb");
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));
@@ -55,6 +61,12 @@ public class CaseParseAndReadTest {
             //likely to do a good job of contextualizing where the DOM's don't match.
             Assert.assertEquals("CaseDB output did not match expected structure(" + e.getMessage() + ")", new String(dumpStream(caseDbState)), new String(parsedDb));
         }
+    }
+
+    private void testXPathEval(EvaluationContext ec, String input, String expectedOutput) throws Exception {
+        XPathExpression expr = XPathParseTool.parseXPath(input);
+        Object output = XPathFuncExpr.unpack(expr.eval(ec));
+        Assert.assertEquals("XPath expression [" + input  + "] produced the wrong output", expectedOutput, output);
     }
 
     private byte[] dumpInstance(String instanceRef) {

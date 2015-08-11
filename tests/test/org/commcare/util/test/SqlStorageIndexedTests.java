@@ -47,18 +47,18 @@ public class SqlStorageIndexedTests {
         a = new Case("case_name_ipsum", "case_type_ipsum");
         a.setCaseId("case_id_ipsum");
         a.setUserId(owner);
-        a.setID(123456);
+        a.setID(-1);
 
         l = new Ledger("ledger_entity_id");
-        l.setID(12345);
+        l.setID(-1);
         l.setEntry("test_section_id", "test_entry_id", 2345);
 
         l2 = new Ledger("ledger_entity_id");
-        l2.setID(1234567);
+        l2.setID(-1);
         l2.setEntry("test_section_id_2", "test_entry_id_2", 2345);
 
         l3 = new Ledger("ledger_entity_id_3");
-        l3.setID(12345678);
+        l3.setID(-1);
         l3.setEntry("test_section_id_3", "test_entry_id_3", 2345);
     }
 
@@ -72,10 +72,10 @@ public class SqlStorageIndexedTests {
                 mPrototypeFactory.addClass(Case.class);
 
                 String storageKey = "TFCase";
-                String username = "wspride";
+                String username = "derp";
 
                 caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, mPrototypeFactory, username, storageKey);
-                //caseStorage.resetTable();
+                caseStorage.resetTable();
 
                 caseStorage.write(a);
 
@@ -108,17 +108,11 @@ public class SqlStorageIndexedTests {
                 String username = "wspride";
 
                 ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, mPrototypeFactory, username, storageKey);
-                //ledgerStorage.resetTable();
+                ledgerStorage.resetTable();
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);
                 ledgerStorage.write(l3);
-
-                Ledger readLedger = ledgerStorage.read(1);
-
-                assertEquals("ledger_entity_id", readLedger.getEntiyId());
-                assertEquals("test_section_id", readLedger.getSectionList()[0]);
-                assertEquals(2345, readLedger.getEntry("test_section_id", "test_entry_id"));
 
                 Vector<Object> ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
 

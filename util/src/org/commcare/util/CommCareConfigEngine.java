@@ -44,7 +44,6 @@ import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
@@ -94,7 +93,7 @@ public class CommCareConfigEngine {
                 Graph.class.getName(),
                 XYSeries.class.getName(),
                 BubbleSeries.class.getName()};
-                PrototypeManager.registerPrototypes(prototypes);
+        PrototypeManager.registerPrototypes(prototypes);
 
     }
 
@@ -110,7 +109,8 @@ public class CommCareConfigEngine {
 
         setRoots();
 
-        table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
+        table = ResourceTable.RetrieveTable(new SqlIndexedStorageUtility(Resource.class, PrototypeManager.getDefault(),
+                                                    "will", "ResourceTable"));
 
 
         //All of the below is on account of the fact that the installers
@@ -124,17 +124,17 @@ public class CommCareConfigEngine {
                     tableName = type.getSimpleName();
                 }
                 return new SqlIndexedStorageUtility(type, PrototypeManager.getDefault(),
-                                                        "will", tableName);
-            }
+                        "will", tableName);
+        }
 
         });
 
         initModules();
 
 
-        StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
+        StorageManager.registerStorage(Profile.STORAGE_KEY,Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
+        StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage("fixture", FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }

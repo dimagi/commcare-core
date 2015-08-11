@@ -353,4 +353,43 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public Iterator<T> iterator() {
         return iterate();
     }
+
+    public void dropTable(){
+        Connection c = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
+            DatabaseHelper.dropTable(c, tableName);
+            c.close();
+        } catch(Exception e){
+            System.out.println("Got exception creating table: " + tableName + " e: " + e);
+            e.printStackTrace();
+        }
+    }
+
+    public void tryCreateTable(){
+        Connection c = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
+            DatabaseHelper.createTable(c, tableName, prototype.newInstance());
+            c.close();
+        } catch(Exception e){
+            System.out.println("Couldn't create table: " + tableName + " got: " + e);
+        }
+    }
+
+    public void resetTable(){
+        Connection c = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
+            DatabaseHelper.dropTable(c, tableName);
+            DatabaseHelper.createTable(c, tableName, prototype.newInstance());
+            c.close();
+        } catch(Exception e){
+            System.out.println("Got exception creating table: " + tableName + " e: " + e);
+            e.printStackTrace();
+        }
+    }
 }

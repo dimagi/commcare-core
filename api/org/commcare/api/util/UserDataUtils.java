@@ -5,11 +5,14 @@ import org.commcare.api.parser.CommCareTransactionParserFactory;
 import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.User;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -27,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -154,5 +158,21 @@ public class UserDataUtils {
             // Otherwise, nothing
             return null;
         }
+    }
+
+
+    /**
+     * A quick way to request an evaluation context with an abstract instance available.
+     *
+     */
+    public static EvaluationContext getInstanceContexts(UserDataInterface sandbox, String instanceId, String instanceRef){
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+        edi.initialize(iif, instanceId);
+        instances.put(instanceId, edi);
+
+        return new EvaluationContext(null, instances);
     }
 }

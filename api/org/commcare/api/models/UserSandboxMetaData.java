@@ -18,14 +18,14 @@ import java.util.Date;
  *
  * Created by wpride1 on 7/20/15.
  */
-public class SqlMeta implements Persistable, IMetaData {
+public class UserSandboxMetaData implements Persistable, IMetaData {
 
     public static final String META_LAST_SYNC = "LAST_SYNC";
 
     private Date lastSync;
     private int metaId = -1;
 
-    public SqlMeta(){
+    public UserSandboxMetaData(){
         this.lastSync = new Date();
         this.setID(-1);
     }
