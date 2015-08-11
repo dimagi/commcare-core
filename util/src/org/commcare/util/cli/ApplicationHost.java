@@ -76,8 +76,14 @@ public class ApplicationHost {
         while (keepExecuting) {
             mSession.clearAllState();
             keepExecuting = loopSession();
+
+            if(this.mUpdatePending) {
+                mSession.clearAllState();
+                mEngine.attemptAppUpdate();
+            }
         }
     }
+    boolean mUpdatePending = false;
     
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
@@ -104,7 +110,11 @@ public class ApplicationHost {
                 //TODO: Command language
                 if(input.startsWith(":")) {
                     if(input.equals(":exit") || input.equals(":quit")) {
-
+                        System.exit(-1);
+                    }
+                    if(input.equals(":update")) {
+                        mUpdatePending = true;
+                        return true;
                     }
                 }
 
