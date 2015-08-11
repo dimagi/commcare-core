@@ -1,7 +1,6 @@
 package org.commcare.cases;
 
 import org.commcare.test.utils.TestInstanceInitializer;
-import org.commcare.test.utils.TestLedgerInitializer;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -29,18 +28,6 @@ public class CaseTestUtils {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-    public static void loadLedgerIntoSandbox(MockUserDataSandbox sandbox) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new TestLedgerInitializer(sandbox));
-
-            s.serialize(new ExternalDataInstance(CaseTestUtils.LEDGER_INSTANCE, "ledger"), null);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
 
     public static boolean xpathEval(EvaluationContext evalContext,
                                     String input,

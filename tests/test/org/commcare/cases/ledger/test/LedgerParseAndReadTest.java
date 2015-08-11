@@ -25,7 +25,6 @@ public class LedgerParseAndReadTest {
 
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
 
-        CaseTestUtils.loadLedgerIntoSandbox(sandbox);
         evalContextWithLedger =
                 MockDataUtils.getInstanceContexts(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
     }

@@ -34,16 +34,18 @@ public class CaseParseAndReadTest {
     }
 
     @Test(expected = XPathTypeMismatchException.class)
-    public void caseQueryWithNoCaseInstance() {
+    public void caseQueryWithNoCaseInstance() throws XPathSyntaxException {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
 
-        CaseTestUtils.loadCaseInstanceIntoSandbox(emptySandbox);
         EvaluationContext ec = MockDataUtils.getInstanceContexts(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        try {
-            CaseTestUtils.xpathEvalWithException(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name");
-        } catch (XPathSyntaxException e) {
-            Assert.assertTrue(false);
-        }
+        CaseTestUtils.xpathEvalWithException(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name");
+    }
+
+    @Test
+    public void caseQueryWithBadPath() {
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
     }
 
     @Test
