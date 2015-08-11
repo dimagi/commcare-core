@@ -58,7 +58,7 @@ public class LedgerParseAndReadTest {
     }
 
     @Test(expected = XPathMissingInstanceException.class)
-    public void ledgerQueriesWithoutLedgerInstance() {
+    public void ledgerQueriesWithNoLedgerInstance() {
         EvaluationContext emptyEvalContext = new EvaluationContext(null);
         try {
             CaseTestUtils.xpathEvalWithException(emptyEvalContext, "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']");

@@ -6,7 +6,6 @@ import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.XPathMissingInstanceException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
@@ -35,7 +34,7 @@ public class CaseParseAndReadTest {
     }
 
     @Test(expected = XPathTypeMismatchException.class)
-    public void testCaseQueryWithoutCaseInstance() {
+    public void caseQueryWithNoCaseInstance() {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
 
         CaseTestUtils.loadCaseInstanceIntoSandbox(emptySandbox);
@@ -48,7 +47,7 @@ public class CaseParseAndReadTest {
     }
 
     @Test
-    public void testQueryWithMissingCaseId() {
+    public void queryUsingMissingCaseId() {
         CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
         EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         boolean result = CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'missing-case']/case_name", "");

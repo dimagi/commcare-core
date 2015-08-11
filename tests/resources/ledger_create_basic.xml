@@ -9,17 +9,20 @@
         <uuid>test_example</uuid>
         <date>2012-04-30</date>
     </Registration>
-    <ns0:balance xmlns:ns0="http://commcarehq.org/ledger/v1" date="2015-05-29T00:00:00.000000Z" entity-id="ocean_state_job_lot" section-id="cleaning_stock">
+    <ns0:balance date="2015-05-29T00:00:00.000000Z" entity-id="ocean_state_job_lot"
+                 section-id="cleaning_stock" xmlns:ns0="http://commcarehq.org/ledger/v1">
         <ns0:entry id="soap" quantity="9"/>
         <ns0:entry id="bleach" quantity="2"/>
     </ns0:balance>
 
-    <ns0:balance xmlns:ns0="http://commcarehq.org/ledger/v1" date="2015-05-29T00:00:00.000000Z" entity-id="market_basket" section-id="edible_stock">
+    <ns0:balance date="2015-05-29T00:00:00.000000Z" entity-id="market_basket"
+                 section-id="edible_stock" xmlns:ns0="http://commcarehq.org/ledger/v1">
         <ns0:entry id="rice" quantity="10"/>
         <ns0:entry id="beans" quantity="8"/>
     </ns0:balance>
 
-    <ns0:balance xmlns:ns0="http://commcarehq.org/ledger/v1" date="2015-05-29T00:00:00.000000Z" entity-id="market_basket" section-id="cleaning_stock">
+    <ns0:balance date="2015-05-29T00:00:00.000000Z" entity-id="market_basket"
+                 section-id="cleaning_stock" xmlns:ns0="http://commcarehq.org/ledger/v1">
         <ns0:entry id="dish_soap" quantity="100"/>
     </ns0:balance>
 </OpenRosaResponse>

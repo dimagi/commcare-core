@@ -40,9 +40,9 @@ public class LedgerWithCaseTest {
 
     @Test
     public void ledgerQueriesWithLedgerData() {
-        // case id 'market_basket' exists
-        // ledger data has been attached to 'market_basket'
-        // but the section 'non-existent-section' is non-existent
+        // case id 'market_basket' exists, and ledger data has been attached to
+        // 'market_basket', but the section 'non-existent-section' is
+        // non-existent
         Assert.assertTrue(
                 CaseTestUtils.xpathEval(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='non-existent-section']",
@@ -51,8 +51,8 @@ public class LedgerWithCaseTest {
 
     @Test
     public void ledgerQueriesWithoutLedgerData() {
-        // case id 'star_market' exists
-        // but no ledger data has been attached to it
+        // case id 'star_market' exists but no ledger data has been attached to
+        // it
         Assert.assertTrue(
                 CaseTestUtils.xpathEval(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']",
