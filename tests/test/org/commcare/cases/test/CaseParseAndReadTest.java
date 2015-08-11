@@ -42,6 +42,14 @@ public class CaseParseAndReadTest {
     }
 
     @Test
+    public void referenceNonExistentCaseId() {
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        // TODO PLM: This should throw an exception, not return '', right?
+        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'no-case']", ""));
+    }
+
+    @Test
     public void caseQueryWithBadPath() {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);

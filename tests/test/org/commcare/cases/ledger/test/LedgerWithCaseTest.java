@@ -61,6 +61,17 @@ public class LedgerWithCaseTest {
                         ""));
     }
 
+    @Test
+    public void fakeLedgerQueriesFailCorrectly() {
+        // TODO PLM: Looks like ledger queries fail in the correct way if any ledgers have been loaded at all
+
+        // case id 'star_market' exists but no ledger data been loaded at all
+        Assert.assertTrue(CaseTestUtils.xpathEval(evalContext,
+                "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='']", ""));
+        Assert.assertTrue(CaseTestUtils.xpathEval(evalContext,
+                "instance('ledger')/ledgerdb/ledger[@entity-id='totally-fake']", ""));
+    }
+
     /**
      * Demonstrates how ledgers should have different failure behavior than cases.
      */
