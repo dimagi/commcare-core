@@ -69,11 +69,11 @@ public class LedgerWithCaseTest {
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
         boolean result;
         result = CaseTestUtils.xpathEval(evalContextWithoutLedgers,
-                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']",
-                        "");
+                "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']",
+                "");
         result = CaseTestUtils.xpathEval(evalContextWithoutLedgers,
-                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']",
-                        "");
+                "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']",
+                "");
         System.out.print(result);
         // TODO PLM: Make this actually fail when 'result' is false
     }
@@ -85,7 +85,12 @@ public class LedgerWithCaseTest {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox);
         CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
 
+        CaseTestUtils.loadLedgerIntoSandbox(sandbox);
+
         // create an evaluation context that has ledger and case instances setup
-        return MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(CaseTestUtils.LEDGER_INSTANCE, "ledger");
+        instanceRefToId.put(CaseTestUtils.CASE_INSTANCE, "casedb");
+        return MockDataUtils.buildContextWithInstances(sandbox, instanceRefToId);
     }
 }
