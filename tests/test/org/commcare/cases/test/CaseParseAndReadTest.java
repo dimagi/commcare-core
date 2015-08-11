@@ -6,6 +6,9 @@ import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +34,24 @@ public class CaseParseAndReadTest {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-    @Test
-    public void testMissingCaseQuery() {
+    @Test(expected = XPathTypeMismatchException.class)
+    public void testCaseQueryWithoutCaseInstance() {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
 
         CaseTestUtils.loadCaseInstanceIntoSandbox(emptySandbox);
         EvaluationContext ec = MockDataUtils.getInstanceContexts(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        boolean result = CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "");
+        try {
+            CaseTestUtils.xpathEvalWithException(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name");
+        } catch (XPathSyntaxException e) {
+            Assert.assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testQueryWithMissingCaseId() {
+        CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
+        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        boolean result = CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'missing-case']/case_name", "");
         System.out.println(result);
     }
 

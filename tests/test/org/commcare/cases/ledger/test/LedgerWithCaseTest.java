@@ -8,43 +8,58 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Hashtable;
+
 /**
- * Test ledger parsing, loading, and xpath expressions that make ledger
- * references
+ * Test interplay between ledgers and cases.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class LedgerWithCaseTest {
-    private EvaluationContext evalContextWithLedger;
+    private EvaluationContext evalContext;
 
     @Before
     public void setUp() {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
+        // load cases that will be referenced by ledgers
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox);
+        CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
 
+        // load ledger data
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
         CaseTestUtils.loadLedgerIntoSandbox(sandbox);
-        evalContextWithLedger =
-                MockDataUtils.getInstanceContexts(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
+
+        // create an evaluation context that has ledger and case instances setup
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(CaseTestUtils.LEDGER_INSTANCE, "ledger");
+        instanceRefToId.put(CaseTestUtils.CASE_INSTANCE, "casedb");
+        evalContext =
+                MockDataUtils.buildContextWithInstances(sandbox, instanceRefToId);
     }
 
     @Test
-    public void queryExistingLedgerPath() {
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
-                "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='edible_stock']/entry[@id='beans']",
-                8.0));
+    public void ledgerQueriesWithLedgerData() {
+        // case id 'market_basket' exists
+        // ledger data has been attached to 'market_basket'
+        // but the section 'non-existent-section' is non-existent
+        Assert.assertTrue(
+                CaseTestUtils.xpathEval(evalContext,
+                        "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='non-existent-section']",
+                        ""));
     }
 
     @Test
     public void ledgerQueriesWithoutLedgerData() {
-        MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
-
-        CaseTestUtils.loadLedgerIntoSandbox(emptySandbox);
-        evalContextWithLedger =
-                MockDataUtils.getInstanceContexts(emptySandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
-        boolean result = CaseTestUtils.xpathEval(evalContextWithLedger,
-                "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']",
-                "");
-        System.out.print(result);
+        // case id 'star_market' exists
+        // but no ledger data has been attached to it
+        Assert.assertTrue(
+                CaseTestUtils.xpathEval(evalContext,
+                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']",
+                        ""));
+        Assert.assertTrue(
+                CaseTestUtils.xpathEval(evalContext,
+                        "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']",
+                        ""));
     }
 }

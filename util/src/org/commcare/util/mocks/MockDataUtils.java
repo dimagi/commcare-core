@@ -141,8 +141,7 @@ public class MockDataUtils {
     }
 
     /**
-     * A quick way to request an evaluation context with an abstract instance available.
-     *
+     * Create an evaluation context with an abstract instance available.
      */
     public static EvaluationContext getInstanceContexts(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
@@ -151,6 +150,21 @@ public class MockDataUtils {
         ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
         edi.initialize(iif, instanceId);
         instances.put(instanceId, edi);
+
+        return new EvaluationContext(null, instances);
+    }
+
+    public static EvaluationContext buildContextWithInstances(MockUserDataSandbox sandbox,
+                                                              Hashtable<String, String> instanceRefToId) {
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        for (String instanceRef : instanceRefToId.keySet()) {
+            String instanceId = instanceRefToId.get(instanceRef);
+            ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+            edi.initialize(iif, instanceId);
+            instances.put(instanceId, edi);
+        }
 
         return new EvaluationContext(null, instances);
     }
