@@ -8,6 +8,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.BasicInstaller;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
@@ -52,6 +53,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -381,7 +383,27 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void attemptAppUpdate() {
+
+    final static private class QuickStateListener implements TableStateListener{
+        int lastComplete = 0;
+        int lastTotal = 0;
+
+        @Override
+        public void resourceStateUpdated(ResourceTable table) {
+
+        }
+
+        @Override
+        public void incrementProgress(int complete, int total) {
+            int diff = complete - lastComplete;
+            lastComplete = complete;
+            for(int i = 0 ; i < diff ; ++i) {
+                System.out.print(".");
+            }
+        }
+    };
+
+    public void attemptAppUpdate(boolean forceNew) {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.
@@ -392,36 +414,52 @@ public class CommCareConfigEngine {
         boolean appInstalled = (profileRef != null &&
                 profileRef.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
+        TableStateListener globalListener = new TableStateListener() {
+            int lastComplete = 0;
 
-            //global.setStateListener();
-            // temporary is the upgrade table, which starts out in the
-            // state that it was left after the last install- partially
-            // populated if it stopped in middle, empty if the install was
-            // successful
-            //updateTable.setStateListener();
+            @Override
+            public void resourceStateUpdated(ResourceTable table) {
 
-            // When profileRef points is http, add appropriate dev flags
-            String url = profileObj.getAuthReference();
+            }
 
-                // profileRef couldn't be parsed as a URL, so don't worry
-                // about adding dev flags to the url's query
+            @Override
+            public void incrementProgress(int complete, int total) {
 
-//            // If we want to be using/updating to the latest build of the
-//            // app (instead of latest release), add it to the query tags of
-//            // the profile reference
-//            if (DeveloperPreferences.isNewestAppVersionEnabled() &&
-//                    (profileUrl != null) &&
-//                    ("https".equals(profileUrl.getProtocol()) ||
-//                            "http".equals(profileUrl.getProtocol()))) {
-//                if (profileUrl.getQuery() != null) {
-//                    // If the profileRef url already have query strings
-//                    // just add a new one to the end
-//                    profileRef = profileRef + "&target=build";
-//                } else {
-//                    // otherwise, start off the query string with a ?
-//                    profileRef = profileRef + "?target=build";
-//                }
-//            }
+            }
+        };
+
+        global.setStateListener(new QuickStateListener());
+
+        updateTable.setStateListener(new QuickStateListener());
+
+        // When profileRef points is http, add appropriate dev flags
+        String authRef = profileObj.getAuthReference();
+
+        try {
+            URL authUrl = new URL(authRef);
+
+            // profileRef couldn't be parsed as a URL, so don't worry
+            // about adding dev flags to the url's query
+
+            // If we want to be using/updating to the latest build of the
+            // app (instead of latest release), add it to the query tags of
+            // the profile reference
+            if (forceNew &&
+                    (authUrl != null) &&
+                    ("https".equals(authUrl.getProtocol()) ||
+                            "http".equals(authUrl.getProtocol()))) {
+                if (authUrl.getQuery() != null) {
+                    // If the profileRef url already have query strings
+                    // just add a new one to the end
+                    authRef = authRef + "&target=build";
+                } else {
+                    // otherwise, start off the query string with a ?
+                    authRef = authRef + "?target=build";
+                }
+            }
+        } catch (MalformedURLException e) {
+            System.out.print("Warning: Unrecognized URL format: " + authRef);
+        }
 
 
         try {
@@ -430,18 +468,32 @@ public class CommCareConfigEngine {
             // binary files, starting with the profile file. If the new
             // profile is not a newer version, statgeUpgradeTable doesn't
             // actually pull in all the new references
-            platform.stageUpgradeTable(global, updateTable, recoveryTable, url, true);
+
+            System.out.println("Checking for updates....");
+            platform.stageUpgradeTable(global, updateTable, recoveryTable, authRef, true);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
                 System.out.println("Your app is up to date!");
                 return;
             }
 
+            System.out.println("Update found. New Version: " + newProfile.getVersion());
+            System.out.print("Installing update");
+
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
             platform.upgrade(global, updateTable, recoveryTable);
+        } catch(UnresolvedResourceException e) {
+            System.out.println("Update Failed! Couldn't find or install one of the remote resources");
+            e.printStackTrace();
+            return;
+        } catch(UnfullfilledRequirementsException e) {
+            System.out.println("Update Failed! This CLI host is incompatible with the app");
+            e.printStackTrace();
+            return;
         } catch(Exception e) {
-          e.printStackTrace();
+            System.out.println("Update Failed! There is a problem with one of the resources");
+            e.printStackTrace();
             return;
         }
 
