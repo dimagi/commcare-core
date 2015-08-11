@@ -5,7 +5,9 @@ import org.commcare.util.CommCareTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -19,6 +21,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -139,5 +143,20 @@ public class MockDataUtils {
             // Otherwise, nothing
             return null;
         }
+    }
+
+    /**
+     * A quick way to request an evaluation context with an abstract instance available.
+     *
+     */
+    public static EvaluationContext getInstanceContexts(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+        edi.initialize(iif, instanceId);
+        instances.put(instanceId, edi);
+
+        return new EvaluationContext(null, instances);
     }
 }

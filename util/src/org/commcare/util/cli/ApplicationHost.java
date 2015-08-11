@@ -94,16 +94,6 @@ public class ApplicationHost {
                 System.out.println("\n\n\n\n\n\n");
                 s.prompt(System.out);
                 System.out.print("> ");
-                s.init(mPlatform, mSession, mSandbox);
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                s.prompt(System.out);
-                System.out.print("> ");
 
                 String input = reader.readLine();
 
