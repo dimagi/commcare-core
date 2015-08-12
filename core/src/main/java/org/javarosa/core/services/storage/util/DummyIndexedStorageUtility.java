@@ -264,6 +264,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         data.clear();
 
         meta.clear();
+        initMeta();
     }
 
     /* (non-Javadoc)
