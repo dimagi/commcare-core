@@ -92,7 +92,8 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public LedgerChildElement getChild(String name, int multiplicity) {
-        if (multiplicity == TreeReference.INDEX_TEMPLATE) {
+        if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
+                "ledger".equals(name)) {
             return LedgerChildElement.TemplateElement(this);
         }
 

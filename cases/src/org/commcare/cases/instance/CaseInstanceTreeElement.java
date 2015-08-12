@@ -106,7 +106,8 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
      */
     public CaseChildElement getChild(String name, int multiplicity) {
-        if (multiplicity == TreeReference.INDEX_TEMPLATE) {
+        if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
+                "case".equals(name)) {
             return CaseChildElement.TemplateElement(this);
         }
 
