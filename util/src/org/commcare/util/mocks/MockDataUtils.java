@@ -143,17 +143,15 @@ public class MockDataUtils {
     /**
      * Create an evaluation context with an abstract instance available.
      */
-    public static EvaluationContext getInstanceContexts(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
-        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
-
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
-        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-        edi.initialize(iif, instanceId);
-        instances.put(instanceId, edi);
-
-        return new EvaluationContext(null, instances);
+    public static EvaluationContext buildContextWithInstance(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(instanceRef, instanceId);
+        return buildContextWithInstances(sandbox, instanceRefToId);
     }
 
+    /**
+     * Create an evaluation context with an abstract instances available.
+     */
     public static EvaluationContext buildContextWithInstances(MockUserDataSandbox sandbox,
                                                               Hashtable<String, String> instanceRefToId) {
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);

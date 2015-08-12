@@ -39,54 +39,54 @@ public class LedgerAndCaseQueryTest {
     }
 
     @Test
-    public void ledgerQueriesWithLedgerData() {
+    public void ledgerQueriesWithLedgerData() throws XPathSyntaxException {
         // case id 'market_basket' exists, and ledger data has been attached it
         Assert.assertTrue(
-                CaseTestUtils.xpathEval(evalContext,
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='edible_stock']/entry[@id='rice']",
                         10.0));
         // Reference valid case but invalid section id
         Assert.assertTrue(
-                CaseTestUtils.xpathEval(evalContext,
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='non-existent-section']",
                         ""));
         // case id 'ocean_state_job_lot' doesn't exists, but the ledger data
         // corresponding to it does
         Assert.assertTrue(
-                CaseTestUtils.xpathEval(evalContext,
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='ocean_state_job_lot']/section[@section-id='cleaning_stock']/entry[@id='soap']",
                         9.0));
     }
 
     @Test
-    public void ledgerQueriesWithoutReferencedLedgerData() {
+    public void ledgerQueriesWithoutReferencedLedgerData() throws XPathSyntaxException {
         // case id 'star_market' exists but no ledger data has been attached to
         // it
         Assert.assertTrue(
-                CaseTestUtils.xpathEval(evalContext,
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']", ""));
         Assert.assertTrue(
-                CaseTestUtils.xpathEval(evalContext,
+                CaseTestUtils.xpathEvalAndCompare(evalContext,
                         "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='non-existent-section']", ""));
     }
 
     @Test
-    public void fakeLedgerQueriesFailCorrectly() {
+    public void fakeLedgerQueriesFailCorrectly() throws XPathSyntaxException {
         // case id 'totally-fake' doesn't exist
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContext,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContext,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='totally-fake']", ""));
     }
 
     @Test
-    public void ledgerQueriesWithNoLedgerData() {
+    public void ledgerQueriesWithNoLedgerData() throws XPathSyntaxException {
         // case id 'star_market' exists but no ledger data been loaded at all
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
 
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithoutLedgers,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']", ""));
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithoutLedgers,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='']/section[@section-id='']/entry[@entry-id='']", ""));
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithoutLedgers,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger/section/entry", ""));
     }
 
@@ -94,7 +94,7 @@ public class LedgerAndCaseQueryTest {
     public void ledgerQueriesWithBadTemplate() throws XPathSyntaxException {
         // case id 'star_market' exists but no ledger data been loaded at all
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
-        CaseTestUtils.xpathEvalWithException(evalContextWithoutLedgers,
+        CaseTestUtils.xpathEval(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/not-section[@section-id='']/entry[@entry-id='']");
     }
 

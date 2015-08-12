@@ -27,26 +27,24 @@ public class CaseXPathQueryTest {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
 
         EvaluationContext ec =
-                MockDataUtils.getInstanceContexts(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
+                MockDataUtils.buildContextWithInstance(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
     }
 
     @Test
-    public void referenceNonExistentCaseId() {
+    public void referenceNonExistentCaseId() throws XPathSyntaxException {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
-                MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
 
-        // TODO PLM: Should this expression throw an exception because the
-        // case_id doesn't exist in the casedb?
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'no-case']", ""));
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'no-case']", ""));
     }
 
     @Test
-    public void caseQueryWithBadPath() {
+    public void caseQueryWithBadPath() throws XPathSyntaxException {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
-                MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
+                MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
     }
 }

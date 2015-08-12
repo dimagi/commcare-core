@@ -1,11 +1,14 @@
 package org.commcare.cases.test;
 
 import org.commcare.cases.CaseTestUtils;
+import org.commcare.test.utils.TestInstanceInitializer;
 import org.commcare.test.utils.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +34,6 @@ public class CaseParseAndReadTest {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-
     @Test
     public void testReadCaseDB() throws Exception {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
@@ -42,10 +44,10 @@ public class CaseParseAndReadTest {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
 
         EvaluationContext ec =
-            MockDataUtils.getInstanceContexts(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
+            MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
 
-        byte[] parsedDb = CaseTestUtils.loadCaseInstanceIntoSandbox(sandbox);
+        byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));
         Document loaded = XmlComparator.getDocumentFromStream(this.getClass().getResourceAsStream(caseDbState));
 
@@ -60,6 +62,19 @@ public class CaseParseAndReadTest {
             Assert.assertEquals("CaseDB output did not match expected structure(" + e.getMessage() + ")", new String(dumpStream(caseDbState)), new String(parsedDb));
         }
     }
+
+    private static byte[] serializeCaseInstanceFromSandbox(MockUserDataSandbox sandbox) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
+
+            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "instance"), null);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
     private byte[] dumpStream(String inputResource) throws IOException {
         InputStream is = this.getClass().getResourceAsStream(inputResource);

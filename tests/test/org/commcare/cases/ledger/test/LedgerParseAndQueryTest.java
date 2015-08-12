@@ -26,43 +26,39 @@ public class LedgerParseAndQueryTest {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
 
         evalContextWithLedger =
-                MockDataUtils.getInstanceContexts(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
+                MockDataUtils.buildContextWithInstance(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);
     }
 
     @Test
-    public void queryExistingLedgerPath() {
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+    public void queryExistingLedgerPath() throws XPathSyntaxException {
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='edible_stock']/entry[@id='beans']",
                 8.0));
     }
 
     @Test
-    public void queryMissingLedgerPath() {
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+    public void queryMissingLedgerPath() throws XPathSyntaxException {
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']",
                 ""));
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='amphibious_stock']",
                 ""));
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='cleaning_stock']/entry[@id='bleach']",
                 ""));
 
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']/section[@section-id='edible_stock']/entry[@id='beans']",
                 ""));
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithLedger,
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithLedger,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='market_basket']/section[@section-id='amphibious_stock']/entry[@id='beans']",
                 ""));
     }
 
     @Test(expected = XPathMissingInstanceException.class)
-    public void ledgerQueriesWithNoLedgerInstance() {
+    public void ledgerQueriesWithNoLedgerInstance() throws XPathSyntaxException {
         EvaluationContext emptyEvalContext = new EvaluationContext(null);
-        try {
-            CaseTestUtils.xpathEvalWithException(emptyEvalContext, "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']");
-        } catch (XPathSyntaxException e) {
-            Assert.assertTrue(false);
-        }
+        CaseTestUtils.xpathEval(emptyEvalContext, "instance('ledger')/ledgerdb/ledger[@entity-id='H_mart']");
     }
 }
