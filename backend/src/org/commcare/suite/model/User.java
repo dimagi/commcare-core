@@ -30,10 +30,22 @@ public class User implements Persistable, Restorable, IMetaData {
     protected static final String STANDARD = "standard";
     protected static final String DEMO_USER = "demo_user";
     protected static final String KEY_USER_TYPE = "user_type";
+    public static final String TYPE_DEMO = "demo";
+
+    public void setWrappedKey(byte[] key) {
+        this.wrappedKey = key;
+    }
+
+    public byte[] getWrappedKey() {
+        return wrappedKey;
+    }
+
 
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
     public static final String META_ID = "id";
+    public static final String META_WRAPPED_KEY = "wrappedkey";
+    public static final String META_SYNC_TOKEN = "synctoken";
 
     public int recordId = -1; //record id on device
     public String username;
@@ -46,6 +58,8 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public String syncToken;
 
+    private byte[] wrappedKey;
+
     public Hashtable<String, String> properties = new Hashtable<String, String>();
 
     public User() {
@@ -56,7 +70,7 @@ public class User implements Persistable, Restorable, IMetaData {
         this(name, passw, uniqueID, STANDARD);
     }
 
-    private User(String name, String passw, String uniqueID, String userType) {
+    public User(String name, String passw, String uniqueID, String userType) {
         username = name;
         password = passw;
         uniqueId = uniqueID;
@@ -73,6 +87,7 @@ public class User implements Persistable, Restorable, IMetaData {
         this.rememberMe = ExtUtil.readBool(in);
         this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+        this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -83,6 +98,7 @@ public class User implements Persistable, Restorable, IMetaData {
         ExtUtil.writeBool(out, rememberMe);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken));
         ExtUtil.write(out, new ExtWrapMap(properties));
+        ExtUtil.writeBytes(out, ExtUtil.emptyIfNull(wrappedKey));
     }
 
     public boolean isAdminUser() {
@@ -220,12 +236,25 @@ public class User implements Persistable, Restorable, IMetaData {
             return username;
         } else if(META_ID.equals(fieldName)) {
             return Integer.valueOf(recordId);
+        } else if (META_WRAPPED_KEY.equals(fieldName)) {
+            return wrappedKey;
+        } else if (META_SYNC_TOKEN.equals(fieldName)) {
+            return ExtUtil.emptyIfNull(syncToken);
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " for User Models");
     }
-
+    // TODO: Add META_WRAPPED_KEY back in?
     public String[] getMetaDataFields() {
-        return new String[]{META_UID, META_USERNAME, META_ID};
+        return new String[] {META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
+    }
+
+    //Don't ever save!
+    private String cachedPwd;
+    public void setCachedPwd(String password) {
+        this.cachedPwd = password;
+    }
+    public String getCachedPwd() {
+        return this.cachedPwd;
     }
 
     public String getLastSyncToken() {

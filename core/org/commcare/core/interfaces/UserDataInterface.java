@@ -29,6 +29,8 @@ public interface UserDataInterface{
 
     void setSyncToken(String syncToken);
 
+    String getSyncToken();
+
     void updateLastSync();
 
 }

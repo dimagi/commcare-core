@@ -82,6 +82,12 @@ public class UserSqlSandbox implements UserDataInterface{
         //TODO
     }
 
+    @Override
+    public String getSyncToken() {
+        //TODO
+        return "TODO";
+    }
+
     public SqlIndexedStorageUtility<UserSandboxMetaData> getMetaStorage() {
         return metaDataStorage;
     }
@@ -103,6 +109,15 @@ public class UserSqlSandbox implements UserDataInterface{
         }
         Date mDate = (Date) mUserSandboxMetaData.getMetaData(UserSandboxMetaData.META_LAST_SYNC);
         return mDate;
+    }
+
+    public void reset(){
+        caseStorage.resetTable();
+        ledgerStorage.resetTable();
+        userStorage.resetTable();
+        userFixtureStorage.resetTable();
+        appFixtureStorage.resetTable();
+        metaDataStorage.resetTable();
     }
 
 }
