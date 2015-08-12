@@ -6,7 +6,6 @@ import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,28 +31,6 @@ public class CaseParseAndReadTest {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-    @Test
-    public void caseQueryWithNoCaseInstance() throws XPathSyntaxException {
-        MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
-
-        EvaluationContext ec = MockDataUtils.getInstanceContexts(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
-    }
-
-    @Test
-    public void referenceNonExistentCaseId() {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
-        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        // TODO PLM: This should throw an exception, not return '', right?
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'no-case']", ""));
-    }
-
-    @Test
-    public void caseQueryWithBadPath() {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
-        EvaluationContext ec = MockDataUtils.getInstanceContexts(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));
-    }
 
     @Test
     public void testReadCaseDB() throws Exception {
