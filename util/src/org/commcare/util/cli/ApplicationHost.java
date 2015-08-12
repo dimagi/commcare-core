@@ -2,7 +2,7 @@ package org.commcare.util.cli;
 
 import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.api.persistence.UserSqlSandbox;
-import org.commcare.api.util.UserDataUtils;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.User;
 import org.commcare.util.CommCareConfigEngine;
@@ -191,7 +191,7 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
 
-            UserDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
+            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);

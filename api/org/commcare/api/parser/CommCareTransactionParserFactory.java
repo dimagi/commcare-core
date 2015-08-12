@@ -97,14 +97,12 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                        UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
-                    String syncToken = parser.nextText();
+                    syncToken = parser.nextText();
                     if (syncToken == null) {
                         throw new InvalidStructureException("Sync block must contain restore_id with valid ID inside!", parser);
                     }
                     syncToken = syncToken.trim();
-                    
                     sandbox.setSyncToken(syncToken);
-                    
                     return syncToken;
                 }
 
@@ -186,5 +184,9 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
             }
         };
+    }
+
+    public String getSyncToken() {
+        return syncToken;
     }
 }

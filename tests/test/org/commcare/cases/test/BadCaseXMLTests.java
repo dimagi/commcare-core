@@ -1,6 +1,6 @@
 package org.commcare.cases.test;
 
-import org.commcare.api.util.UserDataUtils;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ public class BadCaseXMLTests {
     @Test
     public void testNoCaseID() {
         //Expected - Fail silently (TODO: Fix?)
-        UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_broken_no_caseid.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_broken_no_caseid.xml"), sandbox);
 
 
         //Make sure that we didn't make a case entry for the bad case though

@@ -1,12 +1,8 @@
-package org.commcare.api.util;
+package org.commcare.core.database;
 
 import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.api.parser.CommCareTransactionParserFactory;
-import org.commcare.api.persistence.UserSqlSandbox;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.suite.model.User;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.javarosa.core.api.ClassNameHasher;
+import org.commcare.suite.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -17,58 +13,15 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Methods that mostly are used around the mocks that replicate stuff from
- * other projects.
- *
- * @author ctsims
- * @author wspride
+ * Created by wpride1 on 8/11/15.
  */
-public class UserDataUtils {
-
-    public static UserSqlSandbox getStaticStorage(String username) {
-        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
-        return new UserSqlSandbox(factory, username);
-    }
-
-    public static void parseXMLIntoSandbox(String restore, UserDataInterface sandbox) {
-        InputStream stream = new ByteArrayInputStream(restore.getBytes(StandardCharsets.UTF_8));
-        parseIntoSandbox(stream, sandbox);
-    }
-
-    public static void parseFileIntoSandbox(File restore, UserDataInterface sandbox) throws FileNotFoundException {
-        InputStream stream = new FileInputStream(restore);
-        parseIntoSandbox(stream, sandbox);
-    }
-
-    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox) {
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        try {
-            DataModelPullParser parser = new DataModelPullParser(stream, factory);
-            parser.parse();
-            sandbox.updateLastSync();
-        } catch (IOException | UnfullfilledRequirementsException |
-                XmlPullParserException | InvalidStructureException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
+public class SandboxUtils {
     /**
      * For the users and groups in the provided sandbox, extracts out the list
      * of valid "owners" for entities (cases, ledgers, etc) in the universe.
@@ -101,6 +54,21 @@ public class UserDataUtils {
         }
 
         return owners;
+    }
+
+    /**
+     * A quick way to request an evaluation context with an abstract instance available.
+     *
+     */
+    public static EvaluationContext getInstanceContexts(UserDataInterface sandbox, String instanceId, String instanceRef){
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+        edi.initialize(iif, instanceId);
+        instances.put(instanceId, edi);
+
+        return new EvaluationContext(null, instances);
     }
 
     /**
@@ -158,21 +126,5 @@ public class UserDataUtils {
             // Otherwise, nothing
             return null;
         }
-    }
-
-
-    /**
-     * A quick way to request an evaluation context with an abstract instance available.
-     *
-     */
-    public static EvaluationContext getInstanceContexts(UserDataInterface sandbox, String instanceId, String instanceRef){
-        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
-
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
-        ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-        edi.initialize(iif, instanceId);
-        instances.put(instanceId, edi);
-
-        return new EvaluationContext(null, instances);
     }
 }

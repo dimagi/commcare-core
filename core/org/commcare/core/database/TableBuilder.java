@@ -1,4 +1,4 @@
-package org.commcare.api.persistence;
+package org.commcare.core.database;
 
 import org.commcare.api.models.MetaField;
 import org.commcare.api.util.Pair;

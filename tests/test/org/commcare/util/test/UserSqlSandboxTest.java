@@ -1,9 +1,10 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.UserSqlSandbox;
-import org.commcare.api.util.UserDataUtils;
+import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.Before;
@@ -24,14 +25,14 @@ public class UserSqlSandboxTest {
 
     @Before
     public void setUp() throws Exception {
-        sandbox = UserDataUtils.getStaticStorage(username);
-        UserDataUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
+        sandbox = SqlSandboxUtils.getStaticStorage(username);
+        ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
     }
 
     @Test
     public void test() {
-        sandbox = UserDataUtils.getStaticStorage(username);
+        sandbox = SqlSandboxUtils.getStaticStorage(username);
         Case readCase = sandbox.getCaseStorage().read(1);
         System.out.println("read case: " + readCase + " name: " + readCase.getTypeId());
 

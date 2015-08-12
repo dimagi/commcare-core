@@ -1,7 +1,7 @@
 package org.commcare.api.persistence;
 
 import org.commcare.api.util.Pair;
-import org.commcare.core.database.DatabaseHelper;
+import org.commcare.core.database.*;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -86,7 +86,7 @@ public class SqlHelper {
     }
 
     public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields, String[]values, Persistable p){
-        TableBuilder mTableBuilder = new TableBuilder(storageKey);
+        org.commcare.core.database.TableBuilder mTableBuilder = new org.commcare.core.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
 
@@ -169,7 +169,7 @@ public class SqlHelper {
         try {
             preparedStatement = c.prepareStatement(query);
 
-            byte[] blob = TableBuilder.toBlob(p);
+            byte[] blob = org.commcare.core.database.TableBuilder.toBlob(p);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
             /*
@@ -211,7 +211,7 @@ public class SqlHelper {
         try {
             preparedStatement = c.prepareStatement(query);
 
-            byte[] blob = TableBuilder.toBlob(p);
+            byte[] blob = org.commcare.core.database.TableBuilder.toBlob(p);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
             preparedStatement.setInt(2, id);

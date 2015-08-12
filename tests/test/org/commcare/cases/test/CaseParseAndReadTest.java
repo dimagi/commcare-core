@@ -1,6 +1,7 @@
 package org.commcare.cases.test;
 
-import org.commcare.api.util.UserDataUtils;
+import org.commcare.core.database.SandboxUtils;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utils.TestInstanceInitializer;
 import org.commcare.test.utils.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
@@ -43,8 +44,8 @@ public class CaseParseAndReadTest {
     }
 
     private void compareCaseDbState(String inputTransactions, String caseDbState) throws Exception {
-        UserDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
-        EvaluationContext ec = UserDataUtils.getInstanceContexts(this.sandbox, "casedb", "jr://instance/casedb");
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        EvaluationContext ec = SandboxUtils.getInstanceContexts(this.sandbox, "casedb", "jr://instance/casedb");
         testXPathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case");
 
         byte[] parsedDb = dumpInstance("jr://instance/casedb");
