@@ -6,7 +6,6 @@ import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,12 +32,12 @@ public class CaseParseAndReadTest {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-    @Test(expected = XPathTypeMismatchException.class)
+    @Test
     public void caseQueryWithNoCaseInstance() throws XPathSyntaxException {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
 
         EvaluationContext ec = MockDataUtils.getInstanceContexts(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
-        CaseTestUtils.xpathEvalWithException(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name");
+        Assert.assertTrue(CaseTestUtils.xpathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
     }
 
     @Test

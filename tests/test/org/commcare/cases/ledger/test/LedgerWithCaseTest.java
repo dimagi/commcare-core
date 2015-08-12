@@ -4,6 +4,8 @@ import org.commcare.cases.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,12 +93,12 @@ public class LedgerWithCaseTest {
                 "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='']/entry[@entry-id='']", ""));
     }
 
-    @Test
-    public void ledgerQueriesWithBadTemplate() {
+    @Test(expected = XPathTypeMismatchException.class)
+    public void ledgerQueriesWithBadTemplate() throws XPathSyntaxException {
         // case id 'star_market' exists but no ledger data been loaded at all
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
-        Assert.assertTrue(CaseTestUtils.xpathEval(evalContextWithoutLedgers,
-                "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/not-section[@section-id='']/entry[@entry-id='']", ""));
+        CaseTestUtils.xpathEvalWithException(evalContextWithoutLedgers,
+                "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/not-section[@section-id='']/entry[@entry-id='']");
     }
 
     private EvaluationContext createContextWithNoLedgers() {
