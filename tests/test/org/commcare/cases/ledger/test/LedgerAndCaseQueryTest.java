@@ -17,7 +17,7 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class LedgerWithCaseTest {
+public class LedgerAndCaseQueryTest {
     private EvaluationContext evalContext;
 
     @Before

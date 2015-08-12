@@ -14,7 +14,7 @@ import org.junit.Test;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class CaseXPathQueryTests {
+public class CaseXPathQueryTest {
     private MockUserDataSandbox sandbox;
 
     @Before
