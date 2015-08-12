@@ -386,7 +386,6 @@ public class CommCareConfigEngine {
 
     final static private class QuickStateListener implements TableStateListener{
         int lastComplete = 0;
-        int lastTotal = 0;
 
         @Override
         public void resourceStateUpdated(ResourceTable table) {
@@ -411,23 +410,6 @@ public class CommCareConfigEngine {
 
         Profile profileObj = this.getPlatform().getCurrentProfile();
 
-        boolean appInstalled = (profileRef != null &&
-                profileRef.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
-
-        TableStateListener globalListener = new TableStateListener() {
-            int lastComplete = 0;
-
-            @Override
-            public void resourceStateUpdated(ResourceTable table) {
-
-            }
-
-            @Override
-            public void incrementProgress(int complete, int total) {
-
-            }
-        };
-
         global.setStateListener(new QuickStateListener());
 
         updateTable.setStateListener(new QuickStateListener());
@@ -445,7 +427,6 @@ public class CommCareConfigEngine {
             // app (instead of latest release), add it to the query tags of
             // the profile reference
             if (forceNew &&
-                    (authUrl != null) &&
                     ("https".equals(authUrl.getProtocol()) ||
                             "http".equals(authUrl.getProtocol()))) {
                 if (authUrl.getQuery() != null) {

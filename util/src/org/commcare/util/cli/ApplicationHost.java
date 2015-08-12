@@ -43,8 +43,8 @@ public class ApplicationHost {
     private MockUserDataSandbox mSandbox;
     private SessionWrapper mSession;
 
-    boolean mUpdatePending = false;
-    boolean mForceLatestUpdate = false;
+    private boolean mUpdatePending = false;
+    private boolean mForceLatestUpdate = false;
 
 
     private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
@@ -106,7 +106,7 @@ public class ApplicationHost {
                 //TODO: Command language
                 if(input.startsWith(":")) {
                     if(input.equals(":exit") || input.equals(":quit")) {
-                        System.exit(-1);
+                        return false;
                     }
                     if (input.startsWith(":update")) {
                         mUpdatePending = true;
