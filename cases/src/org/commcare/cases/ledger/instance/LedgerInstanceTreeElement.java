@@ -93,7 +93,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      */
     public LedgerChildElement getChild(String name, int multiplicity) {
         if (multiplicity == TreeReference.INDEX_TEMPLATE) {
-            return null;
+            return LedgerChildElement.TemplateElement(this);
         }
 
         //name is always the same, so multiplicities are the only relevant component here

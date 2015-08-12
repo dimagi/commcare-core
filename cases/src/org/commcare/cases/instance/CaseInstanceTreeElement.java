@@ -107,7 +107,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     public CaseChildElement getChild(String name, int multiplicity) {
         if (multiplicity == TreeReference.INDEX_TEMPLATE) {
-            return null;
+            return CaseChildElement.TemplateElement(this);
         }
 
         //name is always "case", so multiplicities are the only relevant component here
