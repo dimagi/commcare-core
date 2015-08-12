@@ -65,11 +65,11 @@ public class LedgerAndCaseQueryTest {
 
     @Test
     public void fakeLedgerQueriesFailCorrectly() {
-        // TODO PLM: Looks like ledger queries fail in the correct way if any ledgers have been loaded at all
-
-        // case id 'star_market' exists but no ledger data been loaded at all
+        // case id 'star_market' exists but no ledger data been loaded
         Assert.assertTrue(CaseTestUtils.xpathEval(evalContext,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/section[@section-id='']", ""));
+
+        // case id 'totally-fake' doesn't exist
         Assert.assertTrue(CaseTestUtils.xpathEval(evalContext,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='totally-fake']", ""));
     }
