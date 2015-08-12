@@ -8,6 +8,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.BasicInstaller;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
@@ -52,6 +53,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -64,10 +66,10 @@ import java.util.zip.ZipFile;
 public class CommCareConfigEngine {
     private OutputStream output;
     private ResourceTable table;
+    private ResourceTable updateTable;
+    private ResourceTable recoveryTable;
     private PrintStream print;
     private final CommCarePlatform platform;
-    private Vector<Suite> suites;
-    private Profile profile;
     private int fileuricount = 0;
     
     private ArchiveFileRoot mArchiveRoot;
@@ -100,12 +102,13 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(OutputStream output) {
         this.output = output;
         this.print = new PrintStream(output);
-        suites = new Vector<Suite>();
         this.platform = new CommCarePlatform(2, 23);
 
         setRoots();
 
         table = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
+        updateTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
+        recoveryTable = ResourceTable.RetrieveTable(new DummyIndexedStorageUtility(Resource.class));
 
 
         //All of the below is on account of the fact that the installers
@@ -213,7 +216,7 @@ public class CommCareConfigEngine {
 
         fileuricount++;
         String jrroot = "extfile" + fileuricount;
-        ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[] {jrroot}, resources.getAbsolutePath()));
+        ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[]{jrroot}, resources.getAbsolutePath()));
 
         for(File file : resources.listFiles()) {
             String name = file.getName();
@@ -296,7 +299,7 @@ public class CommCareConfigEngine {
         Hashtable<String, Vector<Menu>> mapping = new Hashtable<String, Vector<Menu>>();
         mapping.put("root",new Vector<Menu>());
 
-        for(Suite s : suites) {
+        for(Suite s : platform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
                 if(m.getId().equals("root")) {
                     root.add(m);
@@ -320,7 +323,7 @@ public class CommCareConfigEngine {
             for(Menu m : mapping.get("root")) {
                 print.println("|- " + m.getName().evaluate());
                 for(String command : m.getCommandIds()) {
-                    for(Suite s : suites) {
+                    for(Suite s : platform.getInstalledSuites()) {
                         if(s.getEntries().containsKey(command)) {
                             print(s,s.getEntries().get(command),2);
                         }
@@ -331,7 +334,7 @@ public class CommCareConfigEngine {
 
             for(Menu m : root) {
                 for(String command : m.getCommandIds()) {
-                    for(Suite s : suites) {
+                    for(Suite s : platform.getInstalledSuites()) {
                         if(s.getEntries().containsKey(command)) {
                             print(s,s.getEntries().get(command),1);
                         }
@@ -378,5 +381,105 @@ public class CommCareConfigEngine {
                 }
             }
         }
+    }
+
+
+    final static private class QuickStateListener implements TableStateListener{
+        int lastComplete = 0;
+
+        @Override
+        public void resourceStateUpdated(ResourceTable table) {
+
+        }
+
+        @Override
+        public void incrementProgress(int complete, int total) {
+            int diff = complete - lastComplete;
+            lastComplete = complete;
+            for(int i = 0 ; i < diff ; ++i) {
+                System.out.print(".");
+            }
+        }
+    };
+
+    public void attemptAppUpdate(boolean forceNew) {
+        ResourceTable global = table;
+
+        // Ok, should figure out what the state of this bad boy is.
+        Resource profileRef = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+        Profile profileObj = this.getPlatform().getCurrentProfile();
+
+        global.setStateListener(new QuickStateListener());
+
+        updateTable.setStateListener(new QuickStateListener());
+
+        // When profileRef points is http, add appropriate dev flags
+        String authRef = profileObj.getAuthReference();
+
+        try {
+            URL authUrl = new URL(authRef);
+
+            // profileRef couldn't be parsed as a URL, so don't worry
+            // about adding dev flags to the url's query
+
+            // If we want to be using/updating to the latest build of the
+            // app (instead of latest release), add it to the query tags of
+            // the profile reference
+            if (forceNew &&
+                    ("https".equals(authUrl.getProtocol()) ||
+                            "http".equals(authUrl.getProtocol()))) {
+                if (authUrl.getQuery() != null) {
+                    // If the profileRef url already have query strings
+                    // just add a new one to the end
+                    authRef = authRef + "&target=build";
+                } else {
+                    // otherwise, start off the query string with a ?
+                    authRef = authRef + "?target=build";
+                }
+            }
+        } catch (MalformedURLException e) {
+            System.out.print("Warning: Unrecognized URL format: " + authRef);
+        }
+
+
+        try {
+
+            // This populates the upgrade table with resources based on
+            // binary files, starting with the profile file. If the new
+            // profile is not a newer version, statgeUpgradeTable doesn't
+            // actually pull in all the new references
+
+            System.out.println("Checking for updates....");
+            platform.stageUpgradeTable(global, updateTable, recoveryTable, authRef, true);
+            Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            if (!newProfile.isNewer(profileRef)) {
+                System.out.println("Your app is up to date!");
+                return;
+            }
+
+            System.out.println("Update found. New Version: " + newProfile.getVersion());
+            System.out.print("Installing update");
+
+            // Replaces global table with temporary, or w/ recovery if
+            // something goes wrong
+            platform.upgrade(global, updateTable, recoveryTable);
+        } catch(UnresolvedResourceException e) {
+            System.out.println("Update Failed! Couldn't find or install one of the remote resources");
+            e.printStackTrace();
+            return;
+        } catch(UnfullfilledRequirementsException e) {
+            System.out.println("Update Failed! This CLI host is incompatible with the app");
+            e.printStackTrace();
+            return;
+        } catch(Exception e) {
+            System.out.println("Update Failed! There is a problem with one of the resources");
+            e.printStackTrace();
+            return;
+        }
+
+        // Initializes app resources and the app itself, including doing a check to see if this
+        // app record was converted by the db upgrader
+        initEnvironment();
     }
 }

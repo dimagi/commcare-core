@@ -11,6 +11,7 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
@@ -95,8 +96,12 @@ public class MockDataUtils {
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
+
+        //this isn't great but generally this initialization path is actually
+        //really hard/unclear for now, and we can't really assume the sandbox owns
+        //this because it's app data, not user data.
         IStorageUtilityIndexed<FormInstance> appFixtureStorage =
-                sandbox.getAppFixtureStorage();
+                (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
 
         Vector<Integer> userFixtures =
                 userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);

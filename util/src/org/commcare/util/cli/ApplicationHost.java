@@ -43,6 +43,10 @@ public class ApplicationHost {
     private MockUserDataSandbox mSandbox;
     private SessionWrapper mSession;
 
+    private boolean mUpdatePending = false;
+    private boolean mForceLatestUpdate = false;
+
+
     private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
 
     private final BufferedReader reader;
@@ -76,9 +80,17 @@ public class ApplicationHost {
         while (keepExecuting) {
             mSession.clearAllState();
             keepExecuting = loopSession();
+
+            if(this.mUpdatePending) {
+                mSession.clearAllState();
+                this.mUpdatePending = false;
+                boolean forceUpdate = mForceLatestUpdate;
+                this.mForceLatestUpdate = false;
+                mEngine.attemptAppUpdate(forceUpdate);
+            }
         }
     }
-    
+
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
 
@@ -94,7 +106,19 @@ public class ApplicationHost {
                 //TODO: Command language
                 if(input.startsWith(":")) {
                     if(input.equals(":exit") || input.equals(":quit")) {
+                        return false;
+                    }
+                    if (input.startsWith(":update")) {
+                        mUpdatePending = true;
 
+                        if(input.contains("-f")) {
+                            mForceLatestUpdate = true;
+                        }
+                        return true;
+                    }
+
+                    if(input.equals(":home")) {
+                        return true;
                     }
                 }
 
