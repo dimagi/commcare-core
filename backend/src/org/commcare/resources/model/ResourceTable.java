@@ -144,27 +144,41 @@ public class ResourceTable {
         // only add resource if they don't already exist
         if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
                 resource.getResourceId()).size() == 0) {
-            resource.setStatus(status);
-            try {
-                //TODO: Check if it exists?
-                if (resource.getID() != -1) {
-                    // Assume that we're going cross-table, so we need a new
-                    // RecordId.
-                    resource.setID(-1);
-
-                    // Check to make sure that there's no existing GUID for
-                    // this record.
-                    if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                        throw new RuntimeException("This resource record already exists.");
-                    }
-                }
-
-                storage.write(resource);
-            } catch (StorageFullException e) {
-                e.printStackTrace();
-            }
+            addResourceInner(resource, status);
         }
     }
+
+    private void addResourceInner(Resource resource, int status) {
+        resource.setStatus(status);
+        try {
+            if (resource.getID() != -1) {
+                // Assume that we're going cross-table, so we need a new
+                // RecordId.
+                resource.setID(-1);
+
+                // Check to make sure that there's no existing GUID for
+                // this record.
+                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                    throw new RuntimeException("This resource record already exists.");
+                }
+            }
+
+            storage.write(resource);
+        } catch (StorageFullException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void forceAddResource(Resource resource, ResourceInstaller initializer, String parentId) {
+        resource.setInstaller(initializer);
+        resource.setParentId(parentId);
+        for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId()).elements(); en.hasMoreElements(); ) {
+            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
+            this.removeResource(r);
+        }
+        addResourceInner(resource, Resource.RESOURCE_STATUS_UNINITIALIZED);
+    }
+
 
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<Resource>();

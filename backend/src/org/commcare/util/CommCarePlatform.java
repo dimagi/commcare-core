@@ -158,7 +158,7 @@ public class CommCarePlatform implements CommCareInstance {
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                 APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
 
-        incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
+        incoming.forceAddResource(r, incoming.getInstallers().getProfileInstaller(false), null);
 
         incoming.prepareResourcesUpTo(global, this, APP_PROFILE_RESOURCE_ID);
 
