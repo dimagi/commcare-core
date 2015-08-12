@@ -16,7 +16,7 @@ import org.junit.Test;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class LedgerParseAndReadTest {
+public class LedgerParseAndQueryTest {
     private EvaluationContext evalContextWithLedger;
 
     @Before
