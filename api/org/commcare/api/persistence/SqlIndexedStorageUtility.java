@@ -44,6 +44,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         this.userName = userName;
         this.prototype = prototype;
         this.mFactory = factory;
+        tryCreateTable();
     }
 
     public Connection getConnection() throws SQLException {
@@ -377,10 +378,5 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         } catch(Exception e){
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
         }
-    }
-
-    public void resetTable(){
-        dropTable();
-        tryCreateTable();
     }
 }

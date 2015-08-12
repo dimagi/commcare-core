@@ -111,13 +111,4 @@ public class UserSqlSandbox implements UserDataInterface{
         return mDate;
     }
 
-    public void reset(){
-        caseStorage.resetTable();
-        ledgerStorage.resetTable();
-        userStorage.resetTable();
-        userFixtureStorage.resetTable();
-        appFixtureStorage.resetTable();
-        metaDataStorage.resetTable();
-    }
-
 }

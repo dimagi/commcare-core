@@ -14,7 +14,11 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 
 /**
+ *  Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
+ *  CommCareSession/Platform
+ *
  * @author ctsims
+ * @author wspride
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 

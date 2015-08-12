@@ -4,6 +4,7 @@ import org.commcare.api.persistence.SqlIndexedStorageUtility;
 import org.commcare.api.persistence.SqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.test.utils.SqlTestUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,10 +73,11 @@ public class SqlStorageIndexedTests {
                 mPrototypeFactory.addClass(Case.class);
 
                 String storageKey = "TFCase";
-                String username = "derp";
+                String username = "sql-storage-test";
+
+                SqlTestUtils.deleteDatabase(username);
 
                 caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, mPrototypeFactory, username, storageKey);
-                caseStorage.resetTable();
 
                 caseStorage.write(a);
 
@@ -107,8 +109,9 @@ public class SqlStorageIndexedTests {
                 String storageKey = "Ledger";
                 String username = "wspride";
 
+                SqlTestUtils.deleteDatabase(username);
+
                 ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, mPrototypeFactory, username, storageKey);
-                ledgerStorage.resetTable();
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);

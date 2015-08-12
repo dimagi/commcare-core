@@ -6,6 +6,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.suite.model.User;
+import org.commcare.test.utils.SqlTestUtils;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,8 +26,8 @@ public class UserSqlSandboxTest {
 
     @Before
     public void setUp() throws Exception {
+        SqlTestUtils.deleteDatabase(username);
         sandbox = SqlSandboxUtils.getStaticStorage(username);
-        sandbox.reset();
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
     }
