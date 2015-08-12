@@ -1,6 +1,6 @@
 package org.commcare.core.database;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.suite.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;

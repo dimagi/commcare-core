@@ -1,7 +1,6 @@
 package org.commcare.core.parse;
 
-import org.commcare.api.interfaces.UserDataInterface;
-import org.commcare.api.parser.CommCareTransactionParserFactory;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.data.xml.DataModelPullParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;

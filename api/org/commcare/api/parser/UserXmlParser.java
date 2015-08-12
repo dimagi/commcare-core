@@ -22,8 +22,6 @@ import java.util.NoSuchElementException;
 public class UserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed<User> storage;
-    byte[] wrappedKey;
-
 
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
@@ -83,8 +81,14 @@ public class UserXmlParser extends TransactionParser<User> {
             }
         }
 
+        addCustomData(u);
+
         commit(u);
         return u;
+    }
+
+    public void addCustomData(User u){
+        //Don't do anything in base class
     }
 
     public void commit(User parsed) throws IOException {

@@ -1,6 +1,6 @@
 package org.commcare.util.mocks;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.suite.model.User;

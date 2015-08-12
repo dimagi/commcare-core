@@ -2,7 +2,7 @@ package org.commcare.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import org.commcare.api.parser.CommCareTransactionParserFactory;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.util.OrderedHashtable;
@@ -10,9 +10,6 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 /**
  * This class contains the process for handling an XML response from an OpenRosa

@@ -1,6 +1,6 @@
-package org.commcare.api.process;
+package org.commcare.core.process;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;

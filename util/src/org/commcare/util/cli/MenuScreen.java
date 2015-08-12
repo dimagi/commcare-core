@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;

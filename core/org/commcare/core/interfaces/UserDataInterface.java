@@ -1,4 +1,4 @@
-package org.commcare.api.interfaces;
+package org.commcare.core.interfaces;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;

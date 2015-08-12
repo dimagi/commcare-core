@@ -1,6 +1,7 @@
-package org.commcare.api.parser;
+package org.commcare.core.parse;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.api.parser.UserXmlParser;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
@@ -29,15 +30,15 @@ import java.io.IOException;
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
-    private TransactionParserFactory userParser;
-    private TransactionParserFactory caseParser;
-    private TransactionParserFactory stockParser;
-    private TransactionParserFactory fixtureParser;
+    protected TransactionParserFactory userParser;
+    protected TransactionParserFactory caseParser;
+    protected TransactionParserFactory stockParser;
+    protected TransactionParserFactory fixtureParser;
 
-    private final UserDataInterface sandbox;
+    protected final UserDataInterface sandbox;
 
-    private int requests = 0;
-    private String syncToken;
+    int requests = 0;
+    protected String syncToken;
 
     public CommCareTransactionParserFactory(UserDataInterface sandbox) {
         this.sandbox = sandbox;
@@ -84,8 +85,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                  * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
                  */
                 @Override
-                public void commit(String parsed) throws IOException {
-                }
+                public void commit(String parsed) throws IOException {}
 
                 /*
                  * (non-Javadoc)
@@ -111,13 +111,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         return null;
     }
 
-    private void req() {
+    protected void req() {
         requests++;
         reportProgress(requests);
     }
 
-    void reportProgress(int total) {
-        //nothing
+    public void reportProgress(int total) {
+        //overwritten in ODK
     }
 
     void initUserParser() {
@@ -163,7 +163,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    void initCaseParser() {
+    public void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
@@ -177,7 +177,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    void initStockParser() {
+    public void initStockParser() {
         stockParser = new TransactionParserFactory() {
 
             public TransactionParser<Ledger[]> getParser(KXmlParser parser) {

@@ -1,6 +1,6 @@
 package org.commcare.core.process;
 
-import org.commcare.api.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.core.database.SandboxUtils;
