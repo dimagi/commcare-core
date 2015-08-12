@@ -118,7 +118,7 @@ public class SessionDatum implements Externalizable {
         type = ExtUtil.readInt(in);
 
         if (ExtUtil.readBool(in)) {
-            nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class);
+            nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         } else {
             nodeset = null;
         }

@@ -4,7 +4,6 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
-import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
@@ -47,11 +46,11 @@ public class ApplicationHost {
     private boolean mForceLatestUpdate = false;
 
 
-    private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+    private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
 
-    public ApplicationHost(CommCareConfigEngine engine, String username, String password) {
+    public ApplicationHost(CommCareConfigEngine engine, String username, String password, PrototypeFactory prototypeFactory) {
         this.mUsername = username;
         this.mPassword = password;
         this.mEngine = engine;
@@ -59,6 +58,7 @@ public class ApplicationHost {
         this.mPlatform = engine.getPlatform();
 
         reader = new BufferedReader(new InputStreamReader(System.in));
+        this.mPrototypeFactory = prototypeFactory;
     }
 
     public void run() {
@@ -195,8 +195,6 @@ public class ApplicationHost {
     }
 
     private void setupSandbox() {
-        //Set up our storage
-        PrototypeFactory.setStaticHasher(mPrototypeFactory);
         mSandbox = new MockUserDataSandbox(mPrototypeFactory);
 
         //fetch the restore data and set credentials
