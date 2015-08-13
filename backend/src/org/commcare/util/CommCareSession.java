@@ -613,6 +613,29 @@ public class CommCareSession {
     }
 
     /**
+     * Called after a session has been completed. Executes and pending stack operations
+     * from the current session, completes the session, and pops the top of any pending
+     * frames into execution.
+     *
+     * @return True if there was a pending frame and it has been
+     * popped into the current session. False if the stack was empty
+     * and the session is over.
+     */
+    public boolean finishExecuteAndPop(EvaluationContext ec) {
+        //TODO: should this section get wrapped up in the session, maybe?
+        Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
+
+        //Let the session know that the current frame shouldn't work its way back onto the stack
+        markCurrentFrameForDeath();
+
+        //First, see if we have operations to run
+        if(ops.size() > 0) {
+            executeStackOperations(ops, ec);
+        }
+        return finishAndPop();
+    }
+
+    /**
      * Complete the current session (and perform any cleanup), then
      * check the stack for any pending frames, and load the top one
      * into the current session if so.
@@ -621,7 +644,7 @@ public class CommCareSession {
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    public boolean finishAndPop() {
+    private boolean finishAndPop() {
         cleanStack();
 
         if (frameStack.empty()) {
