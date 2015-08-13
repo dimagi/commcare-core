@@ -3,6 +3,7 @@ package org.commcare.util.test;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
+import org.commcare.util.mocks.LivePrototypeFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -29,7 +30,7 @@ public class CasePurgeFilterTests {
     @Before
     public void setUp() throws Exception {
 
-        storage =  new DummyIndexedStorageUtility<Case>(Case.class);
+        storage =  new DummyIndexedStorageUtility<Case>(Case.class, new LivePrototypeFactory());
 
         owner ="owner";
         otherOwner = "otherowner";

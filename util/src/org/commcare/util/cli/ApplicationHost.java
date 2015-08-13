@@ -4,7 +4,6 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
-import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
@@ -43,11 +42,15 @@ public class ApplicationHost {
     private MockUserDataSandbox mSandbox;
     private SessionWrapper mSession;
 
-    private final LivePrototypeFactory mPrototypeFactory = new LivePrototypeFactory();
+    private boolean mUpdatePending = false;
+    private boolean mForceLatestUpdate = false;
+
+
+    private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
 
-    public ApplicationHost(CommCareConfigEngine engine, String username, String password) {
+    public ApplicationHost(CommCareConfigEngine engine, String username, String password, PrototypeFactory prototypeFactory) {
         this.mUsername = username;
         this.mPassword = password;
         this.mEngine = engine;
@@ -55,6 +58,7 @@ public class ApplicationHost {
         this.mPlatform = engine.getPlatform();
 
         reader = new BufferedReader(new InputStreamReader(System.in));
+        this.mPrototypeFactory = prototypeFactory;
     }
 
     public void run() {
@@ -76,9 +80,17 @@ public class ApplicationHost {
         while (keepExecuting) {
             mSession.clearAllState();
             keepExecuting = loopSession();
+
+            if(this.mUpdatePending) {
+                mSession.clearAllState();
+                this.mUpdatePending = false;
+                boolean forceUpdate = mForceLatestUpdate;
+                this.mForceLatestUpdate = false;
+                mEngine.attemptAppUpdate(forceUpdate);
+            }
         }
     }
-    
+
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
 
@@ -88,23 +100,25 @@ public class ApplicationHost {
                 System.out.println("\n\n\n\n\n\n");
                 s.prompt(System.out);
                 System.out.print("> ");
-                s.init(mPlatform, mSession, mSandbox);
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                System.out.println("");
-                s.prompt(System.out);
-                System.out.print("> ");
 
                 String input = reader.readLine();
 
                 //TODO: Command language
                 if(input.startsWith(":")) {
                     if(input.equals(":exit") || input.equals(":quit")) {
+                        return false;
+                    }
+                    if (input.startsWith(":update")) {
+                        mUpdatePending = true;
 
+                        if(input.contains("-f")) {
+                            mForceLatestUpdate = true;
+                        }
+                        return true;
+                    }
+
+                    if(input.equals(":home")) {
+                        return true;
                     }
                 }
 
@@ -181,8 +195,6 @@ public class ApplicationHost {
     }
 
     private void setupSandbox() {
-        //Set up our storage
-        PrototypeFactory.setStaticHasher(mPrototypeFactory);
         mSandbox = new MockUserDataSandbox(mPrototypeFactory);
 
         //fetch the restore data and set credentials

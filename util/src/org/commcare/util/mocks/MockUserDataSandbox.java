@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A placeholder for the in-memory storage elements needed for an individual
@@ -33,7 +34,7 @@ public class MockUserDataSandbox {
      *
      * @param factory A prototype factory for deserializing records
      */
-    public MockUserDataSandbox(LivePrototypeFactory factory) {
+    public MockUserDataSandbox(PrototypeFactory factory) {
         caseStorage = new DummyIndexedStorageUtility<Case>(Case.class, factory);
         ledgerStorage = new DummyIndexedStorageUtility<Ledger>(Ledger.class, factory);
         userStorage = new DummyIndexedStorageUtility<User>(User.class, factory);
