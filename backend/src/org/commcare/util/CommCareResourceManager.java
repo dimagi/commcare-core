@@ -12,11 +12,21 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.util.Vector;
 
 public class CommCareResourceManager {
-    private CommCarePlatform platform;
+    private final CommCarePlatform platform;
+    private final ResourceTable masterTable;
+    private final ResourceTable upgradeTable;
+    private final ResourceTable tempTable;
 
-    public CommCareResourceManager(CommCarePlatform platform) {
+    public CommCareResourceManager(CommCarePlatform platform,
+                                   ResourceTable masterTable,
+                                   ResourceTable upgradeTable,
+                                   ResourceTable tempTable) {
         this.platform = platform;
+        this.masterTable = masterTable;
+        this.upgradeTable = upgradeTable;
+        this.tempTable = tempTable;
     }
+
 
     /**
      * Installs resources described by profile reference into the provided
@@ -29,12 +39,12 @@ public class CommCareResourceManager {
      * @param forceInstall     Should installation be performed regardless of
      *                         version numbers?
      */
-    public void init(String profileReference, ResourceTable global,
-                     boolean forceInstall)
+    public static void init(CommCarePlatform platform, String profileReference,
+                            ResourceTable global, boolean forceInstall)
             throws UnfullfilledRequirementsException, UnresolvedResourceException {
         try {
             if (!global.isReady()) {
-                global.prepareResources(null, this.platform);
+                global.prepareResources(null, platform);
             }
 
             // First, see if the appropriate profile exists
@@ -51,7 +61,7 @@ public class CommCareResourceManager {
                         locations, "Application Descriptor");
 
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, this.platform);
+                global.prepareResources(null, platform);
             }
             // If the profile does exist we might want to do an automatic
             // upgrade. Leaving this for a future date....
@@ -61,117 +71,58 @@ public class CommCareResourceManager {
     }
 
     /**
-     * @param global        The master resource table.
-     * @param incoming      The last table that an install was attempted on.
-     *                      Might be partially populated. Is empty if the last
-     *                      install was successful.
-     * @param recovery      Used as a data redunancy during upgrades. It holds
-     *                      a copy of the global table while the upgrade copies
-     *                      the incoming table over to the global.
      * @param clearProgress Clear the 'incoming' table of any partial update info.
      */
-    public ResourceTable stageUpgradeTable(ResourceTable global,
-                                           ResourceTable incoming,
-                                           ResourceTable recovery,
-                                           boolean clearProgress) 
-        throws UnfullfilledRequirementsException,
-                          StorageFullException,
-                          UnresolvedResourceException {
-        Profile current = platform.getCurrentProfile();
-        return stageUpgradeTable(global, incoming, recovery, current.getAuthReference(), clearProgress);
-    }
-
-    /**
-     * @param global        The master resource table.
-     * @param incoming      The last table that an install was attempted on.
-     *                      Might be partially populated. Is empty if the last
-     *                      install was successful.
-     * @param recovery      Used as a data redunancy during upgrades. It holds
-     *                      a copy of the global table while the upgrade copies
-     *                      the incoming table over to the global.
-     * @param profileRef    Add this profile to the incoming table
-     * @param clearProgress Clear the 'incoming' table of any partial update info.
-     */
-    public ResourceTable stageUpgradeTable(ResourceTable global,
-                                           ResourceTable incoming,
-                                           ResourceTable recovery,
-                                           String profileRef,
-                                           boolean clearProgress)
+    public void stageUpgradeTable(boolean clearProgress)
             throws UnfullfilledRequirementsException,
-                              StorageFullException,
-                              UnresolvedResourceException {
+            StorageFullException,
+            UnresolvedResourceException {
+        Profile current = platform.getCurrentProfile();
+        String profileRef = current.getAuthReference();
 
-        // Make sure everything's in a good state
-        if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-            repair(global, incoming, recovery);
-
-            if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-                throw new IllegalArgumentException("Global resource table was not ready for upgrading");
-            }
-        }
+        ensureValidState(masterTable, upgradeTable, tempTable);
 
         if (clearProgress) {
-            incoming.clear();
+            upgradeTable.clear();
         }
 
-        Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-        locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
-
-        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
-
-        incoming.forceAddResource(r, incoming.getInstallers().getProfileInstaller(false), null);
-
-        incoming.prepareResourcesUpTo(global, this.platform, CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-        return incoming;
+        loadProfile(upgradeTable, profileRef);
     }
 
-    public void prepareUpgradeResources(ResourceTable global,
-                                        ResourceTable incoming,
-                                        ResourceTable recovery)
+    public void prepareUpgradeResources()
             throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
-        if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-            repair(global, incoming, recovery);
+        if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            repair();
 
-            if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new IllegalArgumentException("Global resource table was not ready for upgrading");
             }
         }
 
         // TODO: Figure out more cleanly what the acceptable states are here
-        int incomingState = incoming.getTableReadiness();
-        if (incomingState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
-                incomingState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
-                incomingState == ResourceTable.RESOURCE_TABLE_EMPTY) {
+        int upgradeTableState = upgradeTable.getTableReadiness();
+        if (upgradeTableState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
+                upgradeTableState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
+                upgradeTableState == ResourceTable.RESOURCE_TABLE_EMPTY) {
             throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
         }
 
-        // Wipe out any existing records in the recovery table. If there's _anything_ in there and
+        // Wipe out any existing records in the tempTable table. If there's _anything_ in there and
         // the app isn't in the install state, that's a signal to recover.
-        recovery.destroy();
+        tempTable.destroy();
 
         // Fetch and prepare all resources (Likely exit point here if a resource can't be found)
-        incoming.prepareResources(global, this.platform);
+        upgradeTable.prepareResources(masterTable, this.platform);
     }
 
-    /**
-     * @param recovery Used as a data redunancy, holding a copy of the global
-     *                 table while the upgrade copies the incoming table over
-     *                 to the global.
-     */
-    public void upgrade(ResourceTable global, ResourceTable incoming,
-                        ResourceTable recovery) 
-        throws UnresolvedResourceException, IllegalArgumentException {
-
-
+    public void upgrade() throws UnresolvedResourceException, IllegalArgumentException {
         boolean upgradeSuccess = false;
         try {
             Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
             //Try to stage the upgrade table to replace the incoming table
-            if (!global.upgradeTable(incoming)) {
+            if (!masterTable.upgradeTable(upgradeTable)) {
                 throw new RuntimeException("global table failed to upgrade!");
-            } else if (incoming.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            } else if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new RuntimeException("not all incoming resources were installed!!");
             } else {
                 //otherwise keep going
@@ -185,7 +136,7 @@ public class CommCareResourceManager {
 
             Logger.log("Resource", "Copying global resources to recovery area");
             try {
-                global.copyToTable(recovery);
+                masterTable.copyToTable(tempTable);
             } catch (RuntimeException e) {
                 //The _only_ time the recovery table should have data is if
                 //we were in the middle of an install. Since global hasn't been
@@ -193,17 +144,17 @@ public class CommCareResourceManager {
                 //recovery stub
 
                 //TODO: If this fails? Oof.
-                recovery.destroy();
+                tempTable.destroy();
                 throw e;
             }
 
             Logger.log("Resource", "Wiping global");
             //now clear the global table to make room (but not the data, just the records)
-            global.destroy();
+            masterTable.destroy();
 
             Logger.log("Resource", "Moving update resources");
             //Now copy the upgrade table to take its place
-            incoming.copyToTable(global);
+            upgradeTable.copyToTable(masterTable);
 
             //Success! The global table should be ready to go now.
             upgradeSuccess = true;
@@ -215,17 +166,17 @@ public class CommCareResourceManager {
 
             //Wipe the incoming (we need to do nothing with its resources)
             Logger.log("Resource", "Wiping redundant update table");
-            incoming.destroy();
+            upgradeTable.destroy();
 
             //Uninstall old resources
             Logger.log("Resource", "Clearing out old resources");
-            recovery.flagForDeletions(global);
-            recovery.completeUninstall();
+            tempTable.flagForDeletions(masterTable);
+            tempTable.completeUninstall();
 
             //good to go.
         } finally {
             if (!upgradeSuccess) {
-                repair(global, incoming, recovery);
+                repair();
             }
             // TODO PLM: how necessary is this?
             platform.clearAppState();
@@ -233,7 +184,7 @@ public class CommCareResourceManager {
             //Is it really possible to verify that we've un-registered everything here? Locale files are
             //registered elsewhere, and we can't guarantee we're the only thing in there, so we can't
             //straight up clear it...
-            platform.initialize(global);
+            platform.initialize(masterTable);
         }
     }
 
@@ -244,13 +195,8 @@ public class CommCareResourceManager {
      *
      * NOTE: this does not currently repair resources which have been
      * corrupted, merely returns all of the tables to the appropriate states
-     *
-     * @param incoming      The last table that an install was attempted on.
-     *                      Might be partially populated. Is empty if the last
-     *                      install was successful.
      */
-    private void repair(ResourceTable global, ResourceTable incoming,
-                        ResourceTable recovery) {
+    private void repair() {
         // First we need to figure out what state we're in currently. There are
         // a few possibilities
 
@@ -258,48 +204,48 @@ public class CommCareResourceManager {
         // pushed to global), recovery table not empty
 
         // First possibility is needing to restore from the recovery table.
-        if (!recovery.isEmpty()) {
+        if (!tempTable.isEmpty()) {
             // If the recovery table isn't empty, we're likely restoring from
             // there. We need to check first whether the global table has the
             // same profile, or the recovery table simply doesn't have one in
             // which case the recovery table didn't get copied correctly.
-            if (recovery.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID) == null ||
-                    (global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID).getVersion() == recovery.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID).getVersion())) {
+            if (tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID) == null ||
+                    (masterTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID).getVersion() == tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID).getVersion())) {
                 Logger.log("resource", "Invalid recovery table detected. Wiping recovery table");
                 // This means the recovery table should be empty. Invalid copy.
-                recovery.destroy();
+                tempTable.destroy();
             } else {
                 // We need to recover the global resources from the recovery
                 // table.
                 Logger.log("resource", "Recovering global resources from recovery table");
 
-                global.destroy();
-                recovery.copyToTable(global);
+                masterTable.destroy();
+                tempTable.copyToTable(masterTable);
 
                 Logger.log("resource", "Global resources recovered. Wiping recovery table");
-                recovery.destroy();
+                tempTable.destroy();
             }
         }
 
         // Global and incoming are now in the right places. Ensure we have no
         // uncommitted resources.
-        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            global.rollbackCommits();
+        if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+            masterTable.rollbackCommits();
         }
 
-        if (incoming.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
-            incoming.rollbackCommits();
+        if (upgradeTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
+            upgradeTable.rollbackCommits();
         }
 
         // If the global table needed to be recovered from the recovery table,
         // it has. There are now two states: Either the global table is fully
         // installed (no conflicts with the upgrade table) or it has unstaged
         // resources to restage
-        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
+        if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_INSTALLED) {
             Logger.log("resource", "Global table in fully installed mode. Repair complete");
-        } else if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+        } else if (masterTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             Logger.log("resource", "Global table needs to restage some resources");
-            global.repairTable(incoming);
+            masterTable.repairTable(upgradeTable);
         }
     }
 
@@ -322,4 +268,72 @@ public class CommCareResourceManager {
         }
         return resolved;
     }
+
+    public void instantiateLatestProfile(String profileRef)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+
+        ensureValidState(masterTable, upgradeTable, tempTable);
+
+        Resource upgradeProfile =
+                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+        if (upgradeProfile == null) {
+            loadProfile(upgradeTable, profileRef);
+        } else {
+            if (!tempTable.isEmpty()) {
+                throw new RuntimeException("expected temp table to be empty");
+            }
+            tempTable.destroy();
+            loadProfile(tempTable, profileRef);
+            Resource tempProfile =
+                    tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+            if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
+                upgradeTable.destroy();
+                tempTable.copyToTable(upgradeTable);
+            }
+
+            tempTable.destroy();
+        }
+    }
+
+    private void loadProfile(ResourceTable incoming,
+                             String profileRef)
+            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+        Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+        locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
+
+        Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
+
+        incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
+
+        incoming.prepareResourcesUpTo(masterTable, this.platform, CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+    }
+
+    public boolean isUpgradeStaged() {
+        return (upgradeTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE &&
+                upgradeTable.isReady() &&
+                !upgradeTable.isEmpty());
+
+    }
+
+    private void ensureValidState(ResourceTable global, ResourceTable incoming, ResourceTable recovery) {
+        // Make sure everything's in a good state
+        if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            repair();
+
+            if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+                throw new IllegalArgumentException("Global resource table was not ready for upgrading");
+            }
+        }
+    }
+
+    public boolean updateIsntNewer(Resource currentProfile) {
+        Resource newProfile =
+            upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        return newProfile != null && !newProfile.isNewer(currentProfile);
+    }
+
+
 }

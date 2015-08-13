@@ -78,11 +78,12 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 
                 boolean staged = false;
 
+                CommCareResourceManager resourceManager =
+                    new CommCareResourceManager(CommCareContext._().getManager(),
+                            global, upgrade, recovery);
                 while(!staged) {
                     try {
-                        CommCareResourceManager resourceManager = 
-                            new CommCareResourceManager(CommCareContext._().getManager());
-                        resourceManager.stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, recovery, false);
+                        resourceManager.stageUpgradeTable(false);
                         interaction.updateProgess(20);
                         staged = true;
                     } catch (UnresolvedResourceException e) {
@@ -117,8 +118,6 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                         return true;
                     }
                 }
-
-
 
                 setMessage(Localization.get("update.header"));
 
@@ -184,10 +183,8 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     upgradeAttemptPending = false;
 
                     try {
-                        CommCareResourceManager resourceManager = 
-                            new CommCareResourceManager(CommCareContext._().getManager());
-                        resourceManager.prepareUpgradeResources(global, upgrade, recovery);
-                        resourceManager.upgrade(global, upgrade, recovery);
+                        resourceManager.prepareUpgradeResources();
+                        resourceManager.upgrade();
                     } catch(UnreliableSourceException e) {
                         //We simply can't retrieve all of the resources that we're looking for.
 
