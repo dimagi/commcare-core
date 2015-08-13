@@ -177,9 +177,9 @@ public class DetailField implements Externalizable {
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        header = (Text)ExtUtil.read(in, Text.class);
-        template = (DetailTemplate)ExtUtil.read(in, new ExtWrapTagged(DetailTemplate.class));
-        sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class));
+        header = (Text)ExtUtil.read(in, Text.class, pf);
+        template = (DetailTemplate)ExtUtil.read(in, new ExtWrapTagged(DetailTemplate.class), pf);
+        sort = (Text)ExtUtil.read(in, new ExtWrapNullable(Text.class), pf);
 
         //Unfortunately I don't think there's a clean way to do this
         if (ExtUtil.readBool(in)) {
