@@ -311,10 +311,10 @@ public class CommCareResourceManager {
         incoming.prepareResourcesUpTo(masterTable, this.platform, CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
-    public boolean isUpgradeStaged() {
-        return (upgradeTable.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE &&
-                upgradeTable.isReady() &&
-                !upgradeTable.isEmpty());
+    public static boolean isUpgradeStaged(ResourceTable table) {
+        return (table.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE &&
+                table.isReady() &&
+                !table.isEmpty());
 
     }
 
