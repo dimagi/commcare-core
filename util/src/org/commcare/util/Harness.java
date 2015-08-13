@@ -54,7 +54,11 @@ public class Harness {
 
                 host.run();
                 System.exit(-1);
-            } finally {
+            } catch (RuntimeException re) {
+                System.out.print("Unhandled Fatal Error executing CommCare app");
+                re.printStackTrace();
+                throw re;
+            }finally {
                 //Since the CommCare libs start up threads for things like caching, if unhandled
                 //exceptions bubble up they will prevent the process from dying unless we kill it
                 System.exit(0);
