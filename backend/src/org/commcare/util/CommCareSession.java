@@ -128,7 +128,7 @@ public class CommCareSession {
      * proceed
      *
      * @return 1 of the 4 STATE strings declared at the top of SessionFrame.java, or null if
-     * could not be determined
+     * the session does not need anything else to proceed
      */
     public String getNeededData() {
 
@@ -289,18 +289,19 @@ public class CommCareSession {
     }
 
     public void stepBack() {
+        // Pop the first thing off of the stack frame, no matter what
         StackFrameStep recentPop = frame.popStep();
-        //TODO: Check the "base state" of the frame
-        //after popping to see if we invalidated the
-        //stack
-
         syncState();
-        popped = recentPop;
-        //If we've stepped back into a computed value, we actually want to go back again, since evaluating that
-        //element will just result in moving forward again.
-        if (this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
-            stepBack();
+
+        // Keep popping things off until the value of needed data indicates that we are back to
+        // somewhere where we are waiting for user-provided input
+        while (this.getNeededData() == null ||
+                this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
+            recentPop = frame.popStep();
+            syncState();
         }
+
+        popped = recentPop;
     }
 
     public void setDatum(String keyId, String value) {
