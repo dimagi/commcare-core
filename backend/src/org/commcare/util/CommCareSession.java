@@ -622,7 +622,6 @@ public class CommCareSession {
      * and the session is over.
      */
     public boolean finishExecuteAndPop(EvaluationContext ec) {
-        //TODO: should this section get wrapped up in the session, maybe?
         Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
 
         //Let the session know that the current frame shouldn't work its way back onto the stack
