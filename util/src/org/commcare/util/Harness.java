@@ -49,6 +49,7 @@ public class Harness {
                 String username = args[2];
                 String password = args[3];
 
+                username = username.trim().toLowerCase();
                 ApplicationHost host = new ApplicationHost(engine, username, password, prototypeFactory);
 
                 host.run();
