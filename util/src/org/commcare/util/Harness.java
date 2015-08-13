@@ -38,21 +38,26 @@ public class Harness {
         }
 
         if ("play".equals(args[0])) {
-            if (args.length < 4) {
-                printplayformat();
+            try {
+                if (args.length < 4) {
+                    printplayformat();
+                    System.exit(-1);
+                }
+
+
+                CommCareConfigEngine engine = configureApp(args, prototypeFactory);
+                String username = args[2];
+                String password = args[3];
+
+                ApplicationHost host = new ApplicationHost(engine, username, password, prototypeFactory);
+
+                host.run();
                 System.exit(-1);
+            } finally {
+                //Since the CommCare libs start up threads for things like caching, if unhandled
+                //exceptions bubble up they will prevent the process from dying unless we kill it
+                System.exit(0);
             }
-
-
-            CommCareConfigEngine engine = configureApp(args, prototypeFactory);
-            String username = args[2];
-            String password = args[3];
-
-            ApplicationHost host = new ApplicationHost(engine, username, password, prototypeFactory);
-
-            host.run();
-            
-            System.exit(0);
         }
     }
 
