@@ -41,10 +41,6 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     
     PrototypeFactory mFactory;
 
-    public DummyIndexedStorageUtility(Class<T> prototype) {
-        this(prototype, PrototypeManager.getDefault());
-    }
-
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
         data = new Hashtable<Integer, T>();
