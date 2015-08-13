@@ -43,4 +43,8 @@ public class SessionWrapper extends CommCareSession {
 
         return initializer;
     }
+
+    public void clearVolitiles() {
+        initializer = null;
+    }
 }
