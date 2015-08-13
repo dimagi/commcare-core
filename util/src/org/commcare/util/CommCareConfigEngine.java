@@ -420,7 +420,8 @@ public class CommCareConfigEngine {
             // actually pull in all the new references
 
             System.out.println("Checking for updates....");
-            platform.stageUpgradeTable(global, updateTable, recoveryTable, authRef, true);
+            CommCareResourceManager resourceManager = new CommCareResourceManager(platform, global, updateTable, recoveryTable);
+            resourceManager.stageUpgradeTable(authRef, true);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
                 System.out.println("Your app is up to date!");
@@ -432,7 +433,7 @@ public class CommCareConfigEngine {
 
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
-            platform.upgrade(global, updateTable, recoveryTable);
+            resourceManager.upgrade();
         } catch(UnresolvedResourceException e) {
             System.out.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();

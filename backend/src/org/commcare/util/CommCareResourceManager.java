@@ -70,15 +70,21 @@ public class CommCareResourceManager {
         }
     }
 
-    /**
-     * @param clearProgress Clear the 'incoming' table of any partial update info.
-     */
     public void stageUpgradeTable(boolean clearProgress)
             throws UnfullfilledRequirementsException,
             StorageFullException,
             UnresolvedResourceException {
         Profile current = platform.getCurrentProfile();
         String profileRef = current.getAuthReference();
+        stageUpgradeTable(profileRef, clearProgress);
+    }
+    /**
+     * @param clearProgress Clear the 'incoming' table of any partial update info.
+     */
+    public void stageUpgradeTable(String profileRef, boolean clearProgress)
+            throws UnfullfilledRequirementsException,
+            StorageFullException,
+            UnresolvedResourceException {
 
         ensureValidState(masterTable, upgradeTable, tempTable);
 
