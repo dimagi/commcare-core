@@ -30,7 +30,7 @@ public class ResourceTableSubreport implements DeviceReportElement {
 
         o.startTag(DeviceReportState.XMLNS, "globaltable_subreport");
         try {
-            for(Resource r : CommCarePlatform.getResourceListFromProfile(table)) {
+            for(Resource r : CommCareResourceManager.getResourceListFromProfile(table)) {
                 o.startTag(DeviceReportState.XMLNS, "resource");
                 try {
                     o.attribute(null, "id", r.getResourceId());

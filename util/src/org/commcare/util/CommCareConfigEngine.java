@@ -246,7 +246,8 @@ public class CommCareConfigEngine {
 
     private void init(String profileRef) {
             try {
-                platform.init(profileRef, this.table, true);
+                CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
+                resourceManager.init(profileRef, this.table, true);
                 print.println("Table resources intialized and fully resolved.");
                 print.println(table);
             } catch (UnresolvedResourceException e) {

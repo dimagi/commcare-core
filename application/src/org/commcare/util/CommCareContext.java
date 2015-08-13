@@ -219,7 +219,7 @@ public class CommCareContext {
                             setCurrentOOMMessage(CommCareStartupInteraction.failSafeText("commcare.install.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again."));
                             int score = 0;
                             int max = 0;
-                            Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+                            Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
                             max = resources.size() * INSTALL_SCORE;
 
                             if(max <= INSTALL_SCORE*2) {
