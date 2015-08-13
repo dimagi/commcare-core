@@ -32,6 +32,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,6 +54,20 @@ public class XFormPlayer {
 
     PrintStream out;
     InputStream in;
+
+    public enum FormResult {
+        Cancelled,
+        Entry_Error,
+        Output_Error,
+        Quit,
+        Unknown,
+        Completed;
+    }
+
+    boolean mProcessOnExit = false;
+    private FormResult mExecutionResult = FormResult.Unknown;
+
+    private byte[] mExecutionInstance;
 
     BufferedReader reader;
 
@@ -114,6 +129,7 @@ public class XFormPlayer {
                 break;
             case FormEntryController.EVENT_END_OF_FORM:
                 out.print("Form End: Press Return to Complete Entry");
+                mProcessOnExit = true;
                 break;
             case FormEntryController.EVENT_GROUP:
                 if (forward) {
@@ -180,15 +196,33 @@ public class XFormPlayer {
             out.println("There was a problem with playing back the file! " + bpe.getMessage());
             return;
         }
+        //Form is finished.
+        //TODO: Final constraint/etc validation
+        if(mProcessOnExit) {
+            fec.getModel().getForm().postProcessInstance();
+            serializeResult();
+        }
+    }
 
+    private void serializeResult() {
         XFormSerializingVisitor visitor = new XFormSerializingVisitor();
         try {
-            byte[] data = visitor.serializeInstance(fec.getModel().getForm().getInstance());
+            mExecutionInstance  = visitor.serializeInstance(fec.getModel().getForm().getInstance());
             clear();
-            out.println(new String(data));
+            out.println(new String(mExecutionInstance));
+            mExecutionResult = FormResult.Completed;
         } catch (IOException e) {
             out.println("Error Serializing XForm Data! " + e.getMessage());
+            mExecutionResult = FormResult.Output_Error;
         }
+    }
+
+    public FormResult getExecutionResult() {
+        return mExecutionResult;
+    }
+
+    public InputStream getResultStream() {
+        return new ByteArrayInputStream(mExecutionInstance);
     }
 
     /**
@@ -219,8 +253,9 @@ public class XFormPlayer {
         } else if ("quit".equalsIgnoreCase(command)) {
             out.println("Quitting!");
             return true;
-        } else if ("finish".equalsIgnoreCase(command) && fec.getModel().getEvent() == FormEntryController.EVENT_END_OF_FORM) {
-            out.println("Quitting!");
+        } else if ("finish".equalsIgnoreCase(command)) {
+            out.println("Attempting to finish the form in its current state...");
+            mProcessOnExit = true;
             return true;
         } else if (command.startsWith("print")) {
             int spaceIndex = command.indexOf(" ");
@@ -339,6 +374,7 @@ public class XFormPlayer {
                 return false;
             case FormEntryController.EVENT_END_OF_FORM:
                 environment.recordAction(new Action(new Command("finish")));
+                mProcessOnExit = true;
                 return true;
             case FormEntryController.EVENT_QUESTION:
                 FormEntryPrompt fep = fec.getModel().getQuestionPrompt();
