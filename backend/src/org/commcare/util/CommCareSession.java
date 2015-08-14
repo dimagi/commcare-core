@@ -290,17 +290,19 @@ public class CommCareSession {
 
     public void stepBack() {
         // Pop the first thing off of the stack frame, no matter what
-        StackFrameStep recentPop = frame.popStep();
-        syncState();
+        popSessionFrameStack();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
         while (this.getNeededData() == null ||
                 this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
-            recentPop = frame.popStep();
-            syncState();
+            popSessionFrameStack();
         }
+    }
 
+    private void popSessionFrameStack() {
+        StackFrameStep recentPop = frame.popStep();
+        syncState();
         popped = recentPop;
     }
 
