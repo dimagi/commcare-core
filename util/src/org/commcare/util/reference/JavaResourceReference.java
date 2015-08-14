@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * A resource type for Java classloader resource files
+ *
  * Created by ctsims on 8/14/2015.
  */
 public class JavaResourceReference implements Reference {

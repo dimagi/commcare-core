@@ -4,6 +4,8 @@ import org.javarosa.core.reference.PrefixedRootFactory;
 import org.javarosa.core.reference.Reference;
 
 /**
+ * Root factory for java classloader resources
+ *
  * Created by ctsims on 8/14/2015.
  */
 public class JavaResourceRoot  extends PrefixedRootFactory {
