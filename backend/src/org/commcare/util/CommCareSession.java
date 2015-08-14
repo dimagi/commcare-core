@@ -302,6 +302,7 @@ public class CommCareSession {
 
     private void popSessionFrameStack() {
         StackFrameStep recentPop = frame.popStep();
+        //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
     }
