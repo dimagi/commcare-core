@@ -41,15 +41,32 @@ public class MockDataUtils {
         return new MockUserDataSandbox(factory);
     }
 
-    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) {
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        try {
-            DataModelPullParser parser = new DataModelPullParser(stream, factory);
-            parser.parse();
-        } catch (IOException | UnfullfilledRequirementsException |
-                XmlPullParserException | InvalidStructureException ioe) {
-            ioe.printStackTrace();
+    /**
+     * Parse the transactions int he provided stream into the user sandbox provided.
+     *
+     * Will rethrow any errors and failfast (IE: Parsing will stop)
+     */
+    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) throws IOException,
+            UnfullfilledRequirementsException,
+            XmlPullParserException, InvalidStructureException {
+        parseIntoSandbox(stream, sandbox, true);
+    }
+
+    /**
+     * Parse the transactions int he provided stream into the user sandbox provided.
+     *
+     * If failfast is true, will rethrow any errors and failfast (IE: Parsing will stop)
+     */
+    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox, boolean failfast) throws IOException,
+            UnfullfilledRequirementsException,
+            XmlPullParserException, InvalidStructureException {
+        if(stream == null) {
+            throw new IOException("Parse Stream is Null");
         }
+
+        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, failfast);
+        parser.parse();
     }
 
     /**

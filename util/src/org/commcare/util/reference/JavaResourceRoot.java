@@ -1,0 +1,21 @@
+package org.commcare.util.reference;
+
+import org.javarosa.core.reference.PrefixedRootFactory;
+import org.javarosa.core.reference.Reference;
+
+/**
+ * Created by ctsims on 8/14/2015.
+ */
+public class JavaResourceRoot  extends PrefixedRootFactory {
+
+    Class mHost;
+
+    public JavaResourceRoot(Class host) {
+        super(new String[]{"resource"});
+        this.mHost = host;
+    }
+
+    protected Reference factory(String terminal, String URI) {
+        return new JavaResourceReference(terminal, mHost);
+    }
+}

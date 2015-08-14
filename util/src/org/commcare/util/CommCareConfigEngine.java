@@ -18,6 +18,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.mocks.LivePrototypeFactory;
+import org.commcare.util.reference.JavaResourceRoot;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -65,11 +66,14 @@ public class CommCareConfigEngine {
     private ArchiveFileRoot mArchiveRoot;
 
     public CommCareConfigEngine() {
-        this(System.out, new LivePrototypeFactory());
+        this(new LivePrototypeFactory());
+    }
+
+    public CommCareConfigEngine(PrototypeFactory prototypeFactory) {
+        this(System.out, prototypeFactory);
     }
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        mLiveFactory = new LivePrototypeFactory();
         this.output = output;
         this.print = new PrintStream(output);
         this.platform = new CommCarePlatform(2, 23);
@@ -86,6 +90,7 @@ public class CommCareConfigEngine {
         //All of the below is on account of the fact that the installers
         //aren't going through a factory method to handle them differently
         //per device.
+        StorageManager.forceClear();
         StorageManager.setStorageFactory(new IStorageFactory() {
 
             public IStorageUtility newStorage(String name, Class type) {
@@ -107,8 +112,10 @@ public class CommCareConfigEngine {
         this.mArchiveRoot = new ArchiveFileRoot();
         
         ReferenceManager._().addReferenceFactory(mArchiveRoot);
+
+        ReferenceManager._().addReferenceFactory(new JavaResourceRoot(this.getClass()));
     }
-    
+
     public void initFromArchive(String archiveURL) {
         String fileName;
         if(archiveURL.startsWith("http")) {
@@ -218,7 +225,7 @@ public class CommCareConfigEngine {
 
     private void init(String profileRef) {
             try {
-                platform.init(profileRef, this.table, true);
+                installAppFromReference(profileRef);
                 print.println("Table resources intialized and fully resolved.");
                 print.println(table);
             } catch (UnresolvedResourceException e) {
@@ -232,16 +239,25 @@ public class CommCareConfigEngine {
             }
     }
 
+    public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
+            UnfullfilledRequirementsException {
+        platform.init(profileReference, this.table, true);
+    }
+
     public void initEnvironment() {
         try {
             table.initializeResources(platform);
-            
+
+            //Make sure there's a default locale, since the app doesn't necessarily use the
+            //localization engine
+            Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
+
             Localization.setDefaultLocale("default");
-            
+
             print.println("Locales defined: ");
             String newLocale = null;
-            for(String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
-                if(newLocale == null) {
+            for (String locale : Localization.getGlobalLocalizerAdvanced().getAvailableLocales()) {
+                if (newLocale == null) {
                     newLocale = locale;
                 }
                 System.out.println("* " + locale);

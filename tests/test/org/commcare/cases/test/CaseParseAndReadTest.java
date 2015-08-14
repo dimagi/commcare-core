@@ -41,7 +41,7 @@ public class CaseParseAndReadTest {
 
     private void compareCaseDbState(String inputTransactions,
                                     String caseDbState) throws Exception {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox, true);
 
         EvaluationContext ec =
             MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
