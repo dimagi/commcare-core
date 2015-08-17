@@ -1,15 +1,13 @@
-package org.commcare.test.utils;
+package org.commcare.test.utilities;
 
 import java.lang.IllegalArgumentException;
 
-import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * A mock app is a quick test wrapper that makes it easy to start playing with a live instance

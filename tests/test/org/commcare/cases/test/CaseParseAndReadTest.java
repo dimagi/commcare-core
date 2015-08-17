@@ -1,8 +1,8 @@
 package org.commcare.cases.test;
 
-import org.commcare.cases.CaseTestUtils;
-import org.commcare.test.utils.TestInstanceInitializer;
-import org.commcare.test.utils.XmlComparator;
+import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestInstanceInitializer;
+import org.commcare.test.utilities.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;

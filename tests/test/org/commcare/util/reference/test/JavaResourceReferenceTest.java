@@ -1,14 +1,12 @@
-package org.commcare.cases.reference.test;
+package org.commcare.util.reference.test;
 
-import org.commcare.test.utils.TestHelpers;
-import org.javarosa.core.io.StreamsUtil;
+import org.commcare.test.utilities.TestHelpers;
 import org.junit.Assert;
 
 import org.commcare.util.reference.JavaResourceReference;
 import org.commcare.util.reference.JavaResourceRoot;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
