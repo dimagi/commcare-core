@@ -102,4 +102,13 @@ public class StorageManager {
             ((IStorageUtility)e.nextElement()).close();
         }
     }
+
+    /**
+     * Clear all registered elements of storage, including the factory.
+     */
+    public static void forceClear() {
+        halt();
+        storageRegistry.clear();
+        storageFactory = null;
+    }
 }
