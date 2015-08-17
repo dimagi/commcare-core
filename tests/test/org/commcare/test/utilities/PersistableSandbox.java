@@ -1,4 +1,4 @@
-package org.commcare.test.utils;
+package org.commcare.test.utilities;
 
 import org.commcare.util.mocks.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.DeserializationException;

@@ -1,4 +1,4 @@
-package org.commcare.cases;
+package org.commcare.test.utilities;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
