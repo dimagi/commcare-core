@@ -1,8 +1,11 @@
 package org.commcare.util;
 
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.ProcessCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
@@ -27,6 +30,15 @@ public class CommCareResourceManager {
         this.tempTable = tempTable;
     }
 
+    public void setListeners(TableStateListener listener) {
+        // TODO PLM: this needs to be split up
+        upgradeTable.setStateListener(listener);
+        masterTable.setStateListener(listener);
+
+        if (listener instanceof ProcessCancelled) {
+            upgradeTable.setProcessListener((ProcessCancelled)listener);
+        }
+    }
 
     /**
      * Installs resources described by profile reference into the provided
@@ -41,7 +53,7 @@ public class CommCareResourceManager {
      */
     public static void init(CommCarePlatform platform, String profileReference,
                             ResourceTable global, boolean forceInstall)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         try {
             if (!global.isReady()) {
                 global.prepareResources(null, platform);
@@ -73,7 +85,7 @@ public class CommCareResourceManager {
     public void stageUpgradeTable(boolean clearProgress)
             throws UnfullfilledRequirementsException,
             StorageFullException,
-            UnresolvedResourceException {
+            UnresolvedResourceException, InstallCancelledException {
         Profile current = platform.getCurrentProfile();
         String profileRef = current.getAuthReference();
         stageUpgradeTable(profileRef, clearProgress);
@@ -84,7 +96,7 @@ public class CommCareResourceManager {
     public void stageUpgradeTable(String profileRef, boolean clearProgress)
             throws UnfullfilledRequirementsException,
             StorageFullException,
-            UnresolvedResourceException {
+            UnresolvedResourceException, InstallCancelledException {
 
         ensureValidState(masterTable, upgradeTable, tempTable);
 
@@ -96,7 +108,7 @@ public class CommCareResourceManager {
     }
 
     public void prepareUpgradeResources()
-            throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException, InstallCancelledException {
         if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
@@ -276,7 +288,7 @@ public class CommCareResourceManager {
     }
 
     public void instantiateLatestProfile(String profileRef)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
 
         ensureValidState(masterTable, upgradeTable, tempTable);
 
@@ -305,7 +317,7 @@ public class CommCareResourceManager {
 
     private void loadProfile(ResourceTable incoming,
                              String profileRef)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException {
+            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
         locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 

@@ -45,6 +45,7 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
     private TableStateListener stateListener = null;
+    private ProcessCancelled processListener = null;
 
     private int numberOfLossyRetries = 3;
 
@@ -346,7 +347,7 @@ public class ResourceTable {
                                                 boolean upgrade,
                                                 CommCareInstance instance,
                                                 ResourceTable master)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         // TODO: Possibly check if resource status is local and proceeding to
         // skip this huge (although in reality like one step) chunk
@@ -415,7 +416,7 @@ public class ResourceTable {
      *                                           version of CommCare
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Stack<Resource> unreadyResources = getUnreadyResources();
 
@@ -453,7 +454,7 @@ public class ResourceTable {
     public void prepareResourcesUpTo(ResourceTable master,
                                      CommCareInstance instance,
                                      String toInitialize)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Stack<Resource> unreadyResources = getUnreadyResources();
 
@@ -470,7 +471,7 @@ public class ResourceTable {
 
     private void prepareResource(ResourceTable master, CommCareInstance instance,
                                  Resource r)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
         Vector<Reference> invalid = new Vector<Reference>();
@@ -520,10 +521,11 @@ public class ResourceTable {
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
                                     CommCareInstance instance, boolean upgrade)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < this.numberOfLossyRetries + 1; ++i) {
+            abortIfInstallCancelled(r);
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);
             } catch (UnreliableSourceException use) {
@@ -540,6 +542,12 @@ public class ResourceTable {
         }
 
         return false;
+    }
+
+    private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
+        if (processListener != null && processListener.processWasCancelled()) {
+            throw new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
+        }
     }
 
     /**
@@ -1009,6 +1017,10 @@ public class ResourceTable {
 
     public void setStateListener(TableStateListener listener) {
         this.stateListener = listener;
+    }
+
+    public void setProcessListener(ProcessCancelled processListener) {
+        this.processListener = processListener;
     }
 
     /**

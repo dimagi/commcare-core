@@ -3,6 +3,7 @@
  */
 package org.commcare.util;
 
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -228,6 +229,10 @@ public class CommCareConfigEngine {
                 installAppFromReference(profileRef);
                 print.println("Table resources intialized and fully resolved.");
                 print.println(table);
+            } catch (InstallCancelledException e) {
+                print.println("Install was cancelled by the user or system");
+                e.printStackTrace(print);
+                System.exit(-1);
             } catch (UnresolvedResourceException e) {
                 print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
                 e.printStackTrace(print);
@@ -240,7 +245,7 @@ public class CommCareConfigEngine {
     }
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
-            UnfullfilledRequirementsException {
+            UnfullfilledRequirementsException, InstallCancelledException {
         CommCareResourceManager.init(platform, profileReference, this.table, true);
     }
 
