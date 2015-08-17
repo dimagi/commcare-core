@@ -25,6 +25,16 @@
       <location authority="local">./modules-1/forms-1.xml</location>
     </resource>
   </xform>
+  <xform>
+    <resource id="79440efa14a0fe3989fe712c7c05fe8e3f9ed921" version="45" descriptor="Form: (Module Untitled Module) - Untitled Form">
+      <location authority="local">./modules-2/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="b5fb3b3a985700f8979ef3d175e183deadb23b5c" version="45" descriptor="Form: (Module Untitled Module) - Untitled Form 2">
+      <location authority="local">./modules-2/forms-1.xml</location>
+    </resource>
+  </xform>
   <detail id="m0_case_short">
     <title>
       <text>
@@ -174,6 +184,30 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
     </session>
   </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/E09A1FD7-1B1E-4E9B-B015-BBDE2D43B744</form>
+    <command id="m2-f0">
+      <text>
+        <locale id="forms.m2f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/1A0EDB0F-D139-47F2-B06C-FF1203DC5AC4</form>
+    <command id="m2-f1">
+      <text>
+        <locale id="forms.m2f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+  </entry>
   <menu id="m0">
     <text>
       <locale id="modules.m0"/>
@@ -188,5 +222,12 @@
     </text>
     <command id="m1-f0"/>
     <command id="m1-f1"/>
+  </menu>
+  <menu id="m2">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="m2-f0"/>
+    <command id="m2-f1"/>
   </menu>
 </suite>
