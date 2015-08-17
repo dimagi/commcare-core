@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <profile version="36"
-         update="https://www.commcarehq.org/a/aliza-test/apps/download/d9596ea20789ceb2e9dbbfaa0eb5bed7/profile.ccpr?latest=true"
+         update=""
          requiredMajor="2"
          requiredMinor="22"
          uniqueid="e1e6d47cda1351b38f55a84411ec7adf"
@@ -8,10 +8,7 @@
          descriptor="Profile File">
  
     <suite><resource id="suite" version="36">
-        
             <location authority="local">./suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/aliza-test/apps/download/d9596ea20789ceb2e9dbbfaa0eb5bed7/suite.xml</location>
     </resource></suite>
     
 </profile>
