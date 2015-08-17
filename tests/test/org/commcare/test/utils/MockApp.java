@@ -33,7 +33,7 @@ public class MockApp {
      *                     trailing slash, like /path/app/
      */
     public MockApp(String resourcePath) throws Exception {
-        if(!resourcePath.startsWith("/") && resourcePath.endsWith("/")) {
+        if(!(resourcePath.startsWith("/") && resourcePath.endsWith("/"))) {
             throw new IllegalArgumentException("Invalid resource path for a mock app " + resourcePath);
         }
         mPrototypeFactory = setupStaticStorage();
