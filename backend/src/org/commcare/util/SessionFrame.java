@@ -7,35 +7,40 @@ import java.util.Vector;
 /**
  * A Session Frame contains the actions that a user has taken while
  * navigating through a CommCare application. Each action is represented
- * as a Step, which is a String array with between 2 and 3 components
- *
- * STEP_TYPE STEP_VALUE
- *
- * or
- *
- * STEP_TYPE STEP_KEY STEP_VALUE
+ * as a StackFrameStep
  *
  * @author ctsims
  */
 public class SessionFrame {
+
+
+    // region - Possible states of a SessionFrame, which describes what type of information the
+    // session needs to proceed with its next step. This is analogously represented as the type
+    // of the current StackFrameStep
+
     /**
      * CommCare needs a Command (an entry, view, etc) to proceed. Generally sitting on a menu screen.
      */
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
+
     /**
-     * CommCare needs the ID of a Case to proceed *
+     * CommCare needs any piece of information coming from a datum val (other than a computed datum)
      */
     public static final String STATE_DATUM_VAL = "CASE_ID";
+
     /**
-     * Computed Value *
+     * CommCare needs a computed xpath value to proceed *
      */
-    public static final String STATE_DATUM_COMPUTED = "COMPTUED_DATUM";
+    public static final String STATE_DATUM_COMPUTED = "COMPUTED_DATUM";
+
     /**
      * CommCare needs the XMLNS of the form to be entered to proceed *
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 
-    public static final String ENTITY_NONE = "NONE";
+    // endregion - states
+
+
 
     private String frameId;
     protected Vector<StackFrameStep> steps = new Vector<StackFrameStep>();

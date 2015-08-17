@@ -4,12 +4,16 @@
 package org.commcare.util;
 
 import org.commcare.util.cli.ApplicationHost;
+import org.commcare.util.mocks.LivePrototypeFactory;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
  *
  */
 public class Harness {
+
+    PrototypeFactory prototypeFactory;
 
     /**
      * @param args
@@ -19,41 +23,62 @@ public class Harness {
             printformat();
             System.exit(-1);
         }
+
+        PrototypeFactory prototypeFactory = setupStaticStorage();
         if(args[0].equals("validate")) {
             if(args.length < 2) {
                 printvalidateformat();
                 System.exit(-1);
             }
             
-            CommCareConfigEngine engine = configureApp(args);
+            CommCareConfigEngine engine = configureApp(args, prototypeFactory);
             engine.describeApplication();
             
             System.exit(0);
         }
 
         if ("play".equals(args[0])) {
-            if (args.length < 4) {
-                printplayformat();
+            try {
+                if (args.length < 4) {
+                    printplayformat();
+                    System.exit(-1);
+                }
+
+
+                CommCareConfigEngine engine = configureApp(args, prototypeFactory);
+                String username = args[2];
+                String password = args[3];
+
+                username = username.trim().toLowerCase();
+                ApplicationHost host = new ApplicationHost(engine, username, password, prototypeFactory);
+
+                host.run();
                 System.exit(-1);
+            } catch (RuntimeException re) {
+                System.out.print("Unhandled Fatal Error executing CommCare app");
+                re.printStackTrace();
+                throw re;
+            }finally {
+                //Since the CommCare libs start up threads for things like caching, if unhandled
+                //exceptions bubble up they will prevent the process from dying unless we kill it
+                System.exit(0);
             }
-            CommCareConfigEngine engine = configureApp(args);
-            String username = args[2];
-            String password = args[3];
-
-            ApplicationHost host = new ApplicationHost(engine, username, password);
-
-            host.run();
-            
-            System.exit(0);
         }
+    }
+
+    private static PrototypeFactory setupStaticStorage() {
+        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
+        //Set up our storage
+        PrototypeFactory.setStaticHasher(prototypeFactory);
+        return prototypeFactory;
     }
 
     private static void printplayformat() {
         System.out.println("Usage: java -jar thejar.jar play path/to/commcare.ccz username password");
     }
 
-    private static CommCareConfigEngine configureApp(String[] args) {
-        CommCareConfigEngine engine = new CommCareConfigEngine(System.out);
+    private static CommCareConfigEngine configureApp(String[] args, PrototypeFactory factory) {
+        CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
 
         //TODO: check arg for whether it's a local or global file resource and
         //make sure it's absolute

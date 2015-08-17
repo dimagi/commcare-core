@@ -3,7 +3,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
-sourceCompatibility = 7
+sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
@@ -47,6 +47,7 @@ sourceSets {
   cli {
       java {
           srcDir 'util/src'
+          compileClasspath += main.output
       }
   }
 }
@@ -54,8 +55,7 @@ sourceSets {
 dependencies {
       compile project(':javarosa')
 
-      cliCompile project(path: ':javarosa', configuration: 'harnessOutput')
-      cliCompile sourceSets.main.output
+      cliCompile project(path: ':javarosa', configuration: 'harness')
 
       testCompile sourceSets.main.output
       testCompile sourceSets.cli.output
@@ -75,6 +75,19 @@ configurations {
 task cliJar(type: Jar, dependsOn: cliClasses) {
     baseName = "commcare-cli"
     from sourceSets.cli.output
+    from sourceSets.main.output
+    from {
+        configurations.cliCompile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.cliRuntime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'org.commcare.util.Harness'
+    }
+    
 }
 
 artifacts {

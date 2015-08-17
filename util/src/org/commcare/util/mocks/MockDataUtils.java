@@ -5,10 +5,13 @@ import org.commcare.util.CommCareTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
@@ -18,6 +21,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -36,15 +41,32 @@ public class MockDataUtils {
         return new MockUserDataSandbox(factory);
     }
 
-    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) {
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        try {
-            DataModelPullParser parser = new DataModelPullParser(stream, factory);
-            parser.parse();
-        } catch (IOException | UnfullfilledRequirementsException |
-                XmlPullParserException | InvalidStructureException ioe) {
-            ioe.printStackTrace();
+    /**
+     * Parse the transactions int he provided stream into the user sandbox provided.
+     *
+     * Will rethrow any errors and failfast (IE: Parsing will stop)
+     */
+    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) throws IOException,
+            UnfullfilledRequirementsException,
+            XmlPullParserException, InvalidStructureException {
+        parseIntoSandbox(stream, sandbox, true);
+    }
+
+    /**
+     * Parse the transactions int he provided stream into the user sandbox provided.
+     *
+     * If failfast is true, will rethrow any errors and failfast (IE: Parsing will stop)
+     */
+    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox, boolean failfast) throws IOException,
+            UnfullfilledRequirementsException,
+            XmlPullParserException, InvalidStructureException {
+        if(stream == null) {
+            throw new IOException("Parse Stream is Null");
         }
+
+        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
+        parser.parse();
     }
 
     /**
@@ -91,8 +113,12 @@ public class MockDataUtils {
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
+
+        //this isn't great but generally this initialization path is actually
+        //really hard/unclear for now, and we can't really assume the sandbox owns
+        //this because it's app data, not user data.
         IStorageUtilityIndexed<FormInstance> appFixtureStorage =
-                sandbox.getAppFixtureStorage();
+                (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
 
         Vector<Integer> userFixtures =
                 userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
@@ -134,5 +160,32 @@ public class MockDataUtils {
             // Otherwise, nothing
             return null;
         }
+    }
+
+    /**
+     * Create an evaluation context with an abstract instance available.
+     */
+    public static EvaluationContext buildContextWithInstance(MockUserDataSandbox sandbox, String instanceId, String instanceRef){
+        Hashtable<String, String> instanceRefToId = new Hashtable<>();
+        instanceRefToId.put(instanceRef, instanceId);
+        return buildContextWithInstances(sandbox, instanceRefToId);
+    }
+
+    /**
+     * Create an evaluation context with an abstract instances available.
+     */
+    public static EvaluationContext buildContextWithInstances(MockUserDataSandbox sandbox,
+                                                              Hashtable<String, String> instanceRefToId) {
+        InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
+
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        for (String instanceRef : instanceRefToId.keySet()) {
+            String instanceId = instanceRefToId.get(instanceRef);
+            ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+            edi.initialize(iif, instanceId);
+            instances.put(instanceId, edi);
+        }
+
+        return new EvaluationContext(null, instances);
     }
 }

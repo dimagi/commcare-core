@@ -119,23 +119,7 @@ public class MenuScreen extends Screen {
 
         this.mChoices = new MenuDisplayable[choices.size()];
         choices.copyInto(mChoices);
-        setTitle();
-    }
-
-    private void setTitle() {
-        String title = this.mTitle;
-        if (title == null) {
-            try {
-                title = Localization.get("app.display.name");
-            } catch (NoLocalizedTextException e) {
-                //swallow. Unimportant
-                title = "CommCare";
-            }
-        }
-
-        String userSuffix = mSandbox.getLoggedInUser() != null ? " | " + mSandbox.getLoggedInUser().getUsername() : "";
-
-        this.mTitle = title + userSuffix;
+        this.mTitle = this.getGeneralTitle(mTitle, this.mSandbox, platform);
     }
 
     private String deriveMenuRoot(SessionWrapper session) {

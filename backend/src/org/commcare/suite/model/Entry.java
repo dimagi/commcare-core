@@ -145,7 +145,7 @@ public class Entry implements Externalizable, MenuDisplayable {
         this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
 
         data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
-        instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()));
+        instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
         assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class));
     }

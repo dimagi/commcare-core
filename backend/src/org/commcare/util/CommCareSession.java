@@ -122,7 +122,17 @@ public class CommCareSession {
         return data;
     }
 
+
+    /**
+     * Based on the current state of the session, determine what information is needed next to
+     * proceed
+     *
+     * @return 1 of the 4 STATE strings declared at the top of SessionFrame.java, or null if
+     * the session does not need anything else to proceed
+     */
     public String getNeededData() {
+
+        // If we don't have a command yet, then need to get that first
         if (this.getCommand() == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
@@ -279,18 +289,22 @@ public class CommCareSession {
     }
 
     public void stepBack() {
-        StackFrameStep recentPop = frame.popStep();
-        //TODO: Check the "base state" of the frame
-        //after popping to see if we invalidated the
-        //stack
+        // Pop the first thing off of the stack frame, no matter what
+        popSessionFrameStack();
 
+        // Keep popping things off until the value of needed data indicates that we are back to
+        // somewhere where we are waiting for user-provided input
+        while (this.getNeededData() == null ||
+                this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
+            popSessionFrameStack();
+        }
+    }
+
+    private void popSessionFrameStack() {
+        StackFrameStep recentPop = frame.popStep();
+        //TODO: Check the "base state" of the frame after popping to see if we invalidated the stack
         syncState();
         popped = recentPop;
-        //If we've stepped back into a computed value, we actually want to go back again, since evaluating that
-        //element will just result in moving forward again.
-        if (this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
-            stepBack();
-        }
     }
 
     public void setDatum(String keyId, String value) {
@@ -603,6 +617,28 @@ public class CommCareSession {
     }
 
     /**
+     * Called after a session has been completed. Executes and pending stack operations
+     * from the current session, completes the session, and pops the top of any pending
+     * frames into execution.
+     *
+     * @return True if there was a pending frame and it has been
+     * popped into the current session. False if the stack was empty
+     * and the session is over.
+     */
+    public boolean finishExecuteAndPop(EvaluationContext ec) {
+        Vector<StackOperation> ops = getCurrentEntry().getPostEntrySessionOperations();
+
+        //Let the session know that the current frame shouldn't work its way back onto the stack
+        markCurrentFrameForDeath();
+
+        //First, see if we have operations to run
+        if(ops.size() > 0) {
+            executeStackOperations(ops, ec);
+        }
+        return finishAndPop();
+    }
+
+    /**
      * Complete the current session (and perform any cleanup), then
      * check the stack for any pending frames, and load the top one
      * into the current session if so.
@@ -611,7 +647,7 @@ public class CommCareSession {
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    public boolean finishAndPop() {
+    private boolean finishAndPop() {
         cleanStack();
 
         if (frameStack.empty()) {
