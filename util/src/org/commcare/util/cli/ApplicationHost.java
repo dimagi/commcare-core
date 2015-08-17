@@ -262,8 +262,8 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
 
-            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
-        } catch (IOException e) {
+            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox, false);
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }

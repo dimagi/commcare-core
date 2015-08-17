@@ -32,7 +32,7 @@ public class CaseXPathQueryTest {
     }
 
     @Test
-    public void referenceNonExistentCaseId() throws XPathSyntaxException {
+    public void referenceNonExistentCaseId() throws Exception {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
@@ -41,7 +41,7 @@ public class CaseXPathQueryTest {
     }
 
     @Test
-    public void caseQueryWithBadPath() throws XPathSyntaxException {
+    public void caseQueryWithBadPath() throws Exception {
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
