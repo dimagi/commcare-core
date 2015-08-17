@@ -1,6 +1,6 @@
 package org.commcare.cases.ledger.test;
 
-import org.commcare.cases.CaseTestUtils;
+import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;

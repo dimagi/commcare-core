@@ -1,9 +1,9 @@
-package org.commcare.model.test;
+package org.commcare.backend.suite.model.test;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
-import org.commcare.test.utils.PersistableSandbox;
+import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.xml.ProfileParser;

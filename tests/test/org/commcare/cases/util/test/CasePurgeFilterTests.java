@@ -1,4 +1,4 @@
-package org.commcare.util.test;
+package org.commcare.cases.util.test;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;

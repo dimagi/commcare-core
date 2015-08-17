@@ -1,9 +1,9 @@
-package org.commcare.test.utils.test;
+package org.commcare.backend.test;
 
+import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
 import org.junit.Assert;
 
-import org.commcare.test.utils.MockApp;
 import org.commcare.util.SessionFrame;
 import org.junit.Before;
 import org.junit.Test;
