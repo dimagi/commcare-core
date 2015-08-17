@@ -20,10 +20,10 @@ public class LedgerParseAndQueryTest {
     private EvaluationContext evalContextWithLedger;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         evalContextWithLedger =
                 MockDataUtils.buildContextWithInstance(sandbox, "ledger", CaseTestUtils.LEDGER_INSTANCE);

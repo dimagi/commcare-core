@@ -217,18 +217,8 @@ public class CommCareSessionController {
 
             CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
                 protected void goHome() {
-                    //Possible should re-name this one. We no longer go "home" by default. We might start a new session's frame.
-                    session.markCurrentFrameForDeath();
-
-                    //TODO: should ths section get wrapped up in the session, maybe?
-                    //First, see if we have operations to run
-                    if(ops.size() > 0) {
-                        EvaluationContext ec = session.getEvaluationContext(getIif());
-                        session.executeStackOperations(ops, ec);
-                    }
-
                     //Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
-                    if(session.finishAndPop()) {
+                    if(session.finishExecuteAndPop(session.getEvaluationContext(getIif()))) {
                         next();
                     } else {
                         J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());

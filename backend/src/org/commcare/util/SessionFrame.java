@@ -24,7 +24,7 @@ public class SessionFrame {
     public static final String STATE_COMMAND_ID = "COMMAND_ID";
 
     /**
-     * CommCare needs the ID of a Case to proceed *
+     * CommCare needs any piece of information coming from a datum val (other than a computed datum)
      */
     public static final String STATE_DATUM_VAL = "CASE_ID";
 

@@ -1,8 +1,10 @@
 package org.commcare.util.cli;
 
+import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.util.SessionFrame;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -13,15 +15,19 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -44,6 +50,7 @@ public class ApplicationHost {
 
     private boolean mUpdatePending = false;
     private boolean mForceLatestUpdate = false;
+    private boolean mSessionHasNextFrameReady = false;
 
 
     private final PrototypeFactory mPrototypeFactory;
@@ -74,21 +81,27 @@ public class ApplicationHost {
         }
     }
     
-    
     private void loop() throws IOException {
         boolean keepExecuting = true;
         while (keepExecuting) {
-            mSession.clearAllState();
+            if(!mSessionHasNextFrameReady) {
+                mSession.clearAllState();
+            }
+            mSessionHasNextFrameReady = false;
             keepExecuting = loopSession();
 
             if(this.mUpdatePending) {
-                mSession.clearAllState();
-                this.mUpdatePending = false;
-                boolean forceUpdate = mForceLatestUpdate;
-                this.mForceLatestUpdate = false;
-                mEngine.attemptAppUpdate(forceUpdate);
+               processAppUpdate();
             }
         }
+    }
+
+    private void processAppUpdate() {
+        mSession.clearAllState();
+        this.mUpdatePending = false;
+        boolean forceUpdate = mForceLatestUpdate;
+        this.mForceLatestUpdate = false;
+        mEngine.attemptAppUpdate(forceUpdate);
     }
 
     private boolean loopSession() throws IOException {
@@ -125,10 +138,7 @@ public class ApplicationHost {
                 s.updateSession(mSession, input);
                 s = getNextScreen();
             } catch (CommCareSessionException ccse) {
-                System.out.println("Error during session execution:");
-                ccse.printStackTrace();
-                System.out.println("Press return to restart the session");
-                reader.readLine();
+                printErrorAndContinue("Error during session execution:", ccse);
 
                 //Restart
                 return true;
@@ -143,9 +153,46 @@ public class ApplicationHost {
         player.setSessionIIF(mSession.getIIF());
         player.start(mEngine.loadFormByXmlns(formXmlns));
 
-        //After we finish, continue executing from a clean session
-        //TODO: Process stack frames upon return
+        //If the form saved properly, process the output
+        if(player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+            if(!processResultInstance(player.getResultStream())) {
+                return true;
+            }
+            mSession.clearVolitiles();
+            if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+                mSessionHasNextFrameReady = true;
+            }
+        }
+
+        //After we finish, continue executing
         return true;
+    }
+
+    private boolean processResultInstance(InputStream resultStream) {
+        try {
+            DataModelPullParser parser = new DataModelPullParser(
+                    resultStream, new CommCareTransactionParserFactory(mSandbox), true, true);
+            parser.parse();
+        } catch (Exception e) {
+            printErrorAndContinue("Error processing the form result!", e);
+            return false;
+        } finally {
+            try {
+                resultStream.close();
+            } catch(IOException e) {}
+        }
+        return true;
+    }
+
+    private void printErrorAndContinue(String error, Exception e) {
+        System.out.println(error);
+        e.printStackTrace();
+        System.out.println("Press return to restart the session");
+        try {
+            reader.readLine();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private Screen getNextScreen() {
@@ -215,8 +262,8 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
 
-            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
-        } catch (IOException e) {
+            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox, false);
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }

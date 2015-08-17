@@ -21,14 +21,14 @@ public class LedgerAndCaseQueryTest {
     private EvaluationContext evalContext;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // load ledger data
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
@@ -78,7 +78,7 @@ public class LedgerAndCaseQueryTest {
     }
 
     @Test
-    public void ledgerQueriesWithNoLedgerData() throws XPathSyntaxException {
+    public void ledgerQueriesWithNoLedgerData() throws Exception {
         // case id 'star_market' exists but no ledger data been loaded at all
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
 
@@ -91,18 +91,18 @@ public class LedgerAndCaseQueryTest {
     }
 
     @Test(expected = XPathTypeMismatchException.class)
-    public void ledgerQueriesWithBadTemplate() throws XPathSyntaxException {
+    public void ledgerQueriesWithBadTemplate() throws Exception {
         // case id 'star_market' exists but no ledger data been loaded at all
         EvaluationContext evalContextWithoutLedgers = createContextWithNoLedgers();
         CaseTestUtils.xpathEval(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger[@entity-id='star_market']/not-section[@section-id='']/entry[@entry-id='']");
     }
 
-    private EvaluationContext createContextWithNoLedgers() {
+    private EvaluationContext createContextWithNoLedgers() throws Exception{
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox);
+        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
