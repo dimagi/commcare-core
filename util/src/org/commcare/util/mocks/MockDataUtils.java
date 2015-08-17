@@ -114,11 +114,19 @@ public class MockDataUtils {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();
 
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = null;
         //this isn't great but generally this initialization path is actually
         //really hard/unclear for now, and we can't really assume the sandbox owns
         //this because it's app data, not user data.
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage =
-                (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+        try {
+            appFixtureStorage =
+                    (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+        } catch(RuntimeException re) {
+            //We use this in some contexsts with app fixture storage and some without, so
+            //if we don't find it, that's ok.
+            //This behavior will need to get updated if this code is used outside of the util/test
+            //context
+        }
 
         Vector<Integer> userFixtures =
                 userFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
@@ -145,6 +153,12 @@ public class MockDataUtils {
 
         // ok, so if we've gotten here there were no fixtures for the user,
         // let's try the app fixtures.
+
+        //First see if app storage is even available, if not, we aren't gonna find one
+        if(appFixtureStorage == null) {
+            return null;
+        }
+
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture =
                 ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
