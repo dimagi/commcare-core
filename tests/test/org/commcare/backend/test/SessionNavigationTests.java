@@ -8,6 +8,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ *
+ * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
+ * etc.) for a sample app
+ *
  * Created by amstone326 on 8/17/15.
  */
 public class SessionNavigationTests {
