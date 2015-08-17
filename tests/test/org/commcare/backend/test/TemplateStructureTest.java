@@ -1,5 +1,6 @@
-package org.commcare.test.utilities;
+package org.commcare.backend.test;
 
+import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
 import org.junit.Assert;
 
