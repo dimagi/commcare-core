@@ -65,7 +65,7 @@ public class MockDataUtils {
         }
 
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, true, failfast);
+        DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
         parser.parse();
     }
 
