@@ -1,4 +1,4 @@
-package org.commcare.util.test;
+package org.commcare.cases.util.test;
 
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.database.SandboxUtils;

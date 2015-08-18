@@ -1,4 +1,4 @@
-package org.commcare.test.utils;
+package org.commcare.test.utilities;
 
 import org.kxml2.io.KXmlParser;
 import org.kxml2.kdom.Document;

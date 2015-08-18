@@ -1,13 +1,14 @@
-package org.commcare.model.test;
+package org.commcare.backend.suite.model.test;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
-import org.commcare.test.utils.PersistableSandbox;
+import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.ArrayUtilities;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class ProfileTests {
         mSandbox = new PersistableSandbox();
         mAppPlatform = new CommCareConfigEngine();
         mFreshResourceTable = ResourceTable.RetrieveTable(
-                new DummyIndexedStorageUtility(Resource.class));
+                new DummyIndexedStorageUtility(Resource.class, new PrototypeFactory()));
     }
     
     @Test

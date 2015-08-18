@@ -49,7 +49,11 @@ public class SessionWrapper extends CommCareSession {
     public CommCarePlatform getPlatform(){
         return this.mPlatform;
     }
-    public UserDataInterface getSandbox(){
+    public UserDataInterface getSandbox() {
         return this.mSandbox;
+    }
+
+    public void clearVolitiles() {
+        initializer = null;
     }
 }

@@ -1,13 +1,15 @@
 package org.commcare.util.cli;
 
 import org.commcare.core.interfaces.UserDataInterface;
-import org.commcare.api.persistence.UserSqlSandbox;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
+import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.User;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;
+import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
@@ -23,6 +25,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -43,17 +46,23 @@ public class ApplicationHost {
     private UserDataInterface mSandbox;
     private SessionWrapper mSession;
 
-    private final PrototypeFactory mPrototypeFactory = new PrototypeFactory();
+    private boolean mUpdatePending = false;
+    private boolean mForceLatestUpdate = false;
+    private boolean mSessionHasNextFrameReady = false;
+
+
+    private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
 
-    public ApplicationHost(CommCareConfigEngine engine, String username, String password) {
+    public ApplicationHost(CommCareConfigEngine engine, String username, String password, PrototypeFactory prototypeFactory) {
         this.mUsername = username;
         this.mPassword = password;
         this.mEngine = engine;
         this.mPlatform = engine.getPlatform();
 
         reader = new BufferedReader(new InputStreamReader(System.in));
+        this.mPrototypeFactory = prototypeFactory;
     }
 
     public void run() {
@@ -69,15 +78,29 @@ public class ApplicationHost {
         }
     }
     
-    
     private void loop() throws IOException {
         boolean keepExecuting = true;
         while (keepExecuting) {
-            mSession.clearAllState();
+            if(!mSessionHasNextFrameReady) {
+                mSession.clearAllState();
+            }
+            mSessionHasNextFrameReady = false;
             keepExecuting = loopSession();
+
+            if(this.mUpdatePending) {
+               processAppUpdate();
+            }
         }
     }
-    
+
+    private void processAppUpdate() {
+        mSession.clearAllState();
+        this.mUpdatePending = false;
+        boolean forceUpdate = mForceLatestUpdate;
+        this.mForceLatestUpdate = false;
+        mEngine.attemptAppUpdate(forceUpdate);
+    }
+
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
 
@@ -93,17 +116,26 @@ public class ApplicationHost {
                 //TODO: Command language
                 if(input.startsWith(":")) {
                     if(input.equals(":exit") || input.equals(":quit")) {
+                        return false;
+                    }
+                    if (input.startsWith(":update")) {
+                        mUpdatePending = true;
 
+                        if(input.contains("-f")) {
+                            mForceLatestUpdate = true;
+                        }
+                        return true;
+                    }
+
+                    if(input.equals(":home")) {
+                        return true;
                     }
                 }
 
                 s.updateSession(mSession, input);
                 s = getNextScreen();
             } catch (CommCareSessionException ccse) {
-                System.out.println("Error during session execution:");
-                ccse.printStackTrace();
-                System.out.println("Press return to restart the session");
-                reader.readLine();
+                printErrorAndContinue("Error during session execution:", ccse);
 
                 //Restart
                 return true;
@@ -118,9 +150,46 @@ public class ApplicationHost {
         player.setSessionIIF(mSession.getIIF());
         player.start(mEngine.loadFormByXmlns(formXmlns));
 
-        //After we finish, continue executing from a clean session
-        //TODO: Process stack frames upon return
+        //If the form saved properly, process the output
+        if(player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+            if(!processResultInstance(player.getResultStream())) {
+                return true;
+            }
+            mSession.clearVolitiles();
+            if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+                mSessionHasNextFrameReady = true;
+            }
+        }
+
+        //After we finish, continue executing
         return true;
+    }
+
+    private boolean processResultInstance(InputStream resultStream) {
+        try {
+            DataModelPullParser parser = new DataModelPullParser(
+                    resultStream, new CommCareTransactionParserFactory(mSandbox), true, true);
+            parser.parse();
+        } catch (Exception e) {
+            printErrorAndContinue("Error processing the form result!", e);
+            return false;
+        } finally {
+            try {
+                resultStream.close();
+            } catch(IOException e) {}
+        }
+        return true;
+    }
+
+    private void printErrorAndContinue(String error, Exception e) {
+        System.out.println(error);
+        e.printStackTrace();
+        System.out.println("Press return to restart the session");
+        try {
+            reader.readLine();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     private Screen getNextScreen() {
@@ -171,7 +240,7 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        mSandbox = new UserSqlSandbox(mPrototypeFactory, "will");
+        mSandbox = new MockUserDataSandbox(mPrototypeFactory);
 
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";

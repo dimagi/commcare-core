@@ -3,6 +3,7 @@ package org.commcare.cases.test;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,13 +23,13 @@ public class BadCaseXMLTests {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-    @Test
-    public void testNoCaseID() {
-        //Expected - Fail silently (TODO: Fix?)
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_broken_no_caseid.xml"), sandbox);
-
-
-        //Make sure that we didn't make a case entry for the bad case though
-        Assert.assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
+    @Test(expected = InvalidStructureException.class)
+    public void testNoCaseID() throws Exception {
+        try {
+            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_broken_no_caseid.xml"), sandbox);
+        }finally {
+            //Make sure that we didn't make a case entry for the bad case though
+            Assert.assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
+        }
     }
 }

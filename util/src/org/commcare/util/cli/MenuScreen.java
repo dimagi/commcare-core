@@ -9,8 +9,6 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -124,23 +122,7 @@ public class MenuScreen extends Screen {
 
         this.mChoices = new MenuDisplayable[choices.size()];
         choices.copyInto(mChoices);
-        setTitle();
-    }
-
-    private void setTitle() {
-        String title = this.mTitle;
-        if (title == null) {
-            try {
-                title = Localization.get("app.display.name");
-            } catch (NoLocalizedTextException e) {
-                //swallow. Unimportant
-                title = "CommCare";
-            }
-        }
-
-        String userSuffix = mSandbox.getLoggedInUser() != null ? " | " + mSandbox.getLoggedInUser().getUsername() : "";
-
-        this.mTitle = title + userSuffix;
+        this.mTitle = this.getGeneralTitle(mTitle, this.mSandbox, mPlatform);
     }
 
     private String deriveMenuRoot(SessionWrapper session) {

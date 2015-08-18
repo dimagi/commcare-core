@@ -1,18 +1,15 @@
 package org.commcare.cases.test;
 
-import org.commcare.core.database.SandboxUtils;
 import org.commcare.core.parse.ParseUtils;
-import org.commcare.test.utils.TestInstanceInitializer;
-import org.commcare.test.utils.XmlComparator;
+import org.commcare.test.utilities.CaseTestUtils;
+import org.commcare.test.utilities.TestInstanceInitializer;
+import org.commcare.test.utilities.XmlComparator;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.model.xform.DataModelSerializer;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,12 +40,16 @@ public class CaseParseAndReadTest {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
     }
 
-    private void compareCaseDbState(String inputTransactions, String caseDbState) throws Exception {
-        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
-        EvaluationContext ec = SandboxUtils.getInstanceContexts(this.sandbox, "casedb", "jr://instance/casedb");
-        testXPathEval(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case");
 
-        byte[] parsedDb = dumpInstance("jr://instance/casedb");
+    private void compareCaseDbState(String inputTransactions,
+                                    String caseDbState) throws Exception {
+            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+
+        EvaluationContext ec =
+            MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
+        Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", "case"));
+
+        byte[] parsedDb = serializeCaseInstanceFromSandbox(sandbox);
         Document parsed = XmlComparator.getDocumentFromStream(new ByteArrayInputStream(parsedDb));
         Document loaded = XmlComparator.getDocumentFromStream(this.getClass().getResourceAsStream(caseDbState));
 
@@ -64,23 +65,18 @@ public class CaseParseAndReadTest {
         }
     }
 
-    private void testXPathEval(EvaluationContext ec, String input, String expectedOutput) throws Exception {
-        XPathExpression expr = XPathParseTool.parseXPath(input);
-        Object output = XPathFuncExpr.unpack(expr.eval(ec));
-        Assert.assertEquals("XPath expression [" + input  + "] produced the wrong output", expectedOutput, output);
-    }
-
-    private byte[] dumpInstance(String instanceRef) {
+    private static byte[] serializeCaseInstanceFromSandbox(MockUserDataSandbox sandbox) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
-            s.serialize(new ExternalDataInstance(instanceRef, "instance"), null);
+            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "instance"), null);
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 
     private byte[] dumpStream(String inputResource) throws IOException {
         InputStream is = this.getClass().getResourceAsStream(inputResource);

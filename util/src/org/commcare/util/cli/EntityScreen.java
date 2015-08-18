@@ -10,8 +10,6 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
 import java.io.PrintStream;
@@ -76,7 +74,7 @@ public class EntityScreen extends Screen {
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
-        setTitle();
+        this.mTitle = this.getGeneralTitle(mTitle, this.mSandbox, mPlatform);
     }
 
     private String createRow(TreeReference entity, Detail shortDetail) {
@@ -160,22 +158,6 @@ public class EntityScreen extends Screen {
     private Vector<TreeReference> inflateReference(TreeReference nodeset) {
         EvaluationContext parent = this.mSession.getEvaluationContext();
         return parent.expandReference(nodeset);
-    }
-
-    private void setTitle() {
-        String title = this.mTitle;
-        if (title == null) {
-            try {
-                title = Localization.get("app.display.name");
-            } catch (NoLocalizedTextException e) {
-                //swallow. Unimportant
-                title = "CommCare";
-            }
-        }
-
-        String userSuffix = mSandbox.getLoggedInUser() != null ? " | " + mSandbox.getLoggedInUser().getUsername() : "";
-
-        this.mTitle = title + userSuffix;
     }
 
     @Override

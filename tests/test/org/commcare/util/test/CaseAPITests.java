@@ -35,7 +35,7 @@ public class CaseAPITests {
     @Before
     public void setUp() throws Exception {
 
-        storage = new DummyIndexedStorageUtility<Case>(Case.class);
+        storage = new DummyIndexedStorageUtility<Case>(Case.class, new PrototypeFactory());
 
         owner = "owner";
         otherOwner = "otherowner";
