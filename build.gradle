@@ -34,6 +34,7 @@ sourceSets {
             srcDir 'cases/src'
             srcDir 'backend/src'
             srcDir 'api'
+            srcDir 'core'
         }
   }
   test {
@@ -54,13 +55,12 @@ sourceSets {
 }
 
 dependencies {
-      compile project(':javarosa')
-
-      cliCompile project(path: ':javarosa', configuration: 'harness')
-
-      testCompile sourceSets.main.output
-      testCompile sourceSets.cli.output
-      testCompile group: 'junit', name: 'junit', version: '4.+'
+    compile project(':javarosa')
+    cliCompile project(path: ':javarosa', configuration: 'harness')
+    testCompile sourceSets.main.output
+    testCompile sourceSets.cli.output
+    testCompile 'junit:junit:4.+'
+    compile 'org.xerial:sqlite-jdbc:3.8.11.1'
 }
 
 jar {
