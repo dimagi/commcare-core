@@ -1,4 +1,4 @@
-package org.commcare.api.parser;
+package org.commcare.core.parse;
 
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.suite.model.User;

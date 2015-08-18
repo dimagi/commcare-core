@@ -1,6 +1,6 @@
 package org.commcare.api.persistence;
 
-import org.commcare.api.util.Pair;
+import org.commcare.core.util.Pair;
 import org.commcare.core.database.*;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -59,7 +59,7 @@ public class SqlHelper {
             preparedStatement = c.prepareStatement(sqlStatement);
             preparedStatement.execute();
         } catch (SQLException e) {
-            System.out.println("Caught create table exception: " + e);
+            //fail silently, expected sometimes
         } finally{
             if (preparedStatement != null) {
                 try {

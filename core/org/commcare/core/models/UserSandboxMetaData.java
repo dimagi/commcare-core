@@ -1,4 +1,4 @@
-package org.commcare.api.models;
+package org.commcare.core.models;
 
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;

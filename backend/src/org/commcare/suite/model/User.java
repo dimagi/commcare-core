@@ -275,4 +275,12 @@ public class User implements Persistable, Restorable, IMetaData {
         }
         return demo_user;
     }
+
+    public int getRecordId(){
+        return recordId;
+    }
+
+    public void setRecordId(int recordId){
+        this.recordId = recordId;
+    }
 }

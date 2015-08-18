@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.api.models;
+package org.commcare.core.models;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

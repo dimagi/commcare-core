@@ -1,7 +1,7 @@
 package org.commcare.core.database;
 
-import org.commcare.api.models.MetaField;
-import org.commcare.api.util.Pair;
+import org.commcare.core.models.MetaField;
+import org.commcare.core.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 

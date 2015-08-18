@@ -1,7 +1,6 @@
 package org.commcare.core.parse;
 
 import org.commcare.core.interfaces.UserDataInterface;
-import org.commcare.api.parser.UserXmlParser;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;

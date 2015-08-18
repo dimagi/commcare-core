@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commcare.api.util;
+package org.commcare.core.util;
 
 
 /**
@@ -41,7 +41,7 @@ public class Pair<F, S> {
      * Checks the two objects for equality by delegating to their respective
      * {@link Object#equals(Object)} methods.
      *
-     * @param o the {@link org.commcare.api.util.Pair} to which this one is to be checked for equality
+     * @param o the {@link Pair} to which this one is to be checked for equality
      * @return true if the underlying objects of the Pair are both considered
      *         equal
      */

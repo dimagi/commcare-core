@@ -1,7 +1,7 @@
 package org.commcare.api.persistence;
 
 import org.commcare.core.interfaces.UserDataInterface;
-import org.commcare.api.models.UserSandboxMetaData;
+import org.commcare.core.models.UserSandboxMetaData;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.suite.model.User;
