@@ -12,7 +12,7 @@ import org.junit.Test;
  * Tests navigating through a CommCareSession (setting datum values and commands, using stepBack(),
  * etc.) for a sample app
  *
- * Created by amstone326 on 8/17/15.
+ * @author amstone
  */
 public class SessionNavigationTests {
 
@@ -74,8 +74,31 @@ public class SessionNavigationTests {
     }
 
     @Test
-    public void testStepBack() {
+    public void testStepBackBasic() {
+
+    }
+
+    @Test
+    public void testStepBackWithExtraValue() {
         //TODO: test stepBack() with many different initial configurations of the stack
+
+        SessionWrapper session = mApp.getSession();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m1");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m1-f1");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        session.setDatum("case_id", "case_one");
+        Assert.assertEquals(session.getNeededDatum(), null);
+        session.setDatum("return_to", "m1");
+
+        // Should pop 2 values off of the session stack in order to return to the last place
+        // where there was a user-inputted decision
+        session.stepBack();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+
     }
 
 }
