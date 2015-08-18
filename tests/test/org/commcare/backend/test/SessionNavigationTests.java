@@ -75,13 +75,25 @@ public class SessionNavigationTests {
 
     @Test
     public void testStepBackBasic() {
+        SessionWrapper session = mApp.getSession();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m1");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m1-f1");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        session.setDatum("case_id", "case_one");
+        Assert.assertEquals(session.getNeededDatum(), null);
+
+        // Should result in needing a case_id again
+        session.stepBack();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
 
     }
 
     @Test
     public void testStepBackWithExtraValue() {
-        //TODO: test stepBack() with many different initial configurations of the stack
-
         SessionWrapper session = mApp.getSession();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
         session.setCommand("m1");
