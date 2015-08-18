@@ -679,7 +679,7 @@ public class TreeReference implements Externalizable {
         contextType = ExtUtil.readInt(in);
         int size = ExtUtil.readInt(in);
         for (int i = 0; i < size; ++i) {
-            TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class);
+            TreeReferenceLevel level = (TreeReferenceLevel)ExtUtil.read(in, TreeReferenceLevel.class, pf);
             this.add(level.intern());
         }
     }

@@ -49,6 +49,9 @@ public class ReferenceDataSource implements LocaleDataSource {
         InputStream is = null;
         try {
             is = ReferenceManager._().DeriveReference(referenceURI).getStream();
+            if (is == null) {
+                throw new IOException("There is no resource at " + referenceURI);
+            }
             return LocalizationUtils.parseLocaleInput(is);
         } catch (IOException e) {
             e.printStackTrace();

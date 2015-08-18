@@ -95,7 +95,7 @@ public class TreeReferenceLevel implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         multiplicity = ExtUtil.readInt(in);
-        predicates = ExtUtil.nullIfEmpty((Vector<XPathExpression>)ExtUtil.read(in, new ExtWrapListPoly()));
+        predicates = ExtUtil.nullIfEmpty((Vector<XPathExpression>)ExtUtil.read(in, new ExtWrapListPoly(), pf));
     }
 
 
