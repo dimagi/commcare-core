@@ -275,8 +275,7 @@ public class ResourceTable {
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
-                    r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE &&
-                    r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
+                    r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE) {
                 v.push(r);
             }
         }
@@ -750,8 +749,6 @@ public class ResourceTable {
                 return "Uninitialized";
             case Resource.RESOURCE_STATUS_LOCAL:
                 return "Local";
-            case Resource.RESOURCE_STATUS_PENDING:
-                return "Pending other Resource";
             case Resource.RESOURCE_STATUS_INSTALLED:
                 return "Installed";
             case Resource.RESOURCE_STATUS_UPGRADE:

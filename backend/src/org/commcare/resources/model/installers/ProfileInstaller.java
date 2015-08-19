@@ -108,7 +108,7 @@ public class ProfileInstaller extends CacheInstaller {
                 try {
                     incoming = ref.getStream();
                     ProfileParser parser = new ProfileParser(incoming, instance, table, r.getRecordGuid(),
-                            upgrade ? Resource.RESOURCE_STATUS_PENDING : Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
+                            Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
                     if (Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
                         parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                     }
