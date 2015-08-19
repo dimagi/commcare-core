@@ -9,7 +9,6 @@ import java.util.Vector;
  * @author jschweers
  */
 public class GraphData implements ConfigurableData {
-    private String mType;
     private Vector<SeriesData> mSeries;
     private Hashtable<String, String> mConfiguration;
     private Vector<AnnotationData> mAnnotations;
@@ -18,14 +17,6 @@ public class GraphData implements ConfigurableData {
         mSeries = new Vector<SeriesData>();
         mConfiguration = new Hashtable<String, String>();
         mAnnotations = new Vector<AnnotationData>();
-    }
-
-    public String getType() {
-        return mType;
-    }
-
-    public void setType(String type) {
-        mType = type;
     }
 
     public Vector<SeriesData> getSeries() {

@@ -30,11 +30,6 @@ public class GraphParser extends ElementParser<Graph> {
      */
     public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
         Graph graph = new Graph();
-        String type = parser.getAttributeValue(null, "type");
-        if (type == null) {
-            throw new InvalidStructureException("Expected attribute @type for element <" + parser.getName() + ">", parser);
-        }
-        graph.setType(type);
 
         int entryLevel = parser.getDepth();
         do {
@@ -47,7 +42,7 @@ public class GraphParser extends ElementParser<Graph> {
                 parseConfiguration(graph);
             }
             if (parser.getName().equals("series")) {
-                graph.addSeries(parseSeries(type));
+                graph.addSeries(parseSeries());
             }
             if (parser.getName().equals("annotation")) {
                 parseAnnotation(graph);
@@ -107,10 +102,18 @@ public class GraphParser extends ElementParser<Graph> {
      * Helper for parse; handles a single series, which is an optional <configuration> followed by an <x>, a <y>,
      * and, if this graph is a bubble graph, a <radius>.
      */
-    private XYSeries parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
+    private XYSeries parseSeries() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("series");
+
+        String type = parser.getAttributeValue(null, "type");
+        if (type == null) {
+            throw new InvalidStructureException("Expected attribute @type for element <" + parser.getName() + ">", parser);
+        }
         String nodeSet = parser.getAttributeValue(null, "nodeset");
-        XYSeries series = type.equals(Graph.TYPE_BUBBLE) ? new BubbleSeries(nodeSet) : new XYSeries(nodeSet);
+        if (nodeSet == null) {
+            throw new InvalidStructureException("Expected attribute @nodeSet for element <" + parser.getName() + ">", parser);
+        }
+        XYSeries series = type.equals(XYSeries.TYPE_BUBBLE) ? new BubbleSeries(nodeSet) : new XYSeries(type, nodeSet);
 
         nextStartTag();
         if (parser.getName().equals("configuration")) {
@@ -124,7 +127,7 @@ public class GraphParser extends ElementParser<Graph> {
         nextStartTag();
         series.setY(parseFunction("y"));
 
-        if (type.equals(Graph.TYPE_BUBBLE)) {
+        if (type.equals(XYSeries.TYPE_BUBBLE)) {
             nextStartTag();
             checkNode("radius");
             ((BubbleSeries)series).setRadius(parseFunction("radius"));

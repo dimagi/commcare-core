@@ -28,7 +28,7 @@ public class BubbleSeries extends XYSeries {
     }
 
     public BubbleSeries(String nodeSet) {
-        super(nodeSet);
+        super(TYPE_BUBBLE, nodeSet);
     }
 
     public String getRadius() {

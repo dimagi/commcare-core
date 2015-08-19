@@ -25,9 +25,15 @@ import java.util.Hashtable;
  * @author jschweers
  */
 public class XYSeries implements Externalizable, Configurable {
+    public static final String TYPE_XY = "xy";
+    public static final String TYPE_BAR = "bar";
+    public static final String TYPE_TIME = "time";
+    public static final String TYPE_BUBBLE = "bubble";
+
     private TreeReference mNodeSet;
     private Hashtable<String, Text> mConfiguration;
 
+    private String mType;
     private String mX;
     private String mY;
 
@@ -41,9 +47,18 @@ public class XYSeries implements Externalizable, Configurable {
 
     }
 
-    public XYSeries(String nodeSet) {
+    public XYSeries(String type, String nodeSet) {
+        mType = type;
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
         mConfiguration = new Hashtable<String, Text>();
+    }
+
+    public String getType() {
+        return mType;
+    }
+
+    public void setType(String type) {
+        mType = type;
     }
 
     public TreeReference getNodeSet() {
@@ -86,6 +101,7 @@ public class XYSeries implements Externalizable, Configurable {
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
+        mType = ExtUtil.readString(in);
         mX = ExtUtil.readString(in);
         mY = ExtUtil.readString(in);
         mNodeSet = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
@@ -97,6 +113,7 @@ public class XYSeries implements Externalizable, Configurable {
      * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, mType);
         ExtUtil.writeString(out, mX);
         ExtUtil.writeString(out, mY);
         ExtUtil.write(out, mNodeSet);
