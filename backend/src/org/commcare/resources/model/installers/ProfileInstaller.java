@@ -75,7 +75,10 @@ public class ProfileInstaller extends CacheInstaller {
         return Profile.STORAGE_KEY;
     }
 
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(Resource r, ResourceLocation location,
+                           Reference ref, ResourceTable table,
+                           CommCareInstance instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //Install for the profile installer is a two step process. Step one is to parse the file and read the relevant data.
         //Step two is to actually install the resource if it needs to be (whether or not it should will be handled
         //by the resource table).

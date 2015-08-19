@@ -297,9 +297,7 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
-            // XXX PLM: Why?
-            Logger.log("Resource",
-                    "committing a resource with a known version.");
+            Logger.log("Resource", "committing a resource with a known version.");
         }
         commit(r, status);
     }
@@ -428,13 +426,6 @@ public class ResourceTable {
             // Installing resources may have exposed more unready resources
             // that need installing.
             unreadyResources = getUnreadyResources();
-        }
-
-        // TODO: Nothing uses this status, really. Should this go away?
-        // Wipe out any resources which are still pending. If they weren't updated by their
-        // parent, they aren't relevant.
-        for (Resource stillPending : getResourcesWithStatus(Resource.RESOURCE_STATUS_PENDING)) {
-            this.removeResource(stillPending);
         }
     }
 

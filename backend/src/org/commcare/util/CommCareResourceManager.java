@@ -101,7 +101,7 @@ public class CommCareResourceManager {
             StorageFullException,
             UnresolvedResourceException, InstallCancelledException {
 
-        ensureValidState(masterTable, upgradeTable, tempTable);
+        ensureValidState();
 
         if (clearProgress) {
             upgradeTable.clear();
@@ -114,13 +114,7 @@ public class CommCareResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
-        if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-            repair();
-
-            if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-                throw new IllegalArgumentException("Global resource table was not ready for upgrading");
-            }
-        }
+        ensureValidState();
 
         // TODO: Figure out more cleanly what the acceptable states are here
         int upgradeTableState = upgradeTable.getTableReadiness();
@@ -303,7 +297,7 @@ public class CommCareResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
 
-        ensureValidState(masterTable, upgradeTable, tempTable);
+        ensureValidState();
 
         Resource upgradeProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
@@ -356,12 +350,12 @@ public class CommCareResourceManager {
 
     }
 
-    private void ensureValidState(ResourceTable global, ResourceTable incoming, ResourceTable recovery) {
+    private void ensureValidState() {
         // Make sure everything's in a good state
-        if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+        if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
-            if (global.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+            if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new IllegalArgumentException("Global resource table was not ready for upgrading");
             }
         }
