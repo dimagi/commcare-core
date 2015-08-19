@@ -49,7 +49,8 @@ public class SessionNavigationTests {
         session.setCommand("m0-f0");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
 
-        //TODO: Figure out how to run a datum compute from here
+        session.setComputedDatum();
+        Assert.assertEquals(session.getNeededData(), null);
     }
 
     @Test
@@ -89,7 +90,6 @@ public class SessionNavigationTests {
         session.stepBack();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
-
     }
 
     @Test
@@ -110,7 +110,23 @@ public class SessionNavigationTests {
         session.stepBack();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+    }
 
+    @Test
+    public void testStepBackWithComputedDatum() {
+        SessionWrapper session = mApp.getSession();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m0");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        session.setCommand("m0-f0");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        session.setComputedDatum();
+        Assert.assertEquals(session.getNeededData(), null);
+
+        // Should pop 2 values off of the session stack so that the next needed data isn't a
+        // computed value
+        session.stepBack();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
     }
 
 }
