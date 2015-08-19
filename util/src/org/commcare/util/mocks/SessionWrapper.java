@@ -47,4 +47,8 @@ public class SessionWrapper extends CommCareSession {
     public void clearVolitiles() {
         initializer = null;
     }
+
+    public void setComputedDatum() {
+        setComputedDatum(getEvaluationContext());
+    }
 }
