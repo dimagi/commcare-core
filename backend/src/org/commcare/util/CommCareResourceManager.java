@@ -53,14 +53,17 @@ public class CommCareResourceManager {
      */
     public static void init(CommCarePlatform platform, String profileReference,
                             ResourceTable global, boolean forceInstall)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
         try {
             if (!global.isReady()) {
                 global.prepareResources(null, platform);
             }
 
             // First, see if the appropriate profile exists
-            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            Resource profile =
+                    global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             if (profile == null) {
                 // grab the local profile and parse it
@@ -75,8 +78,6 @@ public class CommCareResourceManager {
                 global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
                 global.prepareResources(null, platform);
             }
-            // If the profile does exist we might want to do an automatic
-            // upgrade. Leaving this for a future date....
         } catch (StorageFullException e) {
             e.printStackTrace();
         }
@@ -90,8 +91,10 @@ public class CommCareResourceManager {
         String profileRef = current.getAuthReference();
         stageUpgradeTable(profileRef, clearProgress);
     }
+
     /**
-     * @param clearProgress Clear the 'incoming' table of any partial update info.
+     * @param clearProgress Clear the 'incoming' table of any partial update
+     *                      info.
      */
     public void stageUpgradeTable(String profileRef, boolean clearProgress)
             throws UnfullfilledRequirementsException,
@@ -108,7 +111,9 @@ public class CommCareResourceManager {
     }
 
     public void prepareUpgradeResources()
-            throws UnfullfilledRequirementsException, UnresolvedResourceException, IllegalArgumentException, InstallCancelledException {
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException, IllegalArgumentException,
+            InstallCancelledException {
         if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
@@ -125,11 +130,13 @@ public class CommCareResourceManager {
             throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
         }
 
-        // Wipe out any existing records in the tempTable table. If there's _anything_ in there and
-        // the app isn't in the install state, that's a signal to recover.
+        // Wipe out any existing records in the tempTable table. If there's
+        // _anything_ in there and the app isn't in the install state, that's a
+        // signal to recover.
         tempTable.destroy();
 
-        // Fetch and prepare all resources (Likely exit point here if a resource can't be found)
+        // Fetch and prepare all resources (Likely exit point here if a
+        // resource can't be found)
         upgradeTable.prepareResources(masterTable, this.platform);
     }
 
@@ -147,19 +154,20 @@ public class CommCareResourceManager {
                 Logger.log("Resource", "Global table unstaged, upgrade table ready");
             }
 
-            //Now we basically want to replace the global resource table with the upgrade table
+            // Now we basically want to replace the global resource table with
+            // the upgrade table
 
-            //ok, so temporary should now be fully installed.
-            //make a copy of our table just in case.
+            // ok, so temporary should now be fully installed.  make a copy of
+            // our table just in case.
 
             Logger.log("Resource", "Copying global resources to recovery area");
             try {
                 masterTable.copyToTable(tempTable);
             } catch (RuntimeException e) {
-                //The _only_ time the recovery table should have data is if
-                //we were in the middle of an install. Since global hasn't been
-                //modified if there is a problem here we want to wipe out the
-                //recovery stub
+                // The _only_ time the recovery table should have data is if we
+                // were in the middle of an install. Since global hasn't been
+                // modified if there is a problem here we want to wipe out the
+                // recovery stub
 
                 //TODO: If this fails? Oof.
                 tempTable.destroy();
@@ -287,8 +295,13 @@ public class CommCareResourceManager {
         return resolved;
     }
 
+    /**
+     * Load the latest profile into the upgrade table.
+     */
     public void instantiateLatestProfile(String profileRef)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
 
         ensureValidState(masterTable, upgradeTable, tempTable);
 
@@ -317,16 +330,23 @@ public class CommCareResourceManager {
 
     private void loadProfile(ResourceTable incoming,
                              String profileRef)
-            throws UnfullfilledRequirementsException, UnresolvedResourceException, InstallCancelledException {
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
         locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
 
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations, "Application Descriptor");
+                CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations,
+                "Application Descriptor");
 
-        incoming.addResource(r, incoming.getInstallers().getProfileInstaller(false), null);
+        incoming.addResource(r,
+                incoming.getInstallers().getProfileInstaller(false),
+                null);
 
-        incoming.prepareResourcesUpTo(masterTable, this.platform, CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        incoming.prepareResourcesUpTo(masterTable,
+                this.platform,
+                CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
     public static boolean isUpgradeStaged(ResourceTable table) {
@@ -349,9 +369,7 @@ public class CommCareResourceManager {
 
     public boolean updateIsntNewer(Resource currentProfile) {
         Resource newProfile =
-            upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         return newProfile != null && !newProfile.isNewer(currentProfile);
     }
-
-
 }
