@@ -142,10 +142,11 @@ public class ResourceTable {
     }
 
     public void addResource(Resource resource, int status) {
-        // only add resource if they don't already exist
         if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
                 resource.getResourceId()).size() == 0) {
             addResourceInner(resource, status);
+        } else {
+            Logger.log("Resource", "Trying to add an already existing resource: " + resource.getResourceId());
         }
     }
 
@@ -169,17 +170,6 @@ public class ResourceTable {
             e.printStackTrace();
         }
     }
-
-    public void forceAddResource(Resource resource, ResourceInstaller initializer, String parentId) {
-        resource.setInstaller(initializer);
-        resource.setParentId(parentId);
-        for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId()).elements(); en.hasMoreElements(); ) {
-            Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
-            this.removeResource(r);
-        }
-        addResourceInner(resource, Resource.RESOURCE_STATUS_UNINITIALIZED);
-    }
-
 
     public Vector<Resource> getResourcesForParent(String parent) {
         Vector<Resource> v = new Vector<Resource>();
