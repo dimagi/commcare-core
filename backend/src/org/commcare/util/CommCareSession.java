@@ -18,6 +18,11 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -310,6 +315,23 @@ public class CommCareSession {
     public void setDatum(String keyId, String value) {
         frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
         syncState();
+    }
+
+    public void setComputedDatum(EvaluationContext ec) throws XPathException {
+        SessionDatum datum = getNeededDatum();
+        XPathExpression form;
+        try {
+            form = XPathParseTool.parseXPath(datum.getValue());
+        } catch (XPathSyntaxException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+            setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            setDatum("", "awful");
+        } else {
+            setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+        }
     }
 
     public void setXmlns(String xmlns) {
