@@ -269,7 +269,7 @@ public class CommCareSessionController {
         EvaluationContext context = session.getEvaluationContext(getIif());
 
         //TODO: This should be part of the next/back protocol in the session, not here.
-        if (datum.getNodeset() == null) {
+        if (next.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             try {
                 session.setComputedDatum(context);
             } catch (XPathException e) {
