@@ -43,7 +43,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
-    public static final String META_ID = "id";
+    public static final String META_ID = "userid";
     public static final String META_WRAPPED_KEY = "wrappedkey";
     public static final String META_SYNC_TOKEN = "synctoken";
 
