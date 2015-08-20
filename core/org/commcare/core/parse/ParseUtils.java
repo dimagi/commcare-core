@@ -34,9 +34,14 @@ public class ParseUtils {
             DataModelPullParser parser = new DataModelPullParser(stream, factory);
             parser.parse();
             sandbox.updateLastSync();
-        } catch (IOException | UnfullfilledRequirementsException |
-                XmlPullParserException | InvalidStructureException ioe) {
-            ioe.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } catch(UnfullfilledRequirementsException e){
+            e.printStackTrace();
+        } catch(XmlPullParserException e){
+            e.printStackTrace();
+        } catch(InvalidStructureException e) {
+            e.printStackTrace();
         }
     }
 }
