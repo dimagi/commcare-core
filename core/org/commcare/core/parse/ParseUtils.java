@@ -33,7 +33,6 @@ public class ParseUtils {
         try {
             DataModelPullParser parser = new DataModelPullParser(stream, factory);
             parser.parse();
-            sandbox.updateLastSync();
         } catch (IOException e){
             e.printStackTrace();
         } catch(UnfullfilledRequirementsException e){

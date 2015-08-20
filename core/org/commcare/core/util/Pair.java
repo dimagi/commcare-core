@@ -45,7 +45,6 @@ public class Pair<F, S> {
      * @return true if the underlying objects of the Pair are both considered
      *         equal
      */
-    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Pair)) {
             return false;
@@ -59,7 +58,6 @@ public class Pair<F, S> {
      *
      * @return a hashcode of the Pair
      */
-    @Override
     public int hashCode() {
         return (first == null ? 0 : first.hashCode()) ^ (second == null ? 0 : second.hashCode());
     }
