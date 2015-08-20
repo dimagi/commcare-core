@@ -5,7 +5,7 @@
 package org.commcare.modern.database;
 
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.core.util.Pair;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;

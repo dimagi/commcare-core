@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commcare.core.util;
+package org.commcare.modern.util;
 
 
 /**

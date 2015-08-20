@@ -1,6 +1,6 @@
 package org.commcare.api.persistence;
 
-import org.commcare.core.util.Pair;
+import org.commcare.modern.util.Pair;
 import org.commcare.modern.database.*;
 import org.javarosa.core.services.storage.Persistable;
 
