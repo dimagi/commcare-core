@@ -527,10 +527,9 @@ public class ResourceTable {
 
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
         if (processListener != null && processListener.processWasCancelled()) {
-
-            InstallCancelledException installException = 
-                new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId())
-            recordFailure(r, use);
+            InstallCancelledException installException =
+                new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
+            recordFailure(r, installException);
             throw installException;
         }
     }
