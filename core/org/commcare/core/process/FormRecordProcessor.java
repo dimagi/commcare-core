@@ -12,12 +12,8 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Utility methods for processing XML transactions against a user sandbox
@@ -25,27 +21,6 @@ import java.nio.charset.StandardCharsets;
  * Created by wpride1 on 7/21/15.
  */
 public class FormRecordProcessor {
-
-    public static void processXML(UserDataInterface sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-
-        try {
-            InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
-            process(sandbox, stream);
-        }catch(Exception e){
-            System.out.println("e1: " + e);
-            e.printStackTrace();
-        }
-    }
-
-    public static void processFile(UserDataInterface sandbox, File record) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-        try {
-            InputStream stream = new FileInputStream(record);
-            process(sandbox, stream);
-        }catch(Exception e){
-            System.out.println("e2: " + e);
-            e.printStackTrace();
-        }
-    }
 
     public static void process(UserDataInterface sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         try {
