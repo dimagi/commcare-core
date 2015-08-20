@@ -158,25 +158,33 @@ public class CommCareConfigEngine {
     }
 
     public void initFromLocalFileResource(String resource) {
-        //Get the location of the file. In the future, we'll treat this as the resource root
-        String root = resource.substring(0,resource.lastIndexOf(File.separator));
+        String reference = setFileSystemRootFromResourceAndReturnRelativeRef(resource);
 
-        //cut off the end
-        resource = resource.substring(resource.lastIndexOf(File.separator) + 1);
+        init(reference);
+    }
+
+    private String setFileSystemRootFromResourceAndReturnRelativeRef(String resource) {
+        int lastSeparator = resource.lastIndexOf(File.separator);
+
+        String rootPath;
+        String filePart;
+
+        if(lastSeparator == -1 ) {
+            rootPath = new File("").getAbsolutePath();
+            filePart = resource;
+        } else {
+            //Get the location of the file. In the future, we'll treat this as the resource root
+            rootPath = resource.substring(0,resource.lastIndexOf(File.separator));
+
+            //cut off the end
+            filePart = resource.substring(resource.lastIndexOf(File.separator) + 1);
+        }
 
         //(That root now reads as jr://file/)
-        ReferenceManager._().addReferenceFactory(new JavaFileRoot(root));
-
-        //(Now jr://resource/ points there too)
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://resource","jr://file"));
-
-        //(Now jr://resource/ points there too)
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media","jr://file"));
+        ReferenceManager._().addReferenceFactory(new JavaFileRoot(rootPath));
 
         //Now build the testing reference we'll use
-        String reference = "jr://file/" + resource;
-        
-        init(reference);
+        return "jr://file/" + filePart;
     }
 
     /**
