@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.commcare.core.models;
+package org.commcare.modern.models;
 
 /**
  * @author ctsims
