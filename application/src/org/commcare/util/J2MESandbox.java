@@ -33,7 +33,7 @@ public class J2MESandbox {
     }
 
     public User getLoggedInUser() {
-        PropertyManager._().getProperty(CommCareProperties.LOGGED_IN_USER);
+        return PropertyManager._().getProperty(CommCareProperties.LOGGED_IN_USER);
     }
 
     public void setLoggedInUser(User user) {

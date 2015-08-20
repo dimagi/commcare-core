@@ -35,6 +35,7 @@ sourceSets {
             srcDir 'backend/src'
             srcDir 'api'
             srcDir 'core'
+            srcDir 'modern'
         }
   }
   test {
