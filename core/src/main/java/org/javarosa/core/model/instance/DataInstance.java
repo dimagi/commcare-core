@@ -322,6 +322,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public void cleanCache() {
-        referenceCache = new CacheTable<TreeReference, T>();
+        referenceCache.clear();
     }
 }
