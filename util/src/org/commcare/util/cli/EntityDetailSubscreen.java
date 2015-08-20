@@ -42,7 +42,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         StringBuilder row = new StringBuilder();
         String header = field.getHeader().evaluate(ec);
 
-        addPaddedStringToBuilder(row, header, SCREEN_WIDTH / 2 );
+        CliUtils.addPaddedStringToBuilder(row, header, SCREEN_WIDTH / 2);
         row.append(" | ");
 
         String value;
@@ -52,28 +52,9 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         } else {
             value = (String)o;
         }
-        addPaddedStringToBuilder(row, value, SCREEN_WIDTH / 2);
+        CliUtils.addPaddedStringToBuilder(row, value, SCREEN_WIDTH / 2);
 
         return row.toString();
-    }
-    private void addPaddedStringToBuilder(StringBuilder builder, String s, int width) {
-        if (s.length() > width) {
-            builder.append(s, 0, width);
-            return;
-        }
-        builder.append(s);
-        if (s.length() != width) {
-            // add whitespace padding
-            for (int i = 0; i < width - s.length(); ++i) {
-                builder.append(' ');
-            }
-        }
-    }
-
-    private String pad(String s, int width) {
-        StringBuilder builder = new StringBuilder();
-        addPaddedStringToBuilder(builder, s, width);
-        return builder.toString();
     }
 
     @Override
@@ -108,7 +89,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             if(i == this.mCurrentIndex) {
                 title = "[" + title + "]";
             }
-            this.addPaddedStringToBuilder(sb, title, widthPerTab);
+            CliUtils.addPaddedStringToBuilder(sb, title, widthPerTab);
         }
         out.println(sb.toString());
     }

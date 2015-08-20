@@ -66,7 +66,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            addPaddedStringToBuilder(row, s, widthHint);
+            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -90,7 +90,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             } catch (Exception e) {
                 //Really don't care if it didn't work
             }
-            addPaddedStringToBuilder(row, s, widthHint);
+            CliUtils.addPaddedStringToBuilder(row, s, widthHint);
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -100,25 +100,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
 
-    private void addPaddedStringToBuilder(StringBuilder builder, String s, int width) {
-        if (s.length() > width) {
-            builder.append(s, 0, width);
-            return;
-        }
-        builder.append(s);
-        if (s.length() != width) {
-            // add whitespace padding
-            for (int i = 0; i < width - s.length(); ++i) {
-                builder.append(' ');
-            }
-        }
-    }
 
-    private String pad(String s, int width) {
-        StringBuilder builder = new StringBuilder();
-        addPaddedStringToBuilder(builder, s, width);
-        return builder.toString();
-    }
 
     private Vector<TreeReference> inflateReference(TreeReference nodeset, EvaluationContext context) {
         return context.expandReference(nodeset);
@@ -126,12 +108,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public void prompt(PrintStream out) {
-        out.println(pad("", 5) + mHeader);
+
+        int maxLength = String.valueOf(mChoices.length).length();
+        out.println(CliUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
         for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
-            out.println(pad(String.valueOf(i), 4) + ")" + d);
+            out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
     }
 
