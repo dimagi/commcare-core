@@ -357,6 +357,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
 
+        this.getMainInstance().cleanCache();
+
         triggerTriggerables(deleteRef);
         return newIndex;
     }

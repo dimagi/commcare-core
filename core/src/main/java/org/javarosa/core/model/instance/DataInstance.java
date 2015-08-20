@@ -320,4 +320,8 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     public void setCacheHost(CacheHost cacheHost) {
         this.mCacheHost = cacheHost;
     }
+
+    public void cleanCache() {
+        referenceCache = new CacheTable<TreeReference, T>();
+    }
 }
