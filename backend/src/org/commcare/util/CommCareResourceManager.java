@@ -31,17 +31,14 @@ public class CommCareResourceManager {
         this.tempTable = tempTable;
     }
 
-    public void setListeners(TableStateListener listener,
-                             InstallStatListener installStatListener) {
-        // TODO PLM: this needs to be split up
-        upgradeTable.setStateListener(listener);
-        masterTable.setStateListener(listener);
+    public void setUpgradeListeners(TableStateListener tableListener,
+                                    ProcessCancelled cancelListener,
+                                    InstallStatListener installStatListener) {
+        masterTable.setStateListener(tableListener);
 
+        upgradeTable.setStateListener(tableListener);
+        upgradeTable.setProcessListener(cancelListener);
         upgradeTable.setInstallStatListener(installStatListener);
-
-        if (listener instanceof ProcessCancelled) {
-            upgradeTable.setProcessListener((ProcessCancelled)listener);
-        }
     }
 
     /**

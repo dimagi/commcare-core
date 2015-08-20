@@ -356,6 +356,7 @@ public class ResourceTable {
                             theFailure = use;
                         }
                         if (handled) {
+                            recordSuccess(r);
                             break;
                         }
                     }
@@ -366,6 +367,7 @@ public class ResourceTable {
                             ReferenceManager._().DeriveReference(location.getLocation()),
                             this, instance, upgrade);
                     if (handled) {
+                        recordSuccess(r);
                         break;
                     }
                 } catch (InvalidReferenceException ire) {
@@ -537,6 +539,12 @@ public class ResourceTable {
     private void recordFailure(Resource resource, Exception e) {
         if (installStatListener != null) {
             installStatListener.recordResourceInstallFailure(resource, e);
+        }
+    }
+
+    private void recordSuccess(Resource resource) {
+        if (installStatListener != null) {
+            installStatListener.recordResourceInstallSuccess(resource);
         }
     }
 
