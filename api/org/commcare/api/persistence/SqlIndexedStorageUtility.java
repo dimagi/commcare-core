@@ -121,7 +121,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                     new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             Vector<Integer> ids = new Vector<Integer>();
             while(rs.next()){
-                ids.add(rs.getInt(org.commcare.core.database.DatabaseHelper.ID_COL));
+                ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
             return ids;
         } catch (InstantiationException e) {
@@ -147,7 +147,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             if(!rs.next()){
                 throw new NoSuchElementException();
             }
-            byte[] mBytes = rs.getBytes(org.commcare.core.database.DatabaseHelper.DATA_COL);
+            byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
         } catch (SQLException |InstantiationException | IllegalAccessException e) {
@@ -237,8 +237,8 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             connection = this.getConnection();
-            resultSet = SqlHelper.executeSql(connection, "SELECT " + org.commcare.core.database.DatabaseHelper.ID_COL + " , " +
-                    org.commcare.core.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
+            resultSet = SqlHelper.executeSql(connection, "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
+                    org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -268,7 +268,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Connection c = getConnection();
             ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
-            byte[] caseBytes = rs.getBytes(org.commcare.core.database.DatabaseHelper.DATA_COL);
+            byte[] caseBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
         } catch (Exception e){

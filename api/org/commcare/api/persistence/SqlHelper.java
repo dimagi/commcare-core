@@ -1,7 +1,7 @@
 package org.commcare.api.persistence;
 
-import org.commcare.core.util.Pair;
-import org.commcare.core.database.*;
+import org.commcare.modern.util.Pair;
+import org.commcare.modern.database.*;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -86,7 +86,7 @@ public class SqlHelper {
     }
 
     public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields, String[]values, Persistable p){
-        org.commcare.core.database.TableBuilder mTableBuilder = new org.commcare.core.database.TableBuilder(storageKey);
+        org.commcare.modern.database.TableBuilder mTableBuilder = new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
 
@@ -161,7 +161,7 @@ public class SqlHelper {
         String[] fieldnames = map.keySet().toArray(new String[0]);
         Object[] values = map.values().toArray(new Object[0]);
 
-        Pair<String, String[]> where = org.commcare.core.database.DatabaseHelper.createWhere(fieldnames, values, p);
+        Pair<String, String[]> where = org.commcare.modern.database.DatabaseHelper.createWhere(fieldnames, values, p);
 
         String query = "UPDATE " + storageKey + " SET " + DatabaseHelper.DATA_COL + " = ? WHERE " + where.first + ";";
 
@@ -169,7 +169,7 @@ public class SqlHelper {
         try {
             preparedStatement = c.prepareStatement(query);
 
-            byte[] blob = org.commcare.core.database.TableBuilder.toBlob(p);
+            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
             /*
@@ -211,7 +211,7 @@ public class SqlHelper {
         try {
             preparedStatement = c.prepareStatement(query);
 
-            byte[] blob = org.commcare.core.database.TableBuilder.toBlob(p);
+            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
             preparedStatement.setInt(2, id);

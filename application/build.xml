@@ -112,6 +112,7 @@
                 <sources>
                     <source dir="${dir.src}"/>
                     <source dir="${dir.commcare}/src/"/>
+					<source dir="${dir.commcare.core}/"/>
                     <source dir="${dir.commcare.cases}/src/"/>
 
                     <!--Taking this out for now...-->

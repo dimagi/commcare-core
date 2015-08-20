@@ -31,6 +31,4 @@ public interface UserDataInterface{
 
     String getSyncToken();
 
-    void updateLastSync();
-
 }

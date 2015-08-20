@@ -7,6 +7,7 @@
     <property name="dir.jrlib" value="${dir.root}/../javarosa/build/libs/"/>
     <property name="dir.root.case" value="${dir.root}/cases/"/>
 	<property name="dir.root.api" value="${dir.root}/api/"/>
+	<property name="dir.root.core" value="${dir.root}/core/"/>
 
     <target name="init" description="set classpath and make needed directories">
         <mkdir dir="lib/"/>
@@ -24,15 +25,16 @@
     </target>
 
     <target name="compile" depends="clean,extract-libs,init" description="compile the source">
+	    <javac srcdir="${dir.root.core}/" destdir="bin/" classpathref="classpath" debug="true"
+	           debuglevel="lines,source" source="1.7" target="1.7"/>
         <javac srcdir="${dir.root.case}/src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
         <javac srcdir="src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
-			   
-	           <javac srcdir="${dir.root.api}/" destdir="bin/" classpathref="classpath" debug="true"
-	                  debuglevel="lines,source" source="1.7" target="1.7"/>
-	           <javac srcdir="src/" destdir="bin/" classpathref="classpath" debug="true"
-	                  debuglevel="lines,source" source="1.7" target="1.7"/>
+	    <javac srcdir="${dir.root.api}/" destdir="bin/" classpathref="classpath" debug="true"
+	           debuglevel="lines,source" source="1.7" target="1.7"/>
+	    <javac srcdir="src/" destdir="bin/" classpathref="classpath" debug="true"
+	           debuglevel="lines,source" source="1.7" target="1.7"/>
     </target>
 
     <target name="package" depends="compile" description="package binary into jar">

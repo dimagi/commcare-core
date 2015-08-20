@@ -1,14 +1,11 @@
 package org.commcare.api.persistence;
 
-import org.commcare.core.interfaces.UserDataInterface;
-import org.commcare.core.models.UserSandboxMetaData;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-
-import java.util.Date;
 
 /**
  * A sandbox using SqlIndexedStorageUtility
@@ -21,7 +18,6 @@ public class UserSqlSandbox implements UserDataInterface{
     private final SqlIndexedStorageUtility<User> userStorage;
     private final SqlIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqlIndexedStorageUtility<FormInstance> appFixtureStorage;
-    private final SqlIndexedStorageUtility<UserSandboxMetaData> metaDataStorage;
     private User user;
     String username;
 
@@ -38,7 +34,6 @@ public class UserSqlSandbox implements UserDataInterface{
         userStorage = new SqlIndexedStorageUtility<User>(User.class, factory, username, "User");
         userFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "UserFixture");
         appFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "AppFixture");
-        metaDataStorage = new SqlIndexedStorageUtility<UserSandboxMetaData>(UserSandboxMetaData.class, factory, username, "Meta");
     }
 
 
@@ -87,28 +82,4 @@ public class UserSqlSandbox implements UserDataInterface{
         //TODO
         return "TODO";
     }
-
-    public SqlIndexedStorageUtility<UserSandboxMetaData> getMetaStorage() {
-        return metaDataStorage;
-    }
-
-    public void updateLastSync(){
-        SqlIndexedStorageUtility<UserSandboxMetaData> mStorage = getMetaStorage();
-        UserSandboxMetaData mUserSandboxMetaData = new UserSandboxMetaData();
-        mStorage.write(mUserSandboxMetaData);
-    }
-
-    public Date getLastSync(){
-        SqlIndexedStorageUtility<UserSandboxMetaData> mStorage = getMetaStorage();
-        if(mStorage == null){
-            return null;
-        }
-        UserSandboxMetaData mUserSandboxMetaData = mStorage.read(1);
-        if(mUserSandboxMetaData == null){
-            return null;
-        }
-        Date mDate = (Date) mUserSandboxMetaData.getMetaData(UserSandboxMetaData.META_LAST_SYNC);
-        return mDate;
-    }
-
 }

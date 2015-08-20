@@ -43,7 +43,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
-    public static final String META_ID = "id";
+    public static final String META_ID = "userid";
     public static final String META_WRAPPED_KEY = "wrappedkey";
     public static final String META_SYNC_TOKEN = "synctoken";
 
@@ -235,7 +235,7 @@ public class User implements Persistable, Restorable, IMetaData {
         } else if(META_USERNAME.equals(fieldName)) {
             return username;
         } else if(META_ID.equals(fieldName)) {
-            return Integer.valueOf(recordId);
+            return new Integer(recordId);
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
         } else if (META_SYNC_TOKEN.equals(fieldName)) {

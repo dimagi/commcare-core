@@ -3,7 +3,7 @@ package org.commcare.core.process;
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
-import org.commcare.core.database.SandboxUtils;
+import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.suite.model.User;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
@@ -49,7 +49,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
+        if (ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
             if (stockbase == null) {
                 stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
             } else {
@@ -57,7 +57,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 stockbase.rebase(instance.getBase());
             }
             return stockbase;
-        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
+        } else if (ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
             if (casebase == null) {
                 casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
             } else {
@@ -65,7 +65,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 casebase.rebase(instance.getBase());
             }
             return casebase;
-        } else if (instance.getReference().contains("fixture")) {
+        } else if (instance.getReference().indexOf("fixture") != -1) {
             //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
             String userId = "";
             User u = mSandbox.getLoggedInUser();
@@ -90,7 +90,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 throw new RuntimeException("Could not load fixture for src: " + ref);
             }
         }
-        if (instance.getReference().contains("session")) {
+        if (instance.getReference().indexOf("session") != -1) {
             if(this.mPlatform == null) {
                 throw new RuntimeException("Cannot generate session instance with undeclared platform!");
             }

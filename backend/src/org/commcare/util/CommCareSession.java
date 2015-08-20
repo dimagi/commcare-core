@@ -647,7 +647,7 @@ public class CommCareSession {
      * popped into the current session. False if the stack was empty
      * and the session is over.
      */
-    private boolean finishAndPop() {
+    protected boolean finishAndPop() {
         cleanStack();
 
         if (frameStack.empty()) {

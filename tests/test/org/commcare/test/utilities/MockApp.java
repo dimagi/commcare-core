@@ -1,21 +1,9 @@
 package org.commcare.test.utilities;
 
-import org.commcare.resources.model.installers.BasicInstaller;
-import org.commcare.resources.model.installers.LocaleFileInstaller;
-import org.commcare.resources.model.installers.MediaInstaller;
-import org.commcare.resources.model.installers.ProfileInstaller;
-import org.commcare.resources.model.installers.SuiteInstaller;
-import org.commcare.resources.model.installers.XFormInstaller;
-import org.commcare.suite.model.PropertySetter;
-import org.commcare.suite.model.Text;
-import org.commcare.suite.model.graph.BubbleSeries;
-import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.XYSeries;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
-import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -57,18 +45,6 @@ public class MockApp {
 
 
     private static PrototypeFactory setupStaticStorage() {
-        String[] prototypes = new String[] {BasicInstaller.class.getName(),
-                LocaleFileInstaller.class.getName(),
-                SuiteInstaller.class.getName(),
-                ProfileInstaller.class.getName(),
-                MediaInstaller.class.getName(),
-                XFormInstaller.class.getName(),
-                Text.class.getName(),
-                PropertySetter.class.getName(),
-                Graph.class.getName(),
-                XYSeries.class.getName(),
-                BubbleSeries.class.getName()};
-        PrototypeManager.registerPrototypes(prototypes);
         PrototypeFactory prototypeFactory = new PrototypeFactory();
         //Set up our storage
 

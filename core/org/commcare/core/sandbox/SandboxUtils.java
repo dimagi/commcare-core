@@ -1,4 +1,4 @@
-package org.commcare.core.database;
+package org.commcare.core.sandbox;
 
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.process.CommCareInstanceInitializer;
@@ -63,7 +63,7 @@ public class SandboxUtils {
     public static EvaluationContext getInstanceContexts(UserDataInterface sandbox, String instanceId, String instanceRef){
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
-        Hashtable<String, DataInstance> instances = new Hashtable<>();
+        Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
         ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
         edi.initialize(iif, instanceId);
         instances.put(instanceId, edi);
