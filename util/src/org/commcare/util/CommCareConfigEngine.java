@@ -164,12 +164,12 @@ public class CommCareConfigEngine {
     }
 
     private String setFileSystemRootFromResourceAndReturnRelativeRef(String resource) {
-        int lastSeperator = resource.lastIndexOf(File.separator);
+        int lastSeparator = resource.lastIndexOf(File.separator);
 
         String rootPath;
         String filePart;
 
-        if(lastSeperator == -1 ) {
+        if(lastSeparator == -1 ) {
             rootPath = new File("").getAbsolutePath();
             filePart = resource;
         } else {
