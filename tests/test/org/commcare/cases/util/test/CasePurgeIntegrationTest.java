@@ -1,7 +1,7 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.util.CasePurgeFilter;
-import org.commcare.core.database.SandboxUtils;
+import org.commcare.modern.database.SandboxUtils;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;

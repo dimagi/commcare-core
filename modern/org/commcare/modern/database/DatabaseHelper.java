@@ -2,7 +2,7 @@
  *
  */
 
-package org.commcare.core.database;
+package org.commcare.modern.database;
 
 import org.commcare.core.models.EncryptedModel;
 import org.commcare.core.util.Pair;

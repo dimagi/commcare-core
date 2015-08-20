@@ -1,4 +1,4 @@
-package org.commcare.core.database;
+package org.commcare.modern.database;
 
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.process.CommCareInstanceInitializer;

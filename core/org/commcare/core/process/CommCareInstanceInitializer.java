@@ -3,7 +3,7 @@ package org.commcare.core.process;
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
-import org.commcare.core.database.SandboxUtils;
+import org.commcare.modern.database.SandboxUtils;
 import org.commcare.suite.model.User;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
