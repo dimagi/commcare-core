@@ -229,7 +229,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return 0;
     }
 
-    @Override
+
     public SqlStorageIterator<T> iterate() {
 
         Connection connection = null;
@@ -350,7 +350,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         dynamicIndices.addElement(filterIndex);
     }
 
-    @Override
+
     public Iterator<T> iterator() {
         return iterate();
     }

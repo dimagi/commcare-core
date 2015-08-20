@@ -371,12 +371,12 @@ public class CommCareConfigEngine {
     final static private class QuickStateListener implements TableStateListener{
         int lastComplete = 0;
 
-        @Override
+
         public void resourceStateUpdated(ResourceTable table) {
 
         }
 
-        @Override
+
         public void incrementProgress(int complete, int total) {
             int diff = complete - lastComplete;
             lastComplete = complete;

@@ -62,7 +62,7 @@ public class UserSqlSandbox implements UserDataInterface{
         return appFixtureStorage;
     }
 
-    @Override
+
     public User getLoggedInUser() {
         SqlIndexedStorageUtility<User> userStorage = getUserStorage();
         SqlStorageIterator<User> iterator = userStorage.iterate();
@@ -72,17 +72,17 @@ public class UserSqlSandbox implements UserDataInterface{
         return user;
     }
 
-    @Override
+
     public void setLoggedInUser(User user) {
         this.user = user;
     }
 
-    @Override
+
     public void setSyncToken(String syncToken) {
         //TODO
     }
 
-    @Override
+
     public String getSyncToken() {
         //TODO
         return "TODO";

@@ -37,7 +37,7 @@ public class EntityScreen extends Screen {
     
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
-    @Override
+
     public void init(SessionWrapper session) throws CommCareSessionException{
         
         this.mPlatform = session.getPlatform();
@@ -160,7 +160,7 @@ public class EntityScreen extends Screen {
         return parent.expandReference(nodeset);
     }
 
-    @Override
+
     public void prompt(PrintStream out) {
         if (this.mTitle != null) {
             out.println(this.mTitle);
@@ -192,7 +192,7 @@ public class EntityScreen extends Screen {
         return value;
     }
 
-    @Override
+
     public void updateSession(CommCareSession session, String input) {
         try {
             int i = Integer.parseInt(input);

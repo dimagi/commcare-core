@@ -34,7 +34,7 @@ public class MenuScreen extends Screen {
     
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
-    @Override
+
     public void init(SessionWrapper session) throws CommCareSessionException{
         
         String root = deriveMenuRoot(session);
@@ -133,7 +133,7 @@ public class MenuScreen extends Screen {
         }
     }
 
-    @Override
+
     public void prompt(PrintStream out) {
         if (this.mTitle != null) {
             out.println(this.mTitle);
@@ -145,7 +145,7 @@ public class MenuScreen extends Screen {
         }
     }
 
-    @Override
+
     public void updateSession(CommCareSession session, String input) {
         try {
             int i = Integer.parseInt(input);
