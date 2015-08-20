@@ -1,7 +1,6 @@
 package org.commcare.util.cli;
 
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
@@ -10,170 +9,65 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
-import java.io.PrintStream;
-import java.util.Vector;
-
 /**
- * Screen for allowing the user to make a selection for an entity datum.
+ * Compound Screen to select an entity from a list and then display the one or more details that
+ * are associated with the entity.
  *
- * Does not currently support tile based selects or detail screens.
+ * Does not currently support tile based selects
  *
  * @author ctsims
  */
-public class EntityScreen extends Screen {
-    private final int SCREEN_WIDTH = 100;
-
-    private TreeReference[] mChoices;
-    private String[] rows;
-    private SessionWrapper mSession;
-    private MockUserDataSandbox mSandbox;
-    private SessionDatum needed;
-    private String mHeader;
+public class EntityScreen extends CompoundScreenHost {
+    private TreeReference mCurrentSelection;
+    int currentDetail;
 
     private String mTitle;
 
-    //TODO: This is now ~entirely generic other than the wrapper, can likely be
-    //moved and we can centralize its usage in the other platforms
-    @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException{
+    private SessionWrapper mSession;
+    private MockUserDataSandbox mSandbox;
+    private CommCarePlatform mPlatform;
+
+    private Detail mShortDetail;
+    private Detail[] mLongDetailList;
+
+    private SessionDatum mNeededDatum;
+
+    Subscreen<EntityScreen> mCurrentScreen;
+
+    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException {
+        mNeededDatum = session.getNeededDatum();
+
         this.mSandbox = sandbox;
         this.mSession = session;
+        this.mPlatform = platform;
 
-        needed = session.getNeededDatum();
-        String detail = needed.getShortDetail();
-        if(detail == null) { 
-            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + needed.getDataId());
+        String detailId = mNeededDatum.getShortDetail();
+        if(detailId == null) {
+            throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
-        Detail shortDetail = platform.getDetail(detail);
-        if(shortDetail == null) {
-            throw new CommCareSessionException("Missing detail definition for: " + detail);
-        } else {
-            mTitle = shortDetail.getTitle().evaluate(session.getEvaluationContext()).getName();
+        mShortDetail = platform.getDetail(detailId);
+
+        if(mShortDetail == null) {
+            throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
-        mHeader = this.createHeader(shortDetail);
-
-        Vector<TreeReference> references = inflateReference(needed.getNodeset());
-
-        rows = new String[references.size()];
-
-        int i = 0;
-        for (TreeReference entity : references) {
-            rows[i] = createRow(entity, shortDetail);
-            ++i;
-        }
-
-
-        this.mChoices = new TreeReference[references.size()];
-        references.copyInto(mChoices);
-        this.mTitle = this.getGeneralTitle(mTitle, this.mSandbox, platform);
-    }
-
-    private String createRow(TreeReference entity, Detail shortDetail) {
-        EvaluationContext context = new EvaluationContext(mSession.getEvaluationContext(), entity);
-
-        DetailField[] fields = shortDetail.getFields();
-
-        StringBuilder row = new StringBuilder();
-        int i = 0;
-        for (DetailField field : fields) {
-            Object o = field.getTemplate().evaluate(context);
-            String s;
-            if (!(o instanceof String)) {
-                s = "";
-            } else {
-                s = (String)o;
-            }
-
-            int widthHint = SCREEN_WIDTH / fields.length;
-            try {
-                widthHint = Integer.parseInt(field.getTemplateWidthHint());
-            } catch (Exception e) {
-                //Really don't care if it didn't work
-            }
-            addPaddedStringToBuilder(row, s, widthHint);
-            i++;
-            if (i != fields.length) {
-                row.append(" | ");
-            }
-        }
-        return row.toString();
-    }
-
-    //So annoying how identical this is...
-    private String createHeader(Detail shortDetail) {
-        EvaluationContext context = mSession.getEvaluationContext();
-
-        DetailField[] fields = shortDetail.getFields();
-
-        StringBuilder row = new StringBuilder();
-        int i = 0;
-        for (DetailField field : fields) {
-            String s = field.getHeader().evaluate(context);
-
-            int widthHint = SCREEN_WIDTH / fields.length;
-            try {
-                widthHint = Integer.parseInt(field.getHeaderWidthHint());
-            } catch (Exception e) {
-                //Really don't care if it didn't work
-            }
-            addPaddedStringToBuilder(row, s, widthHint);
-            i++;
-            if (i != fields.length) {
-                row.append(" | ");
-            }
-        }
-        return row.toString();
-    }
-
-
-    private void addPaddedStringToBuilder(StringBuilder builder, String s, int width) {
-        if (s.length() > width) {
-            builder.append(s, 0, width);
-            return;
-        }
-        builder.append(s);
-        if (s.length() != width) {
-            // add whitespace padding
-            for (int i = 0; i < width - s.length(); ++i) {
-                builder.append(' ');
-            }
-        }
-    }
-
-    private String pad(String s, int width) {
-        StringBuilder builder = new StringBuilder();
-        addPaddedStringToBuilder(builder, s, width);
-        return builder.toString();
-    }
-
-    private Vector<TreeReference> inflateReference(TreeReference nodeset) {
-        EvaluationContext parent = this.mSession.getEvaluationContext();
-        return parent.expandReference(nodeset);
+        mCurrentScreen = new EntityListSubscreen(mShortDetail, mNeededDatum, session.getEvaluationContext());
     }
 
     @Override
-    public void prompt(PrintStream out) {
-        if (this.mTitle != null) {
-            out.println(this.mTitle);
-            out.println();
-        }
-
-        out.println(pad("", 5) + mHeader);
-        out.println("==============================================================================================");
-
-        for (int i = 0; i < mChoices.length; ++i) {
-            String d = rows[i];
-            out.println(pad(String.valueOf(i), 4) + ")" + d);
-        }
+    protected String getScreenTitle() {
+        return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
     }
 
-    private String getValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
+    @Override
+    public Subscreen getCurrentScreen() {
+        return mCurrentScreen;
+    }
+
+    private String getReturnValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference(true);
@@ -190,14 +84,51 @@ public class EntityScreen extends Screen {
     }
 
     @Override
-    public void updateSession(CommCareSession session, String input) {
-        try {
-            int i = Integer.parseInt(input);
+    protected void updateSession(CommCareSession session) {
+        String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
+                mNeededDatum, mSession.getEvaluationContext());
+        session.setDatum(mNeededDatum.getDataId(), selectedValue);
 
-            String selection = getValueFromSelection(this.mChoices[i], needed, mSession.getEvaluationContext());
-            session.setDatum(needed.getDataId(), selection);
-        } catch (NumberFormatException e) {
-            //This will result in things just executing again, which is fine.
+    }
+
+    public void setHighlightedEntity(TreeReference selection) {
+        this.mCurrentSelection = selection;
+    }
+
+    public void initDetailScreens() {
+        Detail d = mPlatform.getDetail(this.mNeededDatum.getLongDetail());
+        if(d == null) {
+            mLongDetailList = null;
+            return;
         }
+        mLongDetailList = d.getDetails();
+        if(mLongDetailList == null || mLongDetailList.length == 0) {
+            mLongDetailList = new Detail[] {d};
+        }
+    }
+
+    public boolean setCurrentScreenToDetail() {
+        initDetailScreens();
+
+        if(mLongDetailList == null) {
+            return false;
+        }
+
+        setCurrentScreenToDetail(0);
+        return true;
+    }
+
+    public void setCurrentScreenToDetail(int index) {
+        EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
+
+        this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+    }
+
+    private String[] getDetailListTitles(EvaluationContext subContext) {
+        String[] titles = new String[mLongDetailList.length];
+        for(int i = 0 ; i < mLongDetailList.length ; ++i) {
+            titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
+        }
+        return titles;
     }
 }
