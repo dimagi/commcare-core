@@ -350,7 +350,7 @@ public class CommCarePlatform implements CommCareInstance {
         IStorageIterator iterator = utility.iterate();
 
         while(iterator.hasMore()){
-            installedSuites.add((Suite)utility.read(iterator.nextID()));
+            installedSuites.addElement((Suite)utility.read(iterator.nextID()));
         }
         /*
         for (Integer i : suites) {
