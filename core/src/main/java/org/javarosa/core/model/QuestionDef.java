@@ -49,7 +49,9 @@ import java.util.Vector;
  */
 public class QuestionDef implements IFormElement, Localizable {
     private int id;
-    // reference to a location in the model to store data in
+
+    // reference to the location in the model from which to load data for the question,
+    // and store data back to when question is answered
     private XPathReference binding;
 
     // The type of widget. eg TextInput,Slider,List etc.

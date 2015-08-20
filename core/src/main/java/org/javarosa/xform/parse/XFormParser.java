@@ -377,7 +377,7 @@ public class XFormParser {
      *                                     of keywords that we should apply spec extension parsing logic to.
      * @param namespacesToSuppressWarnings is a Vector of namespaces for which
      *                                     we should suppress parsing warnings on
-     * @param namespacesParseInner         is a Vector of namespaces for which
+     * @param namespacesToParseInner         is a Vector of namespaces for which
      *                                     we should continue parsing inner elements
      */
     public void setupAllSpecExtensions(Hashtable<String, Vector<String>> namespacesToKeywords,
@@ -929,6 +929,10 @@ public class XFormParser {
         return question;
     }
 
+    /**
+     * Parses an xml element representing a question in a form, and returns the
+     * resulting QuestionDef
+     */
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
         QuestionDef question = new QuestionDef();
         question.setID(serialQuestionID++); //until we come up with a better scheme
