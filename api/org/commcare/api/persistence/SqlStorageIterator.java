@@ -28,13 +28,13 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
         }
     }
 
-
+    @Override
     public int numRecords() {
         return count;
     }
 
 
-
+    @Override
     public int peekID() {
         try {
             return resultSet.getInt(org.commcare.core.database.DatabaseHelper.ID_COL);
@@ -43,7 +43,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
         }
     }
 
-
+    @Override
     public int nextID() {
         int nextID = peekID();
         try {
@@ -56,7 +56,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
         return nextID;
     }
 
-
+    @Override
     public E nextRecord() {
         byte[] data = new byte[0];
         try {
@@ -69,7 +69,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
         return storage.readFromBytes(data);
     }
 
-
+    @Override
     public boolean hasMore() {
         try {
             return (!resultSet.isClosed());
@@ -79,17 +79,17 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
         }
     }
 
-
+    @Override
     public boolean hasNext() {
         return hasMore();
     }
 
-
+    @Override
     public E next() {
         return nextRecord();
     }
 
-
+    @Override
     public void remove() {
         //unsupported
     }

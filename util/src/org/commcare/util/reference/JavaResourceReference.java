@@ -21,42 +21,42 @@ public class JavaResourceReference implements Reference {
         mHost = host;
     }
 
-
+    @Override
     public boolean doesBinaryExist() throws IOException {
         return true;
     }
 
-
+    @Override
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Resource references are read only!");
     }
 
-
+    @Override
     public InputStream getStream() throws IOException {
         return mHost.getResourceAsStream(mLocalPart);
     }
 
-
+    @Override
     public String getURI() {
         return "jr://resource" + mLocalPart;
     }
 
-
+    @Override
     public boolean isReadOnly() {
         return true;
     }
 
-
+    @Override
     public void remove() throws IOException {
         throw new IOException("Resource references are read only!");
     }
 
-
+    @Override
     public String getLocalURI() {
         return null;
     }
 
-
+    @Override
     public Reference[] probeAlternativeReferences() {
         return new Reference[0];
     }

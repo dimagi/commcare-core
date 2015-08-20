@@ -48,7 +48,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initStockParser();
     }
 
-
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
@@ -83,14 +83,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                  * (non-Javadoc)
                  * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
                  */
-
+                @Override
                 public void commit(String parsed) throws IOException {}
 
                 /*
                  * (non-Javadoc)
                  * @see org.javarosa.xml.ElementParser#parse()
                  */
-
+                @Override
                 public String parse() throws InvalidStructureException,
                        IOException, XmlPullParserException,
                        UnfullfilledRequirementsException {
@@ -147,7 +147,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                          * (non-Javadoc)
                          * @see org.commcare.xml.FixtureXmlParser#storage()
                          */
-
+                        @Override
                         public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
                                 fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();

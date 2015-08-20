@@ -98,7 +98,7 @@ public class StockXmlParserTests extends TestCase {
                         /* (non-Javadoc)
                          * @see org.commcare.xml.StockXmlParsers#commit(org.commcare.cases.stock.Stock[])
                          */
-
+                        @Override
                         public void commit(Ledger[] parsed) throws IOException {
                             for(Ledger s : parsed) {
                                 stockResults.addElement(s);
@@ -108,7 +108,7 @@ public class StockXmlParserTests extends TestCase {
                         /* (non-Javadoc)
                          * @see org.commcare.xml.StockXmlParsers#retrieve(java.lang.String)
                          */
-
+                        @Override
                         public Ledger retrieveOrCreate(String entityId) {
                             return null;
                         }
