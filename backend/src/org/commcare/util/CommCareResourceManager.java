@@ -1,6 +1,7 @@
 package org.commcare.util;
 
 import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.InstallStatListener;
 import org.commcare.resources.model.ProcessCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -346,11 +347,18 @@ public class CommCareResourceManager {
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
-    public static boolean isUpgradeStaged(ResourceTable table) {
+    public static boolean isTableStaged(ResourceTable table) {
         return (table.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE &&
                 table.isReady() &&
                 !table.isEmpty());
+    }
 
+    public boolean isUpgradeTableStaged() {
+        return isTableStaged(upgradeTable);
+    }
+
+    public void clearUpgradeTable() {
+        upgradeTable.clear();
     }
 
     private void ensureValidState() {
@@ -368,5 +376,8 @@ public class CommCareResourceManager {
         Resource newProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         return newProfile != null && !newProfile.isNewer(currentProfile);
+    }
+    public Resource getMasterProfile() {
+        return masterTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 }
