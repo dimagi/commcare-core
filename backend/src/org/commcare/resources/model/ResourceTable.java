@@ -17,9 +17,9 @@ import java.util.Stack;
 import java.util.Vector;
 
 /**
- * <p>A Resource Table maintains a set of Resource Records,
+ * A Resource Table maintains a set of Resource Records,
  * resolves dependencies between records, and provides hooks
- * for maintenance, updating, and initializing resources.</p>
+ * for maintenance, updating, and initializing resources.
  *
  * @author ctsims
  */
@@ -46,9 +46,9 @@ public class ResourceTable {
 
     private TableStateListener stateListener = null;
     private ProcessCancelled processListener = null;
+    private InstallStatListener installStatListener = null;
 
     private int numberOfLossyRetries = 3;
-
 
     /**
      * For Serialization Only!
@@ -509,6 +509,7 @@ public class ResourceTable {
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);
             } catch (UnreliableSourceException use) {
+                recordFailure(r, use);
                 aFailure = use;
                 Logger.log("install", "Potentially lossy install attempt # " +
                         (i + 1) + " of " + (numberOfLossyRetries + 1) +
@@ -526,7 +527,17 @@ public class ResourceTable {
 
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
         if (processListener != null && processListener.processWasCancelled()) {
-            throw new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
+
+            InstallCancelledException installException = 
+                new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId())
+            recordFailure(r, use);
+            throw installException;
+        }
+    }
+
+    private void recordFailure(Resource resource, Exception e) {
+        if (installStatListener != null) {
+            installStatListener.recordResourceInstallFailure(resource, e);
         }
     }
 
@@ -999,6 +1010,10 @@ public class ResourceTable {
 
     public void setProcessListener(ProcessCancelled processListener) {
         this.processListener = processListener;
+    }
+
+    public void setInstallStatListener(InstallStatListener listener) {
+        this.installStatListener = listener;
     }
 
     /**

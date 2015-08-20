@@ -30,10 +30,13 @@ public class CommCareResourceManager {
         this.tempTable = tempTable;
     }
 
-    public void setListeners(TableStateListener listener) {
+    public void setListeners(TableStateListener listener,
+                             InstallStatListener installStatListener) {
         // TODO PLM: this needs to be split up
         upgradeTable.setStateListener(listener);
         masterTable.setStateListener(listener);
+
+        upgradeTable.setInstallStatListener(installStatListener);
 
         if (listener instanceof ProcessCancelled) {
             upgradeTable.setProcessListener((ProcessCancelled)listener);
