@@ -538,13 +538,13 @@ public class ResourceTable {
 
     private void recordFailure(Resource resource, Exception e) {
         if (installStatListener != null) {
-            installStatListener.recordResourceInstallFailure(resource, e);
+            installStatListener.recordResourceInstallFailure(resource.getResourceId(), e);
         }
     }
 
     private void recordSuccess(Resource resource) {
         if (installStatListener != null) {
-            installStatListener.recordResourceInstallSuccess(resource);
+            installStatListener.recordResourceInstallSuccess(resource.getResourceId());
         }
     }
 

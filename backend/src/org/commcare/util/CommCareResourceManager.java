@@ -1,7 +1,6 @@
 package org.commcare.util;
 
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.InstallStatListener;
 import org.commcare.resources.model.ProcessCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
@@ -16,10 +15,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.util.Vector;
 
 public class CommCareResourceManager {
-    private final CommCarePlatform platform;
-    private final ResourceTable masterTable;
-    private final ResourceTable upgradeTable;
-    private final ResourceTable tempTable;
+    protected final CommCarePlatform platform;
+    protected final ResourceTable masterTable;
+    protected final ResourceTable upgradeTable;
+    protected final ResourceTable tempTable;
 
     public CommCareResourceManager(CommCarePlatform platform,
                                    ResourceTable masterTable,
@@ -32,13 +31,11 @@ public class CommCareResourceManager {
     }
 
     public void setUpgradeListeners(TableStateListener tableListener,
-                                    ProcessCancelled cancelListener,
-                                    InstallStatListener installStatListener) {
+                                    ProcessCancelled cancelListener) {
         masterTable.setStateListener(tableListener);
 
         upgradeTable.setStateListener(tableListener);
         upgradeTable.setProcessListener(cancelListener);
-        upgradeTable.setInstallStatListener(installStatListener);
     }
 
     /**
@@ -306,21 +303,31 @@ public class CommCareResourceManager {
         if (upgradeProfile == null) {
             loadProfile(upgradeTable, profileRef);
         } else {
-            if (!tempTable.isEmpty()) {
-                throw new RuntimeException("expected temp table to be empty");
-            }
-            tempTable.destroy();
-            loadProfile(tempTable, profileRef);
-            Resource tempProfile =
-                    tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-            if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
-                upgradeTable.destroy();
-                tempTable.copyToTable(upgradeTable);
-            }
-
-            tempTable.destroy();
+            loadProfileViaTemp(profileRef, upgradeProfile);
         }
+    }
+
+    private void loadProfileViaTemp(String profileRef, Resource upgradeProfile)
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
+        // TODO PLM: this doesn't collect any resource download stats because
+        // the resources are first being downloaded into tempTable which isn't
+        // being tracked by ResourceDownloadStats
+        if (!tempTable.isEmpty()) {
+            throw new RuntimeException("Expected temp table to be empty");
+        }
+        tempTable.destroy();
+        loadProfile(tempTable, profileRef);
+        Resource tempProfile =
+                tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+        if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
+            upgradeTable.destroy();
+            tempTable.copyToTable(upgradeTable);
+        }
+
+        tempTable.destroy();
     }
 
     private void loadProfile(ResourceTable incoming,
@@ -354,12 +361,7 @@ public class CommCareResourceManager {
         return isTableStaged(upgradeTable);
     }
 
-    public void clearUpgradeTable() {
-        upgradeTable.clear();
-    }
-
     private void ensureValidState() {
-        // Make sure everything's in a good state
         if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
@@ -374,6 +376,7 @@ public class CommCareResourceManager {
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         return newProfile != null && !newProfile.isNewer(currentProfile);
     }
+
     public Resource getMasterProfile() {
         return masterTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
