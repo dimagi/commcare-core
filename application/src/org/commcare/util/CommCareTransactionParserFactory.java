@@ -66,7 +66,7 @@ public class CommCareTransactionParserFactory extends org.commcare.core.parse.Co
         String namespace = parser.getNamespace();
         String name = parser.getName();
 
-        Transaction Parser superParser = super.getParser(parser);
+        TransactionParser superParser = super.getParser(parser);
         if(superParser != null){
             return superParser;
         }
