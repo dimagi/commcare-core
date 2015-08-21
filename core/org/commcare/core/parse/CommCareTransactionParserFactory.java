@@ -52,7 +52,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
+        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.indexOf(namespace) != -1) {
             if (stockParser == null) {
                 throw new RuntimeException("Couldn't process Stock transaction without initialization!");
             }
