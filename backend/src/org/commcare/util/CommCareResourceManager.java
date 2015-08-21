@@ -287,50 +287,7 @@ public class CommCareResourceManager {
         return resolved;
     }
 
-    /**
-     * Load the latest profile into the upgrade table.
-     */
-    public void instantiateLatestProfile(String profileRef)
-            throws UnfullfilledRequirementsException,
-            UnresolvedResourceException,
-            InstallCancelledException {
-
-        ensureValidState();
-
-        Resource upgradeProfile =
-                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-        if (upgradeProfile == null) {
-            loadProfile(upgradeTable, profileRef);
-        } else {
-            loadProfileViaTemp(profileRef, upgradeProfile);
-        }
-    }
-
-    private void loadProfileViaTemp(String profileRef, Resource upgradeProfile)
-            throws UnfullfilledRequirementsException,
-            UnresolvedResourceException,
-            InstallCancelledException {
-        // TODO PLM: this doesn't collect any resource download stats because
-        // the resources are first being downloaded into tempTable which isn't
-        // being tracked by ResourceDownloadStats
-        if (!tempTable.isEmpty()) {
-            throw new RuntimeException("Expected temp table to be empty");
-        }
-        tempTable.destroy();
-        loadProfile(tempTable, profileRef);
-        Resource tempProfile =
-                tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-        if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
-            upgradeTable.destroy();
-            tempTable.copyToTable(upgradeTable);
-        }
-
-        tempTable.destroy();
-    }
-
-    private void loadProfile(ResourceTable incoming,
+    protected void loadProfile(ResourceTable incoming,
                              String profileRef)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
@@ -361,7 +318,7 @@ public class CommCareResourceManager {
         return isTableStaged(upgradeTable);
     }
 
-    private void ensureValidState() {
+    protected void ensureValidState() {
         if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
