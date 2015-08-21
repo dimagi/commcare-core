@@ -17,8 +17,6 @@ import java.util.Vector;
  */
 public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
-    EvaluationContext mSessionContext;
-
     private final int SCREEN_WIDTH = 100;
 
     private TreeReference[] mChoices;
@@ -26,7 +24,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String mHeader;
 
 
-    public EntityListSubscreen(Detail shortDetail, SessionDatum needed, EvaluationContext context) throws CommCareSessionException{
+    public EntityListSubscreen(Detail shortDetail, SessionDatum needed, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);
 
         Vector<TreeReference> references = inflateReference(needed.getNodeset(), context);
@@ -38,7 +36,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             rows[i] = createRow(entity, shortDetail, context);
             ++i;
         }
-
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
@@ -99,9 +96,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         return row.toString();
     }
 
-
-
-
     private Vector<TreeReference> inflateReference(TreeReference nodeset, EvaluationContext context) {
         return context.expandReference(nodeset);
     }
@@ -118,8 +112,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
     }
-
-
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) {

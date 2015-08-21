@@ -17,7 +17,7 @@ public abstract class CompoundScreenHost extends Screen {
      * NOTE: This must be non-null as soon as the compound screen init() is finished.
      *
      * @return The current subscreen to be receiving/submitting input from the CLI.
-     * */
+     */
     public abstract Subscreen getCurrentScreen();
 
     @Override
@@ -27,7 +27,7 @@ public abstract class CompoundScreenHost extends Screen {
 
     @Override
     public final boolean handleInputAndUpdateSession(CommCareSession session, String input) throws CommCareSessionException {
-        if(getCurrentScreen().handleInputAndUpdateHost(input, this)) {
+        if (getCurrentScreen().handleInputAndUpdateHost(input, this)) {
             this.updateSession(session);
             return false;
         }

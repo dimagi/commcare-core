@@ -1,11 +1,5 @@
 package org.commcare.util.cli;
 
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
-import org.commcare.util.mocks.SessionWrapper;
-
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
@@ -16,7 +10,7 @@ import java.io.PrintStream;
  *
  * Created by ctsims on 8/20/2015.
  */
-public abstract class Subscreen<T extends CompoundScreenHost>  {
+public abstract class Subscreen<T extends CompoundScreenHost> {
 
     /**
      * The subscreen should process the provided input, and update any relevant state in its
@@ -29,7 +23,7 @@ public abstract class Subscreen<T extends CompoundScreenHost>  {
      * should update the session and return control to the application.
      *
      * @param input User input
-     * @param host The Compound Screen that should be updated based on the user's input
+     * @param host  The Compound Screen that should be updated based on the user's input
      * @return True if the compound screen is ready and the session should move to the next step.
      * False if current Compound Screen should continue executing.
      */
@@ -39,5 +33,4 @@ public abstract class Subscreen<T extends CompoundScreenHost>  {
      * Display this subscreen
      */
     public abstract void prompt(PrintStream out);
-
 }

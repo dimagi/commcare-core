@@ -16,22 +16,19 @@ import java.io.PrintStream;
  * Created by ctsims on 8/20/2015.
  */
 public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
-    EvaluationContext mSessionContext;
-
     private final int SCREEN_WIDTH = 100;
 
     private String[] rows;
-    private DetailField[] mFields;
     private String[] mDetailListTitles;
 
     private int mCurrentIndex;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
-        mFields = detail.getFields();
-        rows = new String[mFields.length];
+        DetailField[] fields = detail.getFields();
+        rows = new String[fields.length];
 
-        for(int i = 0 ; i < mFields.length ; ++i) {
-            rows[i] = createRow(mFields[i], subContext);
+        for (int i = 0; i < fields.length; ++i) {
+            rows[i] = createRow(fields[i], subContext);
         }
         mDetailListTitles = detailListTitles;
 
@@ -47,7 +44,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
         String value;
         Object o = field.getTemplate().evaluate(ec);
-        if(!(o instanceof String)) {
+        if (!(o instanceof String)) {
             value = "{ " + field.getTemplateForm() + " data}";
         } else {
             value = (String)o;
@@ -60,7 +57,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     @Override
     public void prompt(PrintStream out) {
         boolean multipleInputs = false;
-        if(mDetailListTitles.length > 1) {
+        if (mDetailListTitles.length > 1) {
             createTabHeader(out);
             out.println("==============================================================================================");
             multipleInputs = true;
@@ -72,7 +69,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         }
 
         String msg;
-        if(multipleInputs) {
+        if (multipleInputs) {
             msg = "Press enter to select this case, or the number of the detail tab to view";
         } else {
             msg = "Press enter to select this case";
@@ -84,9 +81,9 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private void createTabHeader(PrintStream out) {
         StringBuilder sb = new StringBuilder();
         int widthPerTab = (int)(SCREEN_WIDTH * 1.0 / mDetailListTitles.length);
-        for(int i = 0 ; i < mDetailListTitles.length; ++i) {
+        for (int i = 0; i < mDetailListTitles.length; ++i) {
             String title = i + ") " + mDetailListTitles[i];
-            if(i == this.mCurrentIndex) {
+            if (i == this.mCurrentIndex) {
                 title = "[" + title + "]";
             }
             CliUtils.addPaddedStringToBuilder(sb, title, widthPerTab);
@@ -97,12 +94,12 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) {
-        if(input.trim().equals("")) {
+        if (input.trim().equals("")) {
             return true;
         }
         try {
             int i = Integer.parseInt(input);
-            if(i >= 0 && i < mDetailListTitles.length) {
+            if (i >= 0 && i < mDetailListTitles.length) {
                 host.setCurrentScreenToDetail(i);
                 return false;
             }

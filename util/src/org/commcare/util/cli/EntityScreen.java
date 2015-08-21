@@ -21,12 +21,8 @@ import org.javarosa.model.xform.XPathReference;
  */
 public class EntityScreen extends CompoundScreenHost {
     private TreeReference mCurrentSelection;
-    int currentDetail;
-
-    private String mTitle;
 
     private SessionWrapper mSession;
-    private MockUserDataSandbox mSandbox;
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;
@@ -34,12 +30,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     private SessionDatum mNeededDatum;
 
-    Subscreen<EntityScreen> mCurrentScreen;
+    private Subscreen<EntityScreen> mCurrentScreen;
 
     public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException {
         mNeededDatum = session.getNeededDatum();
 
-        this.mSandbox = sandbox;
         this.mSession = session;
         this.mPlatform = platform;
 
@@ -95,7 +90,7 @@ public class EntityScreen extends CompoundScreenHost {
         this.mCurrentSelection = selection;
     }
 
-    public void initDetailScreens() {
+    private void initDetailScreens() {
         Detail d = mPlatform.getDetail(this.mNeededDatum.getLongDetail());
         if(d == null) {
             mLongDetailList = null;
