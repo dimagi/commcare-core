@@ -7,6 +7,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
@@ -101,6 +102,7 @@ public class XFormParser {
     private static Hashtable<String, Integer> typeMappings;
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
+    private static Vector<QuestionExtensionParser> extensionParsers;
 
     private Reader _reader;
     private Document _xmldoc;
@@ -162,6 +164,7 @@ public class XFormParser {
         initTypeMappings();
         modelPrototypes = new PrototypeFactoryDeprecated();
         submissionParsers = new Vector<SubmissionParser>();
+        extensionParsers = new Vector<>();
     }
 
     private static void initProcessingRules() {
@@ -935,6 +938,19 @@ public class XFormParser {
      */
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
         QuestionDef question = new QuestionDef();
+
+        // Go through all of the registered extension parsers, and if it is applicable to the
+        // element we are currently parsing, add the parsed extension data to the QuestionDef
+        // being created for that element
+        for (QuestionExtensionParser parser : extensionParsers) {
+            if (parser.canParse(e)) {
+                QuestionDataExtension extension = parser.parse(e);
+                if (extension != null) {
+                    question.addExtension(extension);
+                }
+            }
+        }
+
         question.setID(serialQuestionID++); //until we come up with a better scheme
 
         Vector usedAtts = new Vector();
@@ -2565,7 +2581,7 @@ public class XFormParser {
                 }
             }
 
-            verifyRepeatMemberBindings(child, instance, (isRepeat ? (GroupDef)child : parentRepeat));
+            verifyRepeatMemberBindings(child, instance, (isRepeat ? (GroupDef) child : parentRepeat));
         }
     }
 
@@ -2952,6 +2968,10 @@ public class XFormParser {
     public static void registerHandler(String type, IElementHandler handler) {
         topLevelHandlers.put(type, handler);
         groupLevelHandlers.put(type, handler);
+    }
+
+    public static void registerExtensionParser(QuestionExtensionParser parser) {
+        extensionParsers.add(parser);
     }
 
     /**

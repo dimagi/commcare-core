@@ -63,6 +63,8 @@ public class QuestionDef implements IFormElement, Localizable {
 
     private Hashtable<String, QuestionString> mQuestionStrings;
 
+    Vector<QuestionDataExtension> extensions;
+
     Vector observers;
 
     public QuestionDef() {
@@ -74,6 +76,7 @@ public class QuestionDef implements IFormElement, Localizable {
         setControlType(controlType);
         observers = new Vector();
         mQuestionStrings = new Hashtable<String, QuestionString>();
+        extensions = new Vector<>();
         
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label 
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
@@ -301,5 +304,13 @@ public class QuestionDef implements IFormElement, Localizable {
             textID = textID.substring(0, textID.indexOf(";")); //trim away the form specifier
         }
         this.getQuestionString(XFormParser.LABEL_ELEMENT).setTextId(textID);
+    }
+
+    public void addExtension(QuestionDataExtension extension) {
+        extensions.add(extension);
+    }
+
+    public Vector<QuestionDataExtension> getExtensions() {
+        return this.extensions;
     }
 }
