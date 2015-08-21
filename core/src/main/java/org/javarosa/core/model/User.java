@@ -26,10 +26,10 @@ import java.util.Hashtable;
 public class User implements Persistable, Restorable, IMetaData {
     public static final String STORAGE_KEY = "USER";
 
-    protected static final String ADMINUSER = "admin";
-    protected static final String STANDARD = "standard";
-    protected static final String DEMO_USER = "demo_user";
-    protected static final String KEY_USER_TYPE = "user_type";
+    public static final String ADMINUSER = "admin";
+    public static final String STANDARD = "standard";
+    public static final String DEMO_USER = "demo_user";
+    public static final String KEY_USER_TYPE = "user_type";
     public static final String TYPE_DEMO = "demo";
 
     public void setWrappedKey(byte[] key) {
@@ -54,11 +54,11 @@ public class User implements Persistable, Restorable, IMetaData {
 
     static private User demo_user;
 
-    protected boolean rememberMe = false;
+    public boolean rememberMe = false;
 
     public String syncToken;
 
-    private byte[] wrappedKey;
+    public byte[] wrappedKey;
 
     public Hashtable<String, String> properties = new Hashtable<String, String>();
 
