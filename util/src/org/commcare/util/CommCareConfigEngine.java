@@ -3,6 +3,7 @@
  */
 package org.commcare.util;
 
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -25,7 +26,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -254,7 +254,7 @@ public class CommCareConfigEngine {
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
-        CommCareResourceManager.init(platform, profileReference, this.table, true);
+        ResourceManager.init(platform, profileReference, this.table, true);
     }
 
     public void initEnvironment() {
@@ -450,7 +450,7 @@ public class CommCareConfigEngine {
             // actually pull in all the new references
 
             System.out.println("Checking for updates....");
-            CommCareResourceManager resourceManager = new CommCareResourceManager(platform, global, updateTable, recoveryTable);
+            ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
             resourceManager.stageUpgradeTable(authRef, true);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {

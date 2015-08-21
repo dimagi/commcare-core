@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.resources;
 
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.ProcessCancelled;
@@ -8,22 +8,23 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
 
-public class CommCareResourceManager {
+public class ResourceManager {
     protected final CommCarePlatform platform;
     protected final ResourceTable masterTable;
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
 
-    public CommCareResourceManager(CommCarePlatform platform,
-                                   ResourceTable masterTable,
-                                   ResourceTable upgradeTable,
-                                   ResourceTable tempTable) {
+    public ResourceManager(CommCarePlatform platform,
+                           ResourceTable masterTable,
+                           ResourceTable upgradeTable,
+                           ResourceTable tempTable) {
         this.platform = platform;
         this.masterTable = masterTable;
         this.upgradeTable = upgradeTable;

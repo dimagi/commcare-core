@@ -3,6 +3,7 @@
  */
 package org.commcare.util;
 
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.javarosa.log.activity.DeviceReportState;
@@ -30,7 +31,7 @@ public class ResourceTableSubreport implements DeviceReportElement {
 
         o.startTag(DeviceReportState.XMLNS, "globaltable_subreport");
         try {
-            for(Resource r : CommCareResourceManager.getResourceListFromProfile(table)) {
+            for(Resource r : ResourceManager.getResourceListFromProfile(table)) {
                 o.startTag(DeviceReportState.XMLNS, "resource");
                 try {
                     o.attribute(null, "id", r.getResourceId());

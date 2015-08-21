@@ -12,7 +12,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareInitializer;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareResourceManager;
+import org.commcare.resources.ResourceManager;
 import org.commcare.util.InitializationListener;
 import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
@@ -78,8 +78,8 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 
                 boolean staged = false;
 
-                CommCareResourceManager resourceManager =
-                    new CommCareResourceManager(CommCareContext._().getManager(),
+                ResourceManager resourceManager =
+                    new ResourceManager(CommCareContext._().getManager(),
                             global, upgrade, recovery);
                 while(!staged) {
                     try {
@@ -127,7 +127,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     public void resourceStateUpdated(ResourceTable table) {
                         int score = 0;
                         int max = 0;
-                        Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
+                        Vector<Resource> resources = ResourceManager.getResourceListFromProfile(table);
                         max = resources.size() * INSTALL_SCORE;
 
                         if(max <= INSTALL_SCORE*2) {
@@ -225,7 +225,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                 String logMsg = "Upgrade attempt unsuccesful. Probably due to network. ";
 
                 //Count resources
-                Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(upgrade);
+                Vector<Resource> resources = ResourceManager.getResourceListFromProfile(upgrade);
                 int downloaded = 0;
 
                 for(Resource r : resources ){

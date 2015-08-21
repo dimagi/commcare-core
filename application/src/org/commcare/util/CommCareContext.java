@@ -12,6 +12,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -219,7 +220,7 @@ public class CommCareContext {
                             setCurrentOOMMessage(CommCareStartupInteraction.failSafeText("commcare.install.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again."));
                             int score = 0;
                             int max = 0;
-                            Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
+                            Vector<Resource> resources = ResourceManager.getResourceListFromProfile(table);
                             max = resources.size() * INSTALL_SCORE;
 
                             if(max <= INSTALL_SCORE*2) {
@@ -261,7 +262,7 @@ public class CommCareContext {
                             throw new RuntimeException(message);
                         }
                     }
-                    CommCareResourceManager.init(manager, profileRef, global, false);
+                    ResourceManager.init(manager, profileRef, global, false);
                     updateProgress(60);
 
                 } catch (UnfullfilledRequirementsException e) {
@@ -275,7 +276,7 @@ public class CommCareContext {
                             try {
                                 //If we're going to try to run commcare with an incompatible version, first clear everything
                                 RetrieveGlobalResourceTable().clear();
-                                CommCareResourceManager.init(manager, CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
+                                ResourceManager.init(manager, CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
                             } catch (UnfullfilledRequirementsException e1) {
                                 //Maybe we should try to clear the table here, too?
                                 throw e1;
