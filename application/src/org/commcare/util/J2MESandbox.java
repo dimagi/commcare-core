@@ -7,8 +7,8 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.user.model.User;
 
-import main.java.org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import main.java.org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 
 public class J2MESandbox {
 

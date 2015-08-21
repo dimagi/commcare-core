@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.NoSuchElementException;
 
 public class J2MEUserXmlParser extends UserXmlParser {
-    
+
     String syncToken;
 
     public J2MEUserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, String syncToken) {
