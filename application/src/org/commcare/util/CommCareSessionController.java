@@ -29,11 +29,13 @@ import org.javarosa.j2me.util.media.ImageUtils;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.lang.RuntimeException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -63,7 +65,7 @@ public class CommCareSessionController {
     }
 
     public void populateMenu(List list, String menu) {
-        populateMenu(list,menu,null);
+        populateMenu(list, menu, null);
     }
 
     public void populateMenu(List list, String menu, MultimediaListener listener) {
@@ -89,25 +91,25 @@ public class CommCareSessionController {
                 } catch (XPathSyntaxException e) {
                     e.printStackTrace();
                 }
-                if(menu.equals(m.getId())){
+                if (menu.equals(m.getId())){
                     for(int i = 0; i < m.getCommandIds().size(); ++i) {
                         try {
                             String id = m.getCommandIds().elementAt(i);
                             XPathExpression relevant = m.getCommandRelevance(i);
-                            if(relevant != null) {
+                            if (relevant != null) {
                                 if (ec == null) {
                                     ec = session.getEvaluationContext(getIif());
                                 }
-                                if(XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
+                                if (XPathFuncExpr.toBoolean(relevant.eval(ec)).booleanValue() == false) {
                                     continue;
                                 }
                             }
                             Entry e = suite.getEntries().get(id);
-                            if(e.getXFormNamespace() == null) {
+                            if (e.getXFormNamespace() == null) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its
                                 //datums are not already present
-                                if(session.getNeededDatum(e) == null) {
+                                if (session.getNeededDatum(e) == null) {
                                     continue;
                                 }
                             }
@@ -115,7 +117,7 @@ public class CommCareSessionController {
                             int location = list.size();
                             list.append(CommCareUtil.getMenuText(e.getText(),suite,location), ImageUtils.getImage(e.getImageURI()));
                             //TODO: All these multiple checks are pretty sloppy
-                            if(listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
+                            if (listener != null && (e.getAudioURI() != null && !"".equals(e.getAudioURI()))) {
                                 listener.registerAudioTrigger(location, e.getAudioURI());
                             }
                             suiteTable.put(new Integer(location),suite);
@@ -126,11 +128,11 @@ public class CommCareSessionController {
                     }
 
                 }
-                else if(m.getRoot().equals(menu)) {
+                else if (m.getRoot().equals(menu)) {
                     int location = list.size();
                     list.append(CommCareUtil.getMenuText(m.getName(), suite,location),  ImageUtils.getImage(m.getImageURI()));
                     //TODO: All these multiple checks are pretty sloppy
-                    if(listener != null && (m.getAudioURI() != null && !"".equals(m.getAudioURI()))) {
+                    if (listener != null && (m.getAudioURI() != null && !"".equals(m.getAudioURI()))) {
                         listener.registerAudioTrigger(location, m.getAudioURI());
                     }
                     suiteTable.put(new Integer(location),suite);
@@ -143,7 +145,7 @@ public class CommCareSessionController {
     public Suite getSelectedSuite(int selectedItem) {
         Integer selected = new Integer(selectedItem);
 
-        if(suiteTable.containsKey(selected)) {
+        if (suiteTable.containsKey(selected)) {
             return suiteTable.get(selected);
         } else {
             return null;
@@ -153,7 +155,7 @@ public class CommCareSessionController {
     public Menu getSelectedMenu(int selectedItem) {
         Integer selected = new Integer(selectedItem);
 
-        if(menuTable.containsKey(selected)) {
+        if (menuTable.containsKey(selected)) {
             return menuTable.get(selected);
         } else {
             return null;
@@ -163,7 +165,7 @@ public class CommCareSessionController {
     public Entry getSelectedEntry(int selectedItem) {
         Integer selected = new Integer(selectedItem);
 
-        if(entryTable.containsKey(selected)) {
+        if (entryTable.containsKey(selected)) {
             return entryTable.get(selected);
         } else {
             return null;
@@ -172,7 +174,7 @@ public class CommCareSessionController {
 
     public void chooseSessionItem(int item) {
         Menu m = getSelectedMenu(item);
-        if(m == null) {
+        if (m == null) {
             Entry e = getSelectedEntry(item);
             session.setCommand(e.getCommandId());
         } else {
@@ -183,10 +185,10 @@ public class CommCareSessionController {
 
     public void next() {
         String next = session.getNeededData();
-        if(next == null) {
+        if (next == null) {
             String xmlns = session.getForm();
 
-            if(xmlns == null) {
+            if (xmlns == null) {
                 //This command is a view, not an entry. We can comfortably return to the previous step.
                 this.back();
                 return;
@@ -194,12 +196,12 @@ public class CommCareSessionController {
             //create form entry session
             Entry entry = session.getCurrentEntry();
 
-            if(failedAssertion(entry.getAssertions())) {
+            if (failedAssertion(entry.getAssertions())) {
                 return;
             }
 
             String title;
-            if(CommCareSense.sense()) {
+            if (CommCareSense.sense()) {
                 title = null;
             } else {
                 title = Localizer.clearArguments(entry.getText().evaluate());
@@ -218,7 +220,7 @@ public class CommCareSessionController {
             CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
                 protected void goHome() {
                     //Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
-                    if(session.finishExecuteAndPop(session.getEvaluationContext(getIif()))) {
+                    if (session.finishExecuteAndPop(session.getEvaluationContext(getIif()))) {
                         next();
                     } else {
                         J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
@@ -232,11 +234,11 @@ public class CommCareSessionController {
             return;
         }
 
-        if(next.equals(SessionFrame.STATE_COMMAND_ID)) {
+        if (next.equals(SessionFrame.STATE_COMMAND_ID)) {
             //You only get commands from menus, so the current
             //command has to be a menu, we should load a menu state
 
-            if(session.getCommand() == null) {
+            if (session.getCommand() == null) {
                 //We're at the root selection, we need to go home
                 session.clearAllState();
                 J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
@@ -266,23 +268,12 @@ public class CommCareSessionController {
         SessionDatum datum = session.getNeededDatum();
         EvaluationContext context = session.getEvaluationContext(getIif());
 
-
         //TODO: This should be part of the next/back protocol in the session, not here.
-        if(datum.getNodeset() == null) {
-            //TODO: Generally this call makes a state happen, so this is going to fuck up going back.
-            XPathExpression form;
+        if (next.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             try {
-                form = XPathParseTool.parseXPath(datum.getValue());
-            } catch (XPathSyntaxException e) {
-                //TODO: What.
-                e.printStackTrace();
+                session.setComputedDatum(context);
+            } catch (XPathException e) {
                 throw new RuntimeException(e.getMessage());
-            }
-            if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-                CommCareSessionController.this.session.setXmlns(XPathFuncExpr.toString(form.eval(context.getMainInstance(), context)));
-                CommCareSessionController.this.session.setDatum("", "awful");
-            } else {
-                CommCareSessionController.this.session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(context.getMainInstance(), context)));
             }
             next();
             return;
@@ -291,7 +282,7 @@ public class CommCareSessionController {
 
         Detail shortDetail = suite.getDetail(datum.getShortDetail());
         Detail longDetail = null;
-        if(datum.getLongDetail() != null) {
+        if (datum.getLongDetail() != null) {
             longDetail = suite.getDetail(datum.getLongDetail());
         }
 
@@ -315,7 +306,7 @@ public class CommCareSessionController {
                 TreeReference selected = nes.get(id);
                 TreeReference outcome = XPathReference.getPathExpr(datum.getValue()).getReference().contextualize(selected);
                 AbstractTreeElement element = context.resolveReference(outcome);
-                if(element == null) {
+                if (element == null) {
                     throw new RuntimeException("No reference resolved for: " + outcome.toString());
                 }
                 String outputData = element.getValue().uncast().getString();
@@ -326,7 +317,7 @@ public class CommCareSessionController {
 
         J2MEDisplay.startStateWithLoadingScreen(select, new ProgressIndicator() {
             public double getProgress() {
-                if(nes.loaded()) {
+                if (nes.loaded()) {
                     return select.getProgressIndicator().getProgress();
                 } else {
                     return nes.getProgress();
@@ -334,7 +325,7 @@ public class CommCareSessionController {
             }
 
             public String getCurrentLoadingStatus() {
-                if(nes.loaded()) {
+                if (nes.loaded()) {
                     return select.getProgressIndicator().getCurrentLoadingStatus();
                 } else {
                     return nes.getCurrentLoadingStatus();
@@ -342,7 +333,7 @@ public class CommCareSessionController {
             }
 
             public int getIndicatorsProvided() {
-                if(nes.loaded()) {
+                if (nes.loaded()) {
                     return select.getProgressIndicator().getIndicatorsProvided();
                 } else {
                     return nes.getIndicatorsProvided();
@@ -357,7 +348,7 @@ public class CommCareSessionController {
         //Check to see whether there are any issues here:
         EvaluationContext ec = session.getEvaluationContext(getIif());
         Text assertionFailure = assertionSet.getAssertionFailure(ec);
-        if(assertionFailure != null) {
+        if (assertionFailure != null) {
             final String failureMsg = assertionFailure.evaluate(ec);
             CommCareHandledExceptionState assertFailState = new CommCareHandledExceptionState() {
 
@@ -382,7 +373,7 @@ public class CommCareSessionController {
     CommCareInstanceInitializer initializer = null;
 
     private InstanceInitializationFactory getIif() {
-        if(initializer == null) {
+        if (initializer == null) {
             initializer = new CommCareInstanceInitializer(CommCareStatic.appStringCache, this.session);
         }
         return initializer;
