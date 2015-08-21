@@ -15,14 +15,11 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -106,14 +103,22 @@ public class ApplicationHost {
 
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
+        boolean screenIsRedrawing = false;
 
         while (s != null) {
             try {
-                s.init(mPlatform, mSession, mSandbox);
+                if(!screenIsRedrawing) {
+                    s.init(mPlatform, mSession, mSandbox);
+                }
+
                 System.out.println("\n\n\n\n\n\n");
+                System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+
+                System.out.println("====================");
                 s.prompt(System.out);
                 System.out.print("> ");
 
+                screenIsRedrawing = false;
                 String input = reader.readLine();
 
                 //TODO: Command language
@@ -135,8 +140,10 @@ public class ApplicationHost {
                     }
                 }
 
-                s.updateSession(mSession, input);
-                s = getNextScreen();
+                screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
+                if(!screenIsRedrawing) {
+                    s = getNextScreen();
+                }
             } catch (CommCareSessionException ccse) {
                 printErrorAndContinue("Error during session execution:", ccse);
 
