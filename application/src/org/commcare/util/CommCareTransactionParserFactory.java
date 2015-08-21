@@ -19,6 +19,7 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.commcare.util.J2MESandbox;
 
 import java.io.IOException;
 
@@ -37,10 +38,9 @@ import java.io.IOException;
  * @author ctsims
  *
  */
-public class CommCareTransactionParserFactory implements TransactionParserFactory {
+public class CommCareTransactionParserFactory extends org.commcare.core.parse.CommCareTransactionParserFactory {
 
     private int[] caseTallies;
-    private String restoreId;
     private boolean tolerant;
     private String message;
     private OrderedHashtable<String, String> messages = new OrderedHashtable<String,String>();
@@ -51,7 +51,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
      * false if processing should proceed as long as it is possible.
      */
     public CommCareTransactionParserFactory(boolean tolerant) {
-        restoreId = null;
+        super(new J2MESandbox());
+        syncToken = null;
         caseTallies = new int[3];
         this.tolerant = tolerant;
     }
@@ -63,15 +64,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-        if ("case".equalsIgnoreCase(name)) {
-            return new AttachableCaseXMLParser(parser, caseTallies, tolerant, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
-        } else if("registration".equalsIgnoreCase(name)) {
-            //TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the
-            //restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
-            return new UserXmlParser(parser, restoreId);
-        }  else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(namespace)) {
-            return new LedgerXmlParsers(parser, (IStorageUtilityIndexed)StorageManager.getStorage(Ledger.STORAGE_KEY));
-        } else if("message".equalsIgnoreCase(name)) {
+
+        superParser = super.getParser(parser);
+        if(superParser != null){
+            return superParser;
+        }
+
+        if("message".equalsIgnoreCase(name)) {
             return new TransactionParser<String>(parser) {
 
             String nature = parser.getAttributeValue(null, "nature");
@@ -92,30 +91,33 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 }
             };
 
-        } else if ("sync".equalsIgnoreCase(name)) {
-            return new TransactionParser<String>(parser) {
-                public void commit(String parsed) throws IOException {
-                    //do nothing
-                }
-
-                public String parse() throws XmlPullParserException, IOException, InvalidStructureException {
-                    if(this.nextTagInBlock("Sync")){
-                        this.checkNode("restore_id");
-                        String newId = parser.nextText().trim();
-                        if(restoreId != null) {
-                            Logger.log("TRANSACTION","Warning: Multiple restore ID's seen:" + restoreId + "," + newId);
-                        }
-                        restoreId = newId;
-                        return restoreId;
-                    } else {
-                        throw new InvalidStructureException("<Sync> block missing <restore_id>", this.parser);
-                    }
-                }
-            };
-        } else if("fixture".equalsIgnoreCase(name)) {
-            return new FixtureXmlParser(parser);
         }
         return null;
+    }
+
+    public void initCaseParser() {
+        caseParser = new TransactionParserFactory() {
+            CaseXmlParser created = null;
+
+            public TransactionParser<Case> getParser(KXmlParser parser) {
+                return new AttachableCaseXMLParser(parser, caseTallies, tolerant, sandbox.getCaseStorage());
+                return created;
+            }
+        };
+    }
+
+    public void initUserParser() {
+        userParser = new TransactionParserFactory() {
+            J2MEUserXmlParser created = null;
+
+            public TransactionParser getParser(KXmlParser parser) {
+                if(created == null) {
+                    created = new J2MEUserXmlParser(parser, sandbox.getUserStorage(), getSyncToken());
+                }
+
+                return created;
+            }
+        };
     }
 
     /**
@@ -128,14 +130,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
      */
     public int[] getCaseTallies() {
         return caseTallies;
-    }
-
-    /**
-     * @return After processing is completed, if a restore ID was present in the payload
-     * it will be returned here.
-     */
-    public String getRestoreId() {
-        return restoreId;
     }
 
     /**

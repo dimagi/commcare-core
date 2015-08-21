@@ -73,10 +73,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("fixture".equalsIgnoreCase(name)) {
             req();
             return fixtureParser.getParser(parser);
-        } else if ("message".equalsIgnoreCase(name)) {
-            //server message;
-            //" <message nature=""/>"
-        } else if ("sync".equalsIgnoreCase(name) && 
+        } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
                 /*

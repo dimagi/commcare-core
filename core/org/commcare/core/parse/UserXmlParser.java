@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 /**
- * Mock copied from Android app.
- *
- * TODO:unify into CommCare Global Project
  *
  * @author ctsims
  */
