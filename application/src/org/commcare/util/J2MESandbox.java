@@ -34,7 +34,9 @@ public class J2MESandbox implements UserDataInterface{
     }
 
     public User getLoggedInUser() {
-        return PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER);
+        IStorageUtilityIndexed<User> users = getUserStorage();
+        User user = (User)users.getRecordForValue(User.META_UID, PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER));
+        return user;
     }
 
     public void setLoggedInUser(User user) {
