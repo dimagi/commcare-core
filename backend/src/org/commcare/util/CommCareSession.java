@@ -405,9 +405,16 @@ public class CommCareSession {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (step.getType() == SessionFrame.STATE_DATUM_VAL) {
-                TreeElement datum = new TreeElement(step.getId());
-                datum.setValue(new UncastData(step.getValue()));
-                sessionData.addChild(datum);
+
+                Vector<TreeElement> matchingElements = sessionData.getChildrenWithName(step.getId());
+
+                if(matchingElements.size() > 0) {
+                    matchingElements.elementAt(0).setValue(new UncastData(step.getValue()));
+                } else {
+                    TreeElement datum = new TreeElement(step.getId());
+                    datum.setValue(new UncastData(step.getValue()));
+                    sessionData.addChild(datum);
+                }
             }
         }
 
