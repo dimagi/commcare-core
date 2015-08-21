@@ -101,7 +101,9 @@ public class CommCareTransactionParserFactory extends org.commcare.core.parse.Co
             CaseXmlParser created = null;
 
             public TransactionParser<Case> getParser(KXmlParser parser) {
-                return new AttachableCaseXMLParser(parser, caseTallies, tolerant, sandbox.getCaseStorage());
+                if(created == null) {
+                    created = new AttachableCaseXMLParser(parser, caseTallies, tolerant, sandbox.getCaseStorage());
+                }
                 return created;
             }
         };
