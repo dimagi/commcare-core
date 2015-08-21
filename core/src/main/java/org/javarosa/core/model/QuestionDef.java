@@ -245,6 +245,8 @@ public class QuestionDef implements IFormElement, Localizable {
         }
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
         mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
+        extensions = (Vector)ExtUtil.read(dis, new ExtWrapList(QuestionDataExtension.class));
+
     }
 
     /*
@@ -259,6 +261,7 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapList(ExtUtil.emptyIfNull(choices)));
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
+        ExtUtil.write(dos, new ExtWrapList(extensions));
     }
 
     /* === MANAGING OBSERVERS === */
