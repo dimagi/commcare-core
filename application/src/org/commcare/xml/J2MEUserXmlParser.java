@@ -20,7 +20,7 @@ public class J2MEUserXMLParser extends UserXmlParser {
     IStorageUtilityIndexed storage;
     String syncToken;
 
-    public AndroidUserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, String syncToken) {
+    public J2MEUserXMLParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, String syncToken) {
         super(parser, storage);
         this.syncToken = syncToken;
     }
