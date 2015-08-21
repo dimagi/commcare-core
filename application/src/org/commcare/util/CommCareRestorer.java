@@ -281,7 +281,7 @@ public class CommCareRestorer implements Runnable {
             DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
             parser.requireRootEnvelopeType("OpenRosaResponse");
             success = parser.parse();
-            restoreID = factory.getRestoreId();
+            restoreID = factory.getSyncToken();
             caseTallies = factory.getCaseTallies();
             //TODO: Is success here too strict?
             if (success) {

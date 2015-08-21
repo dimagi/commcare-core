@@ -2,6 +2,7 @@ package org.commcare.util;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
@@ -10,7 +11,7 @@ import org.javarosa.user.model.User;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 
-public class J2MESandbox {
+public class J2MESandbox implements UserDataInterface{
 
     public IStorageUtilityIndexed<Case> getCaseStorage() {
         return (IStorageUtilityIndexed<Case>)StorageManager.getStorage(Case.STORAGE_KEY);
@@ -33,7 +34,7 @@ public class J2MESandbox {
     }
 
     public User getLoggedInUser() {
-        return PropertyManager._().getProperty(CommCareProperties.LOGGED_IN_USER);
+        return PropertyManager._().getSingularProperty(CommCareProperties.LOGGED_IN_USER);
     }
 
     public void setLoggedInUser(User user) {

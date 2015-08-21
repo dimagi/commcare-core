@@ -10,7 +10,8 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
-import org.commcare.core.parse.UserXmlParser;
+import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.J2MEUserXmlParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -65,7 +66,7 @@ public class CommCareTransactionParserFactory extends org.commcare.core.parse.Co
         String namespace = parser.getNamespace();
         String name = parser.getName();
 
-        superParser = super.getParser(parser);
+        Transaction Parser superParser = super.getParser(parser);
         if(superParser != null){
             return superParser;
         }
