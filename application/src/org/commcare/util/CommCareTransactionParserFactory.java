@@ -10,7 +10,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
-import org.commcare.xml.UserXmlParser;
+import org.commcare.core.parse.UserXmlParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;

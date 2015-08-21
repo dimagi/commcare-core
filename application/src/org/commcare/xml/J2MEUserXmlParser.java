@@ -15,12 +15,12 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
 
-public class J2MEUserXMLParser extends UserXmlParser {
+public class J2MEUserXmlParser extends UserXmlParser {
 
     IStorageUtilityIndexed storage;
     String syncToken;
 
-    public J2MEUserXMLParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, String syncToken) {
+    public J2MEUserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, String syncToken) {
         super(parser, storage);
         this.syncToken = syncToken;
     }
