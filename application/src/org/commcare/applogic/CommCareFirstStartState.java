@@ -10,7 +10,7 @@ import org.commcare.view.FirstStartupView;
 import org.javarosa.core.api.State;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.j2me.view.J2MEDisplay;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 /**
  * @author ctsims

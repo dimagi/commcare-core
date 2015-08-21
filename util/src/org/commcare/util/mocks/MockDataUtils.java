@@ -2,7 +2,7 @@ package org.commcare.util.mocks;
 
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;

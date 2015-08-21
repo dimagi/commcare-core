@@ -4,7 +4,7 @@
 package org.commcare.util;
 
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 /**
  * @author ctsims

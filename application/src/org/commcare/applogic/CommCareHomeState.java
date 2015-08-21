@@ -43,7 +43,7 @@ import org.javarosa.log.activity.DeviceReportState;
 import org.javarosa.log.properties.LogPropertyRules;
 import org.javarosa.log.util.LogReportUtils;
 import org.javarosa.services.properties.api.PropertyUpdateState;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.user.utility.UserEntity;
 
 /**

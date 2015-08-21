@@ -5,7 +5,7 @@ import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.ParseUtils;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.test.utils.SqlTestUtils;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.Before;

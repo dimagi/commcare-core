@@ -5,7 +5,7 @@ import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.SessionFrame;

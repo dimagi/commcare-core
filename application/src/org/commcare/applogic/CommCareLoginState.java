@@ -19,7 +19,7 @@ import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.user.api.CreateUserController;
 import org.javarosa.user.api.LoginController;
 import org.javarosa.user.api.LoginState;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 public class CommCareLoginState extends LoginState {
     boolean interactive;
@@ -109,7 +109,7 @@ public class CommCareLoginState extends LoginState {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.user.api.transitions.LoginStateTransitions#loggedIn(org.javarosa.user.model.User)
+     * @see org.javarosa.user.api.transitions.LoginStateTransitions#loggedIn(org.javarosa.core.model.User)
      */
     public void loggedIn(final User u, String password) {
         CommCareContext._().setUser(u, password == null ? null : new DefaultHttpCredentialProvider(u.getUsername(), password));

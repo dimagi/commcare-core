@@ -2,7 +2,7 @@ package org.commcare.core.sandbox;
 
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;

@@ -6,7 +6,7 @@ import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;

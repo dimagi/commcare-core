@@ -19,7 +19,7 @@ import org.javarosa.j2me.log.HandledCommandListener;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.DefaultHttpCredentialProvider;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 import java.util.Hashtable;
 

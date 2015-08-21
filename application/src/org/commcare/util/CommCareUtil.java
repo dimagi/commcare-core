@@ -34,7 +34,7 @@ import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.service.transport.securehttp.HttpCredentialProvider;
 import org.javarosa.services.transport.TransportService;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

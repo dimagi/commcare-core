@@ -1,19 +1,9 @@
 package org.commcare.xml;
 
 import org.commcare.core.parse.UserXmlParser;
-import org.commcare.data.xml.TransactionParser;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.services.storage.StorageManager;
-import org.commcare.suite.model.User;
-import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.core.model.User;
 import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.NoSuchElementException;
 
 public class J2MEUserXmlParser extends UserXmlParser {
 
