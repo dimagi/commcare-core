@@ -77,6 +77,12 @@ public class CommCareSession {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
         Entry entry = null;
+        Vector<Entry> entries = new Vector<Entry>();
+
+        if (commandId == null) {
+            return entries;
+        }
+
         top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -93,7 +99,6 @@ public class CommCareSession {
             }
         }
 
-        Vector<Entry> entries = new Vector<Entry>();
         if (entry != null) {
             entries.addElement(entry);
         }
@@ -235,8 +240,12 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
-        return getNeededDatum(entry);
+        Vector<Entry> entries = getEntriesForCommand(getCommand());
+        if (entries.size() > 0) {
+            return getNeededDatum(entries.elementAt(0));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -245,14 +254,13 @@ public class CommCareSession {
      */
     public SessionDatum getNeededDatum(Entry entry) {
         int nextVal = getData().size();
-        //If we've already retrieved all data needed, return null.
         if (nextVal >= entry.getSessionDataReqs().size()) {
+            // we've already retrieved all data needed.
             return null;
         }
 
-        //Otherwise retrieve the needed value
-        SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
-        return datum;
+        // retrieve the needed value
+        return entry.getSessionDataReqs().elementAt(nextVal);
     }
 
     public Detail getDetail(String id) {
@@ -277,6 +285,9 @@ public class CommCareSession {
     }
 
     public Suite getCurrentSuite() {
+        if (currentCmd == null) {
+            return null;
+        }
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 //We need to see if everything in this menu can be matched
@@ -466,7 +477,6 @@ public class CommCareSession {
      * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
-
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -478,7 +488,6 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             instances.get(key).initialize(iif, key);
         }
-
 
         return new EvaluationContext(null, instances);
     }
@@ -774,12 +783,14 @@ public class CommCareSession {
      */
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        Entry prototype = entries.elementAt(0);
+        if (entries.size() == 1) {
+            Entry prototype = entries.elementAt(0);
 
-        // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
-        // commcare core for release issues
-        return (entries.size() == 1 &&
-                (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals("")));
+            // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
+            // commcare core for release issues
+            return prototype.getXFormNamespace() == null || prototype.getXFormNamespace().equals("");
+        } else {
+            return false;
+        }
     }
 }
