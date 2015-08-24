@@ -46,7 +46,7 @@ public class ResourceTable {
 
     private TableStateListener stateListener = null;
     private ProcessCancelled processListener = null;
-    private InstallStatListener installStatListener = null;
+    private InstallStatsLogger installStatsLogger = null;
 
     private int numberOfLossyRetries = 3;
 
@@ -537,14 +537,14 @@ public class ResourceTable {
     }
 
     private void recordFailure(Resource resource, Exception e) {
-        if (installStatListener != null) {
-            installStatListener.recordResourceInstallFailure(resource.getResourceId(), e.getMessage());
+        if (installStatsLogger != null) {
+            installStatsLogger.recordResourceInstallFailure(resource.getResourceId(), e.getMessage());
         }
     }
 
     private void recordSuccess(Resource resource) {
-        if (installStatListener != null) {
-            installStatListener.recordResourceInstallSuccess(resource.getResourceId());
+        if (installStatsLogger != null) {
+            installStatsLogger.recordResourceInstallSuccess(resource.getResourceId());
         }
     }
 
@@ -1019,8 +1019,8 @@ public class ResourceTable {
         this.processListener = processListener;
     }
 
-    public void setInstallStatListener(InstallStatListener listener) {
-        this.installStatListener = listener;
+    public void setInstallStatsLogger(InstallStatsLogger logger) {
+        this.installStatsLogger = logger;
     }
 
     /**
