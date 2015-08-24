@@ -41,7 +41,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     public CommCareTransactionParserFactory(UserDataInterface sandbox) {
         this.sandbox = sandbox;
-
         this.initFixtureParser();
         this.initUserParser();
         this.initCaseParser();
@@ -52,7 +51,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.indexOf(namespace) != -1) {
+        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
             if (stockParser == null) {
                 throw new RuntimeException("Couldn't process Stock transaction without initialization!");
             }
