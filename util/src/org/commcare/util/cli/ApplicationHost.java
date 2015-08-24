@@ -103,14 +103,21 @@ public class ApplicationHost {
 
     private boolean loopSession() throws IOException {
         Screen s = getNextScreen();
+        boolean screenIsRedrawing = false;
 
         while (s != null) {
             try {
-                s.init(mSession);
+                if(!screenIsRedrawing) {
+                    s.init(mSession);
+                }
                 System.out.println("\n\n\n\n\n\n");
+                System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+
+                System.out.println("====================");
                 s.prompt(System.out);
                 System.out.print("> ");
 
+                screenIsRedrawing = false;
                 String input = reader.readLine();
 
                 //TODO: Command language
@@ -132,8 +139,10 @@ public class ApplicationHost {
                     }
                 }
 
-                s.updateSession(mSession, input);
-                s = getNextScreen();
+                screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
+                if(!screenIsRedrawing) {
+                    s = getNextScreen();
+                }
             } catch (CommCareSessionException ccse) {
                 printErrorAndContinue("Error during session execution:", ccse);
 

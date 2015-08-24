@@ -122,7 +122,10 @@ public class MenuScreen extends Screen {
 
         this.mChoices = new MenuDisplayable[choices.size()];
         choices.copyInto(mChoices);
-        this.mTitle = this.getGeneralTitle(mTitle, this.mSandbox, mPlatform);
+    }
+
+    protected String getScreenTitle() {
+        return mTitle;
     }
 
     private String deriveMenuRoot(SessionWrapper session) {
@@ -135,10 +138,6 @@ public class MenuScreen extends Screen {
 
     @Override
     public void prompt(PrintStream out) {
-        if (this.mTitle != null) {
-            out.println(this.mTitle);
-            out.println("====================");
-        }
         for (int i = 0; i < mChoices.length; ++i) {
             MenuDisplayable d = mChoices[i];
             out.println(i + ")" + d.getDisplayText());
@@ -146,7 +145,7 @@ public class MenuScreen extends Screen {
     }
 
     @Override
-    public void updateSession(CommCareSession session, String input) {
+    public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
@@ -156,8 +155,10 @@ public class MenuScreen extends Screen {
                 commandId = ((Menu)mChoices[i]).getId();
             }
             session.setCommand(commandId);
+            return false;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }
+        return true;
     }
 }

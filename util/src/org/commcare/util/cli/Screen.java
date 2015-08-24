@@ -19,10 +19,24 @@ import java.io.PrintStream;
 public abstract class Screen {
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
     public abstract void prompt(PrintStream out) throws CommCareSessionException;
-    public abstract void updateSession(CommCareSession session, String input) throws CommCareSessionException;
 
-    public String getGeneralTitle(String currentTitle, UserDataInterface sandbox, CommCarePlatform platform) {
-        String title = currentTitle;
+    /**
+     * Based on the the input provided from the user to the command line, either update the session
+     * and proceed to the next screen, or handle the input locally and ask to be redrawn
+     *
+     * @param session The current session to be mutated
+     * @param input the input provided by the user to the command line
+     * @return True if the session was updated and the app should proceed to the next phase, false
+     * if the screen wants to continue being redrawn.
+     */
+    public abstract boolean handleInputAndUpdateSession(CommCareSession session, String input) throws CommCareSessionException;
+
+
+    /**
+     * Get the title of the current screen, wrapped with the relevant app metadata.
+     */
+    public String getWrappedDisplaytitle(UserDataInterface sandbox, CommCarePlatform platform) {
+        String title = getScreenTitle();
         if (title == null) {
             try {
                 title = Localization.get("app.display.name");
@@ -36,5 +50,13 @@ public abstract class Screen {
         String version = (" [" + platform.getCurrentProfile().getVersion() + "]");
 
         return title + userSuffix + version;
+    }
+
+    /**
+     * @return The title of this specific screen. This method should be overriden by subclasses
+     * who can provide a title.
+     */
+    protected String getScreenTitle() {
+        return null;
     }
 }

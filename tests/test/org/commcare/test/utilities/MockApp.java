@@ -4,6 +4,8 @@ import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
+import org.javarosa.core.model.User;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -39,6 +41,12 @@ public class MockApp {
         mEngine.installAppFromReference("jr://resource" + resourcePath + "profile.ccpr");
         mEngine.initEnvironment();
         MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(resourcePath + "user_restore.xml"), mSandbox);
+
+        //If we parsed in a user, arbitrarily log one in.
+        for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore();) {
+            mSandbox.setLoggedInUser(iterator.nextRecord());
+            break;
+        }
 
         mSessionWrapper = new SessionWrapper(mEngine.getPlatform(), mSandbox);
     }
