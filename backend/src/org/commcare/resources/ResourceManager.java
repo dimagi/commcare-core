@@ -1,7 +1,7 @@
 package org.commcare.resources;
 
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.ProcessCancelled;
+import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
@@ -32,7 +32,7 @@ public class ResourceManager {
     }
 
     public void setUpgradeListeners(TableStateListener tableListener,
-                                    ProcessCancelled cancelListener) {
+                                    InstallCancelled cancelListener) {
         masterTable.setStateListener(tableListener);
 
         upgradeTable.setStateListener(tableListener);
