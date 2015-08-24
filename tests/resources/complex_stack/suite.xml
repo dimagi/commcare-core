@@ -73,6 +73,36 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
   </entry>
+
+
+    <entry>
+        <form>http://commcarehq.org/test/placeholder</form>
+        <command id="m2-f0">
+            <text>Receiver Module: Post Select Form</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+        </session>
+    </entry>
+
+    <entry>
+        <command id="m3-f0">
+            <text>Jump to Receiver Module</text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <instance id="session" src="jr://instance/session"/>
+        <session>
+            <datum id="case_id_to_send" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+        </session>
+        <stack>
+            <create>
+                <command value="'m2'"/>
+                <datum id="case_id" value="instance('session')/session/data/case_id_to_send"/>
+            </create>
+        </stack>
+    </entry>
+
   <menu id="m0">
     <text>Menu 1</text>
     <command id="m0-f0"/>
@@ -82,4 +112,14 @@
         <text>Menu 2</text>
         <command id="m1-f0"/>
     </menu>
+
+    <menu id="m2">
+        <text>Receiver Module</text>
+        <command id="m2-f0"/>
+    </menu>
+    <menu id="root">
+        <text>Sender Module</text>
+        <command id="m3-f0"/>
+    </menu>
+
 </suite>
