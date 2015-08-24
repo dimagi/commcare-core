@@ -17,6 +17,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.reference.JavaResourceRoot;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
@@ -65,7 +66,7 @@ public class CommCareConfigEngine {
     private ArchiveFileRoot mArchiveRoot;
 
     public CommCareConfigEngine() {
-        this(new PrototypeFactory());
+        this(new LivePrototypeFactory());
     }
 
     public CommCareConfigEngine(PrototypeFactory prototypeFactory) {

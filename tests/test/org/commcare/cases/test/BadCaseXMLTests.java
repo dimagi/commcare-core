@@ -1,5 +1,6 @@
 package org.commcare.cases.test;
 
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -25,7 +26,7 @@ public class BadCaseXMLTests {
     @Test(expected = InvalidStructureException.class)
     public void testNoCaseID() throws Exception {
         try {
-            MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/case_create_broken_no_caseid.xml"), sandbox, true);
+            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/case_create_broken_no_caseid.xml"), sandbox, true);
         }finally {
             //Make sure that we didn't make a case entry for the bad case though
             Assert.assertEquals("Case XML with no id should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
@@ -35,7 +36,7 @@ public class BadCaseXMLTests {
     @Test(expected = InvalidStructureException.class)
     public void testBadCaseIndexOp() throws Exception {
         try {
-            MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/broken_self_index.xml"), sandbox, true);
+            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/broken_self_index.xml"), sandbox, true);
         }finally {
             //Make sure that we didn't make a case entry for the bad case though
             Assert.assertEquals("Case XML with invalid index not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);

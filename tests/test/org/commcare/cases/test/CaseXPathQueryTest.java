@@ -1,5 +1,6 @@
 package org.commcare.cases.test;
 
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -33,7 +34,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void referenceNonExistentCaseId() throws Exception {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
 
@@ -42,7 +43,7 @@ public class CaseXPathQueryTest {
 
     @Test
     public void caseQueryWithBadPath() throws Exception {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_create_basic.xml"), sandbox);
         EvaluationContext ec =
                 MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/doesnt_exist", ""));

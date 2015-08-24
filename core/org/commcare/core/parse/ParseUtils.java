@@ -14,18 +14,21 @@ import java.io.InputStream;
  */
 public class ParseUtils {
 
-    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox) {
+    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox) throws InvalidStructureException {
+        parseIntoSandbox(stream, sandbox, false);
+    }
+
+    public static void parseIntoSandbox(InputStream stream, UserDataInterface sandbox, boolean failfast)
+            throws InvalidStructureException {
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
         try {
-            DataModelPullParser parser = new DataModelPullParser(stream, factory);
+            DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
             parser.parse();
         } catch (IOException e){
             e.printStackTrace();
         } catch(UnfullfilledRequirementsException e){
             e.printStackTrace();
         } catch(XmlPullParserException e){
-            e.printStackTrace();
-        } catch(InvalidStructureException e) {
             e.printStackTrace();
         }
     }

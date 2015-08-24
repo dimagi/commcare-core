@@ -16,6 +16,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -271,6 +272,9 @@ public class ApplicationHost {
 
             ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
         } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (InvalidStructureException e) {
             e.printStackTrace();
             System.exit(-1);
         }

@@ -1,29 +1,17 @@
 package org.commcare.util.mocks;
 
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.commcare.data.xml.DataModelPullParser;
-import org.javarosa.core.model.User;
-import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -41,70 +29,6 @@ public class MockDataUtils {
     public static MockUserDataSandbox getStaticStorage() {
         PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
         return new MockUserDataSandbox(factory);
-    }
-    /**
-     * Parse the transactions int he provided stream into the user sandbox provided.
-     *
-     * Will rethrow any errors and failfast (IE: Parsing will stop)
-     */
-    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox) throws IOException,
-            UnfullfilledRequirementsException,
-            XmlPullParserException, InvalidStructureException {
-        parseIntoSandbox(stream, sandbox, true);
-    }
-
-    /**
-     * Parse the transactions int he provided stream into the user sandbox provided.
-     *
-     * If failfast is true, will rethrow any errors and failfast (IE: Parsing will stop)
-     */
-    public static void parseIntoSandbox(InputStream stream, MockUserDataSandbox sandbox, boolean failfast) throws IOException,
-            UnfullfilledRequirementsException,
-            XmlPullParserException, InvalidStructureException {
-        if(stream == null) {
-            throw new IOException("Parse Stream is Null");
-        }
-
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(sandbox);
-        DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
-        parser.parse();
-    }
-
-    /**
-     * For the users and groups in the provided sandbox, extracts out the list
-     * of valid "owners" for entities (cases, ledgers, etc) in the universe.
-     *
-     * Borrowed from Android implementation, should likely be centralized.
-     *
-     * TODO: Move this static functionality into CommCare generally.
-     */
-    public static Vector<String> extractEntityOwners(MockUserDataSandbox sandbox) {
-        Vector<String> owners = new Vector<String>();
-        Vector<String> users = new Vector<String>();
-
-        for (IStorageIterator<User> userIterator = sandbox.getUserStorage().iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = loadFixture(sandbox, "user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
-                if (idelement.getValue() != null) {
-                    owners.addElement(idelement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        return owners;
     }
 
     /**
