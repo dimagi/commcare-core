@@ -45,7 +45,7 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
     private TableStateListener stateListener = null;
-    private InstallCancelled processListener = null;
+    private InstallCancelled cancellationChecker = null;
     private InstallStatsLogger installStatsLogger = null;
 
     private int numberOfLossyRetries = 3;
@@ -528,7 +528,7 @@ public class ResourceTable {
     }
 
     private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
-        if (processListener != null && processListener.wasInstallCancelled()) {
+        if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
             InstallCancelledException installException =
                 new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
             recordFailure(r, installException);
@@ -1015,8 +1015,8 @@ public class ResourceTable {
         this.stateListener = listener;
     }
 
-    public void setProcessListener(InstallCancelled processListener) {
-        this.processListener = processListener;
+    public void setInstallCancellationChecker(InstallCancelled cancellationChecker) {
+        this.cancellationChecker = cancellationChecker;
     }
 
     public void setInstallStatsLogger(InstallStatsLogger logger) {

@@ -254,7 +254,7 @@ public class CommCareConfigEngine {
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
             UnfullfilledRequirementsException, InstallCancelledException {
-        ResourceManager.init(platform, profileReference, this.table, true);
+        ResourceManager.installAppResources(platform, profileReference, this.table, true);
     }
 
     public void initEnvironment() {

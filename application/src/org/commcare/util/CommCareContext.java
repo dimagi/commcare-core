@@ -262,7 +262,7 @@ public class CommCareContext {
                             throw new RuntimeException(message);
                         }
                     }
-                    ResourceManager.init(manager, profileRef, global, false);
+                    ResourceManager.installAppResources(manager, profileRef, global, false);
                     updateProgress(60);
 
                 } catch (UnfullfilledRequirementsException e) {
@@ -276,7 +276,7 @@ public class CommCareContext {
                             try {
                                 //If we're going to try to run commcare with an incompatible version, first clear everything
                                 RetrieveGlobalResourceTable().clear();
-                                ResourceManager.init(manager, CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
+                                ResourceManager.installAppResources(manager, CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
                             } catch (UnfullfilledRequirementsException e1) {
                                 //Maybe we should try to clear the table here, too?
                                 throw e1;
