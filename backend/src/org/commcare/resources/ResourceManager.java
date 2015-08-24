@@ -309,14 +309,17 @@ public class ResourceManager {
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
-    public static boolean isTableStaged(ResourceTable table) {
+    /**
+     * @return Is the table non-empty, marked for upgrade, with all ready resources?
+     */
+    public static boolean isTableStagedForUpgrade(ResourceTable table) {
         return (table.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE &&
                 table.isReady() &&
                 !table.isEmpty());
     }
 
     public boolean isUpgradeTableStaged() {
-        return isTableStaged(upgradeTable);
+        return isTableStagedForUpgrade(upgradeTable);
     }
 
     protected void ensureValidState() {
