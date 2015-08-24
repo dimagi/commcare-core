@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1" descriptor="Suite File">
+  <xform>
+    <resource id="546d5695ad31d060faac835fea2bc436810c81f9" version="1" descriptor="Form: Placeholder">
+      <location authority="local">./form_placeholder.xml</location>
+    </resource>
+  </xform>
+
+  <detail id="m0_case_short">
+    <title>
+      <text>Case List</text>
+    </title>
+      <action>
+          <display>
+              <text>Jump to Menu 2 Form 1</text>
+          </display>
+          <stack>
+              <push>
+                  <command value="'m1-f0'"/>
+                  <datum id="calculated_data" value="'new'"/>
+              </push>
+          </stack>
+      </action>
+
+      <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>Case Detail</text>
+    </title>
+    <field>
+      <header>
+        <text>Name</text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder_destination</form>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="m1-f0">
+      <text>Form</text>
+    </command>
+  </entry>
+
+  <entry>
+    <form>http://commcarehq.org/test/placeholder</form>
+    <command id="m0-f0">
+      <text>Form</text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="calculated_data" function="'initial'"/>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <menu id="m0">
+    <text>Menu 1</text>
+    <command id="m0-f0"/>
+  </menu>
+
+    <menu id="m1">
+        <text>Menu 2</text>
+        <command id="m1-f0"/>
+    </menu>
+</suite>

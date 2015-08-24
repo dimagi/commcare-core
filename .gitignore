@@ -28,3 +28,4 @@ build/
 .hg*
 *.iml
 **.DS_STORE
+*.db
