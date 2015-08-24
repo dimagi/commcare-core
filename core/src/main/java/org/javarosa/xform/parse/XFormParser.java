@@ -102,7 +102,8 @@ public class XFormParser {
     private static Hashtable<String, Integer> typeMappings;
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
-    private static Vector<QuestionExtensionParser> extensionParsers;
+
+    private Vector<QuestionExtensionParser> extensionParsers;
 
     private Reader _reader;
     private Document _xmldoc;
@@ -164,7 +165,6 @@ public class XFormParser {
         initTypeMappings();
         modelPrototypes = new PrototypeFactoryDeprecated();
         submissionParsers = new Vector<SubmissionParser>();
-        extensionParsers = new Vector<>();
     }
 
     private static void initProcessingRules() {
@@ -327,20 +327,24 @@ public class XFormParser {
 
     public XFormParser(Reader reader) {
         _reader = reader;
+        extensionParsers = new Vector<>();
     }
 
     public XFormParser(Document doc) {
         _xmldoc = doc;
+        extensionParsers = new Vector<>();
     }
 
     public XFormParser(Reader form, Reader instance) {
         _reader = form;
         _instReader = instance;
+        extensionParsers = new Vector<>();
     }
 
     public XFormParser(Document form, Document instance) {
         _xmldoc = form;
         _instDoc = instance;
+        extensionParsers = new Vector<>();
     }
 
     public void attachReporter(XFormParserReporter reporter) {
@@ -2970,7 +2974,7 @@ public class XFormParser {
         groupLevelHandlers.put(type, handler);
     }
 
-    public static void registerExtensionParser(QuestionExtensionParser parser) {
+    public void registerExtensionParser(QuestionExtensionParser parser) {
         extensionParsers.add(parser);
     }
 

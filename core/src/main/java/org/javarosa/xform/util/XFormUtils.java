@@ -21,7 +21,9 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xform.parse.IXFormParserFactory;
+import org.javarosa.xform.parse.QuestionExtensionParser;
 import org.javarosa.xform.parse.XFormParseException;
+import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
 
@@ -59,6 +61,39 @@ public class XFormUtils {
 
     public static FormDef getFormRaw(InputStreamReader isr) throws XFormParseException, IOException {
         return _factory.getXFormParser(isr).parse();
+    }
+
+    public static FormDef getFormFromInputStream(InputStream is, QuestionExtensionParser extensionParser)
+            throws XFormParseException{
+        InputStreamReader isr;
+
+        //Buffer the incoming data, since it's coming from disk.
+        is = new BufferedInputStream(is);
+
+        try {
+            isr = new InputStreamReader(is, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            System.out.println("UTF 8 encoding unavailable, trying default encoding");
+            isr = new InputStreamReader(is);
+        }
+
+        try {
+            try {
+                XFormParser parser = _factory.getXFormParser(isr);
+                parser.registerExtensionParser(extensionParser);
+                return parser.parse();
+                //TODO: Keep removing these, shouldn't be swallowing them
+            } catch (IOException e) {
+                throw new XFormParseException("IO Exception during parse! " + e.getMessage());
+            }
+        } finally {
+            try {
+                isr.close();
+            } catch (IOException e) {
+                System.err.println("IO Exception while closing stream.");
+                e.printStackTrace();
+            }
+        }
     }
 
     /*
