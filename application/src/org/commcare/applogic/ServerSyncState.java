@@ -8,7 +8,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.service.transport.securehttp.HttpAuthenticator;
@@ -69,11 +68,7 @@ public abstract class ServerSyncState implements State {
                 if(token != null) {
                     User u = CommCareContext._().getUser();
                     u.setLastSyncToken(token);
-                    try {
-                        StorageManager.getStorage(User.STORAGE_KEY).write(u);
-                    } catch (StorageFullException e) {
-                        Logger.die("sync", e);
-                    }
+                    StorageManager.getStorage(User.STORAGE_KEY).write(u);
                 }
             }
 

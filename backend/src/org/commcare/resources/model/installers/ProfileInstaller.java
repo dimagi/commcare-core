@@ -14,7 +14,6 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -136,9 +135,6 @@ public class ProfileInstaller extends CacheInstaller {
             }
             e.printStackTrace();
             return false;
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            return false;
         } catch (XmlPullParserException e) {
             if (e.getMessage() != null) {
                 Logger.log("resource", "XML Parse exception fetching profile: " + e.getMessage());
@@ -154,7 +150,7 @@ public class ProfileInstaller extends CacheInstaller {
         }
     }
 
-    private void installInternal(Profile profile) throws StorageFullException {
+    private void installInternal(Profile profile) {
         storage().write(profile);
         cacheLocation = profile.getID();
     }
@@ -169,13 +165,8 @@ public class ProfileInstaller extends CacheInstaller {
             p = (Profile)storage().read(cacheLocation);
         }
         p.initializeProperties(true);
-        try {
-            storage().write(p);
-            return true;
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new UnresolvedResourceException(r, "Couldn't write the profile to storage. Full.");
-        }
+        storage().write(p);
+        return true;
     }
 
     public boolean unstage(Resource r, int newStatus) {

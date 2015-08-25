@@ -45,7 +45,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper;
 import org.javarosa.core.util.JavaRosaCoreModule;
@@ -440,9 +439,6 @@ public class CommCareContext {
                     //I dunno? Log it?
                     e.printStackTrace();
                 } catch (InvalidReferenceException e) {
-                    // TODO Auto-referralCache catch block
-                    e.printStackTrace();
-                } catch (StorageFullException e) {
                     // TODO Auto-referralCache catch block
                     e.printStackTrace();
                 }
@@ -864,11 +860,7 @@ public class CommCareContext {
                 u.setProperty("ref_count", sRefCounter);
 
                 IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
-                try {
-                    users.write(u);
-                } catch (StorageFullException e) {
-                    Logger.exception(e);
-                }
+                users.write(u);
 
                 while (sRefCounter.length() < 4) {
                     sRefCounter = "0" + sRefCounter;

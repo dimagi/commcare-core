@@ -7,7 +7,6 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xml.TreeElementParser;
@@ -93,12 +92,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     public void commit(FormInstance parsed) throws IOException {
-        try {
-            storage().write(parsed);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+        storage().write(parsed);
     }
 
     public IStorageUtilityIndexed<FormInstance> storage() {

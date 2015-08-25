@@ -4,7 +4,6 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Date;
@@ -189,11 +188,7 @@ public abstract class PeriodicEvent implements State {
             } else {
                 record = new PeriodicEventRecord(event.getEventKey(), new Date());
             }
-            try {
-                storage.write(record);
-            } catch (StorageFullException e) {
-                Logger.exception("scheduling event", e);
-            }
+            storage.write(record);
             return;
         }
 
@@ -205,11 +200,7 @@ public abstract class PeriodicEvent implements State {
 
         if(current == 0 || current > next.getTime() ) {
             record.setNextScheduledDate(next);
-            try {
-                storage.write(record);
-            } catch (StorageFullException e) {
-                Logger.exception("scheduling event", e);
-            }
+            storage.write(record);
         }
 
         return;
@@ -229,12 +220,7 @@ public abstract class PeriodicEvent implements State {
         }
 
         PeriodicEventRecord nextTrigger = event.scheduleNextTrigger(record);
-        try {
-            storage.write(nextTrigger);
-            System.out.println("Event[" + event.getEventKey() + "] manually triggered. Next Execution due at " + DateUtils.formatDate(nextTrigger.getNextTrigger(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to update periodic event record storage");
-        }
+        storage.write(nextTrigger);
+        System.out.println("Event[" + event.getEventKey() + "] manually triggered. Next Execution due at " + DateUtils.formatDate(nextTrigger.getNextTrigger(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
     }
 }

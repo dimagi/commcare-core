@@ -16,7 +16,6 @@ import org.commcare.util.CommCareInstance;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -76,10 +75,6 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
                 return true;
             } catch (InvalidStructureException e) {
                 throw new UnresolvedResourceException(r, e.getMessage(), true);
-            } catch (StorageFullException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return false;
             } catch (IOException e) {
                 throw new UnreliableSourceException(r, e.getMessage());
             } catch (XmlPullParserException e) {

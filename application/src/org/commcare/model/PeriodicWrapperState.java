@@ -8,7 +8,6 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.j2me.view.J2MEDisplay;
@@ -79,11 +78,7 @@ public abstract class PeriodicWrapperState implements State {
             //future events. Possibly a good trap door, though?
             storage.remove(record);
         } else {
-            try {
-                storage.write(nextEvent);
-            } catch (StorageFullException e1) {
-                Logger.exception("In periodic wrapper", e1);
-            }
+            storage.write(nextEvent);
         }
         next();
     }
