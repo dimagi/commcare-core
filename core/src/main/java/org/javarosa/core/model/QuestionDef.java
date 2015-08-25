@@ -22,6 +22,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
@@ -230,10 +231,7 @@ public class QuestionDef implements IFormElement, Localizable {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -245,14 +243,10 @@ public class QuestionDef implements IFormElement, Localizable {
         }
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
         mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
-        extensions = (Vector)ExtUtil.read(dis, new ExtWrapList(QuestionDataExtension.class));
-
+        extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
@@ -261,7 +255,7 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapList(ExtUtil.emptyIfNull(choices)));
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
-        ExtUtil.write(dos, new ExtWrapList(extensions));
+        ExtUtil.write(dos, new ExtWrapListPoly(extensions));
     }
 
     /* === MANAGING OBSERVERS === */
