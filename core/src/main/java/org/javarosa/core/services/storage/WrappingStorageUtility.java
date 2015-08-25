@@ -71,7 +71,7 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
         return ((SerializationWrapper)storage.read(id)).getData();
     }
 
-    public void write(final Persistable p) throws StorageFullException {
+    public void write(final Persistable p) {
         synchronized (wrapper) {
             wrapper.setData(p);
             if (wrapper instanceof IMetaData) {
@@ -84,7 +84,7 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
     }
 
 
-    public int add(Externalizable e) throws StorageFullException {
+    public int add(Externalizable e) {
         synchronized (wrapper) {
             wrapper.setData(e);
             int result = storage.add(wrapper);
@@ -93,7 +93,7 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
         }
     }
 
-    public void update(int id, Externalizable e) throws StorageFullException {
+    public void update(int id, Externalizable e) {
         synchronized (wrapper) {
             wrapper.setData(e);
             storage.update(id, wrapper);

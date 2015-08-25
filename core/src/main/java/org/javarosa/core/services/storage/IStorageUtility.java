@@ -44,9 +44,8 @@ public interface IStorageUtility<E extends Externalizable> {
      * object's ID. This function should never be used in conjunction with add() and update() within the same StorageUtility
      *
      * @param p object to store
-     * @throws StorageFullException if there is not enough room to store the object
      */
-    void write(Persistable p) throws StorageFullException;
+    void write(Persistable p);
 
     /**
      * Add a new record to the store. This function always adds a new record; it never updates an existing record. The
@@ -55,9 +54,8 @@ public interface IStorageUtility<E extends Externalizable> {
      *
      * @param e object to add
      * @return record ID for newly added object
-     * @throws StorageFullException if not enough space available
      */
-    int add(E e) throws StorageFullException;
+    int add(E e);
 
     /**
      * Update a record in the store. The record must have previously been added to the store using add(). If this
@@ -65,10 +63,9 @@ public interface IStorageUtility<E extends Externalizable> {
      *
      * @param id ID of record to update
      * @param e  updated object
-     * @throws StorageFullException     if not enough space available to update
      * @throws IllegalArgumentException if no record exists for ID
      */
-    void update(int id, E e) throws StorageFullException;
+    void update(int id, E e);
 
     /**
      * Remove record with the given ID from the store.

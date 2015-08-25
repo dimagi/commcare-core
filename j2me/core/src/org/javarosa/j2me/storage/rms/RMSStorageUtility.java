@@ -8,7 +8,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.CannotCreateObjectException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
@@ -216,9 +215,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
      * object's ID. This function should never be used in conjunction with add() and update() within the same StorageUtility
      *
      * @param p object to store
-     * @throws StorageFullException if there is not enough room to store the object
      */
-    public void write (Persistable p) throws StorageFullException {
+    public void write (Persistable p) {
         typeCheck(p);
 
         RMSRecordLoc newLoc = null;
@@ -248,7 +246,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
                 //can't reserve needed space to update index
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             if (loc != null) {
@@ -267,7 +265,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (newLoc == null) {
                 setClean();
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             index.beginChangeCommit(id, newLoc);
@@ -284,9 +282,8 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
      *
      * @param e object to add
      * @return record ID for newly added object
-     * @throws StorageFullException if not enough space available
      */
-    public int add (E e) throws StorageFullException {
+    public int add (E e) {
         typeCheck(e);
 
         byte[] data = ExtUtil.serialize(e);
@@ -303,7 +300,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
                 //can't reserve needed space to update index
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             txRecord(id, "add");
@@ -314,7 +311,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (loc == null) {
                 setClean();
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             index.beginChangeCommit(id, loc);
@@ -334,10 +331,9 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
      *
      * @param id ID of record to update
      * @param e updated object
-     * @throws StorageFullException if not enough space available to update
      * @throws IllegalArgumentException if no record exists for ID
      */
-    public void update (int id, E e) throws StorageFullException {
+    public void update (int id, E e) {
         typeCheck(e);
 
         byte[] data = ExtUtil.serialize(e);
@@ -356,7 +352,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
                 //can't reserve needed space to update index
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             //Move a lot of this logic into the index object
@@ -368,7 +364,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (loc == null) {
                 setClean();
-                throw new StorageFullException();
+                throw new RuntimeException();
             }
 
             index.beginChangeCommit(id, loc);

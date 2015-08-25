@@ -6,7 +6,6 @@ import org.javarosa.core.model.utils.IPreloadHandler;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.JavaRosaCoreModule;
 import org.javarosa.core.util.PropertyUtils;
@@ -32,11 +31,7 @@ public class JRFormTestUtil {
         loadModules();
 
         IStorageUtility forms = StorageManager.getStorage(FormDef.STORAGE_KEY);
-        try {
-            forms.write(XFormUtils.getFormFromResource("/a.xhtml"));
-        } catch (StorageFullException e) {
-            throw new RuntimeException("unable to load test form!");
-        }
+        forms.write(XFormUtils.getFormFromResource("/a.xhtml"));
 
         setProperties();
     }

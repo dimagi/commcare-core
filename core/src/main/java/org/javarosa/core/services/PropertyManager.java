@@ -19,7 +19,6 @@ package org.javarosa.core.services;
 import org.javarosa.core.services.properties.IPropertyRules;
 import org.javarosa.core.services.properties.Property;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Enumeration;
@@ -311,11 +310,7 @@ public class PropertyManager implements IPropertyManager {
             theProp.setID(((Integer)IDs.elementAt(0)).intValue());
         }
 
-        try {
-            properties.write(theProp);
-        } catch (StorageFullException e) {
-            throw new RuntimeException("uh-oh, storage full [properties]"); //TODO: handle this
-        }
+        properties.write(theProp);
     }
 
 }
