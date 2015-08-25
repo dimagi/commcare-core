@@ -107,7 +107,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
-    public boolean handleInputAndUpdateHost(String input, EntityScreen host) {
+    public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
         try {
             int i = Integer.parseInt(input);
 
