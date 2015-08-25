@@ -126,6 +126,10 @@ public class Detail implements Externalizable {
         return title;
     }
 
+    /**
+     * @return A reference to a set of sub-elements of this detail. If provided,
+     * the detail will display fields for each element of this nodeset.
+     */
     public TreeReference getNodeset() { return nodeset; }
 
     /**

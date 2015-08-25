@@ -103,7 +103,7 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() {
+    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
         initDetailScreens();
 
         if(mLongDetailList == null) {
@@ -114,17 +114,13 @@ public class EntityScreen extends CompoundScreenHost {
         return true;
     }
 
-    public void setCurrentScreenToDetail(int index) {
+    public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
         EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
 
         TreeReference detailNodeset = this.mLongDetailList[index].getNodeset();
         if (detailNodeset != null) {
             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
-            try {
-                this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
-            } catch (CommCareSessionException e) {
-                e.printStackTrace();
-            }
+            this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
         }
         else {
             this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
