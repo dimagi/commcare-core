@@ -371,7 +371,7 @@
     <target name="BuildReleaseAndPostJad" depends="SetRelease,BuildClean,PostJad10" description="Build the jad and post it."/>
 
     <!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
-    <target name="BuildServerComplete" depends="SetBatch, BuildClean, PrepareWebDemo10">
+    <target name="BuildServerComplete" depends="SetBatch, BuildClean, PrepareWebDemo">
         <ant antfile="../backend/build.xml" target="package" dir="../backend/">
               <property name="dir.lib" value="${dir.lib}"/>
               <property name="dir.jrlib" value="${dir.tools}"/>
