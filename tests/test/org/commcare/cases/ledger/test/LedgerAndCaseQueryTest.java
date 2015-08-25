@@ -77,6 +77,7 @@ public class LedgerAndCaseQueryTest {
                 "instance('ledger')/ledgerdb/ledger[@entity-id='totally-fake']", ""));
     }
 
+    /*
     @Test
     public void ledgerQueriesWithNoLedgerData() throws Exception {
         // case id 'star_market' exists but no ledger data been loaded at all
@@ -89,6 +90,7 @@ public class LedgerAndCaseQueryTest {
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(evalContextWithoutLedgers,
                 "instance('ledger')/ledgerdb/ledger/section/entry", ""));
     }
+    */
 
     @Test(expected = XPathTypeMismatchException.class)
     public void ledgerQueriesWithBadTemplate() throws Exception {
