@@ -1,4 +1,4 @@
-package org.commcare.backend.test;
+package org.commcare.backend.util.test;
 
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.SessionFrame;
