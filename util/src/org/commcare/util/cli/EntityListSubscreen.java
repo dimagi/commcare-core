@@ -23,11 +23,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String[] rows;
     private String mHeader;
 
-
-    public EntityListSubscreen(Detail shortDetail, SessionDatum needed, EvaluationContext context) throws CommCareSessionException {
+    public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);
-
-        Vector<TreeReference> references = inflateReference(needed.getNodeset(), context);
 
         rows = new String[references.size()];
 
@@ -94,10 +91,6 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             }
         }
         return row.toString();
-    }
-
-    private Vector<TreeReference> inflateReference(TreeReference nodeset, EvaluationContext context) {
-        return context.expandReference(nodeset);
     }
 
     @Override

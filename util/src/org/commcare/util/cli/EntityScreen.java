@@ -49,7 +49,8 @@ public class EntityScreen extends CompoundScreenHost {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);
         }
 
-        mCurrentScreen = new EntityListSubscreen(mShortDetail, mNeededDatum, session.getEvaluationContext());
+        EvaluationContext ec = session.getEvaluationContext();
+        mCurrentScreen = new EntityListSubscreen(mShortDetail, ec.expandReference(mNeededDatum.getNodeset()), ec);
     }
 
     @Override
@@ -116,7 +117,18 @@ public class EntityScreen extends CompoundScreenHost {
     public void setCurrentScreenToDetail(int index) {
         EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
 
-        this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+        TreeReference detailNodeset = this.mLongDetailList[index].getNodeset();
+        if (detailNodeset != null) {
+            TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
+            try {
+                this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
+            } catch (CommCareSessionException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+        }
     }
 
     private String[] getDetailListTitles(EvaluationContext subContext) {
