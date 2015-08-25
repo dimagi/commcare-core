@@ -1,4 +1,4 @@
-package org.commcare.util.test;
+package org.commcare.backend.util;
 
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.StackOperation;
