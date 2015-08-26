@@ -18,12 +18,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * Copied directly from JavaRosa, although we should likely move that model
- * somewhere in the global framing anyway.
+ * User object shared between J2ME and Android
  *
  * @author ctsims
+ * @author wspride
  */
-public class User implements Persistable, Restorable, IMetaData {
+public class User implements Persistable, Restorable, IMetaData, TableAnnotation {
     public static final String STORAGE_KEY = "USER";
 
     public static final String ADMINUSER = "admin";
@@ -282,5 +282,9 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public void setRecordId(int recordId){
         this.recordId = recordId;
+    }
+
+    public String getStorageKey(){
+        return User.STORAGE_KEY;
     }
 }

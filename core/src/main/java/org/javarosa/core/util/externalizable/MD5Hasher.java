@@ -12,7 +12,7 @@ import org.javarosa.core.util.MD5;
  *
  * @author ctsims
  */
-public class MD5Hasher extends org.javarosa.core.util.externalizable.Hasher {
+public class MD5Hasher extends Hasher {
     private final static int CLASS_HASH_SIZE = 4;
 
     // Overrides the Hasher getHash()

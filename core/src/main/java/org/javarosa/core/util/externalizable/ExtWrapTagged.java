@@ -71,7 +71,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
     }
 
     public static ExternalizableWrapper readTag(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        byte[] tag = new byte[pf.getClassHashSize()];
+        byte[] tag = new byte[PrototypeFactory.getClassHashSize()];
         in.read(tag, 0, tag.length);
 
         if (PrototypeFactory.compareHash(tag, WRAPPER_TAG)) {

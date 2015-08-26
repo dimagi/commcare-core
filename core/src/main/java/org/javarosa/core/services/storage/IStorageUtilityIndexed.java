@@ -6,7 +6,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-public interface IStorageUtilityIndexed<E extends Externalizable> extends org.javarosa.core.services.storage.IStorageUtility<E> {
+public interface IStorageUtilityIndexed<E extends Externalizable> extends IStorageUtility<E> {
 
     /**
      * Retrieves a Vector of IDs of Externalizable objects in storage for which the field

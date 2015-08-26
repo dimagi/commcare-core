@@ -2,7 +2,8 @@ package org.javarosa.core.util.externalizable;
 
 /**
  * Abstract hashing class defining the basic outline of performing a hash. Hasher
- * implementations must override getHash and getHashSize
+ * implementations must override getHash and getHashSize. getClassHashValue() handles
+ * array creation and copying with these methods defined.
  *
  * @author ctsims
  * @author wspride
