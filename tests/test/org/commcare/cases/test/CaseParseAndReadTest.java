@@ -68,6 +68,7 @@ public class CaseParseAndReadTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
+            // TODO PLM: replace with use of ExternalDataInstanceFactory
             s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "instance"), null);
             return bos.toByteArray();
         } catch (IOException e) {

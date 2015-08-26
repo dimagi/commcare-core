@@ -405,6 +405,7 @@ public class CommCareUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
 
+            // TODO PLM: replace with use of ExternalDataInstanceFactory
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
             System.out.println(new String(bos.toByteArray()));
         } catch (IOException e) {
