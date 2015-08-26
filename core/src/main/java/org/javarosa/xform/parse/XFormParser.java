@@ -929,6 +929,8 @@ public class XFormParser {
         }
 
         usedAtts.addElement("mediatype");
+        usedAtts.addElement(REF_ATTR);
+        usedAtts.addElement("imageDimensionScaledMax");
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
