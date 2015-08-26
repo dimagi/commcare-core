@@ -27,13 +27,11 @@ public class XFormParserFactory {
 
     public XFormParser getXFormParser(Reader reader) {
         XFormParser parser = new XFormParser(reader);
-        init(parser);
-        return parser;
-    }
 
-    private void init(XFormParser parser) {
         if (stringCache != null) {
             parser.setStringCache(stringCache);
         }
+
+        return parser;
     }
 }
