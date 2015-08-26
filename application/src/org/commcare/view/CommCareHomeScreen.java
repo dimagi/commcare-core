@@ -121,7 +121,9 @@ public class CommCareHomeScreen extends CommCareListView {
     public void setImage(ChoiceItem ci, String filePath){
         try{
             Image mImage = ImageUtils.getImage(Localization.get(filePath));
-            ci.setImage(mImage);
+            if(mImage != null) {
+            	ci.setImage(mImage);
+            }
         }
         catch (NoLocalizedTextException e){
             System.out.println("couldn't find file path");

@@ -228,17 +228,12 @@
     </target>
 
     <target name="UpdateBuildNumber" description="Get the revision numbers of the various things from mercurial">
-        <exec executable="hg" outputproperty="cc-build-version">
-            <arg line="parents --template {node|short}"/>
-        </exec>
 
         <taskdef name="if" onerror="report" classname="net.sf.antcontrib.logic.IfTask" classpath="${dir.tools}/ant-contrib.jar" />
         <if>
             <equals arg1="${compile.source}" arg2="true" />
             <then>
-                <exec executable="hg" outputproperty="jr-build-version">
-                    <arg line="parents --template {node|short} -R &quot;${dir.javarosa}&quot;"/>
-                </exec>
+                
             </then>
             <else>
                 <unzip src="${dir.tools}/j2merosa-libraries.jar" dest="${dir.build}">

@@ -13,6 +13,7 @@ backend/dist/*
 key.properties
 glob:application/custom-devices.xml
 cases/bin/
+application/custom-devices.xml
 application/corpora/*
 application/cover/*
 application/cover/*
