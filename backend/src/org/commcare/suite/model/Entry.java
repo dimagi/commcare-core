@@ -1,13 +1,8 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
-import org.commcare.cases.instance.CaseDataInstance;
-import org.commcare.util.mocks.CommCareInstanceInitializer;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.DataInstanceBuilder;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -113,19 +108,17 @@ public class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances() {
-        //return instances;
-
         Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
-        ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 
             //This is silly, all of these are externaldata instances. TODO: save their
             //construction details instead.
             DataInstance cur = instances.get(key);
-            if (cur instanceof ExternalDataInstance) {
+            if (cur instanceof DataInstanceBuilder && cur instanceof ExternalDataInstance) {
                 //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                copy.put(key, instanceFactory.getDataInstance(cur.getInstanceId(), ((ExternalDataInstance)cur).getReference()));
+                // TODO PLM: check that this works if cur is CaseDataInstance!
+                copy.put(key, ((DataInstanceBuilder)cur).buildDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
             } else {
                 copy.put(key, cur);
             }
