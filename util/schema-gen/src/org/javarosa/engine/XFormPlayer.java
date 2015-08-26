@@ -9,6 +9,7 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.trace.StringEvaluationTraceSerializer;
@@ -347,8 +348,7 @@ public class XFormPlayer {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, mIIF);
 
-            // TODO PLM: replace with use of ExternalDataInstanceFactory
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+            s.serialize(ExternalDataInstanceFactory.getDataInstance("instance", instanceRef), null);
             out.println(XmlUtil.getPrettyXml(bos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
