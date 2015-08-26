@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 public class DataInstanceTest {
 
-    private static final String formPath = new String("/test_xpathpathexpr.xml");
+    private static final String formPath = "/test_xpathpathexpr.xml";
 
     @Test
     public void testDataInstance() {

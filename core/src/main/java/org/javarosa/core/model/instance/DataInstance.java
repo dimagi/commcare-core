@@ -49,7 +49,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
-
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
         referenceCache = new CacheTable<TreeReference, T>();

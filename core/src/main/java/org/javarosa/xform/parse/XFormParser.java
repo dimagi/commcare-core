@@ -62,8 +62,6 @@ import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
 
-/* droos: i think we need to start storing the contents of the <bind>s in the formdef again */
-
 /**
  * Provides conversion from xform to epihandy object model and vice vasa.
  *

@@ -14,16 +14,13 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class ExternalDataInstance extends DataInstance {
-
+public class ExternalDataInstance extends DataInstance implements DataInstanceBuilder {
     String reference;
-    int recordid = -1;
 
     AbstractTreeElement root;
     InstanceBase base;
 
     public ExternalDataInstance() {
-
     }
 
     /*
@@ -39,9 +36,13 @@ public class ExternalDataInstance extends DataInstance {
         return base;
     }
 
-    public ExternalDataInstance(String reference, String instanceid) {
+    protected ExternalDataInstance(String reference, String instanceid) {
         super(instanceid);
         this.reference = reference;
+    }
+
+    public ExternalDataInstance buildDataInstance(String reference, String instanceId) {
+        return new ExternalDataInstance(reference, instanceId);
     }
 
     public AbstractTreeElement getRoot() {
