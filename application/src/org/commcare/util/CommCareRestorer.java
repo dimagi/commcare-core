@@ -15,7 +15,7 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
 import org.javarosa.core.log.WrappedException;
-import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -226,8 +226,7 @@ public class CommCareRestorer implements Runnable {
             public void _writeBody(OutputStream os) throws IOException {
                 //TODO: This is just the casedb, we actually want
                 DataModelSerializer s = new DataModelSerializer(os, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
-                // TODO PLM: replace with ExternalDataInstanceFactory
-                s.serialize(new ExternalDataInstance("jr://instance/casedb/report" + "/" + syncToken + "/" + stateHash,"casedb"), null);
+                s.serialize(ExternalDataInstanceFactory.getDataInstance("casedb", "jr://instance/casedb/report" + "/" + syncToken + "/" + stateHash), null);
             }
         };
         listener.statusUpdate(CommCareOTARestoreListener.RESTORE_RECOVER_SEND);
