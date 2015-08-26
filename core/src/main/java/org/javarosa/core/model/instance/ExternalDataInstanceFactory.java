@@ -10,13 +10,14 @@ import java.util.Hashtable;
 public class ExternalDataInstanceFactory {
     private static final Hashtable<String, DataInstanceBuilder> instanceIdToBuilder = new Hashtable<String, DataInstanceBuilder>();
     private static final Object lock = new Object();
+    private static final ExternalDataInstance dummyDefaultInstance = new ExternalDataInstance();
 
     public static ExternalDataInstance getDataInstance(String instanceId, String reference) {
         if (instanceIdToBuilder.contains(instanceId)) {
             DataInstanceBuilder builder = instanceIdToBuilder.get(instanceId);
             return builder.buildDataInstance(reference, instanceId);
         } else {
-            return new ExternalDataInstance(reference, instanceId);
+            return dummyDefaultInstance.buildDataInstance(reference, instanceId);
         }
     }
 
