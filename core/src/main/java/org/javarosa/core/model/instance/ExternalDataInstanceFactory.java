@@ -1,18 +1,17 @@
 package org.javarosa.core.model.instance;
 
+import org.javarosa.core.services.Logger;
+
 import java.util.Hashtable;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ExternalDataInstanceFactory {
-    private final Hashtable<String, DataInstanceBuilder> instanceIdToBuilder;
+    private static final Hashtable<String, DataInstanceBuilder> instanceIdToBuilder = new Hashtable<String, DataInstanceBuilder>();
+    private static final Object lock = new Object();
 
-    public ExternalDataInstanceFactory() {
-        instanceIdToBuilder = new Hashtable<String, DataInstanceBuilder>();
-    }
-
-    public ExternalDataInstance getDataInstance(String instanceId, String reference) {
+    public static ExternalDataInstance getDataInstance(String instanceId, String reference) {
         if (instanceIdToBuilder.contains(instanceId)) {
             DataInstanceBuilder builder = instanceIdToBuilder.get(instanceId);
             return builder.buildDataInstance(reference, instanceId);
@@ -21,7 +20,12 @@ public class ExternalDataInstanceFactory {
         }
     }
 
-    public void registerInstanceBuilder(String instanceId, DataInstanceBuilder builder) {
-        instanceIdToBuilder.put(instanceId, builder);
+    public static void registerInstanceBuilder(String instanceId, DataInstanceBuilder builder) {
+        synchronized (lock) {
+            if (instanceIdToBuilder.contains(instanceId)){
+                Logger.log("Warning", "registering an existing external data instance");
+            }
+            instanceIdToBuilder.put(instanceId, builder);
+        }
     }
 }
