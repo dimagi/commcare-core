@@ -3,6 +3,8 @@
  */
 package org.commcare.xml;
 
+import org.commcare.cases.instance.CaseDataInstance;
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Entry;
@@ -71,7 +73,11 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(parser.getName().toLowerCase())) {
                 String instanceId = parser.getAttributeValue(null, "id");
                 String location = parser.getAttributeValue(null, "src");
-                instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+                if (CaseInstanceTreeElement.MODEL_NAME.equals(instanceId)) {
+                    instances.put(instanceId, new CaseDataInstance(location, instanceId));
+                } else {
+                    instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+                }
                 continue;
             } else if (parser.getName().equals("session")) {
                 while (nextTagInBlock("session")) {

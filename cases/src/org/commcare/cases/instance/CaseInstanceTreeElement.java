@@ -111,7 +111,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
             return null;
             // TODO PLM: commenting out the following line until http://manage.dimagi.com/default.asp?179998 is fixed
             // this will break the ledger query silent fail fix for http://manage.dimagi.com/default.asp?177247
-            // return CaseChildElement.TemplateElement(this);
+            //return CaseChildElement.buildCaseChildTemplate(this);
         }
 
         //name is always "case", so multiplicities are the only relevant component here
@@ -120,7 +120,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
             if (cases.size() == 0) {
                 //If we have no cases, we still need to be able to return a template element so as to not
                 //break xpath evaluation
-                return CaseChildElement.TemplateElement(this);
+                return CaseChildElement.buildCaseChildTemplate(this);
             }
             return cases.elementAt(multiplicity);
         }
@@ -328,7 +328,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
-        return "casedb";
+        return MODEL_NAME;
     }
 
     /* (non-Javadoc)

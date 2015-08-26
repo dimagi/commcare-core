@@ -3,8 +3,11 @@
  */
 package org.commcare.suite.model;
 
+import org.commcare.cases.instance.CaseDataInstance;
+import org.commcare.util.mocks.CommCareInstanceInitializer;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -113,6 +116,7 @@ public class Entry implements Externalizable, MenuDisplayable {
         //return instances;
 
         Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
+        ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 
@@ -121,7 +125,7 @@ public class Entry implements Externalizable, MenuDisplayable {
             DataInstance cur = instances.get(key);
             if (cur instanceof ExternalDataInstance) {
                 //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                copy.put(key, new ExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
+                copy.put(key, instanceFactory.getDataInstance(cur.getInstanceId(), ((ExternalDataInstance)cur).getReference()));
             } else {
                 copy.put(key, cur);
             }

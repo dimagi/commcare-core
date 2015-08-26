@@ -1,11 +1,14 @@
 package org.commcare.util.mocks;
 
+import org.commcare.cases.instance.CaseChildElement;
+import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -33,6 +36,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
+    }
+
+    public static ExternalDataInstanceFactory getExternalDataInstanceFactory() {
+        ExternalDataInstanceFactory factory = new ExternalDataInstanceFactory();
+        factory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+        return factory;
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
