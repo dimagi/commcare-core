@@ -3,11 +3,13 @@ package org.commcare.cases.test;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.TestInstanceInitializer;
 import org.commcare.test.utilities.XmlComparator;
+import org.commcare.util.mocks.CommCareInstanceInitializer;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,8 +70,8 @@ public class CaseParseAndReadTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
-            // TODO PLM: replace with use of ExternalDataInstanceFactory
-            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "instance"), null);
+            ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
+            s.serialize(instanceFactory.getDataInstance("instance", CaseTestUtils.CASE_INSTANCE), null);
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
