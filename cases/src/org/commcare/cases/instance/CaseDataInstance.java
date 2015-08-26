@@ -25,8 +25,7 @@ public class CaseDataInstance extends ExternalDataInstance {
      * @return was a valid path found for the reference?
      */
     public boolean hasTemplatePath(TreeReference ref) {
-        return ref.isAbsolute();
-                // && hasTemplatePathRec(ref, getBase(), 0);
+        return super.hasTemplatePath(ref);
     }
 
 }
