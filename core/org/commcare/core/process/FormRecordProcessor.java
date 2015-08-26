@@ -23,28 +23,23 @@ import java.io.InputStream;
 public class FormRecordProcessor {
 
     public static void process(UserDataInterface sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-        try {
-            final UserDataInterface mSandbox = sandbox;
+        final UserDataInterface mSandbox = sandbox;
 
-            InputStream is = stream;
+        InputStream is = stream;
 
-            DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
-                public TransactionParser getParser(KXmlParser parser) {
-                    if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
-                        return new LedgerXmlParsers(parser, mSandbox.getLedgerStorage());
-                    } else if ("case".equalsIgnoreCase(parser.getName())) {
-                        return new CaseXmlParser(parser, mSandbox.getCaseStorage());
-                    }
-                    return null;
+        DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
+            public TransactionParser getParser(KXmlParser parser) {
+                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
+                    return new LedgerXmlParsers(parser, mSandbox.getLedgerStorage());
+                } else if ("case".equalsIgnoreCase(parser.getName())) {
+                    return new CaseXmlParser(parser, mSandbox.getCaseStorage());
                 }
+                return null;
+            }
 
-            }, true, true);
+        }, true, true);
 
-            parser.parse();
-            is.close();
-        } catch(Exception e){
-            System.out.println("e3: " + e);
-            e.printStackTrace();
-        }
+        parser.parse();
+        is.close();
     }
 }

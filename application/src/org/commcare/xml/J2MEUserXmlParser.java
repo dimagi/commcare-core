@@ -5,6 +5,10 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.model.User;
 import org.kxml2.io.KXmlParser;
 
+/**
+ * The J2MEUserXmlParser lets us track its String syncToken
+ */
+
 public class J2MEUserXmlParser extends UserXmlParser {
 
     String syncToken;

@@ -14,27 +14,19 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
+ *  * Convenience methods, mostly for touchforms so we don't have to deal with Java IO
+ * in Jython which is terrible
+ *
  * Created by wpride1 on 8/20/15.
  */
 public class FormRecordProcessorHelper extends FormRecordProcessor{
     public static void processXML(UserDataInterface sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-
-        try {
-            InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
-            process(sandbox, stream);
-        }catch(Exception e){
-            System.out.println("e1: " + e);
-            e.printStackTrace();
-        }
+        InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
+        process(sandbox, stream);
     }
 
     public static void processFile(UserDataInterface sandbox, File record) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-        try {
-            InputStream stream = new FileInputStream(record);
-            process(sandbox, stream);
-        }catch(Exception e){
-            System.out.println("e2: " + e);
-            e.printStackTrace();
-        }
+        InputStream stream = new FileInputStream(record);
+        process(sandbox, stream);
     }
 }

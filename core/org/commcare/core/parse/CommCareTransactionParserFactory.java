@@ -32,7 +32,8 @@ import java.io.IOException;
  * V2: The CommCareTranactionParserFactory was refactored to be shared across Android/J2ME/Touchforms
  * as much possible. The parsing logic is largely the same across platforms. They mainly differ
  * in the UserDataInterface sandbox implementation and in some nuances of the parsers, which is achieved
- * by overriding the init methods as needed. This is the "pure" Java implementation:
+ * by overriding the init methods as needed. This is the "pure" Java implementation: J2METransactionParserFactory
+ * and AndroidTransactionParserFactory override it for their respective platforms.
  *
  * @author ctsims
  * @author wspride
@@ -48,7 +49,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected final UserDataInterface sandbox;
 
     int requests = 0;
-    protected String syncToken;
 
     public CommCareTransactionParserFactory(UserDataInterface sandbox) {
         this.sandbox = sandbox;
@@ -103,11 +103,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                        UnfullfilledRequirementsException {
                     this.checkNode("sync");
                     this.nextTag("restore_id");
-                    syncToken = parser.nextText();
+                    String syncToken = parser.nextText();
                     if (syncToken == null) {
                         throw new InvalidStructureException("Sync block must contain restore_id with valid ID inside!", parser);
                     }
-                    syncToken = syncToken.trim();
                     sandbox.setSyncToken(syncToken);
                     return syncToken;
                 }
@@ -193,6 +192,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     }
 
     public String getSyncToken() {
-        return syncToken;
+        return sandbox.getSyncToken();
     }
 }
