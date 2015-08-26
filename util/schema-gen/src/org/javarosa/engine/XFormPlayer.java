@@ -346,7 +346,8 @@ public class XFormPlayer {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, mIIF);
-            
+
+            // TODO PLM: replace with use of ExternalDataInstanceFactory
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
             out.println(XmlUtil.getPrettyXml(bos.toByteArray()));
         } catch (IOException e) {

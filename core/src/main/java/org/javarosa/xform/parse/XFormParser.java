@@ -375,7 +375,7 @@ public class XFormParser {
      *                                     of keywords that we should apply spec extension parsing logic to.
      * @param namespacesToSuppressWarnings is a Vector of namespaces for which
      *                                     we should suppress parsing warnings on
-     * @param namespacesParseInner         is a Vector of namespaces for which
+     * @param namespacesToParseInner       is a Vector of namespaces for which
      *                                     we should continue parsing inner elements
      */
     public void setupAllSpecExtensions(Hashtable<String, Vector<String>> namespacesToKeywords,
@@ -585,6 +585,7 @@ public class XFormParser {
                             }
                         }
                     }
+                    // TODO PLM: replace with ExternalDataInstanceFactory
                     di = new ExternalDataInstance(srcLocation, instanceid);
                 } else {
                     FormInstance fi = parseInstance(e, false);
