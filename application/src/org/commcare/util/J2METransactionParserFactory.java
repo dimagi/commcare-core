@@ -23,6 +23,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.commcare.util.J2MESandbox;
 
 import java.io.IOException;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -39,7 +40,7 @@ import java.io.IOException;
  * @author ctsims
  *
  */
-public class CommCareTransactionParserFactory extends org.commcare.core.parse.CommCareTransactionParserFactory {
+public class J2METransactionParserFactory extends CommCareTransactionParserFactory {
 
     private int[] caseTallies;
     private boolean tolerant;
@@ -51,7 +52,7 @@ public class CommCareTransactionParserFactory extends org.commcare.core.parse.Co
      * @param tolerant True if processing should fail in the event of conflicting data,
      * false if processing should proceed as long as it is possible.
      */
-    public CommCareTransactionParserFactory(boolean tolerant) {
+    public J2METransactionParserFactory(boolean tolerant) {
         super(new J2MESandbox());
         syncToken = null;
         caseTallies = new int[3];
