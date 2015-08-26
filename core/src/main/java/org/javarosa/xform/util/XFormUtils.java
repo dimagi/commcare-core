@@ -20,7 +20,6 @@ import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.xform.parse.IXFormParserFactory;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
@@ -38,10 +37,10 @@ import java.util.Vector;
  * @author Clayton Sims
  */
 public class XFormUtils {
-    private static IXFormParserFactory _factory = new XFormParserFactory();
+    private static XFormParserFactory _factory = new XFormParserFactory();
 
-    public static IXFormParserFactory setXFormParserFactory(IXFormParserFactory factory) {
-        IXFormParserFactory oldFactory = _factory;
+    public static XFormParserFactory setXFormParserFactory(XFormParserFactory factory) {
+        XFormParserFactory oldFactory = _factory;
         _factory = factory;
         return oldFactory;
     }
