@@ -89,7 +89,6 @@ public class CaseAPITests {
 
                 ResultSet rs = SqlHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
                 byte[] caseBytes = rs.getBytes("commcare_sql_record");
-                System.out.println("result bytes: " + caseBytes);
                 DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
 
                 Ledger readLedger = new Ledger();
@@ -101,8 +100,6 @@ public class CaseAPITests {
                     System.out.println("e: " + e);
                     e.printStackTrace();
                 }
-
-                System.out.println("Read ledger: " + readLedger.getSectionList()[0]);
 
 
                 c.close();

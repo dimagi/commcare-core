@@ -5,7 +5,6 @@ package org.commcare.util;
 
 import org.commcare.util.cli.ApplicationHost;
 import org.commcare.util.mocks.LivePrototypeFactory;
-import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -68,9 +67,7 @@ public class Harness {
     }
 
     private static LivePrototypeFactory setupStaticStorage() {
-        ClassNameHasher mHasher = new ClassNameHasher();
-        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory(mHasher);
-        PrototypeFactory.setStaticHasher(prototypeFactory.getLiveHasher());
+        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
         //Set up our storage
         return prototypeFactory;
     }

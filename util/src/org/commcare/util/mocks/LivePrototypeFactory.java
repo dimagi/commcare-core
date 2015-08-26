@@ -30,6 +30,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
 
     public LivePrototypeFactory(Hasher hasher) {
         this.mLiveHasher = new LiveHasher(this, hasher);
+        PrototypeFactory.setStaticHasher(this.mLiveHasher);
     }
 
     @Override

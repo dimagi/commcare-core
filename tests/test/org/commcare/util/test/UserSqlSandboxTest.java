@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.util.Vector;
 
 /**
- * Tests for the SqlSandbox API
+ * Tests for the SqlSandbox API. Just initializes and makes sure we can access at the moment.
  *
  * @author wspride
  */
@@ -36,15 +36,8 @@ public class UserSqlSandboxTest {
     public void test() {
         sandbox = SqlSandboxUtils.getStaticStorage(username);
         Case readCase = sandbox.getCaseStorage().read(1);
-        System.out.println("read case: " + readCase + " name: " + readCase.getTypeId());
-
         Ledger readLedger = sandbox.getLedgerStorage().read(1);
-        System.out.println("read ledger: " + readLedger + " entity id: " + readLedger.getEntiyId());
-
         FormInstance readFixture = sandbox.getUserFixtureStorage().read(1);
-        System.out.println("read fixture: " + readFixture.getRoot());
-
         User readUser = sandbox.getUserStorage().read(1);
-        System.out.println("read user: " + readUser + " name: " + readUser.getUsername());
     }
 }

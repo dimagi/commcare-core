@@ -5,10 +5,8 @@ import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
-import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A mock app is a quick test wrapper that makes it easy to start playing with a live instance
@@ -55,10 +53,7 @@ public class MockApp {
 
 
     private static LivePrototypeFactory setupStaticStorage() {
-        ClassNameHasher mHasher = new ClassNameHasher();
-        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory(mHasher);
-        PrototypeFactory.setStaticHasher(prototypeFactory.getLiveHasher());
-        //Set up our storage
+        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
         return prototypeFactory;
     }
 
