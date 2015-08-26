@@ -13,7 +13,7 @@ public class ExternalDataInstanceFactory {
     private static final ExternalDataInstance dummyDefaultInstance = new ExternalDataInstance();
 
     public static ExternalDataInstance getDataInstance(String instanceId, String reference) {
-        if (instanceIdToBuilder.contains(instanceId)) {
+        if (instanceIdToBuilder.containsKey(instanceId)) {
             DataInstanceBuilder builder = instanceIdToBuilder.get(instanceId);
             return builder.buildDataInstance(reference, instanceId);
         } else {
