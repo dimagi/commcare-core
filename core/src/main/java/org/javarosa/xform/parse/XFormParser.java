@@ -938,10 +938,6 @@ public class XFormParser {
         return question;
     }
 
-    /**
-     * Parses an xml element representing a question in a form, and returns the
-     * resulting QuestionDef
-     */
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
         return parseControl(parent, e, controlType, new Vector());
     }
