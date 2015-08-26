@@ -15,7 +15,7 @@ import java.io.Reader;
  *
  * @author mitchellsundt@gmail.com / csims@dimagi.com
  */
-public class XFormParserFactory implements IXFormParserFactory {
+public class XFormParserFactory {
     Interner<String> stringCache;
 
     public XFormParserFactory() {
@@ -36,23 +36,4 @@ public class XFormParserFactory implements IXFormParserFactory {
             parser.setStringCache(stringCache);
         }
     }
-
-    public XFormParser getXFormParser(Document doc) {
-        XFormParser parser = new XFormParser(doc);
-        init(parser);
-        return parser;
-    }
-
-    public XFormParser getXFormParser(Reader form, Reader instance) {
-        XFormParser parser = new XFormParser(form, instance);
-        init(parser);
-        return parser;
-    }
-
-    public XFormParser getXFormParser(Document form, Document instance) {
-        XFormParser parser = new XFormParser(form, instance);
-        init(parser);
-        return parser;
-    }
-
 }
