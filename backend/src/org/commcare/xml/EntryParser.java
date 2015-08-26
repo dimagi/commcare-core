@@ -1,18 +1,11 @@
-/**
- *
- */
 package org.commcare.xml;
 
-import org.commcare.cases.instance.CaseDataInstance;
-import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.util.mocks.CommCareInstanceInitializer;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -75,8 +68,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(parser.getName().toLowerCase())) {
                 String instanceId = parser.getAttributeValue(null, "id");
                 String location = parser.getAttributeValue(null, "src");
-                ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
-                instances.put(instanceId, instanceFactory.getDataInstance(instanceId, location));
+                instances.put(instanceId, ExternalDataInstanceFactory.getDataInstance(instanceId, location));
             } else if (parser.getName().equals("session")) {
                 while (nextTagInBlock("session")) {
                     SessionDatumParser parser = new SessionDatumParser(this.parser);

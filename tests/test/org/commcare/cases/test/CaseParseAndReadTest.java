@@ -70,8 +70,7 @@ public class CaseParseAndReadTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
-            ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
-            s.serialize(instanceFactory.getDataInstance("instance", CaseTestUtils.CASE_INSTANCE), null);
+            s.serialize(ExternalDataInstanceFactory.getDataInstance("instance", CaseTestUtils.CASE_INSTANCE), null);
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

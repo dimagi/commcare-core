@@ -192,12 +192,11 @@ public class MockDataUtils {
     public static EvaluationContext buildContextWithInstances(MockUserDataSandbox sandbox,
                                                               Hashtable<String, String> instanceRefToId) {
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
-        ExternalDataInstanceFactory instanceFactory = CommCareInstanceInitializer.getExternalDataInstanceFactory();
 
         Hashtable<String, DataInstance> instances = new Hashtable<>();
         for (String instanceRef : instanceRefToId.keySet()) {
             String instanceId = instanceRefToId.get(instanceRef);
-            ExternalDataInstance edi = instanceFactory.getDataInstance(instanceId, instanceRef);
+            ExternalDataInstance edi = ExternalDataInstanceFactory.getDataInstance(instanceId, instanceRef);
             edi.initialize(iif, instanceId);
             instances.put(instanceId, edi);
         }

@@ -36,12 +36,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
-    }
 
-    public static ExternalDataInstanceFactory getExternalDataInstanceFactory() {
-        ExternalDataInstanceFactory factory = new ExternalDataInstanceFactory();
-        factory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
-        return factory;
+        ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
