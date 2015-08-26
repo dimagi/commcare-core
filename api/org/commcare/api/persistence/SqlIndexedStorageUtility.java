@@ -355,28 +355,20 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return iterate();
     }
 
-    public void dropTable(){
-        Connection c = null;
-        try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
-            SqlHelper.dropTable(c, tableName);
-            c.close();
-        } catch(Exception e){
-            System.out.println("Got exception creating table: " + tableName + " e: " + e);
-            e.printStackTrace();
-        }
-    }
-
     public void tryCreateTable(){
-        Connection c = null;
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:"+ this.userName + ".db");
+            Connection c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
-        } catch(Exception e){
+        } catch(SQLException e){
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            System.out.println("Couldn't create table: " + tableName + " got: " + e);
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            System.out.println("Couldn't create table: " + tableName + " got: " + e);
+            e.printStackTrace();
         }
     }
 }

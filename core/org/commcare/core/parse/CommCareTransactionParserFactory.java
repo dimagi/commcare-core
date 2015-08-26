@@ -18,14 +18,25 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * A factory for covering all of the basic transactions expected in userspace
- * against the mock data sandbox provided.
+ * The CommCare Transaction Parser Factory (whew!) wraps all of the current
+ * transactions that CommCare knows about, and provides the appropriate hooks for
+ * parsing through XML and dispatching the right handler for each transaction.
  *
- * This set of transactions should almost certainly be made uniform between
- * different platform implementations, but the different platforms require some
- * subtle difference right now which make that challenging.
+ * It should be the central point of processing for transactions (eliminating the
+ * use of the old datamodel based processors) and should be used in any situation where
+ * a transaction is expected to be present.
+ *
+ * It is expected to behave more or less as a black box, in that it directly creates/modifies
+ * the data models on the system, rather than producing them for another layer or processing.
+ *
+ * V2: The CommCareTranactionParserFactory was refactored to be shared across Android/J2ME/Touchforms
+ * as much possible. The parsing logic is largely the same across platforms. They mainly differ
+ * in the UserDataInterface sandbox implementation and in some nuances of the parsers, which is achieved
+ * by overriding the init methods as needed. This is the "pure" Java implementation:
  *
  * @author ctsims
+ * @author wspride
+ *
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 

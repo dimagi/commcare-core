@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Set of Sql utility methods for clients running modern, non-Android Java (where we use cursors
+ * in the place of prepared statements)
+ *
  * Created by wpride1 on 8/11/15.
  */
 public class SqlHelper {
@@ -24,7 +27,6 @@ public class SqlHelper {
             preparedStatement.execute();
         } catch (SQLException e) {
             System.out.println("didn't drop table");
-            //e.printStackTrace();
         }
     }
 
