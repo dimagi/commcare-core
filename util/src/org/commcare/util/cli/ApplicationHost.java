@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
@@ -44,7 +44,7 @@ public class ApplicationHost {
     private final CommCarePlatform mPlatform;
     private final String mUsername;
     private final String mPassword;
-    private UserDataInterface mSandbox;
+    private AbstractUserSandbox mSandbox;
     private SessionWrapper mSession;
 
     private boolean mUpdatePending = false;

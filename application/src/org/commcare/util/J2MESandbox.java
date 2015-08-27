@@ -2,7 +2,7 @@ package org.commcare.util;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
@@ -13,14 +13,12 @@ import org.javarosa.core.services.storage.StorageManager;
 
 /**
  * Basically just a wrapper around the StorageManager so that we can use that storage acccess
- * as a UserDataInterface sandbox.
+ * as a AbstractUserSandbox.
  *
  * @author wspride
  */
 
-public class J2MESandbox implements UserDataInterface{
-
-    private String syncToken;
+public class J2MESandbox extends AbstractUserSandbox {
 
     public IStorageUtilityIndexed<Case> getCaseStorage() {
         return (IStorageUtilityIndexed<Case>)StorageManager.getStorage(Case.STORAGE_KEY);
@@ -50,13 +48,5 @@ public class J2MESandbox implements UserDataInterface{
 
     public void setLoggedInUser(User user) {
         // don't need here
-    }
-
-    public void setSyncToken(String syncToken) {
-        this.syncToken = syncToken;
-    }
-
-    public String getSyncToken() {
-        return syncToken;
     }
 }

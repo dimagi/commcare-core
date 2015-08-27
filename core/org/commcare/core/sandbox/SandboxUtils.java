@@ -1,6 +1,6 @@
 package org.commcare.core.sandbox;
 
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -27,7 +27,7 @@ public class SandboxUtils {
      * of valid "owners" for entities (cases, ledgers, etc) in the universe.
      *
      */
-    public static Vector<String> extractEntityOwners(UserDataInterface sandbox) {
+    public static Vector<String> extractEntityOwners(AbstractUserSandbox sandbox) {
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>();
 
@@ -60,7 +60,7 @@ public class SandboxUtils {
      * A quick way to request an evaluation context with an abstract instance available.
      *
      */
-    public static EvaluationContext getInstanceContexts(UserDataInterface sandbox, String instanceId, String instanceRef){
+    public static EvaluationContext getInstanceContexts(AbstractUserSandbox sandbox, String instanceId, String instanceRef){
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
         Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
@@ -79,7 +79,7 @@ public class SandboxUtils {
      * @param userId
      * @return
      */
-    public static FormInstance loadFixture(UserDataInterface sandbox,
+    public static FormInstance loadFixture(AbstractUserSandbox sandbox,
                                             String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage =
                 sandbox.getUserFixtureStorage();

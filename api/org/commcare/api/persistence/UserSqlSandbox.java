@@ -2,7 +2,7 @@ package org.commcare.api.persistence;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -12,7 +12,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  * @author wspride
  */
-public class UserSqlSandbox implements UserDataInterface{
+public class UserSqlSandbox extends AbstractUserSandbox {
     private final SqlIndexedStorageUtility<Case> caseStorage;
     private final SqlIndexedStorageUtility<Ledger> ledgerStorage;
     private final SqlIndexedStorageUtility<User> userStorage;
@@ -77,15 +77,4 @@ public class UserSqlSandbox implements UserDataInterface{
     }
 
     // implement sync token stuff in next iteration, but useful to have in superclass now for AndroidSandbox
-
-    @Override
-    public void setSyncToken(String syncToken) {
-        //TODO
-    }
-
-    @Override
-    public String getSyncToken() {
-        //TODO
-        return "TODO";
-    }
 }

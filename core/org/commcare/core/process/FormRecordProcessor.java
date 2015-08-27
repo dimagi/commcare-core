@@ -1,6 +1,6 @@
 package org.commcare.core.process;
 
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -22,8 +22,8 @@ import java.io.InputStream;
  */
 public class FormRecordProcessor {
 
-    public static void process(UserDataInterface sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-        final UserDataInterface mSandbox = sandbox;
+    public static void process(AbstractUserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+        final AbstractUserSandbox mSandbox = sandbox;
 
         InputStream is = stream;
 

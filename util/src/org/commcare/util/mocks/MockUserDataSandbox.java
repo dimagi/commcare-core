@@ -2,7 +2,7 @@ package org.commcare.util.mocks;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -21,7 +21,7 @@ import java.util.Date;
  *
  * @author ctsims
  */
-public class MockUserDataSandbox implements UserDataInterface{
+public class MockUserDataSandbox extends AbstractUserSandbox {
 
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
@@ -83,9 +83,5 @@ public class MockUserDataSandbox implements UserDataInterface{
     
     public User getLoggedInUser() {
         return mUser;
-    }
-
-    public void updateLastSync(){
-        lastSync = new Date();
     }
 }

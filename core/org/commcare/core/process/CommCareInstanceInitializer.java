@@ -1,6 +1,6 @@
 package org.commcare.core.process;
 
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -25,23 +25,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    protected final UserDataInterface mSandbox;
+    protected final AbstractUserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
 
-    public CommCareInstanceInitializer(UserDataInterface sandbox) {
+    public CommCareInstanceInitializer(AbstractUserSandbox sandbox) {
         this(null, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(UserDataInterface sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(AbstractUserSandbox sandbox, CommCarePlatform platform) {
         this(null, sandbox, platform);
     }
 
-    public CommCareInstanceInitializer(UserDataInterface sandbox, CommCareSession session) {
+    public CommCareInstanceInitializer(AbstractUserSandbox sandbox, CommCareSession session) {
         this(session, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(CommCareSession session, UserDataInterface sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(CommCareSession session, AbstractUserSandbox sandbox, CommCarePlatform platform) {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;

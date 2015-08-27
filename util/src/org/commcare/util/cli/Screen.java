@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.mocks.SessionWrapper;
@@ -35,7 +35,7 @@ public abstract class Screen {
     /**
      * Get the title of the current screen, wrapped with the relevant app metadata.
      */
-    public String getWrappedDisplaytitle(UserDataInterface sandbox, CommCarePlatform platform) {
+    public String getWrappedDisplaytitle(AbstractUserSandbox sandbox, CommCarePlatform platform) {
         String title = getScreenTitle();
         if (title == null) {
             try {
