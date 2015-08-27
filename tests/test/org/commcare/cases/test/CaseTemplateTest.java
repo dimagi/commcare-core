@@ -4,11 +4,14 @@ import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * Test CaseDB template checking code.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CaseTemplateTest {
@@ -43,17 +46,16 @@ public class CaseTemplateTest {
     /**
      * Ensure reference that doesn't follows casedb instance template spec fails
      */
-    @Test
-    public void testNonSpecRefFails() {
-        try {
-            CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'parent_node']/anything_can_go_here/this_should_crash", "");
-            Assert.assertTrue(false);
-        } catch (Exception e) {
-        }
-        try {
-            CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'parent_node']/index/anything_can_go_here/@this_should_crash", "");
-            Assert.assertTrue(false);
-        } catch (Exception e) {
-        }
+    @Test(expected = XPathTypeMismatchException.class)
+    public void testNonSpecRefFails() throws Exception {
+        CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'parent_node']/anything_can_go_here/this_should_crash", "");
+    }
+
+    /**
+     * Ensure attribute reference that doesn't follows casedb instance template spec fails
+     */
+    @Test(expected = XPathTypeMismatchException.class)
+    public void testNonSpecAttrRefFails() throws Exception {
+        CaseTestUtils.xpathEvalAndCompare(evalCtx, "instance('casedb')/casedb/case[@case_id = 'parent_node']/index/anything_can_go_here/@this_should_crash", "");
     }
 }
