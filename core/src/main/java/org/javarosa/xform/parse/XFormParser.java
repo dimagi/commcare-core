@@ -902,13 +902,15 @@ public class XFormParser {
 
         instanceNodes.addElement(instanceNode);
         instanceNodeIdStrs.addElement(instanceId);
-
-
     }
 
     protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
         Vector usedAtts = new Vector();
-        QuestionDef question = parseControl(parent, e, controlUpload);
+        usedAtts.addElement("mediatype");
+        usedAtts.addElement(REF_ATTR);
+
+        QuestionDef question = parseControl(parent, e, controlUpload, usedAtts);
+
         String mediaType = e.getAttributeValue(null, "mediatype");
         if ("image/*".equals(mediaType)) {
             // NOTE: this could be further expanded. 
@@ -919,7 +921,6 @@ public class XFormParser {
             question.setControlType(Constants.CONTROL_VIDEO_CAPTURE);
         }
 
-        usedAtts.addElement("mediatype");
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
@@ -928,10 +929,20 @@ public class XFormParser {
     }
 
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
+        return parseControl(parent, e, controlType, new Vector());
+    }
+
+    /**
+     * Parses an xml element representing a question in a form, and returns the
+     * resulting QuestionDef
+     *
+     * @param usedAtts - used to pass in any additional attributes known to be used by this specific
+     *                  element, besides the basic ones already added by parseControl generically
+     */
+    protected QuestionDef parseControl(IFormElement parent, Element e, int controlType, Vector usedAtts) {
         QuestionDef question = new QuestionDef();
         question.setID(serialQuestionID++); //until we come up with a better scheme
 
-        Vector usedAtts = new Vector();
         usedAtts.addElement(REF_ATTR);
         usedAtts.addElement(BIND_ATTR);
         usedAtts.addElement(APPEARANCE_ATTR);
@@ -1017,11 +1028,9 @@ public class XFormParser {
 
         parent.addChild(question);
 
-
         if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
             reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
         }
-
 
         return question;
     }
