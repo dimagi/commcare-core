@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <profile version="15"
-         update="https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/profile.ccpr?latest=true"
+         update="https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/profile.xml?latest=true"
          requiredMajor="2"
          requiredMinor="20"
          uniqueid="197146733c3b0c6b2cf127948c44b58f"
@@ -74,7 +74,7 @@
     
 
     <features>
-        <checkoff active="true"/>
+        <checkoff active="false"/>
         <reminders active="false">
             <time>0</time>
         </reminders>

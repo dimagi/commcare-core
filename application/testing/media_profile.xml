@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <profile version="15"
-         update="https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/profile.ccpr?latest=true"
+         update="https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/media_profile.xml?latest=true"
          requiredMajor="2"
          requiredMinor="20"
          uniqueid="197146733c3b0c6b2cf127948c44b58f"
@@ -74,7 +74,7 @@
     
 
     <features>
-        <checkoff active="true"/>
+        <checkoff active="false"/>
         <reminders active="false">
             <time>0</time>
         </reminders>
@@ -92,6 +92,13 @@
             <location authority="local">./suite.xml</location>
         
         <location authority="remote">https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="15">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/media_suite.xml</location>
     </resource></suite>
     
 </profile>
