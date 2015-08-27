@@ -1,7 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.DataInstanceBuilder;
+import org.javarosa.core.model.instance.ExternalDataInstanceBuilder;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -115,9 +115,9 @@ public class Entry implements Externalizable, MenuDisplayable {
             //This is silly, all of these are externaldata instances. TODO: save their
             //construction details instead.
             DataInstance cur = instances.get(key);
-            if (cur instanceof DataInstanceBuilder && cur instanceof ExternalDataInstance) {
+            if (cur instanceof ExternalDataInstanceBuilder && cur instanceof ExternalDataInstance) {
                 //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                copy.put(key, ((DataInstanceBuilder)cur).buildDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
+                copy.put(key, ((ExternalDataInstanceBuilder)cur).buildExternalDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
             } else {
                 copy.put(key, cur);
             }

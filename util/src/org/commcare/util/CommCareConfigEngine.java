@@ -27,7 +27,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -84,7 +83,7 @@ public class CommCareConfigEngine {
         this.mLiveFactory = prototypeFactory;
 
         // register data instance logic to handle casedb instances
-        ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+        ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
 
         setRoots();
 

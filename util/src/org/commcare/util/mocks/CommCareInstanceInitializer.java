@@ -1,6 +1,5 @@
 package org.commcare.util.mocks;
 
-import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
@@ -37,7 +36,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.mSandbox = sandbox;
         this.mPlatform = platform;
 
-        ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+        ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

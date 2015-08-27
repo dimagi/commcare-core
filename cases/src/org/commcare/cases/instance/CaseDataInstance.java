@@ -32,7 +32,7 @@ public class CaseDataInstance extends ExternalDataInstance {
         super(reference, instanceid);
     }
 
-    public CaseDataInstance buildDataInstance(String reference, String instanceId) {
+    public CaseDataInstance buildExternalDataInstance(String reference, String instanceId) {
         return new CaseDataInstance(reference, instanceId);
     }
 

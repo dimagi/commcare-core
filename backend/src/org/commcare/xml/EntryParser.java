@@ -68,7 +68,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(parser.getName().toLowerCase())) {
                 String instanceId = parser.getAttributeValue(null, "id");
                 String location = parser.getAttributeValue(null, "src");
-                instances.put(instanceId, ExternalDataInstanceFactory.getDataInstance(instanceId, location));
+                instances.put(instanceId, ExternalDataInstanceFactory.getNewExternalDataInstance(instanceId, location));
             } else if (parser.getName().equals("session")) {
                 while (nextTagInBlock("session")) {
                     SessionDatumParser parser = new SessionDatumParser(this.parser);

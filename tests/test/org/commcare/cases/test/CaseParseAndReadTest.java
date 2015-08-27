@@ -68,7 +68,7 @@ public class CaseParseAndReadTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
-            s.serialize(ExternalDataInstanceFactory.getDataInstance("instance", CaseTestUtils.CASE_INSTANCE), null);
+            s.serialize(ExternalDataInstanceFactory.getNewExternalDataInstance("instance", CaseTestUtils.CASE_INSTANCE), null);
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

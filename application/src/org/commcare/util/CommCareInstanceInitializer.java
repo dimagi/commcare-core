@@ -45,7 +45,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     public CommCareInstanceInitializer(Interner<String> stringCache, CommCareSession session) {
         this.session = session;
 
-        ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+        ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
     }
 
     /**
