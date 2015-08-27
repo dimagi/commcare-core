@@ -3,7 +3,7 @@ package org.javarosa.core.model.instance.test;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.test_utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.FormLoadingUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;

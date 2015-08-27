@@ -1,4 +1,4 @@
-package org.javarosa.test_utils;
+package org.javarosa.core.model.instance.utils;
 
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -12,36 +12,30 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Commonly used form loading utilities for testing.
+ * Collection of static form loading methods
  *
  * @author Phillip Mates
  */
-
 public class FormLoadingUtils {
 
-    /**
-     * Load and parse an XML file into a form instance.
-     *
-     * @param formPath form resource filename that will be loaded at compile
-     *                 time.
-     */
-    public static FormInstance loadFormInstance(String formPath) throws InvalidStructureException, IOException {
-        // read in xml
-        InputStream is = System.class.getResourceAsStream(formPath);
+    public static FormInstance loadFormInstance(String formFilepath)
+            throws InvalidStructureException, IOException {
+        TreeElement root = xmlToTreeElement(formFilepath);
+
+        return new FormInstance(root, null);
+    }
+
+    public static TreeElement xmlToTreeElement(String xmlFilepath)
+            throws InvalidStructureException, IOException {
+        InputStream is = System.class.getResourceAsStream(xmlFilepath);
         TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
 
-        // turn parsed xml into a form instance
-        TreeElement root = null;
         try {
-            root = parser.parse();
+            return parser.parse();
         } catch (XmlPullParserException e) {
             throw new IOException(e.getMessage());
         } catch (UnfullfilledRequirementsException e) {
-            // TODO: this error will eventually be removed from the base abstract
-            // class, and then can be removed here
             throw new IOException(e.getMessage());
         }
-
-        return new FormInstance(root, null);
     }
 }
