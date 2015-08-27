@@ -347,7 +347,7 @@ public class XFormPlayer {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, mIIF);
 
-            s.serialize(ExternalDataInstanceFactory.getDataInstance("instance", instanceRef), null);
+            s.serialize(ExternalDataInstanceFactory.getNewExternalDataInstance("instance", instanceRef), null);
             out.println(XmlUtil.getPrettyXml(bos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();

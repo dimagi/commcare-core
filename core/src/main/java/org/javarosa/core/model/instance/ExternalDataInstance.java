@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class ExternalDataInstance extends DataInstance implements DataInstanceBuilder {
+public class ExternalDataInstance extends DataInstance implements ExternalDataInstanceBuilder {
     String reference;
 
     AbstractTreeElement root;
@@ -41,7 +41,7 @@ public class ExternalDataInstance extends DataInstance implements DataInstanceBu
         this.reference = reference;
     }
 
-    public ExternalDataInstance buildDataInstance(String reference, String instanceId) {
+    public ExternalDataInstance buildExternalDataInstance(String reference, String instanceId) {
         return new ExternalDataInstance(reference, instanceId);
     }
 

@@ -585,7 +585,7 @@ public class XFormParser {
                             }
                         }
                     }
-                    di = ExternalDataInstanceFactory.getDataInstance(instanceid, srcLocation);
+                    di = ExternalDataInstanceFactory.getNewExternalDataInstance(instanceid, srcLocation);
                 } else {
                     FormInstance fi = parseInstance(e, false);
                     loadInstanceData(e, fi.getRoot());
