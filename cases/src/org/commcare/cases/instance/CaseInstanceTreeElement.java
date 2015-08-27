@@ -108,10 +108,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public CaseChildElement getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
                 "case".equals(name)) {
-            return null;
-            // TODO PLM: commenting out the following line until http://manage.dimagi.com/default.asp?179998 is fixed
-            // this will break the ledger query silent fail fix for http://manage.dimagi.com/default.asp?177247
-            //return CaseChildElement.buildCaseChildTemplate(this);
+            return CaseChildElement.buildCaseChildTemplate(this);
         }
 
         //name is always "case", so multiplicities are the only relevant component here

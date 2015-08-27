@@ -117,7 +117,6 @@ public class Entry implements Externalizable, MenuDisplayable {
             DataInstance cur = instances.get(key);
             if (cur instanceof DataInstanceBuilder && cur instanceof ExternalDataInstance) {
                 //Copy the EDI so when it gets populated we don't keep it dependent on this object's lifecycle!!
-                // TODO PLM: check that this works if cur is CaseDataInstance!
                 copy.put(key, ((DataInstanceBuilder)cur).buildDataInstance(((ExternalDataInstance)cur).getReference(), cur.getInstanceId()));
             } else {
                 copy.put(key, cur);

@@ -1,0 +1,28 @@
+<instance>
+    <casedb>
+        <case case_id="" case_type="" owner_id="" status="">
+            <!-- case_id: The unique GUID of this case -->
+            <!-- case_type: The id of this case's type -->
+            <!-- owner_id: The GUID of the case or group which owns this case -->
+            <!-- status: 'open' if the case has not been closed. 'closed' if the case has -->
+            <case_name/>
+            <!-- The name of the case-->
+            <date_opened/>
+            <!-- The date this case was opened -->
+            <last_modified/>
+            <!-- The date of the case's last transaction -->
+            <CASEDB_WILD_CARD/>
+            <!-- An arbitrary data value set in this case -->
+            <index>
+                <CASEDB_WILD_CARD case_type="" relationship=""/>
+                <!-- An index to another case of the given type -->
+                <!-- @case_type: Exactly one - the type of the indexed case -->
+                <!-- @relationship: Exactly one - the relationship of this case to the indexed case. See the casexml spec for details -->
+            </index>
+            <attachment>
+                <CASEDB_WILD_CARD/>
+                <!-- A named element which provides a reference to an attachment in the local environment. This attachment may or may not be currently available (if it is being processed asynchronously, for instance, but should have a valid JR reference URI either way whose existence can be checked.-->
+            </attachment>
+        </case>
+    </casedb>
+</instance>
