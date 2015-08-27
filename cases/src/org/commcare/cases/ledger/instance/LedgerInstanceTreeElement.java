@@ -94,7 +94,10 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public LedgerChildElement getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
                 "ledger".equals(name)) {
-            return LedgerChildElement.TemplateElement(this);
+            return null;
+            // TODO PLM: commenting out the following line until http://manage.dimagi.com/default.asp?179998 is fixed
+            // this will break the ledger query silent fail fix for http://manage.dimagi.com/default.asp?177247
+            // return LedgerChildElement.TemplateElement(this);
         }
 
         //name is always the same, so multiplicities are the only relevant component here
