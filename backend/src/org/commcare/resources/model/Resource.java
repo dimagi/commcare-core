@@ -73,31 +73,31 @@ public class Resource implements Persistable, IMetaData {
     public static final int RESOURCE_STATUS_LOCAL = 1;
 
     // Installed and ready to use
-    public static final int RESOURCE_STATUS_INSTALLED = 2;
+    public static final int RESOURCE_STATUS_INSTALLED = 4;
 
     // Resource is ready to replace an existing installed resource.
-    public static final int RESOURCE_STATUS_UPGRADE = 3;
+    public static final int RESOURCE_STATUS_UPGRADE = 8;
 
     // Resource is no longer needed in the local environment and can be
     // completely removed
-    public static final int RESOURCE_STATUS_DELETE = 4;
+    public static final int RESOURCE_STATUS_DELETE = 16;
 
     // Resource has been "unstaged" (won't necessarily work as an app
     // resource), but can be reverted to installed atomically.
-    public static final int RESOURCE_STATUS_UNSTAGED = 5;
+    public static final int RESOURCE_STATUS_UNSTAGED = 17;
 
     // Resource is transitioning from installed to unstaged, and can be in any
     // interstitial state.
-    public static final int RESOURCE_STATUS_INSTALL_TO_UNSTAGE = 6;
+    public static final int RESOURCE_STATUS_INSTALL_TO_UNSTAGE = 18;
 
     // Resource is transitioning from unstaged to being installed
-    public static final int RESOURCE_STATUS_UNSTAGE_TO_INSTALL = 7;
+    public static final int RESOURCE_STATUS_UNSTAGE_TO_INSTALL = 19;
 
     // Resource is transitioning from being upgraded to being installed
-    public static final int RESOURCE_STATUS_UPGRADE_TO_INSTALL = 8;
+    public static final int RESOURCE_STATUS_UPGRADE_TO_INSTALL = 20;
 
     // Resource is transitioning from being installed to being upgraded
-    public static final int RESOURCE_STATUS_INSTALL_TO_UPGRADE = 9;
+    public static final int RESOURCE_STATUS_INSTALL_TO_UPGRADE = 21;
 
     public static final int RESOURCE_VERSION_UNKNOWN = -2;
 
