@@ -33,7 +33,7 @@ public class CaseDataInstance extends ExternalDataInstance {
         // For serialization
     }
 
-    protected CaseDataInstance(String reference, String instanceid) {
+    private CaseDataInstance(String reference, String instanceid) {
         super(reference, instanceid);
     }
 
