@@ -438,7 +438,7 @@ public class ResourceTable {
                                      String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
-        Stack<Resource> unreadyResources = getUnreadyResources();
+        Vector<Resource> unreadyResources = getUnreadyResources();
 
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
