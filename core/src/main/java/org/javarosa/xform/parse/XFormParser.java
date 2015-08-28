@@ -2591,7 +2591,7 @@ public class XFormParser {
                 }
             }
 
-            verifyRepeatMemberBindings(child, instance, (isRepeat ? (GroupDef) child : parentRepeat));
+            verifyRepeatMemberBindings(child, instance, (isRepeat ? (GroupDef)child : parentRepeat));
         }
     }
 
