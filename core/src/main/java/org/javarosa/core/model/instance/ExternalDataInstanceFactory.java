@@ -27,11 +27,13 @@ public class ExternalDataInstanceFactory {
      */
     public static ExternalDataInstance getNewExternalDataInstance(String instanceId,
                                                                   String dataReference) {
-        if (instanceIdToBuilder.containsKey(instanceId)) {
-            ExternalDataInstanceBuilder builder = instanceIdToBuilder.get(instanceId);
-            return builder.buildExternalDataInstance(dataReference, instanceId);
-        } else {
-            return dummyDefaultInstance.buildExternalDataInstance(dataReference, instanceId);
+        synchronized (lock) {
+            if (instanceIdToBuilder.containsKey(instanceId)) {
+                ExternalDataInstanceBuilder builder = instanceIdToBuilder.get(instanceId);
+                return builder.buildExternalDataInstance(dataReference, instanceId);
+            } else {
+                return dummyDefaultInstance.buildExternalDataInstance(dataReference, instanceId);
+            }
         }
     }
 
