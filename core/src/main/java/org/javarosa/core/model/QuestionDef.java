@@ -231,7 +231,10 @@ public class QuestionDef implements IFormElement, Localizable {
         return null;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
+     */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
@@ -246,7 +249,10 @@ public class QuestionDef implements IFormElement, Localizable {
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
+     */
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
