@@ -78,7 +78,7 @@ public class LocalizationUtils {
         //clear comments except if they have backslash before them (markdown '#'s)
         while ((i = LocalizationUtils.lastIndexOf(line.substring(0, dec), "#")) != -1) {
 
-            if ((i != 0) && !(line.charAt(i - 1) == '\\')) {
+            if ((i == 0) || !(line.charAt(i - 1) == '\\')) {
                 line = line.substring(0, i);
                 dec = line.length();
             } else {
