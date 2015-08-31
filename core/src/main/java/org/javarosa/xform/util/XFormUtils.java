@@ -161,12 +161,9 @@ public class XFormUtils {
 
     /**
      * Get the list of attributes in an element
-     *
-     * @param e Element that potentially has attributes in it
-     * @return Vector (of String) attributes inside of element
      */
-    public static Vector getAttributeList(Element e) {
-        Vector atts = new Vector();
+    public static Vector<String> getAttributeList(Element e) {
+        Vector<String> atts = new Vector<String>();
 
         for (int i = 0; i < e.getAttributeCount(); i++) {
             atts.addElement(e.getAttributeName(i));
@@ -176,29 +173,24 @@ public class XFormUtils {
     }
 
     /**
-     * @param e        an Element with attributes
-     * @param usedAtts Vector (of String) attributes
-     * @return Vector (of String) attributes from 'e' that aren't in 'usedAtts'
+     * @return Vector of attributes from 'e' that aren't in 'usedAtts'
      */
-    public static Vector getUnusedAttributes(Element e, Vector usedAtts) {
-        Vector unusedAtts = getAttributeList(e);
+    public static Vector<String> getUnusedAttributes(Element e, Vector<String> usedAtts) {
+        Vector<String> unusedAtts = getAttributeList(e);
         for (int i = 0; i < usedAtts.size(); i++) {
             if (unusedAtts.contains(usedAtts.elementAt(i))) {
                 unusedAtts.removeElement(usedAtts.elementAt(i));
             }
         }
-
         return unusedAtts;
     }
 
     /**
-     * @param e        an Element with attributes
-     * @param usedAtts Vector (of String) attributes
      * @return String warning about which attributes from 'e' aren't in 'usedAtts'
      */
-    public static String unusedAttWarning(Element e, Vector usedAtts) {
+    public static String unusedAttWarning(Element e, Vector<String> usedAtts) {
         String warning = "";
-        Vector unusedAtts = getUnusedAttributes(e, usedAtts);
+        Vector<String> unusedAtts = getUnusedAttributes(e, usedAtts);
 
         warning += unusedAtts.size() + " unrecognized attributes found in Element [" +
                 e.getName() + "] and will be ignored: ";
@@ -215,8 +207,6 @@ public class XFormUtils {
     }
 
     /**
-     * @param e        an Element with attributes
-     * @param usedAtts Vector (of String) attributes
      * @return boolean representing whether there are any attributes in 'e' not
      * in 'usedAtts'
      */

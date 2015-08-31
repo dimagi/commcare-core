@@ -29,4 +29,6 @@ public abstract class QuestionExtensionParser {
     // May return null if the specific extension data being sought is not present for the given
     // element
     public abstract QuestionDataExtension parse(Element e);
+
+    public abstract String[] getUsedAttributes();
 }

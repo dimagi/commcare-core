@@ -34,4 +34,9 @@ public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
         }
         return null;
     }
+
+    @Override
+    public String[] getUsedAttributes() {
+        return new String[]{"imageDimensionScaledMax"};
+    }
 }
