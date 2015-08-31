@@ -63,8 +63,9 @@ public class XFormUtils {
         return _factory.getXFormParser(isr).parse();
     }
 
-    public static FormDef getFormFromInputStream(InputStream is, QuestionExtensionParser extensionParser)
-            throws XFormParseException{
+    public static FormDef getFormFromInputStream(InputStream is,
+                                                          Vector<QuestionExtensionParser> extensionParsers)
+            throws XFormParseException {
         InputStreamReader isr;
 
         //Buffer the incoming data, since it's coming from disk.
@@ -80,7 +81,9 @@ public class XFormUtils {
         try {
             try {
                 XFormParser parser = _factory.getXFormParser(isr);
-                parser.registerExtensionParser(extensionParser);
+                for (QuestionExtensionParser p : extensionParsers) {
+                    parser.registerExtensionParser(p);
+                }
                 return parser.parse();
                 //TODO: Keep removing these, shouldn't be swallowing them
             } catch (IOException e) {

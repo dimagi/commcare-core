@@ -18,10 +18,6 @@ public abstract class QuestionExtensionParser {
     // The name of the question type that this parser is for ("input", "upload", etc.)
     private String elementName;
 
-    public QuestionExtensionParser() {
-
-    }
-
     public void setElementName(String elementName) {
         this.elementName = elementName;
     }
