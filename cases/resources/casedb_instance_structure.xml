@@ -1,4 +1,4 @@
-<instance>
+<wrapper>
     <casedb>
         <case case_id="" case_type="" owner_id="" status="">
             <!-- case_id: The unique GUID of this case -->
@@ -25,4 +25,4 @@
             </attachment>
         </case>
     </casedb>
-</instance>
+</wrapper>
