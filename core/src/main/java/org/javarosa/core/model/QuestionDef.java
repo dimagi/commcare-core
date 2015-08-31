@@ -77,7 +77,7 @@ public class QuestionDef implements IFormElement, Localizable {
         setControlType(controlType);
         observers = new Vector();
         mQuestionStrings = new Hashtable<String, QuestionString>();
-        extensions = new Vector<>();
+        extensions = new Vector<QuestionDataExtension>();
         
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label 
         //defined, which is causing problems with blank questions. Adding this for now to ensure things

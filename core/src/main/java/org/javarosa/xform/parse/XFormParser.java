@@ -327,24 +327,24 @@ public class XFormParser {
 
     public XFormParser(Reader reader) {
         _reader = reader;
-        extensionParsers = new Vector<>();
+        extensionParsers = new Vector<QuestionExtensionParser>();
     }
 
     public XFormParser(Document doc) {
         _xmldoc = doc;
-        extensionParsers = new Vector<>();
+        extensionParsers = new Vector<QuestionExtensionParser>();
     }
 
     public XFormParser(Reader form, Reader instance) {
         _reader = form;
         _instReader = instance;
-        extensionParsers = new Vector<>();
+        extensionParsers = new Vector<QuestionExtensionParser>();
     }
 
     public XFormParser(Document form, Document instance) {
         _xmldoc = form;
         _instDoc = instance;
-        extensionParsers = new Vector<>();
+        extensionParsers = new Vector<QuestionExtensionParser>();
     }
 
     public void attachReporter(XFormParserReporter reporter) {
