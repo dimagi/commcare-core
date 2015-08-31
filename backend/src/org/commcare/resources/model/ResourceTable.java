@@ -419,7 +419,7 @@ public class ResourceTable {
                                  String toInitialize)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
 
-        Stack<Resource> unreadyResources = getUnreadyResources();
+        Vector<Resource> unreadyResources = getUnreadyResources();
 
         // install all unready resources. If toInitialize is set, stop after it
         // has been installed.
