@@ -15,19 +15,9 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CaseDataInstance extends ExternalDataInstance {
-    private static TreeElement caseDbSpecTemplate;
+    private static TreeElement caseDbSpecTemplate = null;
     private static final String CASEDB_WILD_CARD = "CASEDB_WILD_CARD";
-
-    static {
-        try {
-            caseDbSpecTemplate =
-                    FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
-        } catch (InvalidStructureException e) {
-            caseDbSpecTemplate = null;
-        } catch (IOException e) {
-            caseDbSpecTemplate = null;
-        }
-    }
+    private static final Object lock = new Object();
 
     public CaseDataInstance() {
         // For serialization
@@ -44,13 +34,23 @@ public class CaseDataInstance extends ExternalDataInstance {
      * Does the reference follow the statically defined CaseDB spec?
      */
     public boolean hasTemplatePath(TreeReference ref) {
-        if (caseDbSpecTemplate != null) {
+        synchronized (lock) {
+            loadTemplateSpecLazily();
+
             return followsTemplateSpec(ref, caseDbSpecTemplate, 0);
-        } else {
-            // failed to load casedb spec template, default to super implementation
-            Logger.log("CaseDb Warning",
-                    "Using default hasTemplatePath implementation: reference resolution will break!");
-            return super.hasTemplatePath(ref);
+        }
+    }
+
+    private static void loadTemplateSpecLazily() {
+        if (caseDbSpecTemplate == null) {
+            try {
+                caseDbSpecTemplate =
+                        FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
+            } catch (InvalidStructureException e) {
+                throw new RuntimeException();
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
         }
     }
 

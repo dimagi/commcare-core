@@ -14,7 +14,7 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
  *
  * @author ctsims
  */
-public class TestInstanceInitializer implements InstanceInitializationFactory {
+public class TestInstanceInitializer extends InstanceInitializationFactory {
     private final MockUserDataSandbox sandbox;
 
     public TestInstanceInitializer(MockUserDataSandbox sandbox) {

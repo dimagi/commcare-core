@@ -15,7 +15,7 @@ import org.javarosa.core.model.instance.TreeElement;
 /**
  * @author ctsims
  */
-public class CommCareInstanceInitializer implements InstanceInitializationFactory {
+public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     private final CommCareSession session;
     private CaseInstanceTreeElement casebase;
     private LedgerInstanceTreeElement stockbase;
