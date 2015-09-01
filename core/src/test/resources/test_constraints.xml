@@ -1,0 +1,56 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Constraints for simple and select answers</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                    uiVersion="1" version="279" name="Constraints for simple and select answers">
+                    <constraint-max />
+                    <constraint-min />
+                    <constraint-max-and-min />
+                    <constraint-max-or-min />
+                </data>
+            </instance>
+
+            <bind nodeset="/data/constraint-max" constraint=". < 30" type="xsd:int"/>
+            <bind nodeset="/data/constraint-min" constraint=". > 10" type="xsd:int"/>
+            <bind nodeset="/data/constraint-max-and-min" constraint=". < 100 and . > 300" type="xsd:int"/>
+            <bind nodeset="/data/constraint-max-or-min" constraint=". < 30 or . < 100" type="xsd:int"/>
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="constraint-min-label">
+                        <value>Min</value>
+                    </text>
+                    <text id="constraint-max-label">
+                        <value>Max</value>
+                    </text>
+                    <text id="constraint-max-or-min-label">
+                        <value>MaxOrMin</value>
+                    </text>
+                    <text id="constraint-max-and-min-label">
+                        <value>MaxAndMin</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+
+    <h:body>
+        <input ref="constraint-max">
+            <label ref="jr:itext('constraint-max-label')"/>
+        </input>
+        <input ref="constraint-min">
+            <label ref="jr:itext('constraint-min-label')"/>
+        </input>
+        <input ref="constraint-max-or-min">
+            <label ref="jr:itext('constraint-max-or-min-label')"/>
+        </input>
+        <input ref="constraint-max-and-min">
+            <label ref="jr:itext('constraint-max-and-min-label')"/>
+        </input>
+    </h:body>
+</h:html>
