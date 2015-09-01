@@ -476,7 +476,7 @@ public class CommCareSession {
 
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instances.get(key).initialize(iif, key);
+            instances.put(key, instances.get(key).initialize(iif, key));
         }
 
 

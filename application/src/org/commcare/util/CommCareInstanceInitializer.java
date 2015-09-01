@@ -4,7 +4,6 @@
 package org.commcare.util;
 
 
-import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
@@ -14,7 +13,6 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ConcreteTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -44,8 +42,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
     public CommCareInstanceInitializer(Interner<String> stringCache, CommCareSession session) {
         this.session = session;
-
-        ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
     }
 
     /**

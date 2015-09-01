@@ -1,8 +1,10 @@
 package org.commcare.test.utilities;
 
+import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 
@@ -17,6 +19,14 @@ public class TestInstanceInitializer extends InstanceInitializationFactory {
 
     public TestInstanceInitializer(MockUserDataSandbox sandbox) {
         this.sandbox = sandbox;
+    }
+
+    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
+        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+            return new CaseDataInstance(instance);
+        } else {
+            return instance;
+        }
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

@@ -3,8 +3,6 @@
  */
 package org.commcare.util;
 
-import org.commcare.cases.instance.CaseDataInstance;
-import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -24,7 +22,6 @@ import org.commcare.util.reference.JavaResourceRoot;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
@@ -81,9 +78,6 @@ public class CommCareConfigEngine {
         this.platform = new CommCarePlatform(2, 23);
 
         this.mLiveFactory = prototypeFactory;
-
-        // register data instance logic to handle casedb instances
-        ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
 
         setRoots();
 

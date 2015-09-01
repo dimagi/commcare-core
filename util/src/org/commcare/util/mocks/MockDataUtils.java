@@ -6,7 +6,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
@@ -195,9 +194,9 @@ public class MockDataUtils {
         Hashtable<String, DataInstance> instances = new Hashtable<>();
         for (String instanceRef : instanceRefToId.keySet()) {
             String instanceId = instanceRefToId.get(instanceRef);
-            ExternalDataInstance edi = ExternalDataInstanceFactory.getNewExternalDataInstance(instanceId, instanceRef);
-            edi.initialize(iif, instanceId);
-            instances.put(instanceId, edi);
+            ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
+
+            instances.put(instanceId, edi.initialize(iif, instanceId));
         }
 
         return new EvaluationContext(null, instances);

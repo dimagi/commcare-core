@@ -6,7 +6,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -68,7 +68,8 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(parser.getName().toLowerCase())) {
                 String instanceId = parser.getAttributeValue(null, "id");
                 String location = parser.getAttributeValue(null, "src");
-                instances.put(instanceId, ExternalDataInstanceFactory.getNewExternalDataInstance(instanceId, location));
+                instances.put(instanceId, new ExternalDataInstance(location, instanceId));
+
             } else if (parser.getName().equals("session")) {
                 while (nextTagInBlock("session")) {
                     SessionDatumParser parser = new SessionDatumParser(this.parser);
