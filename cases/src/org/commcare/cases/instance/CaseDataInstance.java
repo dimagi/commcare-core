@@ -47,9 +47,9 @@ public class CaseDataInstance extends ExternalDataInstance {
                 caseDbSpecTemplate =
                         FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
             } catch (InvalidStructureException e) {
-                throw new RuntimeException();
+                throw new RuntimeException("Failed to load casedb template spec");
             } catch (IOException e) {
-                throw new RuntimeException();
+                throw new RuntimeException("Failed to load casedb template spec");
             }
         }
     }
