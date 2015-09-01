@@ -18,6 +18,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
+import java.lang.RuntimeException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -74,7 +75,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         }
 
         if (d.getNodeset() != null) {
-            return null;
+            throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
         }
 
         String[] output = new String[d.getFields().length];
