@@ -1,21 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<profile version="15"
-         update="https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/profile.xml?latest=true"
+<profile version="64"
+         update="https://www.commcarehq.org/a/jennytraining/apps/download/fd1b24cb51e3942bfe52b9d8bc8f5c39/profile.xml?latest=true"
          requiredMajor="2"
-         requiredMinor="20"
-         uniqueid="197146733c3b0c6b2cf127948c44b58f"
-         name="Dimagi Reports"
+         requiredMinor="13"
+         uniqueid="385ef1041e30a3b7860b072f62cf9f5e"
+         name="Music"
          descriptor="Profile File">
     <property key="BackupMode" value="file_mode"/>
     <property key="backup-url" value="file:///E:/CommCare.Backup"/>
     <property key="restore-url" value="file:///E:/CommCare.Backup"/>
-    <property key="ota-restore-url" value="https://www.commcarehq.org/a/dimagi/phone/restore/"/>
-    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/dimagi/phone/restore/"/>
-    <property key="PostURL" value="https://www.commcarehq.org/a/dimagi/receiver/197146733c3b0c6b2cf127948c44b58f/" force="true"/>
-    <property key="PostTestURL" value="https://www.commcarehq.org/a/dimagi/receiver/197146733c3b0c6b2cf127948c44b58f/" force="true"/>
-    <property key="key_server" value="https://www.commcarehq.org/a/dimagi/phone/keys/"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/jennytraining/phone/restore/"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/jennytraining/phone/restore/"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/jennytraining/receiver/fd1b24cb51e3942bfe52b9d8bc8f5c39/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/jennytraining/receiver/fd1b24cb51e3942bfe52b9d8bc8f5c39/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/jennytraining/phone/keys/"/>
     <property key="cur_locale" value="en"/>
-    <property key="cc_user_domain" value="dimagi.commcarehq.org"/>
+    <property key="cc_user_domain" value="jennytraining.commcarehq.org"/>
     <property key="jr_openrosa_api" value="1.0"/>
 
     <!-- Properties configured on CommCare HQ 1.0 -->
@@ -27,8 +27,6 @@
         <property key="restore-tolerance" value="loose"/>
     
         <property key="cc-user-mode" value="cc-u-normal"/>
-    
-        <property key="cc-fuzzy-search-enabled" value="yes"/>
     
         <property key="cc-autoup-freq" value="freq-never"/>
     
@@ -64,7 +62,7 @@
     
         <property key="unsent-number-limit" value="5"/>
     
-        <property key="cc-content-valid" value="no"/>
+        <property key="cc-content-valid" value="yes"/>
     
         <property key="logenabled" value="Enabled"/>
     
@@ -87,11 +85,11 @@
         </users>
     </features>
 
-    <suite><resource id="suite" version="15">
+    <suite><resource id="suite" version="64">
         
             <location authority="local">./suite.xml</location>
         
-        <location authority="remote">https://www.commcarehq.org/a/dimagi/apps/download/197146733c3b0c6b2cf127948c44b58f/suite.xml</location>
+        <location authority="remote">https://www.commcarehq.org/a/jennytraining/apps/download/fd1b24cb51e3942bfe52b9d8bc8f5c39/suite.xml</location>
     </resource></suite>
     
 </profile>

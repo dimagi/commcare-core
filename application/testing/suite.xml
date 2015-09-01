@@ -1,182 +1,211 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<suite version="13" descriptor="Suite File">
-    <locale language="default">
-        <resource id="app_default_strings" version="13" descriptor="Translations: Default Language">
-            <location authority="local">./default/app_strings.txt</location>
-            <location authority="remote">./default/app_strings.txt</location>
-        </resource>
-    </locale>
-    <locale language="en">
-        <resource id="app_en_strings" version="13" descriptor="Translations: English">
-            <location authority="local">./en/app_strings.txt</location>
-            <location authority="remote">./en/app_strings.txt</location>
-        </resource>
-    </locale>
-    <detail id="reports.3b221c171e91fdfd85c2b55228f644cc.select">
-        <title>
-            <text>
-                <locale id="cchq.report_menu"/>
-            </text>
-        </title>
-        <field>
-            <header>
-                <text>
-                    <locale id="cchq.report_name_header"/>
-                </text>
-            </header>
-            <template>
-                <text>
-                    <xpath function="name"/>
-                </text>
-            </template>
-        </field>
-    </detail>
-    <detail id="reports.3b221c171e91fdfd85c2b55228f644cc.summary">
-        <title>
-            <text>
-                <value>parent detail</value>
-            </text>
-        </title>
-        <detail id="some-sort-of-fake-id">
-            <title>
-                <text>
-                    <locale id="cchq.report_menu"/>
-                </text>
-            </title>
-            <field>
-                <header>
-                    <text>
-                        <locale id="cchq.report_name_header"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="name"/>
-                    </text>
-                </template>
-            </field>
-            <field>
-                <header>
-                    <text>
-                        <locale id="cchq.report_description_header"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="description"/>
-                    </text>
-                </template>
-            </field>
-            <field>
-                <header>
-                    <text/>
-                </header>
-                <template form="graph">
-                    <graph type="bar">
-                        <series
-                            nodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']/rows/row">
-                            <configuration/>
-                            <x function="column[@id='applicant_type']"/>
-                            <y function="column[@id='remote_choices_no']"/>
-                        </series>
-                        <series
-                            nodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']/rows/row">
-                            <configuration/>
-                            <x function="column[@id='applicant_type']"/>
-                            <y function="column[@id='remote_choices_yes']"/>
-                        </series>
-                        <series
-                            nodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']/rows/row">
-                            <configuration/>
-                            <x function="column[@id='applicant_type']"/>
-                            <y function="column[@id='remote_choices_unknown']"/>
-                        </series>
-                        <configuration/>
-                    </graph>
-                </template>
-            </field>
-        </detail>
-        <detail id="reports.3b221c171e91fdfd85c2b55228f644cc.data"
-                xnodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']/rows/row"
-                nodeset="rows/row">
-            <title>
-                <text>
-                    <locale id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.name"/>
-                </text>
-            </title>
-            <field>
-                <header>
-                    <text>
-                        <locale
-                            id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.headers.applicant_type"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="column[@id='applicant_type']"/>
-                    </text>
-                </template>
-            </field>
-            <field>
-                <header>
-                    <text>
-                        <locale
-                            id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.headers.remote_choices_no"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="column[@id='remote_choices_no']"/>
-                    </text>
-                </template>
-            </field>
-            <field>
-                <header>
-                    <text>
-                        <locale
-                            id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.headers.remote_choices_yes"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="column[@id='remote_choices_yes']"/>
-                    </text>
-                </template>
-            </field>
-            <field>
-                <header>
-                    <text>
-                        <locale
-                            id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.headers.remote_choices_unknown"/>
-                    </text>
-                </header>
-                <template>
-                    <text>
-                        <xpath function="column[@id='remote_choices_unknown']"/>
-                    </text>
-                </template>
-            </field>
-        </detail>
-    </detail>
-    <entry>
-        <command id="reports.3b221c171e91fdfd85c2b55228f644cc">
-            <text>
-                <locale id="cchq.reports.3b221c171e91fdfd85c2b55228f644cc.name"/>
-            </text>
-        </command>
-        <instance id="reports" src="jr://fixture/commcare:reports"/>
-        <session>
-            <datum id="report_id_3b221c171e91fdfd85c2b55228f644cc"
-                   nodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']"
-                   value="./@id" detail-select="reports.3b221c171e91fdfd85c2b55228f644cc.select"
-                   detail-confirm="reports.3b221c171e91fdfd85c2b55228f644cc.summary"/>
-            <!--datum id="throwaway_3b221c171e91fdfd85c2b55228f644cc" nodeset="instance('reports')/reports/report[@id='3b221c171e91fdfd85c2b55228f644cc']/rows/row" value="" detail-select="reports.3b221c171e91fdfd85c2b55228f644cc.data"/-->
-        </session>
-    </entry>
-    <menu id="m0">
+<suite version="64" descriptor="Suite File">
+  <xform>
+    <resource id="9b203a10dd4059ea0413807e1686a6a41d60e955" version="57" descriptor="Form: (Module Songs) - Add Song">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="7cb79b36ad01f4fd538ad1b0469b9085599aeb21" version="63" descriptor="Form: (Module Songs) - Play Song">
+      <location authority="local">./modules-0/forms-1.xml</location>
+      <location authority="remote">./modules-0/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="141cb65a09b44fe19f026941b7e46f4c7f7f0137" version="47" descriptor="Form: (Module Songs) - Media">
+      <location authority="local">./modules-0/forms-2.xml</location>
+      <location authority="remote">./modules-0/forms-2.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="64" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en">
+    <resource id="app_en_strings" version="64" descriptor="Translations: English">
+      <location authority="local">./en/app_strings.txt</location>
+      <location authority="remote">./en/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
         <text>
-            <value>this is a module</value>
+          <locale id="m0.case_short.case_name_1.header"/>
         </text>
-        <command id="reports.3b221c171e91fdfd85c2b55228f644cc"/>
-    </menu>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_artist_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="artist"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_plays_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="plays"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="0">
+        <text>
+          <locale id="m0.case_short.case_last_played_4.header"/>
+        </text>
+      </header>
+      <template width="11%">
+        <text>
+          <xpath function="if(last_played = '', '*', if(today() - date(last_played) &gt; 1, '*', ''))"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+      <title>
+        <text>
+          <locale id="m0.case_long.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m0.case_long.case_name_1.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="case_name"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m0.case_long.case_artist_2.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="artist"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m0.case_long.case_rating_3.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="rating"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m0.case_long.case_mood_4.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="mood"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m0.case_long.case_energy_5.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="energy"/>
+          </text>
+        </template>
+      </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/B520859B-BE3D-4DAB-B8E9-585C3E1019C5</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+    <session>
+      <datum id="case_id_new_song_0" function="uuid()"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/EBAB623F-3DF8-421B-A083-ED7CEF5A9A97</form>
+    <command id="m0-f1">
+      <text>
+        <locale id="forms.m0f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='song'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/52624C27-ED22-4FB7-8442-51D739FFDA6A</form>
+    <command id="m0-f2">
+      <text>
+        <locale id="forms.m0f2"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <command id="m0-case-list">
+      <text>
+        <locale id="case_lists.m0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='song'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <menu id="root">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+    <command id="m0-case-list"/>
+  </menu>
 </suite>

@@ -1,0 +1,53 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Media</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/52624C27-ED22-4FB7-8442-51D739FFDA6A" uiVersion="1" version="47" name="Media">
+					<icon1/>
+					<icon2/>
+					<icon3/>
+					<audio/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/icon1" type="xsd:string"/>
+			<bind nodeset="/data/icon2" type="xsd:string"/>
+			<bind nodeset="/data/icon3" type="xsd:string"/>
+			<bind nodeset="/data/audio" type="xsd:string"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="icon1-label">
+						<value/>
+						<value form="image">jr://file/commcare/image/data/icon1.png</value>
+					</text>
+					<text id="icon2-label">
+						<value/>
+						<value form="image">jr://file/commcare/image/data/icon2.png</value>
+					</text>
+					<text id="icon3-label">
+						<value/>
+						<value form="image">jr://file/commcare/image/data/icon3.png</value>
+					</text>
+					<text id="audio-label">
+						<value/>
+						<value form="audio">jr://file/commcare/audio/data/audio.mp3</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/icon1">
+			<label ref="jr:itext('icon1-label')"/>
+		</input>
+		<input ref="/data/icon2">
+			<label ref="jr:itext('icon2-label')"/>
+		</input>
+		<input ref="/data/icon3">
+			<label ref="jr:itext('icon3-label')"/>
+		</input>
+		<input ref="/data/audio">
+			<label ref="jr:itext('audio-label')"/>
+		</input>
+	</h:body>
+</h:html>
