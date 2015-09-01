@@ -1,33 +1,3 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite version="64" descriptor="Media Suite File">
-  <media path="../../commcare/image/data">
-    <resource descriptor="Image File: icon3.png" id="media-ebd94d2783a5ad61a2a8ae5043aedcb7-icon3.png" version="40">
-      <location authority="local">./commcare/image/data/icon3.png</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/58e93b523795e8211d60c0b3790122ec/icon3.png</location>
-    </resource>
-  </media>
-  <media path="../../commcare/image/data">
-    <resource descriptor="Image File: icon2.png" id="media-129910719dddcf371ec7f4edec45b547-icon2.png" version="40">
-      <location authority="local">./commcare/image/data/icon2.png</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/5aca26998e8a50ff7edbd9cbf0a8effa/icon2.png</location>
-    </resource>
-  </media>
-  <media path="../../commcare/image/data">
-    <resource descriptor="Image File: icon1.png" id="media-a72a0d50e547734a628c65aa51f3426c-icon1.png" version="40">
-      <location authority="local">./commcare/image/data/icon1.png</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/5aca26998e8a50ff7edbd9cbf0a8fd5f/icon1.png</location>
-    </resource>
-  </media>
-  <media path="../../commcare/audio/data">
-    <resource descriptor="Audio File: audio.mp3" id="media-ed2b38611872a26d9b0a0af85996604b-audio.mp3" version="47">
-      <location authority="local">./commcare/audio/data/audio.mp3</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareAudio/d690aa9a68f8adb4cf8179ad96aea3ab/audio.mp3</location>
-    </resource>
-  </media>
-  <media path="../../commcare/image/data">
-    <resource descriptor="Image File: question5.png" id="media-b2f4411eab50dfc55458737680084648-question5.png" version="25">
-      <location authority="local">./commcare/image/data/question5.png</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/6b201d0cd11a0afcd53ee4ed4c704d5c/question5.png</location>
-    </resource>
-  </media>
 </suite>

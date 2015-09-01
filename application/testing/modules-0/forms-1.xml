@@ -18,7 +18,6 @@
 				<translation lang="en" default="">
 					<text id="lalala-label">
 						<value>la la la la</value>
-						<value form="image">jr://file/commcare/image/data/question5.png</value>
 					</text>
 				</translation>
 			</itext>

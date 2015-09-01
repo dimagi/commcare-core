@@ -17,20 +17,16 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="icon1-label">
-						<value/>
-						<value form="image">jr://file/commcare/image/data/icon1.png</value>
+						<value>icon1</value>
 					</text>
 					<text id="icon2-label">
-						<value/>
-						<value form="image">jr://file/commcare/image/data/icon2.png</value>
+						<value>icon2</value>
 					</text>
 					<text id="icon3-label">
-						<value/>
-						<value form="image">jr://file/commcare/image/data/icon3.png</value>
+						<value>icon2</value>
 					</text>
 					<text id="audio-label">
-						<value/>
-						<value form="audio">jr://file/commcare/audio/data/audio.mp3</value>
+						<value>audio</value>
 					</text>
 				</translation>
 			</itext>
