@@ -310,7 +310,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.recordid = recordid;
     }
 
-    public abstract void initialize(InstanceInitializationFactory initializer, String instanceId);
+    public abstract DataInstance initialize(InstanceInitializationFactory initializer, String instanceId);
 
     public CacheHost getCacheHost() {
         return mCacheHost;

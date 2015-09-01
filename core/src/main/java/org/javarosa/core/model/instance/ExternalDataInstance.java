@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class ExternalDataInstance extends DataInstance implements ExternalDataInstanceBuilder {
+public class ExternalDataInstance extends DataInstance {
     String reference;
 
     AbstractTreeElement root;
@@ -22,6 +22,22 @@ public class ExternalDataInstance extends DataInstance implements ExternalDataIn
 
     public ExternalDataInstance() {
     }
+
+    public ExternalDataInstance(String reference, String instanceid) {
+        super(instanceid);
+        this.reference = reference;
+    }
+
+    /**
+     * Copy constructor
+     */
+    public ExternalDataInstance(ExternalDataInstance instance) {
+        super(instance.getInstanceId());
+        this.reference = instance.getReference();
+        this.base = instance.getBase();
+        this.root = instance.getRoot();
+    }
+
 
     /*
      * (non-Javadoc)
@@ -34,15 +50,6 @@ public class ExternalDataInstance extends DataInstance implements ExternalDataIn
 
     public InstanceBase getBase() {
         return base;
-    }
-
-    protected ExternalDataInstance(String reference, String instanceid) {
-        super(instanceid);
-        this.reference = reference;
-    }
-
-    public ExternalDataInstance buildExternalDataInstance(String reference, String instanceId) {
-        return new ExternalDataInstance(reference, instanceId);
     }
 
     public AbstractTreeElement getRoot() {
@@ -64,9 +71,10 @@ public class ExternalDataInstance extends DataInstance implements ExternalDataIn
         ExtUtil.writeString(out, reference);
     }
 
-    public void initialize(InstanceInitializationFactory initializer, String instanceId) {
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
+        return initializer.getSpecializedInstance(this);
     }
 }

@@ -20,7 +20,7 @@ import org.javarosa.core.model.condition.Triggerable;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InvalidReferenceException;
 import org.javarosa.core.model.instance.TreeElement;
@@ -585,7 +585,8 @@ public class XFormParser {
                             }
                         }
                     }
-                    di = ExternalDataInstanceFactory.getNewExternalDataInstance(instanceid, srcLocation);
+                    di = new ExternalDataInstance(srcLocation, instanceid);
+
                 } else {
                     FormInstance fi = parseInstance(e, false);
                     loadInstanceData(e, fi.getRoot());

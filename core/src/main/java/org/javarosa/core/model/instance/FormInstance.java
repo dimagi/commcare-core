@@ -394,9 +394,11 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         }
     }
 
-    public void initialize(InstanceInitializationFactory initializer, String instanceId) {
+    public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         this.instanceid = instanceId;
         root.setInstanceName(instanceId);
+
+        return this;
     }
 
     public static final String META_XMLNS = "XMLNS";

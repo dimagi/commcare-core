@@ -4,6 +4,7 @@
 package org.javarosa.engine;
 
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -20,6 +21,10 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
 
     public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
         this.instances = instances;
+    }
+
+    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
+        return new ExternalDataInstance(instance);
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

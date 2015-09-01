@@ -21,9 +21,11 @@ public class DataModelSerializer {
     KXmlSerializer serializer;
     InstanceInitializationFactory factory;
 
+    /*
     public DataModelSerializer(OutputStream stream) throws IOException {
         this(stream, new InstanceInitializationFactory());
     }
+    */
 
     public DataModelSerializer(OutputStream stream, InstanceInitializationFactory factory) throws IOException {
         serializer = new KXmlSerializer();
@@ -36,14 +38,10 @@ public class DataModelSerializer {
     }
 
     public void serialize(ExternalDataInstance instance, TreeReference base) throws IOException {
-        instance.initialize(factory, instance.getName());
-        serialize((DataInstance)instance, base);
+        DataInstance newInstance = instance.initialize(factory, instance.getInstanceId());
+        serialize(newInstance, base);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.utils.ITreeVisitor#visit(org.javarosa.core.model.DataModelTree)
-     */
     public void serialize(DataInstance instance, TreeReference base) throws IOException {
         //TODO: Namespaces?
         AbstractTreeElement root;
