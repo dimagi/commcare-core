@@ -74,9 +74,9 @@ public class CommCareEntity extends Entity<TreeReference> {
             d = longDetail;
         }
 
-        if (d.getNodeset() != null) {
+        //if (d.getNodeset() != null) {
             throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
-        }
+        //}
 
         String[] output = new String[d.getFields().length];
         for(int i = 0 ; i < output.length ; ++i) {
