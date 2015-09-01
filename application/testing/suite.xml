@@ -90,7 +90,7 @@
       </template>
     </field>
   </detail>
-  <detail id="m0_case_long">
+  <detail id="m0_case_long" nodeset="rows/row">
       <title>
         <text>
           <locale id="m0.case_long.title"/>
