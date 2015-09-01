@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.instance;
 
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -33,6 +30,7 @@ public class ExternalDataInstance extends DataInstance {
      */
     public ExternalDataInstance(ExternalDataInstance instance) {
         super(instance.getInstanceId());
+
         this.reference = instance.getReference();
         this.base = instance.getBase();
         this.root = instance.getRoot();
