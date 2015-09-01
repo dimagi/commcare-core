@@ -27,7 +27,7 @@ public class FormLoadingUtils {
 
     public static TreeElement xmlToTreeElement(String xmlFilepath)
             throws InvalidStructureException, IOException {
-        InputStream is = System.class.getResourceAsStream(xmlFilepath);
+        InputStream is = FormLoadingUtils.class.getResourceAsStream(xmlFilepath);
         TreeElementParser parser = new TreeElementParser(ElementParser.instantiateParser(is), 0, "instance");
 
         try {
