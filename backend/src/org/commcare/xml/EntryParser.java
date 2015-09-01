@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
@@ -72,7 +69,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
                 String instanceId = parser.getAttributeValue(null, "id");
                 String location = parser.getAttributeValue(null, "src");
                 instances.put(instanceId, new ExternalDataInstance(location, instanceId));
-                continue;
+
             } else if (parser.getName().equals("session")) {
                 while (nextTagInBlock("session")) {
                     SessionDatumParser parser = new SessionDatumParser(this.parser);

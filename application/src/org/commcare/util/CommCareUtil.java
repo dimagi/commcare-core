@@ -14,7 +14,6 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -405,7 +404,8 @@ public class CommCareUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
 
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+            s.serialize(new ExternalDataInstance(instanceRef, "instance"), null);
+
             System.out.println(new String(bos.toByteArray()));
         } catch (IOException e) {
             // TODO Auto-generated catch block
