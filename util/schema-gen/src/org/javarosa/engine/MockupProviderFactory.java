@@ -16,7 +16,7 @@ import java.util.Hashtable;
  * @author ctsims
  *
  */
-public class MockupProviderFactory implements InstanceInitializationFactory {
+public class MockupProviderFactory extends InstanceInitializationFactory {
     Hashtable<String, FormInstance> instances;
 
     public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
