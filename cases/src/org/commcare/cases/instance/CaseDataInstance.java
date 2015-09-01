@@ -1,6 +1,5 @@
 package org.commcare.cases.instance;
 
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -34,10 +33,9 @@ public class CaseDataInstance extends ExternalDataInstance {
         // For serialization
     }
 
-    public CaseDataInstance(String reference, String instanceid) {
-        super(reference, instanceid);
-    }
-
+    /**
+     * Copy constructor
+     */
     public CaseDataInstance(ExternalDataInstance instance) {
         super(instance);
     }

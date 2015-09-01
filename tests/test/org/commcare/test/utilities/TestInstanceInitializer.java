@@ -14,14 +14,14 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
  *
  * @author ctsims
  */
-public class TestInstanceInitializer extends InstanceInitializationFactory {
+public class TestInstanceInitializer implements InstanceInitializationFactory {
     private final MockUserDataSandbox sandbox;
 
     public TestInstanceInitializer(MockUserDataSandbox sandbox) {
         this.sandbox = sandbox;
     }
 
-    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
             return new CaseDataInstance(instance);
         } else {

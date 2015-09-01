@@ -15,7 +15,7 @@ import org.javarosa.core.model.instance.TreeElement;
 /**
  * @author ctsims
  */
-public class CommCareInstanceInitializer extends InstanceInitializationFactory {
+public class CommCareInstanceInitializer implements InstanceInitializationFactory {
     private final CommCareSession session;
     private CaseInstanceTreeElement casebase;
     private LedgerInstanceTreeElement stockbase;
@@ -37,7 +37,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.mPlatform = platform;
     }
 
-    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
             return new CaseDataInstance(instance);
         } else {

@@ -479,7 +479,6 @@ public class CommCareSession {
             instances.put(key, instances.get(key).initialize(iif, key));
         }
 
-
         return new EvaluationContext(null, instances);
     }
 
