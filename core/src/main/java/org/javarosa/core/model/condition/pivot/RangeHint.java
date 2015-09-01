@@ -37,7 +37,7 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
             internalPivots.addElement((CmpPivot)p);
         }
 
-        if (internalPivots.size() > 2) {
+        if (internalPivots.size() > 1) {
             //For now.
             throw new UnpivotableExpressionException();
         }
@@ -79,7 +79,7 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
 
         c.candidateValue = castToValue(gt);
         boolean gtr = XPathFuncExpr.toBoolean(conditional.eval(instance, c)).booleanValue();
-
+        
         if (ltr && !gtr) {
             max = new Double(val);
             maxInclusive = eq;
