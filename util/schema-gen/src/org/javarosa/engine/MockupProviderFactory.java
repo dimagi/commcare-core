@@ -16,15 +16,15 @@ import java.util.Hashtable;
  * @author ctsims
  *
  */
-public class MockupProviderFactory extends InstanceInitializationFactory {
+public class MockupProviderFactory implements InstanceInitializationFactory {
     Hashtable<String, FormInstance> instances;
 
     public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
         this.instances = instances;
     }
 
-    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
-        return new ExternalDataInstance(instance);
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
+        return instance;
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

@@ -75,6 +75,6 @@ public class ExternalDataInstance extends DataInstance {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
-        return initializer.getSpecializedInstance(this);
+        return initializer.getSpecializedExternalDataInstance(this);
     }
 }

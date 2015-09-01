@@ -38,8 +38,8 @@ public class DataModelSerializer {
     }
 
     public void serialize(ExternalDataInstance instance, TreeReference base) throws IOException {
-        DataInstance newInstance = instance.initialize(factory, instance.getInstanceId());
-        serialize(newInstance, base);
+        DataInstance specializedInstance = instance.initialize(factory, instance.getInstanceId());
+        serialize(specializedInstance, base);
     }
 
     public void serialize(DataInstance instance, TreeReference base) throws IOException {
