@@ -4,7 +4,6 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.utils.FormLoadingUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 
 import java.io.IOException;
@@ -15,9 +14,10 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CaseDataInstance extends ExternalDataInstance {
+    private static final String TAG = CaseDataInstance.class.getSimpleName();
+
     private static TreeElement caseDbSpecTemplate = null;
     private static final String CASEDB_WILD_CARD = "CASEDB_WILD_CARD";
-    private static final Object lock = new Object();
 
     public CaseDataInstance() {
         // For serialization
@@ -34,22 +34,22 @@ public class CaseDataInstance extends ExternalDataInstance {
      * Does the reference follow the statically defined CaseDB spec?
      */
     public boolean hasTemplatePath(TreeReference ref) {
-        synchronized (lock) {
             loadTemplateSpecLazily();
 
             return followsTemplateSpec(ref, caseDbSpecTemplate, 0);
-        }
     }
 
-    private static void loadTemplateSpecLazily() {
+    private static synchronized void loadTemplateSpecLazily() {
+        final String errorMsg = TAG + ": Failed to load casedb template spec xml file " +
+                "while checking if case related xpath follows the template structure.";
         if (caseDbSpecTemplate == null) {
             try {
                 caseDbSpecTemplate =
                         FormLoadingUtils.xmlToTreeElement("/casedb_instance_structure.xml");
             } catch (InvalidStructureException e) {
-                throw new RuntimeException("Failed to load casedb template spec");
+                throw new RuntimeException(errorMsg);
             } catch (IOException e) {
-                throw new RuntimeException("Failed to load casedb template spec");
+                throw new RuntimeException(errorMsg);
             }
         }
     }
