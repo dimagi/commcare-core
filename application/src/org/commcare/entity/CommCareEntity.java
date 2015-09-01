@@ -73,6 +73,10 @@ public class CommCareEntity extends Entity<TreeReference> {
             d = longDetail;
         }
 
+        if (d.getNodeset() != null) {
+            return null;
+        }
+
         String[] output = new String[d.getFields().length];
         for(int i = 0 ; i < output.length ; ++i) {
             output[i] = d.getFields()[i].getHeader().evaluate();
