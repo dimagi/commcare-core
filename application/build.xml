@@ -129,6 +129,7 @@
 
                 <!-- Resources that should be used in the Polish build (images, the polish.css file, etc) -->
                 <resources defaultexcludes="no" excludes="readme.txt,.project">
+                    <root dir="${dir.commcare.cases.resources}" />
                     <root dir="${dir.resources-external}" />
                     <root dir="${dir.resources}"/>
                     <root dir="${dir.resources}" includeSubDirs="true" includeBaseDir="false"/>

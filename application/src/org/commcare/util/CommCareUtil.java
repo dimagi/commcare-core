@@ -405,7 +405,8 @@ public class CommCareUtil {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
 
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+            s.serialize(new ExternalDataInstance(instanceRef, "instance"), null);
+
             System.out.println(new String(bos.toByteArray()));
         } catch (IOException e) {
             // TODO Auto-generated catch block

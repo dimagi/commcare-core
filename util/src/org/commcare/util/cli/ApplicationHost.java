@@ -23,6 +23,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,8 +42,6 @@ import java.net.URL;
 public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
-    private final String mUsername;
-    private final String mPassword;
     private MockUserDataSandbox mSandbox;
     private SessionWrapper mSession;
 
@@ -49,14 +49,15 @@ public class ApplicationHost {
     private boolean mForceLatestUpdate = false;
     private boolean mSessionHasNextFrameReady = false;
 
-
     private final PrototypeFactory mPrototypeFactory;
 
     private final BufferedReader reader;
 
-    public ApplicationHost(CommCareConfigEngine engine, String username, String password, PrototypeFactory prototypeFactory) {
-        this.mUsername = username;
-        this.mPassword = password;
+    private String[] mLocalUserCredentials;
+    private String mRestoreFile;
+    private boolean mRestoreStrategySet = false;
+
+    public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
         this.mEngine = engine;
 
         this.mPlatform = engine.getPlatform();
@@ -64,8 +65,21 @@ public class ApplicationHost {
         reader = new BufferedReader(new InputStreamReader(System.in));
         this.mPrototypeFactory = prototypeFactory;
     }
+    public void setRestoreToRemoteUser(String username, String password) {
+        this.mLocalUserCredentials = new String[]{username, password};
+        mRestoreStrategySet = true;
+    }
+    public void setRestoreToLocalFile(String filename) {
+        this.mRestoreFile = filename;
+        mRestoreStrategySet = true;
+    }
+
 
     public void run() {
+        if(!mRestoreStrategySet) {
+            throw new RuntimeException("You must set up an application host by calling " +
+                    "one of hte setRestore*() methods before running the app");
+        }
         setupSandbox();
 
         mSession = new SessionWrapper(mPlatform, mSandbox);
@@ -156,23 +170,32 @@ public class ApplicationHost {
         //Get our form object
         String formXmlns = mSession.getForm();
 
-        XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-        player.setSessionIIF(mSession.getIIF());
-        player.start(mEngine.loadFormByXmlns(formXmlns));
+        if(formXmlns == null) {
+            finishSession();
+        } else {
 
-        //If the form saved properly, process the output
-        if(player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
-            if(!processResultInstance(player.getResultStream())) {
-                return true;
-            }
-            mSession.clearVolitiles();
-            if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
-                mSessionHasNextFrameReady = true;
+            XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+            player.setSessionIIF(mSession.getIIF());
+            player.start(mEngine.loadFormByXmlns(formXmlns));
+
+            //If the form saved properly, process the output
+            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                if (!processResultInstance(player.getResultStream())) {
+                    return true;
+                }
+                finishSession();
             }
         }
 
         //After we finish, continue executing
         return true;
+    }
+
+    private void finishSession() {
+        mSession.clearVolitiles();
+        if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+            mSessionHasNextFrameReady = true;
+        }
     }
 
     private boolean processResultInstance(InputStream resultStream) {
@@ -250,15 +273,50 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+        if(mLocalUserCredentials != null) {
+            restoreUserToSandbox(mSandbox, mLocalUserCredentials);
+        } else {
+            restoreFileToSandbox(mSandbox, mRestoreFile);
+        }
+    }
+
+    private void restoreFileToSandbox(MockUserDataSandbox sandbox, String restoreFile) {
+        FileInputStream fios = null;
+        try {
+            System.out.println("Restoring user data from local file " + restoreFile);
+            fios = new FileInputStream(restoreFile);
+        } catch (FileNotFoundException e) {
+            System.out.println("No restore file found at" + restoreFile);
+        }
+        try {
+            MockDataUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
+        } catch (Exception e) {
+            System.out.println("Error parsing local restore data from " + restoreFile);
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        //Initialize our User
+        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
+            User u = iterator.nextRecord();
+            mSandbox.setLoggedInUser(u);
+            System.out.println("Setting logged in user to: " + u.getUsername());
+            break;
+        }
+    }
+
+    private void restoreUserToSandbox(MockUserDataSandbox mSandbox, String[] userCredentials) {
+        final String username = userCredentials[0];
+        final String password = userCredentials[1];
 
         //fetch the restore data and set credentials
         String otaRestoreURL = PropertyManager._().getSingularProperty("ota-restore-url") + "?version=2.0";
         String domain = PropertyManager._().getSingularProperty("cc_user_domain");
-        final String qualifiedUsername = mUsername + "@" + domain;
+        final String qualifiedUsername = username + "@" + domain;
 
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(qualifiedUsername, mPassword.toCharArray());
+                return new PasswordAuthentication(qualifiedUsername, password.toCharArray());
             }
         });
 
@@ -267,7 +325,7 @@ public class ApplicationHost {
             URL url = new URL(otaRestoreURL);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 
-            System.out.println("Restoring user " + this.mUsername + " to domain " + domain);
+            System.out.println("Restoring user " + username + " to domain " + domain);
 
             MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox, false);
         } catch (Exception e) {
@@ -278,7 +336,7 @@ public class ApplicationHost {
         //Initialize our User
         for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
             User u = iterator.nextRecord();
-            if (mUsername.equalsIgnoreCase(u.getUsername())) {
+            if (username.equalsIgnoreCase(u.getUsername())) {
                 mSandbox.setLoggedInUser(u);
             }
         }
