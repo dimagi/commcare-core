@@ -310,7 +310,7 @@ public class QuestionDef implements IFormElement, Localizable {
     }
 
     public void addExtension(QuestionDataExtension extension) {
-        extensions.add(extension);
+        extensions.addElement(extension);
     }
 
     public Vector<QuestionDataExtension> getExtensions() {
