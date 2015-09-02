@@ -952,7 +952,7 @@ public class XFormParser {
                     question.addExtension(extension);
                     String[] attributesFromExtension = parser.getUsedAttributes();
                     for (int i = 0 ; i < attributesFromExtension.length; i++) {
-                        usedAtts.add(attributesFromExtension[i]);
+                        usedAtts.addElement(attributesFromExtension[i]);
                     }
                 }
             }
@@ -2975,7 +2975,7 @@ public class XFormParser {
     }
 
     public void registerExtensionParser(QuestionExtensionParser parser) {
-        extensionParsers.add(parser);
+        extensionParsers.addElement(parser);
     }
 
     /**
