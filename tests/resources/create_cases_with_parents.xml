@@ -1,0 +1,51 @@
+<OpenRosaResponse>
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>sync_token_a</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$60441$53cf77c2ac3608a944db96af177a6dfe1579e4ba</password>
+        <uuid>test_example</uuid>
+        <date>2012-04-30</date>
+    </Registration>
+    <fixture id="user-groups" user_id="test_example">
+        <groups>
+            <group id="test_group">
+                <name>Group Name</name>
+            </group>
+        </groups>
+    </fixture>
+
+    <case case_id="parent_node" 
+        date_modified="2015-05-07T17:44:39.784000Z"
+        user_id="test_example"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>clinic</case_type>
+            <case_name>Rural Clinic 43</case_name>
+            <owner_id>test_group</owner_id>
+        </create>
+        <update>
+            <employees>23</employees>
+        </update>
+    </case>
+
+
+    <case case_id="child_node"
+        date_modified="2015-06-01T17:35:09.387224Z"
+        user_id="test_example"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>patient</case_type>
+            <case_name>Stanislav</case_name>
+            <owner_id>test_group</owner_id>
+        </create>
+        <update>
+            <age>54</age>
+        </update>
+        <index>
+            <parent case_type="rec_child">parent_node</parent>
+        </index>
+    </case>
+</OpenRosaResponse>

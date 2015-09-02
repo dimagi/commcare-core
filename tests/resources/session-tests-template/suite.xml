@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="36" descriptor="Suite File">
+  <xform>
+    <resource id="1662072614e4dc0c3808d095c5b1cc826be7c1ec" version="28" descriptor="Form: (Module Mother) - Registration">
+      <location authority="local">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="29f9e33b1cd347250d970ff5f9e5c91ad73a5337" version="28" descriptor="Form: (Module Mother) - Follow-Up 1">
+      <location authority="local">./modules-0/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="49d0d92bbd0ed93f577cbfa6e3a38ec44cff59ba" version="28" descriptor="Form: (Module Mother) - Follow-Up 2">
+      <location authority="local">./modules-0/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="26cf1e4fe9d3fc64a5df104e98db48ca9a469618" version="28" descriptor="Form: (Module Child) - Registration">
+      <location authority="local">./modules-1/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="528470d90c2d87f6dc7ce52922df0dff495df645" version="36" descriptor="Form: (Module Child) - 1-Month Check-Up">
+      <location authority="local">./modules-1/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="79440efa14a0fe3989fe712c7c05fe8e3f9ed921" version="45" descriptor="Form: (Module Untitled Module) - Untitled Form">
+      <location authority="local">./modules-2/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="b5fb3b3a985700f8979ef3d175e183deadb23b5c" version="45" descriptor="Form: (Module Untitled Module) - Untitled Form 2">
+      <location authority="local">./modules-2/forms-1.xml</location>
+    </resource>
+  </xform>
+  <entry>
+    <form>http://openrosa.org/formdesigner/10265156-B32B-4489-9E0C-DED6520B8428</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+    <session>
+      <datum id="case_id_new_pregnancy_0" function="uuid()"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/FA76A683-47FD-403B-9409-7A5A90147C96</form>
+    <command id="m0-f1">
+      <text>
+        <locale id="forms.m0f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/67FBBDC6-AD71-4CF3-951E-C13FE8FA94EC</form>
+    <command id="m0-f2">
+      <text>
+        <locale id="forms.m0f2"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/C03AA95B-48CF-4229-BBFB-CC607EE847B7</form>
+    <command id="m1-f0">
+      <text>
+        <locale id="forms.m1f0"/>
+      </text>
+    </command>
+    <session>
+      <datum id="case_id_new_child_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m1'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/323CF5AC-9B68-456D-AEF7-B20C3D0A3DBB</form>
+    <command id="m1-f1">
+      <text>
+        <locale id="forms.m1f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/E09A1FD7-1B1E-4E9B-B015-BBDE2D43B744</form>
+    <command id="m2-f0">
+      <text>
+        <locale id="forms.m2f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/1A0EDB0F-D139-47F2-B06C-FF1203DC5AC4</form>
+    <command id="m2-f1">
+      <text>
+        <locale id="forms.m2f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+  </entry>
+  <menu id="m0">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+  </menu>
+  <menu id="m1">
+    <text>
+      <locale id="modules.m1"/>
+    </text>
+    <command id="m1-f0"/>
+    <command id="m1-f1"/>
+  </menu>
+  <menu id="m2">
+    <text>
+      <locale id="modules.m2"/>
+    </text>
+    <command id="m2-f0"/>
+    <command id="m2-f1"/>
+  </menu>
+</suite>

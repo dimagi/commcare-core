@@ -1,5 +1,6 @@
 package org.commcare.cases.test;
 
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.TestInstanceInitializer;
 import org.commcare.test.utilities.XmlComparator;
@@ -68,7 +69,8 @@ public class CaseParseAndReadTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, new TestInstanceInitializer(sandbox));
 
-            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "instance"), null);
+            s.serialize(new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, CaseInstanceTreeElement.MODEL_NAME), null);
+
             return bos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());

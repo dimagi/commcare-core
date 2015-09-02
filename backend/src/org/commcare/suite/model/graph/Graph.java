@@ -75,7 +75,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
      * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        ExtUtil.readString(in);
+        mType = ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
         mSeries = (Vector<XYSeries>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         mAnnotations = (Vector<Annotation>)ExtUtil.read(in, new ExtWrapList(Annotation.class), pf);

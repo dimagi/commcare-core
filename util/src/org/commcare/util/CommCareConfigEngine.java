@@ -24,7 +24,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
