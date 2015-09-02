@@ -12,7 +12,7 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 
-public class DummyInstanceInitializationFactory implements InstanceInitializationFactory {
+public class DummyInstanceInitializationFactory extends InstanceInitializationFactory {
 
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         return instance;
