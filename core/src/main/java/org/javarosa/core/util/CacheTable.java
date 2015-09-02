@@ -126,6 +126,6 @@ public class CacheTable<T, K> {
 
     public void clear(){
         currentTable.clear();
-        caches.clear();
+        caches.removeAllElements();
     }
 }
