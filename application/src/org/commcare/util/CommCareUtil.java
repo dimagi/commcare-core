@@ -14,6 +14,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
