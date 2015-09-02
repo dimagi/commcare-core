@@ -123,4 +123,9 @@ public class CacheTable<T, K> {
             totalAdditions++;
         }
     }
+
+    public void clear(){
+        currentTable.clear();
+        caches.clear();
+    }
 }
