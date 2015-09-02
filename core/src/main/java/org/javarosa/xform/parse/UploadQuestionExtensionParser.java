@@ -1,19 +1,19 @@
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.QuestionDataExtension;
-import org.javarosa.core.model.ImageRestrictionExtension;
+import org.javarosa.core.model.UploadQuestionExtension;
 
 import org.kxml2.kdom.Element;
 
 /**
- * An additional parser for the "upload" question type that looks for an extra attribute
- * specifying the maximum allowable dimension for an image
+ * An additional parser for the "upload" question type, which can be used to parse any additional
+ * attributes included in an upload question.
  *
  * @author amstone
  */
-public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
+public class UploadQuestionExtensionParser extends QuestionExtensionParser {
 
-    public ImageRestrictionExtensionParser() {
+    public UploadQuestionExtensionParser() {
         setElementName("upload");
     }
 
@@ -27,7 +27,7 @@ public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
             }
             try {
                 int maxDimens = Integer.parseInt(s);
-                return new ImageRestrictionExtension(maxDimens);
+                return new UploadQuestionExtension(maxDimens);
             } catch (NumberFormatException e) {
                 throw new XFormParseException("Invalid input for image max dimension: " + s);
             }

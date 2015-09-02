@@ -9,20 +9,21 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * Represents an extension to the "upload" question type, for setting a maximum
- * dimension for the size of an image capture
+ * Represents any additional information included in an "upload" question type via extra
+ * attributes that are parsed by UploadQuestionExtensionParser
  *
  * @author amstone
  */
-public class ImageRestrictionExtension implements QuestionDataExtension {
+
+public class UploadQuestionExtension implements QuestionDataExtension {
 
     private int maxDimen;
 
-    public ImageRestrictionExtension() {
+    public UploadQuestionExtension() {
         // for deserialization
     }
 
-    public ImageRestrictionExtension(int maxDimen) {
+    public UploadQuestionExtension(int maxDimen) {
         this.maxDimen = maxDimen;
     }
 
