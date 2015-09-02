@@ -36,7 +36,7 @@ public class UploadExtensionTest {
 
     @Test
     public void testParseMaxDimenWithPx() {
-        FormParseInit formWithPx = new FormParseInit("/test_upload_extension_1.xml", extensionParsers);
+        FormParseInit formWithPx = new FormParseInit("/xform_tests/test_upload_extension_1.xml", extensionParsers);
         QuestionDef q = formWithPx.getFirstQuestionDef();
 
         Vector<QuestionDataExtension> extensions = q.getExtensions();
@@ -52,7 +52,7 @@ public class UploadExtensionTest {
 
     @Test
     public void testParseMaxDimenWithoutPx() {
-        FormParseInit formWithoutPx = new FormParseInit("/test_upload_extension_2.xml", extensionParsers);
+        FormParseInit formWithoutPx = new FormParseInit("/xform_tests/test_upload_extension_2.xml", extensionParsers);
         QuestionDef q = formWithoutPx.getFirstQuestionDef();
 
         Vector<QuestionDataExtension> extensions = q.getExtensions();
@@ -70,7 +70,7 @@ public class UploadExtensionTest {
     public void testParseInvalidMaxDimen() {
         exception.expect(XFormParseException.class);
         exception.expectMessage("Invalid input for image max dimension: bad_dimen");
-        new FormParseInit("/test_upload_extension_3.xml", extensionParsers);
+        new FormParseInit("/xform_tests/test_upload_extension_3.xml", extensionParsers);
     }
 
 }
