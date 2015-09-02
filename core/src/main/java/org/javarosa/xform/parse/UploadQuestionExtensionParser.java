@@ -17,7 +17,6 @@ public class UploadQuestionExtensionParser extends QuestionExtensionParser {
         setElementName("upload");
     }
 
-    @Override
     public QuestionDataExtension parse(Element elt) {
         String s = elt.getAttributeValue(XFormParser.NAMESPACE_JAVAROSA,
                 "imageDimensionScaledMax");
@@ -35,7 +34,6 @@ public class UploadQuestionExtensionParser extends QuestionExtensionParser {
         return null;
     }
 
-    @Override
     public String[] getUsedAttributes() {
         return new String[]{"imageDimensionScaledMax"};
     }
