@@ -18,7 +18,7 @@
             <bind nodeset="/data/constraint-max" constraint=". < 30" type="xsd:int"/>
             <bind nodeset="/data/constraint-min" constraint=". > 10" type="xsd:int"/>
             <bind nodeset="/data/constraint-max-and-min" constraint=". < 100 and . > 300" type="xsd:int"/>
-            <bind nodeset="/data/constraint-max-or-min" constraint=". < 30 or . < 100" type="xsd:int"/>
+            <bind nodeset="/data/constraint-max-or-min" constraint=". < 30 or . > 100" type="xsd:int"/>
 
             <itext>
                 <translation lang="English" default="">
