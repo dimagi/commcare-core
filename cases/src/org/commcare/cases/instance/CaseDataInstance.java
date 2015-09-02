@@ -14,8 +14,6 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CaseDataInstance extends ExternalDataInstance {
-    private static final String TAG = CaseDataInstance.class.getSimpleName();
-
     private static TreeElement caseDbSpecTemplate = null;
     private static final String CASEDB_WILD_CARD = "CASEDB_WILD_CARD";
 
@@ -40,7 +38,7 @@ public class CaseDataInstance extends ExternalDataInstance {
     }
 
     private static synchronized void loadTemplateSpecLazily() {
-        final String errorMsg = TAG + ": Failed to load casedb template spec xml file " +
+        final String errorMsg = "Failed to load casedb template spec xml file " +
                 "while checking if case related xpath follows the template structure.";
         if (caseDbSpecTemplate == null) {
             try {

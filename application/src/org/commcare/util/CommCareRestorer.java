@@ -15,6 +15,7 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
 import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
