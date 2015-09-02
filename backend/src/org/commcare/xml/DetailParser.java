@@ -31,6 +31,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         checkNode("detail");
 
         String id = parser.getAttributeValue(null, "id");
+        String nodeset = parser.getAttributeValue(null, "nodeset");
 
         Text background = new Text();
 
@@ -233,7 +234,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        Detail d = new Detail(id, title, subdetails, fields, variables, action, callout);
+        Detail d = new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
         return d;
     }
 
