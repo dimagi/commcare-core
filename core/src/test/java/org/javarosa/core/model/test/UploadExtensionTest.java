@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Vector;
 
 /**
- * Created by amstone326 on 9/2/15.
+ * Tests for UploadQuestionExtensionParser and UploadQuestionExtension
  */
 public class UploadExtensionTest {
 
