@@ -1385,7 +1385,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
-            instance.initialize(factory, instanceId);
+            formInstances.put(instanceId, instance.initialize(factory, instanceId));
         }
         if (newInstance) {
             // only preload new forms (we may have to revisit this)

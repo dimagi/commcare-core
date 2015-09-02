@@ -4,7 +4,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.test.FormParseInit;
-import org.javarosa.test_utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.FormLoadingUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;

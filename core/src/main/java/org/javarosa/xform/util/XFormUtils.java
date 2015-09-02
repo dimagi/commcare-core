@@ -1,31 +1,11 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xform.util;
 
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.model.FormDef;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.xform.parse.IXFormParserFactory;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParserFactory;
 import org.kxml2.kdom.Element;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,10 +18,10 @@ import java.util.Vector;
  * @author Clayton Sims
  */
 public class XFormUtils {
-    private static IXFormParserFactory _factory = new XFormParserFactory();
+    private static XFormParserFactory _factory = new XFormParserFactory();
 
-    public static IXFormParserFactory setXFormParserFactory(IXFormParserFactory factory) {
-        IXFormParserFactory oldFactory = _factory;
+    public static XFormParserFactory setXFormParserFactory(XFormParserFactory factory) {
+        XFormParserFactory oldFactory = _factory;
         _factory = factory;
         return oldFactory;
     }
@@ -61,9 +41,6 @@ public class XFormUtils {
         return _factory.getXFormParser(isr).parse();
     }
 
-    /*
-     * This method throws XFormParseException when the form has errors.
-     */
     public static FormDef getFormFromInputStream(InputStream is) throws XFormParseException {
         InputStreamReader isr;
         
@@ -93,29 +70,6 @@ public class XFormUtils {
             }
         }
     }
-
-    public static FormDef getFormFromSerializedResource(String resource) throws XFormParseException {
-        FormDef returnForm = null;
-        InputStream is = System.class.getResourceAsStream(resource);
-        try {
-            if (is != null) {
-                DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
-                returnForm = (FormDef)ExtUtil.read(dis, FormDef.class);
-                dis.close();
-                is.close();
-            } else {
-                //#if debug.output==verbose
-                System.out.println("ResourceStream NULL");
-                //#endif
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-        }
-        return returnForm;
-    }
-
 
     // -------------------------------------------------
     // Attribute parsing validation functions
