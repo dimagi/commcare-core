@@ -23,7 +23,6 @@ public class CaseXPathQueryTest {
         sandbox = MockDataUtils.getStaticStorage();
     }
 
-    /*
     @Test
     public void caseQueryWithNoCaseInstance() throws XPathSyntaxException {
         MockUserDataSandbox emptySandbox = MockDataUtils.getStaticStorage();
@@ -32,7 +31,6 @@ public class CaseXPathQueryTest {
                 MockDataUtils.buildContextWithInstance(emptySandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
         Assert.assertTrue(CaseTestUtils.xpathEvalAndCompare(ec, "instance('casedb')/casedb/case[@case_id = 'case_one']/case_name", ""));
     }
-    */
 
     @Test
     public void referenceNonExistentCaseId() throws Exception {

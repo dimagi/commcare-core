@@ -37,6 +37,9 @@ sourceSets {
             srcDir 'core'
             srcDir 'modern'
         }
+        resources {
+            srcDir 'cases/resources'
+        }
   }
   test {
       java {

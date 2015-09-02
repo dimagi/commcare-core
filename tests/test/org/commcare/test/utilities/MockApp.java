@@ -37,7 +37,6 @@ public class MockApp {
         mSandbox =  new MockUserDataSandbox(mPrototypeFactory);
         mEngine = new CommCareConfigEngine(mPrototypeFactory);
 
-
         mEngine.installAppFromReference("jr://resource" + resourcePath + "profile.ccpr");
         mEngine.initEnvironment();
         ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(resourcePath + "user_restore.xml"), mSandbox);

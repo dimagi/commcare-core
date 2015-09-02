@@ -66,7 +66,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         scratch.setAnswer(null);
         empty.addChild(scratch);
 
-
         scratch = new TreeElement("date_opened");
         scratch.setAnswer(null);
         empty.addChild(scratch);
@@ -480,9 +479,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return true;
     }
 
-    public static CaseChildElement TemplateElement(CaseInstanceTreeElement parent) {
-        CaseChildElement template = new CaseChildElement(parent);
-        return template;
+    public static CaseChildElement buildCaseChildTemplate(CaseInstanceTreeElement parent) {
+        return new CaseChildElement(parent);
     }
 
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {

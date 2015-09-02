@@ -11,7 +11,6 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -121,8 +120,8 @@ public class MockDataUtils {
         for (String instanceRef : instanceRefToId.keySet()) {
             String instanceId = instanceRefToId.get(instanceRef);
             ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-            edi.initialize(iif, instanceId);
-            instances.put(instanceId, edi);
+
+            instances.put(instanceId, edi.initialize(iif, instanceId));
         }
 
         return new EvaluationContext(null, instances);

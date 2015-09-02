@@ -1,12 +1,13 @@
 package org.commcare.core.process;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
-import org.javarosa.core.model.User;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -45,6 +46,14 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
+    }
+
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
+        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+            return new CaseDataInstance(instance);
+        } else {
+            return instance;
+        }
     }
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
