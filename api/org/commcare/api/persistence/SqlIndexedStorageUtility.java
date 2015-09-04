@@ -30,7 +30,7 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>,Iterable<T>  {
+public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
     Class<T> prototype;
 
@@ -51,7 +51,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Class.forName("org.sqlite.JDBC");
             return DriverManager.getConnection("jdbc:sqlite:" + this.userName + ".db");
-        } catch(Exception e){
+        } catch (Exception e) {
             System.out.println("couldn't get jdbc sqlite driver");
         }
         return null;
@@ -61,7 +61,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
     */
     public void write(Persistable p) throws StorageFullException {
-        if(p.getID() != -1) {
+        if (p.getID() != -1) {
             update(p.getID(), p);
             return;
         }
@@ -81,7 +81,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         }
     }
 
-    public T readFromBytes(byte[] mBytes){
+    public T readFromBytes(byte[] mBytes) {
 
         T t = null;
         try {
@@ -118,9 +118,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Connection c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
+                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
             Vector<Integer> ids = new Vector<Integer>();
-            while(rs.next()){
+            while (rs.next()) {
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
             return ids;
@@ -143,14 +143,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
-            if(!rs.next()){
+                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+            if (!rs.next()) {
                 throw new NoSuchElementException();
             }
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
-        } catch (SQLException |InstantiationException | IllegalAccessException e) {
+        } catch (SQLException | InstantiationException | IllegalAccessException e) {
             logAndWrap(e, "Error getting record for value: " + fieldName);
         }
         return null;
@@ -188,10 +188,10 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             Connection c = getConnection();
             ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
             c.close();
-            if(rs.next()){
+            if (rs.next()) {
                 return true;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         }
         return false;
@@ -215,7 +215,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             int count = rs.getInt(1);
             c.close();
             return count;
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         }
         return -1;
@@ -271,7 +271,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             byte[] caseBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         }
         return null;
@@ -355,12 +355,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return iterate();
     }
 
-    public void tryCreateTable(){
+    public void tryCreateTable() {
         try {
             Connection c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
-        } catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
             e.printStackTrace();
         } catch (InstantiationException e) {
