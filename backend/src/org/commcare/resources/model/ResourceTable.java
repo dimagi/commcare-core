@@ -538,7 +538,7 @@ public class ResourceTable {
 
     private void recordFailure(Resource resource, Exception e) {
         if (installStatsLogger != null) {
-            installStatsLogger.recordResourceInstallFailure(resource.getResourceId(), e.getMessage());
+            installStatsLogger.recordResourceInstallFailure(resource.getResourceId(), e);
         }
     }
 

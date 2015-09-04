@@ -242,7 +242,7 @@ public class ResourceManager {
             if (!upgradeSuccess) {
                 repair();
             }
-            // TODO PLM: how necessary is this?
+
             platform.clearAppState();
 
             //Is it really possible to verify that we've un-registered
