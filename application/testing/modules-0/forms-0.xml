@@ -3,7 +3,7 @@
 		<h:title>Add Song</h:title>
 		<model>
 			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/B520859B-BE3D-4DAB-B8E9-585C3E1019C5" uiVersion="1" version="2" name="Add Song">
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/B520859B-BE3D-4DAB-B8E9-585C3E1019C5" uiVersion="1" version="6" name="Add Song">
 					<basics>
 						<name/>
 						<artist/>
