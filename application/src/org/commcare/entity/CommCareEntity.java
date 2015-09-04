@@ -140,7 +140,7 @@ public class CommCareEntity extends Entity<TreeReference> {
             details.addElement(longDetail);
         }
         for (int i = 0; i < details.size(); i++) {
-            String[] forms = header ? details.elementAt(i).getHeaderForms(true) : details.elementAt(i).getTemplateForms(true);
+            String[] forms = header ? details.elementAt(i).getHeaderForms() : details.elementAt(i).getTemplateForms();
             for (int j = 0; j < forms.length; j++) {
                 v.addElement(forms[j]);
             }
