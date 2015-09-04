@@ -1,0 +1,50 @@
+intro.title=CommCare Inafunguka
+login.title=CommCare
+
+intro.text=Unafungua CommCare kwa mara ya kwanza.Je unataka kurudisha taarifa zako kutoka katika kumbukumbu zetu, au kujaza taarifa upya?
+intro.restore=Rudisha kutoka katika kumbukumbu zetu
+intro.start=Ingia kama msimamizi
+restore.finished=Urudishaji taarifa umekamilika
+restore.fetch=Tafuta taarifa
+restore.login.instructions=Ingiza maelezo ya  mtumiaji kutafuta  taarifa zake 
+restore.badcredentials=Umekosea jina la mtumiaji au namba ya siri, Tafadhali jaribu tena
+restore.badserver=Kumbukumbu sio nzuri
+restore.message.startdownload=Inajaribu kuwasiliana na kumbukumbu zetu
+restore.message.connectionmade=Mawasiliano yamefanikiwa tunaanza kusafirisha taarifa
+restore.message.connection.failed=Mawasiliano na kumbukumbu zetu yameshindikana
+
+restore.nocache=Imeshindikana kusafirisha taarifa,inajaribu kusoma kwanza.
+restore.downloaded=Taarifa zimesafirishwa
+restore.starting=Taarifa zinapangwa
+restore.success=Upangaji taarifa umefanikiwa
+restore.success.partial=Upangaji taarifa umefanikiwa kwa sehemu. kuna matatizo yamejitokeza.
+restore.fail=Matatizo katika kurudisha taarifa!
+restore.baddownload=Usafirishaji umeshindikana. Tafadhali jaribu tena.
+restore.noserveruri=Kumbukumbu zetu hazijaandaliwa kutuma taarifa!
+polish.date.select=Chagua siku
+
+commcare.review=Taarifa ulizoingiza
+review.title=Taarifa ulizoingiza
+review.type=Jina la fomu
+review.date=Tarehe
+review.type.unknown=Unknown
+
+sending.status.success=Ujumbe Umepokelewa. Leo tumepokea fomu ${0} kutoka kwako.
+
+activity.login.demomode.intro=unafungua CommCare kwenye mazoezi, hii ni kwa ajili ya mazoezi. Fungua kwa kutumia ufunguo kama taarifa hizi ni halisi.
+
+#Used by chatterbox dynamically for the "name" of the xform itext locale 
+locale.name.en=Kiingereza
+locale.name.sw=Kiswahili
+
+home.user.new=Mtumiaji mpya
+home.setttings=Mpangilio
+home.user.edit=Badilisha watumiaji
+home.data.restore=Rudisha Taarifa
+home.demo.reset=Anza Mazoezi Upya
+home.updates=Anza Mazoezi Upya
+restore.user.exists=Huwezi kurudisha mtumiaji ambaye tayari yuko kwenye simu
+
+menu.send.all=Tuma taarifa ambazo hazijaenda
+menu.send.all.val=Tuma taarifa ambazo hazijaenda (${0})
+id=Namba

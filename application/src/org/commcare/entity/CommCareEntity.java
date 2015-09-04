@@ -18,6 +18,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
+import java.lang.Object;
 import java.lang.RuntimeException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -128,6 +129,20 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         EvaluationContext ec = new EvaluationContext(context, element);
         loadVars(ec, longDetail);
+        //jls
+        Vector<Object> templates = new Vector<Object>();
+        if (longDetail.isCompound()) {
+            for (int i = 0; i < longDetail.getDetails().length; i++) {
+                for (int j = 0; j < longDetail.getDetails()[i].length; j++) {
+                    templates.add(longDetail.getDetails()[i].getFields()[j].getTemplate());
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < longDetail.getFields().length; i++) {
+                templates.add(longDetail.getFields()[i].getTemplate());
+            }
+        }
         String[] output = new String[longDetail.getFields().length];
         for(int i = 0 ; i < output.length ; ++i) {
             Object template = longDetail.getFields()[i].getTemplate();
@@ -166,7 +181,13 @@ public class CommCareEntity extends Entity<TreeReference> {
     }
 
     private void loadVars(EvaluationContext ec, Detail detail) {
+        //jls
         Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
+        if (detail.isCompound()) {
+            for (int i = 0; i < detail.getDetails().length; i++) {
+                decs.putAll(detail.getDetails()[i].getVariableDeclarations());
+            }
+        }
         for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
             String key = (String)en.nextElement();
             try {
