@@ -20,7 +20,7 @@ import java.util.List;
  * Created by wpride1 on 8/11/15.
  */
 public class SqlHelper {
-    public static void dropTable(Connection c, String storageKey){
+    public static void dropTable(Connection c, String storageKey) {
         String sqlStatement = "DROP TABLE IF EXISTS " + storageKey;
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sqlStatement);
@@ -30,7 +30,7 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet executeSql(Connection c, String sqlQuery){
+    public static ResultSet executeSql(Connection c, String sqlQuery) {
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sqlQuery);
             ResultSet rs = preparedStatement.executeQuery();
@@ -41,7 +41,7 @@ public class SqlHelper {
         }
     }
 
-    public static byte[] getRecordForValue(Connection c, String storageKey, String id){
+    public static byte[] getRecordForValue(Connection c, String storageKey, String id) {
         String sqlStatement = DatabaseHelper.getRecordForValueSelectString(storageKey, id);
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sqlStatement);
@@ -54,7 +54,7 @@ public class SqlHelper {
         }
     }
 
-    public static void createTable(Connection c, String storageKey, Persistable p){
+    public static void createTable(Connection c, String storageKey, Persistable p) {
         String sqlStatement = DatabaseHelper.getTableCreateString(storageKey, p);
         PreparedStatement preparedStatement = null;
         try {
@@ -62,18 +62,18 @@ public class SqlHelper {
             preparedStatement.execute();
         } catch (SQLException e) {
             //fail silently, expected sometimes
-        } finally{
+        } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
-                } catch(SQLException e){
+                } catch (SQLException e) {
 
                 }
             }
         }
     }
 
-    public static ResultSet selectForId(Connection c, String storageKey, int id){
+    public static ResultSet selectForId(Connection c, String storageKey, int id) {
         try {
             PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                     + DatabaseHelper.ID_COL + " = ?;");
@@ -87,15 +87,15 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields, String[]values, Persistable p){
+    public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields, String[] values, Persistable p) {
         org.commcare.modern.database.TableBuilder mTableBuilder = new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
 
         try {
-            PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first +";");
-            for(int i=0; i<mPair.second.length; i++){
-                preparedStatement.setString(i+1, mPair.second[i]);
+            PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";");
+            for (int i = 0; i < mPair.second.length; i++) {
+                preparedStatement.setString(i + 1, mPair.second[i]);
             }
             ResultSet rs = preparedStatement.executeQuery();
             return rs;
@@ -106,23 +106,23 @@ public class SqlHelper {
         }
     }
 
-    public static int insertToTable(Connection c, String storageKey, Persistable p){
+    public static int insertToTable(Connection c, String storageKey, Persistable p) {
 
         Pair<String, List<Object>> mPair = DatabaseHelper.getTableInsertData(storageKey, p);
 
         try {
             PreparedStatement preparedStatement = c.prepareStatement(mPair.first);
-            for(int i=0; i<mPair.second.size(); i++){
+            for (int i = 0; i < mPair.second.size(); i++) {
                 Object obj = mPair.second.get(i);
 
-                if(obj instanceof String){
-                    preparedStatement.setString(i + 1, (String) obj);
-                } else if(obj instanceof Blob){
-                    preparedStatement.setBlob(i+1, (Blob) obj);
-                } else if(obj instanceof Integer){
-                    preparedStatement.setInt(i + 1, ((Integer) obj).intValue());
-                } else if(obj instanceof byte[]){
-                    preparedStatement.setBinaryStream(i+1,new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
+                if (obj instanceof String) {
+                    preparedStatement.setString(i + 1, (String)obj);
+                } else if (obj instanceof Blob) {
+                    preparedStatement.setBlob(i + 1, (Blob)obj);
+                } else if (obj instanceof Integer) {
+                    preparedStatement.setInt(i + 1, ((Integer)obj).intValue());
+                } else if (obj instanceof byte[]) {
+                    preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
                 }
             }
             int affectedRows = preparedStatement.executeUpdate();
@@ -136,8 +136,7 @@ public class SqlHelper {
                     int id = generatedKeys.getInt(1);
                     p.setID(id);
                     return id;
-                }
-                else {
+                } else {
                     throw new SQLException("Creating user failed, no ID obtained.");
                 }
             }
@@ -151,9 +150,10 @@ public class SqlHelper {
 
     /**
      * Update SQLite DB with Persistable p
-     * @param c Database Connection
+     *
+     * @param c          Database Connection
      * @param storageKey name of table
-     * @param p peristable to be updated
+     * @param p          peristable to be updated
      */
 
     public static void updateId(Connection c, String storageKey, Persistable p) {
@@ -173,22 +173,22 @@ public class SqlHelper {
 
             byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
 
-            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[]) blob), ((byte[]) blob).length);
+            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[])blob), ((byte[])blob).length);
             /*
              * We have to do this weird number stuff because 1) our first arg has already been set
              * (DATA_COL above) and 2) preparedStatement arguments are 1-indexed
              */
-            for(int i=2; i<where.second.length + 2; i++){
-                Object obj = where.second[i-2];
-                if(obj instanceof String){
-                    preparedStatement.setString(i, (String) obj);
-                } else if(obj instanceof Blob){
-                    preparedStatement.setBlob(i, (Blob) obj);
-                } else if(obj instanceof Integer){
-                    preparedStatement.setInt(i, ((Integer) obj).intValue());
-                } else if(obj instanceof byte[]){
-                    preparedStatement.setBinaryStream(i,new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
-                } else if(obj == null) {
+            for (int i = 2; i < where.second.length + 2; i++) {
+                Object obj = where.second[i - 2];
+                if (obj instanceof String) {
+                    preparedStatement.setString(i, (String)obj);
+                } else if (obj instanceof Blob) {
+                    preparedStatement.setBlob(i, (Blob)obj);
+                } else if (obj instanceof Integer) {
+                    preparedStatement.setInt(i, ((Integer)obj).intValue());
+                } else if (obj instanceof byte[]) {
+                    preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
+                } else if (obj == null) {
                     preparedStatement.setNull(i, 0);
                 }
             }
@@ -201,10 +201,11 @@ public class SqlHelper {
 
     /**
      * Update entry under id with persistable p
-     * @param c Database Connection
+     *
+     * @param c         Database Connection
      * @param tableName name of table
-     * @param p peristable to udpate with
-     * @param id sql record to update
+     * @param p         peristable to udpate with
+     * @param id        sql record to update
      */
     public static void updateToTable(Connection c, String tableName, Persistable p, int id) {
         String query = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? " + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
