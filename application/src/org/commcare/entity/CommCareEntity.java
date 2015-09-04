@@ -81,19 +81,22 @@ public class CommCareEntity extends Entity<TreeReference> {
         }
 
         //jls
-        Vector<Detail> details = d.getDetails();
-        if (details.size() == 0) {
-            details.addElement(d);
+        Detail[] details;
+        if (d.isCompound()) {
+            details = d.getDetails();
+        } else {
+            details = new Detail[1];
+            details[0] = d;
         }
         int totalFields = 0;
-        for (int i = 0; i < details.size(); i++) {
-            totalFields += details.elementAt(i).getFields().length;
+        for (int i = 0; i < details.length; i++) {
+            totalFields += details[i].getFields().length;
         }
         String[] output = new String[totalFields];
         int i = 0;
-        for (int j = 0; j < details.size(); j++) {
-            for (int k = 0; k < details.elementAt(j).getFields().length; k++) {
-                output[i] = details.elementAt(j).getFields()[k].getHeader().evaluate();
+        for (int j = 0; j < details.length; j++) {
+            for (int k = 0; k < details[j].getFields().length; k++) {
+                output[i] = details[j].getFields()[k].getHeader().evaluate();
                 i++;
             }
         }
@@ -135,12 +138,15 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         //jls
         Vector<String> v = new Vector<String>();
-        Vector<Detail> details = longDetail.getDetails();
-        if (details.size() == 0) {
-            details.addElement(longDetail);
+        Detail[] details;
+        if (longDetail.isCompound()) {
+            details = longDetail.getDetails();
+        } else {
+            details = new Detail[1];
+            details[0] = longDetail;
         }
-        for (int i = 0; i < details.size(); i++) {
-            String[] forms = header ? details.elementAt(i).getHeaderForms() : details.elementAt(i).getTemplateForms();
+        for (int i = 0; i < details.length; i++) {
+            String[] forms = header ? details.[i].getHeaderForms() : details[i].getTemplateForms();
             for (int j = 0; j < forms.length; j++) {
                 v.addElement(forms[j]);
             }
