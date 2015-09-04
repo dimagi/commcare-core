@@ -148,8 +148,8 @@ public class CommCareEntity extends Entity<TreeReference> {
         Logger.log("d", "size=" + templates.size());
         String[] output = new String[templates.size()];
         for(int i = 0 ; i < output.length ; ++i) {
-            if (templates[i] instanceof Text) {
-                output[i] = ((Text) templates.get(i)).evaluate(ec);
+            if (templates.elementAt(i) instanceof Text) {
+                output[i] = ((Text) templates.elementAt(i)).evaluate(ec);
             }
             else {
                 output[i] = "";
