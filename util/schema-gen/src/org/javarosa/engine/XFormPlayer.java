@@ -1,5 +1,7 @@
 package org.javarosa.engine;
 
+import com.sun.org.apache.bcel.internal.generic.Select;
+
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -7,7 +9,9 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -75,6 +79,9 @@ public class XFormPlayer {
 
     private Step current;
 
+    private boolean[] mCurrentSelectList;
+    private FormIndex mCurrentSelectIndex;
+
     private boolean mInEvalMode = false;
     private boolean mIsDebugOn = false;
 
@@ -140,7 +147,7 @@ public class XFormPlayer {
                 show(forward);
                 break;
             case FormEntryController.EVENT_QUESTION:
-                question();
+                question(fec.getModel().getQuestionPrompt());
                 break;
             case FormEntryController.EVENT_REPEAT:
                 if (forward) {
@@ -387,16 +394,36 @@ public class XFormPlayer {
                 } else {
                     Vector<SelectChoice> choices = fep.getSelectChoices();
                     if (choices != null) {
-                        try {
-                            int index = Integer.parseInt(input) - 1;
-                            if (index >= choices.size()) {
+                        if(input.equals("") &&
+                                fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
+                            Vector<Selection> answers = new Vector<Selection>();
+                            for(int i = 0 ; i < mCurrentSelectList.length ; ++i) {
+                                if(mCurrentSelectList[i]) {
+                                    answers.addElement(choices.elementAt(i).selection());
+                                }
+                            }
+                            actualInput = new SelectMultiData(answers).uncast().getString();
+                        } else {
+                            int index;
+                            try {
+                                index = Integer.parseInt(input) - 1;
+                                if (index >= choices.size()) {
+                                    badInput(input, "Enter a number between 1 and " + (choices.size()));
+                                    return false;
+                                }
+                            } catch (NumberFormatException nfe) {
                                 badInput(input, "Enter a number between 1 and " + (choices.size()));
                                 return false;
                             }
-                            actualInput = choices.elementAt(index).getValue();
-                        } catch (NumberFormatException nfe) {
-                            badInput(input, "Enter a number between 1 and " + (choices.size()));
-                            return false;
+
+                            if (fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_ONE) {
+                                actualInput = choices.elementAt(index).getValue();
+                            }
+
+                            if (fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
+                                this.mCurrentSelectList[index] = !this.mCurrentSelectList[index];
+                                return false;
+                            }
                         }
                     }
                 }
@@ -475,20 +502,56 @@ public class XFormPlayer {
         }
     }
 
-    private void question() {
-        FormEntryPrompt fep = fec.getModel().getQuestionPrompt();
+    private void question(FormEntryPrompt fep) {
         String text = fep.getQuestionText();
         out.println(text);
 
         Vector<SelectChoice> choices = fep.getSelectChoices();
         if (choices != null) {
+            initSelectList(fep);
             for (int i = 0; i < choices.size(); ++i) {
-                System.out.println((i + 1) + ") " + fep.getSelectChoiceText(choices.elementAt(i)));
+                String prefix = "";
+                if(fep.getControlType() == Constants.CONTROL_SELECT_MULTI) {
+                    prefix = "[" + (mCurrentSelectList[i] ? "X" : " ") + "] ";
+                }
+                System.out.println(prefix + (i + 1) + ") " + fep.getSelectChoiceText(choices.elementAt(i)));
             }
         }
 
         if (fep.getControlType() == Constants.CONTROL_TRIGGER) {
             System.out.println("Press Return to Proceed");
+        }
+    }
+
+    private void initSelectList(FormEntryPrompt fep) {
+        if(fep.getControlType() != Constants.CONTROL_SELECT_MULTI) {
+            return;
+        }
+
+        if(!fep.getIndex().equals(mCurrentSelectIndex)) {
+            mCurrentSelectIndex = null;
+        }
+
+        if(mCurrentSelectIndex != null) {
+            return;
+        }
+
+        mCurrentSelectIndex = fep.getIndex();
+
+        Vector<SelectChoice> choices = fep.getSelectChoices();
+        mCurrentSelectList = new boolean[choices.size()];
+
+        IAnswerData data = fep.getAnswerValue();
+        if(data == null) {
+            //default is false
+            return;
+        }
+        SelectMultiData selectData = new SelectMultiData().cast(data.uncast());
+
+        for(int i = 0; i < choices.size(); ++i) {
+            if(selectData.isInSelection(choices.elementAt(i).getValue())) {
+                mCurrentSelectList[i] = true;
+            }
         }
     }
 
