@@ -163,7 +163,6 @@ public class CommCareEntity extends Entity<TreeReference> {
         //jls
         Vector<Object> templates = new Vector<Object>();
         if (longDetail.isCompound()) {
-            Logger.log("d", "compound");
             for (int i = 0; i < longDetail.getDetails().length; i++) {
                 for (int j = 0; j < longDetail.getDetails()[i].getFields().length; j++) {
                     templates.addElement(longDetail.getDetails()[i].getFields()[j].getTemplate());
@@ -171,20 +170,14 @@ public class CommCareEntity extends Entity<TreeReference> {
             }
         }
         else {
-            Logger.log("d", "single");
             for (int i = 0; i < longDetail.getFields().length; i++) {
                 templates.addElement(longDetail.getFields()[i].getTemplate());
             }
         }
-        Logger.log("d", "size=" + templates.size());
         String[] output = new String[templates.size()];
-        Logger.log("d", "size2=" + output.length);
         for(int i = 0 ; i < output.length ; i++) {
-            Logger.log("i", i + "");
             if (templates.elementAt(i) instanceof Text) {
-                Logger.log("i2", i + "");
                 output[i] = ((Text) templates.elementAt(i)).evaluate(ec);
-                Logger.log("y", "y");
             }
             else {
                 output[i] = "";
