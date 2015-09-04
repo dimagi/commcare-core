@@ -1,7 +1,5 @@
 package org.javarosa.engine;
 
-import com.sun.org.apache.bcel.internal.generic.Select;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
