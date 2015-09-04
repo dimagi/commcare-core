@@ -33,8 +33,7 @@ public class SqlHelper {
     public static ResultSet executeSql(Connection c, String sqlQuery) {
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sqlQuery);
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs;
+            return preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -46,8 +45,7 @@ public class SqlHelper {
         try {
             PreparedStatement preparedStatement = c.prepareStatement(sqlStatement);
             ResultSet rs = preparedStatement.executeQuery();
-            byte[] bytes = rs.getBytes(1);
-            return bytes;
+            return rs.getBytes(1);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -78,8 +76,7 @@ public class SqlHelper {
             PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                     + DatabaseHelper.ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs;
+            return preparedStatement.executeQuery();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -97,8 +94,7 @@ public class SqlHelper {
             for (int i = 0; i < mPair.second.length; i++) {
                 preparedStatement.setString(i + 1, mPair.second[i]);
             }
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs;
+            return preparedStatement.executeQuery();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -167,7 +163,7 @@ public class SqlHelper {
 
         String query = "UPDATE " + storageKey + " SET " + DatabaseHelper.DATA_COL + " = ? WHERE " + where.first + ";";
 
-        PreparedStatement preparedStatement = null;
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = c.prepareStatement(query);
 
@@ -210,7 +206,7 @@ public class SqlHelper {
     public static void updateToTable(Connection c, String tableName, Persistable p, int id) {
         String query = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? " + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
 
-        PreparedStatement preparedStatement = null;
+        PreparedStatement preparedStatement;
         try {
             preparedStatement = c.prepareStatement(query);
 
