@@ -20,6 +20,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.lang.Object;
 import java.lang.RuntimeException;
+import java.lang.String;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -79,9 +80,22 @@ public class CommCareEntity extends Entity<TreeReference> {
             throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
         }
 
-        String[] output = new String[d.getFields().length];
-        for(int i = 0 ; i < output.length ; ++i) {
-            output[i] = d.getFields()[i].getHeader().evaluate();
+        //jls
+        Vector<Detail> details = d.getDetails();
+        if (details.size() == 0) {
+            details.addElement(d);
+        }
+        int totalFields = 0;
+        for (int i = 0; i < details.size(); i++) {
+            totalFields += details.elementAt(i).getFields().length;
+        }
+        String[] output = new String[totalFields];
+        int i = 0;
+        for (int j = 0; j < details.size(); j++) {
+            for (int k = 0; k < details.elementAt(j).getFields().length; k++) {
+                output[i] = details.elementAt(j).getFields()[k].getHeader().evaluate();
+                i++;
+            }
         }
         return output;
     }
@@ -119,7 +133,24 @@ public class CommCareEntity extends Entity<TreeReference> {
      */
     public String[] getLongForms(boolean header) {
         if(longDetail == null) { return null;}
-        return header ? longDetail.getHeaderForms() : longDetail.getTemplateForms();
+        //jls
+        Vector<String> v = new Vector<String>();
+        Vector<Detail> details = longDetail.getDetails();
+        if (details.size() == 0) {
+            details.addElement(longDetail);
+        }
+        for (int i = 0; i < details.size(); i++) {
+            String[] forms = header ? details.elementAt(i).getHeaderForms(true) : details.elementAt(i).getTemplateForms(true);
+            for (int j = 0; j < forms.length; j++) {
+                v.addElement(forms[j]);
+            }
+        }
+
+        String[] a = new String[v.size()];
+        for (int i = 0; i < v.size(); i++) {
+            a[i] = v.elementAt(i);
+        }
+        return a;
     }
 
     /* (non-Javadoc)
