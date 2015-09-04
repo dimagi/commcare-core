@@ -146,7 +146,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         EvaluationContext ec = new EvaluationContext(context, element);
         loadVars(ec, longDetail);
         Detail[] details = getFlattenedDetails(longDetail);
-        String[] output = new Object[getFlattenedFieldCount(details)];
+        String[] output = new String[getFlattenedFieldCount(details)];
         int k = 0;
         for (int i = 0; i < details.length; i++) {
             for (int j = 0; j < details[i].getFields().length; j++) {
