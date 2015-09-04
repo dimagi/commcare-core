@@ -199,6 +199,11 @@ public class CommCareEntity extends Entity<TreeReference> {
         return new Detail[] {d};
     }
 
+    /**
+     * Given an array of details, count their total number of fields.
+     * @param details Details to investigate
+     * @return int
+     */
     private int getFlattenedFieldCount(Detail[] details) {
         int count = 0;
         for (int i = 0; i < details.length; i++) {
