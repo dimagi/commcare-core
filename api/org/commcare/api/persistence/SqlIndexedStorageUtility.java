@@ -32,12 +32,12 @@ import java.util.Vector;
  */
 public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
-    Class<T> prototype;
+    private final Class<T> prototype;
 
-    PrototypeFactory mFactory;
+    private final PrototypeFactory mFactory;
 
-    String tableName;
-    String userName;
+    private final String tableName;
+    private final String userName;
 
     public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName) {
         this.tableName = tableName;
@@ -47,7 +47,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         tryCreateTable();
     }
 
-    public Connection getConnection() throws SQLException {
+    Connection getConnection() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
             return DriverManager.getConnection("jdbc:sqlite:" + this.userName + ".db");
@@ -66,7 +66,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             return;
         }
 
-        Connection c = null;
+        Connection c;
         try {
             c = getConnection();
             int id = SqlHelper.insertToTable(c, tableName, p);
@@ -83,7 +83,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
     public T readFromBytes(byte[] mBytes) {
 
-        T t = null;
+        T t;
         try {
             t = prototype.newInstance();
             ByteArrayInputStream mByteStream = new ByteArrayInputStream(mBytes);
@@ -139,7 +139,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      */
     public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
 
-        Connection c = null;
+        Connection c;
         try {
             c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
@@ -232,7 +232,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     @Override
     public SqlStorageIterator<T> iterate() {
 
-        Connection connection = null;
+        Connection connection;
         ResultSet resultSet = null;
 
         try {
@@ -323,7 +323,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
     public void update(int id, Persistable p) throws StorageFullException {
-        Connection c = null;
+        Connection c;
         try {
             c = getConnection();
             SqlHelper.updateToTable(c, tableName, p, id);
@@ -344,7 +344,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return re;
     }
 
-    Vector<String> dynamicIndices = new Vector<String>();
+    private final Vector<String> dynamicIndices = new Vector<String>();
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);
@@ -355,7 +355,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return iterate();
     }
 
-    public void tryCreateTable() {
+    private void tryCreateTable() {
         try {
             Connection c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
