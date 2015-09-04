@@ -134,13 +134,13 @@ public class CommCareEntity extends Entity<TreeReference> {
         if (longDetail.isCompound()) {
             for (int i = 0; i < longDetail.getDetails().length; i++) {
                 for (int j = 0; j < longDetail.getDetails()[i].length; j++) {
-                    templates.add(longDetail.getDetails()[i].getFields()[j].getTemplate());
+                    templates.addElement(longDetail.getDetails()[i].getFields()[j].getTemplate());
                 }
             }
         }
         else {
             for (int i = 0; i < longDetail.getFields().length; i++) {
-                templates.add(longDetail.getFields()[i].getTemplate());
+                templates.addElement(longDetail.getFields()[i].getTemplate());
             }
         }
         String[] output = new String[longDetail.getFields().length];
@@ -185,7 +185,10 @@ public class CommCareEntity extends Entity<TreeReference> {
         Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
         if (detail.isCompound()) {
             for (int i = 0; i < detail.getDetails().length; i++) {
-                decs.putAll(detail.getDetails()[i].getVariableDeclarations());
+                for (Enumeration e = detail.getDetails()[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
+                    String key = (String)en.nextElement();
+                    decs.put(key, detail.getDetails()[i].getVariableDeclarations().get(key));
+                }
             }
         }
         for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
