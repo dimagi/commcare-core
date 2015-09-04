@@ -133,7 +133,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         Vector<Object> templates = new Vector<Object>();
         if (longDetail.isCompound()) {
             for (int i = 0; i < longDetail.getDetails().length; i++) {
-                for (int j = 0; j < longDetail.getDetails()[i].length; j++) {
+                for (int j = 0; j < longDetail.getDetails()[i].getFields().length; j++) {
                     templates.addElement(longDetail.getDetails()[i].getFields()[j].getTemplate());
                 }
             }
@@ -185,7 +185,7 @@ public class CommCareEntity extends Entity<TreeReference> {
         Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
         if (detail.isCompound()) {
             for (int i = 0; i < detail.getDetails().length; i++) {
-                for (Enumeration e = detail.getDetails()[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
+                for (Enumeration en = detail.getDetails()[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
                     String key = (String)en.nextElement();
                     decs.put(key, detail.getDetails()[i].getVariableDeclarations().get(key));
                 }
