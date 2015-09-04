@@ -80,19 +80,8 @@ public class CommCareEntity extends Entity<TreeReference> {
             throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
         }
 
-        //jls
-        Detail[] details;
-        if (d.isCompound()) {
-            details = d.getDetails();
-        } else {
-            details = new Detail[1];
-            details[0] = d;
-        }
-        int totalFields = 0;
-        for (int i = 0; i < details.length; i++) {
-            totalFields += details[i].getFields().length;
-        }
-        String[] output = new String[totalFields];
+        Detail[] details = getFlattenedDetails(d);
+        String[] output = new String[getFlattenedFieldCount(details)];
         int i = 0;
         for (int j = 0; j < details.length; j++) {
             for (int k = 0; k < details[j].getFields().length; k++) {
@@ -136,27 +125,17 @@ public class CommCareEntity extends Entity<TreeReference> {
      */
     public String[] getLongForms(boolean header) {
         if(longDetail == null) { return null;}
-        //jls
-        Vector<String> v = new Vector<String>();
-        Detail[] details;
-        if (longDetail.isCompound()) {
-            details = longDetail.getDetails();
-        } else {
-            details = new Detail[1];
-            details[0] = longDetail;
-        }
+        Detail[] details = getFlattenedDetails(longDetail);
+        String[] allForms = new String[getFlattenedFieldCount(details)];
+        int k = 0;
         for (int i = 0; i < details.length; i++) {
             String[] forms = header ? details[i].getHeaderForms() : details[i].getTemplateForms();
             for (int j = 0; j < forms.length; j++) {
-                v.addElement(forms[j]);
+                allForms[k] = forms[j];
+                k++;
             }
         }
-
-        String[] a = new String[v.size()];
-        for (int i = 0; i < v.size(); i++) {
-            a[i] = v.elementAt(i);
-        }
-        return a;
+        return allForms;
     }
 
     /* (non-Javadoc)
@@ -166,27 +145,18 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         EvaluationContext ec = new EvaluationContext(context, element);
         loadVars(ec, longDetail);
-        //jls
-        Vector<Object> templates = new Vector<Object>();
-        if (longDetail.isCompound()) {
-            for (int i = 0; i < longDetail.getDetails().length; i++) {
-                for (int j = 0; j < longDetail.getDetails()[i].getFields().length; j++) {
-                    templates.addElement(longDetail.getDetails()[i].getFields()[j].getTemplate());
+        Detail[] details = getFlattenedDetails(longDetail);
+        String[] output = new Object[getFlattenedFieldCount(details)];
+        int k = 0;
+        for (int i = 0; i < details.length; i++) {
+            for (int j = 0; j < details[i].getFields().length; j++) {
+                Object template = details[i].getFields()[j].getTemplate();
+                if (template instanceof Text) {
+                    output[k] = ((Text) template).evaluate(ec);
+                } else {
+                    output[k] = "";
                 }
-            }
-        }
-        else {
-            for (int i = 0; i < longDetail.getFields().length; i++) {
-                templates.addElement(longDetail.getFields()[i].getTemplate());
-            }
-        }
-        String[] output = new String[templates.size()];
-        for(int i = 0 ; i < output.length ; i++) {
-            if (templates.elementAt(i) instanceof Text) {
-                output[i] = ((Text) templates.elementAt(i)).evaluate(ec);
-            }
-            else {
-                output[i] = "";
+                k++;
             }
         }
         return output;
@@ -216,17 +186,37 @@ public class CommCareEntity extends Entity<TreeReference> {
         loadTexts(ec);
     }
 
+    /**
+     * Given a detail, return an array of details that will contain either
+     * - all child details
+     * - a single-element array containing the given detail, if it has no children
+     * @param d The detail to flatten.
+     */
+    private Detail[] getFlattenedDetails(Detail d) {
+        if (d.isCompound()) {
+            return d.getDetails();
+        }
+        return new Detail[] {d};
+    }
+
+    private int getFlattenedFieldCount(Detail[] details) {
+        int count = 0;
+        for (int i = 0; i < details.length; i++) {
+            count += details[i].getFields().length;
+        }
+        return count;
+    }
+
     private void loadVars(EvaluationContext ec, Detail detail) {
-        //jls
-        Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
-        if (detail.isCompound()) {
-            for (int i = 0; i < detail.getDetails().length; i++) {
-                for (Enumeration en = detail.getDetails()[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
-                    String key = (String)en.nextElement();
-                    decs.put(key, detail.getDetails()[i].getVariableDeclarations().get(key));
-                }
+        Detail[] details = getFlattenedDetails(detail);
+        Hashtable<String, XPathExpression> decs = new Hashtable<String, XPathExpression>();
+        for (int i = 0; i < details.length; i++) {
+            for (Enumeration en = details[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
+                String key = (String)en.nextElement();
+                decs.put(key, details[i].getVariableDeclarations().get(key));
             }
         }
+
         for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
             String key = (String)en.nextElement();
             try {
