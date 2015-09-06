@@ -8,6 +8,7 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.CannotCreateObjectException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
