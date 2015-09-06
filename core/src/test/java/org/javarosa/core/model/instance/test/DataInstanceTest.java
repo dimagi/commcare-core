@@ -3,7 +3,7 @@ package org.javarosa.core.model.instance.test;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.test_utils.FormLoadingUtils;
+import org.javarosa.core.model.instance.utils.FormLoadingUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
 
 public class DataInstanceTest {
 
-    private static final String formPath = new String("/test_xpathpathexpr.xml");
+    private static final String formPath = "/test_xpathpathexpr.xml";
 
     @Test
     public void testDataInstance() {

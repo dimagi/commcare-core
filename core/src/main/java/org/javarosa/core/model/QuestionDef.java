@@ -22,6 +22,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
@@ -49,7 +50,9 @@ import java.util.Vector;
  */
 public class QuestionDef implements IFormElement, Localizable {
     private int id;
-    // reference to a location in the model to store data in
+
+    // reference to the location in the model from which to load data for the question,
+    // and store data back to when question is answered
     private XPathReference binding;
 
     // The type of widget. eg TextInput,Slider,List etc.
@@ -60,6 +63,8 @@ public class QuestionDef implements IFormElement, Localizable {
     private ItemsetBinding dynamicChoices;
 
     private Hashtable<String, QuestionString> mQuestionStrings;
+
+    Vector<QuestionDataExtension> extensions;
 
     Vector observers;
 
@@ -72,6 +77,7 @@ public class QuestionDef implements IFormElement, Localizable {
         setControlType(controlType);
         observers = new Vector();
         mQuestionStrings = new Hashtable<String, QuestionString>();
+        extensions = new Vector<QuestionDataExtension>();
         
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label 
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
@@ -240,6 +246,7 @@ public class QuestionDef implements IFormElement, Localizable {
         }
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
         mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
+        extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
     }
 
     /*
@@ -254,6 +261,7 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapList(ExtUtil.emptyIfNull(choices)));
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
+        ExtUtil.write(dos, new ExtWrapListPoly(extensions));
     }
 
     /* === MANAGING OBSERVERS === */
@@ -299,5 +307,13 @@ public class QuestionDef implements IFormElement, Localizable {
             textID = textID.substring(0, textID.indexOf(";")); //trim away the form specifier
         }
         this.getQuestionString(XFormParser.LABEL_ELEMENT).setTextId(textID);
+    }
+
+    public void addExtension(QuestionDataExtension extension) {
+        extensions.addElement(extension);
+    }
+
+    public Vector<QuestionDataExtension> getExtensions() {
+        return this.extensions;
     }
 }

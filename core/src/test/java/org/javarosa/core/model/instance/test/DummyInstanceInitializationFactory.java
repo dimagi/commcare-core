@@ -12,9 +12,11 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 
-public class DummyInstanceInitializationFactory extends
-        InstanceInitializationFactory {
+public class DummyInstanceInitializationFactory extends InstanceInitializationFactory {
 
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
+        return instance;
+    }
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         throw new RuntimeException("Loading external instances isn't supported " +
                 "using this instance initialization factory.");

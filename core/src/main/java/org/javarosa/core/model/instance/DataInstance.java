@@ -49,7 +49,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         referenceCache = new CacheTable<TreeReference, T>();
     }
 
-
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
         referenceCache = new CacheTable<TreeReference, T>();
@@ -311,7 +310,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         this.recordid = recordid;
     }
 
-    public abstract void initialize(InstanceInitializationFactory initializer, String instanceId);
+    public abstract DataInstance initialize(InstanceInitializationFactory initializer, String instanceId);
 
     public CacheHost getCacheHost() {
         return mCacheHost;
@@ -319,5 +318,9 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     public void setCacheHost(CacheHost cacheHost) {
         this.mCacheHost = cacheHost;
+    }
+
+    public void cleanCache() {
+        referenceCache.clear();
     }
 }
