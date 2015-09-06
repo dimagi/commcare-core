@@ -4,6 +4,7 @@ import org.javarosa.core.api.State;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 
 import java.util.Date;
@@ -188,7 +189,11 @@ public abstract class PeriodicEvent implements State {
             } else {
                 record = new PeriodicEventRecord(event.getEventKey(), new Date());
             }
-            storage.write(record);
+            try {
+                storage.write(record);
+            } catch (StorageFullException e) {
+                Logger.exception("scheduling event", e);
+            }
             return;
         }
 
@@ -200,7 +205,11 @@ public abstract class PeriodicEvent implements State {
 
         if(current == 0 || current > next.getTime() ) {
             record.setNextScheduledDate(next);
-            storage.write(record);
+            try {
+                storage.write(record);
+            } catch (StorageFullException e) {
+                Logger.exception("scheduling event", e);
+            }
         }
 
         return;

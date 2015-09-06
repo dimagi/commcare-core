@@ -28,6 +28,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -211,7 +212,12 @@ public class CommCareConfigEngine {
                 } else {
                     String locale = name.substring(name.lastIndexOf("_") + 1, name.lastIndexOf("."));
                     Resource test = new Resource(-2, name, locations, "Internal Strings: " + locale);
-                    table.addResource(test, new LocaleFileInstaller(locale),null);
+                    try {
+                        table.addResource(test, new LocaleFileInstaller(locale),null);
+                    } catch (StorageFullException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 //we don't support other file types yet

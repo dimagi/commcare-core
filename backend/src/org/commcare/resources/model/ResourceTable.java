@@ -8,6 +8,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Enumeration;
@@ -157,7 +158,11 @@ public class ResourceTable {
                 }
             }
 
-            storage.write(resource);
+            try {
+                storage.write(resource);
+            } catch (StorageFullException e) {
+                e.printStackTrace();
+            }
         }
     }
 

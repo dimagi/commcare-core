@@ -11,6 +11,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -61,28 +62,32 @@ public class CommCarePlatform implements CommCareInstance {
     public void init(String profileReference, ResourceTable global,
                      boolean forceInstall)
             throws UnfullfilledRequirementsException, UnresolvedResourceException {
-        if (!global.isReady()) {
-            global.prepareResources(null, this);
+        try {
+            if (!global.isReady()) {
+                global.prepareResources(null, this);
+            }
+
+            // First, see if the appropriate profile exists
+            Resource profile = global.getResourceWithId(APP_PROFILE_RESOURCE_ID);
+
+            if (profile == null) {
+                // grab the local profile and parse it
+                Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+                locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
+
+                // We need a way to identify this version...
+                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                        APP_PROFILE_RESOURCE_ID,
+                        locations, "Application Descriptor");
+
+                global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
+                global.prepareResources(null, this);
+            }
+            // If the profile does exist we might want to do an automatic
+            // upgrade. Leaving this for a future date....
+        } catch (StorageFullException e) {
+            e.printStackTrace();
         }
-
-        // First, see if the appropriate profile exists
-        Resource profile = global.getResourceWithId(APP_PROFILE_RESOURCE_ID);
-
-        if (profile == null) {
-            // grab the local profile and parse it
-            Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-            locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
-
-            // We need a way to identify this version...
-            Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                    APP_PROFILE_RESOURCE_ID,
-                    locations, "Application Descriptor");
-
-            global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-            global.prepareResources(null, this);
-        }
-        // If the profile does exist we might want to do an automatic
-        // upgrade. Leaving this for a future date....
     }
 
     public int getMajorVersion() {

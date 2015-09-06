@@ -8,6 +8,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -203,8 +204,14 @@ public class ProfileParser extends ElementParser<Profile> {
             return profile;
 
         } catch (XmlPullParserException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
+        } catch (StorageFullException e) {
+            e.printStackTrace();
+            //BUT not really! This should maybe be added to the high level declaration
+            //instead? Or maybe there should be a more general Resource Management Exception?
+            throw new InvalidStructureException("Problem storing parser suite XML", parser);
         }
     }
 
