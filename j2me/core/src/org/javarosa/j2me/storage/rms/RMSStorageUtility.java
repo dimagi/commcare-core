@@ -246,7 +246,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             int bytesNeededEstimate = (loc == null ? 20 : 40);
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
-                throw new RuntimeException("Record store write failed: Unable to reserve space needed to update index");
+                throw new StorageFullException("Record store write failed: Unable to reserve space needed to update index");
             }
 
             if (loc != null) {
@@ -265,7 +265,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (newLoc == null) {
                 setClean();
-                throw new RuntimeException("Record store write failed");
+                throw new StorageFullException("Record store write failed");
             }
 
             index.beginChangeCommit(id, newLoc);
@@ -299,7 +299,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             int bytesNeededEstimate = 40;
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
-                throw new RuntimeException("Record store add failed: Unable to reserve space needed to update index");
+                throw new StorageFullException("Record store add failed: Unable to reserve space needed to update index");
             }
 
             txRecord(id, "add");
@@ -310,7 +310,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (loc == null) {
                 setClean();
-                throw new RuntimeException("Record store add failed");
+                throw new StorageFullException("Record store add failed");
             }
 
             index.beginChangeCommit(id, loc);
@@ -350,7 +350,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
             int bytesNeededEstimate = 20;
             if (!setReserveBuffer(bytesNeededEstimate)) {
                 setClean();
-                throw new RuntimeException("Record store update failed: Unable to reserve space needed to update index");
+                throw new StorageFullException("Record store update failed: Unable to reserve space needed to update index");
             }
 
             //Move a lot of this logic into the index object
@@ -362,7 +362,7 @@ public class RMSStorageUtility<E extends Externalizable> implements IStorageUtil
 
             if (loc == null) {
                 setClean();
-                throw new RuntimeException("Record store update failed");
+                throw new StorageFullException("Record store update failed");
             }
 
             index.beginChangeCommit(id, loc);
