@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.instance.DataInstance;
@@ -110,8 +107,6 @@ public class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances() {
-        //return instances;
-
         Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();

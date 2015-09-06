@@ -476,9 +476,8 @@ public class CommCareSession {
 
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instances.get(key).initialize(iif, key);
+            instances.put(key, instances.get(key).initialize(iif, key));
         }
-
 
         return new EvaluationContext(null, instances);
     }
@@ -780,6 +779,7 @@ public class CommCareSession {
         // commcare core for release issues
         return (entries.size() == 1 &&
                 (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals("")));
+                        prototype.getXFormNamespace().equals(""))) &&
+                prototype.getPostEntrySessionOperations().size() == 0;
     }
 }

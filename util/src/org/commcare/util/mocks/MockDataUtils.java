@@ -21,7 +21,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -196,8 +195,8 @@ public class MockDataUtils {
         for (String instanceRef : instanceRefToId.keySet()) {
             String instanceId = instanceRefToId.get(instanceRef);
             ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
-            edi.initialize(iif, instanceId);
-            instances.put(instanceId, edi);
+
+            instances.put(instanceId, edi.initialize(iif, instanceId));
         }
 
         return new EvaluationContext(null, instances);

@@ -227,6 +227,7 @@ public class CommCareRestorer implements Runnable {
                 //TODO: This is just the casedb, we actually want
                 DataModelSerializer s = new DataModelSerializer(os, new CommCareInstanceInitializer(CommCareStatic.appStringCache));
                 s.serialize(new ExternalDataInstance("jr://instance/casedb/report" + "/" + syncToken + "/" + stateHash,"casedb"), null);
+
             }
         };
         listener.statusUpdate(CommCareOTARestoreListener.RESTORE_RECOVER_SEND);
