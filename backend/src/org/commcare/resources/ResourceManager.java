@@ -19,8 +19,8 @@ import java.util.Vector;
  * Resource table install and update logic.
  */
 public class ResourceManager {
-    protected final CommCarePlatform platform;
-    protected final ResourceTable masterTable;
+    private final CommCarePlatform platform;
+    private final ResourceTable masterTable;
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
 
@@ -103,7 +103,7 @@ public class ResourceManager {
             StorageFullException,
             UnresolvedResourceException, InstallCancelledException {
 
-        ensureValidState();
+        ensureMasterTableValid();
 
         if (clearProgress) {
             upgradeTable.clear();
@@ -112,7 +112,7 @@ public class ResourceManager {
         loadProfile(upgradeTable, profileRef);
     }
 
-    protected void ensureValidState() {
+    protected void ensureMasterTableValid() {
         if (masterTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
             repair();
 
@@ -122,7 +122,7 @@ public class ResourceManager {
         }
     }
 
-    protected void loadProfile(ResourceTable incoming,
+    protected void loadProfile(ResourceTable table,
                                String profileRef)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
@@ -134,11 +134,11 @@ public class ResourceManager {
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations,
                 "Application Descriptor");
 
-        incoming.addResource(r,
-                incoming.getInstallers().getProfileInstaller(false),
+        table.addResource(r,
+                table.getInstallers().getProfileInstaller(false),
                 null);
 
-        incoming.prepareResourcesUpTo(masterTable,
+        table.prepareResourcesUpTo(masterTable,
                 this.platform,
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
@@ -154,9 +154,9 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
-        ensureValidState();
+        ensureMasterTableValid();
 
-        // TODO: Figure out more cleanly what the acceptable states are here
+        // TODO: Table's acceptable states here may be incomplete
         int upgradeTableState = upgradeTable.getTableReadiness();
         if (upgradeTableState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
                 upgradeTableState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
@@ -164,13 +164,8 @@ public class ResourceManager {
             throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
         }
 
-        // Wipe out any existing records in the tempTable table. If there's
-        // _anything_ in there and the app isn't in the install state, that's a
-        // signal to recover.
         tempTable.destroy();
 
-        // Fetch and prepare all resources (Likely exit point here if a
-        // resource can't be found)
         upgradeTable.prepareResources(masterTable, this.platform);
     }
 
@@ -182,21 +177,17 @@ public class ResourceManager {
         boolean upgradeSuccess = false;
         try {
             Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
-            //Try to stage the upgrade table to replace the incoming table
+
+            // Try to stage the upgrade table to replace the incoming table
             if (!masterTable.upgradeTable(upgradeTable)) {
                 throw new RuntimeException("global table failed to upgrade!");
             } else if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
                 throw new RuntimeException("not all incoming resources were installed!!");
             } else {
-                //otherwise keep going
                 Logger.log("Resource", "Global table unstaged, upgrade table ready");
             }
 
-            // Now we basically want to replace the global resource table with
-            // the upgrade table
-
-            // ok, so temporary should now be fully installed.  make a copy of
-            // our table just in case.
+            // We now replace the global resource table with the upgrade table
 
             Logger.log("Resource", "Copying global resources to recovery area");
             try {
@@ -206,38 +197,26 @@ public class ResourceManager {
                 // were in the middle of an install. Since global hasn't been
                 // modified if there is a problem here we want to wipe out the
                 // recovery stub
-
-                //TODO: If this fails? Oof.
                 tempTable.destroy();
                 throw e;
             }
 
             Logger.log("Resource", "Wiping global");
-            //now clear the global table to make room (but not the data, just the records)
+            // clear the global table to make room (but not the data, just the records)
             masterTable.destroy();
 
             Logger.log("Resource", "Moving update resources");
-            //Now copy the upgrade table to take its place
             upgradeTable.copyToTable(masterTable);
 
-            //Success! The global table should be ready to go now.
+            Logger.log("Resource", "Upgrade Succesful!");
             upgradeSuccess = true;
 
-            Logger.log("Resource", "Upgrade Succesful!");
-
-            //Now we need to do cleanup. Wipe out the upgrade table and finalize
-            //removing the original resources which are no longer needed.
-
-            //Wipe the incoming (we need to do nothing with its resources)
             Logger.log("Resource", "Wiping redundant update table");
             upgradeTable.destroy();
 
-            //Uninstall old resources
             Logger.log("Resource", "Clearing out old resources");
             tempTable.flagForDeletions(masterTable);
             tempTable.completeUninstall();
-
-            //good to go.
         } finally {
             if (!upgradeSuccess) {
                 repair();
@@ -349,6 +328,10 @@ public class ResourceManager {
         return isTableStagedForUpgrade(upgradeTable);
     }
 
+    /**
+     * @return True if profile argument points to an app version that isn't
+     * any newer than the profile in the upgrade table.
+     */
     public boolean updateIsntNewer(Resource currentProfile) {
         Resource newProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);

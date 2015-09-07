@@ -412,6 +412,9 @@ public class ResourceTable {
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
+                try {
+                    Thread.sleep(1000 * 5);
+                } catch (Exception e) {}
                 prepareResource(master, instance, r);
             }
             // Installing resources may have exposed more unready resources
