@@ -24,6 +24,12 @@ public class ResourceManager {
     protected final ResourceTable upgradeTable;
     protected final ResourceTable tempTable;
 
+    /**
+     * Lock to synchronize update logic so that multiple threads don't try to
+     * manipulate tables simultaneously.
+     */
+    protected final static Object updateLock = new Object();
+
     public ResourceManager(CommCarePlatform platform,
                            ResourceTable masterTable,
                            ResourceTable upgradeTable,
@@ -50,30 +56,32 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
-        try {
-            if (!global.isReady()) {
-                global.prepareResources(null, platform);
+        synchronized (updateLock) {
+            try {
+                if (!global.isReady()) {
+                    global.prepareResources(null, platform);
+                }
+
+                // First, see if the appropriate profile exists
+                Resource profile =
+                        global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+                if (profile == null) {
+                    // grab the local profile and parse it
+                    Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+                    locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
+
+                    // We need a way to identify this version...
+                    Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
+                            CommCarePlatform.APP_PROFILE_RESOURCE_ID,
+                            locations, "Application Descriptor");
+
+                    global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
+                    global.prepareResources(null, platform);
+                }
+            } catch (StorageFullException e) {
+                e.printStackTrace();
             }
-
-            // First, see if the appropriate profile exists
-            Resource profile =
-                    global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-            if (profile == null) {
-                // grab the local profile and parse it
-                Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-                locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
-
-                // We need a way to identify this version...
-                Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
-                        CommCarePlatform.APP_PROFILE_RESOURCE_ID,
-                        locations, "Application Descriptor");
-
-                global.addResource(r, global.getInstallers().getProfileInstaller(forceInstall), "");
-                global.prepareResources(null, platform);
-            }
-        } catch (StorageFullException e) {
-            e.printStackTrace();
         }
     }
 
@@ -102,14 +110,15 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             StorageFullException,
             UnresolvedResourceException, InstallCancelledException {
+        synchronized (updateLock) {
+            ensureMasterTableValid();
 
-        ensureMasterTableValid();
+            if (clearProgress) {
+                upgradeTable.clear();
+            }
 
-        if (clearProgress) {
-            upgradeTable.clear();
+            loadProfile(upgradeTable, profileRef);
         }
-
-        loadProfile(upgradeTable, profileRef);
     }
 
     protected void ensureMasterTableValid() {
@@ -154,19 +163,21 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException, IllegalArgumentException,
             InstallCancelledException {
-        ensureMasterTableValid();
+        synchronized (updateLock) {
+            ensureMasterTableValid();
 
-        // TODO: Table's acceptable states here may be incomplete
-        int upgradeTableState = upgradeTable.getTableReadiness();
-        if (upgradeTableState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
-                upgradeTableState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
-                upgradeTableState == ResourceTable.RESOURCE_TABLE_EMPTY) {
-            throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
+            // TODO: Table's acceptable states here may be incomplete
+            int upgradeTableState = upgradeTable.getTableReadiness();
+            if (upgradeTableState == ResourceTable.RESOURCE_TABLE_UNCOMMITED ||
+                    upgradeTableState == ResourceTable.RESOURCE_TABLE_UNSTAGED ||
+                    upgradeTableState == ResourceTable.RESOURCE_TABLE_EMPTY) {
+                throw new IllegalArgumentException("Upgrade table is not in an appropriate state");
+            }
+
+            tempTable.destroy();
+
+            upgradeTable.prepareResources(masterTable, this.platform);
         }
-
-        tempTable.destroy();
-
-        upgradeTable.prepareResources(masterTable, this.platform);
     }
 
     /**
@@ -174,61 +185,63 @@ public class ResourceManager {
      */
     public void upgrade()
             throws UnresolvedResourceException, IllegalArgumentException {
-        boolean upgradeSuccess = false;
-        try {
-            Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
-
-            // Try to stage the upgrade table to replace the incoming table
-            if (!masterTable.upgradeTable(upgradeTable)) {
-                throw new RuntimeException("global table failed to upgrade!");
-            } else if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
-                throw new RuntimeException("not all incoming resources were installed!!");
-            } else {
-                Logger.log("Resource", "Global table unstaged, upgrade table ready");
-            }
-
-            // We now replace the global resource table with the upgrade table
-
-            Logger.log("Resource", "Copying global resources to recovery area");
+        synchronized (updateLock) {
+            boolean upgradeSuccess = false;
             try {
-                masterTable.copyToTable(tempTable);
-            } catch (RuntimeException e) {
-                // The _only_ time the recovery table should have data is if we
-                // were in the middle of an install. Since global hasn't been
-                // modified if there is a problem here we want to wipe out the
-                // recovery stub
-                tempTable.destroy();
-                throw e;
+                Logger.log("Resource", "Upgrade table fetched, beginning upgrade");
+
+                // Try to stage the upgrade table to replace the incoming table
+                if (!masterTable.upgradeTable(upgradeTable)) {
+                    throw new RuntimeException("global table failed to upgrade!");
+                } else if (upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_INSTALLED) {
+                    throw new RuntimeException("not all incoming resources were installed!!");
+                } else {
+                    Logger.log("Resource", "Global table unstaged, upgrade table ready");
+                }
+
+                // We now replace the global resource table with the upgrade table
+
+                Logger.log("Resource", "Copying global resources to recovery area");
+                try {
+                    masterTable.copyToTable(tempTable);
+                } catch (RuntimeException e) {
+                    // The _only_ time the recovery table should have data is if we
+                    // were in the middle of an install. Since global hasn't been
+                    // modified if there is a problem here we want to wipe out the
+                    // recovery stub
+                    tempTable.destroy();
+                    throw e;
+                }
+
+                Logger.log("Resource", "Wiping global");
+                // clear the global table to make room (but not the data, just the records)
+                masterTable.destroy();
+
+                Logger.log("Resource", "Moving update resources");
+                upgradeTable.copyToTable(masterTable);
+
+                Logger.log("Resource", "Upgrade Succesful!");
+                upgradeSuccess = true;
+
+                Logger.log("Resource", "Wiping redundant update table");
+                upgradeTable.destroy();
+
+                Logger.log("Resource", "Clearing out old resources");
+                tempTable.flagForDeletions(masterTable);
+                tempTable.completeUninstall();
+            } finally {
+                if (!upgradeSuccess) {
+                    repair();
+                }
+
+                platform.clearAppState();
+
+                //Is it really possible to verify that we've un-registered
+                //everything here? Locale files are registered elsewhere, and we
+                //can't guarantee we're the only thing in there, so we can't
+                //straight up clear it...
+                platform.initialize(masterTable);
             }
-
-            Logger.log("Resource", "Wiping global");
-            // clear the global table to make room (but not the data, just the records)
-            masterTable.destroy();
-
-            Logger.log("Resource", "Moving update resources");
-            upgradeTable.copyToTable(masterTable);
-
-            Logger.log("Resource", "Upgrade Succesful!");
-            upgradeSuccess = true;
-
-            Logger.log("Resource", "Wiping redundant update table");
-            upgradeTable.destroy();
-
-            Logger.log("Resource", "Clearing out old resources");
-            tempTable.flagForDeletions(masterTable);
-            tempTable.completeUninstall();
-        } finally {
-            if (!upgradeSuccess) {
-                repair();
-            }
-
-            platform.clearAppState();
-
-            //Is it really possible to verify that we've un-registered
-            //everything here? Locale files are registered elsewhere, and we
-            //can't guarantee we're the only thing in there, so we can't
-            //straight up clear it...
-            platform.initialize(masterTable);
         }
     }
 
