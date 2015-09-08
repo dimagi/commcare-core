@@ -82,11 +82,11 @@ public class CommCareEntity extends Entity<TreeReference> {
 
         Detail[] details = getFlattenedDetails(d);
         String[] output = new String[getFlattenedFieldCount(details)];
-        int i = 0;
-        for (int j = 0; j < details.length; j++) {
-            for (int k = 0; k < details[j].getFields().length; k++) {
-                output[i] = details[j].getFields()[k].getHeader().evaluate();
-                i++;
+        int ouputIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
+                output[outputIndex] = details[detailIndex].getFields()[fieldIndex].getHeader().evaluate();
+                outputIndex++;
             }
         }
         return output;
@@ -127,12 +127,12 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         Detail[] details = getFlattenedDetails(longDetail);
         String[] allForms = new String[getFlattenedFieldCount(details)];
-        int k = 0;
-        for (int i = 0; i < details.length; i++) {
-            String[] forms = header ? details[i].getHeaderForms() : details[i].getTemplateForms();
-            for (int j = 0; j < forms.length; j++) {
-                allForms[k] = forms[j];
-                k++;
+        int allIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            String[] forms = header ? details[detailIndex].getHeaderForms() : details[detailIndex].getTemplateForms();
+            for (int formIndex = 0; formIndex < forms.length; formIndex++) {
+                allForms[allIndex] = forms[formIndex];
+                allIndex++;
             }
         }
         return allForms;
@@ -147,16 +147,16 @@ public class CommCareEntity extends Entity<TreeReference> {
         loadVars(ec, longDetail);
         Detail[] details = getFlattenedDetails(longDetail);
         String[] output = new String[getFlattenedFieldCount(details)];
-        int k = 0;
-        for (int i = 0; i < details.length; i++) {
-            for (int j = 0; j < details[i].getFields().length; j++) {
-                Object template = details[i].getFields()[j].getTemplate();
+        int outputIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
+                Object template = details[detailIndex].getFields()[fieldIndex].getTemplate();
                 if (template instanceof Text) {
-                    output[k] = ((Text) template).evaluate(ec);
+                    output[outputIndex] = ((Text) template).evaluate(ec);
                 } else {
-                    output[k] = "";
+                    output[outputIndex] = "";
                 }
-                k++;
+                outputIndex++;
             }
         }
         return output;
@@ -214,18 +214,18 @@ public class CommCareEntity extends Entity<TreeReference> {
 
     private void loadVars(EvaluationContext ec, Detail detail) {
         Detail[] details = getFlattenedDetails(detail);
-        Hashtable<String, XPathExpression> decs = new Hashtable<String, XPathExpression>();
+        Hashtable<String, XPathExpression> declarations = new Hashtable<String, XPathExpression>();
         for (int i = 0; i < details.length; i++) {
             for (Enumeration en = details[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
-                decs.put(key, details[i].getVariableDeclarations().get(key));
+                declarations.put(key, details[i].getVariableDeclarations().get(key));
             }
         }
 
-        for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
+        for(Enumeration en = declarations.keys() ; en.hasMoreElements();) {
             String key = (String)en.nextElement();
             try {
-                ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec)));
+                ec.setVariable(key, XPathFuncExpr.unpack(declarations.get(key).eval(ec)));
             } catch(XPathException xpe) {
                 xpe.printStackTrace();
                 throw new RuntimeException("XPathException while parsing varible " + key+ " for entity. " +  xpe.getMessage());
