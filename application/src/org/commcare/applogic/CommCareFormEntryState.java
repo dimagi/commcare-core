@@ -22,7 +22,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.UnavailableServiceException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.formmanager.api.FormEntryState;
@@ -159,12 +158,8 @@ public abstract class CommCareFormEntryState extends FormEntryState {
             boolean save = postProcess(instanceData);
             if (save) {
                 IStorageUtility instances = StorageManager.getStorage(FormInstance.STORAGE_KEY);
-                try {
-                    instanceData.setDateSaved(new Date());
-                    instances.write(instanceData);
-                } catch (StorageFullException e) {
-                    throw new RuntimeException("uh-oh, storage full [saved forms]"); //TODO: handle this
-                }
+                instanceData.setDateSaved(new Date());
+                instances.write(instanceData);
                 postSaveProcess(instanceData);
             }
             // 3) Actually manage what to do after the data is processed locally

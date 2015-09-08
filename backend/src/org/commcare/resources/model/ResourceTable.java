@@ -152,19 +152,19 @@ public class ResourceTable {
 
     private void addResourceInner(Resource resource, int status) {
         resource.setStatus(status);
-        try {
-            if (resource.getID() != -1) {
-                // Assume that we're going cross-table, so we need a new
-                // RecordId.
-                resource.setID(-1);
+        if (resource.getID() != -1) {
+            // Assume that we're going cross-table, so we need a new
+            // RecordId.
+            resource.setID(-1);
 
-                // Check to make sure that there's no existing GUID for
-                // this record.
-                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                    throw new RuntimeException("This resource record already exists.");
-                }
+            // Check to make sure that there's no existing GUID for
+            // this record.
+            if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                throw new RuntimeException("This resource record already exists.");
             }
+        }
 
+        try {
             storage.write(resource);
         } catch (StorageFullException e) {
             e.printStackTrace();
