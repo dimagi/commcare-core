@@ -4,7 +4,6 @@ import org.javarosa.core.log.FatalException;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.MathUtils;
 
 import java.util.Enumeration;
@@ -247,11 +246,7 @@ public class RMSTransaction {
             }
         } else {
             if (!rms.exists(entry.rec_id) || !cmpData(entry.data, rms.readBytes(entry.rec_id))) {
-                try {
-                    rms.write(entry.toRawRec());
-                } catch (StorageFullException sfe) {
-                    throw new WrappedException(sfe);
-                }
+                rms.write(entry.toRawRec());
             }
         }
     }

@@ -9,7 +9,6 @@ import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -114,7 +113,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
      */
-    public int add(T e) throws StorageFullException {
+    public int add(T e) {
         data.put(DataUtil.integer(curCount), e);
 
         //This is not a legit pair of operations;
@@ -307,7 +306,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
      */
-    public void update(int id, T e) throws StorageFullException {
+    public void update(int id, T e) {
         data.put(DataUtil.integer(id), e);
         syncMeta();
     }
@@ -315,7 +314,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
      */
-    public void write(Persistable p) throws StorageFullException {
+    public void write(Persistable p) {
         if (p.getID() != -1) {
             this.data.put(DataUtil.integer(p.getID()), (T)p);
             syncMeta();

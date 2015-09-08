@@ -26,7 +26,6 @@ import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.log.WrappedException;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.SortedIntSet;
 import org.javarosa.j2me.storage.rms.RMSStorageUtility;
@@ -120,11 +119,7 @@ public class J2MELogger implements ILogger {
         if(storageBroken) { return; };
         synchronized(lock) {
             LogEntry log = new LogEntry(type, message, logDate);
-            try {
-                logStorage.add(log);
-            } catch (StorageFullException e) {
-                throw new RuntimeException("uh-oh, storage full [incidentlog]"); //TODO: handle this
-            }
+            logStorage.add(log);
         }
     }
 
