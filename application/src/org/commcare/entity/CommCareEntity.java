@@ -82,7 +82,7 @@ public class CommCareEntity extends Entity<TreeReference> {
 
         Detail[] details = d.getFlattenedDetails();
         String[] output = new String[d.getFlattenedFieldCount()];
-        int ouputIndex = 0;
+        int outputIndex = 0;
         for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
             for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
                 output[outputIndex] = details[detailIndex].getFields()[fieldIndex].getHeader().evaluate();
