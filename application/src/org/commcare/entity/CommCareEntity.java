@@ -80,8 +80,8 @@ public class CommCareEntity extends Entity<TreeReference> {
             throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
         }
 
-        Detail[] details = getFlattenedDetails(d);
-        String[] output = new String[getFlattenedFieldCount(details)];
+        Detail[] details = d.getFlattenedDetails();
+        String[] output = new String[d.getFlattenedFieldCount()];
         int ouputIndex = 0;
         for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
             for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
@@ -125,8 +125,8 @@ public class CommCareEntity extends Entity<TreeReference> {
      */
     public String[] getLongForms(boolean header) {
         if(longDetail == null) { return null;}
-        Detail[] details = getFlattenedDetails(longDetail);
-        String[] allForms = new String[getFlattenedFieldCount(details)];
+        Detail[] details = longDetail.getFlattenedDetails();
+        String[] allForms = new String[longDetail.getFlattenedFieldCount()];
         int allIndex = 0;
         for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
             String[] forms = header ? details[detailIndex].getHeaderForms() : details[detailIndex].getTemplateForms();
@@ -145,8 +145,8 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         EvaluationContext ec = new EvaluationContext(context, element);
         loadVars(ec, longDetail);
-        Detail[] details = getFlattenedDetails(longDetail);
-        String[] output = new String[getFlattenedFieldCount(details)];
+        Detail[] details = longDetail.getFlattenedDetails();
+        String[] output = new String[longDetail.getFlattenedFieldCount()];
         int outputIndex = 0;
         for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
             for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
@@ -186,34 +186,8 @@ public class CommCareEntity extends Entity<TreeReference> {
         loadTexts(ec);
     }
 
-    /**
-     * Given a detail, return an array of details that will contain either
-     * - all child details
-     * - a single-element array containing the given detail, if it has no children
-     * @param d The detail to flatten.
-     */
-    private Detail[] getFlattenedDetails(Detail d) {
-        if (d.isCompound()) {
-            return d.getDetails();
-        }
-        return new Detail[] {d};
-    }
-
-    /**
-     * Given an array of details, count their total number of fields.
-     * @param details Details to investigate
-     * @return int
-     */
-    private int getFlattenedFieldCount(Detail[] details) {
-        int count = 0;
-        for (int i = 0; i < details.length; i++) {
-            count += details[i].getFields().length;
-        }
-        return count;
-    }
-
     private void loadVars(EvaluationContext ec, Detail detail) {
-        Detail[] details = getFlattenedDetails(detail);
+        Detail[] details = detail.getFlattenedDetails();
         Hashtable<String, XPathExpression> declarations = new Hashtable<String, XPathExpression>();
         for (int i = 0; i < details.length; i++) {
             for (Enumeration en = details[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
