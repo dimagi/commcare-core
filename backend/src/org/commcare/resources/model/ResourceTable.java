@@ -145,20 +145,20 @@ public class ResourceTable {
         if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
                 resource.getResourceId()).size() == 0) {
             resource.setStatus(status);
-            try {
-                //TODO: Check if it exists?
-                if (resource.getID() != -1) {
-                    // Assume that we're going cross-table, so we need a new
-                    // RecordId.
-                    resource.setID(-1);
+            //TODO: Check if it exists?
+            if (resource.getID() != -1) {
+                // Assume that we're going cross-table, so we need a new
+                // RecordId.
+                resource.setID(-1);
 
-                    // Check to make sure that there's no existing GUID for
-                    // this record.
-                    if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                        throw new RuntimeException("This resource record already exists.");
-                    }
+                // Check to make sure that there's no existing GUID for
+                // this record.
+                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                    throw new RuntimeException("This resource record already exists.");
                 }
+            }
 
+            try {
                 storage.write(resource);
             } catch (StorageFullException e) {
                 e.printStackTrace();

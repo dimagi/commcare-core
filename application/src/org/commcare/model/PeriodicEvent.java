@@ -229,12 +229,7 @@ public abstract class PeriodicEvent implements State {
         }
 
         PeriodicEventRecord nextTrigger = event.scheduleNextTrigger(record);
-        try {
-            storage.write(nextTrigger);
-            System.out.println("Event[" + event.getEventKey() + "] manually triggered. Next Execution due at " + DateUtils.formatDate(nextTrigger.getNextTrigger(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to update periodic event record storage");
-        }
+        storage.write(nextTrigger);
+        System.out.println("Event[" + event.getEventKey() + "] manually triggered. Next Execution due at " + DateUtils.formatDate(nextTrigger.getNextTrigger(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
     }
 }

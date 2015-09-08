@@ -13,7 +13,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.PropertyUtils;
@@ -135,12 +134,7 @@ public class CaseModelProcessor implements ICaseModelProcessor {
 
     private void commit(Case c, Date lastModified) {
         IStorageUtility utility = StorageManager.getStorage(Case.STORAGE_KEY);
-        try {
-            utility.write(c);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Uh oh! Case Storage Full!");
-        }
+        utility.write(c);
     }
 
     private Case processCaseCreate(TreeElement create, String caseId, Date lastModified) throws MalformedCaseModelException {
