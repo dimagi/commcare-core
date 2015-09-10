@@ -42,7 +42,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         this.storage = storage;
     }
 
-    public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         this.checkNode("fixture");
 
         String fixtureId = parser.getAttributeValue(null, "id");
@@ -92,13 +92,8 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         return instance;
     }
 
-    public void commit(FormInstance parsed) throws IOException {
-        try {
-            storage().write(parsed);
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            throw new IOException("Storage full while writing case!");
-        }
+    public void commit(FormInstance parsed) throws StorageFullException {
+        storage().write(parsed);
     }
 
     public IStorageUtilityIndexed<FormInstance> storage() {
