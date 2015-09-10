@@ -5,6 +5,7 @@ package org.commcare.data.xml;
 
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -62,7 +63,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.rListener = rListener;
     }
 
-    public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public Boolean parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         try {
 
             String rootName = parser.getName();
@@ -135,6 +136,9 @@ public class DataModelPullParser extends ElementParser<Boolean> {
                 if (!failfast) {
                     try {
                         transaction.parse();
+                    } catch(StorageFullException e){
+                        // we need to do this or else we just keep trying forever (which seems terrible)
+                        throw e;
                     } catch (Exception e) {
                         e.printStackTrace();
                         deal(e, parser.getDepth(), name);
