@@ -37,12 +37,14 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
             String inlineDetail = parser.getAttributeValue(null, "detail-inline");
             String persistentDetail = parser.getAttributeValue(null, "detail-persistent");
             String value = parser.getAttributeValue(null, "value");
+            String autoselect = parser.getAttributeValue(null, "autoselect");
 
             if (nodeset == null) {
                 throw new InvalidStructureException("Expected @nodeset in " + id + " <datum> definition", this.parser);
             }
 
-            datum = new SessionDatum(id, nodeset, shortDetail, longDetail, inlineDetail, persistentDetail, value);
+            datum = new SessionDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
+                    persistentDetail, value, autoselect);
         } else {
             if ("form".equals(this.parser.getName())) {
                 datum = SessionDatum.FormIdDatum(calculate);
