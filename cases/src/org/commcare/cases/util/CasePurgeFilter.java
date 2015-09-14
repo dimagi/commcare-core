@@ -145,7 +145,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             //and update their liveness if necessary.
             for (Edge<String, String> edge : g.getChildren(index)) {
                 if(g.getNode(edge.i) == null){
-                    Logger.log("error", "You've tried to restore a case with an index " +
+                    Logger.log("error-nonexistent-index", "You've tried to restore a case with an index " +
                             "into a non-existent case. Index: " + edge.i + " belonging to case: " + index);
                     continue;
                 }
