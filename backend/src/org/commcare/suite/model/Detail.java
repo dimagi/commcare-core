@@ -140,6 +140,31 @@ public class Detail implements Externalizable {
     }
 
     /**
+     * Given a detail, return an array of details that will contain either
+     * - all child details
+     * - a single-element array containing the given detail, if it has no children
+     */
+    public Detail[] getFlattenedDetails() {
+        if (this.isCompound()) {
+            return this.getDetails();
+        }
+        return new Detail[] {this};
+    }
+
+    /**
+     * Given an array of details, count their total number of fields.
+     * @return int
+     */
+    public int getFlattenedFieldCount() {
+        Detail[] details = this.getFlattenedDetails();
+        int count = 0;
+        for (int i = 0; i < details.length; i++) {
+            count += details[i].getFields().length;
+        }
+        return count;
+    }
+
+    /**
      * @return Any fields belonging to this detail.
      */
     public DetailField[] getFields() {
