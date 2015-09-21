@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="19" descriptor="Suite File">
+    <detail id="reports.my_report.select">
+        <title>
+            <text>Report Menu</text>
+        </title>
+        <field>
+            <header>
+                <text>Name</text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="name"/>
+                </text>
+            </template>
+        </field>
+    </detail>
+    <detail id="reports.my_report.data" nodeset="rows/row">
+        <title>
+            <text>Name</text>
+        </title>
+        <field>
+            <header>
+                <text>Applicant Type</text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="column[@id='applicant_type']"/>
+                </text>
+            </template>
+        </field>
+        <field>
+            <header>
+                <text>Local</text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="column[@id='remote_choices_no']"/>
+                </text>
+            </template>
+        </field>
+        <field>
+            <header>
+                <text>Remote</text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="column[@id='remote_choices_yes']"/>
+                </text>
+            </template>
+        </field>
+        <field>
+            <header>
+                <text>Unknown</text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="column[@id='remote_choices_unknown']"/>
+                </text>
+            </template>
+        </field>
+    </detail>
+    <entry>
+        <command id="reports.my_report">
+            <text>Name</text>
+        </command>
+        <instance id="reports" src="jr://fixture/commcare:reports"/>
+        <session>
+            <datum id="report_id_my_report"
+                   nodeset="instance('reports')/reports/report[@id='my_report']"
+                   value="./@id" detail-select="reports.my_report.select"
+                   detail-confirm="reports.my_report.data"/>
+        </session>
+    </entry>
+    <menu id="m0">
+        <text>Module 0</text>
+        <command id="reports.my_report"/>
+    </menu>
+</suite>

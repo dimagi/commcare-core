@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -11,6 +12,7 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -37,6 +39,7 @@ import java.util.Vector;
 public class Detail implements Externalizable {
 
     private String id;
+    private TreeReference nodeset;
 
     private DisplayUnit title;
     private String titleForm;
@@ -59,13 +62,13 @@ public class Detail implements Externalizable {
     }
 
     public Detail(
-            String id, DisplayUnit title,
+            String id, DisplayUnit title, String nodeset,
             Vector<Detail> details,
             Vector<DetailField> fields,
             OrderedHashtable<String, String> variables, Action action, Callout callout
     ) {
         this(
-                id, title,
+                id, title, nodeset,
                 details, fields,
                 variables, action
         );
@@ -74,13 +77,13 @@ public class Detail implements Externalizable {
     }
 
     public Detail(
-            String id, DisplayUnit title,
+            String id, DisplayUnit title, String nodeset,
             Vector<Detail> details,
             Vector<DetailField> fields,
             OrderedHashtable<String, String> variables, Action action
     ) {
         this(
-                id, title,
+                id, title, nodeset,
                 ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
                 ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
                 variables, action
@@ -88,7 +91,7 @@ public class Detail implements Externalizable {
     }
 
     public Detail(
-            String id, DisplayUnit title,
+            String id, DisplayUnit title, String nodeset,
             Detail[] details,
             DetailField[] fields,
             OrderedHashtable<String, String> variables, Action action
@@ -99,6 +102,9 @@ public class Detail implements Externalizable {
 
         this.id = id;
         this.title = title;
+        if (nodeset != null) {
+            this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
+        }
         this.details = details;
         this.fields = fields;
         this.variables = variables;
@@ -121,10 +127,41 @@ public class Detail implements Externalizable {
     }
 
     /**
+     * @return A reference to a set of sub-elements of this detail. If provided,
+     * the detail will display fields for each element of this nodeset.
+     */
+    public TreeReference getNodeset() { return nodeset; }
+
+    /**
      * @return Any child details of this detail.
      */
     public Detail[] getDetails() {
         return details;
+    }
+
+    /**
+     * Given a detail, return an array of details that will contain either
+     * - all child details
+     * - a single-element array containing the given detail, if it has no children
+     */
+    public Detail[] getFlattenedDetails() {
+        if (this.isCompound()) {
+            return this.getDetails();
+        }
+        return new Detail[] {this};
+    }
+
+    /**
+     * Given an array of details, count their total number of fields.
+     * @return int
+     */
+    public int getFlattenedFieldCount() {
+        Detail[] details = this.getFlattenedDetails();
+        int count = 0;
+        for (int i = 0; i < details.length; i++) {
+            count += details[i].getFields().length;
+        }
+        return count;
     }
 
     /**
@@ -163,6 +200,7 @@ public class Detail implements Externalizable {
         id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
         titleForm = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        nodeset = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
         Vector<Detail> theDetails = (Vector<Detail>)ExtUtil.read(in, new ExtWrapList(Detail.class), pf);
         details = new Detail[theDetails.size()];
         ArrayUtilities.copyIntoArray(theDetails, details);
@@ -181,6 +219,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(id));
         ExtUtil.write(out, title);
         ExtUtil.write(out, new ExtWrapNullable(titleForm));
+        ExtUtil.write(out, new ExtWrapNullable(nodeset));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(details)));
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));

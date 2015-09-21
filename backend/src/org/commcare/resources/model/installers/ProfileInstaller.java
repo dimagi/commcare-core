@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.Resource;
@@ -154,7 +151,7 @@ public class ProfileInstaller extends CacheInstaller {
         }
     }
 
-    private void installInternal(Profile profile) throws StorageFullException {
+    private void installInternal(Profile profile) {
         storage().write(profile);
         cacheLocation = profile.getID();
     }

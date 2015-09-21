@@ -18,6 +18,9 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
+import java.lang.Object;
+import java.lang.RuntimeException;
+import java.lang.String;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -73,9 +76,18 @@ public class CommCareEntity extends Entity<TreeReference> {
             d = longDetail;
         }
 
-        String[] output = new String[d.getFields().length];
-        for(int i = 0 ; i < output.length ; ++i) {
-            output[i] = d.getFields()[i].getHeader().evaluate();
+        if (d.getNodeset() != null) {
+            throw new RuntimeException("Entity subnodes not supported: " + d.getNodeset().toString());
+        }
+
+        Detail[] details = d.getFlattenedDetails();
+        String[] output = new String[d.getFlattenedFieldCount()];
+        int outputIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
+                output[outputIndex] = details[detailIndex].getFields()[fieldIndex].getHeader().evaluate();
+                outputIndex++;
+            }
         }
         return output;
     }
@@ -113,7 +125,17 @@ public class CommCareEntity extends Entity<TreeReference> {
      */
     public String[] getLongForms(boolean header) {
         if(longDetail == null) { return null;}
-        return header ? longDetail.getHeaderForms() : longDetail.getTemplateForms();
+        Detail[] details = longDetail.getFlattenedDetails();
+        String[] allForms = new String[longDetail.getFlattenedFieldCount()];
+        int allIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            String[] forms = header ? details[detailIndex].getHeaderForms() : details[detailIndex].getTemplateForms();
+            for (int formIndex = 0; formIndex < forms.length; formIndex++) {
+                allForms[allIndex] = forms[formIndex];
+                allIndex++;
+            }
+        }
+        return allForms;
     }
 
     /* (non-Javadoc)
@@ -123,14 +145,18 @@ public class CommCareEntity extends Entity<TreeReference> {
         if(longDetail == null) { return null;}
         EvaluationContext ec = new EvaluationContext(context, element);
         loadVars(ec, longDetail);
-        String[] output = new String[longDetail.getFields().length];
-        for(int i = 0 ; i < output.length ; ++i) {
-            Object template = longDetail.getFields()[i].getTemplate();
-            if (template instanceof Text) {
-                output[i] = ((Text) template).evaluate(ec);
-            }
-            else {
-                output[i] = "";
+        Detail[] details = longDetail.getFlattenedDetails();
+        String[] output = new String[longDetail.getFlattenedFieldCount()];
+        int outputIndex = 0;
+        for (int detailIndex = 0; detailIndex < details.length; detailIndex++) {
+            for (int fieldIndex = 0; fieldIndex < details[detailIndex].getFields().length; fieldIndex++) {
+                Object template = details[detailIndex].getFields()[fieldIndex].getTemplate();
+                if (template instanceof Text) {
+                    output[outputIndex] = ((Text) template).evaluate(ec);
+                } else {
+                    output[outputIndex] = "";
+                }
+                outputIndex++;
             }
         }
         return output;
@@ -161,11 +187,19 @@ public class CommCareEntity extends Entity<TreeReference> {
     }
 
     private void loadVars(EvaluationContext ec, Detail detail) {
-        Hashtable<String, XPathExpression> decs = detail.getVariableDeclarations();
-        for(Enumeration en = decs.keys() ; en.hasMoreElements();) {
+        Detail[] details = detail.getFlattenedDetails();
+        Hashtable<String, XPathExpression> declarations = new Hashtable<String, XPathExpression>();
+        for (int i = 0; i < details.length; i++) {
+            for (Enumeration en = details[i].getVariableDeclarations().keys(); en.hasMoreElements(); ) {
+                String key = (String)en.nextElement();
+                declarations.put(key, details[i].getVariableDeclarations().get(key));
+            }
+        }
+
+        for(Enumeration en = declarations.keys() ; en.hasMoreElements();) {
             String key = (String)en.nextElement();
             try {
-                ec.setVariable(key, XPathFuncExpr.unpack(decs.get(key).eval(ec)));
+                ec.setVariable(key, XPathFuncExpr.unpack(declarations.get(key).eval(ec)));
             } catch(XPathException xpe) {
                 xpe.printStackTrace();
                 throw new RuntimeException("XPathException while parsing varible " + key+ " for entity. " +  xpe.getMessage());

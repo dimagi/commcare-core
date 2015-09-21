@@ -779,6 +779,7 @@ public class CommCareSession {
         // commcare core for release issues
         return (entries.size() == 1 &&
                 (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals("")));
+                        prototype.getXFormNamespace().equals(""))) &&
+                prototype.getPostEntrySessionOperations().size() == 0;
     }
 }

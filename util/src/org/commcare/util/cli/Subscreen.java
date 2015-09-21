@@ -27,7 +27,7 @@ public abstract class Subscreen<T extends CompoundScreenHost> {
      * @return True if the compound screen is ready and the session should move to the next step.
      * False if current Compound Screen should continue executing.
      */
-    public abstract boolean handleInputAndUpdateHost(String input, T host);
+    public abstract boolean handleInputAndUpdateHost(String input, T host) throws CommCareSessionException;
 
     /**
      * Display this subscreen

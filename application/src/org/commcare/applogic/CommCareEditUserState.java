@@ -5,7 +5,6 @@ import org.commcare.util.CommCareContext;
 import org.commcare.util.OpenRosaApiResponseProcessor;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageUtility;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessage;
@@ -48,12 +47,8 @@ public class CommCareEditUserState extends EditUserFormEntryState {
 
                 public void succesfullyRegistered(User user) {
                     IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
-                    try {
-                        //If the incoming user is null, there were no updates
-                        users.write(user == null ? newUser : user);
-                    } catch (StorageFullException e) {
-                        throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
-                    }
+                    //If the incoming user is null, there were no updates
+                    users.write(user == null ? newUser : user);
 
                     J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
                 }
@@ -61,11 +56,7 @@ public class CommCareEditUserState extends EditUserFormEntryState {
             }.start();
         } else {
             IStorageUtility users = StorageManager.getStorage(User.STORAGE_KEY);
-            try {
-                users.write(newUser);
-            } catch (StorageFullException e) {
-                throw new RuntimeException("uh-oh, storage full [users]"); //TODO: handle this
-            }
+            users.write(newUser);
 
             J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
         }

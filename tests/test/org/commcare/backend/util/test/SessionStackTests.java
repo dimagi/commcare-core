@@ -63,4 +63,46 @@ public class SessionStackTests {
         CaseTestUtils.xpathEvalAndCompare(ec,"instance('session')/session/data/calculated_data", "new");
     }
 
+    @Test
+    public void testViewNav() throws Exception {
+        SessionWrapper session = mApp.getSession();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+
+        session.setCommand("m3-f0");
+
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id_to_send");
+
+        Assert.assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
+
+        session.setDatum("case_id_to_send", "case_one");
+
+        session.finishExecuteAndPop(session.getEvaluationContext());
+
+        Assert.assertEquals(session.getCommand(), "m2");
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "instance('session')/session/data/case_id", "case_one");
+
+        CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
+                "count(instance('session')/session/data/case_id_to_send)", "0");
+
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+    }
+
+    @Test
+    public void testViewNonNav() throws Exception {
+        SessionWrapper session = mApp.getSession();
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+
+        session.setCommand("m4-f0");
+
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id_to_view");
+
+        Assert.assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
+    }
+
 }
