@@ -20,7 +20,7 @@ import java.util.Vector;
  * @author Drew Roos
  */
 public class SelectMultiData implements IAnswerData {
-    Vector vs; //vector of Selection
+    Vector<Selection> vs; //vector of Selection
 
     /**
      * Empty Constructor, necessary for dynamic construction during deserialization.
@@ -58,7 +58,7 @@ public class SelectMultiData implements IAnswerData {
      * (non-Javadoc)
      * @see org.javarosa.core.model.data.IAnswerData#getValue()
      */
-    public Object getValue() {
+    public Vector<Selection> getValue() {
         return vectorCopy(vs);
     }
 
@@ -134,5 +134,12 @@ public class SelectMultiData implements IAnswerData {
             v.addElement(new Selection(s));
         }
         return new SelectMultiData(v);
+    }
+
+    public boolean isInSelection(String value) {
+        for(Selection s : vs) {
+            if(s.getValue().equals(value)) {return true;}
+        }
+        return false;
     }
 }

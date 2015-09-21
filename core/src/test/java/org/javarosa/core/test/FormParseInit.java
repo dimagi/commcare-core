@@ -7,6 +7,7 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.xform.parse.QuestionExtensionParser;
 import org.javarosa.xform.util.XFormUtils;
 
 import java.io.InputStream;
@@ -35,10 +36,16 @@ public class FormParseInit {
 
     public FormParseInit(String formPath) {
         this.formName = formPath;
-        this.init();
+        this.init(null);
     }
 
-    public void init() {
+    public FormParseInit(String formPath, Vector<QuestionExtensionParser> extensionParsers) {
+        this.formName = formPath;
+        this.init(extensionParsers);
+    }
+
+
+    private void init(Vector<QuestionExtensionParser> extensionParsers) {
         InputStream is = this.getClass().getResourceAsStream(formName);
 
         if (is == null) {
@@ -47,7 +54,11 @@ public class FormParseInit {
             throw new RuntimeException(errorMessage);
         }
         // Parse the form
-        xform = XFormUtils.getFormFromInputStream(is);
+        if (extensionParsers != null) {
+            xform = XFormUtils.getFormFromInputStream(is, extensionParsers);
+        } else {
+            xform = XFormUtils.getFormFromInputStream(is);
+        }
 
         femodel = new FormEntryModel(xform);
         fec = new FormEntryController(femodel);

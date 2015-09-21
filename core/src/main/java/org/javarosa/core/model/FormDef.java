@@ -58,7 +58,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
-    private Vector children;// <IFormElement>
+    /**
+     * Hierarchy of questions, groups and repeats in the form
+     */
+    private Vector<IFormElement> children;
     /**
      * A collection of group definitions.
      */
@@ -115,7 +118,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     private Hashtable<String, SubmissionProfile> submissionProfiles;
 
+    /**
+     * Secondary and external instance pointers
+     */
     private Hashtable<String, DataInstance> formInstances;
+
     private FormInstance mainInstance = null;
 
     Hashtable<String, Vector<Action>> eventListeners;
@@ -356,6 +363,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 child.setMult(child.getMult() - 1);
             }
         }
+
+        this.getMainInstance().cleanCache();
 
         triggerTriggerables(deleteRef);
         return newIndex;

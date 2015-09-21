@@ -5,7 +5,6 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.MetaDataWrapper;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -157,7 +156,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         return IDs;
     }
 
-    public void write (Persistable p) throws StorageFullException {
+    public void write (Persistable p) {
         IMetaData old = null;
         synchronized(metadataAccessLock) {
             if (hasMetaData) {
@@ -202,7 +201,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         return new MetaDataWrapper(data);
     }
 
-    public int add (E e) throws StorageFullException {
+    public int add (E e) {
         synchronized(metadataAccessLock) {
             if (hasMetaData) {
                 checkIndex();
@@ -217,7 +216,7 @@ public class RMSStorageUtilityIndexed<E extends Externalizable> extends RMSStora
         }
     }
 
-    public void update (int id, E e) throws StorageFullException {
+    public void update (int id, E e) {
         synchronized(metadataAccessLock) {
 
             Externalizable old;

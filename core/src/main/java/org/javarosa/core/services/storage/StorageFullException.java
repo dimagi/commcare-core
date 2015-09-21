@@ -5,5 +5,13 @@ package org.javarosa.core.services.storage;
  * space in the underlying device storage.
  */
 public class StorageFullException extends RuntimeException {
+    public StorageFullException() {
+        super();
+    }
+
+    public StorageFullException(String message) {
+        super(message);
+    }
+
 
 }

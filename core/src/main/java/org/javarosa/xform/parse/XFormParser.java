@@ -7,6 +7,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.ItemsetBinding;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.QuestionString;
 import org.javarosa.core.model.SelectChoice;
@@ -99,6 +100,8 @@ public class XFormParser {
     private static Hashtable<String, Integer> typeMappings;
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
+
+    private Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
 
     private Reader _reader;
     private Document _xmldoc;
@@ -660,7 +663,7 @@ public class XFormParser {
     }
 
     private void parseTitle(Element e) {
-        Vector usedAtts = new Vector(); //no attributes parsed in title.
+        Vector<String> usedAtts = new Vector<String>(); //no attributes parsed in title.
         String title = getXMLText(e, true);
         System.out.println("Title: \"" + title + "\"");
         _f.setTitle(title);
@@ -906,9 +909,8 @@ public class XFormParser {
     }
 
     protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement("mediatype");
-        usedAtts.addElement(REF_ATTR);
 
         QuestionDef question = parseControl(parent, e, controlUpload, usedAtts);
 
@@ -922,15 +924,11 @@ public class XFormParser {
             question.setControlType(Constants.CONTROL_VIDEO_CAPTURE);
         }
 
-        if (XFormUtils.showUnusedAttributeWarning(e, usedAtts)) {
-            reporter.warning(XFormParserReporter.TYPE_UNKNOWN_MARKUP, XFormUtils.unusedAttWarning(e, usedAtts), getVagueLocation(e));
-        }
-
         return question;
     }
 
     protected QuestionDef parseControl(IFormElement parent, Element e, int controlType) {
-        return parseControl(parent, e, controlType, new Vector());
+        return parseControl(parent, e, controlType, new Vector<String>());
     }
 
     /**
@@ -940,8 +938,26 @@ public class XFormParser {
      * @param usedAtts - used to pass in any additional attributes known to be used by this specific
      *                  element, besides the basic ones already added by parseControl generically
      */
-    protected QuestionDef parseControl(IFormElement parent, Element e, int controlType, Vector usedAtts) {
+    protected QuestionDef parseControl(IFormElement parent, Element e, int controlType,
+                                       Vector<String> usedAtts) {
         QuestionDef question = new QuestionDef();
+
+        // Go through all of the registered extension parsers, and if it is applicable to the
+        // element we are currently parsing, add the parsed extension data to the QuestionDef
+        // being created for that element
+        for (QuestionExtensionParser parser : extensionParsers) {
+            if (parser.canParse(e)) {
+                QuestionDataExtension extension = parser.parse(e);
+                if (extension != null) {
+                    question.addExtension(extension);
+                    String[] attributesFromExtension = parser.getUsedAttributes();
+                    for (int i = 0 ; i < attributesFromExtension.length; i++) {
+                        usedAtts.addElement(attributesFromExtension[i]);
+                    }
+                }
+            }
+        }
+
         question.setID(serialQuestionID++); //until we come up with a better scheme
 
         usedAtts.addElement(REF_ATTR);
@@ -1043,7 +1059,7 @@ public class XFormParser {
      * @param e The Element to parse
      */
     private void parseHelperText(QuestionDef q, Element e) {
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement(REF_ATTR);
         String XMLText = getXMLText(e, true);
         String innerText = getLabel(e);
@@ -1076,7 +1092,7 @@ public class XFormParser {
         if (g.getRepeat())
             return; //ignore child <label>s for <repeat>; the appropriate <label> must be in the wrapping <group>
 
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement(REF_ATTR);
 
 
@@ -1223,9 +1239,9 @@ public class XFormParser {
         final int MAX_VALUE_LEN = 32;
 
         //catalogue of used attributes in this method/element
-        Vector usedAtts = new Vector();
-        Vector labelUA = new Vector();
-        Vector valueUA = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> labelUA = new Vector<String>();
+        Vector<String> valueUA = new Vector<String>();
         labelUA.addElement(REF_ATTR);
         valueUA.addElement(FORM_ATTR);
 
@@ -1312,10 +1328,10 @@ public class XFormParser {
 
         ////////////////USED FOR PARSER WARNING OUTPUT ONLY
         //catalogue of used attributes in this method/element
-        Vector usedAtts = new Vector();
-        Vector labelUA = new Vector(); //for child with name 'label'
-        Vector valueUA = new Vector(); //for child with name 'value'
-        Vector copyUA = new Vector(); //for child with name 'copy'
+        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> labelUA = new Vector<String>(); //for child with name 'label'
+        Vector<String> valueUA = new Vector<String>(); //for child with name 'value'
+        Vector<String> copyUA = new Vector<String>(); //for child with name 'copy'
         usedAtts.addElement(NODESET_ATTR);
         labelUA.addElement(REF_ATTR);
         valueUA.addElement(REF_ATTR);
@@ -1428,7 +1444,7 @@ public class XFormParser {
         XPathReference dataRef = null;
         boolean refFromBind = false;
 
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement(REF_ATTR);
         usedAtts.addElement(NODESET_ATTR);
         usedAtts.addElement(BIND_ATTR);
@@ -1620,7 +1636,7 @@ public class XFormParser {
         _f.setLocalizer(l);
         l.registerLocalizable(_f);
 
-        Vector usedAtts = new Vector(); //used for warning message
+        Vector<String> usedAtts = new Vector<String>(); //used for warning message
 
         for (int i = 0; i < itext.getChildCount(); i++) {
             Element trans = itext.getElement(i);
@@ -1644,7 +1660,7 @@ public class XFormParser {
 
     private void parseTranslation(Localizer l, Element trans) {
         /////for warning message
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement("lang");
         usedAtts.addElement("default");
         /////////////////////////
@@ -1698,8 +1714,8 @@ public class XFormParser {
         String id = text.getAttributeValue("", ID_ATTR);
 
         //used for parser warnings...
-        Vector usedAtts = new Vector();
-        Vector childUsedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> childUsedAtts = new Vector<String>();
         usedAtts.addElement(ID_ATTR);
         usedAtts.addElement(FORM_ATTR);
         childUsedAtts.addElement(FORM_ATTR);
@@ -1799,7 +1815,7 @@ public class XFormParser {
         return false;
     }
 
-    protected DataBinding processStandardBindAttributes(Vector usedAtts, Element e) {
+    protected DataBinding processStandardBindAttributes(Vector<String> usedAtts, Element e) {
         usedAtts.addElement(ID_ATTR);
         usedAtts.addElement(NODESET_ATTR);
         usedAtts.addElement("type");
@@ -1916,7 +1932,7 @@ public class XFormParser {
     }
 
     protected void parseBind(Element e) {
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
 
         DataBinding binding = processStandardBindAttributes(usedAtts, e);
 
@@ -2014,7 +2030,7 @@ public class XFormParser {
             instanceModel.setName(name);
         }
 
-        Vector usedAtts = new Vector();
+        Vector<String> usedAtts = new Vector<String>();
         usedAtts.addElement("version");
         usedAtts.addElement("uiVersion");
         usedAtts.addElement("name");
@@ -2956,6 +2972,10 @@ public class XFormParser {
     public static void registerHandler(String type, IElementHandler handler) {
         topLevelHandlers.put(type, handler);
         groupLevelHandlers.put(type, handler);
+    }
+
+    public void registerExtensionParser(QuestionExtensionParser parser) {
+        extensionParsers.addElement(parser);
     }
 
     /**
