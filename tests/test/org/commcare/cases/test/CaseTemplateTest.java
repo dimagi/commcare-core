@@ -1,5 +1,6 @@
 package org.commcare.cases.test;
 
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -21,7 +22,7 @@ public class CaseTemplateTest {
     public void setUp() throws Exception {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
         String inputTransactions = "/create_cases_with_parents.xml";
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
         evalCtx = MockDataUtils.buildContextWithInstance(sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);
     }
 
