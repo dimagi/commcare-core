@@ -19,6 +19,8 @@ package org.javarosa.core.util.externalizable;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
@@ -119,7 +121,7 @@ public class PrototypeFactory {
 
         byte[] hash = getClassHash(c);
 
-        if (compareHash(hash, ExtWrapTagged.WRAPPER_TAG)) {
+        if (compareHash(hash, PrototypeFactory.getWrapperTag())) {
             throw new Error("Hash collision! " + c.getName() + " and reserved wrapper tag");
         }
 
@@ -187,5 +189,11 @@ public class PrototypeFactory {
     public void storeHash(Class c, byte[] hash){
         classes.addElement(c);
         hashes.addElement(hash);
+    }
+
+    public static byte[] getWrapperTag(){
+        byte[] bytes = new byte[getClassHashSize()];
+        Arrays.fill(bytes, (byte)0xff);
+        return bytes;
     }
 }
