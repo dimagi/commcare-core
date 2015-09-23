@@ -52,7 +52,7 @@ public class XPathFuncExpr extends XPathExpression {
 
         if (id.name.equals("if")) {
             if (args.length != 3) {
-                throw new XPathSyntaxException("if() function requires 3 arguments but only " + args.length + " are present.");
+                throw new XPathSyntaxException("if() function requires 3 arguments but " + args.length + " are present.");
             }
         }
 
