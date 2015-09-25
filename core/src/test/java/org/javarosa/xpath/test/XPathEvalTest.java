@@ -22,6 +22,8 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.expr.XPathNumericLiteral;
 import org.javarosa.xpath.expr.XPathPathExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.Vector;
@@ -78,6 +80,19 @@ public class XPathEvalTest {
         }
     }
 
+    @Test
+    public void testTypeCoercion(){
+        Object str = XPathFuncExpr.InferType("notadouble");
+        Assert.assertTrue("'notadouble' coerced to the wrong type, "
+                +str.getClass().toString(), str instanceof String);
+
+        Object d = XPathFuncExpr.InferType("5.0");
+
+        Assert.assertTrue("'5.0' coerced to the wrong type, "
+                + d.getClass().toString(), d instanceof Double);
+    }
+
+    @Test
     public void doTests() {
         EvaluationContext ec = getFunctionHandlers();
 
