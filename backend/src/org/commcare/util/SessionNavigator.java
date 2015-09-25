@@ -3,9 +3,7 @@ package org.commcare.util;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
 
 import java.util.List;

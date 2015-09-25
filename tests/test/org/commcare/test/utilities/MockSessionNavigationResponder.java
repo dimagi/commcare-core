@@ -13,14 +13,19 @@ import org.javarosa.core.model.condition.EvaluationContext;
 public class MockSessionNavigationResponder implements SessionNavigationResponder {
 
     private SessionWrapper sessionWrapper;
+    private int lastReceivedResultCode;
 
     public MockSessionNavigationResponder(SessionWrapper sessionWrapper) {
         this.sessionWrapper = sessionWrapper;
     }
 
+    public int getLastResultCode() {
+        return this.lastReceivedResultCode;
+    }
+
     @Override
     public void processSessionResponse(int resultCode) {
-
+        lastReceivedResultCode = resultCode;
     }
 
     @Override
