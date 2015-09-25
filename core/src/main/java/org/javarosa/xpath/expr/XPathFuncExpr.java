@@ -6,6 +6,7 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -44,6 +45,8 @@ import me.regexp.RE;
 public class XPathFuncExpr extends XPathExpression {
     public XPathQName id;            //name of the function
     public XPathExpression[] args;    //argument list
+
+    private static CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
 
     public XPathFuncExpr() {
     } //for deserialization
@@ -1416,10 +1419,24 @@ public class XPathFuncExpr extends XPathExpression {
      * be identified.
      */
     public static Object InferType(String attrValue) {
+        //Throwing exceptions from parsing doubles is _very_ slow, which is the purpose
+        //of this cache. In high performant situations, this prevents a ton of overhead.
+        Double d = mDoubleParseCache.retrieve(attrValue);
+        if(d != null) {
+            if(d.isNaN()) {
+                return attrValue;
+            } else {
+                return d;
+            }
+        }
+
         try {
-            return new Double(Double.parseDouble(attrValue));
+            Double ret = new Double(Double.parseDouble(attrValue));
+            mDoubleParseCache.register(attrValue, ret);
+            return ret;
         } catch (NumberFormatException ife) {
             //Not a double
+            mDoubleParseCache.register(attrValue, new Double(Double.NaN));
         }
         //TODO: What about dates? That is a _super_ expensive
         //operation to be testing, though...
