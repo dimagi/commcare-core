@@ -418,6 +418,9 @@ public class FormIndex {
         return true;
     }
 
+    /**
+     * @return Do all the entries of two FormIndexes match except for the last instance index?
+     */
     public static boolean areSiblings(FormIndex a, FormIndex b) {
         if (a.isTerminal() && b.isTerminal() && a.getLocalIndex() == b.getLocalIndex()) {
             return true;
@@ -433,6 +436,10 @@ public class FormIndex {
         return false;
     }
 
+    /**
+     * @return Do all the local indexes in the 'parent' FormIndex match the
+     * corresponding ones in 'child'?
+     */
     public static boolean overlappingLocalIndexesMatch(FormIndex parent, FormIndex child) {
         if (parent.getDepth() > child.getDepth()) {
             return false;
