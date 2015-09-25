@@ -418,6 +418,42 @@ public class FormIndex {
         return true;
     }
 
+    /**
+     * @return Do all the entries of two FormIndexes match except for the last instance index?
+     */
+    public static boolean areSiblings(FormIndex a, FormIndex b) {
+        if (a.isTerminal() && b.isTerminal() && a.getLocalIndex() == b.getLocalIndex()) {
+            return true;
+        }
+        if (!a.isTerminal() && !b.isTerminal()) {
+            if (a.getLocalIndex() != b.getLocalIndex()) {
+                return false;
+            }
+
+            return areSiblings(a.nextLevel, b.nextLevel);
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Do all the local indexes in the 'parent' FormIndex match the
+     * corresponding ones in 'child'?
+     */
+    public static boolean overlappingLocalIndexesMatch(FormIndex parent, FormIndex child) {
+        if (parent.getDepth() > child.getDepth()) {
+            return false;
+        }
+        while (!parent.isTerminal()) {
+            if (parent.getLocalIndex() != child.getLocalIndex()) {
+                return false;
+            }
+            parent = parent.nextLevel;
+            child = child.nextLevel;
+        }
+        return parent.getLocalIndex() == child.getLocalIndex();
+    }
+
     public void assignRefs(FormDef f) {
         FormIndex cur = this;
 
