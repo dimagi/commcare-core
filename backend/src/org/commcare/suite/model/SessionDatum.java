@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -172,5 +173,20 @@ public class SessionDatum implements Externalizable {
         } else {
             return null;
         }
+    }
+
+    public static String getCaseIdFromReference(TreeReference contextRef,
+                                                SessionDatum selectDatum,
+                                                EvaluationContext ec) {
+        // Grab the session's (form) element reference, and load it.
+        TreeReference elementRef =
+                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+        AbstractTreeElement element =
+                ec.resolveReference(elementRef.contextualize(contextRef));
+
+        if (element != null && element.getValue() != null) {
+            return element.getValue().uncast().getString();
+        }
+        return "";
     }
 }

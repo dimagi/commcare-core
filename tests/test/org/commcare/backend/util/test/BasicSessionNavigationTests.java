@@ -14,7 +14,7 @@ import org.junit.Test;
  *
  * @author amstone
  */
-public class SessionNavigationTests {
+public class BasicSessionNavigationTests {
 
     MockApp mApp;
 
