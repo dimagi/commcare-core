@@ -444,7 +444,7 @@ public class FormIndex {
             parent = parent.nextLevel;
             child = child.nextLevel;
         }
-        return true;
+        return parent.getLocalIndex() == child.getLocalIndex();
     }
 
     public void assignRefs(FormDef f) {
