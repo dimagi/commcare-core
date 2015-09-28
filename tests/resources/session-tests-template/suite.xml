@@ -67,7 +67,7 @@
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long" />
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long" autoselect="true"/>
     </session>
   </entry>
   <entry>
@@ -99,6 +99,18 @@
     </session>
   </entry>
   <entry>
+    <form>http://openrosa.org/formdesigner/323CF5AC-9B68-456D-AEF7-B20C3D0A3DBB</form>
+    <command id="m1-f2">
+      <text>
+        <locale id="forms.m1f2"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='child'][@status='open']" value="./@case_id" detail-select="m1_case_short" autoselect="true"/>
+    </session>
+  </entry>
+  <entry>
     <form>http://openrosa.org/formdesigner/E09A1FD7-1B1E-4E9B-B015-BBDE2D43B744</form>
     <command id="m2-f0">
       <text>
@@ -107,7 +119,7 @@
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
   </entry>
   <entry>
@@ -119,7 +131,7 @@
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
   </entry>
   <menu id="m0">

@@ -11,6 +11,8 @@ import org.junit.Test;
 
 /**
  * Tests for SessionNavigator.java
+ *
+ * @author amstone
  */
 public class SessionNavigatorTests {
 
@@ -29,7 +31,8 @@ public class SessionNavigatorTests {
     public void testNavWithoutAutoSelect() {
         SessionWrapper session = mApp.getSession();
 
-        // Before anything is done in the session, should need a command
+        // Before anything has been done in the session, the sessionNavigatorResponder should be
+        // directed to get a command
         sessionNavigator.startNextSessionStep();
         Assert.assertEquals(SessionNavigator.GET_COMMAND,
                 mSessionNavigationResponder.getLastResultCode());
@@ -70,11 +73,10 @@ public class SessionNavigatorTests {
         // to start form entry
         Assert.assertEquals(SessionNavigator.START_FORM_ENTRY,
                 mSessionNavigationResponder.getLastResultCode());
-
     }
 
     @Test
-    public void testNavWithAutoSelectEnabledAndZeroCases() {
+    public void testAutoSelectEnabledWithTwoCases() {
         SessionWrapper session = mApp.getSession();
 
         // Before anything is done in the session, should need a command
@@ -82,32 +84,30 @@ public class SessionNavigatorTests {
         Assert.assertEquals(SessionNavigator.GET_COMMAND,
                 mSessionNavigationResponder.getLastResultCode());
 
-        // Simulate selecting module m1
-        session.setCommand("m1");
-
-        // The sessionNavigatorResponder should be prompted to get another command, representing
-        // form choice
-        sessionNavigator.startNextSessionStep();
+        // Simulate selecting module m0
+        session.setCommand("m0");
         Assert.assertEquals(SessionNavigator.GET_COMMAND,
                 mSessionNavigationResponder.getLastResultCode());
 
-        // Simulate selecting a form (which has auto-select enabled)
-        session.setCommand("m1-f1");
+        // Simulate selecting a form with auto-select enabled
+        session.setCommand("m0-f2");
 
         // Confirm that the next datum has auto-select enabled
         SessionDatum nextNeededDatum = session.getNeededDatum();
         Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
 
-        // Since there are 0 cases in the case list, the sessionNavigatorResponder should be
-        // prompted to start entity selection, even though auto-select is on
+        // Since there are 2 cases in the case list (user_restore.xml contains 2 cases of type
+        // 'pregnancy', which is the case type that m0-f2's nodeset filters for), the
+        // sessionNavigatorResponder will be prompted to start entity select, even though
+        // auto-select is enabled
         sessionNavigator.startNextSessionStep();
         Assert.assertEquals(SessionNavigator.START_ENTITY_SELECTION,
                 mSessionNavigationResponder.getLastResultCode());
-
     }
 
+
     @Test
-    public void testNavWithAutoSelectEnabledAndOneCase() {
+    public void testAutoSelectEnabledWithOneCase() {
         SessionWrapper session = mApp.getSession();
 
         sessionNavigator.startNextSessionStep();
@@ -118,7 +118,6 @@ public class SessionNavigatorTests {
         sessionNavigator.startNextSessionStep();
         Assert.assertEquals(SessionNavigator.GET_COMMAND,
                 mSessionNavigationResponder.getLastResultCode());
-
         session.setCommand("m1-f1");
 
         // Confirm that the next datum has auto-select enabled and has a confirm detail defined
@@ -126,10 +125,41 @@ public class SessionNavigatorTests {
         Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
         Assert.assertNotNull(nextNeededDatum.getLongDetail());
 
-        // Since there is one case in the case list and auto-select is enabled, the
-        // sessionNavigationResponder should be prompted to launch the confirm detail screen for
-        // the auto-selected case
-        
+        // Since there is one case in the case list (user_restore.xml contains one case of type
+        // 'child', which is the case type that m1-f1's nodeset filters for), and auto-select is
+        // enabled, the sessionNavigationResponder should be prompted to launch the confirm detail
+        // screen for the auto-selected case
+        sessionNavigator.startNextSessionStep();
+        Assert.assertEquals(SessionNavigator.LAUNCH_CONFIRM_DETAIL,
+                mSessionNavigationResponder.getLastResultCode());
+    }
+
+    @Test
+    public void testAutoSelectEnabledWithOneCaseAndNoDetail() {
+        SessionWrapper session = mApp.getSession();
+
+        sessionNavigator.startNextSessionStep();
+        Assert.assertEquals(SessionNavigator.GET_COMMAND,
+                mSessionNavigationResponder.getLastResultCode());
+
+        session.setCommand("m1");
+        sessionNavigator.startNextSessionStep();
+        Assert.assertEquals(SessionNavigator.GET_COMMAND,
+                mSessionNavigationResponder.getLastResultCode());
+        session.setCommand("m1-f2");
+
+        // Confirm that the next datum has auto-select enabled, but does NOT have a confirm detail
+        // defined
+        SessionDatum nextNeededDatum = session.getNeededDatum();
+        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
+        Assert.assertNull(nextNeededDatum.getLongDetail());
+
+        // Since there is one case in the case list and auto-select is enabled, but there is no
+        // confirm detail screen, the sessionNavigationResponder should be prompted to go directly
+        // to form entry
+        sessionNavigator.startNextSessionStep();
+        Assert.assertEquals(SessionNavigator.START_FORM_ENTRY,
+                mSessionNavigationResponder.getLastResultCode());
     }
 
 
