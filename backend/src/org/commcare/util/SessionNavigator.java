@@ -9,7 +9,11 @@ import org.javarosa.xpath.XPathException;
 import java.util.List;
 
 /**
- * Created by amstone326 on 9/25/15.
+ * Performs all logic involved in polling the current CommCareSession to determine what information
+ * or action is needed by the session, and then sends a signal to the registered
+ * SessionNavigationResponder to indicate what should be done to get it (or if an error occurred)
+ *
+ * @author amstone
  */
 public class SessionNavigator {
 
@@ -79,7 +83,6 @@ public class SessionNavigator {
         }
     }
 
-    // CommCare needs a case selection to proceed
     private void handleGetDatum() {
         TreeReference autoSelection = getAutoSelectedCase();
         if (autoSelection == null) {
