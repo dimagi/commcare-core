@@ -128,6 +128,9 @@ public class CommCareSession {
         return data;
     }
 
+    public CommCarePlatform getPlatform() {
+        return this.platform;
+    }
 
     /**
      * Based on the current state of the session, determine what information is needed next to
