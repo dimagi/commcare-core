@@ -6,7 +6,7 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.instance.TreeReference;
 import org.junit.Assert;
 
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 import org.junit.Before;
 import org.junit.Test;
 

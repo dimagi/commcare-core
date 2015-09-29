@@ -2,7 +2,7 @@ package org.commcare.backend.suite.model.test;
 
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.PersistableSandbox;
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 
 import org.junit.Before;
 import org.junit.Test;

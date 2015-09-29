@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -28,6 +29,7 @@ public class SessionDatum implements Externalizable {
     private String inlineDetail;
     private String persistentDetail;
     private String value;
+    private boolean autoSelectEnabled;
 
     private int type;
 
@@ -38,7 +40,8 @@ public class SessionDatum implements Externalizable {
 
     }
 
-    public SessionDatum(String id, String nodeset, String shortDetail, String longDetail, String inlineDetail, String persistentDetail, String value) {
+    public SessionDatum(String id, String nodeset, String shortDetail, String longDetail,
+                        String inlineDetail, String persistentDetail, String value, String autoselect) {
         type = DATUM_TYPE_NORMAL;
         this.id = id;
         this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
@@ -47,6 +50,7 @@ public class SessionDatum implements Externalizable {
         this.inlineDetail = inlineDetail;
         this.persistentDetail = persistentDetail;
         this.value = value;
+        this.autoSelectEnabled = "true".equals(autoselect);
     }
 
     public SessionDatum(String id, String value) {
@@ -72,42 +76,38 @@ public class SessionDatum implements Externalizable {
     }
 
     /**
-     * @return the shortDetail
+     * the ID of a detail that structures the screen for selecting an item from the nodeset
      */
     public String getShortDetail() {
         return shortDetail;
     }
 
     /**
-     * @return the longDetail
+     * the ID of a detail that will show a selected item for confirmation. If not present,
+     * no confirmation screen is shown after item selection
      */
     public String getLongDetail() {
         return longDetail;
     }
 
-    /**
-     * @return the inlineDetail
-     */
     public String getInlineDetail() {
         return inlineDetail;
     }
 
-    /**
-     * @return the inlineDetail
-     */
     public String getPersistentDetail() {
         return persistentDetail;
     }
 
-    /**
-     * @return the value
-     */
     public String getValue() {
         return value;
     }
 
     public int getType() {
         return type;
+    }
+
+    public boolean isAutoSelectEnabled() {
+        return autoSelectEnabled;
     }
 
     /* (non-Javadoc)
@@ -127,6 +127,7 @@ public class SessionDatum implements Externalizable {
         inlineDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         persistentDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        autoSelectEnabled = ExtUtil.readBool(in);
     }
 
     /* (non-Javadoc)
@@ -145,6 +146,7 @@ public class SessionDatum implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(inlineDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(persistentDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
+        ExtUtil.writeBool(out, autoSelectEnabled);
     }
 
     /**
@@ -171,5 +173,20 @@ public class SessionDatum implements Externalizable {
         } else {
             return null;
         }
+    }
+
+    public static String getCaseIdFromReference(TreeReference contextRef,
+                                                SessionDatum selectDatum,
+                                                EvaluationContext ec) {
+        // Grab the session's (form) element reference, and load it.
+        TreeReference elementRef =
+                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+        AbstractTreeElement element =
+                ec.resolveReference(elementRef.contextualize(contextRef));
+
+        if (element != null && element.getValue() != null) {
+            return element.getValue().uncast().getString();
+        }
+        return "";
     }
 }

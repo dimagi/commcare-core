@@ -30,4 +30,37 @@
         </create>
     </case>
 
+	<case case_id="autoselect_test_case_1"
+		date_modified="2014-08-04T21:09:15.000000Z"
+		user_id="test_user"
+		xmlns="http://commcarehq.org/case/transaction/v2">
+		<create>
+			<case_type>child</case_type>
+			<case_name>Autoselect Case</case_name>
+			<owner_id>test_user</owner_id>
+		</create>
+	</case>
+
+	<case case_id="autoselect_test_case_2"
+		date_modified="2014-08-04T21:09:07.000000Z"
+		user_id="test_user"
+		xmlns="http://commcarehq.org/case/transaction/v2">
+		<create>
+			<case_type>pregnancy</case_type>
+			<case_name>Autoselect Case 2</case_name>
+			<owner_id>test_user</owner_id>
+		</create>
+	</case>
+
+	<case case_id="autoselect_test_case_3"
+		date_modified="2014-08-04T21:09:11.000000Z"
+		user_id="test_user"
+		xmlns="http://commcarehq.org/case/transaction/v2">
+		<create>
+			<case_type>pregnancy</case_type>
+			<case_name>Autoselect Case 3</case_name>
+			<owner_id>test_user</owner_id>
+		</create>
+	</case>
+
 </OpenRosaResponse>
