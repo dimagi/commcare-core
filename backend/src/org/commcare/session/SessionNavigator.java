@@ -6,7 +6,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 
-import java.util.List;
 import java.util.Vector;
 
 /**
