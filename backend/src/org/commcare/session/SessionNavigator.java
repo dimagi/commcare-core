@@ -119,7 +119,7 @@ public class SessionNavigator {
         if (selectDatum.isAutoSelectEnabled()) {
             Vector<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
             if (entityListElements.size() == 1) {
-                return entityListElements.get(0);
+                return entityListElements.elementAt(0);
             } else {
                 return null;
             }
