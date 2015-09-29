@@ -1,7 +1,7 @@
 package org.commcare.test.utilities;
 
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionNavigationResponder;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionNavigationResponder;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 

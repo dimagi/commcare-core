@@ -1,18 +1,15 @@
 package org.commcare.backend.util.test;
 
 import org.commcare.suite.model.Action;
-import org.commcare.suite.model.StackOperation;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.junit.Assert;
 
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Vector;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly

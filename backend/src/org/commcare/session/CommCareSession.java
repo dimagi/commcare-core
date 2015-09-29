@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.commcare.util;
+package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -10,6 +10,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;

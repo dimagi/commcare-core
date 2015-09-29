@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.session;
 
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;

@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.session;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 

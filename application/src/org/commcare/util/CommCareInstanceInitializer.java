@@ -9,6 +9,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ConcreteTreeElement;
