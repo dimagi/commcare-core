@@ -117,7 +117,7 @@ public class ResourceManager {
                 upgradeTable.clear();
             }
 
-            loadProfile(upgradeTable, profileRef);
+            loadProfileIntoTable(upgradeTable, profileRef);
         }
     }
 
@@ -131,8 +131,8 @@ public class ResourceManager {
         }
     }
 
-    protected void loadProfile(ResourceTable table,
-                               String profileRef)
+    protected void loadProfileIntoTable(ResourceTable table,
+                                        String profileRef)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -147,8 +147,14 @@ public class ResourceManager {
                 table.getInstallers().getProfileInstaller(false),
                 null);
 
-        table.prepareResourcesUpTo(masterTable,
-                this.platform,
+        prepareProfileResource(table);
+    }
+
+    private void prepareProfileResource(ResourceTable targetTable)
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
+        targetTable.prepareResourcesUpTo(masterTable, this.platform,
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID);
     }
 
@@ -345,7 +351,7 @@ public class ResourceManager {
      * @return True if profile argument points to an app version that isn't
      * any newer than the profile in the upgrade table.
      */
-    public boolean updateIsntNewer(Resource currentProfile) {
+    public boolean updateNotNewer(Resource currentProfile) {
         Resource newProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         return newProfile != null && !newProfile.isNewer(currentProfile);
