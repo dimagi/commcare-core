@@ -12,7 +12,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
  */
 public class MockSessionNavigationResponder implements SessionNavigationResponder {
 
-    private SessionWrapper sessionWrapper;
+    private final SessionWrapper sessionWrapper;
     private int lastReceivedResultCode;
 
     public MockSessionNavigationResponder(SessionWrapper sessionWrapper) {

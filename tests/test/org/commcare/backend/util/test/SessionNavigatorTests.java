@@ -16,9 +16,9 @@ import org.junit.Test;
  */
 public class SessionNavigatorTests {
 
-    MockApp mApp;
-    MockSessionNavigationResponder mSessionNavigationResponder;
-    SessionNavigator sessionNavigator;
+    private MockApp mApp;
+    private MockSessionNavigationResponder mSessionNavigationResponder;
+    private SessionNavigator sessionNavigator;
 
     @Before
     public void setUp() throws Exception {
@@ -27,52 +27,49 @@ public class SessionNavigatorTests {
         sessionNavigator = new SessionNavigator(mSessionNavigationResponder);
     }
 
+    private void triggerSessionStepAndCheckResultCode(int expectedResultCode) {
+        sessionNavigator.startNextSessionStep();
+        Assert.assertEquals(expectedResultCode,
+                mSessionNavigationResponder.getLastResultCode());
+    }
+
     @Test
     public void testNavWithoutAutoSelect() {
         SessionWrapper session = mApp.getSession();
 
         // Before anything has been done in the session, the sessionNavigatorResponder should be
         // directed to get a command
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // Simulate selecting module m0
         session.setCommand("m0");
 
         // The sessionNavigatorResponder should be prompted to get another command, representing
         // form choice
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // Simulate selecting a form
         session.setCommand("m0-f1");
 
         // After a form is chosen for which auto selection is not turned on, the
         // sessionNavigatorResponder should be prompted to start entity selection
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.START_ENTITY_SELECTION,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_ENTITY_SELECTION);
 
         // Simulate going back
         session.stepBack();
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+
+        // Confirm that we now need a command again
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // Simulate selecting the registration form instead
         session.setCommand("m0-f0");
 
         // The session should need a computed datum (a new case id). However, for computed datums,
-        // the session navigator sets it itself; no callout to sessionNavigatorResponder is needed
-        sessionNavigator.startNextSessionStep();
-
+        // the session navigator sets it itself; no callout to sessionNavigatorResponder is needed.
         // After setting a computed datum, the session navigator makes a recursive call to
         // startNextSessionStep(), so the sessionNavigatorResponder should now have been prompted
         // to start form entry
-        Assert.assertEquals(SessionNavigator.START_FORM_ENTRY,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
     }
 
     @Test
@@ -80,14 +77,13 @@ public class SessionNavigatorTests {
         SessionWrapper session = mApp.getSession();
 
         // Before anything is done in the session, should need a command
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // Simulate selecting module m0
         session.setCommand("m0");
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+
+        // Should now need a form selection
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // Simulate selecting a form with auto-select enabled
         session.setCommand("m0-f2");
@@ -100,9 +96,7 @@ public class SessionNavigatorTests {
         // 'pregnancy', which is the case type that m0-f2's nodeset filters for), the
         // sessionNavigatorResponder will be prompted to start entity select, even though
         // auto-select is enabled
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.START_ENTITY_SELECTION,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_ENTITY_SELECTION);
     }
 
 
@@ -110,14 +104,10 @@ public class SessionNavigatorTests {
     public void testAutoSelectEnabledWithOneCase() {
         SessionWrapper session = mApp.getSession();
 
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         session.setCommand("m1");
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         session.setCommand("m1-f1");
 
         // Confirm that the next datum has auto-select enabled and has a confirm detail defined
@@ -129,23 +119,17 @@ public class SessionNavigatorTests {
         // 'child', which is the case type that m1-f1's nodeset filters for), and auto-select is
         // enabled, the sessionNavigationResponder should be prompted to launch the confirm detail
         // screen for the auto-selected case
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.LAUNCH_CONFIRM_DETAIL,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.LAUNCH_CONFIRM_DETAIL);
     }
 
     @Test
     public void testAutoSelectEnabledWithOneCaseAndNoDetail() {
         SessionWrapper session = mApp.getSession();
 
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         session.setCommand("m1");
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.GET_COMMAND,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         session.setCommand("m1-f2");
 
         // Confirm that the next datum has auto-select enabled, but does NOT have a confirm detail
@@ -157,9 +141,7 @@ public class SessionNavigatorTests {
         // Since there is one case in the case list and auto-select is enabled, but there is no
         // confirm detail screen, the sessionNavigationResponder should be prompted to go directly
         // to form entry
-        sessionNavigator.startNextSessionStep();
-        Assert.assertEquals(SessionNavigator.START_FORM_ENTRY,
-                mSessionNavigationResponder.getLastResultCode());
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
     }
 
 
