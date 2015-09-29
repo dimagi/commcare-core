@@ -73,7 +73,7 @@ public class CommCareSessionController {
         suiteTable.clear();
         entryTable.clear();
         menuTable.clear();
-        Enumeration en = session.platform.getInstalledSuites().elements();
+        Enumeration en = session.getPlatform().getInstalledSuites().elements();
         while(en.hasMoreElements()) {
             Suite suite = (Suite)en.nextElement();
             for(Menu m : suite.getMenus()) {
