@@ -7,6 +7,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Performs all logic involved in polling the current CommCareSession to determine what information
@@ -116,7 +117,7 @@ public class SessionNavigator {
     private TreeReference getAutoSelectedCase() {
         SessionDatum selectDatum = currentSession.getNeededDatum();
         if (selectDatum.isAutoSelectEnabled()) {
-            List<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
+            Vector<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
             if (entityListElements.size() == 1) {
                 return entityListElements.get(0);
             } else {
