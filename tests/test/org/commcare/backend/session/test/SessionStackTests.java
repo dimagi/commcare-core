@@ -184,20 +184,19 @@ public class SessionStackTests {
         // and still sees itself as needing each of the datums defined for this form, in the correct
         // order
 
-        //TODO: Fix faulty logic in CommCareSession.getNeededData() so that these assertions pass
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        //Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
-        //session.setDatum("case_id", "case_id_value");
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        //Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        session.setDatum("case_id", "case_id_value");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
-        //session.setDatum("case_id_new_visit_0", "visit_id_value");
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        //Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
+        session.setDatum("case_id_new_visit_0", "visit_id_value");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
 
-        //session.setDatum("usercase_id", "usercase_id_value");
-        //Assert.assertEquals(null, session.getNeededData());
+        session.setDatum("usercase_id", "usercase_id_value");
+        Assert.assertEquals(null, session.getNeededData());
     }
 
 }
