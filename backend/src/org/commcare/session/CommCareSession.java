@@ -50,7 +50,12 @@ public class CommCareSession {
     protected StackFrameStep popped;
 
     protected String currentCmd;
-    protected OrderedHashtable data;
+
+    /**
+     * A table of all datums (id --> value) that are currently on the session stack
+     */
+    protected OrderedHashtable collectedDatums;
+
     protected String currentXmlns;
 
     /**
@@ -65,7 +70,7 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        data = new OrderedHashtable();
+        collectedDatums = new OrderedHashtable();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -125,7 +130,7 @@ public class CommCareSession {
     }
 
     protected OrderedHashtable getData() {
-        return data;
+        return collectedDatums;
     }
 
     public CommCarePlatform getPlatform() {
@@ -248,15 +253,21 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        int nextVal = getData().size();
-        //If we've already retrieved all data needed, return null.
-        if (nextVal >= entry.getSessionDataReqs().size()) {
-            return null;
-        }
+        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
+    }
 
-        //Otherwise retrieve the needed value
-        SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
-        return datum;
+    /**
+     * Return the first SessionDatum that is in allDatumsNeeded, but is not represented in
+     * datumsCollectedSoFar
+     */
+    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
+                                              Vector<SessionDatum> allDatumsNeeded) {
+        for (SessionDatum datum : allDatumsNeeded) {
+            if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
+                return datum;
+            }
+        }
+        return null;
     }
 
     public Detail getDetail(String id) {
@@ -349,7 +360,7 @@ public class CommCareSession {
     }
 
     private void syncState() {
-        this.data.clear();
+        this.collectedDatums.clear();
         this.currentCmd = null;
         this.currentXmlns = null;
         this.popped = null;
@@ -359,7 +370,7 @@ public class CommCareSession {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
-                    data.put(key, value);
+                    collectedDatums.put(key, value);
                 }
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
