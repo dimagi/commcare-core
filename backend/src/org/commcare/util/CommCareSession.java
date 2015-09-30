@@ -244,15 +244,21 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        int nextVal = getData().size();
-        //If we've already retrieved all data needed, return null.
-        if (nextVal >= entry.getSessionDataReqs().size()) {
-            return null;
-        }
+        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
+    }
 
-        //Otherwise retrieve the needed value
-        SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
-        return datum;
+    /**
+     * Return the first SessionDatum that is in allDatumsNeeded, but is not represented in
+     * datumsCollectedSoFar
+     */
+    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
+                                              Vector<SessionDatum> allDatumsNeeded) {
+        for (SessionDatum datum : allDatumsNeeded) {
+            if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
+                return datum;
+            }
+        }
+        return null;
     }
 
     public Detail getDetail(String id) {
