@@ -132,6 +132,35 @@ public class SessionStackTests {
     }
 
     @Test
+    public void testOutOfOrderStackComplex() throws Exception {
+        mApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mApp.getSession();
+
+        // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
+        // case_id_new_visit_0, usercase_id)
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m0");
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m0-f3");
+
+        // Set 2 of the 3 needed datums, so that the datum that is actually still needed (case_id)
+        // is NOT a computed value, but the "last" needed datum is a computed value
+        session.setDatum("case_id_new_visit_0", "visit_id_value");
+        session.setDatum("usercase_id", "usercase_id_value");
+
+        // Session should now see that it needs a normal datum val (NOT a computed val)
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+
+        // The key of the needed datum should be "case_id"
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+
+        // Add the needed datum to the stack and confirm that the session is now ready to proceed
+        session.setDatum("case_id", "case_id_value");
+        Assert.assertEquals(null, session.getNeededData());
+    }
+
+    @Test
     public void testUnnecessaryDataOnStack() throws Exception {
         mApp = new MockApp("/session-tests-template/");
         SessionWrapper session = mApp.getSession();
@@ -155,20 +184,19 @@ public class SessionStackTests {
         // and still sees itself as needing each of the datums defined for this form, in the correct
         // order
 
-        //TODO: Fix faulty logic in CommCareSession.getNeededData() so that these assertions pass
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        //Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
-        //session.setDatum("case_id", "case_id_value");
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        //Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        session.setDatum("case_id", "case_id_value");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
-        //session.setDatum("case_id_new_visit_0", "visit_id_value");
-        //Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        //Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
+        session.setDatum("case_id_new_visit_0", "visit_id_value");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+        Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
 
-        //session.setDatum("usercase_id", "usercase_id_value");
-        //Assert.assertEquals(null, session.getNeededData());
+        session.setDatum("usercase_id", "usercase_id_value");
+        Assert.assertEquals(null, session.getNeededData());
     }
 
 }

@@ -79,6 +79,12 @@ public class CommCareSession {
         return this.getEntriesForCommand(commandId, new OrderedHashtable());
     }
 
+    /**
+     * @param commandId the current command id
+     * @param data all of the datums already on the stack
+     * @return A list of all of the form entry actions that are possible with the given commandId
+     * and the given list of already-collected datums
+     */
     public Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
@@ -86,7 +92,7 @@ public class CommCareSession {
         top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
-                //We need to see if everything in this menu can be matched
+                // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
                     menu = m;
                     break top;
@@ -151,22 +157,20 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
+        Vector<Entry> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
 
         //Get data. Checking first to see if the relevant key is needed by all entries
 
         String needDatum = null;
         String nextKey = null;
-        for (Entry e : entries) {
+        for (Entry e : possibleEntries) {
 
-            //TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
-            //to make sure things are fine. We need to comprehensively address matching these as sets.
-            if (e.getSessionDataReqs().size() > this.getData().size()) {
-                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
-                String needed = datum.getDataId();
+            SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
+            if (datumNeededForThisEntry != null) {
+                String needed = datumNeededForThisEntry.getDataId();
                 if (nextKey == null) {
                     nextKey = needed;
-                    if (datum.getNodeset() != null) {
+                    if (datumNeededForThisEntry.getNodeset() != null) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
                     } else {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
@@ -180,18 +184,19 @@ public class CommCareSession {
                 }
             }
 
-            //If we made it here, we either don't need more data or don't need
-            //consistent data for the remaining options
+            // If we made it here, we either don't need more data or don't need
+            // consistent data for the remaining options
             needDatum = null;
             break;
         }
+
         if (needDatum != null) {
             return needDatum;
         }
 
         //the only other thing we can need is a form command. If there's still
         //more than one applicable entry, we need to keep going
-        if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(this.getCommand())) {
+        if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
             return SessionFrame.STATE_COMMAND_ID;
         } else {
             return null;
