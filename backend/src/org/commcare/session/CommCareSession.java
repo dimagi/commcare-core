@@ -72,7 +72,7 @@ public class CommCareSession {
         this.platform = platform;
         collectedDatums = new OrderedHashtable();
         this.frame = new SessionFrame();
-        this.frameStack = new Stack<>();
+        this.frameStack = new Stack<SessionFrame>();
     }
 
     public Vector<Entry> getEntriesForCommand(String commandId) {
