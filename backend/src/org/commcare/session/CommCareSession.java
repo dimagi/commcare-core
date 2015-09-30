@@ -50,7 +50,12 @@ public class CommCareSession {
     protected StackFrameStep popped;
 
     protected String currentCmd;
-    protected OrderedHashtable data;
+
+    /**
+     * A table of all datums (id --> value) that are currently on the session stack
+     */
+    protected OrderedHashtable collectedDatums;
+
     protected String currentXmlns;
 
     /**
@@ -65,7 +70,7 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        data = new OrderedHashtable();
+        collectedDatums = new OrderedHashtable();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -124,8 +129,8 @@ public class CommCareSession {
         return entries;
     }
 
-    protected OrderedHashtable getData() {
-        return data;
+    protected OrderedHashtable getCollectedDatums() {
+        return collectedDatums;
     }
 
     public CommCarePlatform getPlatform() {
@@ -146,7 +151,7 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
+        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getCollectedDatums());
 
         //Get data. Checking first to see if the relevant key is needed by all entries
 
@@ -156,8 +161,8 @@ public class CommCareSession {
 
             //TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
             //to make sure things are fine. We need to comprehensively address matching these as sets.
-            if (e.getSessionDataReqs().size() > this.getData().size()) {
-                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
+            if (e.getSessionDataReqs().size() > this.getCollectedDatums().size()) {
+                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getCollectedDatums().size());
                 String needed = datum.getDataId();
                 if (nextKey == null) {
                     nextKey = needed;
@@ -248,15 +253,30 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        int nextVal = getData().size();
-        //If we've already retrieved all data needed, return null.
-        if (nextVal >= entry.getSessionDataReqs().size()) {
+        Vector<SessionDatum> allDatumsNeeded = entry.getSessionDataReqs();
+        OrderedHashtable datumsSoFar = getCollectedDatums();
+
+        if (datumsSoFar.size() >= allDatumsNeeded.size()) {
+            //If we've already retrieved all data needed, return null
             return null;
         }
 
-        //Otherwise retrieve the needed value
-        SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
-        return datum;
+        // Otherwise retrieve the first needed value
+        return getFirstMissingDatum(datumsSoFar, allDatumsNeeded);
+    }
+
+    /**
+     * Return the first SessionDatum that is in datumsNeeded, but is not represented in
+     * datumsCollected
+     */
+    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollected,
+                                              Vector<SessionDatum> datumsNeeded) {
+        for (SessionDatum datum : datumsNeeded) {
+            if (!datumsCollected.containsKey(datum.getDataId())) {
+                return datum;
+            }
+        }
+        return null;
     }
 
     public Detail getDetail(String id) {
@@ -349,7 +369,7 @@ public class CommCareSession {
     }
 
     private void syncState() {
-        this.data.clear();
+        this.collectedDatums.clear();
         this.currentCmd = null;
         this.currentXmlns = null;
         this.popped = null;
@@ -359,7 +379,7 @@ public class CommCareSession {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
-                    data.put(key, value);
+                    collectedDatums.put(key, value);
                 }
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
