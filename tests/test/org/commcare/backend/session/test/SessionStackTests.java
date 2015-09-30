@@ -153,11 +153,11 @@ public class SessionStackTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         // The key of the needed datum should be "case_id"
-        /*Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id", "case_id_value");
-        Assert.assertEquals(null, session.getNeededData());*/
+        Assert.assertEquals(null, session.getNeededData());
     }
 
     @Test
