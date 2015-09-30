@@ -129,7 +129,7 @@ public class CommCareSession {
         return entries;
     }
 
-    protected OrderedHashtable getCollectedDatums() {
+    protected OrderedHashtable getData() {
         return collectedDatums;
     }
 
