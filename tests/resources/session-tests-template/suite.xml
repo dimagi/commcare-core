@@ -36,22 +36,18 @@
     </resource>
   </xform>
   <entry>
-    <form>http://openrosa.org/formdesigner/10265156-B32B-4489-9E0C-DED6520B8428</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f0">
-      <text>
-        <locale id="forms.m0f0"/>
-      </text>
+      <text>Module 0 Form 0</text>
     </command>
     <session>
       <datum id="case_id_new_pregnancy_0" function="uuid()"/>
     </session>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/FA76A683-47FD-403B-9409-7A5A90147C96</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f1">
-      <text>
-        <locale id="forms.m0f1"/>
-      </text>
+      <text>Module 0 Form 1</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
@@ -59,11 +55,9 @@
     </session>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/67FBBDC6-AD71-4CF3-951E-C13FE8FA94EC</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f2">
-      <text>
-        <locale id="forms.m0f2"/>
-      </text>
+      <text>Module 0 Form 2</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
@@ -71,11 +65,9 @@
     </session>
   </entry>
     <entry>
-        <form>http://openrosa.org/formdesigner/1A0EDB0F-D139-47F2-B06C-FF1203DC5AC4</form>
+        <form>http://commcarehq.org/test/placeholder</form>
         <command id="m0-f3">
-            <text>
-                <locale id="forms.m0f3"/>
-            </text>
+            <text>Module 0 Form 3</text>
         </command>
         <instance id="casedb" src="jr://instance/casedb"/>
         <session>
@@ -86,11 +78,9 @@
     </entry>
 
   <entry>
-    <form>http://openrosa.org/formdesigner/C03AA95B-48CF-4229-BBFB-CC607EE847B7</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m1-f0">
-      <text>
-        <locale id="forms.m1f0"/>
-      </text>
+      <text>Module 1 Form 0</text>
     </command>
     <session>
       <datum id="case_id_new_child_0" function="uuid()"/>
@@ -102,11 +92,9 @@
     </stack>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/323CF5AC-9B68-456D-AEF7-B20C3D0A3DBB</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m1-f1">
-      <text>
-        <locale id="forms.m1f1"/>
-      </text>
+      <text>Module 1 Form 1</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
@@ -114,11 +102,9 @@
     </session>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/323CF5AC-9B68-456D-AEF7-B20C3D0A3DBB</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m1-f2">
-      <text>
-        <locale id="forms.m1f2"/>
-      </text>
+      <text>Module 1 Form 2</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
@@ -126,11 +112,9 @@
     </session>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/E09A1FD7-1B1E-4E9B-B015-BBDE2D43B744</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m2-f0">
-      <text>
-        <locale id="forms.m2f0"/>
-      </text>
+      <text>Module 2 Form 0</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
@@ -138,11 +122,9 @@
     </session>
   </entry>
   <entry>
-    <form>http://openrosa.org/formdesigner/1A0EDB0F-D139-47F2-B06C-FF1203DC5AC4</form>
+    <form>http://commcarehq.org/test/placeholder</form>
     <command id="m2-f1">
-      <text>
-        <locale id="forms.m2f1"/>
-      </text>
+      <text>Module 2 Form 1</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
     <session>
