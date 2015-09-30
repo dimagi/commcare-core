@@ -1,4 +1,4 @@
-package org.commcare.backend.util.test;
+package org.commcare.backend.session.test;
 
 import org.commcare.suite.model.Action;
 import org.commcare.test.utilities.CaseTestUtils;
@@ -20,24 +20,21 @@ import org.junit.Test;
 public class SessionStackTests {
     MockApp mApp;
 
-    @Before
-    public void init() throws Exception{
-        mApp = new MockApp("/complex_stack/");
-    }
-
     @Test
     public void testDoubleManagementAndOverlappingStack() throws Exception {
+        mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m0");
 
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         session.setComputedDatum();
 
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         Action dblManagement = session.getDetail(session.getNeededDatum().getShortDetail()).getCustomAction();
 
@@ -51,7 +48,7 @@ public class SessionStackTests {
             Assert.fail("After executing stack frame steps, session should be redirected");
         }
 
-        Assert.assertEquals(session.getForm(), "http://commcarehq.org/test/placeholder_destination");
+        Assert.assertEquals("http://commcarehq.org/test/placeholder_destination", session.getForm());
 
         EvaluationContext ec = session.getEvaluationContext();
 
@@ -62,14 +59,16 @@ public class SessionStackTests {
 
     @Test
     public void testViewNav() throws Exception {
+        mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m3-f0");
 
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id_to_send");
+        Assert.assertEquals("case_id_to_send", session.getNeededDatum().getDataId());
 
         Assert.assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
 
@@ -77,7 +76,7 @@ public class SessionStackTests {
 
         session.finishExecuteAndPop(session.getEvaluationContext());
 
-        Assert.assertEquals(session.getCommand(), "m2");
+        Assert.assertEquals("m2", session.getCommand());
 
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "instance('session')/session/data/case_id", "case_one");
@@ -85,21 +84,47 @@ public class SessionStackTests {
         CaseTestUtils.xpathEvalAndCompare(session.getEvaluationContext(),
                 "count(instance('session')/session/data/case_id_to_send)", "0");
 
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
     }
 
     @Test
     public void testViewNonNav() throws Exception {
+        mApp = new MockApp("/complex_stack/");
         SessionWrapper session = mApp.getSession();
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
 
         session.setCommand("m4-f0");
 
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id_to_view");
+        Assert.assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
 
         Assert.assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
+    }
+
+    @Test
+    public void testOutOfOrderStack() throws Exception {
+        mApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mApp.getSession();
+
+        // Select a form that has 3 datum requirements to enter (in order from suite.xml: case_id,
+        // case_id_new_visit_0, usercase_id)
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m0");
+
+        Assert.assertEquals(SessionFrame.STATE_COMMAND_ID, session.getNeededData());
+        session.setCommand("m0-f3");
+
+        // Set 2 of the 3 needed datums, but not in order (1st and 3rd)
+        session.setDatum("case_id", "case_id_value");
+        session.setDatum("usercase_id", "usercase_id_value");
+
+        // Session should now need the case_id_new_visit_0, which is a computed datum
+        Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
+
+        // The key of the needed datum should be "case_id_new_visit_0"
+        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
     }
 
 }

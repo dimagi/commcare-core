@@ -70,6 +70,21 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long" autoselect="true"/>
     </session>
   </entry>
+    <entry>
+        <form>http://openrosa.org/formdesigner/1A0EDB0F-D139-47F2-B06C-FF1203DC5AC4</form>
+        <command id="m0-f3">
+            <text>
+                <locale id="forms.m0f3"/>
+            </text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+            <datum id="case_id_new_visit_0" function="uuid()"/>
+            <datum id="usercase_id" function="uuid()"/>
+        </session>
+    </entry>
+
   <entry>
     <form>http://openrosa.org/formdesigner/C03AA95B-48CF-4229-BBFB-CC607EE847B7</form>
     <command id="m1-f0">
@@ -134,6 +149,7 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
   </entry>
+
   <menu id="m0">
     <text>
       <locale id="modules.m0"/>
