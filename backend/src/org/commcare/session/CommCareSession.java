@@ -253,26 +253,17 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        Vector<SessionDatum> allDatumsNeeded = entry.getSessionDataReqs();
-        OrderedHashtable datumsSoFar = getData();
-
-        if (datumsSoFar.size() >= allDatumsNeeded.size()) {
-            //If we've already retrieved all data needed, return null
-            return null;
-        }
-
-        // Otherwise retrieve the first needed value
-        return getFirstMissingDatum(datumsSoFar, allDatumsNeeded);
+        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
     }
 
     /**
-     * Return the first SessionDatum that is in datumsNeeded, but is not represented in
-     * datumsCollected
+     * Return the first SessionDatum that is in allDatumsNeeded, but is not represented in
+     * datumsCollectedSoFar
      */
-    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollected,
-                                              Vector<SessionDatum> datumsNeeded) {
-        for (SessionDatum datum : datumsNeeded) {
-            if (!datumsCollected.containsKey(datum.getDataId())) {
+    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
+                                              Vector<SessionDatum> allDatumsNeeded) {
+        for (SessionDatum datum : allDatumsNeeded) {
+            if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
                 return datum;
             }
         }
