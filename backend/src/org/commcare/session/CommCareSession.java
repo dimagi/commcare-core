@@ -151,7 +151,7 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getCollectedDatums());
+        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
 
         //Get data. Checking first to see if the relevant key is needed by all entries
 
@@ -161,8 +161,8 @@ public class CommCareSession {
 
             //TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
             //to make sure things are fine. We need to comprehensively address matching these as sets.
-            if (e.getSessionDataReqs().size() > this.getCollectedDatums().size()) {
-                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getCollectedDatums().size());
+            if (e.getSessionDataReqs().size() > this.getData().size()) {
+                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
                 String needed = datum.getDataId();
                 if (nextKey == null) {
                     nextKey = needed;
@@ -254,7 +254,7 @@ public class CommCareSession {
      */
     public SessionDatum getNeededDatum(Entry entry) {
         Vector<SessionDatum> allDatumsNeeded = entry.getSessionDataReqs();
-        OrderedHashtable datumsSoFar = getCollectedDatums();
+        OrderedHashtable datumsSoFar = getData();
 
         if (datumsSoFar.size() >= allDatumsNeeded.size()) {
             //If we've already retrieved all data needed, return null
