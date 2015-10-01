@@ -9,6 +9,8 @@ import org.commcare.applogic.CommCareSelectState;
 import org.commcare.applogic.MenuHomeState;
 import org.commcare.entity.CommCareEntity;
 import org.commcare.entity.NodeEntitySet;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -30,7 +32,6 @@ import org.javarosa.j2me.view.J2MEDisplay;
 import org.javarosa.j2me.view.ProgressIndicator;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -72,7 +73,7 @@ public class CommCareSessionController {
         suiteTable.clear();
         entryTable.clear();
         menuTable.clear();
-        Enumeration en = session.platform.getInstalledSuites().elements();
+        Enumeration en = session.getPlatform().getInstalledSuites().elements();
         while(en.hasMoreElements()) {
             Suite suite = (Suite)en.nextElement();
             for(Menu m : suite.getMenus()) {

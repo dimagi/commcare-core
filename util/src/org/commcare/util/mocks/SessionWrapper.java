@@ -1,7 +1,7 @@
 package org.commcare.util.mocks;
 
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
+import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 /**

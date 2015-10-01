@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.commcare.util;
+package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
@@ -10,6 +10,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
@@ -49,7 +50,12 @@ public class CommCareSession {
     protected StackFrameStep popped;
 
     protected String currentCmd;
-    protected OrderedHashtable data;
+
+    /**
+     * A table of all datums (id --> value) that are currently on the session stack
+     */
+    protected OrderedHashtable collectedDatums;
+
     protected String currentXmlns;
 
     /**
@@ -64,7 +70,7 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        data = new OrderedHashtable();
+        collectedDatums = new OrderedHashtable();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -73,6 +79,12 @@ public class CommCareSession {
         return this.getEntriesForCommand(commandId, new OrderedHashtable());
     }
 
+    /**
+     * @param commandId the current command id
+     * @param data all of the datums already on the stack
+     * @return A list of all of the form entry actions that are possible with the given commandId
+     * and the given list of already-collected datums
+     */
     public Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
@@ -80,7 +92,7 @@ public class CommCareSession {
         top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
-                //We need to see if everything in this menu can be matched
+                // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
                     menu = m;
                     break top;
@@ -124,9 +136,12 @@ public class CommCareSession {
     }
 
     protected OrderedHashtable getData() {
-        return data;
+        return collectedDatums;
     }
 
+    public CommCarePlatform getPlatform() {
+        return this.platform;
+    }
 
     /**
      * Based on the current state of the session, determine what information is needed next to
@@ -142,22 +157,20 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> entries = getEntriesForCommand(this.getCommand(), this.getData());
+        Vector<Entry> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
 
         //Get data. Checking first to see if the relevant key is needed by all entries
 
         String needDatum = null;
         String nextKey = null;
-        for (Entry e : entries) {
+        for (Entry e : possibleEntries) {
 
-            //TODO: With the introduction of <action>s there's no way we can keep pretending it's ok to just use this length
-            //to make sure things are fine. We need to comprehensively address matching these as sets.
-            if (e.getSessionDataReqs().size() > this.getData().size()) {
-                SessionDatum datum = e.getSessionDataReqs().elementAt(this.getData().size());
-                String needed = datum.getDataId();
+            SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
+            if (datumNeededForThisEntry != null) {
+                String needed = datumNeededForThisEntry.getDataId();
                 if (nextKey == null) {
                     nextKey = needed;
-                    if (datum.getNodeset() != null) {
+                    if (datumNeededForThisEntry.getNodeset() != null) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
                     } else {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
@@ -171,18 +184,19 @@ public class CommCareSession {
                 }
             }
 
-            //If we made it here, we either don't need more data or don't need
-            //consistent data for the remaining options
+            // If we made it here, we either don't need more data or don't need
+            // consistent data for the remaining options
             needDatum = null;
             break;
         }
+
         if (needDatum != null) {
             return needDatum;
         }
 
         //the only other thing we can need is a form command. If there's still
         //more than one applicable entry, we need to keep going
-        if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(this.getCommand())) {
+        if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
             return SessionFrame.STATE_COMMAND_ID;
         } else {
             return null;
@@ -244,15 +258,21 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        int nextVal = getData().size();
-        //If we've already retrieved all data needed, return null.
-        if (nextVal >= entry.getSessionDataReqs().size()) {
-            return null;
-        }
+        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
+    }
 
-        //Otherwise retrieve the needed value
-        SessionDatum datum = entry.getSessionDataReqs().elementAt(nextVal);
-        return datum;
+    /**
+     * Return the first SessionDatum that is in allDatumsNeeded, but is not represented in
+     * datumsCollectedSoFar
+     */
+    private SessionDatum getFirstMissingDatum(OrderedHashtable datumsCollectedSoFar,
+                                              Vector<SessionDatum> allDatumsNeeded) {
+        for (SessionDatum datum : allDatumsNeeded) {
+            if (!datumsCollectedSoFar.containsKey(datum.getDataId())) {
+                return datum;
+            }
+        }
+        return null;
     }
 
     public Detail getDetail(String id) {
@@ -345,7 +365,7 @@ public class CommCareSession {
     }
 
     private void syncState() {
-        this.data.clear();
+        this.collectedDatums.clear();
         this.currentCmd = null;
         this.currentXmlns = null;
         this.popped = null;
@@ -355,7 +375,7 @@ public class CommCareSession {
                 String key = step.getId();
                 String value = step.getValue();
                 if (key != null && value != null) {
-                    data.put(key, value);
+                    collectedDatums.put(key, value);
                 }
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();

@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.util.CommCareSession;
+import org.commcare.session.CommCareSession;
 
 import java.io.PrintStream;
 

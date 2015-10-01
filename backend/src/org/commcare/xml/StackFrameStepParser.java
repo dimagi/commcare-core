@@ -4,7 +4,7 @@
 package org.commcare.xml;
 
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.parser.XPathSyntaxException;

@@ -3,7 +3,7 @@
  */
 package org.commcare.suite.model;
 
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
