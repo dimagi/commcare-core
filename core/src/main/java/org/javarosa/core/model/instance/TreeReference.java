@@ -588,21 +588,22 @@ public class TreeReference implements Externalizable {
         }
         int hash = refLevel;
         for (int i = 0; i < size(); i++) {
-            Integer mult = DataUtil.integer(getMultiplicity(i));
-            if (i == 0 && mult.intValue() == INDEX_UNBOUND)
-                mult = DataUtil.integer(0);
+            int mult = getMultiplicity(i);
+            if (i == 0 && mult == INDEX_UNBOUND) {
+                mult = 0;
+            }
 
             hash ^= getName(i).hashCode();
-            hash ^= mult.hashCode();
+            hash ^= mult;
+
             Vector<XPathExpression> predicates = this.getPredicate(i);
-            if (predicates == null) {
-                continue;
-            }
-            int val = 0;
-            for (XPathExpression xpe : predicates) {
-                hash ^= val;
-                hash ^= xpe.hashCode();
-                ++val;
+            if (predicates != null) {
+                int val = 0;
+                for (XPathExpression xpe : predicates) {
+                    hash ^= val;
+                    hash ^= xpe.hashCode();
+                    ++val;
+                }
             }
         }
         hashCode = hash;
