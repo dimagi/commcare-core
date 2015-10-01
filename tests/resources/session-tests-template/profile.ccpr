@@ -6,7 +6,8 @@
          uniqueid="e1e6d47cda1351b38f55a84411ec7adf"
          name="Session Test App"
          descriptor="Profile File">
- 
+
+    <!-- no op-->
     <suite><resource id="suite" version="36">
             <location authority="local">./suite.xml</location>
     </resource></suite>
