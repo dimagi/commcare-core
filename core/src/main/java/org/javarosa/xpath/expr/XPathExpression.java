@@ -270,6 +270,7 @@ public abstract class XPathExpression implements Externalizable {
         indent -= 1;
     }
 
+    @Override
     public int hashCode() {
         return this.toString().hashCode();
     }
