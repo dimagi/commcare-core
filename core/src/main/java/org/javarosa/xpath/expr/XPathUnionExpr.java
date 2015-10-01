@@ -30,12 +30,13 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(in, pf);
+        readExpressions(in, pf);
+        op = -1;
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
+        writeExpressions(out);
     }
 
     @Override
