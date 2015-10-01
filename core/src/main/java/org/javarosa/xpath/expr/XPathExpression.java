@@ -162,7 +162,7 @@ public abstract class XPathExpression implements Externalizable {
             printStr("}}");
         } else if (o instanceof XPathEqExpr) {
             XPathEqExpr x = (XPathEqExpr)o;
-            String op = x.equal ? "eq" : "neq";
+            String op = x.op == XPathEqExpr.EQ ? "eq" : "neq";
             printStr(op + " {{");
             print(x.a);
             printStr(" } {");

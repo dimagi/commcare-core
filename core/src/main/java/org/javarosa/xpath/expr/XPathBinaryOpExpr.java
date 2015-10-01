@@ -15,13 +15,15 @@ import java.util.Vector;
 
 public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public XPathExpression a, b;
+    public int op;
 
     public XPathBinaryOpExpr() {
     } //for deserialization of children
 
-    public XPathBinaryOpExpr(XPathExpression a, XPathExpression b) {
+    public XPathBinaryOpExpr(int op, XPathExpression a, XPathExpression b) {
         this.a = a;
         this.b = b;
+        this.op = op;
     }
 
     public String toString(String op) {
@@ -32,7 +34,7 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public boolean equals(Object o) {
         if (o instanceof XPathBinaryOpExpr) {
             XPathBinaryOpExpr x = (XPathBinaryOpExpr)o;
-            return a.equals(x.a) && b.equals(x.b);
+            return op == x.op && a.equals(x.a) && b.equals(x.b);
         } else {
             return false;
         }
@@ -40,12 +42,22 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        op = ExtUtil.readInt(in);
+        readExpressions(in, pf);
+    }
+
+    protected void readExpressions(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         b = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, op);
+        writeExpressions(out);
+    }
+
+    protected void writeExpressions(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
         ExtUtil.write(out, new ExtWrapTagged(b));
     }

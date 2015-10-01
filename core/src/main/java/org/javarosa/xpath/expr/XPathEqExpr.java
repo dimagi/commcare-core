@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -11,14 +12,17 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class XPathEqExpr extends XPathBinaryOpExpr {
-    public boolean equal;
+    public static final int EQ = 0;
+    public static final int NEQ = 1;
+    private boolean isEqOp;
 
     public XPathEqExpr() {
     } //for deserialization
 
-    public XPathEqExpr(boolean equal, XPathExpression a, XPathExpression b) {
-        super(a, b);
-        this.equal = equal;
+    public XPathEqExpr(int op, XPathExpression a, XPathExpression b) {
+        super(op, a, b);
+
+        isEqOp = (op == EQ);
     }
 
     @Override
@@ -27,34 +31,30 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
 
-        return new Boolean(equal ? eq : !eq);
+        return new Boolean(isEqOp ? eq : !eq);
     }
 
     @Override
     public String toString() {
-        return super.toString(equal ? "==" : "!=");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof XPathEqExpr) {
-            XPathEqExpr x = (XPathEqExpr)o;
-            return super.equals(o) && equal == x.equal;
-        } else {
-            return false;
-        }
+        return super.toString(isEqOp ? "==" : "!=");
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        equal = ExtUtil.readBool(in);
-        super.readExternal(in, pf);
+        isEqOp = ExtUtil.readBool(in);
+        readExpressions(in, pf);
+
+        if (isEqOp) {
+            op = XPathEqExpr.EQ;
+        } else {
+            op = XPathEqExpr.NEQ;
+        }
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeBool(out, equal);
-        super.writeExternal(out);
+        ExtUtil.writeBool(out, isEqOp);
+        writeExpressions(out);
     }
 
     /**
@@ -101,7 +101,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         String prettyA = a.toPrettyString();
         String prettyB = b.toPrettyString();
 
-        if (equal) {
+        if (isEqOp) {
             return prettyA + " = " + prettyB;
         } else {
             return prettyA + " != " + prettyB;

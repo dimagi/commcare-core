@@ -15,7 +15,7 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     } //for deserialization
 
     public XPathUnionExpr(XPathExpression a, XPathExpression b) {
-        super(a, b);
+        super(-1, a, b);
     }
 
     @Override
@@ -26,15 +26,6 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     @Override
     public String toString() {
         return super.toString("union");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof XPathUnionExpr) {
-            return super.equals(o);
-        } else {
-            return false;
-        }
     }
 
     @Override
