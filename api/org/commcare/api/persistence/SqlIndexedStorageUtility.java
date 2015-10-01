@@ -3,7 +3,6 @@
  */
 package org.commcare.api.persistence;
 
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -11,7 +10,6 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -33,21 +31,17 @@ import java.util.Vector;
 public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
     private final Class<T> prototype;
-
-    private final PrototypeFactory mFactory;
-
     private final String tableName;
     private final String userName;
 
-    public SqlIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory, String userName, String tableName) {
+    public SqlIndexedStorageUtility(Class<T> prototype, String userName, String tableName) {
         this.tableName = tableName;
         this.userName = userName;
         this.prototype = prototype;
-        this.mFactory = factory;
         tryCreateTable();
     }
 
-    Connection getConnection() throws SQLException {
+    Connection getConnection() {
         try {
             Class.forName("org.sqlite.JDBC");
             return DriverManager.getConnection("jdbc:sqlite:" + this.userName + ".db");
@@ -89,13 +83,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             ByteArrayInputStream mByteStream = new ByteArrayInputStream(mBytes);
             t.readExternal(new DataInputStream(mByteStream), PrototypeManager.getDefault());
             return t;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (InstantiationException | IllegalAccessException | DeserializationException | IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -119,16 +107,15 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             Connection c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
                     new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
-            Vector<Integer> ids = new Vector<Integer>();
+            Vector<Integer> ids = new Vector<>();
+            if(rs == null){
+                return null;
+            }
             while (rs.next()) {
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
             return ids;
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (InstantiationException | IllegalAccessException | SQLException e) {
             e.printStackTrace();
         }
         return null;
@@ -144,14 +131,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
                     new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
-            if (!rs.next()) {
+            if (rs == null || !rs.next()) {
                 throw new NoSuchElementException();
             }
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return readFromBytes(mBytes);
-        } catch (SQLException | InstantiationException | IllegalAccessException e) {
-            logAndWrap(e, "Error getting record for value: " + fieldName);
+        } catch (SQLException | InstantiationException | IllegalAccessException | NullPointerException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -188,7 +175,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             Connection c = getConnection();
             ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
             c.close();
-            if (rs.next()) {
+            if (rs != null && rs.next()) {
                 return true;
             }
         } catch (Exception e) {
@@ -268,6 +255,9 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             Connection c = getConnection();
             ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
+            if(rs == null){
+                return null;
+            }
             byte[] caseBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             c.close();
             return caseBytes;
@@ -337,14 +327,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         //TODO: This should have a clear contract.
     }
 
-    private RuntimeException logAndWrap(Exception e, String message) {
-        RuntimeException re = new RuntimeException(message + " while inflating type " + prototype.getName());
-        re.initCause(e);
-        Logger.log("e", re.getMessage());
-        return re;
-    }
-
-    private final Vector<String> dynamicIndices = new Vector<String>();
+    private final Vector<String> dynamicIndices = new Vector<>();
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);
@@ -360,13 +343,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             Connection c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
-        } catch (SQLException e) {
-            System.out.println("Couldn't create table: " + tableName + " got: " + e);
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            System.out.println("Couldn't create table: " + tableName + " got: " + e);
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (SQLException | InstantiationException | IllegalAccessException e) {
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
             e.printStackTrace();
         }

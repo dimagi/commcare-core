@@ -77,7 +77,7 @@ public class SqlStorageIndexedTests {
 
                 SqlTestUtils.deleteDatabase(username);
 
-                caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, mPrototypeFactory, username, storageKey);
+                caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, username, storageKey);
 
                 caseStorage.write(a);
 
@@ -111,7 +111,7 @@ public class SqlStorageIndexedTests {
 
                 SqlTestUtils.deleteDatabase(username);
 
-                ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, mPrototypeFactory, username, storageKey);
+                ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);

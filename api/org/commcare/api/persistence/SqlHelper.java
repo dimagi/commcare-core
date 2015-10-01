@@ -2,6 +2,7 @@ package org.commcare.api.persistence;
 
 import org.commcare.modern.util.Pair;
 import org.commcare.modern.database.*;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -23,32 +24,28 @@ public class SqlHelper {
     public static void dropTable(Connection c, String storageKey) {
         String sqlStatement = "DROP TABLE IF EXISTS " + storageKey;
         try {
-            PreparedStatement preparedStatement = c.prepareStatement(sqlStatement);
-            preparedStatement.execute();
+            executeSql(c, sqlStatement);
         } catch (SQLException e) {
-            System.out.println("didn't drop table");
+            Logger.log("E", "Could not drop table: " + e.getMessage());
         }
     }
 
-    public static ResultSet executeSql(Connection c, String sqlQuery) {
+    public static ResultSet executeSql(Connection c, String sqlQuery) throws SQLException {
+        PreparedStatement preparedStatement = null;
         try {
-            PreparedStatement preparedStatement = c.prepareStatement(sqlQuery);
+            preparedStatement = c.prepareStatement(sqlQuery);
             return preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static byte[] getRecordForValue(Connection c, String storageKey, String id) {
-        String sqlStatement = DatabaseHelper.getRecordForValueSelectString(storageKey, id);
-        try {
-            PreparedStatement preparedStatement = c.prepareStatement(sqlStatement);
-            ResultSet rs = preparedStatement.executeQuery();
-            return rs.getBytes(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw e;
+        } finally{
+            if(preparedStatement != null){
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -65,15 +62,16 @@ public class SqlHelper {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-
+                    e.printStackTrace();
                 }
             }
         }
     }
 
     public static ResultSet selectForId(Connection c, String storageKey, int id) {
+        PreparedStatement preparedStatement = null;
         try {
-            PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
+            preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                     + DatabaseHelper.ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
             return preparedStatement.executeQuery();
@@ -81,6 +79,14 @@ public class SqlHelper {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -88,26 +94,34 @@ public class SqlHelper {
         org.commcare.modern.database.TableBuilder mTableBuilder = new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
-
+        PreparedStatement preparedStatement = null;
         try {
-            PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";");
+            preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";");
             for (int i = 0; i < mPair.second.length; i++) {
                 preparedStatement.setString(i + 1, mPair.second[i]);
             }
             return preparedStatement.executeQuery();
-
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     public static int insertToTable(Connection c, String storageKey, Persistable p) {
 
         Pair<String, List<Object>> mPair = DatabaseHelper.getTableInsertData(storageKey, p);
+        PreparedStatement preparedStatement = null;
 
         try {
-            PreparedStatement preparedStatement = c.prepareStatement(mPair.first);
+            preparedStatement = c.prepareStatement(mPair.first);
             for (int i = 0; i < mPair.second.size(); i++) {
                 Object obj = mPair.second.get(i);
 
@@ -116,7 +130,7 @@ public class SqlHelper {
                 } else if (obj instanceof Blob) {
                     preparedStatement.setBlob(i + 1, (Blob)obj);
                 } else if (obj instanceof Integer) {
-                    preparedStatement.setInt(i + 1, ((Integer)obj).intValue());
+                    preparedStatement.setInt(i + 1, (Integer) obj);
                 } else if (obj instanceof byte[]) {
                     preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
                 }
@@ -140,6 +154,14 @@ public class SqlHelper {
         } catch (SQLException e) {
             System.out.println("e: " + e);
             e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return -1;
     }
@@ -149,27 +171,27 @@ public class SqlHelper {
      *
      * @param c          Database Connection
      * @param storageKey name of table
-     * @param p          peristable to be updated
+     * @param p          persistable to be updated
      */
 
     public static void updateId(Connection c, String storageKey, Persistable p) {
 
         HashMap<String, Object> map = DatabaseHelper.getMetaFieldsAndValues(p);
 
-        String[] fieldnames = map.keySet().toArray(new String[0]);
+        String[] fieldNames = map.keySet().toArray(new String[0]);
         Object[] values = map.values().toArray(new Object[0]);
 
-        Pair<String, String[]> where = org.commcare.modern.database.DatabaseHelper.createWhere(fieldnames, values, p);
+        Pair<String, String[]> where = org.commcare.modern.database.DatabaseHelper.createWhere(fieldNames, values, p);
 
         String query = "UPDATE " + storageKey + " SET " + DatabaseHelper.DATA_COL + " = ? WHERE " + where.first + ";";
 
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
         try {
             preparedStatement = c.prepareStatement(query);
 
             byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
 
-            preparedStatement.setBinaryStream(1, new ByteArrayInputStream((byte[])blob), ((byte[])blob).length);
+            preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), (blob).length);
             /*
              * We have to do this weird number stuff because 1) our first arg has already been set
              * (DATA_COL above) and 2) preparedStatement arguments are 1-indexed
@@ -181,7 +203,7 @@ public class SqlHelper {
                 } else if (obj instanceof Blob) {
                     preparedStatement.setBlob(i, (Blob)obj);
                 } else if (obj instanceof Integer) {
-                    preparedStatement.setInt(i, ((Integer)obj).intValue());
+                    preparedStatement.setInt(i, (Integer)obj);
                 } else if (obj instanceof byte[]) {
                     preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
                 } else if (obj == null) {
@@ -191,6 +213,14 @@ public class SqlHelper {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -198,27 +228,33 @@ public class SqlHelper {
     /**
      * Update entry under id with persistable p
      *
-     * @param c         Database Connection
+     * @param connection         Database Connection
      * @param tableName name of table
-     * @param p         peristable to udpate with
+     * @param persistable         persistable to update with
      * @param id        sql record to update
      */
-    public static void updateToTable(Connection c, String tableName, Persistable p, int id) {
+    public static void updateToTable(Connection connection, String tableName, Persistable persistable, int id) {
         String query = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? " + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
 
-        PreparedStatement preparedStatement;
+        PreparedStatement preparedStatement = null;
         try {
-            preparedStatement = c.prepareStatement(query);
+            preparedStatement = connection.prepareStatement(query);
 
-            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
+            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(persistable);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
             preparedStatement.setInt(2, id);
             preparedStatement.executeUpdate();
-
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
     }
 }

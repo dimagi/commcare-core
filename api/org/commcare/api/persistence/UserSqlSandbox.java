@@ -23,16 +23,14 @@ public class UserSqlSandbox extends AbstractUserSandbox {
     /**
      * Create a sandbox of the necessary storage objects with the shared
      * factory.
-     *
-     * @param factory A prototype factory for deserializing records
      */
-    public UserSqlSandbox(PrototypeFactory factory, String username) {
+    public UserSqlSandbox(String username) {
         //we can't name this table "Case" becase that's reserved by sqlite
-        caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, factory, username, "CCCase");
-        ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, factory, username, "Ledger");
-        userStorage = new SqlIndexedStorageUtility<User>(User.class, factory, username, "User");
-        userFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "UserFixture");
-        appFixtureStorage = new SqlIndexedStorageUtility<FormInstance>(FormInstance.class, factory, username, "AppFixture");
+        caseStorage = new SqlIndexedStorageUtility<>(Case.class, username, "CCCase");
+        ledgerStorage = new SqlIndexedStorageUtility<>(Ledger.class, username, "Ledger");
+        userStorage = new SqlIndexedStorageUtility<>(User.class, username, "User");
+        userFixtureStorage = new SqlIndexedStorageUtility<>(FormInstance.class, username, "UserFixture");
+        appFixtureStorage = new SqlIndexedStorageUtility<>(FormInstance.class, username, "AppFixture");
     }
 
 
