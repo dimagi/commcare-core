@@ -270,10 +270,13 @@ public abstract class XPathExpression implements Externalizable {
         indent -= 1;
     }
 
+    // Make sure hashCode and equals are implemented by child classes.
+    // If you override one, it is best practice to also override the other.
     @Override
-    public int hashCode() {
-        return this.toString().hashCode();
-    }
+    public abstract int hashCode();
+
+    @Override
+    public abstract boolean equals(Object o);
 
     /**
      * @return a best-effort for the cannonical representation

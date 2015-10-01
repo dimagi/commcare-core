@@ -41,6 +41,11 @@ public class XPathNumericLiteral extends XPathExpression {
     }
 
     @Override
+    public int hashCode() {
+        return Long.valueOf(Double.doubleToLongBits(d)).hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         if (in.readByte() == (byte)0x00) {
             d = ExtUtil.readNumeric(in);

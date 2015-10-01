@@ -41,6 +41,11 @@ public class XPathStringLiteral extends XPathExpression {
     }
 
     @Override
+    public int hashCode() {
+        return s.hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         s = ExtUtil.readString(in);
     }

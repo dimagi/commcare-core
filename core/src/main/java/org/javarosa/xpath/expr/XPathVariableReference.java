@@ -41,6 +41,11 @@ public class XPathVariableReference extends XPathExpression {
     }
 
     @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class);
     }

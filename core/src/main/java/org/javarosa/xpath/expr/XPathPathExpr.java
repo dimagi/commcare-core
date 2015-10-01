@@ -309,6 +309,19 @@ public class XPathPathExpr extends XPathExpression {
         }
     }
 
+    @Override
+    public int hashCode() {
+        int stepsHash = 0;
+        for (XPathStep step : steps) {
+            stepsHash ^= step.hashCode();
+        }
+
+        if (init_context == INIT_CONTEXT_EXPR) {
+            return init_context ^ stepsHash ^ filtExpr.hashCode();
+        }
+        return init_context ^ stepsHash;
+    }
+
     /**
      * Warning: this method has somewhat unclear semantics.
      *

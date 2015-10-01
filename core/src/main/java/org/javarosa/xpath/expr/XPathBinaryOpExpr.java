@@ -41,6 +41,11 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     }
 
     @Override
+    public int hashCode() {
+        return op ^ a.hashCode() ^ b.hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         op = ExtUtil.readInt(in);
         readExpressions(in, pf);

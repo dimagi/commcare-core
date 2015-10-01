@@ -15,6 +15,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * This construct, whose syntax is of the form '(filter-expr pred1 pred2 ...)',
+ * is currently unsupported by JavaRosa
+ */
 public class XPathFilterExpr extends XPathExpression {
     public XPathExpression x;
     public XPathExpression[] predicates;
@@ -58,6 +62,15 @@ public class XPathFilterExpr extends XPathExpression {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int predHash = 0;
+        for (XPathExpression pred : predicates) {
+            predHash ^= pred.hashCode();
+        }
+        return x.hashCode() ^ predHash;
     }
 
     @Override

@@ -115,6 +115,15 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     @Override
+    public int hashCode() {
+        int argsHash = 0;
+        for (XPathExpression arg : args) {
+            argsHash ^= arg.hashCode();
+        }
+        return id.hashCode() ^ argsHash;
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
