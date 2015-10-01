@@ -581,17 +581,13 @@ public class TreeReference implements Externalizable {
         return false;
     }
 
+    @Override
     public int hashCode() {
         if (hashCode != -1) {
             return hashCode;
         }
-        int hash = (DataUtil.integer(refLevel)).hashCode();
+        int hash = refLevel;
         for (int i = 0; i < size(); i++) {
-            //NOTE(ctsims): It looks like this is only using Integer to
-            //get the hashcode method, but that method
-            //is just returning the int value, I think, so
-            //this should potentially just be replaced by
-            //an int.
             Integer mult = DataUtil.integer(getMultiplicity(i));
             if (i == 0 && mult.intValue() == INDEX_UNBOUND)
                 mult = DataUtil.integer(0);
