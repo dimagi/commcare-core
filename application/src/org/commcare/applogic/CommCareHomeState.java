@@ -11,7 +11,7 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareHQResponder;
-import org.commcare.util.CommCareSession;
+import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCareSessionController;
 import org.commcare.util.CommCareUtil;
 import org.commcare.view.CommCareHomeController;

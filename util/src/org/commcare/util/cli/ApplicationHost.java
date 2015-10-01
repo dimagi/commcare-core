@@ -7,7 +7,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.SessionFrame;
+import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.User;
