@@ -1,7 +1,3 @@
-/**
- *
- */
-
 package org.commcare.modern.database;
 
 import org.commcare.modern.models.EncryptedModel;

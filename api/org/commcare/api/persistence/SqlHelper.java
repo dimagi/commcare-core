@@ -43,16 +43,6 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet executeSqlQuery(Connection c, String sqlQuery, PreparedStatement preparedStatement) throws SQLException {
-        try {
-            preparedStatement = c.prepareStatement(sqlQuery);
-            return preparedStatement.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
     public static void createTable(Connection c, String storageKey, Persistable p) {
         String sqlStatement = DatabaseHelper.getTableCreateString(storageKey, p);
         PreparedStatement preparedStatement = null;

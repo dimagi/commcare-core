@@ -119,6 +119,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         } catch (InstantiationException | IllegalAccessException | SQLException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -211,27 +212,28 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
-     */
+    @Override
     public int getNumRecords() {
         PreparedStatement preparedStatement = null;
+        Connection c = null;
         try {
-            Connection c = getConnection();
-            ResultSet rs = SqlHelper.executeSqlQuery(c,
-                    "SELECT COUNT (*) FROM " + this.tableName + ";", preparedStatement);
-            int count = rs.getInt(1);
-            c.close();
-            return count;
+            c = getConnection();
+            String sqlQuery = "SELECT COUNT (*) FROM " + this.tableName + ";";
+            preparedStatement = c.prepareStatement(sqlQuery);
+            ResultSet rs = preparedStatement.executeQuery();
+            return rs.getInt(1);
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
-        } finally{
-            if(preparedStatement != null){
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
                 }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return -1;
@@ -247,24 +249,16 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
     @Override
     public SqlStorageIterator<T> iterate() {
-
         Connection connection;
         ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
         try {
             connection = this.getConnection();
-            resultSet = SqlHelper.executeSqlQuery(connection, "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
-                    org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";", preparedStatement);
+            String sqlQuery = "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
+                    org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";";
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
-        }  finally{
-            if(preparedStatement != null){
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
         return new SqlStorageIterator<T>(resultSet, this.getNumRecords(), this);
     }
