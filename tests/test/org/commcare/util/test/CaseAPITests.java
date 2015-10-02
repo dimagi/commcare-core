@@ -15,7 +15,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -85,8 +84,12 @@ public class CaseAPITests {
 
             SqlHelper.insertToTable(connection, "TFLedger", l);
 
-            ResultSet rs = SqlHelper.selectFromTable(connection, "TFLedger", new String[]{"entity-id"},
-                    new String[]{"ledger_entity_id"}, new Ledger(), preparedStatement);
+            preparedStatement = SqlHelper.prepareTableSelectStatement(connection, "TFLedger", new String[]{"entity-id"},
+                    new String[]{"ledger_entity_id"}, new Ledger());
+            if (preparedStatement == null) {
+                fail("failed to prepare table select query");
+            }
+            ResultSet rs = preparedStatement.executeQuery();
             byte[] caseBytes = rs.getBytes("commcare_sql_record");
             DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
 

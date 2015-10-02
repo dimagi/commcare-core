@@ -99,56 +99,78 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
-     */
+    @Override
     public Vector getIDsForValue(String fieldName, Object value) {
+        Connection c = null;
         PreparedStatement preparedStatement = null;
         try {
-            Connection c = this.getConnection();
-            ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance(), preparedStatement);
-            Vector<Integer> ids = new Vector<>();
+            c = this.getConnection();
+            preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
+                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+            if (preparedStatement == null) {
+                throw new NoSuchElementException();
+            }
+            ResultSet rs = preparedStatement.executeQuery();
             if(rs == null){
                 return null;
             }
+            Vector<Integer> ids = new Vector<>();
             while (rs.next()) {
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
             return ids;
         } catch (InstantiationException | IllegalAccessException | SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
         }
 
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
-     */
-    public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+    @Override
+    public T getRecordForValue(String fieldName, Object value)
+            throws NoSuchElementException, InvalidIndexException {
+        Connection c = null;
         PreparedStatement preparedStatement = null;
-        Connection c;
         try {
             c = this.getConnection();
-            ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value},
-                    prototype.newInstance(), preparedStatement);
+            preparedStatement =
+                    SqlHelper.prepareTableSelectStatement(c, this.tableName,
+                            new String[]{fieldName}, new String[]{(String)value},
+                            prototype.newInstance());
+            if (preparedStatement == null) {
+                throw new NoSuchElementException();
+            }
+            ResultSet rs = preparedStatement.executeQuery();
             if (rs == null || !rs.next()) {
                 throw new NoSuchElementException();
             }
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
-            c.close();
             return readFromBytes(mBytes);
-        } catch (SQLException | InstantiationException | IllegalAccessException | NullPointerException e) {
+        } catch (SQLException | InstantiationException |
+                IllegalAccessException | NullPointerException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            try {
+                if (c != null) {
+                    c.close();
                 }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return null;

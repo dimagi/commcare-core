@@ -76,17 +76,24 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields,
-                                            String[] values, Persistable p, PreparedStatement preparedStatement) {
-        org.commcare.modern.database.TableBuilder mTableBuilder = new org.commcare.modern.database.TableBuilder(storageKey);
+    public static PreparedStatement prepareTableSelectStatement(Connection c,
+                                                                String storageKey,
+                                                                String[] fields,
+                                                                String[] values,
+                                                                Persistable p) {
+        org.commcare.modern.database.TableBuilder mTableBuilder =
+                new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
         try {
-            preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";");
+            String queryString =
+                    "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
+            PreparedStatement preparedStatement =
+                    c.prepareStatement(queryString);
             for (int i = 0; i < mPair.second.length; i++) {
                 preparedStatement.setString(i + 1, mPair.second[i]);
             }
-            return preparedStatement.executeQuery();
+            return preparedStatement;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
