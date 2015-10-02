@@ -198,7 +198,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public int getNumRecords() {
         try {
             Connection c = getConnection();
-            ResultSet rs = SqlHelper.executeSql(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
+            ResultSet rs = SqlHelper.executeSqlQuery(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
             int count = rs.getInt(1);
             c.close();
             return count;
@@ -224,7 +224,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         try {
             connection = this.getConnection();
-            resultSet = SqlHelper.executeSql(connection, "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
+            resultSet = SqlHelper.executeSqlQuery(connection, "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
                     org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
         } catch (SQLException e) {
             e.printStackTrace();

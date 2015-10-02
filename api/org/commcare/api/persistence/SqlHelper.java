@@ -23,14 +23,24 @@ import java.util.List;
 public class SqlHelper {
     public static void dropTable(Connection c, String storageKey) {
         String sqlStatement = "DROP TABLE IF EXISTS " + storageKey;
+        PreparedStatement preparedStatement = null;
         try {
-            executeSql(c, sqlStatement);
+            preparedStatement = c.prepareStatement(sqlStatement);
+            preparedStatement.execute();
         } catch (SQLException e) {
             Logger.log("E", "Could not drop table: " + e.getMessage());
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    public static ResultSet executeSql(Connection c, String sqlQuery) throws SQLException {
+    public static ResultSet executeSqlQuery(Connection c, String sqlQuery) throws SQLException {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = c.prepareStatement(sqlQuery);
