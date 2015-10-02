@@ -62,13 +62,15 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet selectForId(Connection c, String storageKey, int id,
-                                        PreparedStatement preparedStatement) {
+    public static PreparedStatement prepareIdSelectStatement(Connection c,
+                                                             String storageKey,
+                                                             int id) {
         try {
-            preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
-                    + DatabaseHelper.ID_COL + " = ?;");
+            PreparedStatement preparedStatement =
+                    c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
+                            + DatabaseHelper.ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
-            return preparedStatement.executeQuery();
+            return preparedStatement;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -88,8 +90,7 @@ public class SqlHelper {
         try {
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
-            PreparedStatement preparedStatement =
-                    c.prepareStatement(queryString);
+            PreparedStatement preparedStatement = c.prepareStatement(queryString);
             for (int i = 0; i < mPair.second.length; i++) {
                 preparedStatement.setString(i + 1, mPair.second[i]);
             }

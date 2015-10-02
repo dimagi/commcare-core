@@ -205,22 +205,29 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      */
     public boolean exists(int id) {
         PreparedStatement preparedStatement = null;
+        Connection c = null;
         try {
-            Connection c = getConnection();
-            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id, preparedStatement);
-            c.close();
+            c = getConnection();
+            preparedStatement = SqlHelper.prepareIdSelectStatement(c, this.tableName, id);
+            if (preparedStatement == null) {
+                return false;
+            }
+            ResultSet rs = preparedStatement.executeQuery();
             if (rs != null && rs.next()) {
                 return true;
             }
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            try {
+                if (c != null) {
+                    c.close();
                 }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return false;
@@ -300,30 +307,33 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return this.getNumRecords() > 0;
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
-     */
+    @Override
     public byte[] readBytes(int id) {
         PreparedStatement preparedStatement = null;
+        Connection c = null;
         try {
-            Connection c = getConnection();
-            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id, preparedStatement);
-            if(rs == null){
+            c = getConnection();
+            preparedStatement = SqlHelper.prepareIdSelectStatement(c, this.tableName, id);
+            if (preparedStatement == null) {
                 return null;
             }
-            byte[] caseBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
-            c.close();
-            return caseBytes;
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs == null){
+                return null;
+            }
+            return rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         } finally{
-            if(preparedStatement != null){
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            try {
+                if (c != null) {
+                    c.close();
                 }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return null;
