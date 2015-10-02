@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Set of Sql utility methods for clients running modern, non-Android Java (where we use cursors
- * in the place of prepared statements)
+ * Set of Sql utility methods for clients running modern, non-Android Java (where prepared
+ * statements in the place of cursors)
  *
  * Created by wpride1 on 8/11/15.
  */

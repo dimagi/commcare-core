@@ -75,39 +75,29 @@ public class CaseAPITests {
         try {
 
             Connection c = null;
-            Statement stmt = null;
 
+            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+
+            SqlHelper.dropTable(c, "TFLedger");
+
+            SqlHelper.createTable(c, "TFLedger", new Ledger());
+
+            SqlHelper.insertToTable(c, "TFLedger", l);
+
+            ResultSet rs = SqlHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
+            byte[] caseBytes = rs.getBytes("commcare_sql_record");
+            DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
+
+            Ledger readLedger = new Ledger();
             try {
-
-                c = DriverManager.getConnection("jdbc:sqlite:test.db");
-
-                SqlHelper.dropTable(c, "TFLedger");
-
-                SqlHelper.createTable(c, "TFLedger", new Ledger());
-
-                SqlHelper.insertToTable(c, "TFLedger", l);
-
-                ResultSet rs = SqlHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
-                byte[] caseBytes = rs.getBytes("commcare_sql_record");
-                DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
-
-                Ledger readLedger = new Ledger();
-                try {
-                    PrototypeFactory lPrototypeFactory = new PrototypeFactory();
-                    lPrototypeFactory.addClass(Ledger.class);
-                    readLedger.readExternal(is, lPrototypeFactory);
-                } catch(Exception e){
-                    System.out.println("e: " + e);
-                    e.printStackTrace();
-                }
-
-
-                c.close();
-
-            } catch ( Exception e ) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                System.exit(0);
+                PrototypeFactory lPrototypeFactory = new PrototypeFactory();
+                lPrototypeFactory.addClass(Ledger.class);
+                readLedger.readExternal(is, lPrototypeFactory);
+            } catch(Exception e){
+                System.out.println("e: " + e);
+                e.printStackTrace();
             }
+            c.close();
 
         } catch (Exception e) {
             e.printStackTrace();
