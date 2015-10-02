@@ -18,6 +18,9 @@ import java.util.List;
  * Set of Sql utility methods for clients running modern, non-Android Java (where prepared
  * statements in the place of cursors)
  *
+ * All methods that return a ResultSet expect a PreparedStatement as an argument and the caller
+ * is responsible for closing this statement when its finished with it.
+ *
  * Created by wpride1 on 8/11/15.
  */
 public class SqlHelper {
@@ -40,22 +43,13 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet executeSqlQuery(Connection c, String sqlQuery) throws SQLException {
-        PreparedStatement preparedStatement = null;
+    public static ResultSet executeSqlQuery(Connection c, String sqlQuery, PreparedStatement preparedStatement) throws SQLException {
         try {
             preparedStatement = c.prepareStatement(sqlQuery);
             return preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        } finally{
-            if(preparedStatement != null){
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -78,8 +72,8 @@ public class SqlHelper {
         }
     }
 
-    public static ResultSet selectForId(Connection c, String storageKey, int id) {
-        PreparedStatement preparedStatement = null;
+    public static ResultSet selectForId(Connection c, String storageKey, int id,
+                                        PreparedStatement preparedStatement) {
         try {
             preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                     + DatabaseHelper.ID_COL + " = ?;");
@@ -89,22 +83,14 @@ public class SqlHelper {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
-    public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields, String[] values, Persistable p) {
+    public static ResultSet selectFromTable(Connection c, String storageKey, String[] fields,
+                                            String[] values, Persistable p, PreparedStatement preparedStatement) {
         org.commcare.modern.database.TableBuilder mTableBuilder = new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
-        PreparedStatement preparedStatement = null;
         try {
             preparedStatement = c.prepareStatement("SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";");
             for (int i = 0; i < mPair.second.length; i++) {
@@ -114,14 +100,6 @@ public class SqlHelper {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 

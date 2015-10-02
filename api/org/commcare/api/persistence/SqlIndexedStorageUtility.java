@@ -16,6 +16,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -102,11 +103,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
     public Vector getIDsForValue(String fieldName, Object value) {
-
+        PreparedStatement preparedStatement = null;
         try {
             Connection c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance(), preparedStatement);
             Vector<Integer> ids = new Vector<>();
             if(rs == null){
                 return null;
@@ -125,12 +126,13 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
     public T getRecordForValue(String fieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-
+        PreparedStatement preparedStatement = null;
         Connection c;
         try {
             c = this.getConnection();
             ResultSet rs = SqlHelper.selectFromTable(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+                    new String[]{fieldName}, new String[]{(String)value},
+                    prototype.newInstance(), preparedStatement);
             if (rs == null || !rs.next()) {
                 throw new NoSuchElementException();
             }
@@ -139,6 +141,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             return readFromBytes(mBytes);
         } catch (SQLException | InstantiationException | IllegalAccessException | NullPointerException e) {
             e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }
@@ -171,15 +181,24 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
      */
     public boolean exists(int id) {
+        PreparedStatement preparedStatement = null;
         try {
             Connection c = getConnection();
-            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
+            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id, preparedStatement);
             c.close();
             if (rs != null && rs.next()) {
                 return true;
             }
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return false;
     }
@@ -196,14 +215,24 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
      */
     public int getNumRecords() {
+        PreparedStatement preparedStatement = null;
         try {
             Connection c = getConnection();
-            ResultSet rs = SqlHelper.executeSqlQuery(c, "SELECT COUNT (*) FROM " + this.tableName + ";");
+            ResultSet rs = SqlHelper.executeSqlQuery(c,
+                    "SELECT COUNT (*) FROM " + this.tableName + ";", preparedStatement);
             int count = rs.getInt(1);
             c.close();
             return count;
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+        } finally{
+            if(preparedStatement != null){
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return -1;
     }
@@ -221,13 +250,21 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
         Connection connection;
         ResultSet resultSet = null;
-
+        PreparedStatement preparedStatement = null;
         try {
             connection = this.getConnection();
             resultSet = SqlHelper.executeSqlQuery(connection, "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
-                    org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";");
+                    org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";", preparedStatement);
         } catch (SQLException e) {
             e.printStackTrace();
+        }  finally{
+            if(preparedStatement != null){
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return new SqlStorageIterator<T>(resultSet, this.getNumRecords(), this);
     }
@@ -252,9 +289,10 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
      * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
      */
     public byte[] readBytes(int id) {
+        PreparedStatement preparedStatement = null;
         try {
             Connection c = getConnection();
-            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id);
+            ResultSet rs = SqlHelper.selectForId(c, this.tableName, id, preparedStatement);
             if(rs == null){
                 return null;
             }
@@ -263,6 +301,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             return caseBytes;
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+        } finally{
+            if(preparedStatement != null){
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }

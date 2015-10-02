@@ -12,7 +12,9 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
 
@@ -72,36 +74,41 @@ public class CaseAPITests {
 
     @Test
     public void testOwnerPurge() {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
         try {
+            connection = DriverManager.getConnection("jdbc:sqlite:test.db");
 
-            Connection c = null;
+            SqlHelper.dropTable(connection, "TFLedger");
 
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            SqlHelper.createTable(connection, "TFLedger", new Ledger());
 
-            SqlHelper.dropTable(c, "TFLedger");
+            SqlHelper.insertToTable(connection, "TFLedger", l);
 
-            SqlHelper.createTable(c, "TFLedger", new Ledger());
-
-            SqlHelper.insertToTable(c, "TFLedger", l);
-
-            ResultSet rs = SqlHelper.selectFromTable(c, "TFLedger", new String[]{"entity-id"}, new String[]{"ledger_entity_id"}, new Ledger());
+            ResultSet rs = SqlHelper.selectFromTable(connection, "TFLedger", new String[]{"entity-id"},
+                    new String[]{"ledger_entity_id"}, new Ledger(), preparedStatement);
             byte[] caseBytes = rs.getBytes("commcare_sql_record");
             DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
 
             Ledger readLedger = new Ledger();
-            try {
-                PrototypeFactory lPrototypeFactory = new PrototypeFactory();
-                lPrototypeFactory.addClass(Ledger.class);
-                readLedger.readExternal(is, lPrototypeFactory);
-            } catch(Exception e){
-                System.out.println("e: " + e);
-                e.printStackTrace();
-            }
-            c.close();
+            PrototypeFactory lPrototypeFactory = new PrototypeFactory();
+            lPrototypeFactory.addClass(Ledger.class);
+            readLedger.readExternal(is, lPrototypeFactory);
 
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception " + e.getMessage());
+        } finally{
+            try {
+                if(connection != null) {
+                    connection.close();
+                }
+                if(preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }
