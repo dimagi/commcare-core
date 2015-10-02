@@ -42,7 +42,7 @@ public class XPathNumericLiteral extends XPathExpression {
 
     @Override
     public int hashCode() {
-        return Long.valueOf(Double.doubleToLongBits(d)).hashCode();
+        return (new Long(Double.doubleToLongBits(d))).hashCode();
     }
 
     @Override
