@@ -108,7 +108,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
                     new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
             if (preparedStatement == null) {
-                throw new NoSuchElementException();
+                return null;
             }
             ResultSet rs = preparedStatement.executeQuery();
             if(rs == null){
@@ -280,16 +280,17 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
     public SqlStorageIterator<T> iterate() {
         Connection connection;
         ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
         try {
             connection = this.getConnection();
             String sqlQuery = "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
                     org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";";
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement = connection.prepareStatement(sqlQuery);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new SqlStorageIterator<T>(resultSet, this.getNumRecords(), this);
+        return new SqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this);
     }
 
     /* (non-Javadoc)

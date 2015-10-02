@@ -3,6 +3,7 @@ package org.commcare.api.persistence;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -10,14 +11,18 @@ import java.util.Iterator;
 /**
  * Created by wpride1 on 6/25/15.
  */
-public class SqlStorageIterator<E extends Persistable> implements IStorageIterator, Iterator<E> {
+public class SqlStorageIterator<E extends Persistable> implements IStorageIterator<E>, Iterator<E> {
 
-    ResultSet resultSet;
-    int count = -1;
-    SqlIndexedStorageUtility<E> storage;
+    private final PreparedStatement preparedStatement;
+    private final ResultSet resultSet;
+    private int count = -1;
+    private final SqlIndexedStorageUtility<E> storage;
 
-
-    public SqlStorageIterator(ResultSet resultSet, int count, SqlIndexedStorageUtility<E> storage){
+    public SqlStorageIterator(PreparedStatement preparedStatement,
+                              ResultSet resultSet,
+                              int count,
+                              SqlIndexedStorageUtility<E> storage){
+        this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
         this.count = count;
         this.storage = storage;
@@ -50,6 +55,7 @@ public class SqlStorageIterator<E extends Persistable> implements IStorageIterat
             boolean hasMore = resultSet.next();
             if(!hasMore){
                 resultSet.close();
+                preparedStatement.close();
             }
         } catch (SQLException e) {
         }
