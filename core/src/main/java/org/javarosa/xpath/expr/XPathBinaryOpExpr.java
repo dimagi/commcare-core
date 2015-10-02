@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -31,38 +15,59 @@ import java.util.Vector;
 
 public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     public XPathExpression a, b;
+    public int op;
 
     public XPathBinaryOpExpr() {
     } //for deserialization of children
 
-    public XPathBinaryOpExpr(XPathExpression a, XPathExpression b) {
+    public XPathBinaryOpExpr(int op, XPathExpression a, XPathExpression b) {
         this.a = a;
         this.b = b;
+        this.op = op;
     }
 
     public String toString(String op) {
         return "{binop-expr:" + op + "," + a.toString() + "," + b.toString() + "}";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathBinaryOpExpr) {
             XPathBinaryOpExpr x = (XPathBinaryOpExpr)o;
-            return a.equals(x.a) && b.equals(x.b);
+            return op == x.op && a.equals(x.a) && b.equals(x.b);
         } else {
             return false;
         }
     }
 
+    @Override
+    public int hashCode() {
+        return op ^ a.hashCode() ^ b.hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        op = ExtUtil.readInt(in);
+        readExpressions(in, pf);
+    }
+
+    protected void readExpressions(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         a = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         b = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, op);
+        writeExpressions(out);
+    }
+
+    protected void writeExpressions(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(a));
         ExtUtil.write(out, new ExtWrapTagged(b));
     }
 
+    @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         //Pivot both args
         Object aval = a.pivot(model, evalContext, pivots, sentinal);

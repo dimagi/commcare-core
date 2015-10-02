@@ -162,7 +162,7 @@ public abstract class XPathExpression implements Externalizable {
             printStr("}}");
         } else if (o instanceof XPathEqExpr) {
             XPathEqExpr x = (XPathEqExpr)o;
-            String op = x.equal ? "eq" : "neq";
+            String op = x.op == XPathEqExpr.EQ ? "eq" : "neq";
             printStr(op + " {{");
             print(x.a);
             printStr(" } {");
@@ -270,9 +270,13 @@ public abstract class XPathExpression implements Externalizable {
         indent -= 1;
     }
 
-    public int hashCode() {
-        return this.toString().hashCode();
-    }
+    // Make sure hashCode and equals are implemented by child classes.
+    // If you override one, it is best practice to also override the other.
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public abstract boolean equals(Object o);
 
     /**
      * @return a best-effort for the cannonical representation

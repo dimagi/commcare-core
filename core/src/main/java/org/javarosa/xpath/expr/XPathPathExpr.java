@@ -168,6 +168,7 @@ public class XPathPathExpr extends XPathExpression {
         return ref;
     }
 
+    @Override
     public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
 
@@ -265,6 +266,7 @@ public class XPathPathExpr extends XPathExpression {
         }
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -291,6 +293,7 @@ public class XPathPathExpr extends XPathExpression {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathPathExpr) {
             XPathPathExpr x = (XPathPathExpr)o;
@@ -304,6 +307,19 @@ public class XPathPathExpr extends XPathExpression {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int stepsHash = 0;
+        for (XPathStep step : steps) {
+            stepsHash ^= step.hashCode();
+        }
+
+        if (init_context == INIT_CONTEXT_EXPR) {
+            return init_context ^ stepsHash ^ filtExpr.hashCode();
+        }
+        return init_context ^ stepsHash;
     }
 
     /**
@@ -352,6 +368,7 @@ public class XPathPathExpr extends XPathExpression {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         init_context = ExtUtil.readInt(in);
         if (init_context == INIT_CONTEXT_EXPR) {
@@ -364,6 +381,7 @@ public class XPathPathExpr extends XPathExpression {
             steps[i] = ((XPathStep)v.elementAt(i)).intern();
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, init_context);
         if (init_context == INIT_CONTEXT_EXPR) {
@@ -371,8 +389,9 @@ public class XPathPathExpr extends XPathExpression {
         }
 
         Vector v = new Vector();
-        for (int i = 0; i < steps.length; i++)
+        for (int i = 0; i < steps.length; i++) {
             v.addElement(steps[i]);
+        }
         ExtUtil.write(out, new ExtWrapList(v));
     }
 
@@ -406,6 +425,7 @@ public class XPathPathExpr extends XPathExpression {
         }
     }
 
+    @Override
     public String toPrettyString() {
         return getReference(true).toString(true);
     }

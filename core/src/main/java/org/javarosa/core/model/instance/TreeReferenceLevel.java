@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.instance;
 
 import org.javarosa.core.util.ArrayUtilities;
@@ -39,6 +36,7 @@ public class TreeReferenceLevel implements Externalizable {
     }
 
     public TreeReferenceLevel() {
+        // for externalization
     }
 
 
@@ -91,20 +89,21 @@ public class TreeReferenceLevel implements Externalizable {
         return new TreeReferenceLevel(name, multiplicity, predicates).intern();
     }
 
-
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         multiplicity = ExtUtil.readInt(in);
         predicates = ExtUtil.nullIfEmpty((Vector<XPathExpression>)ExtUtil.read(in, new ExtWrapListPoly(), pf));
     }
 
-
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name));
         ExtUtil.writeNumeric(out, multiplicity);
         ExtUtil.write(out, new ExtWrapListPoly(ExtUtil.emptyIfNull(predicates)));
     }
 
+    @Override
     public int hashCode() {
         int predPart = 0;
         if (predicates != null) {
@@ -123,6 +122,7 @@ public class TreeReferenceLevel implements Externalizable {
      * @param o an object to compare against this TreeReferenceLevel object.
      * @return Is object o a TreeReferenceLevel and has the same fields?
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof TreeReferenceLevel)) {
             return false;
@@ -132,7 +132,7 @@ public class TreeReferenceLevel implements Externalizable {
         // multiplicity and names match-up
         if ((multiplicity != l.multiplicity) ||
                 (name == null && l.name != null) ||
-                (!name.equals(l.name))) {
+                (name != null && (!name.equals(l.name)))) {
             return false;
         }
 
@@ -141,8 +141,8 @@ public class TreeReferenceLevel implements Externalizable {
         }
 
         // predicates match-up
-        if ((predicates == null && l.predicates != null) ||
-                (l.predicates == null && predicates != null) ||
+        if (predicates == null ||
+                l.predicates == null ||
                 (predicates.size() != l.predicates.size())) {
             return false;
         }

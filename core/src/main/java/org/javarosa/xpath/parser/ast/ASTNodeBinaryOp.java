@@ -71,9 +71,9 @@ public class ASTNodeBinaryOp extends ASTNode {
             case Token.AND:
                 return new XPathBoolExpr(XPathBoolExpr.AND, a, b);
             case Token.EQ:
-                return new XPathEqExpr(true, a, b);
+                return new XPathEqExpr(XPathEqExpr.EQ, a, b);
             case Token.NEQ:
-                return new XPathEqExpr(false, a, b);
+                return new XPathEqExpr(XPathEqExpr.NEQ, a, b);
             case Token.LT:
                 return new XPathCmpExpr(XPathCmpExpr.LT, a, b);
             case Token.LTE:
