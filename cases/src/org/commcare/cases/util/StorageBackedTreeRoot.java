@@ -54,6 +54,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         return null;
     }
 
+    @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         //Restrict what we'll handle for now. All we want to deal with is predicate expressions on case blocks
         if (!name.equals(getChildHintName()) || mult != TreeReference.INDEX_UNBOUND || predicates == null) {
