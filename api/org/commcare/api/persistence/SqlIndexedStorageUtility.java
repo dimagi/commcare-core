@@ -111,10 +111,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 return null;
             }
             ResultSet rs = preparedStatement.executeQuery();
-            if(rs == null){
-                return null;
-            }
-            Vector<Integer> ids = new Vector<>();
+                    Vector<Integer> ids = new Vector<>();
             while (rs.next()) {
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
@@ -153,7 +150,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 throw new NoSuchElementException();
             }
             ResultSet rs = preparedStatement.executeQuery();
-            if (rs == null || !rs.next()) {
+            if (!rs.next()) {
                 throw new NoSuchElementException();
             }
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
@@ -213,7 +210,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 return false;
             }
             ResultSet rs = preparedStatement.executeQuery();
-            if (rs != null && rs.next()) {
+            if (rs.next()) {
                 return true;
             }
         } catch (Exception e) {
@@ -319,9 +316,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 return null;
             }
             ResultSet rs = preparedStatement.executeQuery();
-            if (rs == null){
-                return null;
-            }
             return rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
         } catch (Exception e) {
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
