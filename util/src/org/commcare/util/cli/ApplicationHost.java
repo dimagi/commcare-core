@@ -51,7 +51,7 @@ public class ApplicationHost {
 
     private final PrototypeFactory mPrototypeFactory;
 
-    private final BufferedReader reader;
+    private BufferedReader reader;
 
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
@@ -74,6 +74,9 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setReader(BufferedReader reader){
+        this.reader = reader;
+    }
 
     public void run() {
         if(!mRestoreStrategySet) {
@@ -176,7 +179,7 @@ public class ApplicationHost {
 
             XFormPlayer player = new XFormPlayer(System.in, System.out, null);
             player.setSessionIIF(mSession.getIIF());
-            player.start(mEngine.loadFormByXmlns(formXmlns));
+            player.start(mEngine.loadFormByXmlns(formXmlns), reader);
 
             //If the form saved properly, process the output
             if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
