@@ -427,6 +427,10 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     public boolean setAnswer(IAnswerData answer) {
         if (value != null || answer != null) {
+            if (answer != null && answer.equals(value)) {
+                System.out.print("same");
+                return false;
+            }
             setValue(answer);
             alertStateObservers(FormElementStateListener.CHANGE_DATA);
             return true;
