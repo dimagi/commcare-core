@@ -1789,7 +1789,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         this.eventListeners.put(event, actions);
     }
 
-    public void dispatchFormEvent(String event) {
+    private void dispatchFormEvent(String event) {
         for (Action action : getEventListeners(event)) {
             action.processAction(this, null);
         }
