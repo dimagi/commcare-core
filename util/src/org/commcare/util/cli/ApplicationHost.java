@@ -1,5 +1,6 @@
 package org.commcare.util.cli;
 
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareConfigEngine;
@@ -13,6 +14,7 @@ import org.commcare.util.mocks.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
 import org.javarosa.xpath.XPathException;
@@ -152,6 +154,15 @@ public class ApplicationHost {
                     if(input.equals(":home")) {
                         return true;
                     }
+
+                    if(input.equals(":cases")) {
+                        IStorageUtilityIndexed<Case> caseStorage = mSandbox.getCaseStorage();
+                        IStorageIterator<Case> iterate = caseStorage.iterate();
+                        while(iterate.hasMore()){
+                            Case mCase = iterate.nextRecord();
+                            System.out.println("Case: " + mCase.getName());
+                        }
+                    }
                 }
 
                 screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
@@ -170,12 +181,17 @@ public class ApplicationHost {
         //Get our form object
         String formXmlns = mSession.getForm();
 
+        System.out.println("formXmlns: " + formXmlns);
+
         if(formXmlns == null) {
             finishSession();
         } else {
 
             XFormPlayer player = new XFormPlayer(System.in, System.out, null);
             player.setSessionIIF(mSession.getIIF());
+
+            System.out.println("form def: " + mEngine.loadFormByXmlns(formXmlns));
+
             player.start(mEngine.loadFormByXmlns(formXmlns));
 
             //If the form saved properly, process the output
