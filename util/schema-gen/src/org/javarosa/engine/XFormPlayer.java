@@ -168,9 +168,21 @@ public class XFormPlayer {
                 out.print("Repeats Not Implemented, press return to exit");
                 break;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                out.print("Repeats Not Implemented, press return to exit");
+                newRepeatQuestion();
                 break;
         }
+    }
+
+    private void newRepeatQuestion() {
+        String repeatType = getCurrentGroupName();
+        out.println("Add new repeat?");
+        out.println("1) Yes, add a new repeat group");
+        out.println("2) No, continue to the next question");
+    }
+
+    private String getCurrentGroupName() {
+        //fec.getModel().getCaptionHierarchy;
+        return null;
     }
 
     /**
@@ -470,7 +482,23 @@ public class XFormPlayer {
             case FormEntryController.EVENT_REPEAT_JUNCTURE:
                 return true;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                return true;
+                try {
+                    int index = Integer.parseInt(input.trim());
+                    if(index == 1) {
+                        fec.newRepeat();
+                        fec.stepToNextEvent();
+                        return false;
+                    } else if(index == 2) {
+                        fec.stepToNextEvent();
+                        return false;
+                    } else {
+                        badInput(input, "Invalid input, only 1 and 2 are allowed");
+                        return false;
+                    }
+                } catch(NumberFormatException nfe) {
+                    badInput(input, "Invalid input");
+                    return false;
+                }
         }
         out.println("Bad state! Quitting...");
         return true;
