@@ -164,6 +164,11 @@ public class ApplicationHost {
 
                 //Restart
                 return true;
+            } catch(XPathException xpe) {
+                printErrorAndContinue("XPath Evaluation exception during session execution:", xpe);
+
+                //Restart
+                return true;
             }
         }
         //We have a session and are ready to fill out a form!

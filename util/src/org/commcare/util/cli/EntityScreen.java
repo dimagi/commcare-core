@@ -9,6 +9,7 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
 /**
@@ -55,7 +56,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     protected String getScreenTitle() {
-        return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+        try {
+            return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+        }catch (NoLocalizedTextException nlte) {
+            return "Select (error with title string)";
+        }
     }
 
     @Override

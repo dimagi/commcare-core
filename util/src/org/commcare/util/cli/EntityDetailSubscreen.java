@@ -27,6 +27,8 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         DetailField[] fields = detail.getFields();
         rows = new String[fields.length];
 
+        detail.populateEvaluationContextVariables(subContext);
+
         for (int i = 0; i < fields.length; ++i) {
             rows[i] = createRow(fields[i], subContext);
         }

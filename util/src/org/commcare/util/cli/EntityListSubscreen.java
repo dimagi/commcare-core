@@ -5,8 +5,12 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -40,6 +44,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
         EvaluationContext context = new EvaluationContext(ec, entity);
+
+        shortDetail.populateEvaluationContextVariables(context);
 
         DetailField[] fields = shortDetail.getFields();
 
