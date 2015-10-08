@@ -34,7 +34,7 @@ public abstract class Action implements Externalizable {
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
      */
-    public abstract TreeReference processAction(FormDef model, TreeReference context);
+    public abstract void processAction(FormDef model, TreeReference context);
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);

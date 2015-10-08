@@ -306,18 +306,17 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     public void setValue(IAnswerData data, TreeReference ref, TreeElement node) {
-        if (setAnswer(data, node)) {
-            triggerTriggerables(ref);
-        }
+        setAnswer(data, node);
+        triggerTriggerables(ref);
         //TODO: pre-populate fix-count repeats here?
     }
 
-    public boolean setAnswer(IAnswerData data, TreeReference ref) {
-        return setAnswer(data, mainInstance.resolveReference(ref));
+    public void setAnswer(IAnswerData data, TreeReference ref) {
+        setAnswer(data, mainInstance.resolveReference(ref));
     }
 
-    public boolean setAnswer(IAnswerData data, TreeElement node) {
-        return node.setAnswer(data);
+    public void setAnswer(IAnswerData data, TreeElement node) {
+        node.setAnswer(data);
     }
 
     /**
@@ -388,7 +387,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
-        // TODO PLM: don't re-run triggers that got triggered in processAction.
         initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
     }
 
@@ -716,7 +714,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 //to the list of updated elements as well. For instances, relevancy of a parent will
                 // require triggers pointing to children to need to be recalcualted
                 if (t.isCascadingToChildren()) {
-                    // TODO PLM: is it possible to cache the trigger list template in certain cases?
                     addChildrenOfReference(target, updatedNodes);
                 }
 
