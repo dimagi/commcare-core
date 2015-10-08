@@ -12,11 +12,13 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.commcare.util.mocks.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
+import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -162,6 +164,27 @@ public class ApplicationHost {
                             Case mCase = iterate.nextRecord();
                             System.out.println("Case: " + mCase.getName());
                         }
+                    }
+                    System.out.println("XML");
+                    String xml = XmlUtils.getCaseXML(mSession.getIIF());
+                    System.out.println(xml);
+
+                    System.out.println("Ledger");
+                    xml = XmlUtils.getLedgerXML(mSession.getIIF());
+                    System.out.println(xml);
+
+                    System.out.println("Session");
+                    xml = XmlUtils.getSessionXML(mSession.getIIF());
+                    System.out.println(xml);
+
+
+                    IStorageUtilityIndexed<FormInstance> fixtureStorage = mSandbox.getUserFixtureStorage();
+                    IStorageIterator<FormInstance> iterate = fixtureStorage.iterate();
+                    while(iterate.hasMore()){
+                        FormInstance formInstance = iterate.nextRecord();
+                        System.out.println("Fixture");
+                        xml = XmlUtils.getFixtureXML(mSession.getIIF(), formInstance.getInstanceId());
+                        System.out.println(xml);
                     }
                 }
 
