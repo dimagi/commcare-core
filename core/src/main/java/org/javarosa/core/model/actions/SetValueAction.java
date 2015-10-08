@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.actions;
 
 import org.javarosa.core.model.Action;
@@ -34,7 +31,7 @@ public class SetValueAction extends Action {
     private String explicitValue;
 
     public SetValueAction() {
-
+        // for externalization
     }
 
     public SetValueAction(TreeReference target, XPathExpression value) {
