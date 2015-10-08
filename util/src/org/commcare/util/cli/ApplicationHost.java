@@ -12,6 +12,7 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.commcare.util.mocks.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
@@ -175,6 +176,7 @@ public class ApplicationHost {
         } else {
 
             XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+            player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
             player.setSessionIIF(mSession.getIIF());
             player.start(mEngine.loadFormByXmlns(formXmlns));
 
