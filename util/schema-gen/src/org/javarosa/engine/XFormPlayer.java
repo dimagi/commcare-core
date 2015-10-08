@@ -83,12 +83,18 @@ public class XFormPlayer {
     private boolean mInEvalMode = false;
     private boolean mIsDebugOn = false;
 
+    private String mPreferredLocale;
+
     Mockup mockup;
 
     public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
         this.in = in;
         this.out = out;
         this.mockup = mockup;
+    }
+
+    public void setmPreferredLocale(String locale) {
+        this.mPreferredLocale = locale;
     }
 
     public void start(String formPath) throws FileNotFoundException {
@@ -110,6 +116,9 @@ public class XFormPlayer {
 
     public void start(FormDef form) {
         this.environment = new XFormEnvironment(form, mockup);
+        if(mPreferredLocale != null) {
+            this.environment.setLocale(mPreferredLocale);
+        }
         fec = environment.setup(this.mIIF);
         reader = new BufferedReader(new InputStreamReader(in));
         processLoop();

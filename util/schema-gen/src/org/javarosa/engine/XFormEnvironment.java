@@ -104,6 +104,15 @@ public class XFormEnvironment {
         return ec;
     }
 
+    public void setLocale(String locale) {
+        for(String existingLocale : this.form.getLocalizer().getAvailableLocales()) {
+            if(existingLocale.equals(locale)) {
+                this.form.getLocalizer().setLocale(locale);
+                return;
+            }
+        }
+    }
+
     private class TodayFunc implements IFunctionHandler {
 
         String name;
