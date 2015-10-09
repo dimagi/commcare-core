@@ -27,6 +27,7 @@ import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -128,6 +129,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     Hashtable<String, Vector<Action>> eventListeners;
 
     boolean mDebugModeEnabled = false;
+
+    /**
+     * Cache children that trigger target will cascade to. For speeding up
+     * calculations that determine what needs to be triggered when a value
+     * changes.
+     */
+    private final CacheTable<TreeReference, Vector<TreeReference>> cachedCascadingChildren =
+            new CacheTable<TreeReference, Vector<TreeReference>>();
 
 
     /**
@@ -702,7 +711,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Get all of the elements which will need to be evaluated (in order) when the
      * triggerable is fired.
      */
-    public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
+    private void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
         if (t.canCascade()) {
             for (int j = 0; j < t.getTargets().size(); j++) {
                 TreeReference target = (TreeReference)t.getTargets().elementAt(j);
@@ -713,7 +722,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 //also the children of the target. In that case, we want to add all of those nodes
                 //to the list of updated elements as well.
                 if (t.isCascadingToChildren()) {
-                    addChildrenOfReference(target, updatedNodes);
+                    Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
+                    if (cachedNodes == null) {
+                        addChildrenOfReference(target, updatedNodes);
+                        cachedCascadingChildren.register(target, updatedNodes);
+                    } else {
+                        updatedNodes = cachedNodes;
+                    }
                 }
 
                 //Now go through each of these updated nodes (generally just 1 for a normal calculation,
@@ -945,7 +960,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * when we support dependent XPath Steps (IE: /path/to//)
      */
     public void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
-        for (TreeReference ref : exprEvalContext.expandReference(original)) {
+        Vector<TreeReference> refs = exprEvalContext.expandReference(original);
+        for (TreeReference ref : refs) {
             addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
         }
     }
