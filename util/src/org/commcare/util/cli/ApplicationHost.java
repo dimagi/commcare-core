@@ -3,6 +3,7 @@ package org.commcare.util.cli;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareTransactionParserFactory;
@@ -172,6 +173,18 @@ public class ApplicationHost {
                             System.out.println("Case: " + mCase.getName());
                         }
                     }
+
+                    if(input.contains(":eval")){
+                        System.out.println("Evaluating");
+                        int spaceIndex = input.indexOf(" ");
+                        if (input.length() == spaceIndex || spaceIndex == -1) {
+                            System.out.println("Entering eval mode, exit by entering a blank line");
+                        }
+                        String arg = input.substring(spaceIndex + 1);
+                        System.out.println("Arg: " + arg);
+                        String evaled = APIUtils.evalExpression(arg, mSession.getEvaluationContext());
+                        System.out.println("Eval: " + evaled);
+                    }
                 }
 
                 screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
@@ -199,8 +212,6 @@ public class ApplicationHost {
             XFormPlayer player = new XFormPlayer(System.in, System.out, null);
             player.setSessionIIF(mSession.getIIF());
 
-            System.out.println("form def: " + mEngine.loadFormByXmlns(formXmlns));
-
             player.start(mEngine.loadFormByXmlns(formXmlns));
 
             //If the form saved properly, process the output
@@ -220,32 +231,9 @@ public class ApplicationHost {
         return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
     }
 
-    public String getCaseXml(){
-        return XmlUtils.getCaseXML(mSession.getIIF());
-    }
-
-    public void printXML(){
-        System.out.println("XML");
-        String xml = XmlUtils.getCaseXML(mSession.getIIF());
-        System.out.println(xml);
-
-        System.out.println("Ledger");
-        xml = XmlUtils.getLedgerXML(mSession.getIIF());
-        System.out.println(xml);
-
-        System.out.println("Session");
-        xml = XmlUtils.getSessionXML(mSession.getIIF());
-        System.out.println(xml);
-
-
-        IStorageUtilityIndexed<FormInstance> fixtureStorage = mSandbox.getUserFixtureStorage();
-        IStorageIterator<FormInstance> iterate = fixtureStorage.iterate();
-        while(iterate.hasMore()){
-            FormInstance formInstance = iterate.nextRecord();
-            System.out.println("Fixture");
-            xml = XmlUtils.getFixtureXML(mSession.getIIF(), formInstance.getInstanceId());
-            System.out.println(xml);
-        }
+    public String evaluateXPath(String xpath) throws Exception{
+        Text text = Text.XPathText(xpath, null);
+        return text.evaluate(mSession.getEvaluationContext());
     }
 
     private void finishSession() {

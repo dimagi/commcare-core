@@ -155,7 +155,7 @@ public class Harness {
                 host.init();
 
                 EnketoTransformer transformer = new EnketoTransformer(xformFile, host);
-                transformer.buildXmlDoc();
+                //transformer.buildXmlDoc();
 
                 System.exit(-1);
             } catch (RuntimeException re) {
