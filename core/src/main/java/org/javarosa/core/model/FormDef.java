@@ -129,10 +129,19 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     boolean mDebugModeEnabled = false;
 
+    /**
+     * Designates that the form is currently processing insert actions for a
+     * newly created repeat entry. Used for reducing duplicate triggerings
+     */
+    private boolean isProcessingNewRepeatInsertActions = false;
 
     /**
-     *
+     * Store triggerables that were fired while processing an insert action for
+     * a newly created repeat entry.
      */
+    private Vector<Triggerable> triggerablesProcessedInSetAction =
+            new Vector<Triggerable>();
+
     public FormDef() {
         setID(-1);
         setChildren(null);
@@ -378,17 +387,30 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         preloadInstance(mainInstance.resolveReference(destRef));
 
-        //2013-05-14 - ctsims - Events should get fired _before_ calculate stuff is fired, moved
-        //this above triggering triggerables
-        //Grab any actions listening to this event
-        Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
-        for (Action a : listeners) {
-            a.processAction(this, destRef);
-        }
+        // Fire events before "calculate"s
+        processInsertAction(destRef);
 
-        triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
-        initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
+        // trigger conditions that depend on the creation of this new node
+        triggerTriggerables(destRef);
+
+        // trigger conditions for the node (and sub-nodes)
+        initializeNewRepeatItemTriggerables(destRef);
     }
+
+    /**
+     * Fire insert actions for repeat entry, storing triggerables that were
+     * triggered so we can avoid triggering them during trigger initialization
+     * for the new repeat entry later on.
+     */
+    private void processInsertAction(TreeReference newRepeatEntryRef) {
+        Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
+        isProcessingNewRepeatInsertActions = true;
+        for (Action a : listeners) {
+            a.processAction(this, newRepeatEntryRef);
+        }
+        isProcessingNewRepeatInsertActions = false;
+    }
+
 
     public boolean isRepeatRelevant(TreeReference repeatRef) {
         boolean relev = true;
@@ -854,6 +876,35 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
+     * Evaluate triggerables targeting references that are children of the
+     * provided newly create repeat instance ref.  Ignore all triggerables that
+     * were already fired by processing the jr-insert action.
+     *
+     * @param newRepeatRef refers to newly inserted repeat entry
+     */
+    private void initializeNewRepeatItemTriggerables(TreeReference newRepeatRef) {
+        TreeReference genericRoot = newRepeatRef.genericize();
+
+        Vector<Triggerable> applicable = new Vector<Triggerable>();
+        for (int i = 0; i < triggerables.size(); i++) {
+            Triggerable t = (Triggerable)triggerables.elementAt(i);
+            for (int j = 0; j < t.getTargets().size(); j++) {
+                TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+                if (genericRoot.isParentOf(target, false)) {
+                    if (!triggerablesProcessedInSetAction.contains(t)) {
+                        applicable.addElement(t);
+                    }
+                    break;
+                }
+            }
+        }
+
+        triggerablesProcessedInSetAction.clear();
+
+        evaluateTriggerables(applicable, newRepeatRef);
+    }
+
+    /**
      * The entry point for the DAG cascade after a value is changed in the model.
      *
      * @param ref The full contextualized unambiguous reference of the value that was
@@ -878,8 +929,19 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggeredCopy.addElement(triggered.elementAt(i));
         }
 
+        storeSaveValueTriggerables(triggered);
+
         //Evaluate all of the triggerables in our new vector
         evaluateTriggerables(triggeredCopy, ref);
+    }
+
+    private void storeSaveValueTriggerables(Vector<Triggerable> triggered) {
+        if (isProcessingNewRepeatInsertActions) {
+            for (int i = 0; i < triggered.size(); i++) {
+                triggerablesProcessedInSetAction.addElement((Triggerable)triggered.elementAt(i));
+            }
+        }
+
     }
 
     /**
