@@ -55,7 +55,7 @@ public class ApplicationHost {
 
     private final PrototypeFactory mPrototypeFactory;
 
-    private final BufferedReader reader;
+    private BufferedReader reader;
 
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
@@ -78,8 +78,11 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setReader(BufferedReader reader){
+        this.reader = reader;
+    }
 
-    public void run() {
+    public void init(){
         if(!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of hte setRestore*() methods before running the app");
@@ -87,6 +90,10 @@ public class ApplicationHost {
         setupSandbox();
 
         mSession = new SessionWrapper(mPlatform, mSandbox);
+    }
+
+    public void run() {
+        init();
 
         try {
             loop();
@@ -165,27 +172,6 @@ public class ApplicationHost {
                             System.out.println("Case: " + mCase.getName());
                         }
                     }
-                    System.out.println("XML");
-                    String xml = XmlUtils.getCaseXML(mSession.getIIF());
-                    System.out.println(xml);
-
-                    System.out.println("Ledger");
-                    xml = XmlUtils.getLedgerXML(mSession.getIIF());
-                    System.out.println(xml);
-
-                    System.out.println("Session");
-                    xml = XmlUtils.getSessionXML(mSession.getIIF());
-                    System.out.println(xml);
-
-
-                    IStorageUtilityIndexed<FormInstance> fixtureStorage = mSandbox.getUserFixtureStorage();
-                    IStorageIterator<FormInstance> iterate = fixtureStorage.iterate();
-                    while(iterate.hasMore()){
-                        FormInstance formInstance = iterate.nextRecord();
-                        System.out.println("Fixture");
-                        xml = XmlUtils.getFixtureXML(mSession.getIIF(), formInstance.getInstanceId());
-                        System.out.println(xml);
-                    }
                 }
 
                 screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
@@ -228,6 +214,38 @@ public class ApplicationHost {
 
         //After we finish, continue executing
         return true;
+    }
+
+    public String getInstanceXML(String path, String root){
+        return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
+    }
+
+    public String getCaseXml(){
+        return XmlUtils.getCaseXML(mSession.getIIF());
+    }
+
+    public void printXML(){
+        System.out.println("XML");
+        String xml = XmlUtils.getCaseXML(mSession.getIIF());
+        System.out.println(xml);
+
+        System.out.println("Ledger");
+        xml = XmlUtils.getLedgerXML(mSession.getIIF());
+        System.out.println(xml);
+
+        System.out.println("Session");
+        xml = XmlUtils.getSessionXML(mSession.getIIF());
+        System.out.println(xml);
+
+
+        IStorageUtilityIndexed<FormInstance> fixtureStorage = mSandbox.getUserFixtureStorage();
+        IStorageIterator<FormInstance> iterate = fixtureStorage.iterate();
+        while(iterate.hasMore()){
+            FormInstance formInstance = iterate.nextRecord();
+            System.out.println("Fixture");
+            xml = XmlUtils.getFixtureXML(mSession.getIIF(), formInstance.getInstanceId());
+            System.out.println(xml);
+        }
     }
 
     private void finishSession() {

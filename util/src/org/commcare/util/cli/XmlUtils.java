@@ -50,6 +50,11 @@ public class XmlUtils {
         return getPrettyXml(bytes);
     }
 
+    public static String getInstanceXML(InstanceInitializationFactory iif, String name, String root){
+        byte[] bytes = serializeInstanceFromSandbox(iif, name, root);
+        return getPrettyXml(bytes);
+    }
+
     public static byte[] serializeInstance(InstanceInitializationFactory iif, String jrPath, String modelName){
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -59,6 +64,11 @@ public class XmlUtils {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    private static byte[] serializeInstanceFromSandbox(InstanceInitializationFactory iif, String path, String root) {
+        System.out.println("serializing instance: " + path + " root " + root);
+        return serializeInstance(iif, path, root);
     }
 
     private static byte[] serializeSessionInstanceFromSandbox(InstanceInitializationFactory iif) {
