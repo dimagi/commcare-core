@@ -111,8 +111,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         out.println(CliUtils.pad("", maxLength + 1) + mHeader);
         out.println("==============================================================================================");
 
-        int i;
-        for (i = 0; i < mChoices.length; ++i) {
+        for (int i = 0; i < mChoices.length; ++i) {
             String d = rows[i];
             out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
