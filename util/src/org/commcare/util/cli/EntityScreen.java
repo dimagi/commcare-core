@@ -3,7 +3,6 @@ package org.commcare.util.cli;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -13,8 +12,6 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
-
-import java.util.Vector;
 
 /**
  * Compound Screen to select an entity from a list and then display the one or more details that
