@@ -5,6 +5,7 @@ package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -143,6 +144,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             //Walk all indexed nodes, adding them to the process stack.
             //and update their liveness if necessary.
             for (Edge<String, String> edge : g.getChildren(index)) {
+                if(g.getNode(edge.i) == null){
+                    Logger.log("error-nonexistent-index", "You've tried to restore a case with an index " +
+                            "into a non-existent case. Index: " + edge.i + " belonging to case: " + index);
+                    continue;
+                }
                 if (node[0].equals(STATUS_LIVE)) {
                     g.getNode(edge.i)[0] = STATUS_LIVE;
                 }
