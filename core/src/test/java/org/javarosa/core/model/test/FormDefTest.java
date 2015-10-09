@@ -3,6 +3,7 @@ package org.javarosa.core.model.test;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -12,6 +13,10 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -182,7 +187,7 @@ public class FormDefTest {
     public void testSetValuePredicate() {
         FormParseInit fpi = new FormParseInit("/test_setvalue_predicate.xml");
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true,null);
+        fpi.getFormDef().initialize(true, null);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         boolean testPassed = false;
@@ -201,5 +206,36 @@ public class FormDefTest {
         if(!testPassed) {
             fail("Setvalue Predicate Target Test");
         }
+    }
+
+    /**
+     * Test nested form repeat triggers and actions
+     */
+    @Test
+    public void testNestedRepeatActions() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_model_iteration.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+            if (fec.getModel().getEvent() != FormEntryController.EVENT_QUESTION) {
+                continue;
+            }
+        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+
+        if(!xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
+            fail("Nested repeats did not evaluate to the proper outcome");
+        }
+    }
+
+    public static boolean xpathEvalAndCompare(EvaluationContext evalContext,
+                                              String input,
+                                              Object expectedOutput)
+            throws XPathSyntaxException {
+        XPathExpression expr;
+        expr = XPathParseTool.parseXPath(input);
+        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
+        return expectedOutput.equals(output);
     }
 }

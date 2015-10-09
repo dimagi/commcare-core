@@ -258,6 +258,20 @@ public class TreeReference implements Externalizable {
     }
 
     /**
+     * @return True if this reference is a 'template' ref, which means that it contains steps that
+     * point to 'template' nodes which are virtual elements of a repeat which hasn't been created,
+     * not steps to real nodes in the tree.
+     */
+    public boolean isTemplateRef() {
+        for(int i = 1 ; i < size(); i++){
+            if(getMultiplicity(i) == INDEX_TEMPLATE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Return a copy of the reference
      */
     public TreeReference clone() {
