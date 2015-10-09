@@ -174,15 +174,9 @@ public class XFormPlayer {
     }
 
     private void newRepeatQuestion() {
-        String repeatType = getCurrentGroupName();
         out.println("Add new repeat?");
         out.println("1) Yes, add a new repeat group");
         out.println("2) No, continue to the next question");
-    }
-
-    private String getCurrentGroupName() {
-        //fec.getModel().getCaptionHierarchy;
-        return null;
     }
 
     /**
@@ -206,13 +200,17 @@ public class XFormPlayer {
                     //Don't wanna add any eval mode stuff to the execution history.
                     continue;
                 }
-
-                //Command!
-                if (input.startsWith(":")) {
-                    exit = command(input.substring(1));
-                } else {
-                    //what we do depends on the current item
-                    exit = input(input);
+                try {
+                    //Command!
+                    if (input.startsWith(":")) {
+                        exit = command(input.substring(1));
+                    } else {
+                            //what we do depends on the current item
+                        exit = input(input);
+                    }
+                } catch(InvalidInputException e) {
+                    //User will retry after receiving message
+                    exit = false;
                 }
                 //Commit current step
                 environment.commitStep();
@@ -267,7 +265,7 @@ public class XFormPlayer {
 
     }
 
-    private boolean command(String command) throws BadPlaybackException {
+    private boolean command(String command) throws BadPlaybackException, InvalidInputException {
         environment.recordAction(new Action(new Command(command)));
         if ("next".equalsIgnoreCase(command)) {
             fec.stepToNextEvent();
@@ -393,7 +391,7 @@ public class XFormPlayer {
         }
     }
 
-    private boolean input(String input) throws BadPlaybackException {
+    private boolean input(String input) throws BadPlaybackException, InvalidInputException{
         switch (fec.getModel().getEvent()) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 environment.recordAction(new Action(new Command("next")));
@@ -423,17 +421,7 @@ public class XFormPlayer {
                             }
                             actualInput = new SelectMultiData(answers).uncast().getString();
                         } else {
-                            int index;
-                            try {
-                                index = Integer.parseInt(input) - 1;
-                                if (index >= choices.size()) {
-                                    badInput(input, "Enter a number between 1 and " + (choices.size()));
-                                    return false;
-                                }
-                            } catch (NumberFormatException nfe) {
-                                badInput(input, "Enter a number between 1 and " + (choices.size()));
-                                return false;
-                            }
+                            int index = parseAndValidate(input, choices.size()) - 1;
 
                             if (fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_ONE) {
                                 actualInput = choices.elementAt(index).getValue();
@@ -455,7 +443,6 @@ public class XFormPlayer {
                         ActionResponse actionResponse = current.getAction().getActionResponse();
                         actionResponse.validate(response, actualInput, fep);
                     }
-
 
                     if (response == FormEntryController.ANSWER_OK) {
                         environment.recordAction(new Action(actualInput));
@@ -482,21 +469,13 @@ public class XFormPlayer {
             case FormEntryController.EVENT_REPEAT_JUNCTURE:
                 return true;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                try {
-                    int index = Integer.parseInt(input.trim());
-                    if(index == 1) {
-                        fec.newRepeat();
-                        fec.stepToNextEvent();
-                        return false;
-                    } else if(index == 2) {
-                        fec.stepToNextEvent();
-                        return false;
-                    } else {
-                        badInput(input, "Invalid input, only 1 and 2 are allowed");
-                        return false;
-                    }
-                } catch(NumberFormatException nfe) {
-                    badInput(input, "Invalid input");
+                int index = parseAndValidate(input, 2);
+                if(index == 1) {
+                    fec.newRepeat();
+                    fec.stepToNextEvent();
+                    return false;
+                } else if(index == 2) {
+                    fec.stepToNextEvent();
                     return false;
                 }
         }
@@ -504,11 +483,26 @@ public class XFormPlayer {
         return true;
     }
 
-    private void badInput(String input) throws BadPlaybackException {
+    private int parseAndValidate(String input, int max) throws BadPlaybackException, InvalidInputException{
+        int i;
+        try {
+            i = Integer.parseInt(input);
+            if ( i < 1 || i > max) {
+                badInput(input, "Enter a number between 1 and " + max);
+                throw new InvalidInputException();
+            }
+        } catch (NumberFormatException nfe) {
+            badInput(input, "Enter a number between 1 and " + max);
+            throw new InvalidInputException();
+        }
+        return i;
+    }
+
+    private void badInput(String input) throws BadPlaybackException, InvalidInputException {
         badInput(input, null);
     }
 
-    private void badInput(String input, String msg) throws BadPlaybackException {
+    private void badInput(String input, String msg) throws BadPlaybackException, InvalidInputException{
         String message = "Input " + input + " is invalid!";
         if (msg != null) {
             message += " " + msg;
@@ -521,6 +515,7 @@ public class XFormPlayer {
         out.println(message);
         out.println("Press Return to Try Again");
         blockForInput();
+        throw new InvalidInputException();
     }
 
     private String blockForInput() {
@@ -592,5 +587,9 @@ public class XFormPlayer {
 
     public void setSessionIIF(InstanceInitializationFactory iif) {
         mIIF = iif; 
+    }
+
+    public static final class InvalidInputException extends Exception {
+
     }
 }
