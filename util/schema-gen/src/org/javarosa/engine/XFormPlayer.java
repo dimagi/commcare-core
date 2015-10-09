@@ -277,7 +277,11 @@ public class XFormPlayer {
         } else if ("quit".equalsIgnoreCase(command)) {
             out.println("Quitting!");
             return true;
-        } else if ("finish".equalsIgnoreCase(command)) {
+        } else if ("cancel".equalsIgnoreCase(command)) {
+            out.println("Cancelling form entry!");
+            mExecutionResult = FormResult.Cancelled;
+            return true;
+        }  else if ("finish".equalsIgnoreCase(command)) {
             out.println("Attempting to finish the form in its current state...");
             mProcessOnExit = true;
             return true;
