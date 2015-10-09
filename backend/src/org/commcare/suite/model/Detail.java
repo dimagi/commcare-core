@@ -424,8 +424,8 @@ public class Detail implements Externalizable {
         Hashtable<String, XPathExpression> variables = getVariableDeclarations();
         //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
         //in a 1.3 hashtable equivalent
-        for (Enumeration<String> en = variables.keys(); en.hasMoreElements(); ) {
-            String key = en.nextElement();
+        for (Enumeration en = variables.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
             ec.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(ec)));
         }
     }
