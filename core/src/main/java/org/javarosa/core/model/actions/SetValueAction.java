@@ -22,8 +22,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import sun.reflect.generics.tree.Tree;
-
 /**
  * @author ctsims
  */
