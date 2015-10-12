@@ -3,7 +3,6 @@ package org.javarosa.core.model.test;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -13,10 +12,6 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.test_utils.ExprEvalUtils;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

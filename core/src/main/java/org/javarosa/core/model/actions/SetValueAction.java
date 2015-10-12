@@ -75,30 +75,16 @@ public class SetValueAction extends Action {
         if(qualifiedReference.hasPredicates()) {
             //CTS: in theory these predicates could contain logic which breaks if the qualified ref
             //contains unbound repeats (IE: nested repeats).
-            Vector<TreeReference> references = context.expandReference(qualifiedReference, true);
+            Vector<TreeReference> references = context.expandReference(qualifiedReference);
             if (references.size() == 0) {
-                throw new NullPointerException(failMessage);
-            } else if (references.size() > 1) {
-                //We included templates, so it's possible we got both a ref _and_ a template. Check
-                TreeReference singleFullyQualifiedRef = null;
-                for (TreeReference ref : references) {
-                    if (!ref.isTemplateRef()) {
-                        if (singleFullyQualifiedRef == null) {
-                            singleFullyQualifiedRef = ref;
-                        } else {
-                            //The spec for single value binding says we should pick the first one,
-                            //but that's not how we do things to prevent errors. We're going to fail
-                            //the same way a nodeset does
-                            throw new XPathTypeMismatchException("XPath nodeset has more than one node [" + XPathNodeset.printNodeContents(references) + "]; Actions can only target a single node reference. Refine path expression to match only one node.");
-                        }
-                    }
-                }
-
-                if (singleFullyQualifiedRef == null) {
-                    //We only have template references, which means this setvalue action isn't relevant
-                    //for these targets yet.
+                //If after finding our concrete reference it is a template, this action is outside of the
+                //scope of the current target, so we can leave.
+                if(model.getMainInstance().hasTemplatePath(target)) {
                     return;
                 }
+                throw new NullPointerException(failMessage);
+            } else if (references.size() > 1) {
+                throw new XPathTypeMismatchException("XPath nodeset has more than one node [" + XPathNodeset.printNodeContents(references) + "]; Actions can only target a single node reference. Refine path expression to match only one node.");
             } else {
                 qualifiedReference = references.elementAt(0);
             }
