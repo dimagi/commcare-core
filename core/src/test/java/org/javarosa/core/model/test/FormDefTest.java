@@ -224,18 +224,8 @@ public class FormDefTest {
             }
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
 
-        if(!xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
+        if(!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
             fail("Nested repeats did not evaluate to the proper outcome");
         }
-    }
-
-    public static boolean xpathEvalAndCompare(EvaluationContext evalContext,
-                                              String input,
-                                              Object expectedOutput)
-            throws XPathSyntaxException {
-        XPathExpression expr;
-        expr = XPathParseTool.parseXPath(input);
-        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
-        return expectedOutput.equals(output);
     }
 }

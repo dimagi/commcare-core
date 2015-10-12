@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
         <h:title>Looped Model Iteration</h:title>
         <model>
             <instance>
-                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/06DE7FA6-35F7-46EF-9DB0-AD09AAF40438" uiVersion="1" version="1" name="Looped Model Iteration">
-                    <begin />
+                <data name="Looped Model Iteration"
+                      uiVersion="1"
+                      version="1" xmlns="http://openrosa.org/formdesigner/06DE7FA6-35F7-46EF-9DB0-AD09AAF40438" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <begin/>
                     <number>2</number>
                     <outer_repeat jr:template="">
-                        <iterator ids="" count="" current_index="" vellum:role="Repeat">
+                        <iterator count="" current_index="" ids="" vellum:role="Repeat">
                             <item id="" index="" jr:template="">
                                 <val/>
-                                <placeholder />
+                                <placeholder/>
                             </item>
                         </iterator>
                     </outer_repeat>
-                    <end />
+                    <end/>
                     <sum/>
                 </data>
             </instance>
@@ -29,24 +33,30 @@
                 </items>
             </instance>
 
-            <bind nodeset="/data/begin" />
-            <bind nodeset="/data/number" calculate="3" />
-            <bind nodeset="/data/outer_repeat" />
-            <bind nodeset="/data/outer_repeat/iterator/@current_index" calculate="count(/data/outer_repeat/iterator/item)" />
-            <bind nodeset="/data/outer_repeat/iterator/item" />
-            <bind nodeset="/data/outer_repeat/iterator/item/placeholder" relevant="false()" />
-            <bind nodeset="/data/end" />
-            <bind nodeset="/data/sum" calculate="sum(/data/outer_repeat/iterator/item/val)" />
+            <bind nodeset="/data/begin"/>
+            <bind calculate="3" nodeset="/data/number"/>
+            <bind nodeset="/data/outer_repeat"/>
+            <bind calculate="count(/data/outer_repeat/iterator/item)"
+                  nodeset="/data/outer_repeat/iterator/@current_index"/>
+            <bind nodeset="/data/outer_repeat/iterator/item"/>
+            <bind nodeset="/data/outer_repeat/iterator/item/placeholder" relevant="false()"/>
+            <bind nodeset="/data/end"/>
+            <bind calculate="sum(/data/outer_repeat/iterator/item/val)" nodeset="/data/sum"/>
 
-            <bind nodeset="/data/outer_repeat/iterator/item/val" calculate="instance('internal')/items/item[@id = current()/../@id]"/>
+            <bind calculate="instance('internal')/items/item[@id = current()/../@id]"
+                  nodeset="/data/outer_repeat/iterator/item/val"/>
 
-            <setvalue event="jr-insert" ref="/data/outer_repeat/iterator/item/@index" value="int(/data/outer_repeat/iterator/@current_index)" />
-            <setvalue event="jr-insert" ref="/data/outer_repeat/iterator/item/@id" value="selected-at(/data/outer_repeat/iterator/@ids,../@index)" />
+            <setvalue event="jr-insert" ref="/data/outer_repeat/iterator/item/@index"
+                      value="int(/data/outer_repeat/iterator/@current_index)"/>
+            <setvalue event="jr-insert" ref="/data/outer_repeat/iterator/item/@id"
+                      value="selected-at(/data/outer_repeat/iterator/@ids,../@index)"/>
 
-            <bind nodeset="/data/outer_repeat/iterator/@ids" calculate="join(' ', instance('internal')/items/item/@id)" />
-            <bind nodeset="/data/outer_repeat/iterator/@count" calculate="count-selected(/data/outer_repeat/iterator/@ids)" />
+            <bind calculate="join(' ', instance('internal')/items/item/@id)"
+                  nodeset="/data/outer_repeat/iterator/@ids"/>
+            <bind calculate="count-selected(/data/outer_repeat/iterator/@ids)"
+                  nodeset="/data/outer_repeat/iterator/@count"/>
             <itext>
-                <translation lang="en" default="">
+                <translation default="" lang="en">
                     <text id="begin-label">
                         <value>The repeat group is about to loop</value>
                     </text>
@@ -67,24 +77,26 @@
         </model>
     </h:head>
     <h:body>
-        <trigger ref="/data/begin" appearance="minimal">
-            <label ref="jr:itext('begin-label')" />
+        <trigger appearance="minimal" ref="/data/begin">
+            <label ref="jr:itext('begin-label')"/>
         </trigger>
         <group>
-            <label ref="jr:itext('outer_repeat-label')" />
-            <repeat jr:count="/data/number" jr:noAddRemove="true()" nodeset="/data/outer_repeat">
+            <label ref="jr:itext('outer_repeat-label')"/>
+            <repeat nodeset="/data/outer_repeat" jr:count="/data/number" jr:noAddRemove="true()">
                 <group>
-                    <label ref="jr:itext('outer_repeat/iterator/item-label')" />
-                    <repeat jr:count="/data/outer_repeat/iterator/@count" jr:noAddRemove="true()" nodeset="/data/outer_repeat/iterator/item">
-                        <trigger ref="/data/outer_repeat/iterator/item/placeholder" appearance="minimal">
-                            <label ref="jr:itext('outer_repeat/iterator/item/placeholder-label')" />
+                    <label ref="jr:itext('outer_repeat/iterator/item-label')"/>
+                    <repeat nodeset="/data/outer_repeat/iterator/item" jr:count="/data/outer_repeat/iterator/@count"
+                            jr:noAddRemove="true()">
+                        <trigger appearance="minimal"
+                                 ref="/data/outer_repeat/iterator/item/placeholder">
+                            <label ref="jr:itext('outer_repeat/iterator/item/placeholder-label')"/>
                         </trigger>
                     </repeat>
                 </group>
             </repeat>
         </group>
-        <trigger ref="/data/end" appearance="minimal">
-            <label ref="jr:itext('end-label')" />
+        <trigger appearance="minimal" ref="/data/end">
+            <label ref="jr:itext('end-label')"/>
         </trigger>
     </h:body>
 </h:html>

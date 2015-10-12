@@ -80,4 +80,14 @@ public class ExprEvalUtils {
         }
         return "";
     }
+
+    public static boolean xpathEvalAndCompare(EvaluationContext evalContext,
+                                              String input,
+                                              Object expectedOutput)
+            throws XPathSyntaxException {
+        XPathExpression expr;
+        expr = XPathParseTool.parseXPath(input);
+        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
+        return expectedOutput.equals(output);
+    }
 }
