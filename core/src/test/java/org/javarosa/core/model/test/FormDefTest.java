@@ -214,4 +214,22 @@ public class FormDefTest {
             fail("Nested repeats did not evaluate to the proper outcome");
         }
     }
+
+    @Test
+    public void testTriggerCaching() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_trigger_caching.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/heaviest_animal_weight", 400.0)) {
+            fail("");
+        }
+        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/lightest_animal_weight", 200.0)) {
+            fail("");
+        }
+    }
 }
