@@ -103,19 +103,20 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 }
             }
             String nodeStatus;
-            //Four cases, applied in order. One and two: closed or unowned it starts life dead
-            if (!owned || c.isClosed()) {
+            //Four cases, applied in order. One: closed and starts life dead
+            if (c.isClosed()) {
                 nodeStatus = STATUS_DEAD;
+            } else if(!owned) {
+                //two: unowned is dead unless it is an extension
+                if(hasExtension(indexHolder)) {
+                    nodeStatus = STATUS_ABANDONED;
+                } else {
+                    nodeStatus = STATUS_DEAD;
+                }
             } else {
                 //Otherwise we need to see whether this case maintains any extension indices,
                 //if so, it's abandoned. Otherwise it's Alive
-                boolean abandoned = false;
-                for (CaseIndex index : indexHolder) {
-                    if (index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
-                        abandoned = true;
-                        break;
-                    }
-                }
+                boolean abandoned = hasExtension(indexHolder);
                 if (abandoned) {
                     nodeStatus = STATUS_ABANDONED;
                 } else {
@@ -187,6 +188,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 idsToRemove.addElement(Integer.valueOf(node[1]));
             }
         }
+    }
+
+    private boolean hasExtension(Vector<CaseIndex> indexHolder) {
+        for (CaseIndex index : indexHolder) {
+            if (index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* (non-Javadoc)
