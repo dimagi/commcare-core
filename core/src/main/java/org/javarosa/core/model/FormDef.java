@@ -715,51 +715,62 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         if (t.canCascade()) {
             for (int j = 0; j < t.getTargets().size(); j++) {
                 TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-                Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
-                updatedNodes.addElement(target);
 
-                //For certain types of triggerables, the update will affect not only the target, but
-                //also the children of the target. In that case, we want to add all of those nodes
-                //to the list of updated elements as well. For instances, relevancy of a parent will
-                // require triggers pointing to children to need to be recalcualted
-                if (t.isCascadingToChildren()) {
-                    Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
-                    if (cachedNodes == null) {
-                        addChildrenOfReference(target, updatedNodes);
-                        cachedCascadingChildren.register(target, updatedNodes);
-                    } else {
-                        updatedNodes = cachedNodes;
+                Vector<TreeReference> updatedNodes = findCascadeReferences(t, target);
+
+                addTriggerablesTargetingNodes(updatedNodes, destination);
+            }
+        }
+    }
+
+    private Vector<TreeReference> findCascadeReferences(Triggerable t,
+                                                        TreeReference target) {
+        Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+        updatedNodes.addElement(target);
+        //For certain types of triggerables, the update will affect not only the target, but
+        //also the children of the target. In that case, we want to add all of those nodes
+        //to the list of updated elements as well. For instances, relevancy of a parent will
+        // require triggers pointing to children to need to be recalcualted
+        if (t.isCascadingToChildren()) {
+            Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
+            if (cachedNodes == null) {
+                addChildrenOfReference(target, updatedNodes);
+                cachedCascadingChildren.register(target, updatedNodes);
+            } else {
+                updatedNodes = cachedNodes;
+            }
+        }
+        return updatedNodes;
+    }
+
+    private void addTriggerablesTargetingNodes(Vector<TreeReference> updatedNodes,
+                                               Vector<Triggerable> destination) {
+        //Now go through each of these updated nodes (generally just 1 for a normal calculation,
+        //multiple nodes if there's a relevance cascade.
+        for (TreeReference ref : updatedNodes) {
+            //Check our index to see if that target is a Trigger for other conditions
+            //IE: if they are an element of a different calculation or relevancy calc
+
+            //We can't make this reference generic before now or we'll lose the target information,
+            //so we'll be more inclusive than needed and see if any of our triggers are keyed on
+            //the predicate-less path of this ref
+            TreeReference predicatelessRef = ref;
+            if (ref.hasPredicates()) {
+                predicatelessRef = ref.removePredicates();
+            }
+            Vector<Triggerable> triggered =
+                    (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
+
+            if (triggered != null) {
+                //If so, walk all of these triggerables that we found
+                for (int k = 0; k < triggered.size(); k++) {
+                    Triggerable u = (Triggerable)triggered.elementAt(k);
+
+                    //And add them to the queue if they aren't there already
+                    if (!destination.contains(u)) {
+                        destination.addElement(u);
                     }
                 }
-
-                //Now go through each of these updated nodes (generally just 1 for a normal calculation,
-                //multiple nodes if there's a relevance cascade.
-                for (TreeReference ref : updatedNodes) {
-                    //Check our index to see if that target is a Trigger for other conditions
-                    //IE: if they are an element of a different calculation or relevancy calc
-
-                    //We can't make this reference generic before now or we'll lose the target information,
-                    //so we'll be more inclusive than needed and see if any of our triggers are keyed on
-                    //the predicate-less path of this ref
-                    TreeReference predicatelessRef = ref;
-                    if (ref.hasPredicates()) {
-                        predicatelessRef = ref.removePredicates();
-                    }
-                    Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
-
-                    if (triggered != null) {
-                        //If so, walk all of these triggerables that we found
-                        for (int k = 0; k < triggered.size(); k++) {
-                            Triggerable u = (Triggerable)triggered.elementAt(k);
-
-                            //And add them to the queue if they aren't there already
-                            if (!destination.contains(u)) {
-                                destination.addElement(u);
-                            }
-                        }
-                    }
-                }
-
             }
         }
     }
@@ -963,7 +974,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
         Vector<TreeReference> refs = exprEvalContext.expandReference(original);
         for (TreeReference ref : refs) {
-            addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
+            AbstractTreeElement resolvedRef = exprEvalContext.resolveReference(ref);
+            addChildrenOfElement(resolvedRef, toAdd);
         }
     }
 
