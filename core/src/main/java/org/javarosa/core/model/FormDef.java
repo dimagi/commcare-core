@@ -145,7 +145,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public FormDef() {
         setID(-1);
         setChildren(null);
-        triggerables = new Vector();
+        triggerables = new Vector<Triggerable>();
         triggerablesInOrder = true;
         triggerIndex = new Hashtable<TreeReference, Vector<Triggerable>>();
         //This is kind of a wreck...
@@ -588,7 +588,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 if (!triggerIndex.containsKey(trigger)) {
                     triggerIndex.put(trigger.clone(), new Vector<Triggerable>());
                 }
-                Vector triggered = (Vector)triggerIndex.get(trigger);
+                Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(trigger);
                 if (!triggered.contains(t)) {
                     triggered.addElement(t);
                 }
@@ -642,11 +642,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         //trigbles come only after the trigbles they depend on
         //
 
-        Vector partialOrdering = new Vector();
+        Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
 
-            Vector deps = new Vector();
+            Vector<Triggerable> deps = new Vector<Triggerable>();
             fillTriggeredElements(t, deps);
 
             for (int j = 0; j < deps.size(); j++) {
@@ -704,7 +704,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         //build the condition index for repeatable nodes
 
-        conditionRepeatTargetIndex = new Hashtable();
+        conditionRepeatTargetIndex = new Hashtable<TreeReference, Condition>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
             if (t instanceof Condition) {
@@ -724,7 +724,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Get all of the elements which will need to be evaluated (in order) when the
      * triggerable is fired.
      */
-    public void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
+    private void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
         if (t.canCascade()) {
             for (int j = 0; j < t.getTargets().size(); j++) {
                 TreeReference target = (TreeReference)t.getTargets().elementAt(j);
@@ -733,7 +733,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
                 //For certain types of triggerables, the update will affect not only the target, but
                 //also the children of the target. In that case, we want to add all of those nodes
-                //to the list of updated elements as well.
+                //to the list of updated elements as well. For instances, relevancy of a parent will
+                // require triggers pointing to children to need to be recalcualted
                 if (t.isCascadingToChildren()) {
                     addChildrenOfReference(target, updatedNodes);
                 }
@@ -860,7 +861,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     private void initializeTriggerables(TreeReference rootRef) {
         TreeReference genericRoot = rootRef.genericize();
 
-        Vector applicable = new Vector();
+        Vector<Triggerable> applicable = new Vector<Triggerable>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
             for (int j = 0; j < t.getTargets().size(); j++) {
@@ -918,13 +919,13 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         TreeReference genericRef = ref.genericize();
 
         //get triggerables which are activated by the generic reference
-        Vector triggered = (Vector)triggerIndex.get(genericRef);
+        Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(genericRef);
         if (triggered == null) {
             return;
         }
 
         //Our vector doesn't have a shallow copy op, so make one
-        Vector triggeredCopy = new Vector();
+        Vector<Triggerable> triggeredCopy = new Vector<Triggerable>();
         for (int i = 0; i < triggered.size(); i++) {
             triggeredCopy.addElement(triggered.elementAt(i));
         }
@@ -1496,14 +1497,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         ExtUtil.write(dos, getMainInstance());
         ExtUtil.write(dos, new ExtWrapNullable(localizer));
 
-        Vector conditions = new Vector();
-        Vector recalcs = new Vector();
+        Vector<Condition> conditions = new Vector<Condition>();
+        Vector<Recalculate> recalcs = new Vector<Recalculate>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
             if (t instanceof Condition) {
-                conditions.addElement(t);
+                conditions.addElement((Condition)t);
             } else if (t instanceof Recalculate) {
-                recalcs.addElement(t);
+                recalcs.addElement((Recalculate)t);
             }
         }
         ExtUtil.write(dos, new ExtWrapList(conditions));
@@ -1838,16 +1839,16 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public void registerEventListener(String event, Action action) {
         Vector<Action> actions;
 
-        if (this.eventListeners.containsKey(event)) {
+        if (eventListeners.containsKey(event)) {
             actions = eventListeners.get(event);
         } else {
             actions = new Vector<Action>();
+            eventListeners.put(event, actions);
         }
         actions.addElement(action);
-        this.eventListeners.put(event, actions);
     }
 
-    public void dispatchFormEvent(String event) {
+    private void dispatchFormEvent(String event) {
         for (Action action : getEventListeners(event)) {
             action.processAction(this, null);
         }
