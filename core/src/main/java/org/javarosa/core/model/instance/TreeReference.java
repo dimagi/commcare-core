@@ -256,7 +256,7 @@ public class TreeReference implements Externalizable {
         }
         return false;
     }
-
+    
     /**
      * Return a copy of the reference
      */

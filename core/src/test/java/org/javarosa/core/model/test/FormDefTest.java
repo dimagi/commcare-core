@@ -182,7 +182,7 @@ public class FormDefTest {
     public void testSetValuePredicate() {
         FormParseInit fpi = new FormParseInit("/test_setvalue_predicate.xml");
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true,null);
+        fpi.getFormDef().initialize(true, null);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         boolean testPassed = false;
@@ -200,6 +200,27 @@ public class FormDefTest {
         } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
         if(!testPassed) {
             fail("Setvalue Predicate Target Test");
+        }
+    }
+
+    /**
+     * Test nested form repeat triggers and actions
+     */
+    @Test
+    public void testNestedRepeatActions() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_model_iteration.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+            if (fec.getModel().getEvent() != FormEntryController.EVENT_QUESTION) {
+                continue;
+            }
+        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+
+        if(!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
+            fail("Nested repeats did not evaluate to the proper outcome");
         }
     }
 }
