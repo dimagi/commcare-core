@@ -624,17 +624,15 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        //
         //DAGify the triggerables based on dependencies and sort them so that
         //trigbles come only after the trigbles they depend on
-        //
 
         Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
 
             Vector<Triggerable> deps = new Vector<Triggerable>();
-            fillTriggeredElements(t, deps);
+            fillTriggeredElements(t, deps, false);
 
             for (int j = 0; j < deps.size(); j++) {
                 Triggerable u = (Triggerable)deps.elementAt(j);
@@ -711,12 +709,19 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Get all of the elements which will need to be evaluated (in order) when the
      * triggerable is fired.
      */
-    private void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
+    private void fillTriggeredElements(Triggerable t,
+                                       Vector<Triggerable> destination,
+                                       boolean isRepeatEntryInit) {
         if (t.canCascade()) {
-            for (int j = 0; j < t.getTargets().size(); j++) {
-                TreeReference target = (TreeReference)t.getTargets().elementAt(j);
-
-                Vector<TreeReference> updatedNodes = findCascadeReferences(t, target);
+            for (TreeReference target : t.getTargets()) {
+                Vector<TreeReference> updatedNodes;
+                if (isRepeatEntryInit) {
+                    // children have already been added to 'destination'
+                    updatedNodes = new Vector<TreeReference>();
+                    updatedNodes.addElement(target);
+                } else {
+                    updatedNodes = findCascadeReferences(t, target);
+                }
 
                 addTriggerablesTargetingNodes(updatedNodes, destination);
             }
@@ -737,6 +742,16 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 addChildrenOfReference(target, updatedNodes);
                 cachedCascadingChildren.register(target, updatedNodes);
             } else {
+                /*
+                addChildrenOfReference(target, updatedNodes);
+                if (updatedNodes.size() != cachedNodes.size()) {
+                    Vector<TreeReference> refs = exprEvalContext.expandReference(target);
+                    System.out.println(refs);
+                }
+                */
+                // this is incorrect because running
+                // addChildOfReference(target, updatedNodes)
+                // here will return a different value than cachedNodes.
                 updatedNodes = cachedNodes;
             }
         }
@@ -877,7 +892,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
 
-        evaluateTriggerables(applicable, rootRef);
+        evaluateTriggerables(applicable, rootRef, true);
     }
 
     /**
@@ -906,7 +921,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         //Evaluate all of the triggerables in our new vector
-        evaluateTriggerables(triggeredCopy, ref);
+        evaluateTriggerables(triggeredCopy, ref, false);
     }
 
     /**
@@ -920,13 +935,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * @param anchorRef The reference to original value that was updated
      */
     private void evaluateTriggerables(Vector<Triggerable> tv,
-                                      TreeReference anchorRef) {
+                                      TreeReference anchorRef,
+                                      boolean isRepeatEntryInit) {
         // Update the list of triggerables that need to be evaluated.
         // XXX PLM: tv changes in size throughout this loop.
         //          Do we actually want to loop over the newly added elements?
         for (int i = 0; i < tv.size(); i++) {
             Triggerable t = (Triggerable)tv.elementAt(i);
-            fillTriggeredElements(t, tv);
+            fillTriggeredElements(t, tv, isRepeatEntryInit);
         }
 
         //tv should now contain all of the triggerable components which are going to need to be addressed

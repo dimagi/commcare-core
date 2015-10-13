@@ -228,7 +228,18 @@ public class FormDefTest {
         if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/heaviest_animal_weight", 400.0)) {
             fail("");
         }
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/lightest_animal_weight", 200.0)) {
+        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/lightest_animal_weight", 100.0)) {
+            fail("");
+        }
+
+        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", "")) {
+            fail("");
+        }
+        if (ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/animals[/data/skip_weighing_nth_animal - 1]/weight/@time", "")) {
+            fail("");
+        }
+        // not really sure what I'm trying to accomplish with this:
+        if (ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/last_check_time", "-1.0")) {
             fail("");
         }
     }
