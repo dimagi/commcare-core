@@ -47,6 +47,7 @@ public class XPathQName implements Externalizable {
         init(namespace, name);
     }
 
+    @Override
     public int hashCode() {
         return hashCode;
     }
@@ -63,13 +64,15 @@ public class XPathQName implements Externalizable {
     }
 
     private void cacheCode() {
-        hashCode = name.hashCode() | (namespace == null ? 0 : namespace.hashCode());
+        hashCode = name.hashCode() ^ (namespace == null ? 0 : namespace.hashCode());
     }
 
+    @Override
     public String toString() {
         return (namespace == null ? name : namespace + ":" + name);
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathQName) {
             XPathQName x = (XPathQName)o;
@@ -82,12 +85,14 @@ public class XPathQName implements Externalizable {
         }
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         namespace = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         name = ExtUtil.readString(in);
         cacheCode();
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(namespace));
         ExtUtil.writeString(out, name);

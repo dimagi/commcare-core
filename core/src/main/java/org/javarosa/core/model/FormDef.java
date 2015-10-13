@@ -725,7 +725,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                     //We can't make this reference generic before now or we'll lose the target information,
                     //so we'll be more inclusive than needed and see if any of our triggers are keyed on
                     //the predicate-less path of this ref
-                    Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(ref.hasPredicates() ? ref.removePredicates() : ref);
+                    TreeReference predicatelessRef = ref;
+                    if (ref.hasPredicates()) {
+                        predicatelessRef = ref.removePredicates();
+                    }
+                    Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
 
                     if (triggered != null) {
                         //If so, walk all of these triggerables that we found
@@ -733,8 +737,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                             Triggerable u = (Triggerable)triggered.elementAt(k);
 
                             //And add them to the queue if they aren't there already
-                            if (!destination.contains(u))
+                            if (!destination.contains(u)) {
                                 destination.addElement(u);
+                            }
                         }
                     }
                 }

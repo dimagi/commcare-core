@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.expr;
 
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -31,6 +15,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * This construct, whose syntax is of the form '(filter-expr pred1 pred2 ...)',
+ * is currently unsupported by JavaRosa
+ */
 public class XPathFilterExpr extends XPathExpression {
     public XPathExpression x;
     public XPathExpression[] predicates;
@@ -43,10 +31,12 @@ public class XPathFilterExpr extends XPathExpression {
         this.predicates = predicates;
     }
 
+    @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         throw new XPathUnsupportedException("filter expression");
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -63,6 +53,7 @@ public class XPathFilterExpr extends XPathExpression {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathFilterExpr) {
             XPathFilterExpr fe = (XPathFilterExpr)o;
@@ -73,6 +64,16 @@ public class XPathFilterExpr extends XPathExpression {
         }
     }
 
+    @Override
+    public int hashCode() {
+        int predHash = 0;
+        for (XPathExpression pred : predicates) {
+            predHash ^= pred.hashCode();
+        }
+        return x.hashCode() ^ predHash;
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         x = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
@@ -82,19 +83,23 @@ public class XPathFilterExpr extends XPathExpression {
             predicates[i] = (XPathExpression)v.elementAt(i);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         Vector v = new Vector();
-        for (int i = 0; i < predicates.length; i++)
+        for (int i = 0; i < predicates.length; i++) {
             v.addElement(predicates[i]);
+        }
 
         ExtUtil.write(out, new ExtWrapTagged(x));
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
 
+    @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         throw new UnpivotableExpressionException();
     }
 
+    @Override
     public String toPrettyString() {
         return "Unsupported Predicate";
     }

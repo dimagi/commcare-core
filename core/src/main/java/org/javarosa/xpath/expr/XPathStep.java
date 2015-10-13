@@ -82,6 +82,7 @@ public class XPathStep implements Externalizable {
         this.namespace = namespace;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -158,6 +159,7 @@ public class XPathStep implements Externalizable {
         }
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathStep) {
             XPathStep x = (XPathStep)o;
@@ -243,6 +245,7 @@ public class XPathStep implements Externalizable {
         }
     }
 
+    @Override
     public int hashCode() {
         int code = this.axis ^ this.test ^ (this.name == null ? 0 : this.name.hashCode()) ^ (this.literal == null ? 0 : this.literal.hashCode()) ^ (this.namespace == null ? 0 : this.namespace.hashCode());
         for (XPathExpression xpe : predicates) {
@@ -251,6 +254,7 @@ public class XPathStep implements Externalizable {
         return code;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         axis = ExtUtil.readInt(in);
         test = ExtUtil.readInt(in);
@@ -273,6 +277,7 @@ public class XPathStep implements Externalizable {
             predicates[i] = (XPathExpression)v.elementAt(i);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, axis);
         ExtUtil.writeNumeric(out, test);

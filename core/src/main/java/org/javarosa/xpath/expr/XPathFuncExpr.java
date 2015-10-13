@@ -63,6 +63,7 @@ public class XPathFuncExpr extends XPathExpression {
         this.args = args;
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
@@ -79,6 +80,7 @@ public class XPathFuncExpr extends XPathExpression {
         return sb.toString();
     }
 
+    @Override
     public String toPrettyString() {
         StringBuffer sb = new StringBuffer();
         sb.append(id.toString() + "(");
@@ -92,6 +94,7 @@ public class XPathFuncExpr extends XPathExpression {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof XPathFuncExpr) {
             XPathFuncExpr x = (XPathFuncExpr)o;
@@ -111,6 +114,16 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
+    @Override
+    public int hashCode() {
+        int argsHash = 0;
+        for (XPathExpression arg : args) {
+            argsHash ^= arg.hashCode();
+        }
+        return id.hashCode() ^ argsHash;
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (XPathQName)ExtUtil.read(in, XPathQName.class);
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
@@ -120,6 +133,7 @@ public class XPathFuncExpr extends XPathExpression {
             args[i] = (XPathExpression)v.elementAt(i);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         Vector v = new Vector();
         for (int i = 0; i < args.length; i++)
@@ -139,6 +153,7 @@ public class XPathFuncExpr extends XPathExpression {
      * handler. For built-in functions, the number of arguments must match; for custom functions,
      * the supplied arguments must match one of the function prototypes defined by the handler.
      */
+    @Override
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         String name = id.toString();
         Object[] argVals = new Object[args.length];
@@ -1106,9 +1121,7 @@ public class XPathFuncExpr extends XPathExpression {
         }
     }
 
-    /**
-     *
-     */
+    @Override
     public Object pivot(DataInstance model, EvaluationContext evalContext, Vector<Object> pivots, Object sentinal) throws UnpivotableExpressionException {
         String name = id.toString();
 
