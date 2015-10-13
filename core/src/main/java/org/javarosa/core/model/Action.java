@@ -13,17 +13,14 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class Action implements Externalizable {
-    //Some named events
+public abstract class Action implements Externalizable {
     public static final String EVENT_XFORMS_READY = "xforms-ready";
-
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
-
     public static final String EVENT_JR_INSERT = "jr-insert";
+
     private String name;
 
     public Action() {
-
     }
 
     public Action(String name) {
@@ -37,9 +34,7 @@ public class Action implements Externalizable {
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
      */
-    public void processAction(FormDef model, TreeReference context) {
-        //TODO: Big block of handlers for basic named action types
-    }
+    public abstract void processAction(FormDef model, TreeReference context);
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);
