@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.condition;
 
 import org.javarosa.core.model.Constants;
@@ -38,18 +22,14 @@ import java.util.Date;
 
 public class Recalculate extends Triggerable {
     public Recalculate() {
-
+        // for externalization
     }
 
     public Recalculate(IConditionExpr expr, TreeReference contextRef) {
         super(expr, contextRef);
     }
 
-    public Recalculate(IConditionExpr expr, TreeReference target, TreeReference contextRef) {
-        super(expr, contextRef);
-        addTarget(target);
-    }
-
+    @Override
     public Object eval(FormInstance model, EvaluationContext ec) {
         try {
             return expr.evalRaw(model, ec);
@@ -59,25 +39,15 @@ public class Recalculate extends Triggerable {
         }
     }
 
+    @Override
     public void apply(TreeReference ref, Object result, FormInstance model, FormDef f) {
         int dataType = f.getMainInstance().resolveReference(ref).getDataType();
         f.setAnswer(wrapData(result, dataType), ref);
     }
 
+    @Override
     public boolean canCascade() {
         return true;
-    }
-
-    public boolean equals(Object o) {
-        if (o instanceof Recalculate) {
-            Recalculate r = (Recalculate)o;
-            if (this == r)
-                return true;
-
-            return super.equals(r);
-        } else {
-            return false;
-        }
     }
 
     //droos 1/29/10: we need to come up with a consistent rule for whether the resulting data is determined
@@ -150,6 +120,7 @@ public class Recalculate extends Triggerable {
         }
     }
 
+    @Override
     public String getDebugLabel() {
         return "calculate";
     }

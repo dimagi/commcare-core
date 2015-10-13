@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.condition;
 
 import org.javarosa.core.model.FormDef;
@@ -45,7 +29,7 @@ public class Condition extends Triggerable {
     public int falseAction;
 
     public Condition() {
-
+        // for externalization
     }
 
     public Condition(IConditionExpr expr, int trueAction, int falseAction,
@@ -61,6 +45,7 @@ public class Condition extends Triggerable {
         this.targets = targets;
     }
 
+    @Override
     public Object eval(FormInstance model, EvaluationContext evalContext) {
         try {
             return new Boolean(expr.eval(model, evalContext));
@@ -74,15 +59,18 @@ public class Condition extends Triggerable {
         return ((Boolean)eval(model, evalContext)).booleanValue();
     }
 
+    @Override
     public void apply(TreeReference ref, Object rawResult, FormInstance model, FormDef f) {
         boolean result = ((Boolean)rawResult).booleanValue();
         performAction(model.resolveReference(ref), result ? trueAction : falseAction);
     }
 
+    @Override
     public boolean canCascade() {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
 
+    @Override
     public boolean isCascadingToChildren() {
         return (trueAction == ACTION_SHOW || trueAction == ACTION_HIDE);
     }
@@ -120,6 +108,7 @@ public class Condition extends Triggerable {
      * Conditions are equal if they have the same actions, expression, and
      * triggers, but NOT targets or context ref.
      */
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Condition) {
             Condition c = (Condition)o;
@@ -131,18 +120,26 @@ public class Condition extends Triggerable {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return trueAction ^ falseAction ^ super.hashCode();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         trueAction = ExtUtil.readInt(in);
         falseAction = ExtUtil.readInt(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeNumeric(out, trueAction);
         ExtUtil.writeNumeric(out, falseAction);
     }
 
+    @Override
     public String getDebugLabel() {
         return "relevant";
     }
