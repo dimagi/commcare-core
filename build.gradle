@@ -33,6 +33,7 @@ sourceSets {
         java {
             srcDir 'cases/src'
             srcDir 'backend/src'
+            srcDir 'api/src'
         }
         resources {
             srcDir 'cases/resources'
