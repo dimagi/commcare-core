@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -23,5 +24,12 @@ public class TestHelpers {
         StreamsUtil.writeFromInputToOutput(input, baos);
         String result = new String(baos.toByteArray());
         Assert.assertEquals(expected, result);
+    }
+
+    public static String getResourceAsString(String resourceName) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        StreamsUtil.writeFromInputToOutput(TestHelpers.class.getResourceAsStream(resourceName), baos);
+        return new String(baos.toByteArray());
+
     }
 }
