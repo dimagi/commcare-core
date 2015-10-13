@@ -88,12 +88,6 @@ public class SetValueAction extends Action {
             }
         }
 
-        //If after finding our concrete reference it is a template, this action is outside of the
-        //scope of the current target, so we can leave.
-        if(qualifiedReference.isTemplateRef()) {
-            return;
-        }
-
         AbstractTreeElement node = context.resolveReference(qualifiedReference);
         if (node == null) {
             //After all that, there's still the possibility that the qualified reference contains
