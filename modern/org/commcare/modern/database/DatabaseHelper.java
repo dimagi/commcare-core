@@ -1,9 +1,11 @@
 package org.commcare.modern.database;
 
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.io.ByteArrayOutputStream;
@@ -98,7 +100,7 @@ public class DatabaseHelper {
     }
 
 
-    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) {
+    public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream out = bos;
@@ -123,7 +125,9 @@ public class DatabaseHelper {
                 values.put(TableBuilder.scrubName(key), value);
             }
         }
-
+        if(blob.length > 1000000){
+            throw new RecordTooLargeException(blob.length / 1000000);
+        }
         values.put(DATA_COL, blob);
 
         return values;

@@ -73,7 +73,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
 
         @Override
         public byte[] getHash(Class c) {
-            byte[] ret = mHasher.getHash(c);
+            byte[] ret = mHasher.getClassHashValue(c);
             pf.addClass(c);
             return ret;
         }
