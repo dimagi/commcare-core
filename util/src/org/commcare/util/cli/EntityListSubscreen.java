@@ -1,12 +1,17 @@
 package org.commcare.util.cli;
 
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.PrintStream;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -23,6 +28,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String[] rows;
     private String mHeader;
 
+    private Action mAction;
+
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);
 
@@ -36,10 +43,14 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
+
+        mAction = shortDetail.getCustomAction();
     }
 
     private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
         EvaluationContext context = new EvaluationContext(ec, entity);
+
+        shortDetail.populateEvaluationContextVariables(context);
 
         DetailField[] fields = shortDetail.getFields();
 
@@ -104,10 +115,20 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             String d = rows[i];
             out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
+
+        if(mAction != null) {
+            out.println();
+            out.println("action) " + mAction.getDisplay().evaluate().getName());
+        }
     }
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
+        if("action".equals(input) && mAction != null) {
+            host.setPendingAction(mAction);
+            return true;
+        }
+
         try {
             int i = Integer.parseInt(input);
 

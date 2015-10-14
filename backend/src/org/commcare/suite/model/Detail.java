@@ -2,6 +2,7 @@ package org.commcare.suite.model;
 
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.core.util.OrderedHashtable;
@@ -15,12 +16,14 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -407,6 +410,23 @@ public class Detail implements Externalizable {
                 map(fields[i], a, i);
             }
             return a;
+        }
+    }
+
+    /**
+     * Given an evaluation context which a qualified nodeset, will populate that EC with the
+     * evaluated variable values associated with this detail.
+     *
+     * @param ec The Evaluation Context to be used to evaluate the variable expressions and which
+     *           will be populated by their result. Will be modified in place.
+     */
+    public void populateEvaluationContextVariables(EvaluationContext ec) {
+        Hashtable<String, XPathExpression> variables = getVariableDeclarations();
+        //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
+        //in a 1.3 hashtable equivalent
+        for (Enumeration en = variables.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            ec.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(ec)));
         }
     }
 }
