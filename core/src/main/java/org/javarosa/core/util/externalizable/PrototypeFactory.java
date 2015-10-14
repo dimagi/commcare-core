@@ -20,7 +20,6 @@ import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
