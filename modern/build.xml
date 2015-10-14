@@ -28,7 +28,7 @@
     <target name="compile" depends="clean,extract-libs,init" description="compile the source">
       <javac srcdir="${dir.root.case}/src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
-        <javac srcdir="{dir.root.backend}/src/" destdir="bin/" classpathref="classpath" debug="true"
+        <javac srcdir="${dir.root.backend}/src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
     <javac srcdir="${dir.root.core}/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.7" target="1.7"/>
