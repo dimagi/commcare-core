@@ -104,7 +104,12 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private void initDetailScreens() {
-        Detail d = mPlatform.getDetail(this.mNeededDatum.getLongDetail());
+        String longDetailId = this.mNeededDatum.getLongDetail();
+        if(longDetailId == null) {
+            mLongDetailList = null;
+            return;
+        }
+        Detail d = mPlatform.getDetail(longDetailId);
         if(d == null) {
             mLongDetailList = null;
             return;
