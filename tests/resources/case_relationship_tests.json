@@ -84,7 +84,7 @@
   "outcome":[]
 }
 ,{
-  "name":"Extension Subcase Chain",
+  "name":"Extension Subcase Chain (seems broken)",
   "owned":["a","b"],
   "closed":["a"],
   "subcases":[
@@ -153,4 +153,18 @@
   ],
   "outcome":["a","e"]
 }
+,{
+  "name":"Double Index",
+  "owned":["a","e"],
+  "closed":["a"],
+  "subcases":[
+    ["e","a"]
+  ],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":["a","e"]
+}
+
+
 ]
