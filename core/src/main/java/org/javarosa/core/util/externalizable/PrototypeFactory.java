@@ -193,7 +193,9 @@ public class PrototypeFactory {
 
     public static byte[] getWrapperTag(){
         byte[] bytes = new byte[getClassHashSize()];
-        Arrays.fill(bytes, (byte)0xff);
+        for(int i=0; i< bytes.length; i++){
+            bytes[i] = (byte)0xff;
+        }
         return bytes;
     }
 }
