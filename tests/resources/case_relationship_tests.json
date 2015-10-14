@@ -84,7 +84,7 @@
   "outcome":[]
 }
 ,{
-  "name":"Extension Subcase Chain (seems broken)",
+  "name":"Extension Subcase Chain (seems broken, should change)",
   "owned":["a","b"],
   "closed":["a"],
   "subcases":[

@@ -18,6 +18,11 @@ import java.util.HashSet;
 import java.util.Vector;
 
 /**
+ * A class for running tests on the case purge logic.
+ *
+ * Reads external JSON documents containing preconditions setting up case logic, and then
+ * validates that the resulting case database is consistent with the purge/sync logic.
+ *
  * Created by ctsims on 10/13/2015.
  */
 public class CasePurgeTest{

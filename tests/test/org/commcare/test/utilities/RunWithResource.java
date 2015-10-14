@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation indicating that a JUnit test should be run against a resource
+ * Annotation indicating that a JUnit test should be run against an external Java resource
  *
  * @author ctsims
  */

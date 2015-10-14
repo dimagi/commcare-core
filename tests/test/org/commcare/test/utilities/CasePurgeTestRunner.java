@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * JUnit runner for running case purge tests based on an external file resource.
+ *
+ * With this class set as the JUnit runner, methods which are annotated with @RunWithResource
+ * will have their resource read and executed as a set of tests. The method itself will not
+ * be run currently.
+ *
  * Created by ctsims on 10/13/2015.
  */
 public class CasePurgeTestRunner extends ParentRunner<CasePurgeTest> {

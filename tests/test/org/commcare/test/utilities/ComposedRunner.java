@@ -1,6 +1,5 @@
 package org.commcare.test.utilities;
 
-import org.junit.runner.Runner;
 import org.junit.runners.ParentRunner;
 
 import java.lang.annotation.ElementType;
@@ -9,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for composing multiple test runners
+ * Annotation for composing multiple test runners. Used in conjunction with RunnerCoupler
  *
  * @author ctsims
  */
