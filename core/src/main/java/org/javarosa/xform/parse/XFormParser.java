@@ -452,6 +452,12 @@ public class XFormParser {
             // TODO: to enable parsing that doesn't fail on first error found,
             // but rather continues, we need to check if report.errors isn't
             // empty and if so throw xpath parse exception here
+
+            //Lots of code assumes there's _some_ title so if we never got anything during the parse
+            //just initialize this to something
+            if(_f.getName() == null && _f.getTitle() == null) {
+                _f.setName("Form");
+            }
         }
         return _f;
     }
