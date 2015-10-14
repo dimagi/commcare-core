@@ -374,6 +374,13 @@
         </ant>
     </target>
 
+    <target name="BuildModernLibs" depends="SetBatch, BuildClean">
+        <ant antfile="../modern/build.xml" target="package" dir="../backend/">
+              <property name="dir.lib" value="${dir.lib}"/>
+              <property name="dir.jrlib" value="${dir.tools}"/>
+        </ant>
+    </target>
+
     <target name="SetBatch">
         <property name="build.batch" value="true"/>
         <property name="dest.suffix" value="${file.separator}${polish.identifier}${file.separator}"/>
