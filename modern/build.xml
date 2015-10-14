@@ -6,6 +6,7 @@
     <property name="dir.lib" value="${dir.root}/../javarosa/lib/"/>
     <property name="dir.jrlib" value="${dir.root}/../javarosa/build/libs/"/>
     <property name="dir.root.case" value="${dir.root}/cases/"/>
+    <property name="dir.root.backend" value="${dir.root}/backend/"/>
     <property name="dir.root.core" value="${dir.root}/core/"/>
     <property name="dir.root.modern" value="${dir.root}/modern/"/>
 
@@ -27,7 +28,7 @@
     <target name="compile" depends="clean,extract-libs,init" description="compile the source">
       <javac srcdir="${dir.root.case}/src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
-        <javac srcdir="src/" destdir="bin/" classpathref="classpath" debug="true"
+        <javac srcdir="{dir.root.backend}/src/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.5" target="1.5"/>
     <javac srcdir="${dir.root.core}/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.7" target="1.7"/>
