@@ -13,6 +13,7 @@ import org.commcare.core.properties.CommCareProperties;
 import org.commcare.model.PeriodicEvent;
 import org.commcare.model.PeriodicEventRecord;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -264,7 +265,9 @@ public class CommCareContext {
                     }
                     ResourceManager.installAppResources(manager, profileRef, global, false);
                     updateProgress(60);
-
+                } catch (InstallCancelledException e) {
+                    Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
+                    throw new RuntimeException("User cancellation unsupported on J2ME: " + e.getMessage());
                 } catch (UnfullfilledRequirementsException e) {
                     if(e.getSeverity() == CommCareElementParser.SEVERITY_PROMPT) {
                         String message = e.getMessage();
@@ -277,6 +280,9 @@ public class CommCareContext {
                                 //If we're going to try to run commcare with an incompatible version, first clear everything
                                 RetrieveGlobalResourceTable().clear();
                                 ResourceManager.installAppResources(manager, CommCareUtil.getProfileReference(), RetrieveGlobalResourceTable(), true);
+                            } catch (InstallCancelledException e1) {
+                                Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e1.getMessage());
+                                throw new RuntimeException("User cancellation unsupported on J2ME: " + e1.getMessage());
                             } catch (UnfullfilledRequirementsException e1) {
                                 //Maybe we should try to clear the table here, too?
                                 throw e1;

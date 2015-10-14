@@ -4,6 +4,7 @@
 package org.commcare.applogic;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -86,6 +87,9 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                         resourceManager.stageUpgradeTable(false);
                         interaction.updateProgess(20);
                         staged = true;
+                    } catch (InstallCancelledException e) {
+                        Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
+                        return false;
                     } catch (UnresolvedResourceException e) {
                         Logger.log("upgrade", "Error locating upgrade profile: " + e.getMessage());
 
@@ -185,6 +189,8 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     try {
                         resourceManager.prepareUpgradeResources();
                         resourceManager.upgrade();
+                    } catch (InstallCancelledException e) {
+                        Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
                     } catch(UnreliableSourceException e) {
                         //We simply can't retrieve all of the resources that we're looking for.
 
