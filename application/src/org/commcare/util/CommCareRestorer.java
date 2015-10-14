@@ -45,6 +45,7 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
+import org.commcare.util.J2METransactionParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -279,7 +280,7 @@ public class CommCareRestorer implements Runnable {
 
         try {
             beginTransaction();
-            CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
+            CommCareTransactionParserFactory factory = new J2METransactionParserFactory(!noPartial);
             DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
             parser.requireRootEnvelopeType("OpenRosaResponse");
             success = parser.parse();
