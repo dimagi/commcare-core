@@ -73,7 +73,7 @@ public abstract class Triggerable implements Externalizable {
         this.expr = expr;
         this.contextRef = contextRef;
         this.originalContextRef = contextRef;
-        this.targets = new Vector();
+        this.targets = new Vector<TreeReference>();
     }
 
     protected abstract Object eval(FormInstance instance, EvaluationContext ec);
@@ -187,40 +187,56 @@ public abstract class Triggerable implements Externalizable {
         return absTriggers;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Triggerable) {
             Triggerable t = (Triggerable)o;
-            if (this == t)
+            if (this == t) {
                 return true;
+            }
 
-            if (this.expr.equals(t.expr)) {
-                //check triggers
+            if (expr.equals(t.expr)) {
+                // check triggers
                 Vector<TreeReference> Atriggers = this.getTriggers();
                 Vector<TreeReference> Btriggers = t.getTriggers();
 
-                //order and quantity don't matter; all that matters is every trigger in A exists in B and vice versa
-                for (int k = 0; k < 2; k++) {
-                    Vector<TreeReference> v1 = (k == 0 ? Atriggers : Btriggers);
-                    Vector<TreeReference> v2 = (k == 0 ? Btriggers : Atriggers);
-
-                    for (int i = 0; i < v1.size(); i++) {
-                        //csims@dimagi.com - 2012-04-17
-                        //Added last condition here. We can't actually say whether two triggers
-                        //are the same purely based on equality if they are relative.
-                        if (!v1.elementAt(i).isAbsolute() || v2.indexOf(v1.elementAt(i)) == -1) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            } else {
-                return false;
+                // order doesn't matter, but triggers in A must be in B and vice versa
+                return (subsetOfAndAbsolute(Atriggers, Btriggers) &&
+                        subsetOfAndAbsolute(Btriggers, Atriggers));
             }
-        } else {
-            return false;
         }
+
+        return false;
     }
 
+    /**
+     * @param potentialSubset Ensure set elements are absolute and in the master set
+     * @return True if all elements in the potential set are absolute and in
+     * the master set.
+     */
+    private boolean subsetOfAndAbsolute(Vector<TreeReference> potentialSubset,
+                                        Vector<TreeReference> masterSet) {
+        for (TreeReference ref : potentialSubset) {
+            // csims@dimagi.com - 2012-04-17
+            // Added last condition here. We can't actually say whether two triggers
+            // are the same purely based on equality if they are relative.
+            if (!ref.isAbsolute() || masterSet.indexOf(ref) == -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = expr.hashCode();
+        for (TreeReference trigRef : getTriggers()) {
+            hash ^= trigRef.hashCode();
+        }
+        return hash;
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         expr = (IConditionExpr)ExtUtil.read(in, new ExtWrapTagged(), pf);
         contextRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
@@ -228,6 +244,7 @@ public abstract class Triggerable implements Externalizable {
         targets = (Vector<TreeReference>)ExtUtil.read(in, new ExtWrapList(TreeReference.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapTagged(expr));
         ExtUtil.write(out, contextRef);
@@ -235,6 +252,7 @@ public abstract class Triggerable implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(targets));
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < targets.size(); i++) {
