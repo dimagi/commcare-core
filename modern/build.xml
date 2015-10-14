@@ -31,7 +31,6 @@
                debuglevel="lines,source" source="1.5" target="1.5"/>
     <javac srcdir="${dir.root.core}/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.7" target="1.7"/>
-    </target>
     <javac srcdir="${dir.root.modern}/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.7" target="1.7"/>
     </target>
