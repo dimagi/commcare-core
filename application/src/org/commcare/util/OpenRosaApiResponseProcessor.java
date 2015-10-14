@@ -10,6 +10,7 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+import org.commcare.util.J2METransactionParserFactory;
 
 /**
  * This class contains the process for handling an XML response from an OpenRosa
@@ -24,7 +25,7 @@ public class OpenRosaApiResponseProcessor {
 
     public static final String ONE_OH = "1.0";
 
-    CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(true);
+    CommCareTransactionParserFactory factory = new J2METransactionParserFactory(true);
 
     /**
      * Whether the processor knows that it is capable of processing the response to
