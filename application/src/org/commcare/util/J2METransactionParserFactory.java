@@ -54,7 +54,6 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
      */
     public J2METransactionParserFactory(boolean tolerant) {
         super(new J2MESandbox());
-        syncToken = null;
         caseTallies = new int[3];
         this.tolerant = tolerant;
     }
