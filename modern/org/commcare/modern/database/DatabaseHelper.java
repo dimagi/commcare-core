@@ -54,7 +54,7 @@ public class DatabaseHelper {
         }
 
 
-        String ret = "";
+        StringBuilder stringBuilder = new StringBuilder();
         ArrayList<String> arguments = new ArrayList<String>();
         boolean set = false;
         for(int i = 0 ; i < fieldNames.length; ++i) {
@@ -66,10 +66,11 @@ public class DatabaseHelper {
             }
 
             if(set){
-                ret += " AND ";
+                stringBuilder.append(" AND ");
             }
 
-            ret += columnName + "=?";
+            stringBuilder.append(columnName);
+            stringBuilder.append("=?");
 
             arguments.add(values[i].toString());
 
@@ -81,7 +82,7 @@ public class DatabaseHelper {
             retArray[i] = arguments.get(i);
         }
 
-        return new Pair<String, String[]>(ret, retArray);
+        return new Pair<String, String[]>(stringBuilder.toString(), retArray);
     }
 
     public static Set<String> getMetaDataFields(Persistable p){
