@@ -305,11 +305,11 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
         } finally{
             try {
-                if (c != null) {
-                    c.close();
-                }
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

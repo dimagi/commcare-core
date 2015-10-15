@@ -103,11 +103,11 @@ public class CaseAPITests {
             fail("Unexpected exception " + e.getMessage());
         } finally{
             try {
-                if(connection != null) {
-                    connection.close();
-                }
                 if(preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if(connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e1) {
                 e1.printStackTrace();
