@@ -5,13 +5,11 @@ import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,8 +25,8 @@ import java.util.Set;
  */
 public class DatabaseHelper {
 
-    public static String ID_COL = "commcare_sql_id";
-    public static String DATA_COL = "commcare_sql_record";
+    public static final String ID_COL = "commcare_sql_id";
+    public static final String DATA_COL = "commcare_sql_record";
 
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  Persistable p)  throws IllegalArgumentException {
         return createWhere(fieldNames, values, null, p);
@@ -103,11 +101,10 @@ public class DatabaseHelper {
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        OutputStream out = bos;
 
         try {
-            e.writeExternal(new DataOutputStream(out));
-            out.close();
+            e.writeExternal(new DataOutputStream(bos));
+            bos.close();
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new RuntimeException("Failed to serialize externalizable for content values");

@@ -74,10 +74,10 @@ public class SandboxUtils {
     /**
      * Load the referenced fixture out of storage for the provided user
      *
-     * @param sandbox
-     * @param refId
-     * @param userId
-     * @return
+     * @param sandbox The current user's sandbox
+     * @param refId The jr:// reference
+     * @param userId The user's ID
+     * @return The form instance matching the refId in the sandbox
      */
     public static FormInstance loadFixture(AbstractUserSandbox sandbox,
                                             String refId, String userId) {

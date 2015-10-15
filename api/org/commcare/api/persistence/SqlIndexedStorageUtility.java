@@ -10,12 +10,12 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,19 +42,14 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         tryCreateTable();
     }
 
-    Connection getConnection() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:" + this.userName + ".db");
-        } catch (Exception e) {
-            System.out.println("couldn't get jdbc sqlite driver");
-        }
-        return null;
+    Connection getConnection() throws SQLException, ClassNotFoundException {
+        Class.forName("org.sqlite.JDBC");
+        SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
+        dataSource.setUrl("jdbc:sqlite:" + this.userName + ".db");
+        return dataSource.getConnection();
     }
 
-    /* (non-Javadoc)
-    * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
-    */
+    @Override
     public void write(Persistable p) throws StorageFullException {
         if (p.getID() != -1) {
             update(p.getID(), p);
@@ -71,28 +66,35 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             p.setID(id);
             SqlHelper.updateId(c, tableName, p);
             c.close();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     public T readFromBytes(byte[] mBytes) {
 
-        T t;
+        T returnPrototype;
+        ByteArrayInputStream mByteStream = null;
         try {
-            t = prototype.newInstance();
-            ByteArrayInputStream mByteStream = new ByteArrayInputStream(mBytes);
-            t.readExternal(new DataInputStream(mByteStream), PrototypeManager.getDefault());
-            return t;
+            returnPrototype = prototype.newInstance();
+            mByteStream = new ByteArrayInputStream(mBytes);
+            returnPrototype.readExternal(new DataInputStream(mByteStream), PrototypeManager.getDefault());
+            return returnPrototype;
         } catch (InstantiationException | IllegalAccessException | DeserializationException | IOException e) {
             e.printStackTrace();
+        } finally{
+            if(mByteStream != null){
+                try {
+                    mByteStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }
 
-    /* (non-Javadoc)
-    * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
-    */
+    @Override
     public T read(int id) {
         byte[] mBytes = readBytes(id);
         return readFromBytes(mBytes);
@@ -116,7 +118,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
             return ids;
-        } catch (InstantiationException | IllegalAccessException | SQLException e) {
+        } catch (InstantiationException | IllegalAccessException | SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -156,7 +158,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             byte[] mBytes = rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
             return readFromBytes(mBytes);
         } catch (SQLException | InstantiationException |
-                IllegalAccessException | NullPointerException e) {
+                IllegalAccessException | NullPointerException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -173,33 +175,24 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
-     */
+    @Override
     public int add(T e) throws StorageFullException {
         this.write(e);
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#close()
-     */
+    @Override
     public void close() {
-        // TODO Auto-generated method stub
-
+        // Don't need this because we close all resources after using them
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#destroy()
-     */
+    @Override
     public void destroy() {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
-     */
+    @Override
     public boolean exists(int id) {
         PreparedStatement preparedStatement = null;
         Connection c = null;
@@ -230,9 +223,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
-     */
+    @Override
     public Object getAccessLock() {
         // TODO Auto-generated method stub
         return null;
@@ -265,16 +256,13 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return -1;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getRecordSize(int)
-     */
+    @Override
     public int getRecordSize(int id) {
-        //serialize and test blah blah.
         return 0;
     }
 
     @Override
-    public SqlStorageIterator<T> iterate() {
+    public JdbcSqlStorageIterator<T> iterate() {
         Connection connection;
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
@@ -284,25 +272,21 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                     org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";";
             preparedStatement = connection.prepareStatement(sqlQuery);
             resultSet = preparedStatement.executeQuery();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return new SqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this);
+        return new JdbcSqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getTotalSize()
-     */
+    @Override
     public int getTotalSize() {
         //serialize and test blah blah.
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
-        return this.getNumRecords() > 0;
+        return this.getNumRecords() <= 0;
     }
 
     @Override
@@ -334,70 +318,56 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
-     */
-    public void remove(int id) {
-
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
-     */
-    public void remove(Persistable p) {
-        this.read(p.getID());
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
-     */
-    public void removeAll() {
-
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
-     */
-    public Vector<Integer> removeAll(EntityFilter ef) {
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repack()
-     */
-    public void repack() {
-        //Unecessary!
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repair()
-     */
-    public void repair() {
-        //Unecessary!
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
-     */
+    @Override
     public void update(int id, Persistable p) throws StorageFullException {
         Connection c;
         try {
             c = getConnection();
             SqlHelper.updateToTable(c, tableName, p, id);
             c.close();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
+    public void remove(int id) {
+
+    }
+
+    @Override
+    public void remove(Persistable p) {
+        this.read(p.getID());
+    }
+
+    @Override
+    public void removeAll() {
+
+    }
+
+    @Override
+    public Vector<Integer> removeAll(EntityFilter ef) {
+        return null;
+    }
+
+    @Override
+    public void repack() {
+        //Unecessary!
+    }
+
+    @Override
+    public void repair() {
+        //Unecessary!
+    }
+
+    @Override
     public void setReadOnly() {
         //TODO: This should have a clear contract.
     }
 
-    private final Vector<String> dynamicIndices = new Vector<>();
-
+    @Override
     public void registerIndex(String filterIndex) {
-        dynamicIndices.addElement(filterIndex);
+        // TODO Auto-generated method stub
     }
 
     @Override
@@ -410,7 +380,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             Connection c = getConnection();
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
-        } catch (SQLException | InstantiationException | IllegalAccessException e) {
+        } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             System.out.println("Couldn't create table: " + tableName + " got: " + e);
             e.printStackTrace();
         }

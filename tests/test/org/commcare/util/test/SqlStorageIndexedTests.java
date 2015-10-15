@@ -1,7 +1,7 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.SqlIndexedStorageUtility;
-import org.commcare.api.persistence.SqlStorageIterator;
+import org.commcare.api.persistence.JdbcSqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.test.utils.SqlTestUtils;
@@ -132,7 +132,7 @@ public class SqlStorageIndexedTests {
                 assertTrue(ledgerStorage.exists(1));
                 assertFalse(ledgerStorage.exists(-123));
 
-                SqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
+                JdbcSqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
 
                 assertEquals(3, mIterator.numRecords());
 

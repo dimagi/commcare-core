@@ -5,7 +5,6 @@ import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A sandbox for user data using SqlIndexedStorageUtility. Sandbox is per-User
@@ -58,7 +57,7 @@ public class UserSqlSandbox extends AbstractUserSandbox {
     public User getLoggedInUser() {
         if(user == null){
             SqlIndexedStorageUtility<User> userStorage = getUserStorage();
-            SqlStorageIterator<User> iterator = userStorage.iterate();
+            JdbcSqlStorageIterator<User> iterator = userStorage.iterate();
             if(iterator.hasMore()){
                 // should be only one user here
                 user =  iterator.next();
@@ -74,5 +73,5 @@ public class UserSqlSandbox extends AbstractUserSandbox {
         this.user = user;
     }
 
-    // implement sync token stuff in next iteration, but useful to have in superclass now for AndroidSandbox
+    //TODO WSP implement sync token stuff in next iteration, but useful to have in superclass now for AndroidSandbox
 }

@@ -12,7 +12,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class SqlSandboxUtils {
     public static UserSqlSandbox getStaticStorage(String username) {
-        PrototypeFactory factory = new PrototypeFactory(new ClassNameHasher());
         return new UserSqlSandbox(username);
     }
 }

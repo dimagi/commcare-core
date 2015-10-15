@@ -11,17 +11,17 @@ import java.util.Iterator;
 /**
  * Created by wpride1 on 6/25/15.
  */
-public class SqlStorageIterator<E extends Persistable> implements IStorageIterator<E>, Iterator<E> {
+public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIterator<E>, Iterator<E> {
 
     private final PreparedStatement preparedStatement;
     private final ResultSet resultSet;
     private int count = -1;
     private final SqlIndexedStorageUtility<E> storage;
 
-    public SqlStorageIterator(PreparedStatement preparedStatement,
-                              ResultSet resultSet,
-                              int count,
-                              SqlIndexedStorageUtility<E> storage){
+    public JdbcSqlStorageIterator(PreparedStatement preparedStatement,
+                                  ResultSet resultSet,
+                                  int count,
+                                  SqlIndexedStorageUtility<E> storage){
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
         this.count = count;

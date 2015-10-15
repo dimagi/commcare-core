@@ -20,7 +20,7 @@ import java.io.InputStream;
  *
  * Created by wpride1 on 7/21/15.
  */
-public class FormRecordProcessor {
+public class XmlFormRecordProcessor {
 
     public static void process(AbstractUserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         final AbstractUserSandbox mSandbox = sandbox;
@@ -40,6 +40,5 @@ public class FormRecordProcessor {
         }, true, true);
 
         parser.parse();
-        is.close();
     }
 }

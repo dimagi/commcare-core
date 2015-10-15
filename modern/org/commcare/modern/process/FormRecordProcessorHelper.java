@@ -1,7 +1,7 @@
 package org.commcare.modern.process;
 
 import org.commcare.core.interfaces.AbstractUserSandbox;
-import org.commcare.core.process.FormRecordProcessor;
+import org.commcare.core.process.XmlFormRecordProcessor;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
  *
  * Created by wpride1 on 8/20/15.
  */
-public class FormRecordProcessorHelper extends FormRecordProcessor{
+public class FormRecordProcessorHelper extends XmlFormRecordProcessor {
     public static void processXML(AbstractUserSandbox sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
         InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
         process(sandbox, stream);

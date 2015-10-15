@@ -87,18 +87,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-                 */
 
+                @Override
                 public void commit(String parsed) throws IOException {}
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.javarosa.xml.ElementParser#parse()
-                 */
-
+                @Override
                 public String parse() throws InvalidStructureException,
                        IOException, XmlPullParserException,
                        UnfullfilledRequirementsException {
