@@ -154,7 +154,7 @@ public class TableBuilder {
 
         built += ");";
 
-        return new Pair(built, params);
+        return new Pair<String, List<Object>>(built, params);
     }
 
     //sqlite doesn't like dashes

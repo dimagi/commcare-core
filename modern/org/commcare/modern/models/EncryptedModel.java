@@ -8,6 +8,6 @@ package org.commcare.modern.models;
  *
  */
 public interface EncryptedModel {
-    public boolean isEncrypted(String data);
-    public boolean isBlobEncrypted();
+    boolean isEncrypted(String data);
+    boolean isBlobEncrypted();
 }
