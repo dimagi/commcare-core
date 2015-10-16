@@ -4,6 +4,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.storage.IStorageUtility;
@@ -136,5 +137,43 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return null;
+    }
+
+    public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
+        Vector<Resource> unresolved = new Vector<Resource>();
+        Vector<Resource> resolved = new Vector<Resource>();
+        Resource r = master.getResourceWithId(APP_PROFILE_RESOURCE_ID);
+        if (r == null) {
+            return resolved;
+        }
+        unresolved.addElement(r);
+        while (unresolved.size() > 0) {
+            Resource current = unresolved.firstElement();
+            unresolved.removeElement(current);
+            resolved.addElement(current);
+            Vector<Resource> children = master.getResourcesForParent(current.getRecordGuid());
+            for (Resource child : children) {
+                unresolved.addElement(child);
+            }
+        }
+        return resolved;
+    }
+
+    public String getMenuDisplayStyle(String menuId) {
+        Vector<Suite> installed = getInstalledSuites();
+        String commonDisplayStyle = null;
+        for(Suite s : installed) {
+            for(Menu m : s.getMenus()) {
+                if(menuId.equals(m.getId())) {
+                    if(m.getStyle() != null) {
+                        if(commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)){
+                            return null;
+                        }
+                        commonDisplayStyle = m.getStyle();
+                    }
+                }
+            }
+        }
+        return commonDisplayStyle;
     }
 }
