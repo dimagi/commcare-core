@@ -12,26 +12,16 @@ import java.util.Date;
 
 /**
  * @author Clayton Sims
- * @date Apr 10, 2009
  */
 public class LogEntry implements Externalizable {
-
     public static final String STORAGE_KEY = "LOG";
 
-    public static String LOG_TYPE_APPLICATION = "APP";
-    public static String LOG_TYPE_ACTIVITY = "ACTIVITY";
+    private Date time;
+    private String type;
+    private String message;
 
-    Date time;
-
-    String type;
-
-    String message;
-
-    /**
-     * NOTE: For serialization purposes only
-     */
     public LogEntry() {
-
+        // for externalization
     }
 
     public LogEntry(String type, String message, Date time) {
@@ -40,30 +30,19 @@ public class LogEntry implements Externalizable {
         this.message = message;
     }
 
-    /**
-     * @return the time
-     */
     public Date getTime() {
         return time;
     }
 
-    /**
-     * @return the type
-     */
     public String getType() {
         return type;
     }
 
-    /**
-     * @return the message
-     */
     public String getMessage() {
         return message;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         time = ExtUtil.readDate(in);
@@ -71,9 +50,7 @@ public class LogEntry implements Externalizable {
         message = ExtUtil.readString(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeDate(out, time);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(type));
