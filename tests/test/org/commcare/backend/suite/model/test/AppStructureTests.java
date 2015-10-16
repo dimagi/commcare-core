@@ -40,6 +40,14 @@ public class AppStructureTests {
         Assert.assertEquals("Disperate Menu Style",
                 null,
                 mApp.getSession().getPlatform().getMenuDisplayStyle("m2"));
+
+        Assert.assertEquals("Empty Menu",
+                null,
+                mApp.getSession().getPlatform().getMenuDisplayStyle("m0"));
+
+        Assert.assertEquals("Specific override",
+                "grid",
+                mApp.getSession().getPlatform().getMenuDisplayStyle("m3"));
     }
 
 

@@ -88,4 +88,13 @@
     <command id="m0-f1"/>
   </menu>
 
+  <menu id="m3" style="grid">
+    <text>Menu</text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="m3">
+    <text>Menu</text>
+    <command id="m0-f1"/>
+  </menu>
+
 </suite>
