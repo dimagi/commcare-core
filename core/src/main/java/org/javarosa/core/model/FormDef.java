@@ -395,8 +395,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             a.processAction(this, destRef);
         }
 
-        triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
-        initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
+        // trigger conditions that depend on the creation of this new node
+        triggerTriggerables(destRef);
+
+        // initialize conditions for the node (and sub-nodes)
+        initTriggerablesRootedBy(destRef);
     }
 
     public boolean isRepeatRelevant(TreeReference repeatRef) {
@@ -537,7 +540,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         triggerTriggerables(destRef);
 
         // initialize conditions for the node (and sub-nodes)
-        initializeTriggerables(destRef);
+        initTriggerablesRootedBy(destRef);
         // not 100% sure this will work since destRef is ambiguous as the last
         // step, but i think it's supposed to work
     }
@@ -706,21 +709,22 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
-     * Get all of the elements which will need to be evaluated (in order) when the
-     * triggerable is fired.
+     * Get all of the elements which will need to be evaluated (in order) when
+     * the triggerable is fired.
      */
     private void fillTriggeredElements(Triggerable t,
                                        Vector<Triggerable> destination,
                                        boolean isRepeatEntryInit) {
         if (t.canCascade()) {
             for (TreeReference target : t.getTargets()) {
-                Vector<TreeReference> updatedNodes;
-                if (isRepeatEntryInit) {
-                    // children have already been added to 'destination'
-                    updatedNodes = new Vector<TreeReference>();
-                    updatedNodes.addElement(target);
-                } else {
-                    updatedNodes = findCascadeReferences(t, target);
+                Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+                updatedNodes.addElement(target);
+
+                // Repeat sub-elements have already been added to 'destination'
+                // when we grabbed all triggerables that target children of the
+                // repeat entry (via initTriggerablesRootedBy). Hence skip them
+                if (!isRepeatEntryInit && t.isCascadingToChildren()) {
+                    updatedNodes = findCascadeReferences(target, updatedNodes);
                 }
 
                 addTriggerablesTargetingNodes(updatedNodes, destination);
@@ -728,34 +732,37 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
     }
 
-    private Vector<TreeReference> findCascadeReferences(Triggerable t,
-                                                        TreeReference target) {
-        Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
-        updatedNodes.addElement(target);
-        //For certain types of triggerables, the update will affect not only the target, but
-        //also the children of the target. In that case, we want to add all of those nodes
-        //to the list of updated elements as well. For instances, relevancy of a parent will
-        // require triggers pointing to children to need to be recalcualted
-        if (t.isCascadingToChildren()) {
-            Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
-            if (cachedNodes == null) {
-                addChildrenOfReference(target, updatedNodes);
-                cachedCascadingChildren.register(target, updatedNodes);
-            } else {
-                /*
-                addChildrenOfReference(target, updatedNodes);
-                if (updatedNodes.size() != cachedNodes.size()) {
-                    Vector<TreeReference> refs = exprEvalContext.expandReference(target);
-                    System.out.println(refs);
-                }
-                */
-                // this is incorrect because running
-                // addChildOfReference(target, updatedNodes)
-                // here will return a different value than cachedNodes.
-                updatedNodes = cachedNodes;
-            }
+    /**
+     * Gather list of generic references to children of a target reference for
+     * a triggerable that cascades to its children. This is needed when, for
+     * example, changing the relevancy of the target will require the triggers
+     * pointing to children be recalcualted.
+     */
+    private Vector<TreeReference> findCascadeReferences(TreeReference target,
+                                                        Vector<TreeReference> updatedNodes) {
+        Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
+        if (cachedNodes == null) {
+            AbstractTreeElement template = mainInstance.getTemplate(target);
+            addChildrenOfElement(template, updatedNodes);
+            cachedCascadingChildren.register(target, updatedNodes);
+        } else {
+            updatedNodes = cachedNodes;
         }
         return updatedNodes;
+    }
+
+    private void addChildrenOfElement(AbstractTreeElement el,
+                                      Vector<TreeReference> toAdd) {
+        for (int i = 0; i < el.getNumChildren(); ++i) {
+            AbstractTreeElement child = el.getChildAt(i);
+            toAdd.addElement(child.getRef().genericize());
+            addChildrenOfElement(child, toAdd);
+        }
+        for (int i = 0; i < el.getAttributeCount(); ++i) {
+            AbstractTreeElement child =
+                    el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
+            toAdd.addElement(child.getRef().genericize());
+        }
     }
 
     private void addTriggerablesTargetingNodes(Vector<TreeReference> updatedNodes,
@@ -778,12 +785,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
             if (triggered != null) {
                 //If so, walk all of these triggerables that we found
-                for (int k = 0; k < triggered.size(); k++) {
-                    Triggerable u = (Triggerable)triggered.elementAt(k);
-
+                for (Triggerable triggerable : triggered) {
                     //And add them to the queue if they aren't there already
-                    if (!destination.contains(u)) {
-                        destination.addElement(u);
+                    if (!destination.contains(triggerable)) {
+                        destination.addElement(triggerable);
                     }
                 }
             }
@@ -808,7 +813,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
 
             // Re-execute all triggerables to collect traces
-            initializeTriggerables();
+            initAllTriggerables();
             mDebugModeEnabled = true;
         }
     }
@@ -869,24 +874,30 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return debugInfo;
     }
 
-    public void initializeTriggerables() {
-        initializeTriggerables(TreeReference.rootRef());
+    private void initAllTriggerables() {
+        // Use all triggerables because we can assume they are rooted by rootRef
+        TreeReference rootRef = TreeReference.rootRef();
+
+        Vector<Triggerable> applicable = new Vector<Triggerable>();
+        for (Triggerable triggerable : triggerables) {
+            applicable.add(triggerable);
+        }
+
+        evaluateTriggerables(applicable, rootRef, false);
     }
 
     /**
      * Walks the current set of conditions, and evaluates each of them with the
      * current context.
      */
-    private void initializeTriggerables(TreeReference rootRef) {
+    private void initTriggerablesRootedBy(TreeReference rootRef) {
         TreeReference genericRoot = rootRef.genericize();
 
         Vector<Triggerable> applicable = new Vector<Triggerable>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
-            for (int j = 0; j < t.getTargets().size(); j++) {
-                TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+        for (Triggerable triggerable : triggerables) {
+            for (TreeReference target : triggerable.getTargets()) {
                 if (genericRoot.isParentOf(target, false)) {
-                    applicable.addElement(t);
+                    applicable.addElement(triggerable);
                     break;
                 }
             }
@@ -980,31 +991,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             } catch (RuntimeException e) {
                 throw e;
             }
-        }
-    }
-
-    /**
-     * This is a utility method to get all of the references of a node. It can be replaced
-     * when we support dependent XPath Steps (IE: /path/to//)
-     */
-    public void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
-        Vector<TreeReference> refs = exprEvalContext.expandReference(original);
-        for (TreeReference ref : refs) {
-            AbstractTreeElement resolvedRef = exprEvalContext.resolveReference(ref);
-            addChildrenOfElement(resolvedRef, toAdd);
-        }
-    }
-
-    //Recursive step of utility method
-    private void addChildrenOfElement(AbstractTreeElement el, Vector<TreeReference> toAdd) {
-        for (int i = 0; i < el.getNumChildren(); ++i) {
-            AbstractTreeElement child = el.getChildAt(i);
-            toAdd.addElement(child.getRef().genericize());
-            addChildrenOfElement(child, toAdd);
-        }
-        for (int i = 0; i < el.getAttributeCount(); ++i) {
-            AbstractTreeElement child = el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
-            toAdd.addElement(child.getRef().genericize());
         }
     }
 
@@ -1462,7 +1448,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             dispatchFormEvent(Action.EVENT_XFORMS_READY);
         }
 
-        initializeTriggerables();
+        initAllTriggerables();
     }
 
     /**
