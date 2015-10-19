@@ -737,31 +737,75 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * a triggerable that cascades to its children. This is needed when, for
      * example, changing the relevancy of the target will require the triggers
      * pointing to children be recalcualted.
+     *
+     * @param target       Gather children of this by using a template or
+     *                     manually traversing the tree
+     * @param updatedNodes (potentially mutated) Gets generic child references
+     *                     added to it.
+     * @return Potentially cached version of updatedNodes argument that
+     * contains the target and generic references to the children it might
+     * cascade to.
      */
     private Vector<TreeReference> findCascadeReferences(TreeReference target,
                                                         Vector<TreeReference> updatedNodes) {
         Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
         if (cachedNodes == null) {
-            AbstractTreeElement template = mainInstance.getTemplate(target);
-            addChildrenOfElement(template, updatedNodes);
-            cachedCascadingChildren.register(target, updatedNodes);
+            if (target.getMultLast() == TreeReference.INDEX_ATTRIBUTE) {
+                // attributes don't have children that might change under
+                // contextualization
+                cachedCascadingChildren.register(target, updatedNodes);
+            } else {
+                Vector<TreeReference> expandedRefs = exprEvalContext.expandReference(target);
+                if (expandedRefs.size() > 0) {
+                    AbstractTreeElement template = mainInstance.getTemplatePath(target);
+                    if (template != null) {
+                        addChildrenOfElement(template, updatedNodes);
+                        cachedCascadingChildren.register(target, updatedNodes);
+                    } else {
+                        // NOTE PLM: entirely possible this can be removed if
+                        // the getTemplatePath code is updated to handle
+                        // heterogeneous paths.  Set a breakpoint here and run
+                        // the test suite to see an example
+                        // NOTE PLM: Though I'm pretty sure we could cache
+                        // this, I'm going to avoid doing so because I'm unsure
+                        // whether it is possible for children that are
+                        // cascaded to will change when expandedRefs changes
+                        // due to new data being added.
+                        addChildrenOfReference(expandedRefs, updatedNodes);
+                    }
+                }
+            }
         } else {
             updatedNodes = cachedNodes;
         }
         return updatedNodes;
     }
 
-    private void addChildrenOfElement(AbstractTreeElement el,
-                                      Vector<TreeReference> toAdd) {
+    private void addChildrenOfReference(Vector<TreeReference> expandedRefs,
+                                        Vector<TreeReference> toAdd) {
+        for (TreeReference ref : expandedRefs) {
+            addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
+        }
+    }
+
+    private static void addChildrenOfElement(AbstractTreeElement el,
+                                             Vector<TreeReference> toAdd) {
         for (int i = 0; i < el.getNumChildren(); ++i) {
             AbstractTreeElement child = el.getChildAt(i);
-            toAdd.addElement(child.getRef().genericize());
+            TreeReference genericChild = child.getRef().genericize();
+            if (!toAdd.contains(genericChild)) {
+                toAdd.addElement(genericChild);
+            }
             addChildrenOfElement(child, toAdd);
         }
+
         for (int i = 0; i < el.getAttributeCount(); ++i) {
             AbstractTreeElement child =
                     el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
-            toAdd.addElement(child.getRef().genericize());
+            TreeReference genericChild = child.getRef().genericize();
+            if (!toAdd.contains(genericChild)) {
+                toAdd.addElement(genericChild);
+            }
         }
     }
 
