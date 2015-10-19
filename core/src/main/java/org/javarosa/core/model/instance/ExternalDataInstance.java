@@ -34,6 +34,7 @@ public class ExternalDataInstance extends DataInstance {
         this.reference = instance.getReference();
         this.base = instance.getBase();
         this.root = instance.getRoot();
+        this.mCacheHost = instance.getCacheHost();
     }
 
 
@@ -74,5 +75,6 @@ public class ExternalDataInstance extends DataInstance {
         root = initializer.generateRoot(this);
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
+
     }
 }
