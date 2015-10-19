@@ -7,6 +7,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.services.Logger;
@@ -444,5 +445,23 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return resolved;
+    }
+
+    public String getMenuDisplayStyle(String menuId) {
+        Vector<Suite> installed = getInstalledSuites();
+        String commonDisplayStyle = null;
+        for(Suite s : installed) {
+            for(Menu m : s.getMenus()) {
+                if(menuId.equals(m.getId())) {
+                    if(m.getStyle() != null) {
+                        if(commonDisplayStyle != null && !m.getStyle().equals(commonDisplayStyle)){
+                            return null;
+                        }
+                        commonDisplayStyle = m.getStyle();
+                    }
+                }
+            }
+        }
+        return commonDisplayStyle;
     }
 }
