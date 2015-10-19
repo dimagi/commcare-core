@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.log;
 
 import org.javarosa.core.util.SortedIntSet;
