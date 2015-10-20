@@ -2,7 +2,11 @@
         xmlns:jr="http://openrosa.org/javarosa"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
-        <h:title>double repeat</h:title>
+        <h:title>Tests trigger caching when inserting into a repeat</h:title>
+        <!--
+        A bunch of random relevancy and calculation triggers that are tied
+             to sub elements of repeats
+         -->
         <model>
             <instance>
                 <data name="double repeat"
@@ -15,15 +19,20 @@
                     <init_weight/>
                     <tmp_bmi/>
                     <current_index/>
+
                     <skip_weighing_nth_animal/>
                     <skip_genus_nth_animal/>
+
                     <heaviest_animal_weight/>
                     <lightest_animal_weight/>
+
                     <animals jr:template="">
-                      <genus>
-                        <species/>
-                      </genus>
-                      <weight time=""/>
+                        <!-- used to test relevancy triggers that cascade to children: -->
+                        <genus>
+                            <species/>
+                        </genus>
+
+                        <weight time=""/>
                         <bmi/>
                     </animals>
                 </data>
@@ -48,8 +57,8 @@
                   relevant="/data/always_true"/>
             <bind nodeset="/data/animals/genus"
                   relevant="/data/current_index != /data/skip_genus_nth_animal"/>
-            <bind nodeset="/data/disabled_species"
-                  calculate="/data/current_index"
+            <bind calculate="/data/current_index"
+                  nodeset="/data/disabled_species"
                   relevant="/data/animals[/data/current_index]/genus/species = ''"/>
             <bind nodeset="/data/animals/bmi"/>
             <bind nodeset="/data/animals/weight"/>

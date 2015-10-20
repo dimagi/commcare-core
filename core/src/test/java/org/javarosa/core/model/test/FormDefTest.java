@@ -3,6 +3,7 @@ package org.javarosa.core.model.test;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -216,8 +217,13 @@ public class FormDefTest {
                 fpi.getFormDef().getEvaluationContext());
     }
 
+    /**
+     * Tests trigger caching related to cascading relevancy calculations to children.
+     */
     @Test
     public void testTriggerCaching() throws Exception {
+        // Running the form creates a few animals with weights that count down from the init_weight.
+        // Skips over a specified entry by setting it to irrelevant.
         FormParseInit fpi = new FormParseInit("/xform_tests/test_trigger_caching.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fpi.getFormDef().initialize(true, null);
@@ -226,23 +232,29 @@ public class FormDefTest {
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        ExprEvalUtils.assertEqualsXpathEval("", 400.0, "/data/heaviest_animal_weight", fpi.getFormDef().getEvaluationContext());
-        ExprEvalUtils.assertEqualsXpathEval("", 100.0, "/data/lightest_animal_weight", fpi.getFormDef().getEvaluationContext());
-        ExprEvalUtils.assertEqualsXpathEval("", "", "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", fpi.getFormDef().getEvaluationContext());
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("Check max animal weight",
+                400.0, "/data/heaviest_animal_weight", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check min animal",
+                100.0, "/data/lightest_animal_weight", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure we skip over setting attr of irrelevant entry",
+                "", "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", evalCtx);
 
         Object weighTimeResult =
-                ExprEvalUtils.xpathEval(fpi.getFormDef().getEvaluationContext(),
+                ExprEvalUtils.xpathEval(evalCtx,
                         "/data/animals[/data/skip_weighing_nth_animal - 1]/weight/@time");
         if ("".equals(weighTimeResult) || "-1".equals(weighTimeResult)) {
-            fail("");
+            fail("@time should be set for relevant animal weight.");
         }
-        ExprEvalUtils.assertEqualsXpathEval("", 1.0, "/data/skip_genus_nth_animal", fpi.getFormDef().getEvaluationContext());
-        ExprEvalUtils.assertEqualsXpathEval("", "", "/data/animals[1]/genus/species", fpi.getFormDef().getEvaluationContext());
-        ExprEvalUtils.assertEqualsXpathEval("", "default", "/data/animals[2]/genus/species", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval("Assert genus skip value",
+                1.0, "/data/skip_genus_nth_animal", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure genus at skip entry is irrelevant",
+                "", "/data/animals[1]/genus/species", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure genuse at non-skip entry has default value",
+                "default", "/data/animals[2]/genus/species", evalCtx);
 
-        // this is a bug: calculates should not be triggered for irrelevant nodes:
-        ExprEvalUtils.assertEqualsXpathEval("", 4.0, "/data/disabled_species", fpi.getFormDef().getEvaluationContext());
-        // the disabled species should actually point to the value of at the index equal to /data/skip_genus_nth_animal:
-        // ExprEvalUtils.assertEqualsXpathEval("", 1.0, "/data/disabled_species", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval(
+                "Relevancy of skipped genus entry should be irrelevant to, due to the way it is calculated",
+                "", "/data/disabled_species", evalCtx);
     }
 }
