@@ -106,15 +106,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 }
             }
             int nodeStatus = 0;
-            if(owned) {
+            if (owned) {
                 nodeStatus |= STATUS_OWNED;
             }
 
-            if(!c.isClosed()) {
+            if (!c.isClosed()) {
                 nodeStatus |= STATUS_OPEN;
             }
 
-            if(owned && !c.isClosed()) {
+            if (owned && !c.isClosed()) {
                 nodeStatus |= STATUS_RELEVANT;
             }
 
@@ -141,27 +141,27 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void markRelevant(DAG<String, int[], String> g) {
-        walk(g,true, STATUS_RELEVANT, STATUS_RELEVANT);
-        walk(g,false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
+        walk(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
+        walk(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
     }
 
     private void markAvailable(DAG<String, int[], String> g) {
-        for(Enumeration<String> e = g.getIndices(); e.hasMoreElements();) {
+        for (Enumeration<String> e = g.getIndices(); e.hasMoreElements(); ) {
             String index = e.nextElement();
             int[] node = g.getNode(index);
-            if(is(node, STATUS_OPEN | STATUS_RELEVANT) &&
-                    !hasOutgoingExtension(g,index)) {
+            if (is(node, STATUS_OPEN | STATUS_RELEVANT) &&
+                    !hasOutgoingExtension(g, index)) {
                 node[0] |= STATUS_AVAILABLE;
             }
         }
-        walk(g,false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
+        walk(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
     }
 
     private void markLive(DAG<String, int[], String> g) {
-        for(Enumeration<String> e = g.getIndices(); e.hasMoreElements();) {
+        for (Enumeration<String> e = g.getIndices(); e.hasMoreElements(); ) {
             String index = e.nextElement();
             int[] node = g.getNode(index);
-            if(is(node, STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
+            if (is(node, STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
                 node[0] |= STATUS_ALIVE;
             }
         }
@@ -171,8 +171,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
-        for(Edge<String, String> edge : g.getChildren(index)) {
-            if(edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+        for (Edge<String, String> edge : g.getChildren(index)) {
+            if (edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
                 return true;
             }
         }
@@ -202,7 +202,6 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private boolean is(int[] node, int flag) {
         return (node[0] & flag) == flag;
     }
-
 
     private boolean hasExtension(Vector<CaseIndex> indexHolder) {
         for (CaseIndex index : indexHolder) {

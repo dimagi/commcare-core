@@ -41,7 +41,6 @@ public class CasePurgeTest {
             ArrayList<CasePurgeTest> runners = new ArrayList<>();
             JSONArray tests = new JSONArray(TestHelpers.getResourceAsString(resourceName));
             for (int i = 0; i < tests.length(); ++i) {
-
                 JSONObject root = tests.getJSONObject(i);
                 runners.add(new CasePurgeTest(root));
             }

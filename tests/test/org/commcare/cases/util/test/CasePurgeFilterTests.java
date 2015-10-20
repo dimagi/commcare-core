@@ -25,7 +25,9 @@ import static org.junit.Assert.fail;
 
 
 @RunWith(RunnerCoupler.class)
-@ComposedRunner(runners={CasePurgeTestRunner.class, BlockJUnit4ClassRunner.class}, runnables = {CasePurgeTest.class, FrameworkMethod.class})
+@ComposedRunner(
+        runners = {CasePurgeTestRunner.class, BlockJUnit4ClassRunner.class},
+        runnables = {CasePurgeTest.class, FrameworkMethod.class})
 public class CasePurgeFilterTests {
 
     Case a,b,c,d,e;
