@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.runner.notification.RunNotifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,17 +24,17 @@ import java.util.Vector;
  *
  * Created by ctsims on 10/13/2015.
  */
-public class CasePurgeTest{
+public class CasePurgeTest {
 
-    String name;
+    private final String name;
 
-    HashSet<String> cases = new HashSet<>();
+    private final HashSet<String> cases = new HashSet<>();
 
-    HashSet<String> ownedCases = new HashSet<>();
-    HashSet<String> closedCases = new HashSet<>();
-    HashSet<String> outcome = new HashSet<>();
+    private final HashSet<String> ownedCases = new HashSet<>();
+    private final HashSet<String> closedCases = new HashSet<>();
+    private final HashSet<String> outcome = new HashSet<>();
 
-    ArrayList<String[]> indices = new ArrayList<>();
+    private final ArrayList<String[]> indices = new ArrayList<>();
 
     public static ArrayList<CasePurgeTest> getTests(String resourceName) {
         try {
@@ -47,8 +46,9 @@ public class CasePurgeTest{
                 runners.add(new CasePurgeTest(root));
             }
             return runners;
-        }catch(IOException | JSONException e) {
-            RuntimeException failure = new RuntimeException("Failed to parse input for test: " + resourceName);
+        } catch (IOException | JSONException e) {
+            RuntimeException failure =
+                    new RuntimeException("Failed to parse input for test: " + resourceName);
             failure.initCause(e);
             throw failure;
         }
@@ -56,38 +56,40 @@ public class CasePurgeTest{
 
     private CasePurgeTest(JSONObject root) {
         name = root.getString("name");
-        if(root.has("cases")) {
+        if (root.has("cases")) {
             getCases(root.getJSONArray("cases"), cases);
         }
-        if(root.has("owned")) {
+        if (root.has("owned")) {
             getCases(root.getJSONArray("owned"), ownedCases);
         }
-        if(root.has("closed")) {
+        if (root.has("closed")) {
             getCases(root.getJSONArray("closed"), closedCases);
         }
 
-        if(root.has("subcases")) {
+        if (root.has("subcases")) {
             getIndices(root.getJSONArray("subcases"), indices, CaseIndex.RELATIONSHIP_CHILD);
         }
-        if(root.has("extensions")) {
+        if (root.has("extensions")) {
             getIndices(root.getJSONArray("extensions"), indices, CaseIndex.RELATIONSHIP_EXTENSION);
         }
         getCases(root.getJSONArray("outcome"), outcome);
     }
 
-    private void getIndices(JSONArray indices, ArrayList<String[]> indexSet, String indexType) {
+    private void getIndices(JSONArray indices,
+                            ArrayList<String[]> indexSet,
+                            String indexType) {
         for (int i = 0; i < indices.length(); ++i) {
             JSONArray index = indices.getJSONArray(i);
             String c = index.getString(0);
             String target = index.getString(1);
             cases.add(c);
             cases.add(target);
-            indexSet.add(new String[] {c, target, indexType});
+            indexSet.add(new String[]{c, target, indexType});
         }
     }
 
     private void getCases(JSONArray owned, HashSet<String> target) {
-        for(int i = 0 ; i < owned.length(); ++i) {
+        for (int i = 0; i < owned.length(); ++i) {
             String c = owned.getString(i);
             cases.add(c);
             target.add(c);
@@ -108,7 +110,7 @@ public class CasePurgeTest{
         storage.removeAll(new CasePurgeFilter(storage, ownerIds));
 
         HashSet<String> inStorage = new HashSet<>();
-        for(IStorageIterator<Case> iterator = storage.iterate() ; iterator.hasMore() ;) {
+        for (IStorageIterator<Case> iterator = storage.iterate(); iterator.hasMore(); ) {
             Case c = iterator.nextRecord();
             inStorage.add(c.getCaseId());
         }
@@ -117,22 +119,26 @@ public class CasePurgeTest{
 
     }
 
-    private void initCaseStorage(DummyIndexedStorageUtility<Case> storage, String userId) {
-        for(String c : cases) {
+    private void initCaseStorage(DummyIndexedStorageUtility<Case> storage,
+                                 String userId) {
+        for (String c : cases) {
             Case theCase = new Case(c, "purge_test_case");
             theCase.setCaseId(c);
-            if(ownedCases.contains(c)) {
+            if (ownedCases.contains(c)) {
                 theCase.setUserId(userId);
             }
-            if(closedCases.contains(c)) {
+            if (closedCases.contains(c)) {
                 theCase.setClosed(true);
             }
             storage.write(theCase);
         }
 
-        for(String[] index : indices) {
+        for (String[] index : indices) {
             Case theCase = storage.getRecordForValue(Case.INDEX_CASE_ID, index[0]);
-            theCase.setIndex(new CaseIndex(index[0] + index[1] + index[2], "purge_test_case", index[1], index[2]));
+            CaseIndex caseIndex =
+                    new CaseIndex(index[0] + index[1] + index[2],
+                            "purge_test_case", index[1], index[2]);
+            theCase.setIndex(caseIndex);
             storage.write(theCase);
         }
     }

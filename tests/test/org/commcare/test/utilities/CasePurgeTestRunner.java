@@ -1,10 +1,8 @@
 package org.commcare.test.utilities;
 
 import org.junit.runner.Description;
-import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 
@@ -23,7 +21,7 @@ import java.util.List;
  */
 public class CasePurgeTestRunner extends ParentRunner<CasePurgeTest> {
 
-    Class<?> testClass;
+    private Class<?> testClass;
 
     public CasePurgeTestRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
@@ -33,10 +31,10 @@ public class CasePurgeTestRunner extends ParentRunner<CasePurgeTest> {
     @Override
     protected List<CasePurgeTest> getChildren() {
         List<CasePurgeTest> tests = new ArrayList<>();
-        for(Method m : testClass.getMethods()) {
+        for (Method m : testClass.getMethods()) {
             RunWithResource r = m.getAnnotation(RunWithResource.class);
-            if(r != null) {
-                for(CasePurgeTest t : CasePurgeTest.getTests(r.value())) {
+            if (r != null) {
+                for (CasePurgeTest t : CasePurgeTest.getTests(r.value())) {
                     tests.add(t);
                 }
             }
@@ -55,7 +53,7 @@ public class CasePurgeTestRunner extends ParentRunner<CasePurgeTest> {
             notifier.fireTestStarted(describeChild(child));
             child.executeTest();
             notifier.fireTestFinished(describeChild(child));
-        } catch(Throwable throwable ){
+        } catch (Throwable throwable) {
             notifier.fireTestFailure(new Failure(describeChild(child), throwable));
         }
     }
