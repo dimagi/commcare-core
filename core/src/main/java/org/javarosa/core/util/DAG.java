@@ -55,13 +55,13 @@ public class DAG<I, N, E> {
         if (inverse.containsKey(index)) {
             return inverse.get(index);
         } else {
-            return new Vector();
+            return new Vector<Edge<I, E>>();
         }
     }
 
     public Vector<Edge<I, E>> getChildren(I index) {
         if (!edge.containsKey(index)) {
-            return new Vector();
+            return new Vector<Edge<I, E>>();
         } else {
             return edge.get(index);
         }
@@ -76,7 +76,7 @@ public class DAG<I, N, E> {
      * any edges in the graph
      */
     public Stack<I> getSources() {
-        Stack<I> sources = new Stack();
+        Stack<I> sources = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!inverse.containsKey(i)) {
@@ -90,7 +90,7 @@ public class DAG<I, N, E> {
      * @return Indices for all nodes that do not have any outgoing edges
      */
     public Stack<I> getSinks() {
-        Stack<I> roots = new Stack();
+        Stack<I> roots = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!edge.containsKey(i)) {
