@@ -540,6 +540,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         triggerTriggerables(destRef);
 
         // initialize conditions for the node (and sub-nodes)
+        // NOTE PLM: the following trigger initialization doesn't cascade to
+        // children because it is behaving like trigger initalization for new
+        // repeat entries.  If we begin actually using this method, the trigger
+        // cascading logic should be fixed.
         initTriggerablesRootedBy(destRef);
         // not 100% sure this will work since destRef is ambiguous as the last
         // step, but i think it's supposed to work
@@ -711,6 +715,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Get all of the elements which will need to be evaluated (in order) when
      * the triggerable is fired.
+     *
+     * @param destination       (mutated) Will have triggerables added to it.
+     * @param isRepeatEntryInit Don't cascade triggers to children when
+     *                          initializing a new repeat entry.  Repeat entry
+     *                          children have already been queued to be
+     *                          triggered.
      */
     private void fillTriggeredElements(Triggerable t,
                                        Vector<Triggerable> destination,
@@ -991,30 +1001,35 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
-     * Step 2 in evaluating DAG computation updates from a value being changed in
-     * the instance. This step is responsible for taking the root set of directly
-     * triggered conditions, identifying which conditions should further be triggered
-     * due to their update, and then dispatching all of the evaluations.
+     * Step 2 in evaluating DAG computation updates from a value being changed
+     * in the instance. This step is responsible for taking the root set of
+     * directly triggered conditions, identifying which conditions should
+     * further be triggered due to their update, and then dispatching all of
+     * the evaluations.
      *
-     * @param tv        A vector of all of the trigerrables directly triggered by the
-     *                  value changed. Will be mutated by this method.
-     * @param anchorRef The reference to original value that was updated
+     * @param tv                A vector of all of the trigerrables directly
+     *                          triggered by the value changed. Will be mutated
+     *                          by this method.
+     * @param anchorRef         The reference to original value that was updated
+     * @param isRepeatEntryInit Don't cascade triggers to children when
+     *                          initializing a new repeat entry.  Repeat entry
+     *                          children have already been queued to be
+     *                          triggered.
      */
     private void evaluateTriggerables(Vector<Triggerable> tv,
                                       TreeReference anchorRef,
                                       boolean isRepeatEntryInit) {
         // Update the list of triggerables that need to be evaluated.
-        // XXX PLM: tv changes in size throughout this loop.
-        //          Do we actually want to loop over the newly added elements?
         for (int i = 0; i < tv.size(); i++) {
+            // NOTE PLM: tv may grow in size through iteration.
             Triggerable t = (Triggerable)tv.elementAt(i);
             fillTriggeredElements(t, tv, isRepeatEntryInit);
         }
 
-        //tv should now contain all of the triggerable components which are going to need to be addressed
-        //by this update.
-        //'triggerables' is topologically-ordered by dependencies, so evaluate the triggerables in 'tv'
-        //in the order they appear in 'triggerables'
+        // tv should now contain all of the triggerable components which are
+        // going to need to be addressed by this update.
+        // 'triggerables' is topologically-ordered by dependencies, so evaluate
+        // the triggerables in 'tv' in the order they appear in 'triggerables'
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
             if (tv.contains(t)) {
@@ -1024,22 +1039,22 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
-     * Step 3 in DAG cascade. evaluate the individual triggerable expressions against
-     * the anchor (the value that changed which triggered recomputation)
+     * Step 3 in DAG cascade. evaluate the individual triggerable expressions
+     * against the anchor (the value that changed which triggered
+     * recomputation)
      *
      * @param t         The triggerable to be updated
      * @param anchorRef The reference to the value which was changed.
      */
     private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
-
-        //Contextualize the reference used by the triggerable against the anchor
+        // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = t.contextRef.contextualize(anchorRef);
 
-        //Now identify all of the fully qualified nodes which this triggerable
-        //updates. (Multiple nodes can be updated by the same trigger)
+        // Now identify all of the fully qualified nodes which this triggerable
+        // updates. (Multiple nodes can be updated by the same trigger)
         Vector<TreeReference> v = exprEvalContext.expandReference(contextRef);
 
-        //Go through each one and evaluate the trigger expresion
+        // Go through each one and evaluate the trigger expresion
         for (int i = 0; i < v.size(); i++) {
             try {
                 t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
@@ -1067,9 +1082,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return c.constraint.eval(mainInstance, ec);
     }
 
-    /**
-     * @param ec The new Evaluation Context
-     */
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
         initEvalContext(ec);
