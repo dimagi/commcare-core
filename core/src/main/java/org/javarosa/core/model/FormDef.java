@@ -781,30 +781,41 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return updatedNodes;
     }
 
+    /**
+     * Resolve the expanded references and gather their generic children and
+     * attributes into the genericRefs list.
+     */
     private void addChildrenOfReference(Vector<TreeReference> expandedRefs,
-                                        Vector<TreeReference> toAdd) {
+                                        Vector<TreeReference> genericRefs) {
         for (TreeReference ref : expandedRefs) {
-            addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
+            addChildrenOfElement(exprEvalContext.resolveReference(ref), genericRefs);
         }
     }
 
-    private static void addChildrenOfElement(AbstractTreeElement el,
-                                             Vector<TreeReference> toAdd) {
-        for (int i = 0; i < el.getNumChildren(); ++i) {
-            AbstractTreeElement child = el.getChildAt(i);
+    /**
+     * Gathers generic children and attribute references for the provided
+     * element into the genericRefs list.
+     */
+    private static void addChildrenOfElement(AbstractTreeElement treeElem,
+                                             Vector<TreeReference> genericRefs) {
+        // recursively add children of element
+        for (int i = 0; i < treeElem.getNumChildren(); ++i) {
+            AbstractTreeElement child = treeElem.getChildAt(i);
             TreeReference genericChild = child.getRef().genericize();
-            if (!toAdd.contains(genericChild)) {
-                toAdd.addElement(genericChild);
+            if (!genericRefs.contains(genericChild)) {
+                genericRefs.addElement(genericChild);
             }
-            addChildrenOfElement(child, toAdd);
+            addChildrenOfElement(child, genericRefs);
         }
 
-        for (int i = 0; i < el.getAttributeCount(); ++i) {
+        // add all the attributes of this element
+        for (int i = 0; i < treeElem.getAttributeCount(); ++i) {
             AbstractTreeElement child =
-                    el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
+                    treeElem.getAttribute(treeElem.getAttributeNamespace(i),
+                            treeElem.getAttributeName(i));
             TreeReference genericChild = child.getRef().genericize();
-            if (!toAdd.contains(genericChild)) {
-                toAdd.addElement(genericChild);
+            if (!genericRefs.contains(genericChild)) {
+                genericRefs.addElement(genericChild);
             }
         }
     }
