@@ -210,9 +210,10 @@ public class FormDefTest {
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
-            fail("Nested repeats did not evaluate to the proper outcome");
-        }
+        ExprEvalUtils.assertEqualsXpathEval("Nested repeats did not evaluate to the proper outcome",
+                30.0,
+                "/data/sum",
+                fpi.getFormDef().getEvaluationContext());
     }
 
     @Test
@@ -225,22 +226,23 @@ public class FormDefTest {
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/heaviest_animal_weight", 400.0)) {
-            fail("");
-        }
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/lightest_animal_weight", 100.0)) {
-            fail("");
-        }
+        ExprEvalUtils.assertEqualsXpathEval("", 400.0, "/data/heaviest_animal_weight", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval("", 100.0, "/data/lightest_animal_weight", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval("", "", "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", fpi.getFormDef().getEvaluationContext());
 
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", "")) {
+        Object weighTimeResult =
+                ExprEvalUtils.xpathEval(fpi.getFormDef().getEvaluationContext(),
+                        "/data/animals[/data/skip_weighing_nth_animal - 1]/weight/@time");
+        if ("".equals(weighTimeResult) || "-1".equals(weighTimeResult)) {
             fail("");
         }
-        if (ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/animals[/data/skip_weighing_nth_animal - 1]/weight/@time", "")) {
-            fail("");
-        }
-        // not really sure what I'm trying to accomplish with this:
-        if (ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/last_check_time", "-1.0")) {
-            fail("");
-        }
+        ExprEvalUtils.assertEqualsXpathEval("", 1.0, "/data/skip_genus_nth_animal", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval("", "", "/data/animals[1]/genus/species", fpi.getFormDef().getEvaluationContext());
+        ExprEvalUtils.assertEqualsXpathEval("", "default", "/data/animals[2]/genus/species", fpi.getFormDef().getEvaluationContext());
+
+        // this is a bug: calculates should not be triggered for irrelevant nodes:
+        ExprEvalUtils.assertEqualsXpathEval("", 4.0, "/data/disabled_species", fpi.getFormDef().getEvaluationContext());
+        // the disabled species should actually point to the value of at the index equal to /data/skip_genus_nth_animal:
+        // ExprEvalUtils.assertEqualsXpathEval("", 1.0, "/data/disabled_species", fpi.getFormDef().getEvaluationContext());
     }
 }

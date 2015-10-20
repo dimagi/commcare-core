@@ -10,15 +10,20 @@
                       version="57"
                       xmlns="http://openrosa.org/formdesigner/313BF9C4-9DF3-4B92-A111-1AB7306EA8CA">
                     <how_many/>
+                    <always_true/>
+                    <disabled_species/>
                     <init_weight/>
-                    <last_check_time/>
                     <tmp_bmi/>
                     <current_index/>
                     <skip_weighing_nth_animal/>
+                    <skip_genus_nth_animal/>
                     <heaviest_animal_weight/>
                     <lightest_animal_weight/>
                     <animals jr:template="">
-                        <weight time=""/>
+                      <genus>
+                        <species/>
+                      </genus>
+                      <weight time=""/>
                         <bmi/>
                     </animals>
                 </data>
@@ -26,25 +31,34 @@
 
             <bind nodeset="/data/how_many" type="xsd:int"/>
             <bind nodeset="/data/skip_weighing_nth_animal" type="xsd:int"/>
+            <bind nodeset="/data/skip_genus_nth_animal" type="xsd:int"/>
+            <bind nodeset="/data/always_true"/>
             <bind nodeset="/data/init_weight"/>
-            <bind nodeset="/data/last_check_time"/>
             <bind calculate="/data/animals[/data/current_index]/weight" nodeset="/data/tmp_bmi"/>
             <bind calculate="count(/data/animals)" nodeset="/data/current_index"/>
             <bind calculate="max(/data/animals/weight)" nodeset="/data/heaviest_animal_weight"/>
             <bind calculate="min(/data/animals/weight)" nodeset="/data/lightest_animal_weight"/>
-            <bind nodeset="/data/animals"/>
+            <bind nodeset="/data/animals"
+                  relevant="/data/always_true"/>
             <bind calculate="/data/init_weight - (100 * /data/current_index)"
-                  relevant="/data/current_index != /data/skip_weighing_nth_animal"
-                  nodeset="/data/animals/weight"/>
+                  nodeset="/data/animals/weight"
+                  relevant="/data/current_index != /data/skip_weighing_nth_animal"/>
             <bind calculate="now()"
-                  nodeset="/data/animals/weight/@time"/>
-            <bind calculate="/data/animals[/data/how_many]/weight/@time"
-                  nodeset="/data/last_check_time"/>
+                  nodeset="/data/animals/weight/@time"
+                  relevant="/data/always_true"/>
+            <bind nodeset="/data/animals/genus"
+                  relevant="/data/current_index != /data/skip_genus_nth_animal"/>
+            <bind nodeset="/data/disabled_species"
+                  calculate="/data/current_index"
+                  relevant="/data/animals[/data/current_index]/genus/species = ''"/>
             <bind nodeset="/data/animals/bmi"/>
+            <bind nodeset="/data/animals/weight"/>
             <setvalue event="xforms-ready" ref="/data/skip_weighing_nth_animal" value="3"/>
+            <setvalue event="xforms-ready" ref="/data/skip_genus_nth_animal" value="1"/>
+            <setvalue event="xforms-ready" ref="/data/always_true" value="true()"/>
             <setvalue event="xforms-ready" ref="/data/init_weight" value="500"/>
-            <setvalue event="xforms-ready" ref="/data/last_check_time" value="-1"/>
             <setvalue event="xforms-ready" ref="/data/how_many" value="4"/>
+            <setvalue event="jr-insert" ref="/data/animals/genus/species" value="'default'"/>
             <setvalue event="jr-insert" ref="/data/animals/weight" value="50"/>
             <setvalue event="jr-insert" ref="/data/animals/weight/@time" value="-1"/>
             <setvalue event="jr-insert" ref="/data/animals/bmi" value="/data/tmp_bmi * 0.5"/>
