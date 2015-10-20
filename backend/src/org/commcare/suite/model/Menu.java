@@ -6,6 +6,7 @@ package org.commcare.suite.model;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathParseTool;
@@ -25,12 +26,15 @@ import java.util.Vector;
  * @author ctsims
  */
 public class Menu implements Externalizable, MenuDisplayable {
+    public static final String ROOT_MENU_ID = "root";
+
     DisplayUnit display;
     Vector<String> commandIds;
     String[] commandExprs;
     String id;
     String root;
     String rawRelevance;
+    String style;
     XPathExpression relevance;
 
     /**
@@ -40,7 +44,7 @@ public class Menu implements Externalizable, MenuDisplayable {
 
     }
 
-    public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs) {
+    public Menu(String id, String root, String rawRelevance, XPathExpression relevance, DisplayUnit display, Vector<String> commandIds, String[] commandExprs, String style) {
         this.id = id;
         this.root = root;
         this.rawRelevance = rawRelevance;
@@ -48,6 +52,7 @@ public class Menu implements Externalizable, MenuDisplayable {
         this.display = display;
         this.commandIds = commandIds;
         this.commandExprs = commandExprs;
+        this.style = style;
     }
 
     /**
@@ -109,6 +114,13 @@ public class Menu implements Externalizable, MenuDisplayable {
     }
 
     /**
+     * @return an optional string indicating how this menu wants to display its items
+     */
+    public String getStyle() {
+        return style;
+    }
+
+    /**
      * @param index the
      * @return the raw xpath string for a relevant condition (if available). Largely for
      * displaying to the user in the event of a failure
@@ -133,7 +145,7 @@ public class Menu implements Externalizable, MenuDisplayable {
                 commandExprs[i] = ExtUtil.readString(in);
             }
         }
-
+        style = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     /* (non-Javadoc)
@@ -154,6 +166,8 @@ public class Menu implements Externalizable, MenuDisplayable {
                 ExtUtil.writeString(out, commandExprs[i]);
             }
         }
+
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(style));
     }
 
 
