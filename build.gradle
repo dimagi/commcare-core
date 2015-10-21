@@ -65,6 +65,7 @@ dependencies {
       testCompile sourceSets.main.output
       testCompile sourceSets.cli.output
       testCompile group: 'junit', name: 'junit', version: '4.+'
+      testCompile 'org.json:json:20140107'
 }
 
 jar {
