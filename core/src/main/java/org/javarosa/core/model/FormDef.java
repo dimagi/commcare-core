@@ -945,7 +945,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         Vector<Triggerable> applicable = new Vector<Triggerable>();
         for (Triggerable triggerable : triggerables) {
-            applicable.add(triggerable);
+            applicable.addElement(triggerable);
         }
 
         evaluateTriggerables(applicable, rootRef, false);
