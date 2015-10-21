@@ -117,4 +117,8 @@ public class DAG<I, N, E> {
     public Enumeration getNodes() {
         return nodes.elements();
     }
+
+    public Enumeration getIndices() {
+        return nodes.keys();
+    }
 }

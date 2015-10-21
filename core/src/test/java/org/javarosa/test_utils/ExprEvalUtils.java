@@ -7,6 +7,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 
 /**
  * Commonly used utilities for evaluating xpath expressions.
@@ -81,13 +82,20 @@ public class ExprEvalUtils {
         return "";
     }
 
-    public static boolean xpathEvalAndCompare(EvaluationContext evalContext,
-                                              String input,
-                                              Object expectedOutput)
+    public static void assertEqualsXpathEval(String failureMessage,
+                                             Object expectedOutput,
+                                             String input,
+                                             EvaluationContext evalContext)
+            throws XPathSyntaxException {
+        Object evalResult = xpathEval(evalContext, input);
+        Assert.assertEquals(failureMessage, expectedOutput, evalResult);
+    }
+
+    public static Object xpathEval(EvaluationContext evalContext,
+                                              String input)
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
-        Object output = XPathFuncExpr.unpack(expr.eval(evalContext));
-        return expectedOutput.equals(output);
+        return XPathFuncExpr.unpack(expr.eval(evalContext));
     }
 }

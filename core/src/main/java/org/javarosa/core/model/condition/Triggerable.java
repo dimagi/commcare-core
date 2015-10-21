@@ -182,7 +182,8 @@ public abstract class Triggerable implements Externalizable {
         // construct absolute references by anchoring against the original context reference
         Vector<TreeReference> absTriggers = new Vector<TreeReference>();
         for (int i = 0; i < relTriggers.size(); i++) {
-            absTriggers.addElement(((TreeReference)relTriggers.elementAt(i)).anchor(originalContextRef));
+            TreeReference ref = ((TreeReference)relTriggers.elementAt(i)).anchor(originalContextRef);
+            absTriggers.addElement(ref);
         }
         return absTriggers;
     }

@@ -3,6 +3,7 @@ package org.javarosa.core.model.test;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.FormInstance;
@@ -210,8 +211,50 @@ public class FormDefTest {
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        if (!ExprEvalUtils.xpathEvalAndCompare(fpi.getFormDef().getEvaluationContext(), "/data/sum", 30.0)) {
-            fail("Nested repeats did not evaluate to the proper outcome");
+        ExprEvalUtils.assertEqualsXpathEval("Nested repeats did not evaluate to the proper outcome",
+                30.0,
+                "/data/sum",
+                fpi.getFormDef().getEvaluationContext());
+    }
+
+    /**
+     * Tests trigger caching related to cascading relevancy calculations to children.
+     */
+    @Test
+    public void testTriggerCaching() throws Exception {
+        // Running the form creates a few animals with weights that count down from the init_weight.
+        // Skips over a specified entry by setting it to irrelevant.
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_trigger_caching.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("Check max animal weight",
+                400.0, "/data/heaviest_animal_weight", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check min animal",
+                100.0, "/data/lightest_animal_weight", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure we skip over setting attr of irrelevant entry",
+                "", "/data/animals[/data/skip_weighing_nth_animal]/weight/@time", evalCtx);
+
+        Object weighTimeResult =
+                ExprEvalUtils.xpathEval(evalCtx,
+                        "/data/animals[/data/skip_weighing_nth_animal - 1]/weight/@time");
+        if ("".equals(weighTimeResult) || "-1".equals(weighTimeResult)) {
+            fail("@time should be set for relevant animal weight.");
         }
+        ExprEvalUtils.assertEqualsXpathEval("Assert genus skip value",
+                1.0, "/data/skip_genus_nth_animal", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure genus at skip entry is irrelevant",
+                "", "/data/animals[1]/genus/species", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Ensure genuse at non-skip entry has default value",
+                "default", "/data/animals[2]/genus/species", evalCtx);
+
+        ExprEvalUtils.assertEqualsXpathEval(
+                "Relevancy of skipped genus entry should be irrelevant to, due to the way it is calculated",
+                "", "/data/disabled_species", evalCtx);
     }
 }
