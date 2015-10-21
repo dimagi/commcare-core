@@ -180,8 +180,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
             return (TreeElement)this.children.elementAt(multiplicity); //droos: i'm suspicious of this
         } else {
-            for (int i = 0; i < this.children.size(); i++) {
-                TreeElement child = (TreeElement)this.children.elementAt(i);
+            for (TreeElement child : children) {
                 if (((name.hashCode() == child.getName().hashCode()) || name.equals(child.getName())) && child.getMult() == multiplicity) {
                     return child;
                 }

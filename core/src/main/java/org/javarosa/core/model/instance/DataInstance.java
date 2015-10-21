@@ -125,50 +125,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         return t;
     }
 
-    public Vector explodeReference(TreeReference ref) {
-        if (!ref.isAbsolute())
-            return null;
-
-        Vector nodes = new Vector();
-        AbstractTreeElement<T> cur = getBase();
-        for (int i = 0; i < ref.size(); i++) {
-            String name = ref.getName(i);
-            int mult = ref.getMultiplicity(i);
-
-            //If the next node down the line is an attribute
-            if (mult == TreeReference.INDEX_ATTRIBUTE) {
-                //This is not the attribute we're testing
-                if (cur != getBase()) {
-                    //Add the current node
-                    nodes.addElement(cur);
-                }
-                cur = cur.getAttribute(null, name);
-            }
-
-            //Otherwise, it's another child element
-            else {
-                if (mult == TreeReference.INDEX_UNBOUND) {
-                    if (cur.getChildMultiplicity(name) == 1) {
-                        mult = 0;
-                    } else {
-                        // reference is not unambiguous
-                        return null;
-                    }
-                }
-
-                if (cur != getBase()) {
-                    nodes.addElement(cur);
-                }
-
-                cur = cur.getChild(name, mult);
-                if (cur == null) {
-                    return null;
-                }
-            }
-        }
-        return nodes;
-    }
-
     public T getTemplate(TreeReference ref) {
         T node = getTemplatePath(ref);
 

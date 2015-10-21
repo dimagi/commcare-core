@@ -27,6 +27,7 @@ import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -128,6 +129,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     Hashtable<String, Vector<Action>> eventListeners;
 
     boolean mDebugModeEnabled = false;
+
+    /**
+     * Cache children that trigger target will cascade to. For speeding up
+     * calculations that determine what needs to be triggered when a value
+     * changes.
+     */
+    private final CacheTable<TreeReference, Vector<TreeReference>> cachedCascadingChildren =
+            new CacheTable<TreeReference, Vector<TreeReference>>();
 
 
     /**
@@ -386,8 +395,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             a.processAction(this, destRef);
         }
 
-        triggerTriggerables(destRef); // trigger conditions that depend on the creation of this new node
-        initializeTriggerables(destRef); // initialize conditions for the node (and sub-nodes)
+        // trigger conditions that depend on the creation of this new node
+        triggerTriggerables(destRef);
+
+        // initialize conditions for the node (and sub-nodes)
+        initTriggerablesRootedBy(destRef);
     }
 
     public boolean isRepeatRelevant(TreeReference repeatRef) {
@@ -528,7 +540,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         triggerTriggerables(destRef);
 
         // initialize conditions for the node (and sub-nodes)
-        initializeTriggerables(destRef);
+        // NOTE PLM: the following trigger initialization doesn't cascade to
+        // children because it is behaving like trigger initalization for new
+        // repeat entries.  If we begin actually using this method, the trigger
+        // cascading logic should be fixed.
+        initTriggerablesRootedBy(destRef);
         // not 100% sure this will work since destRef is ambiguous as the last
         // step, but i think it's supposed to work
     }
@@ -615,17 +631,15 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        //
         //DAGify the triggerables based on dependencies and sort them so that
         //trigbles come only after the trigbles they depend on
-        //
 
         Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
 
             Vector<Triggerable> deps = new Vector<Triggerable>();
-            fillTriggeredElements(t, deps);
+            fillTriggeredElements(t, deps, false);
 
             for (int j = 0; j < deps.size(); j++) {
                 Triggerable u = (Triggerable)deps.elementAt(j);
@@ -699,52 +713,149 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
-     * Get all of the elements which will need to be evaluated (in order) when the
-     * triggerable is fired.
+     * Get all of the elements which will need to be evaluated (in order) when
+     * the triggerable is fired.
+     *
+     * @param destination       (mutated) Will have triggerables added to it.
+     * @param isRepeatEntryInit Don't cascade triggers to children when
+     *                          initializing a new repeat entry.  Repeat entry
+     *                          children have already been queued to be
+     *                          triggered.
      */
-    private void fillTriggeredElements(Triggerable t, Vector<Triggerable> destination) {
+    private void fillTriggeredElements(Triggerable t,
+                                       Vector<Triggerable> destination,
+                                       boolean isRepeatEntryInit) {
         if (t.canCascade()) {
-            for (int j = 0; j < t.getTargets().size(); j++) {
-                TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+            for (TreeReference target : t.getTargets()) {
                 Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
                 updatedNodes.addElement(target);
 
-                //For certain types of triggerables, the update will affect not only the target, but
-                //also the children of the target. In that case, we want to add all of those nodes
-                //to the list of updated elements as well. For instances, relevancy of a parent will
-                // require triggers pointing to children to need to be recalcualted
-                if (t.isCascadingToChildren()) {
-                    addChildrenOfReference(target, updatedNodes);
+                // Repeat sub-elements have already been added to 'destination'
+                // when we grabbed all triggerables that target children of the
+                // repeat entry (via initTriggerablesRootedBy). Hence skip them
+                if (!isRepeatEntryInit && t.isCascadingToChildren()) {
+                    updatedNodes = findCascadeReferences(target, updatedNodes);
                 }
 
-                //Now go through each of these updated nodes (generally just 1 for a normal calculation,
-                //multiple nodes if there's a relevance cascade.
-                for (TreeReference ref : updatedNodes) {
-                    //Check our index to see if that target is a Trigger for other conditions
-                    //IE: if they are an element of a different calculation or relevancy calc
+                addTriggerablesTargetingNodes(updatedNodes, destination);
+            }
+        }
+    }
 
-                    //We can't make this reference generic before now or we'll lose the target information,
-                    //so we'll be more inclusive than needed and see if any of our triggers are keyed on
-                    //the predicate-less path of this ref
-                    TreeReference predicatelessRef = ref;
-                    if (ref.hasPredicates()) {
-                        predicatelessRef = ref.removePredicates();
-                    }
-                    Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
-
-                    if (triggered != null) {
-                        //If so, walk all of these triggerables that we found
-                        for (int k = 0; k < triggered.size(); k++) {
-                            Triggerable u = (Triggerable)triggered.elementAt(k);
-
-                            //And add them to the queue if they aren't there already
-                            if (!destination.contains(u)) {
-                                destination.addElement(u);
-                            }
-                        }
+    /**
+     * Gather list of generic references to children of a target reference for
+     * a triggerable that cascades to its children. This is needed when, for
+     * example, changing the relevancy of the target will require the triggers
+     * pointing to children be recalcualted.
+     *
+     * @param target       Gather children of this by using a template or
+     *                     manually traversing the tree
+     * @param updatedNodes (potentially mutated) Gets generic child references
+     *                     added to it.
+     * @return Potentially cached version of updatedNodes argument that
+     * contains the target and generic references to the children it might
+     * cascade to.
+     */
+    private Vector<TreeReference> findCascadeReferences(TreeReference target,
+                                                        Vector<TreeReference> updatedNodes) {
+        Vector<TreeReference> cachedNodes = cachedCascadingChildren.retrieve(target);
+        if (cachedNodes == null) {
+            if (target.getMultLast() == TreeReference.INDEX_ATTRIBUTE) {
+                // attributes don't have children that might change under
+                // contextualization
+                cachedCascadingChildren.register(target, updatedNodes);
+            } else {
+                Vector<TreeReference> expandedRefs = exprEvalContext.expandReference(target);
+                if (expandedRefs.size() > 0) {
+                    AbstractTreeElement template = mainInstance.getTemplatePath(target);
+                    if (template != null) {
+                        addChildrenOfElement(template, updatedNodes);
+                        cachedCascadingChildren.register(target, updatedNodes);
+                    } else {
+                        // NOTE PLM: entirely possible this can be removed if
+                        // the getTemplatePath code is updated to handle
+                        // heterogeneous paths.  Set a breakpoint here and run
+                        // the test suite to see an example
+                        // NOTE PLM: Though I'm pretty sure we could cache
+                        // this, I'm going to avoid doing so because I'm unsure
+                        // whether it is possible for children that are
+                        // cascaded to will change when expandedRefs changes
+                        // due to new data being added.
+                        addChildrenOfReference(expandedRefs, updatedNodes);
                     }
                 }
+            }
+        } else {
+            updatedNodes = cachedNodes;
+        }
+        return updatedNodes;
+    }
 
+    /**
+     * Resolve the expanded references and gather their generic children and
+     * attributes into the genericRefs list.
+     */
+    private void addChildrenOfReference(Vector<TreeReference> expandedRefs,
+                                        Vector<TreeReference> genericRefs) {
+        for (TreeReference ref : expandedRefs) {
+            addChildrenOfElement(exprEvalContext.resolveReference(ref), genericRefs);
+        }
+    }
+
+    /**
+     * Gathers generic children and attribute references for the provided
+     * element into the genericRefs list.
+     */
+    private static void addChildrenOfElement(AbstractTreeElement treeElem,
+                                             Vector<TreeReference> genericRefs) {
+        // recursively add children of element
+        for (int i = 0; i < treeElem.getNumChildren(); ++i) {
+            AbstractTreeElement child = treeElem.getChildAt(i);
+            TreeReference genericChild = child.getRef().genericize();
+            if (!genericRefs.contains(genericChild)) {
+                genericRefs.addElement(genericChild);
+            }
+            addChildrenOfElement(child, genericRefs);
+        }
+
+        // add all the attributes of this element
+        for (int i = 0; i < treeElem.getAttributeCount(); ++i) {
+            AbstractTreeElement child =
+                    treeElem.getAttribute(treeElem.getAttributeNamespace(i),
+                            treeElem.getAttributeName(i));
+            TreeReference genericChild = child.getRef().genericize();
+            if (!genericRefs.contains(genericChild)) {
+                genericRefs.addElement(genericChild);
+            }
+        }
+    }
+
+    private void addTriggerablesTargetingNodes(Vector<TreeReference> updatedNodes,
+                                               Vector<Triggerable> destination) {
+        //Now go through each of these updated nodes (generally just 1 for a normal calculation,
+        //multiple nodes if there's a relevance cascade.
+        for (TreeReference ref : updatedNodes) {
+            //Check our index to see if that target is a Trigger for other conditions
+            //IE: if they are an element of a different calculation or relevancy calc
+
+            //We can't make this reference generic before now or we'll lose the target information,
+            //so we'll be more inclusive than needed and see if any of our triggers are keyed on
+            //the predicate-less path of this ref
+            TreeReference predicatelessRef = ref;
+            if (ref.hasPredicates()) {
+                predicatelessRef = ref.removePredicates();
+            }
+            Vector<Triggerable> triggered =
+                    (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
+
+            if (triggered != null) {
+                //If so, walk all of these triggerables that we found
+                for (Triggerable triggerable : triggered) {
+                    //And add them to the queue if they aren't there already
+                    if (!destination.contains(triggerable)) {
+                        destination.addElement(triggerable);
+                    }
+                }
             }
         }
     }
@@ -767,7 +878,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
 
             // Re-execute all triggerables to collect traces
-            initializeTriggerables();
+            initAllTriggerables();
             mDebugModeEnabled = true;
         }
     }
@@ -828,30 +939,36 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return debugInfo;
     }
 
-    public void initializeTriggerables() {
-        initializeTriggerables(TreeReference.rootRef());
+    private void initAllTriggerables() {
+        // Use all triggerables because we can assume they are rooted by rootRef
+        TreeReference rootRef = TreeReference.rootRef();
+
+        Vector<Triggerable> applicable = new Vector<Triggerable>();
+        for (Triggerable triggerable : triggerables) {
+            applicable.add(triggerable);
+        }
+
+        evaluateTriggerables(applicable, rootRef, false);
     }
 
     /**
      * Walks the current set of conditions, and evaluates each of them with the
      * current context.
      */
-    private void initializeTriggerables(TreeReference rootRef) {
+    private void initTriggerablesRootedBy(TreeReference rootRef) {
         TreeReference genericRoot = rootRef.genericize();
 
         Vector<Triggerable> applicable = new Vector<Triggerable>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
-            for (int j = 0; j < t.getTargets().size(); j++) {
-                TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+        for (Triggerable triggerable : triggerables) {
+            for (TreeReference target : triggerable.getTargets()) {
                 if (genericRoot.isParentOf(target, false)) {
-                    applicable.addElement(t);
+                    applicable.addElement(triggerable);
                     break;
                 }
             }
         }
 
-        evaluateTriggerables(applicable, rootRef);
+        evaluateTriggerables(applicable, rootRef, true);
     }
 
     /**
@@ -880,33 +997,39 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         }
 
         //Evaluate all of the triggerables in our new vector
-        evaluateTriggerables(triggeredCopy, ref);
+        evaluateTriggerables(triggeredCopy, ref, false);
     }
 
     /**
-     * Step 2 in evaluating DAG computation updates from a value being changed in
-     * the instance. This step is responsible for taking the root set of directly
-     * triggered conditions, identifying which conditions should further be triggered
-     * due to their update, and then dispatching all of the evaluations.
+     * Step 2 in evaluating DAG computation updates from a value being changed
+     * in the instance. This step is responsible for taking the root set of
+     * directly triggered conditions, identifying which conditions should
+     * further be triggered due to their update, and then dispatching all of
+     * the evaluations.
      *
-     * @param tv        A vector of all of the trigerrables directly triggered by the
-     *                  value changed. Will be mutated by this method.
-     * @param anchorRef The reference to original value that was updated
+     * @param tv                A vector of all of the trigerrables directly
+     *                          triggered by the value changed. Will be mutated
+     *                          by this method.
+     * @param anchorRef         The reference to original value that was updated
+     * @param isRepeatEntryInit Don't cascade triggers to children when
+     *                          initializing a new repeat entry.  Repeat entry
+     *                          children have already been queued to be
+     *                          triggered.
      */
     private void evaluateTriggerables(Vector<Triggerable> tv,
-                                      TreeReference anchorRef) {
+                                      TreeReference anchorRef,
+                                      boolean isRepeatEntryInit) {
         // Update the list of triggerables that need to be evaluated.
-        // XXX PLM: tv changes in size throughout this loop.
-        //          Do we actually want to loop over the newly added elements?
         for (int i = 0; i < tv.size(); i++) {
+            // NOTE PLM: tv may grow in size through iteration.
             Triggerable t = (Triggerable)tv.elementAt(i);
-            fillTriggeredElements(t, tv);
+            fillTriggeredElements(t, tv, isRepeatEntryInit);
         }
 
-        //tv should now contain all of the triggerable components which are going to need to be addressed
-        //by this update.
-        //'triggerables' is topologically-ordered by dependencies, so evaluate the triggerables in 'tv'
-        //in the order they appear in 'triggerables'
+        // tv should now contain all of the triggerable components which are
+        // going to need to be addressed by this update.
+        // 'triggerables' is topologically-ordered by dependencies, so evaluate
+        // the triggerables in 'tv' in the order they appear in 'triggerables'
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = (Triggerable)triggerables.elementAt(i);
             if (tv.contains(t)) {
@@ -916,51 +1039,28 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     /**
-     * Step 3 in DAG cascade. evaluate the individual triggerable expressions against
-     * the anchor (the value that changed which triggered recomputation)
+     * Step 3 in DAG cascade. evaluate the individual triggerable expressions
+     * against the anchor (the value that changed which triggered
+     * recomputation)
      *
      * @param t         The triggerable to be updated
      * @param anchorRef The reference to the value which was changed.
      */
     private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
-
-        //Contextualize the reference used by the triggerable against the anchor
+        // Contextualize the reference used by the triggerable against the anchor
         TreeReference contextRef = t.contextRef.contextualize(anchorRef);
 
-        //Now identify all of the fully qualified nodes which this triggerable
-        //updates. (Multiple nodes can be updated by the same trigger)
+        // Now identify all of the fully qualified nodes which this triggerable
+        // updates. (Multiple nodes can be updated by the same trigger)
         Vector<TreeReference> v = exprEvalContext.expandReference(contextRef);
 
-        //Go through each one and evaluate the trigger expresion
+        // Go through each one and evaluate the trigger expresion
         for (int i = 0; i < v.size(); i++) {
             try {
                 t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
             } catch (RuntimeException e) {
                 throw e;
             }
-        }
-    }
-
-    /**
-     * This is a utility method to get all of the references of a node. It can be replaced
-     * when we support dependent XPath Steps (IE: /path/to//)
-     */
-    public void addChildrenOfReference(TreeReference original, Vector<TreeReference> toAdd) {
-        for (TreeReference ref : exprEvalContext.expandReference(original)) {
-            addChildrenOfElement(exprEvalContext.resolveReference(ref), toAdd);
-        }
-    }
-
-    //Recursive step of utility method
-    private void addChildrenOfElement(AbstractTreeElement el, Vector<TreeReference> toAdd) {
-        for (int i = 0; i < el.getNumChildren(); ++i) {
-            AbstractTreeElement child = el.getChildAt(i);
-            toAdd.addElement(child.getRef().genericize());
-            addChildrenOfElement(child, toAdd);
-        }
-        for (int i = 0; i < el.getAttributeCount(); ++i) {
-            AbstractTreeElement child = el.getAttribute(el.getAttributeNamespace(i), el.getAttributeName(i));
-            toAdd.addElement(child.getRef().genericize());
         }
     }
 
@@ -982,9 +1082,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return c.constraint.eval(mainInstance, ec);
     }
 
-    /**
-     * @param ec The new Evaluation Context
-     */
     public void setEvaluationContext(EvaluationContext ec) {
         ec = new EvaluationContext(mainInstance, formInstances, ec);
         initEvalContext(ec);
@@ -1418,7 +1515,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             dispatchFormEvent(Action.EVENT_XFORMS_READY);
         }
 
-        initializeTriggerables();
+        initAllTriggerables();
     }
 
     /**
