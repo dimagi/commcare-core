@@ -71,7 +71,7 @@ public class CasePurgeFilterTests {
     }
 
     @RunWithResource("/case_relationship_tests.json")
-    public void runTests() {
+    public void runExternalCasePurgeTests() {
 
     }
 

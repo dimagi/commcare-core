@@ -66,8 +66,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
         //Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
-        //[STATUS_FLAGS, storageid]
-        DAG<String, int[], String> g = new DAG<String, int[], String>();
+        //[STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
+        //nodes, which is one of the Case Index relationships (IE: parent, extension)
+        DAG<String, int[], String> graph = new DAG<String, int[], String>();
 
         Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
 
@@ -118,56 +119,43 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 nodeStatus |= STATUS_RELEVANT;
             }
 
-            g.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
+            graph.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
 
             for (CaseIndex index : indexHolder) {
-                g.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
+                graph.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
             }
             indexHolder.removeAllElements();
         }
 
-        markRelevant(g);
-        markAvailable(g);
-        markLive(g);
-    
+        propogateRelevance(graph);
+        propogateAvailabile(graph);
+        propogateLive(graph);
+
         //Ok, so now just go through all nodes and signal that we need to remove anything
         //that isn't live!
-        for (Enumeration<int[]> iterator = g.getNodes(); iterator.hasMoreElements(); ) {
+        for (Enumeration iterator = graph.getNodes(); iterator.hasMoreElements(); ) {
             int[] node = (int[])iterator.nextElement();
-            if (!is(node, STATUS_ALIVE)) {
+            if (!caseStatusIs(node[0], STATUS_ALIVE)) {
                 idsToRemove.addElement(Integer.valueOf(node[1]));
             }
         }
     }
 
-    private void markRelevant(DAG<String, int[], String> g) {
-        walk(g,true, STATUS_RELEVANT, STATUS_RELEVANT);
-        walk(g,false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
+    private void propogateRelevance(DAG<String, int[], String> g) {
+        propogateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
+        propogateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
     }
 
-    private void markAvailable(DAG<String, int[], String> g) {
-        for(Enumeration<String> e = g.getIndices(); e.hasMoreElements();) {
-            String index = e.nextElement();
+    private void propogateAvailabile(DAG<String, int[], String> g) {
+        for(Enumeration e = g.getIndices(); e.hasMoreElements();) {
+            String index = (String)e.nextElement();
             int[] node = g.getNode(index);
-            if(is(node, STATUS_OPEN | STATUS_RELEVANT) &&
+            if(caseStatusIs(node[0], STATUS_OPEN | STATUS_RELEVANT) &&
                     !hasOutgoingExtension(g,index)) {
                 node[0] |= STATUS_AVAILABLE;
             }
         }
-        walk(g,false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
-    }
-
-    private void markLive(DAG<String, int[], String> g) {
-        for(Enumeration<String> e = g.getIndices(); e.hasMoreElements();) {
-            String index = e.nextElement();
-            int[] node = g.getNode(index);
-            if(is(node, STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
-                node[0] |= STATUS_ALIVE;
-            }
-        }
-
-        walk(g, true, STATUS_ALIVE, STATUS_ALIVE);
-        walk(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION);
+        propogateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
     }
 
     private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
@@ -179,38 +167,60 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return false;
     }
 
-    private void walk(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
-        walk(g, direction, mask, mark, null);
+    private void propogateLive(DAG<String, int[], String> g) {
+        for(Enumeration e = g.getIndices(); e.hasMoreElements();) {
+            String index = (String)e.nextElement();
+            int[] node = g.getNode(index);
+            if(caseStatusIs(node[0], STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
+                node[0] |= STATUS_ALIVE;
+            }
+        }
+
+        propogateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
+        propogateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION);
     }
 
-    private void walk(DAG<String, int[], String> g, boolean direction, int mask, int mark, String relationship) {
-        Stack<String> toProcess = direction ? g.getSources() : g.getSinks();
+    private void propogateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
+        propogateMarkToDAG(g, direction, mask, mark, null);
+    }
+
+    /**
+     * Propogates the provided mark in a chain from all nodes which meet the mask to all of their
+     * neighboring nodes, as long as those nodes meet the relationship provided. If the relationship
+     * is null, only the mask is checked.
+     *
+     * @param dag
+     * @param walkFromSourceToSink If true, start at sources (nodes with only outgoing edges), and walk edges
+     *                  from parent to child. If false, start at sinks (nodes with only incoming edges)
+     *                  and walk from child to parent
+     * @param maskCondition A mask for what nodes meet the criteria of being marked in the walk.
+     * @param markToApply A new binary flag (or set of flags) to apply to all nodes meeting the criteria
+     * @param relationship If non-null, an additional criteria for whether a node should be marked.
+     *                     A node will only be marked if the edge walked to put it on the stack
+     *                     meets this criteria.
+     */
+    private void propogateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
+                                    int maskCondition, int markToApply, String relationship) {
+        Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
         while (!toProcess.isEmpty()) {
             //current node
             String index = toProcess.pop();
-            int[] node = g.getNode(index);
+            int[] node = dag.getNode(index);
 
-            for (Edge<String, String> edge : (direction ? g.getChildren(index) : g.getParents(index))) {
-                if (is(node, mask) && (relationship == null || edge.e.equals(relationship))) {
-                    g.getNode(edge.i)[0] |= mark;
+            Vector<Edge<String, String>> edgeSet = walkFromSourceToSink ? dag.getChildren(index) :
+                                                               dag.getParents(index);
+
+            for (Edge<String, String> edge : edgeSet) {
+                if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
+                    dag.getNode(edge.i)[0] |= markToApply;
                 }
                 toProcess.addElement(edge.i);
             }
         }
     }
 
-    private boolean is(int[] node, int flag) {
-        return (node[0] & flag) == flag;
-    }
-
-
-    private boolean hasExtension(Vector<CaseIndex> indexHolder) {
-        for (CaseIndex index : indexHolder) {
-            if (index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean caseStatusIs(int status, int flag) {
+        return (status & flag) == flag;
     }
 
     /* (non-Javadoc)
