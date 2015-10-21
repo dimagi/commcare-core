@@ -3,6 +3,8 @@
  */
 package org.commcare.util;
 
+import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -235,6 +237,10 @@ public class CommCareConfigEngine {
                 installAppFromReference(profileRef);
                 print.println("Table resources intialized and fully resolved.");
                 print.println(table);
+            } catch (InstallCancelledException e) {
+                print.println("Install was cancelled by the user or system");
+                e.printStackTrace(print);
+                System.exit(-1);
             } catch (UnresolvedResourceException e) {
                 print.println("While attempting to resolve the necessary resources, one couldn't be found: " + e.getResource().getResourceId());
                 e.printStackTrace(print);
@@ -247,8 +253,8 @@ public class CommCareConfigEngine {
     }
 
     public void installAppFromReference(String profileReference) throws UnresolvedResourceException,
-            UnfullfilledRequirementsException {
-        platform.init(profileReference, this.table, true);
+            UnfullfilledRequirementsException, InstallCancelledException {
+        ResourceManager.installAppResources(platform, profileReference, this.table, true);
     }
 
     public void initEnvironment() {
@@ -444,7 +450,8 @@ public class CommCareConfigEngine {
             // actually pull in all the new references
 
             System.out.println("Checking for updates....");
-            platform.stageUpgradeTable(global, updateTable, recoveryTable, authRef, true);
+            ResourceManager resourceManager = new ResourceManager(platform, global, updateTable, recoveryTable);
+            resourceManager.stageUpgradeTable(authRef, true);
             Resource newProfile = updateTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profileRef)) {
                 System.out.println("Your app is up to date!");
@@ -456,7 +463,7 @@ public class CommCareConfigEngine {
 
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
-            platform.upgrade(global, updateTable, recoveryTable);
+            resourceManager.upgrade();
         } catch(UnresolvedResourceException e) {
             System.out.println("Update Failed! Couldn't find or install one of the remote resources");
             e.printStackTrace();

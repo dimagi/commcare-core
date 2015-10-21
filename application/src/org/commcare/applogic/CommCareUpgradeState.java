@@ -4,6 +4,7 @@
 package org.commcare.applogic;
 
 import org.commcare.core.properties.CommCareProperties;
+import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -12,6 +13,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareContext;
 import org.commcare.util.CommCareInitializer;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.resources.ResourceManager;
 import org.commcare.util.InitializationListener;
 import org.commcare.util.YesNoListener;
 import org.commcare.view.CommCareStartupInteraction;
@@ -65,7 +67,6 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
             ResourceTable recovery = CommCareContext.CreateTemporaryResourceTable(RECOVERY_TABLE_NAME);
 
             protected boolean runWrapper() throws UnfullfilledRequirementsException {
-
                 if(networkRetries != -1) {
                     upgrade.setNumberOfRetries(networkRetries);
                 }
@@ -78,11 +79,17 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 
                 boolean staged = false;
 
+                ResourceManager resourceManager =
+                    new ResourceManager(CommCareContext._().getManager(),
+                            global, upgrade, recovery);
                 while(!staged) {
                     try {
-                        CommCareContext._().getManager().stageUpgradeTable(CommCareContext.RetrieveGlobalResourceTable(), upgrade, recovery, false);
+                        resourceManager.stageUpgradeTable(false);
                         interaction.updateProgess(20);
                         staged = true;
+                    } catch (InstallCancelledException e) {
+                        Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
+                        return false;
                     } catch (UnresolvedResourceException e) {
                         Logger.log("upgrade", "Error locating upgrade profile: " + e.getMessage());
 
@@ -116,8 +123,6 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     }
                 }
 
-
-
                 setMessage(Localization.get("update.header"));
 
                 TableStateListener upgradeListener = new TableStateListener() {
@@ -126,7 +131,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     public void resourceStateUpdated(ResourceTable table) {
                         int score = 0;
                         int max = 0;
-                        Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+                        Vector<Resource> resources = ResourceManager.getResourceListFromProfile(table);
                         max = resources.size() * INSTALL_SCORE;
 
                         if(max <= INSTALL_SCORE*2) {
@@ -182,7 +187,10 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                     upgradeAttemptPending = false;
 
                     try {
-                        CommCareContext._().getManager().upgrade(global, upgrade, recovery);
+                        resourceManager.prepareUpgradeResources();
+                        resourceManager.upgrade();
+                    } catch (InstallCancelledException e) {
+                        Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
                     } catch(UnreliableSourceException e) {
                         //We simply can't retrieve all of the resources that we're looking for.
 
@@ -223,7 +231,7 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
                 String logMsg = "Upgrade attempt unsuccesful. Probably due to network. ";
 
                 //Count resources
-                Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(upgrade);
+                Vector<Resource> resources = ResourceManager.getResourceListFromProfile(upgrade);
                 int downloaded = 0;
 
                 for(Resource r : resources ){
