@@ -42,6 +42,8 @@ public class MenuParser extends CommCareElementParser<Menu> {
             }
         }
 
+        String style = parser.getAttributeValue(null, "style");
+
         getNextTagInBlock("menu");
 
         DisplayUnit display;
@@ -82,7 +84,7 @@ public class MenuParser extends CommCareElementParser<Menu> {
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 
-        Menu m = new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions);
+        Menu m = new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions, style);
         return m;
 
     }

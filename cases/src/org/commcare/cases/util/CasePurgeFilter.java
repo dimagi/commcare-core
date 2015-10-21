@@ -29,7 +29,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     /**
      * Should be included in the set of cases seen by the user
      */
-    private static final int STATUS_RELEVANT= 2;
+    private static final int STATUS_RELEVANT = 2;
 
     /**
      * Isn't precluded from being included in a sync for any reason
@@ -107,15 +107,15 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 }
             }
             int nodeStatus = 0;
-            if(owned) {
+            if (owned) {
                 nodeStatus |= STATUS_OWNED;
             }
 
-            if(!c.isClosed()) {
+            if (!c.isClosed()) {
                 nodeStatus |= STATUS_OPEN;
             }
 
-            if(owned && !c.isClosed()) {
+            if (owned && !c.isClosed()) {
                 nodeStatus |= STATUS_RELEVANT;
             }
 
@@ -147,11 +147,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void propogateAvailabile(DAG<String, int[], String> g) {
-        for(Enumeration e = g.getIndices(); e.hasMoreElements();) {
+        for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
-            if(caseStatusIs(node[0], STATUS_OPEN | STATUS_RELEVANT) &&
-                    !hasOutgoingExtension(g,index)) {
+            if (caseStatusIs(node[0], STATUS_OPEN | STATUS_RELEVANT) &&
+                    !hasOutgoingExtension(g, index)) {
                 node[0] |= STATUS_AVAILABLE;
             }
         }
@@ -159,8 +159,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
-        for(Edge<String, String> edge : g.getChildren(index)) {
-            if(edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+        for (Edge<String, String> edge : g.getChildren(index)) {
+            if (edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
                 return true;
             }
         }
@@ -168,10 +168,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void propogateLive(DAG<String, int[], String> g) {
-        for(Enumeration e = g.getIndices(); e.hasMoreElements();) {
+        for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
-            if(caseStatusIs(node[0], STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
+            if (caseStatusIs(node[0], STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
                 node[0] |= STATUS_ALIVE;
             }
         }
@@ -191,13 +191,13 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *
      * @param dag
      * @param walkFromSourceToSink If true, start at sources (nodes with only outgoing edges), and walk edges
-     *                  from parent to child. If false, start at sinks (nodes with only incoming edges)
-     *                  and walk from child to parent
-     * @param maskCondition A mask for what nodes meet the criteria of being marked in the walk.
-     * @param markToApply A new binary flag (or set of flags) to apply to all nodes meeting the criteria
-     * @param relationship If non-null, an additional criteria for whether a node should be marked.
-     *                     A node will only be marked if the edge walked to put it on the stack
-     *                     meets this criteria.
+     *                             from parent to child. If false, start at sinks (nodes with only incoming edges)
+     *                             and walk from child to parent
+     * @param maskCondition        A mask for what nodes meet the criteria of being marked in the walk.
+     * @param markToApply          A new binary flag (or set of flags) to apply to all nodes meeting the criteria
+     * @param relationship         If non-null, an additional criteria for whether a node should be marked.
+     *                             A node will only be marked if the edge walked to put it on the stack
+     *                             meets this criteria.
      */
     private void propogateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
                                     int maskCondition, int markToApply, String relationship) {
@@ -208,7 +208,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             int[] node = dag.getNode(index);
 
             Vector<Edge<String, String>> edgeSet = walkFromSourceToSink ? dag.getChildren(index) :
-                                                               dag.getParents(index);
+                    dag.getParents(index);
 
             for (Edge<String, String> edge : edgeSet) {
                 if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
