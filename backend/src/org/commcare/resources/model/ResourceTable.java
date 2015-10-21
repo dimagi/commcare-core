@@ -409,7 +409,7 @@ public class ResourceTable {
     public void prepareResources(ResourceTable master, CommCareInstance instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
-        Stack<Resource> unreadyResources = getUnreadyResources();
+        Vector<Resource> unreadyResources = getUnreadyResources();
 
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
