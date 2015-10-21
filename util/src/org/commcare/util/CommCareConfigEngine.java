@@ -77,7 +77,7 @@ public class CommCareConfigEngine {
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.output = output;
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 24);
+        this.platform = new CommCarePlatform(2, 25);
 
         this.mLiveFactory = prototypeFactory;
 
