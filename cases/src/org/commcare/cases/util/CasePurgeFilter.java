@@ -184,7 +184,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         for (Enumeration iterator = g.getNodes(); iterator.hasMoreElements(); ) {
             String[] node = (String[])iterator.nextElement();
             if (!node[0].equals(STATUS_LIVE)) {
-                idsToRemove.addElement(Integer.valueOf(node[1]));
+                idsToRemove.addElement(new Integer(node[1]));
             }
         }
     }
