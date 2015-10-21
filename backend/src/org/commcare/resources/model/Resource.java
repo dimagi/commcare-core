@@ -41,9 +41,6 @@ import java.util.Vector;
  * evaluated by the the resource table.</li>
  * <li>RESOURCE_STATUS_LOCAL - The resource definition is locally present
  * and ready to be read and installed</li>
- * <li>RESOURCE_STATUS_PENDING - This resource's definition is needed by
- * a separate resource, and is waiting for that resource to mark it as
- * relevant.</li>
  * <li>RESOURCE_STATUS_INSTALLED - This resource is present locally and has
  * been installed. It is ready to be used.</li>
  * <li>RESOURCE_STATUS_UPGRADE - This resource definition has been read, and
@@ -75,10 +72,6 @@ public class Resource implements Persistable, IMetaData {
     // Resource is in the local environment and ready to install
     public static final int RESOURCE_STATUS_LOCAL = 1;
 
-    // TODO: I think this means the same as "upgade" and should be removed and
-    // replaced by it
-    public static final int RESOURCE_STATUS_PENDING = 2;
-
     // Installed and ready to use
     public static final int RESOURCE_STATUS_INSTALLED = 4;
 
@@ -88,11 +81,6 @@ public class Resource implements Persistable, IMetaData {
     // Resource is no longer needed in the local environment and can be
     // completely removed
     public static final int RESOURCE_STATUS_DELETE = 16;
-
-
-    // TODO: We can probably encode this more sanely.
-
-    // Abandoning binary numbering.
 
     // Resource has been "unstaged" (won't necessarily work as an app
     // resource), but can be reverted to installed atomically.
