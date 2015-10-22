@@ -4,7 +4,7 @@
 	<property name="base.dir" location="." />
 	<property name="root.dir" location="../../../" />
 	<property name="dir.lib.root" location="${root.dir}" />
-	<property name="lib.dir" location="${dir.lib.root}/javarosa-dependencies/lib" />
+	<property name="lib.dir" location="${dir.lib.root}/lib" />
 	<property name="build.dir" location="build" />
 	<property name="build.debug" value="on" />
 	<property name="build.deprecation" value="on" />

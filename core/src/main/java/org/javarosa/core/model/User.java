@@ -18,7 +18,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- * User object shared between J2ME and Android
+ * Peristable object representing a CommCare mobile user.
  *
  * @author ctsims
  * @author wspride
@@ -178,21 +178,6 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         return "user";
     }
 
-    public FormInstance exportData() {
-        FormInstance dm = RestoreUtils.createDataModel(this);
-        RestoreUtils.addData(dm, "name", username);
-        RestoreUtils.addData(dm, "pass", password);
-        RestoreUtils.addData(dm, "uuid", uniqueId);
-        RestoreUtils.addData(dm, "remember", Boolean.valueOf(rememberMe));
-
-        for (Enumeration e = properties.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            RestoreUtils.addData(dm, "other/" + key, properties.get(key));
-        }
-
-        return dm;
-    }
-
     public void templateData(FormInstance dm, TreeReference parentRef) {
         RestoreUtils.applyDataType(dm, "name", parentRef, String.class);
         RestoreUtils.applyDataType(dm, "pass", parentRef, String.class);
@@ -200,25 +185,6 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         RestoreUtils.applyDataType(dm, "user-id", parentRef, Integer.class);
         RestoreUtils.applyDataType(dm, "uuid", parentRef, String.class);
         RestoreUtils.applyDataType(dm, "remember", parentRef, Boolean.class);
-    }
-
-    public void importData(FormInstance dm) {
-        username = (String)RestoreUtils.getValue("name", dm);
-        password = (String)RestoreUtils.getValue("pass", dm);
-        uniqueId = (String)RestoreUtils.getValue("uuid", dm);
-        rememberMe = RestoreUtils.getBoolean(RestoreUtils.getValue("remember", dm));
-
-        TreeElement e = dm.resolveReference(RestoreUtils.absRef("other", dm));
-        if (e != null) {
-            for (int i = 0; i < e.getNumChildren(); i++) {
-                TreeElement child = e.getChildAt(i);
-                String name = child.getName();
-                Object value = RestoreUtils.getValue("other/" + name, dm);
-                if (value != null) {
-                    properties.put(name, (String)value);
-                }
-            }
-        }
     }
 
     public Hashtable getMetaData() {
