@@ -23,6 +23,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.commcare.util.J2MESandbox;
 
 import java.io.IOException;
+import java.lang.Override;
+
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 
 /**
@@ -58,18 +60,10 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
         this.tolerant = tolerant;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-     */
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-
-        TransactionParser superParser = super.getParser(parser);
-        if(superParser != null){
-            return superParser;
-        }
 
         if("message".equalsIgnoreCase(name)) {
             return new TransactionParser<String>(parser) {
@@ -93,9 +87,16 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
             };
 
         }
+        // check for super AFTER so that we default to overridden case
+        TransactionParser superParser = super.getParser(parser);
+        if(superParser != null){
+            return superParser;
+        }
+
         return null;
     }
 
+    @Override
     public void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
@@ -109,6 +110,7 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
         };
     }
 
+    @Override
     public void initUserParser() {
         userParser = new TransactionParserFactory() {
             J2MEUserXmlParser created = null;
@@ -131,6 +133,7 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
      *
      * after processing has completed.
      */
+    @Override
     public int[] getCaseTallies() {
         return caseTallies;
     }
@@ -139,10 +142,12 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
      * @return After processing is completed, if a message to the user was present, it
      * will be returned here.
      */
+    @Override
     public String getResponseMessage() {
         return message;
     }
 
+    @Override
     public OrderedHashtable<String,String> getResponseMessageMap() {
         return messages;
     }

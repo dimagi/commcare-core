@@ -1,6 +1,6 @@
 package org.commcare.core.parse;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
@@ -32,7 +32,7 @@ import java.io.IOException;
  *
  * V2: The CommCareTranactionParserFactory was refactored to be shared across Android/J2ME/Touchforms
  * as much possible. The parsing logic is largely the same across platforms. They mainly differ
- * in the AbstractUserSandbox sandbox implementation and in some nuances of the parsers, which is achieved
+ * in the UserSandbox sandbox implementation and in some nuances of the parsers, which is achieved
  * by overriding the init methods as needed. This is the "pure" Java implementation: J2METransactionParserFactory
  * and AndroidTransactionParserFactory override it for their respective platforms.
  *
@@ -47,11 +47,11 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     protected TransactionParserFactory stockParser;
     protected TransactionParserFactory fixtureParser;
 
-    protected final AbstractUserSandbox sandbox;
+    protected final UserSandbox sandbox;
 
     int requests = 0;
 
-    public CommCareTransactionParserFactory(AbstractUserSandbox sandbox) {
+    public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
         this.initFixtureParser();
         this.initUserParser();

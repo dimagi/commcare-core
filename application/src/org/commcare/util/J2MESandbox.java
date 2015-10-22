@@ -2,7 +2,7 @@ package org.commcare.util;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.properties.CommCareProperties;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
@@ -13,12 +13,12 @@ import org.javarosa.core.services.storage.StorageManager;
 
 /**
  * Basically just a wrapper around the StorageManager so that we can use that storage acccess
- * as a AbstractUserSandbox.
+ * as a UserSandbox.
  *
  * @author wspride
  */
 
-public class J2MESandbox extends AbstractUserSandbox {
+public class J2MESandbox extends UserSandbox {
 
     public IStorageUtilityIndexed<Case> getCaseStorage() {
         return (IStorageUtilityIndexed<Case>)StorageManager.getStorage(Case.STORAGE_KEY);

@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
@@ -19,11 +19,13 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -46,7 +48,7 @@ import java.net.URL;
 public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
-    private AbstractUserSandbox mSandbox;
+    private UserSandbox mSandbox;
     private SessionWrapper mSession;
 
     private boolean mUpdatePending = false;
@@ -327,7 +329,7 @@ public class ApplicationHost {
         }
     }
 
-    private void restoreFileToSandbox(AbstractUserSandbox sandbox, String restoreFile) {
+    private void restoreFileToSandbox(UserSandbox sandbox, String restoreFile) {
         FileInputStream fios = null;
         try {
             System.out.println("Restoring user data from local file " + restoreFile);
@@ -352,7 +354,7 @@ public class ApplicationHost {
         }
     }
 
-    private void restoreUserToSandbox(AbstractUserSandbox mSandbox, String[] userCredentials) {
+    private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
         final String username = userCredentials[0];
         final String password = userCredentials[1];
 
@@ -381,6 +383,10 @@ public class ApplicationHost {
         } catch (InvalidStructureException e) {
             e.printStackTrace();
             System.exit(-1);
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
         }
 
         //Initialize our User

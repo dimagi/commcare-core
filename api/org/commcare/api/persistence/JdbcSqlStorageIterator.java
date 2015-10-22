@@ -16,12 +16,12 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
     private final PreparedStatement preparedStatement;
     private final ResultSet resultSet;
     private int count = -1;
-    private final SqlIndexedStorageUtility<E> storage;
+    private final SqliteIndexedStorageUtility<E> storage;
 
     public JdbcSqlStorageIterator(PreparedStatement preparedStatement,
                                   ResultSet resultSet,
                                   int count,
-                                  SqlIndexedStorageUtility<E> storage){
+                                  SqliteIndexedStorageUtility<E> storage){
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
         this.count = count;

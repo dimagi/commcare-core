@@ -1,7 +1,6 @@
 package org.commcare.util.mocks;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
-import org.commcare.core.process.CommCareInstanceInitializer;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -14,11 +13,11 @@ import org.javarosa.core.model.condition.EvaluationContext;
  */
 public class SessionWrapper extends CommCareSession {
     
-    AbstractUserSandbox mSandbox;
+    UserSandbox mSandbox;
     CommCarePlatform mPlatform;
-    CommCareInstanceInitializer initializer;
+    CLIInstanceInitializer initializer;
     
-    public SessionWrapper(CommCarePlatform platform, AbstractUserSandbox sandbox) {
+    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
@@ -39,9 +38,9 @@ public class SessionWrapper extends CommCareSession {
         return getEvaluationContext(getIIF(), commandId);
     }
 
-    public CommCareInstanceInitializer getIIF() {
+    public CLIInstanceInitializer getIIF() {
         if (initializer == null) {
-            initializer = new CommCareInstanceInitializer(this, mSandbox, mPlatform);
+            initializer = new CLIInstanceInitializer(this, mSandbox, mPlatform);
         }
 
         return initializer;
@@ -49,7 +48,7 @@ public class SessionWrapper extends CommCareSession {
     public CommCarePlatform getPlatform(){
         return this.mPlatform;
     }
-    public AbstractUserSandbox getSandbox() {
+    public UserSandbox getSandbox() {
         return this.mSandbox;
     }
 

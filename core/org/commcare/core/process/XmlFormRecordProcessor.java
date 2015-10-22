@@ -1,6 +1,6 @@
 package org.commcare.core.process;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -16,14 +16,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Utility methods for processing XML transactions against a user sandbox
+ * Utility methods for processing XML transactions against a user sandbox.
+ * This was written to make TouchForms XML submissions easier to perform. Only processes
+ * blocks that need to be transacted against the user record (IE cases and ledgers at the moment).
+ * This should be used when you have a raw input stream of the XML; FormRecordProcessor on Android
+ * should be used when you have a FormRecord object
  *
  * Created by wpride1 on 7/21/15.
  */
 public class XmlFormRecordProcessor {
 
-    public static void process(AbstractUserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-        final AbstractUserSandbox mSandbox = sandbox;
+    public static void process(UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+        final UserSandbox mSandbox = sandbox;
 
         InputStream is = stream;
 

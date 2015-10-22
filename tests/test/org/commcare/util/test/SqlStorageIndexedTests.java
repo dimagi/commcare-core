@@ -1,6 +1,6 @@
 package org.commcare.util.test;
 
-import org.commcare.api.persistence.SqlIndexedStorageUtility;
+import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.JdbcSqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
@@ -22,8 +22,8 @@ public class SqlStorageIndexedTests {
 
     Ledger l, l2, l3;
 
-    SqlIndexedStorageUtility<Case> caseStorage;
-    SqlIndexedStorageUtility<Ledger> ledgerStorage;
+    SqliteIndexedStorageUtility<Case> caseStorage;
+    SqliteIndexedStorageUtility<Ledger> ledgerStorage;
     String owner;
     String groupOwner;
     String otherOwner;
@@ -77,7 +77,7 @@ public class SqlStorageIndexedTests {
 
                 SqlTestUtils.deleteDatabase(username);
 
-                caseStorage = new SqlIndexedStorageUtility<Case>(Case.class, username, storageKey);
+                caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey);
 
                 caseStorage.write(a);
 
@@ -111,7 +111,7 @@ public class SqlStorageIndexedTests {
 
                 SqlTestUtils.deleteDatabase(username);
 
-                ledgerStorage = new SqlIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
+                ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
 
                 ledgerStorage.write(l);
                 ledgerStorage.write(l2);

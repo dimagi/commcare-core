@@ -1,13 +1,12 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
@@ -29,7 +28,7 @@ public class MenuScreen extends Screen {
     private MenuDisplayable[] mChoices;
     CommCarePlatform mPlatform;
     SessionWrapper mSession;
-    AbstractUserSandbox mSandbox;
+    UserSandbox mSandbox;
     
     String mTitle;
     
@@ -49,7 +48,6 @@ public class MenuScreen extends Screen {
         EvaluationContext ec = null;
         for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
-                String xpathExpression = "";
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {

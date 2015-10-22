@@ -10,6 +10,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.omg.SendingContext.RunTime;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.io.ByteArrayInputStream;
@@ -29,23 +30,42 @@ import java.util.Vector;
  *
  * @author wspride
  */
-public class SqlIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
+public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
     private final Class<T> prototype;
     private final String tableName;
-    private final String userName;
+    private final String sandboxId;
 
-    public SqlIndexedStorageUtility(Class<T> prototype, String userName, String tableName) {
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName) {
         this.tableName = tableName;
-        this.userName = userName;
+        this.sandboxId = sandboxId;
         this.prototype = prototype;
-        tryCreateTable();
+
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.createTable(c, tableName, prototype.newInstance());
+            c.close();
+        } catch (SQLException e) {
+            System.out.println("Couldn't create table: " + tableName + " due to exception: " + e);
+            e.printStackTrace();
+        } catch(InstantiationException | IllegalAccessException | ClassNotFoundException e){
+            throw new RuntimeException(e);
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + this.userName + ".db");
+        dataSource.setUrl("jdbc:sqlite:" + this.sandboxId + ".db");
         return dataSource.getConnection();
     }
 
@@ -56,7 +76,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             return;
         }
 
-        Connection c;
+        Connection c = null;
         try {
             c = getConnection();
             int id = SqlHelper.insertToTable(c, tableName, p);
@@ -67,7 +87,15 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             SqlHelper.updateId(c, tableName, p);
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -81,7 +109,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             returnPrototype.readExternal(new DataInputStream(mByteStream), PrototypeManager.getDefault());
             return returnPrototype;
         } catch (InstantiationException | IllegalAccessException | DeserializationException | IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally{
             if(mByteStream != null){
                 try {
@@ -91,7 +119,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 }
             }
         }
-        return null;
     }
 
     @Override
@@ -119,7 +146,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             }
             return ids;
         } catch (InstantiationException | IllegalAccessException | SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             try {
                 if (c != null) {
@@ -131,10 +158,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
         }
-
-        return null;
     }
 
     @Override
@@ -148,9 +172,6 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                     SqlHelper.prepareTableSelectStatement(c, this.tableName,
                             new String[]{fieldName}, new String[]{(String)value},
                             prototype.newInstance());
-            if (preparedStatement == null) {
-                throw new NoSuchElementException();
-            }
             ResultSet rs = preparedStatement.executeQuery();
             if (!rs.next()) {
                 throw new NoSuchElementException();
@@ -159,7 +180,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             return readFromBytes(mBytes);
         } catch (SQLException | InstantiationException |
                 IllegalAccessException | NullPointerException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             try {
                 if (c != null) {
@@ -172,13 +193,31 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
                 e.printStackTrace();
             }
         }
-        return null;
     }
 
     @Override
     public int add(T e) throws StorageFullException {
-        this.write(e);
-        return 1;
+        Connection c = null;
+        try {
+            c = getConnection();
+            int id = SqlHelper.insertToTable(c, tableName, e);
+            c.close();
+            c = getConnection();
+            e.setID(id);
+            SqlHelper.updateId(c, tableName, e);
+            c.close();
+            return id;
+        } catch (SQLException | ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -199,15 +238,12 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         try {
             c = getConnection();
             preparedStatement = SqlHelper.prepareIdSelectStatement(c, this.tableName, id);
-            if (preparedStatement == null) {
-                return false;
-            }
             ResultSet rs = preparedStatement.executeQuery();
             if (rs.next()) {
                 return true;
             }
         } catch (Exception e) {
-            System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+            throw new RuntimeException(e);
         } finally {
             try {
                 if (c != null) {
@@ -240,7 +276,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             ResultSet rs = preparedStatement.executeQuery();
             return rs.getInt(1);
         } catch (Exception e) {
-            System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+            System.out.println("SqliteIndexedStorageUtility readBytes exception: " + e);
         } finally {
             try {
                 if (c != null) {
@@ -302,7 +338,7 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
             ResultSet rs = preparedStatement.executeQuery();
             return rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
         } catch (Exception e) {
-            System.out.println("SqlIndexedStorageUtility readBytes exception: " + e);
+            System.out.println("SqliteIndexedStorageUtility readBytes exception: " + e);
         } finally{
             try {
                 if (preparedStatement != null) {
@@ -320,31 +356,69 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
 
     @Override
     public void update(int id, Persistable p) throws StorageFullException {
-        Connection c;
+        Connection c = null;
         try {
             c = getConnection();
             SqlHelper.updateToTable(c, tableName, p, id);
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void remove(int id) {
-
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.deleteIdFromTable(c, tableName, id);
+            c.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void remove(Persistable p) {
-        this.read(p.getID());
+        this.remove(p.getID());
     }
 
     @Override
     public void removeAll() {
-
+        Connection c = null;
+        try {
+            c = getConnection();
+            SqlHelper.deleteAllFromTable(c, tableName);
+            c.close();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally{
+            try {
+                if (c != null) {
+                    c.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
+    // not yet implemented
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         return null;
@@ -375,14 +449,4 @@ public class SqlIndexedStorageUtility<T extends Persistable> implements IStorage
         return iterate();
     }
 
-    private void tryCreateTable() {
-        try {
-            Connection c = getConnection();
-            SqlHelper.createTable(c, tableName, prototype.newInstance());
-            c.close();
-        } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            System.out.println("Couldn't create table: " + tableName + " got: " + e);
-            e.printStackTrace();
-        }
-    }
 }

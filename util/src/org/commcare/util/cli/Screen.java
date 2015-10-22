@@ -1,9 +1,8 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -36,7 +35,7 @@ public abstract class Screen {
     /**
      * Get the title of the current screen, wrapped with the relevant app metadata.
      */
-    public String getWrappedDisplaytitle(AbstractUserSandbox sandbox, CommCarePlatform platform) {
+    public String getWrappedDisplaytitle(UserSandbox sandbox, CommCarePlatform platform) {
         String title = getScreenTitle();
         if (title == null) {
             try {

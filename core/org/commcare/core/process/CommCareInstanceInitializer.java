@@ -3,7 +3,7 @@ package org.commcare.core.process;
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
@@ -26,23 +26,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final CommCareSession session;
     protected CaseInstanceTreeElement casebase;
     protected LedgerInstanceTreeElement stockbase;
-    protected final AbstractUserSandbox mSandbox;
+    protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
 
-    public CommCareInstanceInitializer(AbstractUserSandbox sandbox) {
+    public CommCareInstanceInitializer(UserSandbox sandbox) {
         this(null, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(AbstractUserSandbox sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(UserSandbox sandbox, CommCarePlatform platform) {
         this(null, sandbox, platform);
     }
 
-    public CommCareInstanceInitializer(AbstractUserSandbox sandbox, CommCareSession session) {
+    public CommCareInstanceInitializer(UserSandbox sandbox, CommCareSession session) {
         this(session, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(CommCareSession session, AbstractUserSandbox sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
@@ -116,6 +116,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
 
     protected String getVersionString(){
-        return "CommCare CLI: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
+        return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 }

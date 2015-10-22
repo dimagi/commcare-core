@@ -37,7 +37,7 @@ public class SqlHelper {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
@@ -56,25 +56,21 @@ public class SqlHelper {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
     }
 
-    public static PreparedStatement prepareIdSelectStatement(Connection c,
-                                                             String storageKey,
-                                                             int id) {
+    public static PreparedStatement prepareIdSelectStatement(Connection c, String storageKey, int id) {
         try {
             PreparedStatement preparedStatement =
                     c.prepareStatement("SELECT * FROM " + storageKey + " WHERE "
                             + DatabaseHelper.ID_COL + " = ?;");
             preparedStatement.setInt(1, id);
             return preparedStatement;
-
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,8 +92,7 @@ public class SqlHelper {
             }
             return preparedStatement;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -138,8 +133,7 @@ public class SqlHelper {
             }
 
         } catch (SQLException e) {
-            System.out.println("e: " + e);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -149,7 +143,6 @@ public class SqlHelper {
                 }
             }
         }
-        return -1;
     }
 
     /**
@@ -198,7 +191,7 @@ public class SqlHelper {
             }
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -238,9 +231,65 @@ public class SqlHelper {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
     }
+
+    /**
+     * Update entry under id with persistable p
+     *
+     * @param connection    Database Connection
+     * @param tableName     name of table
+     * @param id            sql record to update
+     */
+    public static void deleteIdFromTable(Connection connection, String tableName, int id) {
+        String query = "DELETE FROM " + tableName + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Update entry under id with persistable p
+     *
+     * @param connection    Database Connection
+     * @param tableName     name of table
+     */
+    public static void deleteAllFromTable(Connection connection, String tableName) {
+        String query = "DELETE FROM " + tableName;
+
+        PreparedStatement preparedStatement = null;
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+
 }

@@ -11,7 +11,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
  *  @author wpride1
  */
 
-public abstract class AbstractUserSandbox {
+public abstract class UserSandbox {
 
     String syncToken;
 

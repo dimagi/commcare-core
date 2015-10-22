@@ -142,10 +142,4 @@ public class DatabaseHelper {
         mTableBuilder.addData(p);
         return mTableBuilder.getTableInsertData(p);
     }
-
-    public static String getRecordForValueSelectString(String storageKey, String id){
-        return "SELECT " + DatabaseHelper.DATA_COL + " from " + storageKey + " WHERE commcare_sql_id = " + id + ";";
-    }
-
-
 }

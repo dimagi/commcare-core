@@ -68,10 +68,6 @@ public class CommCarePlatform implements CommCareInstance {
         while(iterator.hasMore()){
             installedSuites.addElement((Suite)utility.read(iterator.nextID()));
         }
-        /*
-        for (Integer i : suites) {
-            installedSuites.addElement((Suite)(utility.read(i.intValue())));
-        }*/
         return installedSuites;
     }
     
