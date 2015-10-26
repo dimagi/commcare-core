@@ -1,0 +1,193 @@
+[
+{
+"name":"Ownership Purge",
+"cases":["a","b","c"],
+"outcome":[]
+}
+,{
+"name":"Partial Ownership",
+"owned":["a","b","c"],
+"cases":["d"],
+"outcome":["a","b","c"]
+}
+,{
+"name":"Subcase Ownership",
+"owned":["d"],
+"subcases":[["d","b"]],
+"outcome":["d","b"]
+}
+,{
+"name":"Close Purge",
+"closed":["a"],
+"outcome":[]
+}
+,{
+"name":"Live Dependence",
+"owned":["a","b"],
+"closed":["a"],
+"subcases":[["b","a"]],
+"outcome":["a","b"]
+}
+,{
+  "name":"Test Reverse Index",
+  "owned":["a","b"],
+  "closed":["b"],
+  "subcases":[["b","a"]],
+  "outcome":["a"]
+}
+,{
+  "name":"Multiple Dead",
+  "owned":["a","b"],
+  "closed":["a","b"],
+  "subcases":[["b","a"]],
+  "outcome":[]
+}
+,{
+  "name":"Double Chain",
+  "owned":["a","b","c"],
+  "closed":["a","b"],
+  "subcases":[["c","b"],
+              ["b","a"]],
+  "outcome":["a","b","c"]
+}
+,{
+  "name":"Alternating Chain",
+  "owned":["b","d"],
+  "closed":["b","e"],
+  "subcases":[["d","b"],
+              ["e","d"]],
+  "outcome":["d","b"]
+}
+
+,{
+  "name":"Lopsided Chain",
+  "owned":["b","d","e"],
+  "closed":["d","e"],
+  "subcases":[["d","b"],
+              ["e","d"]],
+  "outcome":["b"]
+}
+,{
+  "name":"Extension retention",
+  "owned":["a"],
+  "extensions":[["e","a"]
+               ],
+  "outcome":["a","e"]
+}
+,{
+  "name":"Extension Purge",
+  "owned":["a"],
+  "closed":["a"],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":[]
+}
+,{
+  "name":"Extension Subcase Chain",
+  "owned":["a","b"],
+  "closed":["a"],
+  "subcases":[
+    ["b","e"]
+  ],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":["a","b","e"]
+}
+,{
+  "name":"Extension Subcase Chain Closed",
+  "owned":["a","b"],
+  "closed":["a","b"],
+  "subcases":[
+    ["b","e"]
+  ],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":[]
+}
+,{
+  "name":"Double Extension",
+  "owned":["a","b"],
+  "closed":["a"],
+  "extensions":[
+    ["e","a"],
+    ["b","e"]
+  ],
+  "outcome":[]
+}
+,{
+  "name":"Heterogeneous Children",
+  "owned":["a","b","e"],
+  "closed":["a"],
+  "subcases":[
+    ["b","a"]
+  ],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":["a","b","e"]
+}
+,{
+  "name":"Heterogeneous Parentage",
+  "owned":["a","b"],
+  "closed":["a"],
+  "subcases":[
+    ["e","b"]
+  ],
+  "extensions":[
+    ["e","a"]
+  ],
+  "outcome":["b"]
+}
+,{
+  "name":"Double Index",
+  "owned":["a","b"],
+  "closed":["a"],
+  "subcases":[
+    ["b","a"]
+  ],
+  "extensions":[
+    ["b","a"]
+  ],
+  "outcome":["a","b"]
+}
+,{
+  "name":"Delegate Closure",
+  "owned":["d"],
+  "closed":["a"],
+  "extensions":[
+    ["d","a"]
+  ],
+  "outcome":[]
+}
+,{
+  "name":"Delegate Pull",
+  "owned":["d"],
+  "extensions":[
+    ["d","a"]
+  ],
+  "outcome":["d", "a"]
+}
+,{
+  "name":"Delegate Keep",
+  "owned":["a"],
+  "extensions":[
+    ["d","a"]
+  ],
+  "outcome":["d", "a"]
+}
+,{
+  "name":"Delegate Extension Info",
+  "owned":["d"],
+  "extensions":[
+    ["d","a"],
+    ["b","a"]
+  ],
+  "outcome":["d", "a","b"]
+}
+
+
+
+]

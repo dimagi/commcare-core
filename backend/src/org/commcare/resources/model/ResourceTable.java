@@ -17,9 +17,9 @@ import java.util.Stack;
 import java.util.Vector;
 
 /**
- * <p>A Resource Table maintains a set of Resource Records,
+ * A Resource Table maintains a set of Resource Records,
  * resolves dependencies between records, and provides hooks
- * for maintenance, updating, and initializing resources.</p>
+ * for maintenance, updating, and initializing resources.
  *
  * @author ctsims
  */
@@ -45,9 +45,10 @@ public class ResourceTable {
     public static final int RESOURCE_TABLE_UNCOMMITED = 5;
 
     private TableStateListener stateListener = null;
+    private InstallCancelled cancellationChecker = null;
+    private InstallStatsLogger installStatsLogger = null;
 
     private int numberOfLossyRetries = 3;
-
 
     /**
      * For Serialization Only!
@@ -141,28 +142,34 @@ public class ResourceTable {
     }
 
     public void addResource(Resource resource, int status) {
-        // only add resource if they don't already exist
-        if (storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID,
-                resource.getResourceId()).size() == 0) {
-            resource.setStatus(status);
-            //TODO: Check if it exists?
-            if (resource.getID() != -1) {
-                // Assume that we're going cross-table, so we need a new
-                // RecordId.
-                resource.setID(-1);
+        if (resourceDoesntExist(resource)) {
+            addResourceInner(resource, status);
+        } else {
+            Logger.log("Resource", "Trying to add an already existing resource: " + resource.getResourceId());
+        }
+    }
+    private boolean resourceDoesntExist(Resource resource) {
+        return storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId()).size() == 0;
+    }
 
-                // Check to make sure that there's no existing GUID for
-                // this record.
-                if (getResourceWithGuid(resource.getRecordGuid()) != null) {
-                    throw new RuntimeException("This resource record already exists.");
-                }
-            }
+    private void addResourceInner(Resource resource, int status) {
+        resource.setStatus(status);
+        if (resource.getID() != -1) {
+            // Assume that we're going cross-table, so we need a new
+            // RecordId.
+            resource.setID(-1);
 
-            try {
-                storage.write(resource);
-            } catch (StorageFullException e) {
-                e.printStackTrace();
+            // Check to make sure that there's no existing GUID for
+            // this record.
+            if (getResourceWithGuid(resource.getRecordGuid()) != null) {
+                throw new RuntimeException("This resource record already exists.");
             }
+        }
+
+        try {
+            storage.write(resource);
+        } catch (StorageFullException e) {
+            e.printStackTrace();
         }
     }
 
@@ -260,8 +267,7 @@ public class ResourceTable {
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
-                    r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE &&
-                    r.getStatus() != Resource.RESOURCE_STATUS_PENDING) {
+                    r.getStatus() != Resource.RESOURCE_STATUS_UPGRADE) {
                 v.push(r);
             }
         }
@@ -282,9 +288,7 @@ public class ResourceTable {
             r.setVersion(version);
         } else {
             // Otherwise, someone screwed up
-            // XXX PLM: Why?
-            Logger.log("Resource",
-                    "committing a resource with a known version.");
+            Logger.log("Resource", "committing a resource with a known version.");
         }
         commit(r, status);
     }
@@ -332,7 +336,7 @@ public class ResourceTable {
                                                 boolean upgrade,
                                                 CommCareInstance instance,
                                                 ResourceTable master)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         // TODO: Possibly check if resource status is local and proceeding to
         // skip this huge (although in reality like one step) chunk
@@ -354,6 +358,7 @@ public class ResourceTable {
                             theFailure = use;
                         }
                         if (handled) {
+                            recordSuccess(r);
                             break;
                         }
                     }
@@ -364,6 +369,7 @@ public class ResourceTable {
                             ReferenceManager._().DeriveReference(location.getLocation()),
                             this, instance, upgrade);
                     if (handled) {
+                        recordSuccess(r);
                         break;
                     }
                 } catch (InvalidReferenceException ire) {
@@ -401,13 +407,23 @@ public class ResourceTable {
      *                                           version of CommCare
      */
     public void prepareResources(ResourceTable master, CommCareInstance instance)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
-        this.prepareResources(master, instance, null);
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
+
+        Vector<Resource> unreadyResources = getUnreadyResources();
+
+        // install all unready resources.
+        while (!unreadyResources.isEmpty()) {
+            for (Resource r : unreadyResources) {
+                prepareResource(master, instance, r);
+            }
+            // Installing resources may have exposed more unready resources
+            // that need installing.
+            unreadyResources = getUnreadyResources();
+        }
     }
 
-
     /**
-     * Makes some (or all) of the table's resources available
+     * Makes all resources available until toInitialize is encountered.
      *
      * @param master       The global resource to prepare against. Used to
      *                     establish whether resources need to be fetched remotely
@@ -419,83 +435,64 @@ public class ResourceTable {
      * @throws UnfullfilledRequirementsException resource(s) incompatible with
      *                                           current CommCare version
      */
-    public void prepareResources(ResourceTable master,
-                                 CommCareInstance instance,
-                                 String toInitialize)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public void prepareResourcesUpTo(ResourceTable master,
+                                     CommCareInstance instance,
+                                     String toInitialize)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
         Vector<Resource> unreadyResources = getUnreadyResources();
 
-        // install all unready resources. If toInitialize is set, stop after it
-        // has been installed.
-        while (idNeedsInit(toInitialize) && !unreadyResources.isEmpty()) {
+        // install unready resources, until toInitialize has been installed.
+        while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                boolean upgrade = false;
-
-                Vector<Reference> invalid = new Vector<Reference>();
-
-                // All operations regarding peers and master table
-                if (master != null) {
-                    // obtain resource peer by looking up the current resource
-                    // in the master table
-                    Resource peer = master.getResourceWithId(r.getResourceId());
-                    if (peer != null) {
-                        // TODO: For now we're assuming that Versions greater
-                        // than the current are always acceptable
-                        if (!r.isNewer(peer)) {
-                            // This resource doesn't need to be updated, copy
-                            // the existing resource into this table
-                            peer.mimick(r);
-                            commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
-                            continue;
-                        }
-
-                        // resource is newer than master version, so invalidate
-                        // old local resource locations.
-                        upgrade = true;
-                        invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
-                    }
-                }
-
-                findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
-
-                if (stateListener != null) {
-                    stateListener.resourceStateUpdated(this);
-                }
+                prepareResource(master, instance, r);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
             unreadyResources = getUnreadyResources();
         }
+    }
 
-        if (toInitialize != null) {
-            // We will need to run  a full init later, so we can skip the next step
-            return;
+    private void prepareResource(ResourceTable master, CommCareInstance instance,
+                                 Resource r)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
+        boolean upgrade = false;
+
+        Vector<Reference> invalid = new Vector<Reference>();
+
+        if (master != null) {
+            // obtain resource peer by looking up the current resource
+            // in the master table
+            Resource peer = master.getResourceWithId(r.getResourceId());
+            if (peer != null) {
+                // TODO: For now we're assuming that Versions greater
+                // than the current are always acceptable
+                if (!r.isNewer(peer)) {
+                    // This resource doesn't need to be updated, copy
+                    // the existing resource into this table
+                    peer.mimick(r);
+                    commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
+                    return;
+                }
+
+                // resource is newer than master version, so invalidate
+                // old local resource locations.
+                upgrade = true;
+                invalid = ResourceTable.gatherResourcesLocalRefs(peer, master);
+            }
         }
 
-        // TODO: Nothing uses this status, really. Should this go away?
-        // Wipe out any resources which are still pending. If they weren't updated by their
-        // parent, they aren't relevant.
-        for (Resource stillPending : getResourcesWithStatus(Resource.RESOURCE_STATUS_PENDING)) {
-            this.removeResource(stillPending);
+        findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
+
+        if (stateListener != null) {
+            stateListener.resourceStateUpdated(this);
         }
     }
 
-    /**
-     * Is the id non-null and points to a resource that is uninitialized
-     *
-     * @param id Points to a resource. If null, returns true
-     * @return Is the resource pointed to by the ID uninitialized?
-     */
-    private boolean idNeedsInit(String id) {
-        if (id != null) {
-            Resource res = this.getResourceWithId(id);
-            if (res != null &&
-                    res.getStatus() != Resource.RESOURCE_STATUS_UNINITIALIZED) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isResourceUninitialized(String resourceId) {
+        Resource res = this.getResourceWithId(resourceId);
+        return ((res == null) ||
+                (res.getStatus() == Resource.RESOURCE_STATUS_UNINITIALIZED));
     }
 
     /**
@@ -508,13 +505,15 @@ public class ResourceTable {
     private boolean installResource(Resource r, ResourceLocation location,
                                     Reference ref, ResourceTable table,
                                     CommCareInstance instance, boolean upgrade)
-            throws UnresolvedResourceException, UnfullfilledRequirementsException {
+            throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         UnreliableSourceException aFailure = null;
 
         for (int i = 0; i < this.numberOfLossyRetries + 1; ++i) {
+            abortIfInstallCancelled(r);
             try {
                 return r.getInstaller().install(r, location, ref, table, instance, upgrade);
             } catch (UnreliableSourceException use) {
+                recordFailure(r, use);
                 aFailure = use;
                 Logger.log("install", "Potentially lossy install attempt # " +
                         (i + 1) + " of " + (numberOfLossyRetries + 1) +
@@ -528,6 +527,27 @@ public class ResourceTable {
         }
 
         return false;
+    }
+
+    private void abortIfInstallCancelled(Resource r) throws InstallCancelledException {
+        if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
+            InstallCancelledException installException =
+                new InstallCancelledException("Installation/upgrade was cancelled while processing " + r.getResourceId());
+            recordFailure(r, installException);
+            throw installException;
+        }
+    }
+
+    private void recordFailure(Resource resource, Exception e) {
+        if (installStatsLogger != null) {
+            installStatsLogger.recordResourceInstallFailure(resource.getResourceId(), e);
+        }
+    }
+
+    private void recordSuccess(Resource resource) {
+        if (installStatsLogger != null) {
+            installStatsLogger.recordResourceInstallSuccess(resource.getResourceId());
+        }
     }
 
     /**
@@ -739,8 +759,6 @@ public class ResourceTable {
                 return "Uninitialized";
             case Resource.RESOURCE_STATUS_LOCAL:
                 return "Local";
-            case Resource.RESOURCE_STATUS_PENDING:
-                return "Pending other Resource";
             case Resource.RESOURCE_STATUS_INSTALLED:
                 return "Installed";
             case Resource.RESOURCE_STATUS_UPGRADE:
@@ -997,6 +1015,14 @@ public class ResourceTable {
 
     public void setStateListener(TableStateListener listener) {
         this.stateListener = listener;
+    }
+
+    public void setInstallCancellationChecker(InstallCancelled cancellationChecker) {
+        this.cancellationChecker = cancellationChecker;
+    }
+
+    public void setInstallStatsLogger(InstallStatsLogger logger) {
+        this.installStatsLogger = logger;
     }
 
     /**

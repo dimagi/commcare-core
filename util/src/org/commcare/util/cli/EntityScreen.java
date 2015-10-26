@@ -1,5 +1,6 @@
 package org.commcare.util.cli;
 
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
@@ -9,6 +10,7 @@ import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.model.xform.XPathReference;
 
 /**
@@ -29,6 +31,7 @@ public class EntityScreen extends CompoundScreenHost {
     private Detail[] mLongDetailList;
 
     private SessionDatum mNeededDatum;
+    private Action mPendingAction;
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
@@ -55,7 +58,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     protected String getScreenTitle() {
-        return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+        try {
+            return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
+        }catch (NoLocalizedTextException nlte) {
+            return "Select (error with title string)";
+        }
     }
 
     @Override
@@ -81,6 +88,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     @Override
     protected void updateSession(CommCareSession session) {
+        if(mPendingAction != null) {
+            session.executeStackOperations(mPendingAction.getStackOperations(), mSession.getEvaluationContext());
+            return;
+        }
+
         String selectedValue = this.getReturnValueFromSelection(this.mCurrentSelection,
                 mNeededDatum, mSession.getEvaluationContext());
         session.setDatum(mNeededDatum.getDataId(), selectedValue);
@@ -92,7 +104,12 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     private void initDetailScreens() {
-        Detail d = mPlatform.getDetail(this.mNeededDatum.getLongDetail());
+        String longDetailId = this.mNeededDatum.getLongDetail();
+        if(longDetailId == null) {
+            mLongDetailList = null;
+            return;
+        }
+        Detail d = mPlatform.getDetail(longDetailId);
         if(d == null) {
             mLongDetailList = null;
             return;
@@ -133,5 +150,9 @@ public class EntityScreen extends CompoundScreenHost {
             titles[i] = this.mLongDetailList[i].getTitle().getText().evaluate(subContext);
         }
         return titles;
+    }
+
+    public void setPendingAction(Action pendingAction) {
+        this.mPendingAction = pendingAction;
     }
 }

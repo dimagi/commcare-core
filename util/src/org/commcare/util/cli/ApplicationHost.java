@@ -4,6 +4,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareTransactionParserFactory;
@@ -15,6 +16,7 @@ import org.commcare.util.mocks.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -131,36 +133,37 @@ public class ApplicationHost {
         Screen s = getNextScreen();
         boolean screenIsRedrawing = false;
 
-        while (s != null) {
-            try {
-                if(!screenIsRedrawing) {
-                    s.init(mPlatform, mSession, mSandbox);
-                }
-
-                System.out.println("\n\n\n\n\n\n");
-                System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
-
-                System.out.println("====================");
-                s.prompt(System.out);
-                System.out.print("> ");
-
-                screenIsRedrawing = false;
-                String input = reader.readLine();
-
-                //TODO: Command language
-                if(input.startsWith(":")) {
-                    if(input.equals(":exit") || input.equals(":quit")) {
-                        return false;
+        boolean sessionIsLive = true;
+        while(sessionIsLive) {
+            while (s != null) {
+                try {
+                    if (!screenIsRedrawing) {
+                        s.init(mPlatform, mSession, mSandbox);
                     }
-                    if (input.startsWith(":update")) {
-                        mUpdatePending = true;
 
-                        if(input.contains("-f")) {
-                            mForceLatestUpdate = true;
+                    System.out.println("\n\n\n\n\n\n");
+                    System.out.println(s.getWrappedDisplaytitle(mSandbox, mPlatform));
+
+                    System.out.println("====================");
+                    s.prompt(System.out);
+                    System.out.print("> ");
+
+                    screenIsRedrawing = false;
+                    String input = reader.readLine();
+
+                    //TODO: Command language
+                    if (input.startsWith(":")) {
+                        if (input.equals(":exit") || input.equals(":quit")) {
+                            return false;
                         }
-                        return true;
-                    }
+                        if (input.startsWith(":update")) {
+                            mUpdatePending = true;
 
+                            if (input.contains("-f")) {
+                                mForceLatestUpdate = true;
+                            }
+                            return true;
+                        }
                     if(input.equals(":home")) {
                         return true;
                     }
@@ -185,44 +188,70 @@ public class ApplicationHost {
                         String evaled = APIUtils.evalExpression(arg, mSession.getEvaluationContext());
                         System.out.println("Eval: " + evaled);
                     }
-                }
 
-                screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
-                if(!screenIsRedrawing) {
-                    s = getNextScreen();
-                }
-            } catch (CommCareSessionException ccse) {
-                printErrorAndContinue("Error during session execution:", ccse);
 
-                //Restart
-                return true;
-            }
-        }
-        //We have a session and are ready to fill out a form!
+                        if (input.equals(":back")) {
+                            mSession.stepBack();
+                            s = getNextScreen();
+                            continue;
+                        }
 
-        //Get our form object
-        String formXmlns = mSession.getForm();
+                        if (input.equals(":stack")) {
+                            printStack(mSession);
 
-        System.out.println("formXmlns: " + formXmlns);
+                            continue;
+                        }
+                    }
 
-        if(formXmlns == null) {
-            finishSession();
-        } else {
+                    screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
+                    if (!screenIsRedrawing) {
+                        s = getNextScreen();
+                    }
+                } catch (CommCareSessionException ccse) {
+                    printErrorAndContinue("Error during session execution:", ccse);
 
-            XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-            player.setSessionIIF(mSession.getIIF());
+                    //Restart
+                    return true;
+                } catch (XPathException xpe) {
+                    printErrorAndContinue("XPath Evaluation exception during session execution:", xpe);
 
-            player.start(mEngine.loadFormByXmlns(formXmlns));
-
-            //If the form saved properly, process the output
-            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
-                if (!processResultInstance(player.getResultStream())) {
+                    //Restart
                     return true;
                 }
+            }
+            //We have a session and are ready to fill out a form!
+
+            System.out.println("Starting form entry with the following stack frame");
+            printStack(mSession);
+            //Get our form object
+            String formXmlns = mSession.getForm();
+
+            if (formXmlns == null) {
                 finishSession();
+                return true;
+            } else {
+                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setSessionIIF(mSession.getIIF());
+                player.start(mEngine.loadFormByXmlns(formXmlns));
+
+                //If the form saved properly, process the output
+                if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                    if (!processResultInstance(player.getResultStream())) {
+                        return true;
+                    }
+                    finishSession();
+                    return true;
+                } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                    mSession.stepBack();
+                    s = getNextScreen();
+                    continue;
+                } else {
+                    //Handle this later
+                    return true;
+                }
             }
         }
-
         //After we finish, continue executing
         return true;
     }
@@ -231,9 +260,22 @@ public class ApplicationHost {
         return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
     }
 
-    public String evaluateXPath(String xpath) throws Exception{
+    public String evaluateXPath(String xpath) throws Exception {
         Text text = Text.XPathText(xpath, null);
         return text.evaluate(mSession.getEvaluationContext());
+    }
+
+    private void printStack(SessionWrapper mSession) {
+        SessionFrame frame = mSession.getFrame();
+        System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
+        System.out.println("----------");
+        for(StackFrameStep step : frame.getSteps()) {
+            if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {
+                System.out.println("COMMAND: " + step.getId());
+            } else {
+                System.out.println("DATUM : " + step.getId() + " - " + step.getValue());
+            }
+        }
     }
 
     private void finishSession() {

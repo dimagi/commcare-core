@@ -21,23 +21,27 @@ import java.util.Vector;
  * @author ctsims
  */
 public class CasePurgeFilter extends EntityFilter<Case> {
+    /**
+     * Owned by the user or a group
+     */
+    private static final int STATUS_OWNED = 1;
 
     /**
-     * Open and owned by someone on the phone
+     * Should be included in the set of cases seen by the user
      */
-    private static final String STATUS_LIVE = "L";
+    private static final int STATUS_RELEVANT = 2;
+
     /**
-     * Purgable *
+     * Isn't precluded from being included in a sync for any reason
      */
-    private static final String STATUS_DEAD = "D";
+    private static final int STATUS_AVAILABLE = 4;
+
     /**
-     * Closed or not owned (NOTE: No longer used) *
+     * Should remain on the phone.
      */
-    private static final String STATUS_CLOSED = "C";
-    /**
-     * Not currently alive, and dependent on another case *
-     */
-    private static final String STATUS_ABANDONED = "A";
+    private static final int STATUS_ALIVE = 8;
+
+    private static final int STATUS_OPEN = 16;
 
     Vector<Integer> idsToRemove = new Vector<Integer>();
 
@@ -57,14 +61,14 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                    this behavior
      */
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        setIdsToRemoveNew(caseStorage, owners);
+        setIdsToRemoveWithNewExtensions(caseStorage, owners);
     }
 
-    private void setIdsToRemoveNew(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        //Create a DAG. The Index will be the case GUID. The Nodes will be a string array containing
-        //[CASE_STATUS, string(storageid)]
-        //CASE_STATUS is enumerated as one of STATUS_LIVE, STATUS_DEAD, or STATUS_ABANDONED
-        DAG<String, String[], String> g = new DAG<String, String[], String>();
+    private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
+        //Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
+        //[STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
+        //nodes, which is one of the Case Index relationships (IE: parent, extension)
+        DAG<String, int[], String> graph = new DAG<String, int[], String>();
 
         Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
 
@@ -102,91 +106,121 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                     indexHolder.addElement(index);
                 }
             }
-            String nodeStatus;
-            //Four cases, applied in order. One and two: closed or unowned it starts life dead
-            if (!owned || c.isClosed()) {
-                nodeStatus = STATUS_DEAD;
-            } else {
-                //Otherwise we need to see whether this case maintains any extension indices,
-                //if so, it's abandoned. Otherwise it's Alive
-                boolean abandoned = false;
-                for (CaseIndex index : indexHolder) {
-                    if (index.getRelationship().equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
-                        abandoned = true;
-                        break;
-                    }
-                }
-                if (abandoned) {
-                    nodeStatus = STATUS_ABANDONED;
-                } else {
-                    nodeStatus = STATUS_LIVE;
-                }
+            int nodeStatus = 0;
+            if (owned) {
+                nodeStatus |= STATUS_OWNED;
             }
 
+            if (!c.isClosed()) {
+                nodeStatus |= STATUS_OPEN;
+            }
 
-            g.addNode(c.getCaseId(), new String[]{nodeStatus, String.valueOf(c.getID())});
+            if (owned && !c.isClosed()) {
+                nodeStatus |= STATUS_RELEVANT;
+            }
+
+            graph.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
 
             for (CaseIndex index : indexHolder) {
-                g.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
+                graph.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
             }
             indexHolder.removeAllElements();
         }
 
-        //Pass 2: Start at Sources (nodes which only produce edges) and walk up
-        //the tree, marking relevant nodes as alive
-        Stack<String> toProcess = g.getSources();
-        while (!toProcess.isEmpty()) {
-            //current node
-            String index = toProcess.pop();
-            String[] node = g.getNode(index);
-
-            //Walk all indexed nodes, adding them to the process stack.
-            //and update their liveness if necessary.
-            for (Edge<String, String> edge : g.getChildren(index)) {
-                if (node[0].equals(STATUS_LIVE)) {
-                    g.getNode(edge.i)[0] = STATUS_LIVE;
-                }
-                //add this to the process stack
-                //TODO: We're going to walk stuff redundantly this
-                //way. Can we optimize?
-                //If parent is already live, does
-                //that necessarily denote that its ancestors are alive?
-                toProcess.addElement(edge.i);
-            }
-        }
-
-        //Pass 2: Start at Sinks (nodes which only receive edges) and walk down the
-        //graphs, marking necessary nodes as alive
-        toProcess = g.getSinks();
-        while (!toProcess.isEmpty()) {
-            //current node
-            String index = toProcess.pop();
-            String[] node = g.getNode(index);
-
-            //Walk all indexing nodes.
-            for (Edge<String, String> edge : g.getParents(index)) {
-                if (g.getNode(edge.i)[0].equals(STATUS_ABANDONED) &&
-                        edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION) &&
-                        node[0].equals(STATUS_LIVE)) {
-
-                    g.getNode(edge.i)[0] = STATUS_LIVE;
-                }
-
-                //add this to the process stack
-                //TODO: We're going to walk stuff redundantly this
-                //way. Can we optimize?
-                toProcess.addElement(edge.i);
-            }
-        }
+        propogateRelevance(graph);
+        propogateAvailabile(graph);
+        propogateLive(graph);
 
         //Ok, so now just go through all nodes and signal that we need to remove anything
         //that isn't live!
-        for (Enumeration iterator = g.getNodes(); iterator.hasMoreElements(); ) {
-            String[] node = (String[])iterator.nextElement();
-            if (!node[0].equals(STATUS_LIVE)) {
-                idsToRemove.addElement(Integer.valueOf(node[1]));
+        for (Enumeration iterator = graph.getNodes(); iterator.hasMoreElements(); ) {
+            int[] node = (int[])iterator.nextElement();
+            if (!caseStatusIs(node[0], STATUS_ALIVE)) {
+                idsToRemove.addElement(new Integer(node[1]));
             }
         }
+    }
+
+    private void propogateRelevance(DAG<String, int[], String> g) {
+        propogateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
+        propogateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
+    }
+
+    private void propogateAvailabile(DAG<String, int[], String> g) {
+        for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
+            String index = (String)e.nextElement();
+            int[] node = g.getNode(index);
+            if (caseStatusIs(node[0], STATUS_OPEN | STATUS_RELEVANT) &&
+                    !hasOutgoingExtension(g, index)) {
+                node[0] |= STATUS_AVAILABLE;
+            }
+        }
+        propogateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
+    }
+
+    private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
+        for (Edge<String, String> edge : g.getChildren(index)) {
+            if (edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void propogateLive(DAG<String, int[], String> g) {
+        for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
+            String index = (String)e.nextElement();
+            int[] node = g.getNode(index);
+            if (caseStatusIs(node[0], STATUS_OWNED | STATUS_RELEVANT | STATUS_AVAILABLE)) {
+                node[0] |= STATUS_ALIVE;
+            }
+        }
+
+        propogateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
+        propogateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION);
+    }
+
+    private void propogateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
+        propogateMarkToDAG(g, direction, mask, mark, null);
+    }
+
+    /**
+     * Propogates the provided mark in a chain from all nodes which meet the mask to all of their
+     * neighboring nodes, as long as those nodes meet the relationship provided. If the relationship
+     * is null, only the mask is checked.
+     *
+     * @param dag
+     * @param walkFromSourceToSink If true, start at sources (nodes with only outgoing edges), and walk edges
+     *                             from parent to child. If false, start at sinks (nodes with only incoming edges)
+     *                             and walk from child to parent
+     * @param maskCondition        A mask for what nodes meet the criteria of being marked in the walk.
+     * @param markToApply          A new binary flag (or set of flags) to apply to all nodes meeting the criteria
+     * @param relationship         If non-null, an additional criteria for whether a node should be marked.
+     *                             A node will only be marked if the edge walked to put it on the stack
+     *                             meets this criteria.
+     */
+    private void propogateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
+                                    int maskCondition, int markToApply, String relationship) {
+        Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
+        while (!toProcess.isEmpty()) {
+            //current node
+            String index = toProcess.pop();
+            int[] node = dag.getNode(index);
+
+            Vector<Edge<String, String>> edgeSet = walkFromSourceToSink ? dag.getChildren(index) :
+                    dag.getParents(index);
+
+            for (Edge<String, String> edge : edgeSet) {
+                if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
+                    dag.getNode(edge.i)[0] |= markToApply;
+                }
+                toProcess.addElement(edge.i);
+            }
+        }
+    }
+
+    private boolean caseStatusIs(int status, int flag) {
+        return (status & flag) == flag;
     }
 
     /* (non-Javadoc)
