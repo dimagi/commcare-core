@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -83,6 +84,7 @@ public class SqlHelper {
                 new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
+
         try {
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";

@@ -1,5 +1,7 @@
 package org.commcare.util.test;
 
+import junit.framework.Assert;
+
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.JdbcSqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
@@ -9,6 +11,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import static junit.framework.Assert.fail;
@@ -18,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 public class SqlStorageIndexedTests {
 
-    Case a, b, c, d, e;
+    Case a, b, c;
 
     Ledger l, l2, l3;
 
@@ -45,10 +48,20 @@ public class SqlStorageIndexedTests {
         groupOwned.addElement(owner);
         groupOwned.addElement(groupOwner);
 
-        a = new Case("case_name_ipsum", "case_type_ipsum");
-        a.setCaseId("case_id_ipsum");
+        a = new Case("a_case_name", "case_type_ipsum");
+        a.setCaseId("a_case_id");
         a.setUserId(owner);
         a.setID(-1);
+
+        b = new Case("b_case_name", "case_type_ipsum");
+        b.setCaseId("b_case_id");
+        b.setUserId(owner);
+        b.setID(-1);
+
+        c = new Case("c_case_name", "case_type_ipsum");
+        c.setCaseId("c_case_id");
+        c.setUserId(owner);
+        c.setID(-1);
 
         l = new Ledger("ledger_entity_id");
         l.setID(-1);
@@ -82,8 +95,42 @@ public class SqlStorageIndexedTests {
                 caseStorage.write(a);
 
                 Case readCase = caseStorage.read(1);
+                assertEquals("a_case_name", readCase.getName());
+                assertEquals(1, readCase.getID());
+                assertEquals(1, caseStorage.getNumRecords());
 
-                assertEquals("case_name_ipsum", readCase.getName());
+                int bID = caseStorage.add(b);
+                readCase = caseStorage.read(bID);
+                assertEquals(bID, readCase.getID());
+                assertEquals("b_case_id", readCase.getCaseId());
+                assertEquals(2, caseStorage.getNumRecords());
+
+                int id = caseStorage.add(c);
+                assertEquals(3, caseStorage.getNumRecords());
+                readCase = caseStorage.getRecordForValue("case-id", "c_case_id");
+                assertEquals(id, readCase.getID());
+                assertEquals(caseStorage.getIDsForValue("case-type", "case_type_ipsum").size(), 3);
+
+                caseStorage.remove(1);
+
+                assertEquals(2, caseStorage.getNumRecords());
+                try {
+                    caseStorage.read(1);
+                    org.junit.Assert.fail();
+                } catch(NullPointerException e){
+                    //good
+                }
+
+                Iterator iterator = caseStorage.iterator();
+                while(iterator.hasNext()){
+                    Case mCase = (Case)iterator.next();
+                    String caseId = mCase.getCaseId();
+                    assertTrue(caseId.equals("b_case_id") || caseId.equals("c_case_id"));
+                }
+
+                caseStorage.removeAll();
+
+                assertEquals(0, caseStorage.getNumRecords());
 
             } catch ( Exception e ) {
                 System.err.println(e.getClass().getName() + ": " + e.getMessage());

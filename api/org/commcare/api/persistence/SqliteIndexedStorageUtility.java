@@ -149,11 +149,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
-                }
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -183,11 +183,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
-                }
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -246,11 +246,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             throw new RuntimeException(e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
-                }
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -279,11 +279,11 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             System.out.println("SqliteIndexedStorageUtility readBytes exception: " + e);
         } finally {
             try {
-                if (c != null) {
-                    c.close();
-                }
                 if (preparedStatement != null) {
                     preparedStatement.close();
+                }
+                if (c != null) {
+                    c.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
