@@ -227,13 +227,13 @@ public class SqlHelper {
             preparedStatement.setInt(2, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }

@@ -148,52 +148,45 @@ public class SqlStorageIndexedTests {
     public void testSqlLedgerStorage() {
         try {
 
-            try {
+            PrototypeFactory mPrototypeFactory = new PrototypeFactory();
+            mPrototypeFactory.addClass(Ledger.class);
 
-                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
-                mPrototypeFactory.addClass(Ledger.class);
+            String storageKey = "Ledger";
+            String username = "wspride";
 
-                String storageKey = "Ledger";
-                String username = "wspride";
+            SqlTestUtils.deleteDatabase(username);
 
-                SqlTestUtils.deleteDatabase(username);
+            ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
 
-                ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
+            ledgerStorage.write(l);
+            ledgerStorage.write(l2);
+            ledgerStorage.write(l3);
 
-                ledgerStorage.write(l);
-                ledgerStorage.write(l2);
-                ledgerStorage.write(l3);
+            Vector<Object> ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
 
-                Vector<Object> ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
+            assertEquals(2, ids.size());
+            assertTrue(ids.contains(1));
+            assertTrue(ids.contains(2));
 
-                assertEquals(2, ids.size());
-                assertTrue(ids.contains(1));
-                assertTrue(ids.contains(2));
+            Ledger readLedger2 = ledgerStorage.getRecordForValue("entity_id", "ledger_entity_id_3");
+            Assert.assertEquals(readLedger2.getID(), 3);
 
-                Ledger readLedger2 = ledgerStorage.getRecordForValue("entity_id", "ledger_entity_id_3");
+            int count = ledgerStorage.getNumRecords();
 
-                int count = ledgerStorage.getNumRecords();
+            assertEquals(count, 3);
 
-                assertEquals(count, 3);
+            assertTrue(ledgerStorage.exists(1));
+            assertFalse(ledgerStorage.exists(-123));
 
-                assertTrue(ledgerStorage.exists(1));
-                assertFalse(ledgerStorage.exists(-123));
+            JdbcSqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
 
-                JdbcSqlStorageIterator<Ledger> mIterator = ledgerStorage.iterate();
-
-                assertEquals(3, mIterator.numRecords());
+            assertEquals(3, mIterator.numRecords());
 
 
-                assertEquals(1, mIterator.nextID());
-                assertEquals(2, mIterator.nextID());
-                assertEquals(3, mIterator.nextID());
-                assertEquals(-1, mIterator.nextID());
-
-            } catch ( Exception e ) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                e.printStackTrace();
-                System.exit(0);
-            }
+            assertEquals(1, mIterator.nextID());
+            assertEquals(2, mIterator.nextID());
+            assertEquals(3, mIterator.nextID());
+            assertEquals(-1, mIterator.nextID());
 
         } catch (Exception e) {
             e.printStackTrace();

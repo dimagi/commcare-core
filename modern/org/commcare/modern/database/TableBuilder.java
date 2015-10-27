@@ -128,33 +128,36 @@ public class TableBuilder {
     }
 
     public Pair<String, List<Object>> getTableInsertData(Persistable p){
-        String built = "INSERT INTO " + scrubName(name) + " (";
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("INSERT INTO " + scrubName(name) + " (");
         HashMap<String, Object> contentValues = DatabaseHelper.getMetaFieldsAndValues(p);
 
         ArrayList<Object> params = new ArrayList<Object>();
 
 
         for(int i = 0 ; i < rawCols.size() ; ++i) {
-            built += rawCols.elementAt(i);
+            stringBuilder.append(rawCols.elementAt(i));
             if(i < rawCols.size() - 1) {
-                built += ", ";
+                stringBuilder.append(", ");
             }
         }
 
-        built += ") VALUES (";
+        stringBuilder.append(") VALUES (");
 
         for(int i = 0 ; i < rawCols.size() ; ++i) {
             Object currentValue = contentValues.get(rawCols.elementAt(i));
-            built += "?";
+            stringBuilder.append("?");
             params.add(currentValue);
             if(i < rawCols.size() - 1) {
-                built += ", ";
+                stringBuilder.append(", ");
             }
         }
 
-        built += ");";
+        stringBuilder.append(");");
 
-        return new Pair<String, List<Object>>(built, params);
+        return new Pair<String, List<Object>>(stringBuilder.toString(), params);
     }
 
     //sqlite doesn't like dashes
@@ -176,13 +179,13 @@ public class TableBuilder {
     }
 
     public String getColumns() {
-        String columns = "";
+        StringBuilder stringBuilder = new StringBuilder();
         for(int i = 0 ; i < rawCols.size() ; ++i) {
-            columns += rawCols.elementAt(i);
+            stringBuilder.append(rawCols.elementAt(i));
             if(i < rawCols.size() - 1) {
-                columns += ",";
+                stringBuilder.append(",");
             }
         }
-        return columns;
+        return stringBuilder.toString();
     }
 }
