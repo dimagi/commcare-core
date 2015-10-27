@@ -10,11 +10,11 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
-import org.omg.SendingContext.RunTime;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,6 +31,8 @@ import java.util.Vector;
  * @author wspride
  */
 public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
+
+    public static final String DATABASE_FOLDER = "dbs";
 
     private final Class<T> prototype;
     private final String tableName;
@@ -63,9 +65,15 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     }
 
     Connection getConnection() throws SQLException, ClassNotFoundException {
+
+        File databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
+        if (!databaseFolder.exists()) {
+            databaseFolder.mkdir();
+        }
+
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + this.sandboxId + ".db");
+        dataSource.setUrl("jdbc:sqlite:" + SqliteIndexedStorageUtility.DATABASE_FOLDER + "/" +  this.sandboxId + ".db");
         return dataSource.getConnection();
     }
 

@@ -2,12 +2,13 @@ package org.commcare.util.test;
 
 import junit.framework.Assert;
 
+import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.JdbcSqlStorageIterator;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.test.utils.SqlTestUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,67 +81,60 @@ public class SqlStorageIndexedTests {
     public void testSqlCaseStorage() {
         try {
 
+            PrototypeFactory mPrototypeFactory = new PrototypeFactory();
+            mPrototypeFactory.addClass(Case.class);
+
+            String storageKey = "TFCase";
+            String username = "sql-storage-test";
+
+            caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey);
+
+            caseStorage.write(a);
+
+            Case readCase = caseStorage.read(1);
+            assertEquals("a_case_name", readCase.getName());
+            assertEquals(1, readCase.getID());
+            assertEquals(1, caseStorage.getNumRecords());
+
+            int bID = caseStorage.add(b);
+            readCase = caseStorage.read(bID);
+            assertEquals(bID, readCase.getID());
+            assertEquals("b_case_id", readCase.getCaseId());
+            assertEquals(2, caseStorage.getNumRecords());
+
+            int id = caseStorage.add(c);
+            assertEquals(3, caseStorage.getNumRecords());
+            readCase = caseStorage.getRecordForValue("case-id", "c_case_id");
+            assertEquals(id, readCase.getID());
+            assertEquals(caseStorage.getIDsForValue("case-type", "case_type_ipsum").size(), 3);
+
+            caseStorage.remove(1);
+
+            assertEquals(2, caseStorage.getNumRecords());
             try {
-
-                PrototypeFactory mPrototypeFactory = new PrototypeFactory();
-                mPrototypeFactory.addClass(Case.class);
-
-                String storageKey = "TFCase";
-                String username = "sql-storage-test";
-
-                SqlTestUtils.deleteDatabase(username);
-
-                caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey);
-
-                caseStorage.write(a);
-
-                Case readCase = caseStorage.read(1);
-                assertEquals("a_case_name", readCase.getName());
-                assertEquals(1, readCase.getID());
-                assertEquals(1, caseStorage.getNumRecords());
-
-                int bID = caseStorage.add(b);
-                readCase = caseStorage.read(bID);
-                assertEquals(bID, readCase.getID());
-                assertEquals("b_case_id", readCase.getCaseId());
-                assertEquals(2, caseStorage.getNumRecords());
-
-                int id = caseStorage.add(c);
-                assertEquals(3, caseStorage.getNumRecords());
-                readCase = caseStorage.getRecordForValue("case-id", "c_case_id");
-                assertEquals(id, readCase.getID());
-                assertEquals(caseStorage.getIDsForValue("case-type", "case_type_ipsum").size(), 3);
-
-                caseStorage.remove(1);
-
-                assertEquals(2, caseStorage.getNumRecords());
-                try {
-                    caseStorage.read(1);
-                    org.junit.Assert.fail();
-                } catch(NullPointerException e){
-                    //good
-                }
-
-                Iterator iterator = caseStorage.iterator();
-                while(iterator.hasNext()){
-                    Case mCase = (Case)iterator.next();
-                    String caseId = mCase.getCaseId();
-                    assertTrue(caseId.equals("b_case_id") || caseId.equals("c_case_id"));
-                }
-
-                caseStorage.removeAll();
-
-                assertEquals(0, caseStorage.getNumRecords());
-
-            } catch ( Exception e ) {
-                System.err.println(e.getClass().getName() + ": " + e.getMessage());
-                e.printStackTrace();
-                System.exit(0);
+                caseStorage.read(1);
+                org.junit.Assert.fail();
+            } catch(NullPointerException e){
+                //good
             }
 
-        } catch (Exception e) {
+            Iterator iterator = caseStorage.iterator();
+            while(iterator.hasNext()){
+                Case mCase = (Case)iterator.next();
+                String caseId = mCase.getCaseId();
+                assertTrue(caseId.equals("b_case_id") || caseId.equals("c_case_id"));
+            }
+
+            caseStorage.removeAll();
+
+            assertEquals(0, caseStorage.getNumRecords());
+
+        }
+        catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception " + e.getMessage());
+        } finally {
+            SqlSandboxUtils.deleteDatabaseFolder();
         }
     }
 
@@ -153,8 +147,6 @@ public class SqlStorageIndexedTests {
 
             String storageKey = "Ledger";
             String username = "wspride";
-
-            SqlTestUtils.deleteDatabase(username);
 
             ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
 
@@ -193,4 +185,10 @@ public class SqlStorageIndexedTests {
             fail("Unexpected exception " + e.getMessage());
         }
     }
+
+    @After
+    public void tearDown(){
+        SqlSandboxUtils.deleteDatabaseFolder();
+    }
+
 }
