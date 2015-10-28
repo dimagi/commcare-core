@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.resources;
 
 import org.javarosa.core.reference.Reference;
 
@@ -39,6 +39,9 @@ public class ArchiveFileReference implements Reference {
     }
 
     public InputStream getStream() throws IOException {
+
+        System.out.println("Get Steam: " + mZipFile + " archive: " + archiveURI);
+
         return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
     }
 

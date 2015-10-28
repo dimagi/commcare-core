@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.commcare.util;
+package org.commcare.resources;
 
 import org.javarosa.core.reference.Reference;
 

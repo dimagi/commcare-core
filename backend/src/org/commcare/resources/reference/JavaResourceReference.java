@@ -1,4 +1,4 @@
-package org.commcare.util.reference;
+package org.commcare.resources.reference;
 
 import org.javarosa.core.reference.Reference;
 
