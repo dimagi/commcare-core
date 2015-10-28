@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public abstract class Action implements Externalizable {
+public class Action implements Externalizable {
     public static final String EVENT_XFORMS_READY = "xforms-ready";
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
     public static final String EVENT_JR_INSERT = "jr-insert";
