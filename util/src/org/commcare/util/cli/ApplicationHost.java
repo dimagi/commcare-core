@@ -193,37 +193,43 @@ public class ApplicationHost {
 
             System.out.println("Starting form entry with the following stack frame");
             printStack(mSession);
-            //Get our form object
-            String formXmlns = mSession.getForm();
 
-            if (formXmlns == null) {
-                finishSession();
-                return true;
-            } else {
-                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
-                player.setSessionIIF(mSession.getIIF());
-                player.start(mEngine.loadFormByXmlns(formXmlns));
-
-                //If the form saved properly, process the output
-                if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
-                    if (!processResultInstance(player.getResultStream())) {
-                        return true;
-                    }
-                    finishSession();
-                    return true;
-                } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
-                    mSession.stepBack();
-                    s = getNextScreen();
-                    continue;
-                } else {
-                    //Handle this later
-                    return true;
-                }
+            boolean back = startFormEntry(mSession);
+            if(back){
+                continue;
             }
         }
         //After we finish, continue executing
         return true;
+    }
+
+    private boolean startFormEntry(CLISessionWrapper mSession) {
+        //Get our form object
+        String formXmlns = mSession.getForm();
+        if (formXmlns == null) {
+            finishSession();
+            return true;
+        } else {
+            XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+            player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+            player.setSessionIIF(mSession.getIIF());
+            player.start(mEngine.loadFormByXmlns(formXmlns));
+
+            //If the form saved properly, process the output
+            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                if (!processResultInstance(player.getResultStream())) {
+                    return true;
+                }
+                finishSession();
+                return true;
+            } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                mSession.stepBack();
+                return false;
+            } else {
+                //Handle this later
+                return true;
+            }
+        }
     }
 
     private void printStack(CLISessionWrapper mSession) {

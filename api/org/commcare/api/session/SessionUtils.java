@@ -1,17 +1,20 @@
 package org.commcare.api.session;
 
-import org.commcare.api.engine.ApiConfigEngine;
+import org.commcare.api.engine.XFormPlayer;
 import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.api.screens.EntityScreen;
 import org.commcare.api.screens.MenuScreen;
 import org.commcare.api.screens.Screen;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
+import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
@@ -22,6 +25,8 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by willpride on 10/27/15.
@@ -119,5 +124,61 @@ public class SessionUtils {
                 System.out.println("DATUM : " + step.getId() + " - " + step.getValue());
             }
         }
+    }
+
+    public static XFormPlayer initFormEntry(SessionWrapper mSession){
+        String formXmlns = mSession.getForm();
+        XFormPlayer player = new XFormPlayer(System.in, System.out, null, mSession);
+        player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+        player.setSessionIIF(mSession.getIIF());
+        player.start(mSession.loadFormByXmlns(formXmlns));
+        return player;
+    }
+
+    public static boolean startFormEntry(SessionWrapper mSession) {
+        //Get our form object
+        String formXmlns = mSession.getForm();
+        if (formXmlns == null) {
+            //finishSession();
+            return true;
+        } else {
+
+            XFormPlayer player = new XFormPlayer(System.in, System.out, null, mSession);
+            player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+            player.setSessionIIF(mSession.getIIF());
+            player.start(mSession.loadFormByXmlns(formXmlns));
+
+            //If the form saved properly, process the output
+            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                if (!processResultInstance(mSession, player.getResultStream())) {
+                    return true;
+                }
+                //finishSession();
+                return true;
+            } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                mSession.stepBack();
+                return false;
+            } else {
+                //Handle this later
+                return true;
+            }
+        }
+    }
+
+
+    private static boolean processResultInstance(SessionWrapper sessionWrapper, InputStream resultStream) {
+        try {
+            DataModelPullParser parser = new DataModelPullParser(
+                    resultStream, new CommCareTransactionParserFactory(sessionWrapper.getSandbox()), true, true);
+            parser.parse();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                resultStream.close();
+            } catch(IOException e) {}
+        }
+        return true;
     }
 }

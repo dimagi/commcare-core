@@ -1,5 +1,6 @@
 package org.commcare.api.xml;
 
+import org.commcare.api.engine.XFormPlayer;
 import org.commcare.api.screens.Screen;
 import org.commcare.api.session.SessionUtils;
 import org.commcare.api.session.SessionWrapper;
@@ -30,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class XmlProcessor {
 
     SessionWrapper sessionWrapper;
+    XFormPlayer xFormPlayer;
 
     public String processRespondXML(File xmlRequest) throws Exception{
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -38,6 +40,7 @@ public class XmlProcessor {
         NodeList nodeList = doc.getElementsByTagName("command");
 
         sessionWrapper = null;
+        xFormPlayer = null;
 
         for(int i = 0; i < nodeList.getLength(); i++){
             Node node = nodeList.item(i);
@@ -46,7 +49,7 @@ public class XmlProcessor {
         return "";
     }
 
-    private void processCommandNode(Node node) throws CommCareSessionException {
+    private void processCommandNode(Node node) throws Exception {
         String commandName = null;
         ArrayList<String> commandArgs = new ArrayList<>();
         for(int i = 0; i < node.getChildNodes().getLength(); i++){
@@ -67,7 +70,7 @@ public class XmlProcessor {
         handleCommandObject(commandName, returnArray);
     }
 
-    private void handleCommandObject(String command, String[] args) throws CommCareSessionException {
+    private void handleCommandObject(String command, String[] args) throws Exception {
         String commandName = command;
         String[] commandArgs = args;
 
@@ -79,7 +82,7 @@ public class XmlProcessor {
                 handleRestore(commandArgs[0]);
                 break;
             case "get_needed_data":
-                System.out.println ("Get needed: " + handleGetNeededData());
+                System.out.println("Get needed: " + handleGetNeededData());
                 break;
             case "get_next_screen":
                 System.out.println("Get screen: " + handleGetNextScreen());
@@ -87,17 +90,27 @@ public class XmlProcessor {
             case "menu_input":
                 System.out.println("Handle Menu: " + handleMenuInput(commandArgs[0]));
                 break;
+            case "form_input":
+                System.out.println("Handle Form: " + handleFormInput(commandArgs[0]));
+                break;
         }
     }
 
-    private String handleMenuInput(String commandArg) throws CommCareSessionException {
+    private String handleFormInput(String commandArg) throws Exception{
+        System.out.println("inputting");
+        xFormPlayer.input(commandArg);
+        System.out.println("inputted: " + commandArg);
+        return handleFormPrompt();
+    }
+
+    private String handleMenuInput(String commandArg) throws Exception {
         Screen screen = SessionUtils.getNextScreen(sessionWrapper);
         screen.init(sessionWrapper);
         screen.handleInputAndUpdateSession(sessionWrapper, commandArg);
         return handleGetNextScreen();
     }
 
-    private String handleGetNextScreen() {
+    private String handleGetNextScreen() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         try {
@@ -116,12 +129,17 @@ public class XmlProcessor {
         return "";
     }
 
-    private String handleFormEntry() {
-        System.out.println("Starting form entry with the following stack frame");
+    private String handleFormPrompt() throws Exception{
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        xFormPlayer.prompt(ps);
+        return baos.toString("UTF8");
+    }
+
+    private String handleFormEntry() throws Exception {
         SessionUtils.printStack(sessionWrapper);
-        String formXmlns = sessionWrapper.getForm();
-        System.out.println("Form: " + formXmlns);
-        return formXmlns;
+        xFormPlayer = SessionUtils.initFormEntry(sessionWrapper);
+        return handleFormPrompt();
     }
 
     private String handleGetNeededData() {

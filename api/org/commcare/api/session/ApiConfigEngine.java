@@ -1,4 +1,4 @@
-package org.commcare.api.engine;
+package org.commcare.api.session;
 
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.resources.ArchiveFileRoot;
@@ -32,6 +32,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
@@ -109,7 +110,8 @@ public class ApiConfigEngine {
                 Graph.class.getName(),
                 XYSeries.class.getName(),
                 BubbleSeries.class.getName(),
-                XPathEqExpr.class.getName()};
+                XPathEqExpr.class.getName(),
+                TableLocaleSource.class.getName()};
         PrototypeManager.registerPrototypes(prototypes);
 
         setRoots();

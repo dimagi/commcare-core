@@ -4,7 +4,10 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 
 /**
  * Extends a generic CommCare session to include context about the
@@ -59,5 +62,11 @@ public class SessionWrapper extends CommCareSession {
 
     public void setComputedDatum() {
         setComputedDatum(getEvaluationContext());
+    }
+
+    public FormDef loadFormByXmlns(String xmlns) {
+        IStorageUtilityIndexed<FormDef> formStorage =
+                (IStorageUtilityIndexed) StorageManager.getStorage(FormDef.STORAGE_KEY);
+        return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 }
