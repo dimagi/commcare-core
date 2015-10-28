@@ -1,6 +1,7 @@
-package org.commcare.util.mocks;
+package org.commcare.api.session;
 
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -13,9 +14,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
  */
 public class SessionWrapper extends CommCareSession {
     
-    UserSandbox mSandbox;
-    CommCarePlatform mPlatform;
-    CLIInstanceInitializer initializer;
+    protected UserSandbox mSandbox;
+    protected CommCarePlatform mPlatform;
+    protected CommCareInstanceInitializer initializer;
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
@@ -38,9 +39,9 @@ public class SessionWrapper extends CommCareSession {
         return getEvaluationContext(getIIF(), commandId);
     }
 
-    public CLIInstanceInitializer getIIF() {
+    public CommCareInstanceInitializer getIIF() {
         if (initializer == null) {
-            initializer = new CLIInstanceInitializer(this, mSandbox, mPlatform);
+            initializer = new CommCareInstanceInitializer(this, mSandbox, mPlatform);
         }
 
         return initializer;

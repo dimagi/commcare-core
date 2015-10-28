@@ -1,10 +1,10 @@
 package org.commcare.backend.session.test;
 
+import org.commcare.api.session.SessionWrapper;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.MockSessionNavigationResponder;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionNavigator;
-import org.commcare.util.mocks.SessionWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

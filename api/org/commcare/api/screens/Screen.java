@@ -1,9 +1,10 @@
-package org.commcare.util.cli;
+package org.commcare.api.screens;
 
+import org.commcare.api.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.CLISessionWrapper;
+import org.commcare.api.session.CommCareSessionException;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -17,7 +18,7 @@ import java.io.PrintStream;
  * @author ctsims
  */
 public abstract class Screen {
-    public abstract void init(CLISessionWrapper session) throws CommCareSessionException;
+    public abstract void init(SessionWrapper session) throws CommCareSessionException;
     public abstract void prompt(PrintStream out) throws CommCareSessionException;
 
     /**

@@ -1,11 +1,12 @@
-package org.commcare.util.cli;
+package org.commcare.api.screens;
 
+import org.commcare.api.session.CommCareSessionException;
+import org.commcare.api.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.CLISessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
@@ -24,7 +25,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private TreeReference mCurrentSelection;
 
-    private CLISessionWrapper mSession;
+    private SessionWrapper mSession;
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;
@@ -35,7 +36,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
-    public void init(CLISessionWrapper session) throws CommCareSessionException {
+    public void init(SessionWrapper session) throws CommCareSessionException {
         mNeededDatum = session.getNeededDatum();
 
         this.mSession = session;
@@ -140,7 +141,7 @@ public class EntityScreen extends CompoundScreenHost {
             this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
         }
         else {
-            this.mCurrentScreen = new EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
+            this.mCurrentScreen = new org.commcare.api.screens.EntityDetailSubscreen(index, this.mLongDetailList[index], subContext, getDetailListTitles(subContext));
         }
     }
 
