@@ -4,6 +4,7 @@ import org.commcare.modern.models.MetaField;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -165,11 +166,11 @@ public class TableBuilder {
         return input.replace("-", "_");
     }
 
-    public static byte[] toBlob(Persistable p){
+    public static byte[] toBlob(Externalizable externalizable){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         OutputStream out = bos;
         try {
-            p.writeExternal(new DataOutputStream(out));
+            externalizable.writeExternal(new DataOutputStream(out));
             out.close();
         } catch (IOException e1) {
             e1.printStackTrace();

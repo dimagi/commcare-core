@@ -1,5 +1,6 @@
 package org.commcare.util.mocks;
 
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.MD5Hasher;
@@ -25,7 +26,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
     private final LiveHasher mLiveHasher;
 
     public LivePrototypeFactory() {
-        this(new MD5Hasher());
+        this(new ClassNameHasher());
     }
 
     public LivePrototypeFactory(Hasher hasher) {
