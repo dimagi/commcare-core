@@ -2,6 +2,7 @@ package org.commcare.api.screens;
 
 import org.commcare.api.session.CommCareSessionException;
 import org.commcare.api.session.SessionWrapper;
+import org.commcare.api.xml.XmlUtil;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -15,10 +16,17 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Screen to allow users to choose items from session menus.
@@ -141,6 +149,36 @@ public class MenuScreen extends Screen {
             MenuDisplayable d = mChoices[i];
             out.println(i + ")" + d.getDisplayText());
         }
+    }
+
+    @Override
+    public String getScreenXML() {
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("menu");
+        doc.appendChild(rootElement);
+
+        for (int i = 0; i < mChoices.length; ++i) {
+            Element menu = doc.createElement("menu-entity");
+            rootElement.appendChild(menu);
+            Attr id = doc.createAttribute("id");
+            id.setValue("" + i);
+            Attr name = doc.createAttribute("name");
+            name.setValue(mChoices[i].getDisplayText());
+            menu.setAttributeNode(id);
+            menu.setAttributeNode(name);
+        }
+
+        return XmlUtil.getPrettyXml(doc);
     }
 
     @Override

@@ -111,19 +111,14 @@ public class XmlProcessor {
     }
 
     private String handleGetNextScreen() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(baos);
         try {
             Screen nextScreen = SessionUtils.getNextScreen(sessionWrapper);
             if(nextScreen == null){
                 return handleFormEntry();
             }
             nextScreen.init(sessionWrapper);
-            nextScreen.prompt(ps);
-            return baos.toString("UTF8");
+            return nextScreen.getScreenXML();
         } catch (CommCareSessionException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return "";

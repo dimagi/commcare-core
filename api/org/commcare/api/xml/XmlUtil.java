@@ -24,6 +24,23 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class XmlUtil {
 
+
+    public static String getPrettyXml(Document document) {
+        try {
+            OutputFormat format = new OutputFormat(document);
+            format.setLineWidth(65);
+            format.setIndenting(true);
+            format.setIndent(2);
+            Writer out = new StringWriter();
+            XMLSerializer serializer = new XMLSerializer(out, format);
+            serializer.serialize(document);
+
+            return out.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getPrettyXml(byte[] xml) {
         try {
             String unformattedXml = new String(xml);
@@ -53,4 +70,6 @@ public class XmlUtil {
             throw new RuntimeException(e);
         }
     }
+
+
 }

@@ -27,6 +27,11 @@ public abstract class CompoundScreenHost extends Screen {
     }
 
     @Override
+    public String getScreenXML() throws CommCareSessionException {
+        return getCurrentScreen().getScreenXML();
+    }
+
+    @Override
     public final boolean handleInputAndUpdateSession(CommCareSession session, String input) throws CommCareSessionException {
         if (getCurrentScreen().handleInputAndUpdateHost(input, this)) {
             this.updateSession(session);
