@@ -28,7 +28,7 @@ public class Recalculate extends Triggerable {
     public Recalculate(IConditionExpr expr, TreeReference contextRef) {
         super(expr, contextRef);
     }
-    
+
     @Override
     public Object eval(FormInstance model, EvaluationContext ec) {
         try {
@@ -122,10 +122,8 @@ public class Recalculate extends Triggerable {
 
 
     /**
-     * Conditions are equal if they have the same actions, expression, and
-     * triggers, but NOT targets or context ref.
+     * Recalculates are equal based on their triggers and identity as a calculate triggerable
      */
-
     public boolean equals(Object o) {
         if (o instanceof Recalculate) {
             Recalculate r = (Recalculate)o;
