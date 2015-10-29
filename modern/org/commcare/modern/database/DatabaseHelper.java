@@ -101,16 +101,7 @@ public class DatabaseHelper {
 
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        try {
-            e.writeExternal(new DataOutputStream(bos));
-            bos.close();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException("Failed to serialize externalizable for content values");
-        }
-        byte[] blob = bos.toByteArray();
+        byte[] blob = TableBuilder.toBlob(e);
 
         HashMap<String, Object> values = new HashMap<String, Object>();
 
