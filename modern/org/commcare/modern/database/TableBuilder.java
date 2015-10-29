@@ -168,10 +168,8 @@ public class TableBuilder {
 
     public static byte[] toBlob(Externalizable externalizable){
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        OutputStream out = bos;
         try {
-            externalizable.writeExternal(new DataOutputStream(out));
-            out.close();
+            externalizable.writeExternal(new DataOutputStream(bos));
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new RuntimeException("Failed to serialize externalizable for content values");
