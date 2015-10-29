@@ -29,7 +29,7 @@ public class Recalculate extends Triggerable {
         super(expr, contextRef);
     }
 
-    @Override
+
     public Object eval(FormInstance model, EvaluationContext ec) {
         try {
             return expr.evalRaw(model, ec);
@@ -39,13 +39,13 @@ public class Recalculate extends Triggerable {
         }
     }
 
-    @Override
+
     public void apply(TreeReference ref, Object result, FormInstance model, FormDef f) {
         int dataType = f.getMainInstance().resolveReference(ref).getDataType();
         f.setAnswer(wrapData(result, dataType), ref);
     }
 
-    @Override
+
     public boolean canCascade() {
         return true;
     }
@@ -120,7 +120,21 @@ public class Recalculate extends Triggerable {
         }
     }
 
-    @Override
+
+    /**
+     * Conditions are equal if they have the same actions, expression, and
+     * triggers, but NOT targets or context ref.
+     */
+
+    public boolean equals(Object o) {
+        if (o instanceof Recalculate) {
+            Recalculate r = (Recalculate)o;
+            return (this == r || super.equals(r));
+        }
+        return false;
+    }
+
+
     public String getDebugLabel() {
         return "calculate";
     }
