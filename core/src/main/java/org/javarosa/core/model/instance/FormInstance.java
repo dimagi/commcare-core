@@ -92,6 +92,18 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return root.getChildAt(0);
     }
 
+    public void printFormDOM() {
+        printFormDOM(this.root);
+    }
+
+    private void printFormDOM(TreeElement root) {
+        int numChildren = root.getNumChildren();
+        for (int i = 0; i < numChildren; i++) {
+            TreeElement child = root.getChildAt(i);
+            System.out.println("Form node: " + child.getName());
+            printFormDOM(child);
+        }
+    }
 
     /**
      * Sets the root element of this Model's tree

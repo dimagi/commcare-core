@@ -206,12 +206,13 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
-    public Vector<SelectChoice> getSelectChoices() {
+    public Vector<SelectChoice> getSelectChoices() { return getSelectChoices(true); }
+    public Vector<SelectChoice> getSelectChoices(boolean shouldAttemptDynamicPopulation) {
         QuestionDef q = getQuestion();
 
         ItemsetBinding itemset = q.getDynamicChoices();
         if (itemset != null) {
-            if (!dynamicChoicesPopulated) {
+            if (shouldAttemptDynamicPopulation && !dynamicChoicesPopulated) {
                 form.populateDynamicChoices(itemset, mTreeElement.getRef());
                 dynamicChoicesPopulated = true;
             }
@@ -219,6 +220,32 @@ public class FormEntryPrompt extends FormEntryCaption {
         } else { //static choices
             return q.getChoices();
         }
+    }
+
+    public Vector<SelectChoice> getOldSelectChoices() {
+        return getSelectChoices(false);
+    }
+
+    private boolean selectAreChoicesUnchanged(Vector<SelectChoice> choicesForOld) {
+        Vector<SelectChoice> choicesForThis = getSelectChoices();
+        if (choicesForOld == null) {
+            return choicesForThis == null;
+        } else {
+            return choicesForOld.equals(choicesForThis);
+        }
+    }
+
+    private boolean questionTextIsUnchanged(FormEntryPrompt oldPrompt) {
+        String newQuestionText = getQuestionText();
+        String oldQuestionText = oldPrompt.getQuestionText();
+        return newQuestionText.equals(oldQuestionText);
+    }
+
+    public boolean hasSameDisplayContent(FormEntryPrompt oldPrompt,
+                                         Vector<SelectChoice> selectChoicesForOldPrompt) {
+        //this.form.getMainInstance().printFormDOM();
+        return selectAreChoicesUnchanged(selectChoicesForOldPrompt) &&
+                questionTextIsUnchanged(oldPrompt);
     }
 
     public boolean isRequired() {
