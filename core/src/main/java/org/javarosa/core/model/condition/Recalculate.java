@@ -124,6 +124,7 @@ public class Recalculate extends Triggerable {
     /**
      * Recalculates are equal based on their triggers and identity as a calculate triggerable
      */
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Recalculate) {
             Recalculate r = (Recalculate)o;
