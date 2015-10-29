@@ -134,6 +134,11 @@ public class Recalculate extends Triggerable {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return "calculate".hashCode() ^ super.hashCode();
+    }
+
 
     public String getDebugLabel() {
         return "calculate";
