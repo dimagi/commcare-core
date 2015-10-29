@@ -46,9 +46,9 @@ public class SandboxUtils {
             }
             EvaluationContext ec = new EvaluationContext(instance);
             for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
-                if (idelement.getValue() != null) {
-                    owners.addElement(idelement.getValue().uncast().getString());
+                AbstractTreeElement idElement = ec.resolveReference(ref);
+                if (idElement.getValue() != null) {
+                    owners.addElement(idElement.getValue().uncast().getString());
                 }
             }
         }
@@ -58,6 +58,7 @@ public class SandboxUtils {
 
     /**
      * A quick way to request an evaluation context with an abstract instance available.
+     * Used in Touchforms
      *
      */
     public static EvaluationContext getInstanceContexts(UserSandbox sandbox, String instanceId, String instanceRef){

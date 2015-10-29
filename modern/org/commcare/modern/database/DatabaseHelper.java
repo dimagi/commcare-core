@@ -85,20 +85,6 @@ public class DatabaseHelper {
         return new Pair<String, String[]>(stringBuilder.toString(), retArray);
     }
 
-    public static Set<String> getMetaDataFields(Persistable p){
-        Set<String> fields = null;
-        if(p instanceof IMetaData) {
-            IMetaData m = (IMetaData)p;
-            String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
-            for(String s : thefields) {
-                fields.add(TableBuilder.scrubName(s));
-            }
-        }
-        return fields;
-    }
-
-
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
 
         byte[] blob = TableBuilder.toBlob(e);

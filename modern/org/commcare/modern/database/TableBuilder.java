@@ -176,15 +176,4 @@ public class TableBuilder {
         }
         return bos.toByteArray();
     }
-
-    public String getColumns() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
-            stringBuilder.append(rawCols.elementAt(i));
-            if(i < rawCols.size() - 1) {
-                stringBuilder.append(",");
-            }
-        }
-        return stringBuilder.toString();
-    }
 }
