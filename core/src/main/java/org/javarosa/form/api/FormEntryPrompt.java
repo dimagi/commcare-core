@@ -227,7 +227,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         return getSelectChoices(false);
     }
 
-    private boolean selectAreChoicesUnchanged(Vector<SelectChoice> choicesForOld) {
+    private boolean selectChoicesAreUnchanged(Vector<SelectChoice> choicesForOld) {
         Vector<SelectChoice> choicesForThis = getSelectChoices();
         if (choicesForOld == null) {
             return choicesForThis == null;
@@ -252,7 +252,7 @@ public class FormEntryPrompt extends FormEntryCaption {
     public boolean hasSameDisplayContent(String questionTextForOldPrompt,
                                          Vector<SelectChoice> selectChoicesForOldPrompt) {
         return questionTextIsUnchanged(questionTextForOldPrompt) &&
-                selectAreChoicesUnchanged(selectChoicesForOldPrompt);
+                selectChoicesAreUnchanged(selectChoicesForOldPrompt);
     }
 
     public boolean isRequired() {
