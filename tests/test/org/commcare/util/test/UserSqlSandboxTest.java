@@ -31,7 +31,7 @@ public class UserSqlSandboxTest {
     @Before
     public void setUp() throws Exception {
         sandbox = SqlSandboxUtils.getStaticStorage(username);
-        PrototypeFactory.setStaticHasher(new MD5Hasher());
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
         sandbox = null;
     }
