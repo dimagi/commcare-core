@@ -245,6 +245,10 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
+    /**
+     * @return If this prompt has all of the same display content as a previous prompt that had
+     * the given question text and select choices
+     */
     public boolean hasSameDisplayContent(String questionTextForOldPrompt,
                                          Vector<SelectChoice> selectChoicesForOldPrompt) {
         return questionTextIsUnchanged(questionTextForOldPrompt) &&
