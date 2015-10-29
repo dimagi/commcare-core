@@ -1,14 +1,22 @@
 package org.commcare.api.screens;
 
 import org.commcare.api.session.CommCareSessionException;
+import org.commcare.api.xml.XmlUtil;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.PrintStream;
 import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * The entity list subscreen handles actually displaying the list of dynamic entities to the
@@ -116,6 +124,37 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             out.println();
             out.println("action) " + mAction.getDisplay().evaluate().getName());
         }
+    }
+
+
+    @Override
+    public String getScreenXML() {
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("entity-list");
+        doc.appendChild(rootElement);
+
+        for (int i = 0; i < mChoices.length; ++i) {
+            Element menu = doc.createElement("entity");
+            rootElement.appendChild(menu);
+            Attr id = doc.createAttribute("id");
+            id.setValue(String.valueOf(i));
+            Attr name = doc.createAttribute("name");
+            name.setValue(rows[i]);
+            menu.setAttributeNode(id);
+            menu.setAttributeNode(name);
+        }
+
+        return XmlUtil.getPrettyXml(doc);
     }
 
     @Override

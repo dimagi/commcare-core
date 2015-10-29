@@ -1,11 +1,19 @@
 package org.commcare.api.screens;
 
+import org.commcare.api.xml.XmlUtil;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.api.session.CommCareSessionException;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.PrintStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -79,6 +87,44 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         }
         out.println();
         out.println(msg);
+    }
+
+
+    @Override
+    public String getScreenXML() {
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = null;
+        try {
+            docBuilder = docFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement("entity-detail");
+        doc.appendChild(rootElement);
+
+        Element header = doc.createElement("detail-header");
+        rootElement.appendChild(header);
+
+        for (int i = 0; i < mDetailListTitles.length; ++i) {
+            String title = i + ") " + mDetailListTitles[i];
+            if (i == this.mCurrentIndex) {
+                title = "[" + title + "]";
+            }
+            Element menu = doc.createElement("detail");
+            rootElement.appendChild(menu);
+            Attr id = doc.createAttribute("id");
+            id.setValue("" + i);
+            Attr name = doc.createAttribute("name");
+            name.setValue(title);
+            menu.setAttributeNode(id);
+            menu.setAttributeNode(name);
+        }
+
+        return XmlUtil.getPrettyXml(doc);
     }
 
     private void createTabHeader(PrintStream out) {
