@@ -235,17 +235,14 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
-    private boolean questionTextIsUnchanged(FormEntryPrompt oldPrompt) {
-        String newQuestionText = getQuestionText();
-        String oldQuestionText = oldPrompt.getQuestionText();
-        return newQuestionText.equals(oldQuestionText);
+    private boolean questionTextIsUnchanged(String oldQuestionText) {
+        return getQuestionText().equals(oldQuestionText);
     }
 
-    public boolean hasSameDisplayContent(FormEntryPrompt oldPrompt,
+    public boolean hasSameDisplayContent(String questionTextForOldPrompt,
                                          Vector<SelectChoice> selectChoicesForOldPrompt) {
-        //this.form.getMainInstance().printFormDOM();
-        return selectAreChoicesUnchanged(selectChoicesForOldPrompt) &&
-                questionTextIsUnchanged(oldPrompt);
+        return questionTextIsUnchanged(questionTextForOldPrompt) &&
+                selectAreChoicesUnchanged(selectChoicesForOldPrompt);
     }
 
     public boolean isRequired() {
