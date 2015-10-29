@@ -73,9 +73,9 @@ public class CaseAPITests {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        String databaseName = ("jdbc:sqlite:test.db");
+        String databaseName = ("test.db");
         try {
-            connection = DriverManager.getConnection(databaseName);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseName);
 
             SqlHelper.dropTable(connection, "TFLedger");
 
