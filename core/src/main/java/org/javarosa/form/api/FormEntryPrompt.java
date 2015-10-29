@@ -217,7 +217,8 @@ public class FormEntryPrompt extends FormEntryCaption {
                 dynamicChoicesPopulated = true;
             }
             return itemset.getChoices();
-        } else { //static choices
+        } else {
+            // static choices
             return q.getChoices();
         }
     }
@@ -236,7 +237,12 @@ public class FormEntryPrompt extends FormEntryCaption {
     }
 
     private boolean questionTextIsUnchanged(String oldQuestionText) {
-        return getQuestionText().equals(oldQuestionText);
+        String newQuestionText = getQuestionText();
+        if (newQuestionText == null) {
+            return oldQuestionText == null;
+        } else {
+            return newQuestionText.equals(oldQuestionText);
+        }
     }
 
     public boolean hasSameDisplayContent(String questionTextForOldPrompt,
