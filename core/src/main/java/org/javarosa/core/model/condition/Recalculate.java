@@ -28,8 +28,8 @@ public class Recalculate extends Triggerable {
     public Recalculate(IConditionExpr expr, TreeReference contextRef) {
         super(expr, contextRef);
     }
-
-
+    
+    @Override
     public Object eval(FormInstance model, EvaluationContext ec) {
         try {
             return expr.evalRaw(model, ec);
@@ -39,13 +39,13 @@ public class Recalculate extends Triggerable {
         }
     }
 
-
+    @Override
     public void apply(TreeReference ref, Object result, FormInstance model, FormDef f) {
         int dataType = f.getMainInstance().resolveReference(ref).getDataType();
         f.setAnswer(wrapData(result, dataType), ref);
     }
 
-
+    @Override
     public boolean canCascade() {
         return true;
     }
