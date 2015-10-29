@@ -15,12 +15,12 @@ import org.javarosa.core.util.MD5;
 public class MD5Hasher extends Hasher {
     private final static int CLASS_HASH_SIZE = 4;
 
-    // Overrides the Hasher getHash()
+    @Override
     public byte[] getHash(Class c){
         return MD5.hash(c.getName().getBytes());
     }
 
-    // Overrides the Hasher getHashSize()
+    @Override
     public int getHashSize(){
         return CLASS_HASH_SIZE;
     }

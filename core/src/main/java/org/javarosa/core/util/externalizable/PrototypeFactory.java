@@ -64,7 +64,7 @@ public class PrototypeFactory {
             if(hasher == null) {
                 mStaticHasher = new ClassNameHasher();
             } else{
-                this.setStaticHasher(hasher);
+                PrototypeFactory.setStaticHasher(hasher);
             }
         }
     }

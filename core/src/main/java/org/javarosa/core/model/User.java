@@ -23,7 +23,7 @@ import java.util.Hashtable;
  * @author ctsims
  * @author wspride
  */
-public class User implements Persistable, Restorable, IMetaData, TableAnnotation {
+public class User implements Persistable, Restorable, IMetaData {
     public static final String STORAGE_KEY = "USER";
 
     public static final String ADMINUSER = "admin";
@@ -31,15 +31,6 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
     public static final String DEMO_USER = "demo_user";
     public static final String KEY_USER_TYPE = "user_type";
     public static final String TYPE_DEMO = "demo";
-
-    public void setWrappedKey(byte[] key) {
-        this.wrappedKey = key;
-    }
-
-    public byte[] getWrappedKey() {
-        return wrappedKey;
-    }
-
 
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
@@ -79,6 +70,7 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
     }
 
     // fetch the value for the default user and password from the RMS
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.username = ExtUtil.readString(in);
         this.password = ExtUtil.readString(in);
@@ -90,6 +82,7 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, username);
         ExtUtil.writeString(out, password);
@@ -113,11 +106,12 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         return password;
     }
 
+    @Override
     public void setID(int recordId) {
-
         this.recordId = recordId;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
@@ -140,10 +134,6 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public boolean isRememberMe() {
-        return rememberMe;
     }
 
     public void setRememberMe(boolean rememberMe) {
@@ -174,10 +164,12 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         return this.properties;
     }
 
+    @Override
     public String getRestorableType() {
         return "user";
     }
 
+    @Override
     public void templateData(FormInstance dm, TreeReference parentRef) {
         RestoreUtils.applyDataType(dm, "name", parentRef, String.class);
         RestoreUtils.applyDataType(dm, "pass", parentRef, String.class);
@@ -195,6 +187,7 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         return ret;
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (META_UID.equals(fieldName)) {
             return uniqueId;
@@ -210,6 +203,7 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         throw new IllegalArgumentException("No metadata field " + fieldName + " for User Models");
     }
     // TODO: Add META_WRAPPED_KEY back in?
+    @Override
     public String[] getMetaDataFields() {
         return new String[] {META_UID, META_USERNAME, META_ID, META_SYNC_TOKEN};
     }
@@ -250,7 +244,12 @@ public class User implements Persistable, Restorable, IMetaData, TableAnnotation
         this.recordId = recordId;
     }
 
-    public String getStorageKey(){
-        return User.STORAGE_KEY;
+    public void setWrappedKey(byte[] key) {
+        this.wrappedKey = key;
     }
+
+    public byte[] getWrappedKey() {
+        return wrappedKey;
+    }
+
 }
