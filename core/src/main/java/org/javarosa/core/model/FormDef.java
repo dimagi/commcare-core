@@ -396,7 +396,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         preloadInstance(mainInstance.resolveReference(destRef));
 
-        // Fire events before "calculate"s
+        // Fire jr-insert events before "calculate"s
         processInsertAction(destRef);
 
         // trigger conditions that depend on the creation of this new node
