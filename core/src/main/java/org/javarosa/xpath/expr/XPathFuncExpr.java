@@ -35,7 +35,7 @@ import me.regexp.RE;
 /**
  * Representation of an xpath function expression.
  *
- * All of the built-in xpath functions are included here, as well as the xpath type conversion logic
+ * All of the built-in xpath functions are included here, as wellaas the xpath type conversion logic
  *
  * Evaluation of functions can delegate out to custom function handlers that must be registered at
  * runtime.

@@ -973,7 +973,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     /**
      * Evaluate triggerables targeting references that are children of the
      * provided newly created (repeat instance) ref.  Ignore all triggerables
-     * that were already fired by processing the jr-insert action.
+     * that were already fired by processing the jr-insert action. Ignored
+     * triggerables can still be fired if a dependency is modified.
      */
     private void initTriggerablesRootedBy(TreeReference rootRef) {
         TreeReference genericRoot = rootRef.genericize();
