@@ -398,6 +398,10 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * Fire insert actions for repeat entry, storing triggerables that were
      * triggered so we can avoid triggering them during trigger initialization
      * for the new repeat entry later on.
+     *
+     * @param triggeredDuringInsert collect triggerables that were directly
+     * fired while processing the action. Used to prevent duplicate triggering
+     * later on.
      */
     private void processInsertAction(TreeReference newRepeatEntryRef,
                                      Vector<Triggerable> triggeredDuringInsert) {
@@ -970,6 +974,9 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * provided newly created (repeat instance) ref.  Ignore all triggerables
      * that were already fired by processing the jr-insert action. Ignored
      * triggerables can still be fired if a dependency is modified.
+     *
+     * @param triggeredDuringInsert Triggerables that don't need to be fired
+     * because they have already been fired while processing insert events
      */
     private void initTriggerablesRootedBy(TreeReference rootRef,
                                           Vector<Triggerable> triggeredDuringInsert) {
