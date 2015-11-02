@@ -209,7 +209,6 @@ public class FormEntryPrompt extends FormEntryCaption {
     public Vector<SelectChoice> getSelectChoices() { return getSelectChoices(true); }
     public Vector<SelectChoice> getSelectChoices(boolean shouldAttemptDynamicPopulation) {
         QuestionDef q = getQuestion();
-
         ItemsetBinding itemset = q.getDynamicChoices();
         if (itemset != null) {
             if (shouldAttemptDynamicPopulation && !dynamicChoicesPopulated) {
@@ -225,6 +224,16 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     public Vector<SelectChoice> getOldSelectChoices() {
         return getSelectChoices(false);
+    }
+
+    /**
+     * @return If this prompt has all of the same display content as a previous prompt that had
+     * the given question text and select choices
+     */
+    public boolean hasSameDisplayContent(String questionTextForOldPrompt,
+                                         Vector<SelectChoice> selectChoicesForOldPrompt) {
+        return questionTextIsUnchanged(questionTextForOldPrompt) &&
+                selectChoicesAreUnchanged(selectChoicesForOldPrompt);
     }
 
     private boolean selectChoicesAreUnchanged(Vector<SelectChoice> choicesForOld) {
@@ -243,16 +252,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         } else {
             return newQuestionText.equals(oldQuestionText);
         }
-    }
-
-    /**
-     * @return If this prompt has all of the same display content as a previous prompt that had
-     * the given question text and select choices
-     */
-    public boolean hasSameDisplayContent(String questionTextForOldPrompt,
-                                         Vector<SelectChoice> selectChoicesForOldPrompt) {
-        return questionTextIsUnchanged(questionTextForOldPrompt) &&
-                selectChoicesAreUnchanged(selectChoicesForOldPrompt);
     }
 
     public boolean isRequired() {
