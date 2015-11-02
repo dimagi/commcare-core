@@ -159,8 +159,8 @@ public class SqlHelper {
 
         HashMap<String, Object> map = DatabaseHelper.getMetaFieldsAndValues(p);
 
-        String[] fieldNames = map.keySet().toArray(new String[0]);
-        Object[] values = map.values().toArray(new Object[0]);
+        String[] fieldNames = map.keySet().toArray(new String[map.keySet().size()]);
+        Object[] values = map.values().toArray(new Object[map.values().size()]);
 
         Pair<String, String[]> where = org.commcare.modern.database.DatabaseHelper.createWhere(fieldNames, values, p);
 

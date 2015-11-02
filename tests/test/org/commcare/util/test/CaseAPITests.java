@@ -1,6 +1,7 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.SqlHelper;
+import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -10,6 +11,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,25 +23,20 @@ import static org.junit.Assert.fail;
 
 public class CaseAPITests {
 
-    Case a, b, c, d, e;
+    private Case a, b, c, d, e;
 
-    Ledger l;
+    private Ledger l;
 
-    DummyIndexedStorageUtility<Case> storage;
-    String owner;
-    String groupOwner;
-    String otherOwner;
-    Vector<String> groupOwned;
-    Vector<String> userOwned;
+    private String owner;
+    private String groupOwner;
+    private Vector<String> groupOwned;
+    private Vector<String> userOwned;
 
 
     @Before
     public void setUp() throws Exception {
 
-        storage = new DummyIndexedStorageUtility<Case>(Case.class, new PrototypeFactory());
-
         owner = "owner";
-        otherOwner = "otherowner";
         groupOwner = "groupowned";
 
         userOwned = new Vector<String>();
@@ -75,8 +72,10 @@ public class CaseAPITests {
     public void testOwnerPurge() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String databaseName = ("test.db");
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:test.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databaseName);
 
             SqlHelper.dropTable(connection, "TFLedger");
 
@@ -89,8 +88,8 @@ public class CaseAPITests {
             if (preparedStatement == null) {
                 fail("failed to prepare table select query");
             }
-            ResultSet rs = preparedStatement.executeQuery();
-            byte[] caseBytes = rs.getBytes("commcare_sql_record");
+            resultSet = preparedStatement.executeQuery();
+            byte[] caseBytes = resultSet.getBytes("commcare_sql_record");
             DataInputStream is = new DataInputStream(new ByteArrayInputStream(caseBytes));
 
             Ledger readLedger = new Ledger();
@@ -108,6 +107,13 @@ public class CaseAPITests {
                 }
                 if(connection != null) {
                     connection.close();
+                }
+                if(resultSet != null){
+                    resultSet.close();
+                }
+                File databaseFile = new File(databaseName);
+                if(databaseFile.exists()){
+                    databaseFile.delete();
                 }
             } catch (SQLException e1) {
                 e1.printStackTrace();

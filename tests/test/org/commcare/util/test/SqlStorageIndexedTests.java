@@ -22,17 +22,17 @@ import static org.junit.Assert.assertTrue;
 
 public class SqlStorageIndexedTests {
 
-    Case a, b, c;
+    private Case a, b, c;
 
-    Ledger l, l2, l3;
+    private Ledger l, l2, l3;
 
-    SqliteIndexedStorageUtility<Case> caseStorage;
-    SqliteIndexedStorageUtility<Ledger> ledgerStorage;
-    String owner;
-    String groupOwner;
-    String otherOwner;
-    Vector<String> groupOwned;
-    Vector<String> userOwned;
+    private SqliteIndexedStorageUtility<Case> caseStorage;
+    private SqliteIndexedStorageUtility<Ledger> ledgerStorage;
+    private String owner;
+    private String groupOwner;
+    private String otherOwner;
+    private Vector<String> groupOwned;
+    private Vector<String> userOwned;
 
 
     @Before
@@ -118,9 +118,7 @@ public class SqlStorageIndexedTests {
                 //good
             }
 
-            Iterator iterator = caseStorage.iterator();
-            while(iterator.hasNext()){
-                Case mCase = (Case)iterator.next();
+            for (Case mCase : caseStorage) {
                 String caseId = mCase.getCaseId();
                 assertTrue(caseId.equals("b_case_id") || caseId.equals("c_case_id"));
             }
@@ -154,14 +152,14 @@ public class SqlStorageIndexedTests {
             ledgerStorage.write(l2);
             ledgerStorage.write(l3);
 
-            Vector<Object> ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
+            Vector ids = ledgerStorage.getIDsForValue("entity_id", "ledger_entity_id");
 
             assertEquals(2, ids.size());
             assertTrue(ids.contains(1));
             assertTrue(ids.contains(2));
 
             Ledger readLedger2 = ledgerStorage.getRecordForValue("entity_id", "ledger_entity_id_3");
-            Assert.assertEquals(readLedger2.getID(), 3);
+            assertEquals(readLedger2.getID(), 3);
 
             int count = ledgerStorage.getNumRecords();
 
