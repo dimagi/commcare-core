@@ -131,25 +131,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     boolean mDebugModeEnabled = false;
 
     /**
-     * Designates that the form is currently processing insert actions for a
-     * newly created repeat entry. Used for reducing duplicate triggerings
-     */
-    private boolean isProcessingNewRepeatInsertActions = false;
-
-    /**
      * Cache children that trigger target will cascade to. For speeding up
      * calculations that determine what needs to be triggered when a value
      * changes.
      */
     private final CacheTable<TreeReference, Vector<TreeReference>> cachedCascadingChildren =
             new CacheTable<TreeReference, Vector<TreeReference>>();
-
-    /**
-     * Store triggerables that were fired while processing an insert action for
-     * a newly created repeat entry.
-     */
-    private Vector<Triggerable> triggerablesProcessedInSetAction =
-            new Vector<Triggerable>();
 
     public FormDef() {
         setID(-1);
@@ -397,13 +384,14 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         preloadInstance(mainInstance.resolveReference(destRef));
 
         // Fire jr-insert events before "calculate"s
-        processInsertAction(destRef);
+        Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
+        processInsertAction(destRef, triggeredDuringInsert);
 
         // trigger conditions that depend on the creation of this new node
         triggerTriggerables(destRef);
 
         // trigger conditions for the node (and sub-nodes)
-        initTriggerablesRootedBy(destRef);
+        initTriggerablesRootedBy(destRef, triggeredDuringInsert);
     }
 
     /**
@@ -411,15 +399,22 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * triggered so we can avoid triggering them during trigger initialization
      * for the new repeat entry later on.
      */
-    private void processInsertAction(TreeReference newRepeatEntryRef) {
+    private void processInsertAction(TreeReference newRepeatEntryRef,
+                                     Vector<Triggerable> triggeredDuringInsert) {
         Vector<Action> listeners = getEventListeners(Action.EVENT_JR_INSERT);
-        isProcessingNewRepeatInsertActions = true;
         for (Action a : listeners) {
-            a.processAction(this, newRepeatEntryRef);
+            TreeReference refSetByAction = a.processAction(this, newRepeatEntryRef);
+            if (refSetByAction != null) {
+                Vector<Triggerable> triggerables =
+                        triggerIndex.get(refSetByAction.genericize());
+                if (triggerables != null) {
+                    for (Triggerable elem : triggerables) {
+                        triggeredDuringInsert.addElement(elem);
+                    }
+                }
+            }
         }
-        isProcessingNewRepeatInsertActions = false;
     }
-
 
     public boolean isRepeatRelevant(TreeReference repeatRef) {
         boolean relev = true;
@@ -563,7 +558,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         // children because it is behaving like trigger initalization for new
         // repeat entries.  If we begin actually using this method, the trigger
         // cascading logic should be fixed.
-        initTriggerablesRootedBy(destRef);
+        initTriggerablesRootedBy(destRef, new Vector<Triggerable>());
         // not 100% sure this will work since destRef is ambiguous as the last
         // step, but i think it's supposed to work
     }
@@ -976,14 +971,15 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * that were already fired by processing the jr-insert action. Ignored
      * triggerables can still be fired if a dependency is modified.
      */
-    private void initTriggerablesRootedBy(TreeReference rootRef) {
+    private void initTriggerablesRootedBy(TreeReference rootRef,
+                                          Vector<Triggerable> triggeredDuringInsert) {
         TreeReference genericRoot = rootRef.genericize();
 
         Vector<Triggerable> applicable = new Vector<Triggerable>();
         for (Triggerable triggerable : triggerables) {
             for (TreeReference target : triggerable.getTargets()) {
                 if (genericRoot.isParentOf(target, false)) {
-                    if (!triggerablesProcessedInSetAction.contains(triggerable)) {
+                    if (!triggeredDuringInsert.contains(triggerable)) {
                         applicable.addElement(triggerable);
                     }
                     break;
@@ -991,7 +987,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             }
         }
 
-        triggerablesProcessedInSetAction.clear();
         evaluateTriggerables(applicable, rootRef, true);
     }
 
@@ -1020,19 +1015,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggeredCopy.addElement(triggered.elementAt(i));
         }
 
-        storeSaveValueTriggerables(triggered);
-
         //Evaluate all of the triggerables in our new vector
         evaluateTriggerables(triggeredCopy, ref, false);
-    }
-
-    private void storeSaveValueTriggerables(Vector<Triggerable> triggered) {
-        if (isProcessingNewRepeatInsertActions) {
-            for (int i = 0; i < triggered.size(); i++) {
-                triggerablesProcessedInSetAction.addElement((Triggerable)triggered.elementAt(i));
-            }
-        }
-
     }
 
     /**
