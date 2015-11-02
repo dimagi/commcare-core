@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
@@ -327,6 +328,18 @@ public class XFormPlayer {
             return false;
         }
     }
+
+    public String getCurrentInstance(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        printInstance(ps, fec.getModel().getForm().getInstance());
+        try {
+            return baos.toString("UTF8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     
     private void displayRelevant() {
         FormIndex current = this.fec.getModel().getFormIndex();
@@ -335,6 +348,34 @@ public class XFormPlayer {
             out.println("No display logic defined");
         } else {
             out.println(output);
+        }
+    }
+
+    public String evalExpressionToString(String xpath) {
+        out.println(xpath);
+        XPathExpression expr;
+        try {
+            expr = XPathParseTool.parseXPath(xpath);
+        } catch (XPathSyntaxException e) {
+            return "Error (parse): " + e.getMessage();
+        }
+        EvaluationContext ec = fec.getModel().getForm().getEvaluationContext();
+
+        //See if we're on a valid index, if so use that as our EC base
+        FormIndex current = this.fec.getModel().getFormIndex();
+        if (current.isInForm()) {
+            ec = new EvaluationContext(ec, current.getReference());
+        }
+
+        if (mIsDebugOn) {
+            ec.setDebugModeOn();
+        }
+
+        try {
+            Object val = expr.eval(ec);
+            return(getDisplayString(val));
+        } catch (Exception e) {
+            return "Error  (eval): " + e.getMessage();
         }
     }
 

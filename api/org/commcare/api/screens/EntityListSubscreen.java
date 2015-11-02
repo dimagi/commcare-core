@@ -76,6 +76,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
                 //Really don't care if it didn't work
             }
             //CliUtils.addPaddedStringToBuilder(row, s, widthHint);
+
+            row.append(s);
+
             i++;
             if (i != fields.length) {
                 row.append(" | ");
@@ -129,6 +132,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String getScreenXML() {
+
+        System.out.println("Getting subscreen XML");
 
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = null;

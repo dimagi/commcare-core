@@ -41,15 +41,16 @@ public class XmlProcessor {
 
         sessionWrapper = null;
         xFormPlayer = null;
+        String response = "";
 
         for(int i = 0; i < nodeList.getLength(); i++){
             Node node = nodeList.item(i);
-            processCommandNode(node);
+            response = processCommandNode(node);
         }
-        return "";
+        return response;
     }
 
-    private void processCommandNode(Node node) throws Exception {
+    private String processCommandNode(Node node) throws Exception {
         String commandName = null;
         ArrayList<String> commandArgs = new ArrayList<>();
         for(int i = 0; i < node.getChildNodes().getLength(); i++){
@@ -67,39 +68,44 @@ public class XmlProcessor {
         String[] returnArray = new String[commandArgs.size()];
         commandArgs.toArray(returnArray);
 
-        handleCommandObject(commandName, returnArray);
+        return handleCommandObject(commandName, returnArray);
     }
 
-    private void handleCommandObject(String command, String[] args) throws Exception {
+    private String handleCommandObject(String command, String[] args) throws Exception {
         String commandName = command;
         String[] commandArgs = args;
 
         switch(commandName){
             case "install":
-                handleInstall(commandArgs[0]);
-                break;
+                return handleInstall(commandArgs[0]);
             case "restore":
-                handleRestore(commandArgs[0]);
-                break;
+                return handleRestore(commandArgs[0]);
             case "get_needed_data":
-                System.out.println("Get needed: " + handleGetNeededData());
-                break;
+                return handleGetNeededData();
             case "get_next_screen":
-                System.out.println("Get screen: " + handleGetNextScreen());
-                break;
+                return handleGetNextScreen();
             case "menu_input":
-                System.out.println("Handle Menu: " + handleMenuInput(commandArgs[0]));
-                break;
+                return handleMenuInput(commandArgs[0]);
             case "form_input":
-                System.out.println("Handle Form: " + handleFormInput(commandArgs[0]));
-                break;
+                return handleFormInput(commandArgs[0]);
+            case "get_instance":
+                return handleGetInstance();
+            case "evaluate_xpath":
+                return handleEvaluateXPath(commandArgs[0]);
         }
+        return "Command not recognized: " + command;
+    }
+
+    private String handleEvaluateXPath(String commandArg) {
+        return xFormPlayer.evalExpressionToString(commandArg);
+    }
+
+    private String handleGetInstance() {
+        return xFormPlayer.getCurrentInstance();
     }
 
     private String handleFormInput(String commandArg) throws Exception{
-        System.out.println("inputting");
         xFormPlayer.input(commandArg);
-        System.out.println("inputted: " + commandArg);
         return handleFormPrompt();
     }
 
@@ -141,12 +147,14 @@ public class XmlProcessor {
         return sessionWrapper.getNeededData();
     }
 
-    private void handleInstall(String profileReference) {
+    private String handleInstall(String profileReference) {
         sessionWrapper = SessionUtils.performInstall(profileReference);
+        return "Installed";
     }
 
-    private void handleRestore(String restoreFileReference){
+    private String handleRestore(String restoreFileReference){
         SessionUtils.performRestore(sessionWrapper.getSandbox(), restoreFileReference);
+        return "Restored";
     }
 
 }
