@@ -863,7 +863,14 @@ public class XPathFuncExpr extends XPathExpression {
         String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
-        return DateUtils.split(selection, " ", true).elementAt(index);
+        Vector<String> entries = DateUtils.split(selection, " ", true);
+
+        if (entries.size() <= index) {
+            throw new XPathException("Attempting to select element " + index +
+                    " of a list with only " + entries.size() + " elements.");
+        } else {
+            return entries.elementAt(index);
+        }
     }
 
     /**
