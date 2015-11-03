@@ -39,10 +39,7 @@ public class Callout implements Externalizable, DetailTemplate {
         this.displayName = displayName;
     }
 
-    /*
-    * (non-Javadoc)
-    * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
-    */
+    @Override
     public CalloutData evaluate(EvaluationContext context) {
 
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
@@ -60,17 +57,15 @@ public class Callout implements Externalizable, DetailTemplate {
         }
 
         // emit a CalloutData with the extras evaluated. used for the detail screen.
-        CalloutData ret = new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
-
-        return ret;
+        return new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
     }
 
-    public CalloutData evaluate() {
-
-        //emit a callout without the extras evaluated. used for the case list button.
-        CalloutData ret = new CalloutData(actionName, image, displayName, extras, responses);
-
-        return ret;
+    /**
+     * @return CalloutData instance without evaluating the extras. Used for
+     * the case list button.
+     */
+    public CalloutData getRawCalloutData() {
+        return new CalloutData(actionName, image, displayName, extras, responses);
     }
 
     /*
@@ -124,14 +119,4 @@ public class Callout implements Externalizable, DetailTemplate {
     public Vector<String> getResponses() {
         return responses;
     }
-
-    //region Interfaces for implementing Callout-related actions
-    public interface CalloutActionSetup {
-        void onImageFound(CalloutData calloutData);
-    }
-
-    public interface CalloutAction {
-        void callout();
-    }
-    //endregion
 }

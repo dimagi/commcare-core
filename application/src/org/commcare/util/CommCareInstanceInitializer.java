@@ -24,6 +24,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.Interner;
 import org.javarosa.core.model.User;
+import org.commcare.cases.instance.CaseDataInstance;
 
 import java.util.Date;
 import java.util.Vector;
@@ -43,6 +44,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     }
     public CommCareInstanceInitializer(Interner<String> stringCache, CommCareSession session) {
         this.session = session;
+    }
+
+    @Override
+    public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
+        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+            return new CaseDataInstance(instance);
+        } else {
+            return instance;
+        }
     }
 
     /**

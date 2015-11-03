@@ -144,9 +144,7 @@ public class ResourceTable {
     public void addResource(Resource resource, int status) {
         if (resourceDoesntExist(resource)) {
             addResourceInner(resource, status);
-        } else {
-            Logger.log("Resource", "Trying to add an already existing resource: " + resource.getResourceId());
-        }
+        } 
     }
     private boolean resourceDoesntExist(Resource resource) {
         return storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId()).size() == 0;
