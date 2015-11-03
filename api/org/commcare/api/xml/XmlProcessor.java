@@ -7,6 +7,7 @@ import org.commcare.api.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.api.session.CommCareSessionException;
+import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.w3c.dom.Document;
@@ -21,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +34,11 @@ public class XmlProcessor {
 
     SessionWrapper sessionWrapper;
     XFormPlayer xFormPlayer;
+
+    boolean restored = false;
+    boolean installed = false;
+
+    String lastResponse = "";
 
     public String processRespondXML(File xmlRequest) throws Exception{
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -45,7 +52,11 @@ public class XmlProcessor {
 
         for(int i = 0; i < nodeList.getLength(); i++){
             Node node = nodeList.item(i);
-            response = processCommandNode(node);
+            lastResponse = processCommandNode(node);
+            if(lastResponse != null){
+                System.out.println("Setting last response: " + lastResponse);
+                response = lastResponse;
+            }
         }
         return response;
     }
@@ -75,11 +86,23 @@ public class XmlProcessor {
         String commandName = command;
         String[] commandArgs = args;
 
+        System.out.println("Command: " + command + " argS: " + Arrays.toString(args));
+
         switch(commandName){
             case "install":
-                return handleInstall(commandArgs[0]);
+                if(!installed) {
+                    installed = true;
+                    return handleInstall(commandArgs[0]);
+                } else{
+                    return "Already installed";
+                }
             case "restore":
-                return handleRestore(commandArgs[0]);
+                if(!restored){
+                    restored = true;
+                    return handleRestore(commandArgs[0]);
+                } else{
+                    return "Already restored";
+                }
             case "get_needed_data":
                 return handleGetNeededData();
             case "get_next_screen":
@@ -92,8 +115,31 @@ public class XmlProcessor {
                 return handleGetInstance();
             case "evaluate_xpath":
                 return handleEvaluateXPath(commandArgs[0]);
+            case "clear_state":
+                return handleClear();
+            case "assert_response":
+                return handleAssertResponse(commandArgs[0]);
+            case "get_cases":
+                return handleGetCases();
         }
         return "Command not recognized: " + command;
+    }
+
+    private String handleGetCases() {
+
+    }
+
+    private String handleAssertResponse(String commandArg) {
+        if(commandArg.equals(lastResponse)){
+            return "Assert is true";
+        } else{
+            return "Expected " + commandArg + " was " + lastResponse;
+        }
+    }
+
+    private String handleClear() {
+        sessionWrapper.clearAllState();
+        return null;
     }
 
     private String handleEvaluateXPath(String commandArg) {
@@ -105,8 +151,13 @@ public class XmlProcessor {
     }
 
     private String handleFormInput(String commandArg) throws Exception{
-        xFormPlayer.input(commandArg);
-        return handleFormPrompt();
+        try {
+            xFormPlayer.input(commandArg);
+            return handleFormPrompt();
+        } catch(XFormPlayer.InvalidInputException e){
+            System.out.println("Invalid!!! " + e.getValue());
+            return "Invalid input: " + e.getValue();
+        }
     }
 
     private String handleMenuInput(String commandArg) throws Exception {

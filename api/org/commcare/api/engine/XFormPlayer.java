@@ -544,11 +544,11 @@ public class XFormPlayer {
             i = Integer.parseInt(input);
             if ( i < 1 || i > max) {
                 badInput(input, "Enter a number between 1 and " + max);
-                throw new InvalidInputException();
+                throw new InvalidInputException(input);
             }
         } catch (NumberFormatException nfe) {
             badInput(input, "Enter a number between 1 and " + max);
-            throw new InvalidInputException();
+            throw new InvalidInputException(input);
         }
         return i;
     }
@@ -569,8 +569,8 @@ public class XFormPlayer {
 
         out.println(message);
         out.println("Press Return to Try Again");
-        blockForInput();
-        throw new InvalidInputException();
+        //blockForInput();
+        throw new InvalidInputException(input);
     }
 
     private String blockForInput() {
@@ -645,6 +645,13 @@ public class XFormPlayer {
     }
 
     public static final class InvalidInputException extends Exception {
+        String value;
+        public InvalidInputException(String value){
+            this.value = value;
+        }
 
+        public String getValue(){
+            return value;
+        }
     }
 }

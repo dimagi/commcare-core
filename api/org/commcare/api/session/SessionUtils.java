@@ -1,6 +1,7 @@
 package org.commcare.api.session;
 
 import org.commcare.api.engine.XFormPlayer;
+import org.commcare.api.persistence.MockUserDataSandbox;
 import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.api.screens.EntityScreen;
 import org.commcare.api.screens.MenuScreen;
@@ -14,8 +15,10 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -43,7 +46,7 @@ public class SessionUtils {
             //mEngine.initFromLocalFileResource(resourcePath);
         }
         mEngine.initEnvironment();
-        SessionWrapper sessionWrapper = new SessionWrapper(mEngine.getPlatform(), new UserSqlSandbox(USERNAME));
+        SessionWrapper sessionWrapper = new SessionWrapper(mEngine.getPlatform(), new MockUserDataSandbox(PrototypeManager.getDefault()));
         return sessionWrapper;
     }
 

@@ -36,6 +36,7 @@ import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.services.storage.IStorageFactory;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.MD5Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -130,7 +131,7 @@ public class ApiConfigEngine {
         StorageManager.forceClear();
         StorageManager.setStorageFactory(new IStorageFactory() {
             public IStorageUtility newStorage(String name, Class type) {
-                return new SqliteIndexedStorageUtility(type, "api", type.getSimpleName());
+                return new DummyIndexedStorageUtility(type, PrototypeManager.getDefault());
             }
 
         });
