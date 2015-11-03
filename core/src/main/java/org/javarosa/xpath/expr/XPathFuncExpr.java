@@ -865,7 +865,7 @@ public class XPathFuncExpr extends XPathExpression {
 
         Vector<String> entries = DateUtils.split(selection, " ", true);
 
-        if (entries.size() < index) {
+        if (entries.size() <= index) {
             throw new XPathException("Attempting to select element " + index +
                     " of a list with only " + entries.size() + " elements.");
         } else {

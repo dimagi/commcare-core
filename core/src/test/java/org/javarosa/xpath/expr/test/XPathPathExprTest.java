@@ -32,6 +32,17 @@ public class XPathPathExprTest {
         testEval("/data/places/country[@id ='one']/name", instance, null, "Singapore");
     }
 
+    @Test
+    public void testOutOfBoundsSelect() {
+        FormInstance instance = loadInstance("/test_xpathpathexpr.xml");
+
+        // normal selected-at behaviour
+        testEval("selected-at('hello there', 0)", instance, null, "hello");
+        testEval("selected-at('hello there', 1)", instance, null, "there");
+        // out of bounds selection should raise an XPathException
+        testEval("selected-at('hello there', 2)", instance, null, new XPathException());
+    }
+
     /**
      * Some simple xpath expressions with multiple predicates that operate over
      * nodesets.
