@@ -1,0 +1,28 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account test!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>2837795451fb8620bbffc00fe8c14135</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$88rUXppT9kj8$7d146054b5bf79fc4ec7f618a1b4aead1ba1d706</password>
+        <uuid>a8f5a98c4ce767c35b9132bc75eb225c</uuid>
+        <date>2014-03-22</date>
+    </Registration>
+    <case case_id="289dffbe3a6948048f20d27550b698e1" date_modified="2015-06-25T02:52:03.123000Z"
+        user_id="a8f5a98c4ce767c35b9132bc75eb225c" xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>supply-point</case_type>
+            <case_name>Mr Contes all Italian Leather goods Emporium</case_name>
+            <owner_id>commtrack-system</owner_id>
+        </create>
+        <update>
+            <first_visit>1</first_visit>
+            <location_>['4f79174e22a4ca28c25cf8c74dd56eab', '30586d7da212ba9d7c43fd93cc822deb',
+                '4f8031c0d8ef497f798ad9f2517c7384']
+            </location_>
+            <location_id>4f8031c0d8ef497f798ad9f2517c7384</location_id>
+            <referrals>[]</referrals>
+        </update>
+    </case>
+</OpenRosaResponse>

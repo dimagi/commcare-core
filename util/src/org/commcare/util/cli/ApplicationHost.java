@@ -1,10 +1,15 @@
 package org.commcare.util.cli;
 
+import org.commcare.api.session.SessionWrapper;
+
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
+
+import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.Text;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
@@ -13,13 +18,16 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -57,7 +65,7 @@ public class ApplicationHost {
 
     private final PrototypeFactory mPrototypeFactory;
 
-    private final BufferedReader reader;
+    private BufferedReader reader;
 
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
@@ -79,8 +87,11 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setReader(BufferedReader reader){
+        this.reader = reader;
+    }
 
-    public void run() {
+    public void init(){
         if(!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of hte setRestore*() methods before running the app");
@@ -88,6 +99,10 @@ public class ApplicationHost {
         setupSandbox();
 
         mSession = new CLISessionWrapper(mPlatform, mSandbox);
+    }
+
+    public void run() {
+        init();
 
         try {
             loop();
@@ -155,10 +170,31 @@ public class ApplicationHost {
                             }
                             return true;
                         }
+                    if(input.equals(":home")) {
+                        return true;
+                    }
 
-                        if (input.equals(":home")) {
-                            return true;
+                    if(input.equals(":cases")) {
+                        IStorageUtilityIndexed<Case> caseStorage = mSandbox.getCaseStorage();
+                        IStorageIterator<Case> iterate = caseStorage.iterate();
+                        while(iterate.hasMore()){
+                            Case mCase = iterate.nextRecord();
+                            System.out.println("Case: " + mCase.getName());
                         }
+                    }
+
+                    if(input.contains(":eval")){
+                        System.out.println("Evaluating");
+                        int spaceIndex = input.indexOf(" ");
+                        if (input.length() == spaceIndex || spaceIndex == -1) {
+                            System.out.println("Entering eval mode, exit by entering a blank line");
+                        }
+                        String arg = input.substring(spaceIndex + 1);
+                        System.out.println("Arg: " + arg);
+                        String evaled = APIUtils.evalExpression(arg, mSession.getEvaluationContext());
+                        System.out.println("Eval: " + evaled);
+                    }
+
 
                         if (input.equals(":back")) {
                             mSession.stepBack();
@@ -232,7 +268,16 @@ public class ApplicationHost {
         }
     }
 
-    private void printStack(CLISessionWrapper mSession) {
+    public String getInstanceXML(String path, String root){
+        return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
+    }
+
+    public String evaluateXPath(String xpath) throws Exception {
+        Text text = Text.XPathText(xpath, null);
+        return text.evaluate(mSession.getEvaluationContext());
+    }
+
+    private void printStack(SessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
         System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
         System.out.println("----------");
