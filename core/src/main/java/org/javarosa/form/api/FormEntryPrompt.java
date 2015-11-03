@@ -206,18 +206,51 @@ public class FormEntryPrompt extends FormEntryCaption {
         }
     }
 
-    public Vector<SelectChoice> getSelectChoices() {
+    public Vector<SelectChoice> getSelectChoices() { return getSelectChoices(true); }
+    public Vector<SelectChoice> getSelectChoices(boolean shouldAttemptDynamicPopulation) {
         QuestionDef q = getQuestion();
-
         ItemsetBinding itemset = q.getDynamicChoices();
         if (itemset != null) {
-            if (!dynamicChoicesPopulated) {
+            if (shouldAttemptDynamicPopulation && !dynamicChoicesPopulated) {
                 form.populateDynamicChoices(itemset, mTreeElement.getRef());
                 dynamicChoicesPopulated = true;
             }
             return itemset.getChoices();
-        } else { //static choices
+        } else {
+            // static choices
             return q.getChoices();
+        }
+    }
+
+    public Vector<SelectChoice> getOldSelectChoices() {
+        return getSelectChoices(false);
+    }
+
+    /**
+     * @return If this prompt has all of the same display content as a previous prompt that had
+     * the given question text and select choices
+     */
+    public boolean hasSameDisplayContent(String questionTextForOldPrompt,
+                                         Vector<SelectChoice> selectChoicesForOldPrompt) {
+        return questionTextIsUnchanged(questionTextForOldPrompt) &&
+                selectChoicesAreUnchanged(selectChoicesForOldPrompt);
+    }
+
+    private boolean selectChoicesAreUnchanged(Vector<SelectChoice> choicesForOld) {
+        Vector<SelectChoice> choicesForThis = getSelectChoices();
+        if (choicesForOld == null) {
+            return choicesForThis == null;
+        } else {
+            return choicesForOld.equals(choicesForThis);
+        }
+    }
+
+    private boolean questionTextIsUnchanged(String oldQuestionText) {
+        String newQuestionText = getQuestionText();
+        if (newQuestionText == null) {
+            return oldQuestionText == null;
+        } else {
+            return newQuestionText.equals(oldQuestionText);
         }
     }
 
