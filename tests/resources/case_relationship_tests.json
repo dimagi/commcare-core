@@ -187,7 +187,35 @@
   ],
   "outcome":["d", "a","b"]
 }
-
-
-
+,{
+  "name":"Closed Extension",
+  "owned":["a"],
+  "closed":["b"],
+  "extensions":[
+    ["b","a"]
+  ],
+  "outcome":["a"]
+}
+,{
+  "name":"Closed Extension",
+  "owned":["a"],
+  "closed":["b"],
+  "extensions":[
+    ["c","b"]
+  ],
+  "subcases":[
+    ["a","b"]
+  ],
+  "outcome":["a", "b", "c"]
+}
+,{
+  "name":"Broken Extension Chain",
+  "owned":["a"],
+  "closed":["b"],
+  "extensions":[
+    ["b","a"],
+    ["c","b"]
+  ],
+  "outcome":["a"]
+}
 ]
