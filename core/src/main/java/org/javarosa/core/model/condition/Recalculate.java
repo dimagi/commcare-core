@@ -120,7 +120,25 @@ public class Recalculate extends Triggerable {
         }
     }
 
+
+    /**
+     * Recalculates are equal based on their triggers and identity as a calculate triggerable
+     */
     @Override
+    public boolean equals(Object o) {
+        if (o instanceof Recalculate) {
+            Recalculate r = (Recalculate)o;
+            return (this == r || super.equals(r));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return "calculate".hashCode() ^ super.hashCode();
+    }
+
+
     public String getDebugLabel() {
         return "calculate";
     }

@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public abstract class Action implements Externalizable {
+public class Action implements Externalizable {
     public static final String EVENT_XFORMS_READY = "xforms-ready";
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
     public static final String EVENT_JR_INSERT = "jr-insert";
@@ -37,7 +37,9 @@ public abstract class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public abstract TreeReference processAction(FormDef model, TreeReference context);
+    public TreeReference processAction(FormDef model, TreeReference context) {
+        return null;
+    }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);

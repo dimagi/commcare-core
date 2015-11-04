@@ -46,8 +46,8 @@ public class SetValueAction extends Action {
         this.explicitValue = explicitValue;
     }
 
+    @Override
     public TreeReference processAction(FormDef model, TreeReference contextRef) {
-
         //Qualify the reference if necessary
         TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
 
