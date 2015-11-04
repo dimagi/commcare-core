@@ -10,9 +10,12 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Before;
 import org.junit.Test;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -32,6 +35,12 @@ public class TransformTest {
         try {
             ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(BASIC_RESTORE_PATH), mSandbox);
         } catch (InvalidStructureException e) {
+            e.printStackTrace();
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

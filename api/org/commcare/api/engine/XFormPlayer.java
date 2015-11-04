@@ -446,6 +446,10 @@ public class XFormPlayer {
         }
     }
 
+    public FormEntryController getFormEntryController(){
+        return fec;
+    }
+
     public boolean input(String input) throws BadPlaybackException, InvalidInputException{
         switch (fec.getModel().getEvent()) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:

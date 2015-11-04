@@ -53,7 +53,7 @@ public class CasePurgeTest {
         }
     }
 
-    private CasePurgeTest(JSONObject root) {
+    private CasePurgeTest(JSONObject root) throws JSONException {
         name = root.getString("name");
         if (root.has("cases")) {
             getCases(root.getJSONArray("cases"), cases);
@@ -76,7 +76,7 @@ public class CasePurgeTest {
 
     private void getIndices(JSONArray indices,
                             ArrayList<String[]> indexSet,
-                            String indexType) {
+                            String indexType) throws JSONException {
         for (int i = 0; i < indices.length(); ++i) {
             JSONArray index = indices.getJSONArray(i);
             String c = index.getString(0);
@@ -87,7 +87,7 @@ public class CasePurgeTest {
         }
     }
 
-    private void getCases(JSONArray owned, HashSet<String> target) {
+    private void getCases(JSONArray owned, HashSet<String> target) throws JSONException {
         for (int i = 0; i < owned.length(); ++i) {
             String c = owned.getString(i);
             cases.add(c);

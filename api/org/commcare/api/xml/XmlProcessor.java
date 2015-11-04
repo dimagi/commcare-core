@@ -1,6 +1,7 @@
 package org.commcare.api.xml;
 
 import org.commcare.api.engine.XFormPlayer;
+import org.commcare.api.json.PromptToJson;
 import org.commcare.api.screens.Screen;
 import org.commcare.api.session.SessionUtils;
 import org.commcare.api.session.SessionWrapper;
@@ -10,6 +11,7 @@ import org.commcare.api.session.CommCareSessionException;
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.json.JSONException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -119,14 +121,19 @@ public class XmlProcessor {
                 return handleClear();
             case "assert_response":
                 return handleAssertResponse(commandArgs[0]);
-            case "get_cases":
-                return handleGetCases();
+            case "get_json":
+                return handleGetJson();
         }
         return "Command not recognized: " + command;
     }
 
-    private String handleGetCases() {
-
+    private String handleGetJson() {
+        try {
+            return PromptToJson.formEntryPromptToJson(xFormPlayer.getFormEntryController().getModel().getQuestionPrompt()).toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "null";
+        }
     }
 
     private String handleAssertResponse(String commandArg) {
