@@ -143,7 +143,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private void propogateRelevance(DAG<String, int[], String> g) {
         propogateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
-        propogateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION);
+        propogateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION, false);
     }
 
     private void propogateAvailabile(DAG<String, int[], String> g) {
@@ -155,7 +155,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 node[0] |= STATUS_AVAILABLE;
             }
         }
-        propogateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION);
+        propogateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
 
     private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
@@ -177,11 +177,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         }
 
         propogateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
-        propogateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION);
+        propogateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
 
     private void propogateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
-        propogateMarkToDAG(g, direction, mask, mark, null);
+        propogateMarkToDAG(g, direction, mask, mark, null, false);
     }
 
     /**
@@ -200,7 +200,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                             meets this criteria.
      */
     private void propogateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
-                                    int maskCondition, int markToApply, String relationship) {
+                                    int maskCondition, int markToApply, String relationship,
+                                    boolean requireOpenDestination) {
         Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
         while (!toProcess.isEmpty()) {
             //current node
@@ -212,7 +213,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
             for (Edge<String, String> edge : edgeSet) {
                 if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
-                    dag.getNode(edge.i)[0] |= markToApply;
+                    if(!requireOpenDestination || caseStatusIs(dag.getNode(edge.i)[0], STATUS_OPEN)) {
+                        dag.getNode(edge.i)[0] |= markToApply;
+                    }
                 }
                 toProcess.addElement(edge.i);
             }
