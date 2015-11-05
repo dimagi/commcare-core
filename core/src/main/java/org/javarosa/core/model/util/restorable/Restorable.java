@@ -23,10 +23,6 @@ public interface Restorable {
 
     String getRestorableType();
 
-    FormInstance exportData();
-
     void templateData(FormInstance dm, TreeReference parentRef);
-
-    void importData(FormInstance dm);
 
 }

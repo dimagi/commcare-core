@@ -16,16 +16,22 @@
 
 package org.javarosa.core.util.externalizable;
 
-import org.javarosa.core.util.MD5;
+import org.javarosa.core.api.ClassNameHasher;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.util.PrefixTree;
 
 import java.util.Date;
 import java.util.Vector;
 
-public class PrototypeFactory {
-    public final static int CLASS_HASH_SIZE = 4;
+/**
+ * ProtoType factory for serializing and deserializing persisted classes using
+ * their hash codes. To use a non-default hasher, use one of the overriding constructors
+ * or call setStaticHasher().
+ */
 
-    static Hasher mStaticHasher;
+public class PrototypeFactory {
+
+    private static Hasher mStaticHasher;
 
     private Vector classes;
     private Vector hashes;
@@ -35,12 +41,32 @@ public class PrototypeFactory {
     protected boolean initialized;
 
     public PrototypeFactory() {
-        this(null);
+        this(null, null);
     }
 
     public PrototypeFactory(PrefixTree classNames) {
         this.classNames = classNames;
         initialized = false;
+        if(mStaticHasher == null){
+            mStaticHasher = new ClassNameHasher();
+        }
+    }
+
+
+    public PrototypeFactory(Hasher hasher) {
+        this(hasher, null);
+    }
+
+    public PrototypeFactory(Hasher hasher, PrefixTree classNames) {
+        this.classNames = classNames;
+        initialized = false;
+        if(mStaticHasher == null){
+            if(hasher == null) {
+                mStaticHasher = new ClassNameHasher();
+            } else{
+                PrototypeFactory.setStaticHasher(hasher);
+            }
+        }
     }
 
     protected void lazyInit() {
@@ -78,7 +104,8 @@ public class PrototypeFactory {
                 Float.class,
                 Double.class,
                 String.class,
-                Date.class
+                Date.class,
+                UncastData.class
         };
 
         for (int i = 0; i < baseTypes.length; i++) {
@@ -93,7 +120,7 @@ public class PrototypeFactory {
 
         byte[] hash = getClassHash(c);
 
-        if (compareHash(hash, ExtWrapTagged.WRAPPER_TAG)) {
+        if (compareHash(hash, PrototypeFactory.getWrapperTag())) {
             throw new Error("Hash collision! " + c.getName() + " and reserved wrapper tag");
         }
 
@@ -101,9 +128,7 @@ public class PrototypeFactory {
         if (d != null && d != c) {
             throw new Error("Hash collision! " + c.getName() + " and " + d.getName());
         }
-
-        classes.addElement(c);
-        hashes.addElement(hash);
+        storeHash(c, hash);
     }
 
     public Class getClass(byte[] hash) {
@@ -135,23 +160,11 @@ public class PrototypeFactory {
     }
 
     public static byte[] getClassHash(Class type) {
-        if (mStaticHasher != null) {
-            return mStaticHasher.getClassHashValue(type);
-        }
-        byte[] hash = new byte[CLASS_HASH_SIZE];
-        byte[] md5 = MD5.hash(type.getName().getBytes()); //add support for a salt, in case of collision?
-
-        for (int i = 0; i < hash.length; i++)
-            hash[i] = md5[i];
-        byte[] badHash = new byte[]{0, 4, 78, 97};
-        if (PrototypeFactory.compareHash(badHash, hash)) {
-            System.out.println("BAD CLASS: " + type.getName());
-        }
-
-        return hash;
+        return mStaticHasher.getClassHashValue(type);
     }
 
     public static boolean compareHash(byte[] a, byte[] b) {
+
         if (a.length != b.length) {
             return false;
         }
@@ -166,5 +179,22 @@ public class PrototypeFactory {
 
     public static void setStaticHasher(Hasher staticHasher) {
         mStaticHasher = staticHasher;
+    }
+
+    public static int getClassHashSize(){
+        return mStaticHasher.getHashSize();
+    }
+
+    public void storeHash(Class c, byte[] hash){
+        classes.addElement(c);
+        hashes.addElement(hash);
+    }
+
+    public static byte[] getWrapperTag(){
+        byte[] bytes = new byte[getClassHashSize()];
+        for(int i=0; i< bytes.length; i++){
+            bytes[i] = (byte)0xff;
+        }
+        return bytes;
     }
 }
