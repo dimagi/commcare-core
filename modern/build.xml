@@ -3,14 +3,12 @@
     <property name="name" value="commcare-libraries"/>
     <property name="jar" value="${name}.jar"/>
     <property name="dir.root" value="${basedir}/../"/>
-    <property name="dir.lib" value="${dir.root}/../javarosa/lib/"/>
-    <property name="dir.jrlib" value="${dir.root}/../javarosa/build/libs/"/>
 
     <target name="init" description="set classpath and make needed directories">
         <mkdir dir="lib/"/>
         <path id="classpath">
             <fileset dir="${dir.lib}" includes="*.jar"/>
-            <fileset dir="${dir.jrlib}" includes="*.jar"/>
+            <fileset dir="${dir.jrlibs}" includes="*.jar"/>
         </path>
         <mkdir dir="bin/"/>
         <mkdir dir="dist/"/>
