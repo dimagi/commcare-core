@@ -18,9 +18,9 @@ public class DAG<I, N, E> {
     //TODO: This is a really unsafe datatype. Needs an absurd amount of updating for representation
     //invariance, synchronicity, cycle detection, etc.
 
-    Hashtable<I, N> nodes;
-    Hashtable<I, Vector<Edge<I, E>>> edge;
-    Hashtable<I, Vector<Edge<I, E>>> inverse;
+    private final Hashtable<I, N> nodes;
+    private final Hashtable<I, Vector<Edge<I, E>>> edge;
+    private final Hashtable<I, Vector<Edge<I, E>>> inverse;
 
     public DAG() {
         nodes = new Hashtable<I, N>();
@@ -55,13 +55,13 @@ public class DAG<I, N, E> {
         if (inverse.containsKey(index)) {
             return inverse.get(index);
         } else {
-            return new Vector();
+            return new Vector<Edge<I, E>>();
         }
     }
 
     public Vector<Edge<I, E>> getChildren(I index) {
         if (!edge.containsKey(index)) {
-            return new Vector();
+            return new Vector<Edge<I, E>>();
         } else {
             return edge.get(index);
         }
@@ -71,14 +71,12 @@ public class DAG<I, N, E> {
         return nodes.get(index);
     }
 
-    //Is that the right name?
-
     /**
      * @return Indices for all nodes in the graph which are not the target of
      * any edges in the graph
      */
     public Stack<I> getSources() {
-        Stack<I> sources = new Stack();
+        Stack<I> sources = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!inverse.containsKey(i)) {
@@ -88,13 +86,11 @@ public class DAG<I, N, E> {
         return sources;
     }
 
-    //Is that the right name?
-
     /**
      * @return Indices for all nodes that do not have any outgoing edges
      */
     public Stack<I> getSinks() {
-        Stack<I> roots = new Stack();
+        Stack<I> roots = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!edge.containsKey(i)) {
@@ -105,8 +101,8 @@ public class DAG<I, N, E> {
     }
 
     public static class Edge<I, E> {
-        public I i;
-        public E e;
+        public final I i;
+        public final E e;
 
         public Edge(I i, E e) {
             this.i = i;
