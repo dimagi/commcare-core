@@ -23,7 +23,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.commcare.util.J2MESandbox;
 
 import java.io.IOException;
-import java.lang.Override;
 
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 
