@@ -2,12 +2,18 @@ package org.javarosa.test_utils;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.utils.FormLoadingUtils;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
+
+import java.io.IOException;
+
+import static org.junit.Assert.fail;
 
 /**
  * Commonly used utilities for evaluating xpath expressions.
@@ -97,5 +103,71 @@ public class ExprEvalUtils {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
         return XPathFuncExpr.unpack(expr.eval(evalContext));
+    }
+    public static void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
+        testEval(expr, model, ec, expected, 1.0e-12);
+    }
+
+    public static void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected, double tolerance) {
+        XPathExpression xpe = null;
+        boolean exceptionExpected = (expected instanceof XPathException);
+
+        if (ec == null) {
+            ec = new EvaluationContext(model);
+        }
+
+        try {
+            xpe = XPathParseTool.parseXPath(expr);
+        } catch (XPathSyntaxException xpse) {
+        }
+
+        if (xpe == null) {
+            fail("Null expression or syntax error " + expr);
+        }
+
+        try {
+            Object result = XPathFuncExpr.unpack(xpe.eval(model, ec));
+            if (tolerance != XPathFuncExpr.DOUBLE_TOLERANCE) {
+                System.out.println(expr + " = " + result);
+            }
+
+            if (exceptionExpected) {
+                fail("Expected exception, expression : " + expr);
+            } else if ((result instanceof Double && expected instanceof Double)) {
+                Double o = ((Double)result).doubleValue();
+                Double t = ((Double)expected).doubleValue();
+                if (Math.abs(o - t) > tolerance) {
+                    fail("Doubles outside of tolerance: got " + o + ", expected " + t);
+                }
+            } else if (!expected.equals(result)) {
+                fail("Expected " + expected + ", got " + result);
+            }
+        } catch (XPathException xpex) {
+            if (!exceptionExpected) {
+                fail("Did not expect " + xpex.getClass() + " exception");
+            } else if (xpex.getClass() != expected.getClass()) {
+                fail("Did not get expected exception type");
+            }
+        }
+    }
+
+    /**
+     * Load a form instance from a path.
+     * Doesn't create a model or main instance.
+     *
+     * @param formPath path of the form to load, relative to project build
+     * @return FormInstance created from the path pointed to, or null if any
+     * error occurs.
+     */
+    public static FormInstance loadInstance(String formPath) {
+        FormInstance instance = null;
+        try {
+            instance = FormLoadingUtils.loadFormInstance(formPath);
+        } catch (IOException e) {
+            fail("Unable to load form at " + formPath);
+        } catch (InvalidStructureException e) {
+            fail("Form at " + formPath + " has an invalid structure.");
+        }
+        return instance;
     }
 }
