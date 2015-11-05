@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class ExtWrapTagged extends ExternalizableWrapper {
-    public final static byte[] WRAPPER_TAG = {(byte)0xff, (byte)0xff, (byte)0xff, (byte)0xff}; //must be same length as PrototypeFactory.CLASS_HASH_SIZE
 
     public static Hashtable WRAPPER_CODES;
 
@@ -71,10 +70,10 @@ public class ExtWrapTagged extends ExternalizableWrapper {
     }
 
     public static ExternalizableWrapper readTag(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        byte[] tag = new byte[PrototypeFactory.CLASS_HASH_SIZE];
+        byte[] tag = new byte[PrototypeFactory.getClassHashSize()];
         in.read(tag, 0, tag.length);
 
-        if (PrototypeFactory.compareHash(tag, WRAPPER_TAG)) {
+        if (PrototypeFactory.compareHash(tag, PrototypeFactory.getWrapperTag())) {
             int wrapperCode = ExtUtil.readInt(in);
 
             //find wrapper indicated by code
@@ -107,7 +106,7 @@ public class ExtWrapTagged extends ExternalizableWrapper {
 
     public static void writeTag(DataOutputStream out, Object o) throws IOException {
         if (o instanceof ExternalizableWrapper && !(o instanceof ExtWrapBase)) {
-            out.write(WRAPPER_TAG, 0, PrototypeFactory.CLASS_HASH_SIZE);
+            out.write(PrototypeFactory.getWrapperTag(), 0, PrototypeFactory.getClassHashSize());
             ExtUtil.writeNumeric(out, ((Integer)WRAPPER_CODES.get(o.getClass())).intValue());
             ((ExternalizableWrapper)o).metaWriteExternal(out);
         } else {

@@ -1,5 +1,6 @@
 package org.javarosa.core.util.test;
 
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapBase;
@@ -58,6 +59,7 @@ public class ExternalizableTest {
             }
             print("---------------------------------------------");
         } catch (Exception e) {
+            e.printStackTrace();
             fail(failMessage + ": Exception! " + e.getClass().getName() + " " + e.getMessage());
         }
     }
@@ -122,6 +124,10 @@ public class ExternalizableTest {
     @Test
     public void doTests() {
         //base types (built-in + externalizable)
+
+        PrototypeFactory pf = new PrototypeFactory();
+        pf.setStaticHasher(new ClassNameHasher());
+
         testExternalizable("string", String.class);
         testExternalizable(new Byte((byte)0), Byte.class);
         testExternalizable(new Byte((byte)0x55), Byte.class);
@@ -198,11 +204,11 @@ public class ExternalizableTest {
         testExternalizable(new ExtWrapTagged("string"), new ExtWrapTagged());
         testExternalizable(new ExtWrapTagged(new Integer(5000)), new ExtWrapTagged());
         //tagged custom type
-        PrototypeFactory pf = new PrototypeFactory();
+        //PrototypeFactory pf = new PrototypeFactory();
         pf.addClass(SampleExtz.class);
         testExternalizable(new ExtWrapTagged(new SampleExtz("bon", "jovi")), new ExtWrapTagged(), pf);
         //tagged vector (base type)
-        testExternalizable(new ExtWrapTagged(new ExtWrapList(v)), new ExtWrapTagged());
+        testExternalizable(new ExtWrapTagged(new ExtWrapList(v)), new ExtWrapTagged(), pf);
         testExternalizable(new ExtWrapTagged(new ExtWrapList(w)), new ExtWrapTagged(), pf);
         //tagged nullables and compound vectors
         testExternalizable(new ExtWrapTagged(new ExtWrapNullable("string")), new ExtWrapTagged());
