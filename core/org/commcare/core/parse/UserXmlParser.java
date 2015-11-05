@@ -45,7 +45,8 @@ public class UserXmlParser extends TransactionParser<User> {
         User u = retrieve(uuid);
 
         if (u == null) {
-            u = new User(username, passwordHash, uuid);
+            // PLM XXX: for parto demo app, set all users to be demo users
+            u = new User(username, passwordHash, uuid, User.TYPE_DEMO);
         } else {
             if (passwordHash != null && !passwordHash.equals(u.getPassword())) {
                 u.setPassword(passwordHash);
