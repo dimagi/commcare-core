@@ -51,13 +51,13 @@ public class SqlHelper {
             preparedStatement = c.prepareStatement(sqlStatement);
             preparedStatement.execute();
         } catch (SQLException e) {
-            //fail silently, expected sometimes
+            throw new RuntimeException(e);
         } finally {
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }
