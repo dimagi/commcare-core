@@ -8,7 +8,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.IPreloadHandler;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 /**
  * @author ctsims

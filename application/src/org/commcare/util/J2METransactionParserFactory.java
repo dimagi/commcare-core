@@ -10,7 +10,8 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
-import org.commcare.xml.UserXmlParser;
+import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.J2MEUserXmlParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
@@ -19,8 +20,12 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.commcare.util.J2MESandbox;
 
 import java.io.IOException;
+import java.lang.Override;
+
+import org.commcare.core.parse.CommCareTransactionParserFactory;
 
 /**
  * The CommCare Transaction Parser Factory (whew!) wraps all of the current
@@ -37,10 +42,9 @@ import java.io.IOException;
  * @author ctsims
  *
  */
-public class CommCareTransactionParserFactory implements TransactionParserFactory {
+public class J2METransactionParserFactory extends CommCareTransactionParserFactory {
 
     private int[] caseTallies;
-    private String restoreId;
     private boolean tolerant;
     private String message;
     private OrderedHashtable<String, String> messages = new OrderedHashtable<String,String>();
@@ -50,28 +54,18 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
      * @param tolerant True if processing should fail in the event of conflicting data,
      * false if processing should proceed as long as it is possible.
      */
-    public CommCareTransactionParserFactory(boolean tolerant) {
-        restoreId = null;
+    public J2METransactionParserFactory(boolean tolerant) {
+        super(new J2MESandbox());
         caseTallies = new int[3];
         this.tolerant = tolerant;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-     */
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-        if ("case".equalsIgnoreCase(name)) {
-            return new AttachableCaseXMLParser(parser, caseTallies, tolerant, (IStorageUtilityIndexed)StorageManager.getStorage(Case.STORAGE_KEY));
-        } else if("registration".equalsIgnoreCase(name)) {
-            //TODO: It's possible we want to do the restoreID thing after signalling success, actually. If the
-            //restore gets cut off, we don't want to be re-sending the token, since it implies that it worked.
-            return new UserXmlParser(parser, restoreId);
-        }  else if(LedgerXmlParsers.STOCK_XML_NAMESPACE.equalsIgnoreCase(namespace)) {
-            return new LedgerXmlParsers(parser, (IStorageUtilityIndexed)StorageManager.getStorage(Ledger.STORAGE_KEY));
-        } else if("message".equalsIgnoreCase(name)) {
+
+        if("message".equalsIgnoreCase(name)) {
             return new TransactionParser<String>(parser) {
 
             String nature = parser.getAttributeValue(null, "nature");
@@ -92,30 +86,43 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 }
             };
 
-        } else if ("sync".equalsIgnoreCase(name)) {
-            return new TransactionParser<String>(parser) {
-                public void commit(String parsed) throws IOException {
-                    //do nothing
+        }
+        // check for super AFTER so that we default to overridden case
+        TransactionParser superParser = super.getParser(parser);
+        if(superParser != null){
+            return superParser;
+        }
+
+        return null;
+    }
+
+    @Override
+    public void initCaseParser() {
+        caseParser = new TransactionParserFactory() {
+            CaseXmlParser created = null;
+
+            public TransactionParser<Case> getParser(KXmlParser parser) {
+                if(created == null) {
+                    created = new AttachableCaseXMLParser(parser, caseTallies, tolerant, sandbox.getCaseStorage());
+                }
+                return created;
+            }
+        };
+    }
+
+    @Override
+    public void initUserParser() {
+        userParser = new TransactionParserFactory() {
+            J2MEUserXmlParser created = null;
+
+            public TransactionParser getParser(KXmlParser parser) {
+                if(created == null) {
+                    created = new J2MEUserXmlParser(parser, sandbox.getUserStorage(), getSyncToken());
                 }
 
-                public String parse() throws XmlPullParserException, IOException, InvalidStructureException {
-                    if(this.nextTagInBlock("Sync")){
-                        this.checkNode("restore_id");
-                        String newId = parser.nextText().trim();
-                        if(restoreId != null) {
-                            Logger.log("TRANSACTION","Warning: Multiple restore ID's seen:" + restoreId + "," + newId);
-                        }
-                        restoreId = newId;
-                        return restoreId;
-                    } else {
-                        throw new InvalidStructureException("<Sync> block missing <restore_id>", this.parser);
-                    }
-                }
-            };
-        } else if("fixture".equalsIgnoreCase(name)) {
-            return new FixtureXmlParser(parser);
-        }
-        return null;
+                return created;
+            }
+        };
     }
 
     /**
@@ -126,26 +133,21 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
      *
      * after processing has completed.
      */
+    @Override
     public int[] getCaseTallies() {
         return caseTallies;
-    }
-
-    /**
-     * @return After processing is completed, if a restore ID was present in the payload
-     * it will be returned here.
-     */
-    public String getRestoreId() {
-        return restoreId;
     }
 
     /**
      * @return After processing is completed, if a message to the user was present, it
      * will be returned here.
      */
+    @Override
     public String getResponseMessage() {
         return message;
     }
 
+    @Override
     public OrderedHashtable<String,String> getResponseMessageMap() {
         return messages;
     }

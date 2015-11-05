@@ -23,7 +23,7 @@ import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.Interner;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.cases.instance.CaseDataInstance;
 
 import java.util.Date;

@@ -21,7 +21,6 @@ application/coverage/image/data/three-three_three.png
 */application/coverage/*
 application/src/org/commcare/restore/CommCareOTARestoreController.java.orig
 application/weblib*/*
-
 build/
 *.*~
 *.orig

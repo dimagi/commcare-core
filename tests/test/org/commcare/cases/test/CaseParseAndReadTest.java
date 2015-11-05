@@ -1,6 +1,7 @@
 package org.commcare.cases.test;
 
 import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.TestInstanceInitializer;
 import org.commcare.test.utilities.XmlComparator;
@@ -40,9 +41,10 @@ public class CaseParseAndReadTest {
         compareCaseDbState("/case_create_basic.xml", "/case_create_basic_output.xml");
     }
 
+
     private void compareCaseDbState(String inputTransactions,
                                     String caseDbState) throws Exception {
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
+            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(inputTransactions), sandbox);
 
         EvaluationContext ec =
             MockDataUtils.buildContextWithInstance(this.sandbox, "casedb", CaseTestUtils.CASE_INSTANCE);

@@ -1,5 +1,6 @@
 package org.commcare.util.mocks;
 
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -11,11 +12,12 @@ import org.javarosa.core.model.condition.EvaluationContext;
  * @author ctsims
  */
 public class SessionWrapper extends CommCareSession {
-    private final MockUserDataSandbox mSandbox;
-    private final CommCarePlatform mPlatform;
-    private CommCareInstanceInitializer initializer;
-
-    public SessionWrapper(CommCarePlatform platform, MockUserDataSandbox sandbox) {
+    
+    UserSandbox mSandbox;
+    CommCarePlatform mPlatform;
+    CLIInstanceInitializer initializer;
+    
+    public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {
         super(platform);
         this.mSandbox = sandbox;
         this.mPlatform = platform;
@@ -36,12 +38,18 @@ public class SessionWrapper extends CommCareSession {
         return getEvaluationContext(getIIF(), commandId);
     }
 
-    public CommCareInstanceInitializer getIIF() {
+    public CLIInstanceInitializer getIIF() {
         if (initializer == null) {
-            initializer = new CommCareInstanceInitializer(this, mSandbox, mPlatform);
+            initializer = new CLIInstanceInitializer(this, mSandbox, mPlatform);
         }
 
         return initializer;
+    }
+    public CommCarePlatform getPlatform(){
+        return this.mPlatform;
+    }
+    public UserSandbox getSandbox() {
+        return this.mSandbox;
     }
 
     public void clearVolitiles() {

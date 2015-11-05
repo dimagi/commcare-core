@@ -1,5 +1,6 @@
 package org.commcare.cases.ledger.test;
 
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
@@ -25,10 +26,10 @@ public class LedgerAndCaseQueryTest {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // load ledger data
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/ledger_create_basic.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();
@@ -102,7 +103,7 @@ public class LedgerAndCaseQueryTest {
         MockUserDataSandbox sandbox = MockDataUtils.getStaticStorage();
 
         // load cases that will be referenced by ledgers
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/create_case_for_ledger.xml"), sandbox, true);
 
         // create an evaluation context that has ledger and case instances setup
         Hashtable<String, String> instanceRefToId = new Hashtable<>();

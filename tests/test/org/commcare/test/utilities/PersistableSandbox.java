@@ -1,6 +1,6 @@
 package org.commcare.test.utilities;
 
-import org.commcare.util.mocks.LivePrototypeFactory;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -17,11 +17,10 @@ import java.io.IOException;
  * @author ctsims
  */
 public class PersistableSandbox {
-    private LivePrototypeFactory factory;
+    private PrototypeFactory factory;
     
     public PersistableSandbox() {
-        LivePrototypeFactory factory = new LivePrototypeFactory();
-        PrototypeFactory.setStaticHasher(factory);
+        factory = new PrototypeFactory(new ClassNameHasher());
     }
     
     public <T extends Externalizable> byte[] serialize(T t) {

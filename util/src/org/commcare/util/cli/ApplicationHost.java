@@ -1,27 +1,31 @@
 package org.commcare.util.cli;
 
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareTransactionParserFactory;
 import org.commcare.session.SessionFrame;
-import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
-import org.commcare.util.mocks.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -44,7 +48,7 @@ import java.net.URL;
 public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
-    private MockUserDataSandbox mSandbox;
+    private UserSandbox mSandbox;
     private SessionWrapper mSession;
 
     private boolean mUpdatePending = false;
@@ -61,7 +65,6 @@ public class ApplicationHost {
 
     public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
         this.mEngine = engine;
-
         this.mPlatform = engine.getPlatform();
 
         reader = new BufferedReader(new InputStreamReader(System.in));
@@ -126,7 +129,7 @@ public class ApplicationHost {
             while (s != null) {
                 try {
                     if (!screenIsRedrawing) {
-                        s.init(mPlatform, mSession, mSandbox);
+                        s.init(mSession);
                     }
 
                     System.out.println("\n\n\n\n\n\n");
@@ -317,6 +320,7 @@ public class ApplicationHost {
     }
 
     private void setupSandbox() {
+        //Set up our storage
         mSandbox = new MockUserDataSandbox(mPrototypeFactory);
         if(mLocalUserCredentials != null) {
             restoreUserToSandbox(mSandbox, mLocalUserCredentials);
@@ -325,7 +329,7 @@ public class ApplicationHost {
         }
     }
 
-    private void restoreFileToSandbox(MockUserDataSandbox sandbox, String restoreFile) {
+    private void restoreFileToSandbox(UserSandbox sandbox, String restoreFile) {
         FileInputStream fios = null;
         try {
             System.out.println("Restoring user data from local file " + restoreFile);
@@ -334,7 +338,7 @@ public class ApplicationHost {
             System.out.println("No restore file found at" + restoreFile);
         }
         try {
-            MockDataUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
+            ParseUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
         } catch (Exception e) {
             System.out.println("Error parsing local restore data from " + restoreFile);
             e.printStackTrace();
@@ -350,7 +354,7 @@ public class ApplicationHost {
         }
     }
 
-    private void restoreUserToSandbox(MockUserDataSandbox mSandbox, String[] userCredentials) {
+    private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
         final String username = userCredentials[0];
         final String password = userCredentials[1];
 
@@ -372,10 +376,17 @@ public class ApplicationHost {
 
             System.out.println("Restoring user " + username + " to domain " + domain);
 
-            MockDataUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox, false);
-        } catch (Exception e) {
+            ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
+        } catch (InvalidStructureException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
         }
 
         //Initialize our User

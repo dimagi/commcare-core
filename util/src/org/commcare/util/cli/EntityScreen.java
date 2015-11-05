@@ -22,6 +22,7 @@ import org.javarosa.model.xform.XPathReference;
  * @author ctsims
  */
 public class EntityScreen extends CompoundScreenHost {
+
     private TreeReference mCurrentSelection;
 
     private SessionWrapper mSession;
@@ -35,18 +36,18 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException {
+    public void init(SessionWrapper session) throws CommCareSessionException {
         mNeededDatum = session.getNeededDatum();
 
         this.mSession = session;
-        this.mPlatform = platform;
+        this.mPlatform = mSession.getPlatform();
 
         String detailId = mNeededDatum.getShortDetail();
         if(detailId == null) {
             throw new CommCareSessionException("Can't handle entity selection with blank detail definition for datum " + mNeededDatum.getDataId());
         }
 
-        mShortDetail = platform.getDetail(detailId);
+        mShortDetail = this.mPlatform.getDetail(detailId);
 
         if(mShortDetail == null) {
             throw new CommCareSessionException("Missing detail definition for: " + detailId);

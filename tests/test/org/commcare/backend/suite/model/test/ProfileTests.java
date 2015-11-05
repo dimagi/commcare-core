@@ -95,6 +95,7 @@ public class ProfileTests {
     private Profile getProfile(String path) {
         try{
             InputStream is = this.getClass().getResourceAsStream(path);
+
             if(is == null) {
                 throw new RuntimeException("Test resource missing: " + path);
             }
@@ -104,6 +105,7 @@ public class ProfileTests {
             
             return parser.parse();
         } catch(Exception e) {
+            e.printStackTrace();
             throw PersistableSandbox.wrap("Error during profile test setup", e);
         }
     }

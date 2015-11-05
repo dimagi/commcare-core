@@ -1,6 +1,7 @@
-package org.commcare.util.mocks;
+package org.commcare.core.parse;
 
 import org.commcare.data.xml.TransactionParser;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -12,17 +13,12 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 /**
- * Mock copied from Android app.
- *
- * TODO:unify into CommCare Global Project
  *
  * @author ctsims
  */
 public class UserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed<User> storage;
-    byte[] wrappedKey;
-
 
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);
@@ -82,8 +78,14 @@ public class UserXmlParser extends TransactionParser<User> {
             }
         }
 
+        addCustomData(u);
+
         commit(u);
         return u;
+    }
+
+    public void addCustomData(User u){
+        //Don't do anything in base class
     }
 
     public void commit(User parsed) throws IOException {

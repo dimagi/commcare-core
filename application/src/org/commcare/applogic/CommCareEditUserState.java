@@ -11,7 +11,7 @@ import org.javarosa.services.transport.impl.simplehttp.SimpleHttpTransportMessag
 import org.javarosa.user.api.EditUserFormEntryState;
 import org.javarosa.user.api.RegisterUserController;
 import org.javarosa.user.api.RegisterUserState;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.user.transport.HttpUserRegistrationTranslator;
 
 public class CommCareEditUserState extends EditUserFormEntryState {

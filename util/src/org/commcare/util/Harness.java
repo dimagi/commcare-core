@@ -124,7 +124,6 @@ public class Harness {
     private static PrototypeFactory setupStaticStorage() {
         LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
         //Set up our storage
-        PrototypeFactory.setStaticHasher(prototypeFactory);
         return prototypeFactory;
     }
 

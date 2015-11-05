@@ -1,9 +1,12 @@
-package org.commcare.util.mocks;
+package org.commcare.core.process;
 
 import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
+import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.core.sandbox.SandboxUtils;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -12,25 +15,34 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 
 /**
+ *  Initializes a CommCare DataInstance against a UserDataInterface and (sometimes) optional
+ *  CommCareSession/Platform
+ *
  * @author ctsims
+ * @author wspride
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
-    private final CommCareSession session;
-    private CaseInstanceTreeElement casebase;
-    private LedgerInstanceTreeElement stockbase;
-    private final MockUserDataSandbox mSandbox;
-    private final CommCarePlatform mPlatform;
+
+    protected final CommCareSession session;
+    protected CaseInstanceTreeElement casebase;
+    protected LedgerInstanceTreeElement stockbase;
+    protected final UserSandbox mSandbox;
+    protected final CommCarePlatform mPlatform;
 
 
-    public CommCareInstanceInitializer(MockUserDataSandbox sandbox) {
+    public CommCareInstanceInitializer(UserSandbox sandbox) {
         this(null, sandbox, null);
     }
 
-    public CommCareInstanceInitializer(MockUserDataSandbox sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(UserSandbox sandbox, CommCarePlatform platform) {
         this(null, sandbox, platform);
     }
 
-    public CommCareInstanceInitializer(CommCareSession session, MockUserDataSandbox sandbox, CommCarePlatform platform) {
+    public CommCareInstanceInitializer(UserSandbox sandbox, CommCareSession session) {
+        this(session, sandbox, null);
+    }
+
+    public CommCareInstanceInitializer(CommCareSession session, UserSandbox sandbox, CommCarePlatform platform) {
         this.session = session;
         this.mSandbox = sandbox;
         this.mPlatform = platform;
@@ -46,7 +58,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
+        if (ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
             if (stockbase == null) {
                 stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
             } else {
@@ -54,7 +66,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 stockbase.rebase(instance.getBase());
             }
             return stockbase;
-        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
+        } else if (ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
             if (casebase == null) {
                 casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
             } else {
@@ -62,7 +74,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 casebase.rebase(instance.getBase());
             }
             return casebase;
-        } else if (instance.getReference().contains("fixture")) {
+        } else if (instance.getReference().indexOf("fixture") != -1) {
             //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
             String userId = "";
             User u = mSandbox.getLoggedInUser();
@@ -73,7 +85,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
             String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
             try {
-                FormInstance fixture = MockDataUtils.loadFixture(mSandbox, refId, userId);
+                FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
 
                 if (fixture == null) {
                     throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
@@ -87,15 +99,23 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 throw new RuntimeException("Could not load fixture for src: " + ref);
             }
         }
-        if (instance.getReference().contains("session")) {
+        if (instance.getReference().indexOf("session") != -1) {
             if(this.mPlatform == null) {
                 throw new RuntimeException("Cannot generate session instance with undeclared platform!");
             }
             User u = mSandbox.getLoggedInUser();
-            TreeElement root = session.getSessionInstance("----", "CommCare CLI: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
+            TreeElement root = session.getSessionInstance(getDeviceId(), getVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
             root.setParent(instance.getBase());
             return root;
         }
         return null;
+    }
+
+    protected String getDeviceId(){
+        return "----";
+    }
+
+    protected String getVersionString(){
+        return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
     }
 }

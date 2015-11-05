@@ -113,6 +113,7 @@
                     <source dir="${dir.src}"/>
                     <source dir="${dir.commcare}/src/"/>
                     <source dir="${dir.commcare.cases}/src/"/>
+		            <source dir="${dir.commcare.core}/"/>
 
                     <!--Taking this out for now...-->
                     <!--source dir="${dir.test}"/-->
@@ -368,6 +369,13 @@
     <!-- This target should prevent us from needing to re-run BuildClean for additional targets -->
     <target name="BuildServerComplete" depends="SetBatch, BuildClean, PrepareWebDemo, PostJad10">
         <ant antfile="../backend/build.xml" target="package" dir="../backend/">
+              <property name="dir.lib" value="${dir.lib}"/>
+              <property name="dir.jrlib" value="${dir.tools}"/>
+        </ant>
+    </target>
+
+    <target name="BuildModernLibs" depends="SetBatch, BuildClean">
+        <ant antfile="../modern/build.xml" target="package" dir="../modern/">
               <property name="dir.lib" value="${dir.lib}"/>
               <property name="dir.jrlib" value="${dir.tools}"/>
         </ant>

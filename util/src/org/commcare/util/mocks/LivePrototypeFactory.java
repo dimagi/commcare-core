@@ -1,7 +1,9 @@
 package org.commcare.util.mocks;
 
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Hasher;
+import org.javarosa.core.util.externalizable.MD5Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.Hashtable;
@@ -19,16 +21,17 @@ import java.util.Hashtable;
  *
  * @author ctsims
  */
-public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
+public class LivePrototypeFactory extends PrototypeFactory {
     private final Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
-    private final Hasher mPassThroughHasher;
+    private final LiveHasher mLiveHasher;
 
     public LivePrototypeFactory() {
-        this(new DefaultHasher());
+        this(new ClassNameHasher());
     }
 
-    private LivePrototypeFactory(Hasher hasher) {
-        this.mPassThroughHasher = hasher;
+    public LivePrototypeFactory(Hasher hasher) {
+        this.mLiveHasher = new LiveHasher(this, hasher);
+        PrototypeFactory.setStaticHasher(this.mLiveHasher);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
 
     @Override
     public void addClass(Class c) {
-        byte[] hash = mPassThroughHasher.getClassHashValue(c);
+        byte[] hash = getLiveHasher().getHasher().getClassHashValue(c);
         factoryTable.put(ExtUtil.printBytes(hash), c);
     }
 
@@ -52,10 +55,33 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
         return PrototypeFactory.getInstance(getClass(hash));
     }
 
-    @Override
-    public byte[] getClassHashValue(Class type) {
-        byte[] hash = mPassThroughHasher.getClassHashValue(type);
-        factoryTable.put(ExtUtil.printBytes(hash), type);
-        return hash;
+    public LiveHasher getLiveHasher(){
+        return this.mLiveHasher;
     }
+
+    public class LiveHasher extends Hasher{
+        LivePrototypeFactory pf;
+        Hasher mHasher;
+        public LiveHasher(LivePrototypeFactory pf, Hasher mHasher){
+            this.pf = pf;
+            this.mHasher = mHasher;
+        }
+
+        @Override
+        public int getHashSize() {
+            return mHasher.getHashSize();
+        }
+
+        @Override
+        public byte[] getHash(Class c) {
+            byte[] ret = mHasher.getClassHashValue(c);
+            pf.addClass(c);
+            return ret;
+        }
+
+        public Hasher getHasher(){
+            return mHasher;
+        }
+    }
+
 }

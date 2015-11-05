@@ -79,7 +79,7 @@ import org.javarosa.services.transport.TransportService;
 import org.javarosa.services.transport.impl.TransportMessageSerializationWrapper;
 import org.javarosa.services.transport.impl.TransportMessageStore;
 import org.javarosa.user.activity.UserModule;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.user.utility.UserPreloadHandler;
 import org.javarosa.user.utility.UserUtility;
 import org.javarosa.xform.util.XFormUtils;

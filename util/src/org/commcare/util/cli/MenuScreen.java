@@ -1,12 +1,12 @@
 package org.commcare.util.cli;
 
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
@@ -26,24 +26,28 @@ import java.util.Vector;
  */
 public class MenuScreen extends Screen {
     private MenuDisplayable[] mChoices;
-    private MockUserDataSandbox mSandbox;
-
-    private String mTitle;
-
+    CommCarePlatform mPlatform;
+    SessionWrapper mSession;
+    UserSandbox mSandbox;
+    
+    String mTitle;
+    
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CommCarePlatform platform, SessionWrapper session, MockUserDataSandbox sandbox) throws CommCareSessionException{
+    public void init(SessionWrapper session) throws CommCareSessionException{
+        
         String root = deriveMenuRoot(session);
-
-        this.mSandbox = sandbox;
-
-        Vector<MenuDisplayable> choices = new Vector<>();
-
-        Hashtable<String, Entry> map = platform.getMenuMap();
-        EvaluationContext ec;
-        for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
+        
+        this.mPlatform = session.getPlatform();
+        this.mSandbox = session.getSandbox();
+        
+        Vector<MenuDisplayable> choices = new Vector<MenuDisplayable>();
+        
+        Hashtable<String, Entry> map = mPlatform.getMenuMap();
+        EvaluationContext ec = null;
+        for(Suite s : mPlatform.getInstalledSuites()) {
+            for(Menu m : s.getMenus()) {
                 try {
                     XPathExpression relevance = m.getMenuRelevance();
                     if (m.getMenuRelevance() != null) {

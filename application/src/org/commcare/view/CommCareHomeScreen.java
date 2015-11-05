@@ -11,7 +11,7 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.j2me.util.media.ImageUtils;
-import org.javarosa.user.model.User;
+import org.javarosa.core.model.User;
 
 import java.util.Date;
 

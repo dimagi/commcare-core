@@ -1,16 +1,16 @@
-package org.commcare.util;
+package org.commcare.core.parse;
 
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.util.mocks.MockUserDataSandbox;
-import org.commcare.util.mocks.UserXmlParser;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -19,41 +19,51 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * A factory for covering all of the basic transactions expected in userspace
- * against the mock data sandbox provided.
+ * The CommCare Transaction Parser Factory (whew!) wraps all of the current
+ * transactions that CommCare knows about, and provides the appropriate hooks for
+ * parsing through XML and dispatching the right handler for each transaction.
  *
- * This set of transactions should almost certainly be made uniform between
- * different platform implementations, but the different platforms require some
- * subtle difference right now which make that challenging.
+ * It should be the central point of processing for transactions (eliminating the
+ * use of the old datamodel based processors) and should be used in any situation where
+ * a transaction is expected to be present.
+ *
+ * It is expected to behave more or less as a black box, in that it directly creates/modifies
+ * the data models on the system, rather than producing them for another layer or processing.
+ *
+ * V2: The CommCareTranactionParserFactory was refactored to be shared across Android/J2ME/Touchforms
+ * as much possible. The parsing logic is largely the same across platforms. They mainly differ
+ * in the UserSandbox sandbox implementation and in some nuances of the parsers, which is achieved
+ * by overriding the init methods as needed. This is the "pure" Java implementation: J2METransactionParserFactory
+ * and AndroidTransactionParserFactory override it for their respective platforms.
  *
  * @author ctsims
+ * @author wspride
+ *
  */
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
-    private TransactionParserFactory userParser;
-    private TransactionParserFactory caseParser;
-    private TransactionParserFactory stockParser;
-    private TransactionParserFactory fixtureParser;
+    protected TransactionParserFactory userParser;
+    protected TransactionParserFactory caseParser;
+    protected TransactionParserFactory stockParser;
+    protected TransactionParserFactory fixtureParser;
 
-    private final MockUserDataSandbox sandbox;
+    protected final UserSandbox sandbox;
 
-    private int requests = 0;
-    private String syncToken;
+    int requests = 0;
 
-    public CommCareTransactionParserFactory(MockUserDataSandbox sandbox) {
+    public CommCareTransactionParserFactory(UserSandbox sandbox) {
         this.sandbox = sandbox;
-
         this.initFixtureParser();
         this.initUserParser();
         this.initCaseParser();
         this.initStockParser();
     }
 
-    @Override
+
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
-        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.matches(namespace)) {
+        if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace)) {
             if (stockParser == null) {
                 throw new RuntimeException("Couldn't process Stock transaction without initialization!");
             }
@@ -74,24 +84,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         } else if ("fixture".equalsIgnoreCase(name)) {
             req();
             return fixtureParser.getParser(parser);
-        } else if ("message".equalsIgnoreCase(name)) {
-            //server message;
-            //" <message nature=""/>"
-        } else if ("sync".equalsIgnoreCase(name) && 
+        } else if ("sync".equalsIgnoreCase(name) &&
                 "http://commcarehq.org/sync".equals(namespace)) {
             return new TransactionParser<String>(parser) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-                 */
-                @Override
-                public void commit(String parsed) throws IOException {
-                }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.javarosa.xml.ElementParser#parse()
-                 */
+                @Override
+                public void commit(String parsed) throws IOException {}
+
                 @Override
                 public String parse() throws InvalidStructureException,
                        IOException, XmlPullParserException,
@@ -102,10 +101,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                     if (syncToken == null) {
                         throw new InvalidStructureException("Sync block must contain restore_id with valid ID inside!", parser);
                     }
-                    syncToken = syncToken.trim();
-                    
                     sandbox.setSyncToken(syncToken);
-                    
                     return syncToken;
                 }
 
@@ -114,13 +110,13 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         return null;
     }
 
-    private void req() {
+    protected void req() {
         requests++;
         reportProgress(requests);
     }
 
-    void reportProgress(int total) {
-        //nothing
+    public void reportProgress(int total) {
+        //overwritten in ODK
     }
 
     void initUserParser() {
@@ -151,7 +147,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                          * (non-Javadoc)
                          * @see org.commcare.xml.FixtureXmlParser#storage()
                          */
-                        @Override
+
                         public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
                                 fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
@@ -166,7 +162,20 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    void initCaseParser() {
+    // overwritten in J2ME
+    public String getResponseMessage(){
+        return null;
+    }
+    // overwritten in J2ME
+    public int[] getCaseTallies() {
+        return null;
+    }
+    // overwritten in J2ME
+    public OrderedHashtable<String,String> getResponseMessageMap() {
+        return null;
+    }
+
+    public void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
@@ -180,12 +189,16 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    void initStockParser() {
+    public void initStockParser() {
         stockParser = new TransactionParserFactory() {
 
             public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
                 return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
             }
         };
+    }
+
+    public String getSyncToken() {
+        return sandbox.getSyncToken();
     }
 }

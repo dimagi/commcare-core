@@ -21,6 +21,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.reference.JavaResourceRoot;
+import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -37,7 +38,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,6 +49,7 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipFile;
+
 
 /**
  * @author ctsims
@@ -93,7 +94,6 @@ public class CommCareConfigEngine {
         //per device.
         StorageManager.forceClear();
         StorageManager.setStorageFactory(new IStorageFactory() {
-
             public IStorageUtility newStorage(String name, Class type) {
                 return new DummyIndexedStorageUtility(type, mLiveFactory);
             }
@@ -102,16 +102,16 @@ public class CommCareConfigEngine {
 
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
-        StorageManager.registerStorage(FormDef.STORAGE_KEY, FormDef.class);
+        StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage("fixture", FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }
 
     private void setRoots() {
         ReferenceManager._().addReferenceFactory(new JavaHttpRoot());
-        
+
         this.mArchiveRoot = new ArchiveFileRoot();
-        
+
         ReferenceManager._().addReferenceFactory(mArchiveRoot);
 
         ReferenceManager._().addReferenceFactory(new JavaResourceRoot(this.getClass()));
@@ -134,7 +134,7 @@ public class CommCareConfigEngine {
             return;
         }
         String archiveGUID = this.mArchiveRoot.addArchiveFile(zip);
-        
+
         init("jr://archive/" + archiveGUID + "/profile.ccpr");
     }
 
@@ -261,7 +261,6 @@ public class CommCareConfigEngine {
         try {
             Localization.init(true);
             table.initializeResources(platform);
-
             //Make sure there's a default locale, since the app doesn't necessarily use the
             //localization engine
             Localization.getGlobalLocalizerAdvanced().addAvailableLocale("default");
@@ -342,11 +341,11 @@ public class CommCareConfigEngine {
             }
         }
     }
-    
+
     public CommCarePlatform getPlatform() {
         return platform;
     }
-    
+
     public FormDef loadFormByXmlns(String xmlns) {
         IStorageUtilityIndexed<FormDef> formStorage =
                 (IStorageUtilityIndexed)StorageManager.getStorage(FormDef.STORAGE_KEY);

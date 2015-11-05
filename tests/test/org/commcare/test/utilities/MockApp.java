@@ -1,15 +1,12 @@
 package org.commcare.test.utilities;
 
-import java.lang.IllegalArgumentException;
-
+import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.LivePrototypeFactory;
-import org.commcare.util.mocks.MockDataUtils;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
-import org.commcare.util.mocks.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * A mock app is a quick test wrapper that makes it easy to start playing with a live instance
@@ -22,7 +19,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class MockApp {
     private final MockUserDataSandbox mSandbox;
-    private final PrototypeFactory mPrototypeFactory;
+    private final LivePrototypeFactory mPrototypeFactory;
     private final CommCareConfigEngine mEngine;
     private final SessionWrapper mSessionWrapper;
 
@@ -42,7 +39,7 @@ public class MockApp {
 
         mEngine.installAppFromReference("jr://resource" + resourcePath + "profile.ccpr");
         mEngine.initEnvironment();
-        MockDataUtils.parseIntoSandbox(this.getClass().getResourceAsStream(resourcePath + "user_restore.xml"), mSandbox);
+        ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream(resourcePath + "user_restore.xml"), mSandbox);
 
         //If we parsed in a user, arbitrarily log one in.
         for(IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore();) {
@@ -54,10 +51,8 @@ public class MockApp {
     }
 
 
-    private static PrototypeFactory setupStaticStorage() {
+    private static LivePrototypeFactory setupStaticStorage() {
         LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        //Set up our storage
-        PrototypeFactory.setStaticHasher(prototypeFactory);
         return prototypeFactory;
     }
 

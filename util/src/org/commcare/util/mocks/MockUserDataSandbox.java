@@ -2,10 +2,14 @@ package org.commcare.util.mocks;
 
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserSandbox;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.util.Date;
 
 /**
  * A placeholder for the in-memory storage elements needed for an individual
@@ -17,7 +21,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  *
  * @author ctsims
  */
-public class MockUserDataSandbox {
+public class MockUserDataSandbox extends UserSandbox {
+
     private final IStorageUtilityIndexed<Case> caseStorage;
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
@@ -27,6 +32,8 @@ public class MockUserDataSandbox {
     private User mUser;
     
     private String mSyncToken;
+
+    private Date lastSync;
 
     /**
      * Create a sandbox of the necessary storage objects with the shared

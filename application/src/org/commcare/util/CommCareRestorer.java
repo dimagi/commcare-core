@@ -3,6 +3,12 @@
  */
 package org.commcare.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.Hashtable;
+
 import org.commcare.cases.model.Case;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.core.properties.CommCareProperties;
@@ -38,6 +44,8 @@ import org.javarosa.services.transport.impl.simplehttp.StreamingHTTPMessage;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
+import org.commcare.core.parse.CommCareTransactionParserFactory;
+import org.commcare.util.J2METransactionParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -272,11 +280,11 @@ public class CommCareRestorer implements Runnable {
 
         try {
             beginTransaction();
-            CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(!noPartial);
+            CommCareTransactionParserFactory factory = new J2METransactionParserFactory(!noPartial);
             DataModelPullParser parser = new DataModelPullParser(fInput,factory,listener);
             parser.requireRootEnvelopeType("OpenRosaResponse");
             success = parser.parse();
-            restoreID = factory.getRestoreId();
+            restoreID = factory.getSyncToken();
             caseTallies = factory.getCaseTallies();
             //TODO: Is success here too strict?
             if (success) {
