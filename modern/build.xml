@@ -8,7 +8,7 @@
         <mkdir dir="lib/"/>
         <path id="classpath">
             <fileset dir="${dir.lib}" includes="*.jar"/>
-            <fileset dir="${dir.jrlibs}" includes="*.jar"/>
+            <fileset dir="${dir.jrlib}" includes="*.jar"/>
         </path>
         <mkdir dir="bin/"/>
         <mkdir dir="dist/"/>
