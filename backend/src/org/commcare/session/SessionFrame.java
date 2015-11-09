@@ -170,8 +170,7 @@ public class SessionFrame {
         synchronized (steps) {
             if (!steps.isEmpty()) {
                 StackFrameStep topStep = steps.elementAt(steps.size() - 1);
-                String result = topStep.getExtra(key);
-                return result;
+                return topStep.getExtra(key);
             }
             return null;
         }
