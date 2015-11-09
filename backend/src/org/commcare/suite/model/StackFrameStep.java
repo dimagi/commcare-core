@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
- *
  * @author ctsims
  */
 public class StackFrameStep implements Externalizable {
@@ -141,23 +140,17 @@ public class StackFrameStep implements Externalizable {
 
         StackFrameStep that = (StackFrameStep)o;
 
-        if (!propertiesEqual(this.getType(), that.getType())) {
-            return false;
-        }
+        return ((propertiesEqual(this.getType(), that.getType())) &&
+                (propertiesEqual(this.getId(), that.getId())) &&
+                (propertiesEqual(this.getValue(), that.getValue())) &&
+                (this.getValueIsXPath() == that.getValueIsXPath()));
+    }
 
-        if (!propertiesEqual(this.getId(), that.getId())) {
-            return false;
-        }
-
-        if (!propertiesEqual(this.getValue(), that.getValue())) {
-            return false;
-        }
-
-        if (this.getValueIsXPath() != that.getValueIsXPath()) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public int hashCode() {
+        final int valueIsXPathHash = getValueIsXPath() ? 1231 : 1237;
+        return (getType().hashCode() ^ getId().hashCode() ^
+                getValue().hashCode() ^ valueIsXPathHash);
     }
 
     private boolean propertiesEqual(String a, String b) {
