@@ -156,4 +156,24 @@ public class SessionFrame {
     public void kill() {
         dead = true;
     }
+
+    public void addExtraTopStep(String key, String value) {
+        synchronized (steps) {
+            if (!steps.isEmpty()) {
+                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+                topStep.addExtra(key, value);
+            }
+        }
+    }
+
+    public String getTopStepExtra(String key) {
+        synchronized (steps) {
+            if (!steps.isEmpty()) {
+                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+                String result = topStep.getExtra(key);
+                return result;
+            }
+            return null;
+        }
+    }
 }

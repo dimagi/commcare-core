@@ -7,6 +7,7 @@ import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
@@ -17,6 +18,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  *
@@ -28,6 +30,7 @@ public class StackFrameStep implements Externalizable {
     private String id;
     private String value;
     private boolean valueIsXpath;
+    private Hashtable<String, String> extras = new Hashtable<String, String>();
 
     /**
      * Serialization Only
@@ -72,6 +75,14 @@ public class StackFrameStep implements Externalizable {
         return valueIsXpath;
     }
 
+    public void addExtra(String key, String value) {
+        extras.put(key, value);
+    }
+
+    public String getExtra(String key) {
+        return extras.get(key);
+    }
+
     /**
      * Get a performed step to pass on to an actual frame
      *
@@ -110,6 +121,7 @@ public class StackFrameStep implements Externalizable {
         this.id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
+        this.extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
     }
 
     @Override
@@ -118,6 +130,7 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
+        ExtUtil.write(out, new ExtWrapMap(extras));
     }
 
     @Override
