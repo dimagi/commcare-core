@@ -67,13 +67,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
             return stockbase;
         } else if (ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
-            if (casebase == null) {
-                casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
-            } else {
-                //re-use the existing model if it exists.
-                casebase.rebase(instance.getBase());
-            }
-            return casebase;
+            return setupCaseData(instance);
         } else if (instance.getReference().indexOf("fixture") != -1) {
             //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
             String userId = "";
@@ -109,6 +103,16 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return root;
         }
         return null;
+    }
+
+    protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
+        if (casebase == null) {
+            casebase = new CaseInstanceTreeElement(instance.getBase(), mSandbox.getCaseStorage(), false);
+        } else {
+            //re-use the existing model if it exists.
+            casebase.rebase(instance.getBase());
+        }
+        return casebase;
     }
 
     protected String getDeviceId(){
