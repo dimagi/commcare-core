@@ -38,8 +38,12 @@ public class Logger {
 
     protected static void logForce(String type, String message) {
         System.err.println("logger> " + type + ": " + message);
-        if (message.length() > MAX_MSG_LENGTH)
+        if (message == null) {
+            message = "";
+        }
+        if (message.length() > MAX_MSG_LENGTH) {
             System.err.println("  (message truncated)");
+        }
 
         message = message.substring(0, Math.min(message.length(), MAX_MSG_LENGTH));
         if (logger != null) {
@@ -49,9 +53,6 @@ public class Logger {
                 //do not catch exceptions here; if this fails, we want the exception to propogate
                 System.err.println("exception when trying to write log message! " + WrappedException.printException(e));
                 logger.panic();
-
-                //be conservative for now
-                //throw e;
             }
         }
     }
