@@ -59,50 +59,25 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
-            if (stockbase == null) {
-                stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
-            } else {
-                //re-use the existing model if it exists.
-                stockbase.rebase(instance.getBase());
-            }
-            return stockbase;
+            return setupLedgerData(instance);
         } else if (ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
             return setupCaseData(instance);
         } else if (instance.getReference().indexOf("fixture") != -1) {
-            //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
-            String userId = "";
-            User u = mSandbox.getLoggedInUser();
-
-            if (u != null) {
-                userId = u.getUniqueId();
-            }
-
-            String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
-            try {
-                FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
-
-                if (fixture == null) {
-                    throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
-                }
-
-                TreeElement root = fixture.getRoot();
-                root.setParent(instance.getBase());
-                return root;
-
-            } catch (IllegalStateException ise) {
-                throw new RuntimeException("Could not load fixture for src: " + ref);
-            }
-        }
-        if (instance.getReference().indexOf("session") != -1) {
-            if(this.mPlatform == null) {
-                throw new RuntimeException("Cannot generate session instance with undeclared platform!");
-            }
-            User u = mSandbox.getLoggedInUser();
-            TreeElement root = session.getSessionInstance(getDeviceId(), getVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
-            root.setParent(instance.getBase());
-            return root;
+            return setupFixtureData(instance);
+        } else if (instance.getReference().indexOf("session") != -1) {
+            return setupSessionData(instance);
         }
         return null;
+    }
+
+    protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+        if (stockbase == null) {
+            stockbase = new LedgerInstanceTreeElement(instance.getBase(), mSandbox.getLedgerStorage());
+        } else {
+            //re-use the existing model if it exists.
+            stockbase.rebase(instance.getBase());
+        }
+        return stockbase;
     }
 
     protected AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
@@ -113,6 +88,47 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             casebase.rebase(instance.getBase());
         }
         return casebase;
+    }
+
+
+    protected AbstractTreeElement setupFixtureData(ExternalDataInstance instance) {
+        String ref = instance.getReference();
+        //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
+        String userId = "";
+        User u = mSandbox.getLoggedInUser();
+
+        if (u != null) {
+            userId = u.getUniqueId();
+        }
+
+        String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
+        try {
+            FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
+
+            if (fixture == null) {
+                throw new RuntimeException("Could not find an appropriate fixture for src: " + ref);
+            }
+
+            TreeElement root = fixture.getRoot();
+            root.setParent(instance.getBase());
+            return root;
+
+        } catch (IllegalStateException ise) {
+            throw new RuntimeException("Could not load fixture for src: " + ref);
+        }
+    }
+
+    protected AbstractTreeElement setupSessionData(ExternalDataInstance instance) {
+        if (this.mPlatform == null) {
+            throw new RuntimeException("Cannot generate session instance with undeclared platform!");
+        }
+        User u = mSandbox.getLoggedInUser();
+        TreeElement root =
+                session.getSessionInstance(getDeviceId(),
+                        getVersionString(), u.getUsername(), u.getUniqueId(),
+                        u.getProperties()).getRoot();
+        root.setParent(instance.getBase());
+        return root;
     }
 
     protected String getDeviceId(){
