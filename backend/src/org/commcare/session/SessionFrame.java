@@ -1,7 +1,16 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.StackFrameStep;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -11,8 +20,7 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class SessionFrame {
-
+public class SessionFrame implements Externalizable {
 
     // region - Possible states of a SessionFrame, which describes what type of information the
     // session needs to proceed with its next step. This is analogously represented as the type
@@ -40,15 +48,13 @@ public class SessionFrame {
 
     // endregion - states
 
-
-
     private String frameId;
-    private final Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
-
+    private Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
     private Vector<StackFrameStep> snapshot;
 
     /**
-     * A Frame is dead if it's execution path has finished and it shouldn't be considered part of the stack *
+     * A Frame is dead if it's execution path has finished and it shouldn't
+     * be considered part of the stack
      */
     private boolean dead = false;
 
@@ -59,7 +65,6 @@ public class SessionFrame {
 
     }
 
-
     public SessionFrame(String frameId) {
         this.frameId = frameId;
     }
@@ -68,7 +73,6 @@ public class SessionFrame {
     public Vector<StackFrameStep> getSteps() {
         return steps;
     }
-
 
     public StackFrameStep popStep() {
         StackFrameStep recentPop = null;
@@ -80,11 +84,9 @@ public class SessionFrame {
         return recentPop;
     }
 
-
     public void pushStep(StackFrameStep step) {
         steps.addElement(step);
     }
-
 
     public String getFrameId() {
         return frameId;
@@ -95,12 +97,10 @@ public class SessionFrame {
      * This snapshot can be referenced later to compare the eventual state
      * of the frame to an earlier point
      */
-    public void captureSnapshot() {
-        synchronized (steps) {
-            snapshot = new Vector<StackFrameStep>();
-            for (StackFrameStep s : steps) {
-                snapshot.addElement(s);
-            }
+    public synchronized void captureSnapshot() {
+        snapshot = new Vector<StackFrameStep>();
+        for (StackFrameStep s : steps) {
+            snapshot.addElement(s);
         }
     }
 
@@ -112,33 +112,29 @@ public class SessionFrame {
      * Compatibility is determined by checking that each step in the previous
      * snapshot is matched by an identical step in the current snapshot.
      */
-    public boolean isSnapshotIncompatible() {
-        synchronized (steps) {
-            //No snapshot, can't be incompatible.
-            if (snapshot == null) {
-                return false;
-            }
-
-            if (snapshot.size() > steps.size()) {
-                return true;
-            }
-
-            //Go through each step in the snapshot
-            for (int i = 0; i < snapshot.size(); ++i) {
-                if (!snapshot.elementAt(i).equals(steps.elementAt(i))) {
-                    return true;
-                }
-            }
-
-            //If we didn't find anything wrong, we're good to go!
+    public synchronized boolean isSnapshotIncompatible() {
+        //No snapshot, can't be incompatible.
+        if (snapshot == null) {
             return false;
         }
+
+        if (snapshot.size() > steps.size()) {
+            return true;
+        }
+
+        //Go through each step in the snapshot
+        for (int i = 0; i < snapshot.size(); ++i) {
+            if (!snapshot.elementAt(i).equals(steps.elementAt(i))) {
+                return true;
+            }
+        }
+
+        //If we didn't find anything wrong, we're good to go!
+        return false;
     }
 
-    public void clearSnapshot() {
-        synchronized (steps) {
-            this.snapshot = null;
-        }
+    public synchronized void clearSnapshot() {
+        this.snapshot = null;
     }
 
     /**
@@ -149,7 +145,6 @@ public class SessionFrame {
         return dead;
     }
 
-
     /**
      * Kill this frame, ensuring it will never return to the stack.
      */
@@ -157,22 +152,34 @@ public class SessionFrame {
         dead = true;
     }
 
-    public void addExtraTopStep(String key, String value) {
-        synchronized (steps) {
-            if (!steps.isEmpty()) {
-                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
-                topStep.addExtra(key, value);
-            }
+    public synchronized void addExtraTopStep(String key, String value) {
+        if (!steps.isEmpty()) {
+            StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+            topStep.addExtra(key, value);
         }
     }
 
-    public String getTopStepExtra(String key) {
-        synchronized (steps) {
-            if (!steps.isEmpty()) {
-                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
-                return topStep.getExtra(key);
-            }
-            return null;
+    public synchronized String getTopStepExtra(String key) {
+        if (!steps.isEmpty()) {
+            StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+            return topStep.getExtra(key);
         }
+        return null;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        frameId = ExtUtil.readString(in);
+        steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
+        snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
+        dead = ExtUtil.readBool(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, frameId);
+        ExtUtil.write(out, new ExtWrapList(steps));
+        ExtUtil.write(out, new ExtWrapList(snapshot));
+        ExtUtil.writeBool(out, dead);
     }
 }
