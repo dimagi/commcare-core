@@ -182,4 +182,35 @@ public class SessionFrame implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(snapshot));
         ExtUtil.writeBool(out, dead);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder output = new StringBuilder("Session Frame:\n");
+
+        prettyPrintSteps(steps, output);
+
+        if (snapshot != null && !snapshot.isEmpty()) {
+            output.append("\nsnapshot:\t");
+            prettyPrintSteps(snapshot, output);
+        }
+
+        if (dead) {
+            output.append("\n[DEAD]");
+        }
+
+        return output.toString();
+    }
+
+    private void prettyPrintSteps(Vector<StackFrameStep> stepsToPrint,
+                                    StringBuilder stringBuilder) {
+        if (!stepsToPrint.isEmpty()) {
+            // prevent trailing '/' by intercalating all but last element
+            for (int i = 0; i < stepsToPrint.size() - 1; i++) {
+                StackFrameStep step = stepsToPrint.elementAt(i);
+                stringBuilder.append(step.toString()).append(" \\ ");
+            }
+            // add the last elem
+            stringBuilder.append(stepsToPrint.lastElement());
+        }
+    }
 }
