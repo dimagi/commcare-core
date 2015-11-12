@@ -16,12 +16,16 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -793,5 +797,18 @@ public class CommCareSession {
 
     public String getCurrentFrameStepExtra(String key) {
         return frame.getTopStepExtra(key);
+    }
+
+    public static CommCareSession restoreSessionFromStream(CommCarePlatform ccPlatform,
+                                                           DataInputStream inputStream)
+            throws DeserializationException, IOException {
+        SessionFrame restoredFrame = new SessionFrame();
+        restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes());
+
+        CommCareSession restoredSession = new CommCareSession(ccPlatform);
+        restoredSession.frame = restoredFrame;
+        restoredSession.syncState();
+
+        return restoredSession;
     }
 }
