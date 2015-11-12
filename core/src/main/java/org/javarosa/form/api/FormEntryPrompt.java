@@ -447,10 +447,15 @@ public class FormEntryPrompt extends FormEntryCaption {
 
         return substituteStringArgs(returnText);
 
+
     }
 
     public String getSpecialFormSelectChoiceText(SelectChoice sel, String form) {
         return getSpecialFormSelectItemText(sel.selection(), form);
+    }
+
+    public String getSelectItemMarkdownText(SelectChoice sel){
+        return getSpecialFormSelectChoiceText(sel, FormEntryCaption.TEXT_FORM_MARKDOWN);
     }
 
     public void requestConstraintHint(ConstraintHint hint) throws UnpivotableExpressionException {
