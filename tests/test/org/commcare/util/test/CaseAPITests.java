@@ -34,10 +34,10 @@ public class CaseAPITests {
     private Vector<String> groupOwned;
     private Vector<String> userOwned;
 
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    String databaseName = ("test.db");
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null;
+    private String databaseName = ("test.db");
 
 
     @Before
@@ -103,24 +103,6 @@ public class CaseAPITests {
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception " + e.getMessage());
-        } finally{
-            try {
-                if(preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if(connection != null) {
-                    connection.close();
-                }
-                if(resultSet != null){
-                    resultSet.close();
-                }
-                File databaseFile = new File(databaseName);
-                if(databaseFile.exists()){
-                    databaseFile.delete();
-                }
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
         }
     }
 
