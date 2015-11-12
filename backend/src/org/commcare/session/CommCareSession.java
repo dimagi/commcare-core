@@ -46,25 +46,22 @@ import java.util.Vector;
 public class CommCareSession {
 
     private final CommCarePlatform platform;
-
     private StackFrameStep popped;
-
     private String currentCmd;
 
     /**
      * A table of all datums (id --> value) that are currently on the session stack
      */
     private final OrderedHashtable collectedDatums;
-
     private String currentXmlns;
 
     /**
-     * The current session frame data *
+     * The current session frame data
      */
     private SessionFrame frame;
 
     /**
-     * The stack of pending Frames *
+     * The stack of pending Frames
      */
     private final Stack<SessionFrame> frameStack;
 
@@ -791,5 +788,13 @@ public class CommCareSession {
                 (prototype.getXFormNamespace() == null ||
                         prototype.getXFormNamespace().equals(""))) &&
                 prototype.getPostEntrySessionOperations().size() == 0;
+    }
+
+    public void addExtraToCurrentFrameStep(String key, String value) {
+        frame.addExtraTopStep(key, value);
+    }
+
+    public String getCurrentFrameStepExtra(String key) {
+        return frame.getTopStepExtra(key);
     }
 }
