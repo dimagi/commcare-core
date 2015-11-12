@@ -43,14 +43,14 @@ public class SessionFrame {
 
 
     private String frameId;
-    protected Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
+    private final Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
 
-    protected Vector<StackFrameStep> snapshot;
+    private Vector<StackFrameStep> snapshot;
 
     /**
      * A Frame is dead if it's execution path has finished and it shouldn't be considered part of the stack *
      */
-    boolean dead = false;
+    private boolean dead = false;
 
     /**
      * Create a new, un-id'd session frame

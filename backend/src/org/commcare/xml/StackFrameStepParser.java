@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.suite.model.StackFrameStep;
@@ -22,9 +19,7 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
         super(parser);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public StackFrameStep parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String operation = parser.getName();
 
@@ -41,13 +36,15 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
     private StackFrameStep parseValue(String type, String datumId) throws XmlPullParserException, IOException, InvalidStructureException {
         //TODO: ... require this to have a value!!!! It's not processing this properly
         String value = parser.getAttributeValue(null, "value");
-        boolean valueIsXpath = false;
+        boolean valueIsXpath;
         if (value == null) {
             //must have a child
-            value = parser.nextText().trim();
+            value = parser.nextText();
             //Can we get here, or would this have caused an exception?
             if (value == null) {
                 throw new InvalidStructureException("Stack frame element must define a value expression or have a direct value", parser);
+            } else {
+                value = value.trim();
             }
             valueIsXpath = false;
         } else {
@@ -59,6 +56,5 @@ public class StackFrameStepParser extends ElementParser<StackFrameStep> {
         } catch (XPathSyntaxException e) {
             throw new InvalidStructureException("Invalid expression for stack frame step definition: " + value + ".\n" + e.getMessage(), parser);
         }
-
     }
 }
