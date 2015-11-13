@@ -1,11 +1,13 @@
 package org.commcare.util.test;
 
 import org.commcare.api.persistence.SqlHelper;
+import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,6 +33,11 @@ public class CaseAPITests {
     private String groupOwner;
     private Vector<String> groupOwned;
     private Vector<String> userOwned;
+
+    private Connection connection = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null;
+    private String databaseName = ("test.db");
 
 
     @Before
@@ -70,10 +77,6 @@ public class CaseAPITests {
 
     @Test
     public void testOwnerPurge() {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String databaseName = ("test.db");
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:" + databaseName);
 
@@ -100,24 +103,29 @@ public class CaseAPITests {
         } catch (Exception e) {
             e.printStackTrace();
             fail("Unexpected exception " + e.getMessage());
-        } finally{
-            try {
-                if(preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if(connection != null) {
-                    connection.close();
-                }
-                if(resultSet != null){
-                    resultSet.close();
-                }
-                File databaseFile = new File(databaseName);
-                if(databaseFile.exists()){
-                    databaseFile.delete();
-                }
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
         }
     }
+
+    @After
+    public void tearDown(){
+        try {
+            if(preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if(connection != null) {
+                connection.close();
+            }
+            if(resultSet != null){
+                resultSet.close();
+            }
+            File databaseFile = new File(databaseName);
+            if(databaseFile.exists()){
+                databaseFile.delete();
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+        SqlSandboxUtils.deleteDatabaseFolder();
+    }
+
 }
