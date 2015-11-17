@@ -317,7 +317,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             preparedStatement = connection.prepareStatement(sqlQuery);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return new JdbcSqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this);
     }
@@ -368,9 +368,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         try {
             c = getConnection();
             SqlHelper.updateToTable(c, tableName, p, id);
-            c.close();
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally{
             try {
                 if (c != null) {

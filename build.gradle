@@ -33,7 +33,6 @@ sourceSets {
         java {
             srcDir 'cases/src'
             srcDir 'backend/src'
-            srcDir 'api'
             srcDir 'core'
             srcDir 'modern'
         }
@@ -44,6 +43,7 @@ sourceSets {
   test {
       java {
           srcDir 'tests/test'
+          srcDir 'api'
       }
       resources{
           srcDir 'tests/resources'

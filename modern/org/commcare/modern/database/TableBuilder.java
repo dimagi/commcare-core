@@ -117,7 +117,7 @@ public class TableBuilder {
 
     public String getTableCreateString() {
 
-        String built = "CREATE TABLE " + scrubName(name) + " (";
+        String built = "CREATE TABLE IF NOT EXISTS " + scrubName(name) + " (";
         for(int i = 0 ; i < cols.size() ; ++i) {
             built += cols.elementAt(i);
             if(i < cols.size() - 1) {
