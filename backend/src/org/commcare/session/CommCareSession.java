@@ -45,28 +45,25 @@ import java.util.Vector;
  */
 public class CommCareSession {
 
-    CommCarePlatform platform;
-
-    protected StackFrameStep popped;
-
-    protected String currentCmd;
+    private final CommCarePlatform platform;
+    private StackFrameStep popped;
+    private String currentCmd;
 
     /**
      * A table of all datums (id --> value) that are currently on the session stack
      */
-    protected OrderedHashtable collectedDatums;
-
-    protected String currentXmlns;
-
-    /**
-     * The current session frame data *
-     */
-    SessionFrame frame;
+    private final OrderedHashtable collectedDatums;
+    private String currentXmlns;
 
     /**
-     * The stack of pending Frames *
+     * The current session frame data
      */
-    Stack<SessionFrame> frameStack;
+    private SessionFrame frame;
+
+    /**
+     * The stack of pending Frames
+     */
+    private final Stack<SessionFrame> frameStack;
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
@@ -85,7 +82,7 @@ public class CommCareSession {
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    public Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
+    private Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
         Entry entry = null;
@@ -135,7 +132,7 @@ public class CommCareSession {
         return entries;
     }
 
-    protected OrderedHashtable getData() {
+    private OrderedHashtable getData() {
         return collectedDatums;
     }
 
@@ -219,16 +216,16 @@ public class CommCareSession {
         Hashtable<String, Entry> entries = platform.getMenuMap();
         int i = 0;
         for (StackFrameStep step : steps) {
-            if (step.getType() == SessionFrame.STATE_COMMAND_ID) {
+            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 //Menu or form.
                 if (menus.containsKey(step.getId())) {
                     returnVal[i] = menus.get(step.getId());
                 } else if (entries.containsKey(step.getId())) {
                     returnVal[i] = entries.get(step.getId()).getText().evaluate();
                 }
-            } else if (step.getType() == SessionFrame.STATE_DATUM_VAL) {
+            } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 //TODO: Grab the name of the case
-            } else if (step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if (SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 //Nothing to do here
             }
 
@@ -320,7 +317,7 @@ public class CommCareSession {
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
         while (this.getNeededData() == null ||
-                this.getNeededData() == SessionFrame.STATE_DATUM_COMPUTED) {
+                this.getNeededData().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             popSessionFrameStack();
         }
     }
@@ -424,8 +421,7 @@ public class CommCareSession {
         sessionRoot.addChild(sessionData);
 
         for (StackFrameStep step : frame.getSteps()) {
-            if (step.getType() == SessionFrame.STATE_DATUM_VAL) {
-
+            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 Vector<TreeElement> matchingElements = sessionData.getChildrenWithName(step.getId());
 
                 if(matchingElements.size() > 0) {
@@ -505,16 +501,6 @@ public class CommCareSession {
     public SessionFrame getFrame() {
         //TODO: Type safe copy
         return frame;
-    }
-
-
-    /**
-     * Deprecated. Fires a single stack operation.
-     */
-    public boolean executeStackOperation(StackOperation op, EvaluationContext ec) {
-        Vector<StackOperation> ops = new Vector<StackOperation>();
-        ops.addElement(op);
-        return executeStackOperations(ops, ec);
     }
 
     /**
@@ -754,7 +740,8 @@ public class CommCareSession {
         int stepId = -1;
         //walk to our datum
         for (int i = 0; i < steps.size(); ++i) {
-            if (steps.elementAt(i).getType() == SessionFrame.STATE_DATUM_VAL && steps.elementAt(i).getId().equals(datumId)) {
+            if (SessionFrame.STATE_DATUM_VAL.equals(steps.elementAt(i).getType()) &&
+                    steps.elementAt(i).getId().equals(datumId)) {
                 stepId = i;
                 break;
             }
@@ -783,7 +770,7 @@ public class CommCareSession {
         return null;
     }
 
-    public void markCurrentFrameForDeath() {
+    private void markCurrentFrameForDeath() {
         frame.kill();
     }
 
@@ -801,5 +788,13 @@ public class CommCareSession {
                 (prototype.getXFormNamespace() == null ||
                         prototype.getXFormNamespace().equals(""))) &&
                 prototype.getPostEntrySessionOperations().size() == 0;
+    }
+
+    public void addExtraToCurrentFrameStep(String key, String value) {
+        frame.addExtraTopStep(key, value);
+    }
+
+    public String getCurrentFrameStepExtra(String key) {
+        return frame.getTopStepExtra(key);
     }
 }
