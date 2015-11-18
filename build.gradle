@@ -40,8 +40,15 @@ sourceSets {
             srcDir 'cases/resources'
         }
   }
+    api {
+        java {
+            srcDir 'api'
+            compileClasspath += main.output
+        }
+    }
   test {
       java {
+          compileClasspath += main.output
           srcDir 'tests/test'
           srcDir 'api'
       }
@@ -52,16 +59,11 @@ sourceSets {
 
   cli {
       java {
-          srcDir 'util/src'
           compileClasspath += main.output
+          compileClasspath += api.output
+          srcDir 'util/src'
       }
   }
-    api {
-        java {
-            srcDir 'api'
-            compileClasspath += main.output
-        }
-    }
 }
 
 dependencies {
@@ -73,12 +75,13 @@ dependencies {
       testCompile sourceSets.main.output
       testCompile sourceSets.cli.output
       testCompile group: 'junit', name: 'junit', version: '4.+'
-      testCompile 'org.json:json:20140107'
       testCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
+    testCompile 'org.json:json:20140107'
 
       apiCompile sourceSets.main.output
       apiCompile project(path: ':javarosa')
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
+    apiCompile 'org.json:json:20140107'
 }
 
 jar {

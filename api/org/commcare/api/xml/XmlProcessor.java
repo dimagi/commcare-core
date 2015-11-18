@@ -129,7 +129,7 @@ public class XmlProcessor {
 
     private String handleGetJson() {
         try {
-            return PromptToJson.formEntryPromptToJson(xFormPlayer.getFormEntryController().getModel().getQuestionPrompt()).toString();
+            return PromptToJson.formEntryModelToJson(xFormPlayer.getFormEntryController().getModel()).toString();
         } catch (JSONException e) {
             e.printStackTrace();
             return "null";
