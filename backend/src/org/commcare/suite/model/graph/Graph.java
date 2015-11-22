@@ -151,11 +151,13 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
                 evaluateConfiguration(s, seriesData, seriesContext);
-                // Guess at name for series, if it wasn't provided
+                // Guess at names for series, if it wasn't provided
                 if (seriesData.getConfiguration("name") == null) {
                     seriesData.setConfiguration("name", s.getY());
                 }
-                seriesData.setConfiguration("xName", s.getX());
+                if (seriesData.getConfiguration("x-name") == null) {
+                    seriesData.setConfiguration("x-name", s.getX());
+                }
 
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
