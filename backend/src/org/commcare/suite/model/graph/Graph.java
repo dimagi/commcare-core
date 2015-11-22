@@ -155,6 +155,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 if (seriesData.getConfiguration("name") == null) {
                     seriesData.setConfiguration("name", s.getY());
                 }
+                seriesData.setConfiguration("xName", s.getX());
 
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
