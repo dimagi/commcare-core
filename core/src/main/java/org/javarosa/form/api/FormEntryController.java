@@ -113,6 +113,38 @@ public class FormEntryController {
         }
     }
 
+    public int checkQuestionConstraint(IAnswerData data) {
+        FormIndex index = model.getFormIndex();
+        QuestionDef q = model.getQuestionPrompt(index).getQuestion();
+
+        if (model.getEvent(index) != FormEntryController.EVENT_QUESTION) {
+            throw new RuntimeException("Non-Question object at the form index.");
+        }
+
+        TreeElement element = model.getTreeElement(index);
+
+        if (element.isRequired() && data == null) {
+            return ANSWER_REQUIRED_BUT_EMPTY;
+        }
+
+        // A question is complex when it has a copy tag that needs to be
+        // evaluated by copying in the correct xml subtree.  XXX: The code to
+        // answer complex questions is incomplete, but luckily this feature is
+        // rarely used.
+        boolean complexQuestion = q.isComplex();
+
+        if (complexQuestion) {
+            // TODO PLM: unsure how to check constraints of 'complex' questions 
+            return ANSWER_OK;
+        } else {
+            if (!model.getForm().evaluateConstraint(index.getReference(), data)) {
+                // constraint checking failed
+                return ANSWER_CONSTRAINT_VIOLATED;
+            }
+            return ANSWER_OK;
+        }
+    }
+
 
     /**
      * saveAnswer attempts to save the current answer into the data model
