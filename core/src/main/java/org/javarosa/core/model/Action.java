@@ -33,8 +33,12 @@ public class Action implements Externalizable {
      * NOTE: Currently actions are only processed on nodes that are
      * WITHIN the context provided, if one is provided. This will
      * need to get changed possibly for future action types.
+     *
+     * @return TreeReference targeted by the action or null if the action
+     * wasn't completed.
      */
-    public void processAction(FormDef model, TreeReference context) {
+    public TreeReference processAction(FormDef model, TreeReference context) {
+        return null;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

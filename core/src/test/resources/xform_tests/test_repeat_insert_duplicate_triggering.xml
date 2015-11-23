@@ -1,0 +1,70 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Tests if duplicate trigger fired when inserting into a repeat</h:title>
+        <model>
+            <instance>
+                <data name="double repeat"
+                      uiVersion="1"
+                      version="57"
+                      xmlns="http://openrosa.org/formdesigner/313BF9C4-9DF3-4B92-A111-1AB7306EA8CA">
+                    <how_many/>
+                    <default_language/>
+                    <languages>
+                        <language short="en">english</language>
+                        <language short="ur">urdu</language>
+                    </languages>
+
+                    <country id="" jr:template="">
+                        <language/>
+                        <population year_observed=""/>
+                    </country>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/how_many" type="xsd:int"/>
+            <bind nodeset="/data/default_language"/>
+            <bind nodeset="/data/country"/>
+
+            <bind calculate="count(/data/languages) + 1 + int(random()*10000)"
+                  nodeset="/data/country/population"/>
+
+            <!--
+            Calculating the country language will get triggered twice:
+              1) when @id is set during insert action handling. This will set
+                 it to /data/default_language
+              2) when the population's set via triggering that occurs when a
+                 all triggerables for a new repeat entry are fired. This will
+                 set it to an entry in languages
+            -->
+            <bind
+                calculate="if(current()/../population > 0, /data/languages/language[((int(current()/../@id)) mod count(/data/languages)) + 1]/@short, /data/default_language)"
+                nodeset="/data/country/language"/>
+
+            <setvalue event="xforms-ready" ref="/data/how_many" value="4"/>
+            <setvalue event="xforms-ready" ref="/data/default_language" value="'esperanto'"/>
+
+            <!-- inserting a new entry will set the @id, triggering the countries language to be set -->
+            <setvalue event="jr-insert" ref="/data/country/@id" value="int(count(/data/country))"/>
+            <setvalue event="jr-insert" ref="/data/country/language" value="'esperanto'"/>
+
+            <itext>
+                <translation default="" lang="en">
+                    <text id="how_many-label">
+                        <value>how_many</value>
+                    </text>
+                    <text id="country-label">
+                        <value>country</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <group>
+            <label ref="jr:itext('country-label')"/>
+            <repeat nodeset="/data/country" jr:count="/data/how_many" jr:noAddRemove="true()"/>
+        </group>
+    </h:body>
+</h:html>

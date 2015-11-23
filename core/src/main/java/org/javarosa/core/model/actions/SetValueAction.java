@@ -47,7 +47,7 @@ public class SetValueAction extends Action {
     }
 
     @Override
-    public void processAction(FormDef model, TreeReference contextRef) {
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
         //Qualify the reference if necessary
         TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
 
@@ -60,7 +60,7 @@ public class SetValueAction extends Action {
             //there was a conflict, but it's not super clear whether this is a perfect
             //strategy
             if (!contextRef.isParentOf(qualifiedReference, false)) {
-                return;
+                return null;
             }
         }
 
@@ -78,7 +78,7 @@ public class SetValueAction extends Action {
                 //If after finding our concrete reference it is a template, this action is outside of the
                 //scope of the current target, so we can leave.
                 if(model.getMainInstance().hasTemplatePath(target)) {
-                    return;
+                    return null;
                 }
                 throw new NullPointerException(failMessage);
             } else if (references.size() > 1) {
@@ -95,7 +95,7 @@ public class SetValueAction extends Action {
             //won't be included in the above walk if the template is nested, since only the
             //top level template retains its subelement templates
             if(model.getMainInstance().hasTemplatePath(target)) {
-                return;
+                return null;
             } else {
                 throw new NullPointerException(failMessage);
             }
@@ -115,7 +115,13 @@ public class SetValueAction extends Action {
         int dataType = node.getDataType();
         IAnswerData val = Recalculate.wrapData(result, dataType);
 
-        model.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
+        if (val == null) {
+            model.setValue(null, qualifiedReference);
+        } else {
+            model.setValue(AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()),
+                    qualifiedReference);
+        }
+        return qualifiedReference;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
