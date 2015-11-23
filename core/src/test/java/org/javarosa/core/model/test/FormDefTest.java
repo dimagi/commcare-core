@@ -218,6 +218,29 @@ public class FormDefTest {
     }
 
     /**
+     * Test triggers fired from inserting a new repeat entry. Triggers fired
+     * during insert action don't need to be fired again when all triggers
+     * rooted by that repeat entry are fired.
+     */
+    @Test
+    public void testRepeatInsertTriggering() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_repeat_insert_duplicate_triggering.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        // make sure the language isn't the default language, 'esperanto',
+        // which it is initially set to
+        ExprEvalUtils.assertEqualsXpathEval("Check language set correctly",
+                "en", "/data/country[1]/language", evalCtx);
+    }
+
+    /**
      * Tests trigger caching related to cascading relevancy calculations to children.
      */
     @Test
