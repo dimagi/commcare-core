@@ -36,7 +36,12 @@ public class PromptToJson {
         obj.put("style", jsonNullIfNull(parseStyle(prompt)));
         obj.put("datatype", jsonNullIfNull(parseControlType(prompt)));
         obj.put("required", jsonNullIfNull(prompt.isRequired()));
-        parsePutAnswer(obj, prompt);
+        try {
+            parsePutAnswer(obj, prompt);
+        } catch(Exception e){
+            System.out.println("E: " + e);
+            e.printStackTrace();
+        }
         obj.put("ix", jsonNullIfNull(prompt.getIndex()));
         parseQuestionType(model, obj);
 
@@ -91,6 +96,7 @@ public class PromptToJson {
         IAnswerData answerValue = prompt.getAnswerValue();
         if (answerValue == null){
             obj.put("answer", JSONObject.NULL);
+            return;
         }
         switch(prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
@@ -105,13 +111,13 @@ public class PromptToJson {
                 obj.put("answer", (double)answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", new DateData((Date) answerValue).getDisplayText());
+                obj.put("answer", answerValue.getValue());
                 return;
             case Constants.DATATYPE_TIME:
-                obj.put("answer", new TimeData((Date)answerValue).getDisplayText());
+                obj.put("answer", answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                obj.put("answer", new DateTimeData((Date)answerValue).getDisplayText());
+                obj.put("answer", answerValue.getValue());
                 return;
             case Constants.DATATYPE_CHOICE:
                 obj.put("answer", new SelectOneData((Selection) answerValue).getDisplayText());
