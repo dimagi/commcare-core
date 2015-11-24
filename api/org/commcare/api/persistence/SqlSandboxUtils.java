@@ -15,7 +15,6 @@ import java.io.File;
 public class SqlSandboxUtils {
 
     public static UserSqlSandbox getStaticStorage(String username, String path) {
-        System.out.println("Get STatic storage path: " + path);
         return new UserSqlSandbox(username, path);
     }
 

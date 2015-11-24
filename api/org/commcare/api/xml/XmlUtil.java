@@ -3,10 +3,15 @@ package org.commcare.api.xml;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
+import org.commcare.cases.instance.CaseInstanceTreeElement;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
+import org.javarosa.model.xform.DataModelSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -23,7 +28,6 @@ import javax.xml.parsers.ParserConfigurationException;
  *
  */
 public class XmlUtil {
-
 
     public static String getPrettyXml(Document document) {
         try {

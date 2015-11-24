@@ -28,11 +28,6 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class XmlUtils {
 
-    public static String getCaseXml(Vector<Case> cases){
-        String returnXml = "";
-        return returnXml;
-    }
-
     public static void printExternalInstance(String instanceRef, InstanceInitializationFactory iif) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();

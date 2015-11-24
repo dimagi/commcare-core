@@ -37,7 +37,7 @@ public class AnswerQuestionJson {
         }
         else if (result == FormEntryController.ANSWER_OK){
             ret.put("status","success");
-            controller.stepToNextEvent();
+            //controller.stepToNextEvent();
         }
         return ret;
     }

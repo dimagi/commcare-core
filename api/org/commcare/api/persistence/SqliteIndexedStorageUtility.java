@@ -38,7 +38,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     private final String tableName;
     private final String sandboxId;
     private File databaseFolder;
-    
+
     public  SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName) {
         this(prototype, sandboxId, tableName, null);
     }

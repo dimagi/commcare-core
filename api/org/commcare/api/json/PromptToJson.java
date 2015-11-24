@@ -36,7 +36,7 @@ public class PromptToJson {
         obj.put("style", jsonNullIfNull(parseStyle(prompt)));
         obj.put("datatype", jsonNullIfNull(parseControlType(prompt)));
         obj.put("required", jsonNullIfNull(prompt.isRequired()));
-        obj.put("answer", jsonNullIfNull(parseAnswer(prompt)));
+        parsePutAnswer(obj, prompt);
         obj.put("ix", jsonNullIfNull(prompt.getIndex()));
         parseQuestionType(model, obj);
 
@@ -87,28 +87,38 @@ public class PromptToJson {
         }
     }
 
-    private static Object parseAnswer(FormEntryPrompt prompt){
+    private static void parsePutAnswer(JSONObject obj, FormEntryPrompt prompt){
         IAnswerData answerValue = prompt.getAnswerValue();
         if (answerValue == null){
-            return null;
+            obj.put("answer", JSONObject.NULL);
         }
         switch(prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
             case Constants.DATATYPE_TEXT:
+                obj.put("answer", answerValue.getDisplayText());
+                return;
             case Constants.DATATYPE_INTEGER:
+                obj.put("answer", (int)answerValue.getValue());
+                return;
             case Constants.DATATYPE_LONG:
             case Constants.DATATYPE_DECIMAL:
-                return answerValue.getValue().toString();
+                obj.put("answer", (double)answerValue.getValue());
+                return;
             case Constants.DATATYPE_DATE:
-                return new DateData((Date) answerValue).getDisplayText();
+                obj.put("answer", new DateData((Date) answerValue).getDisplayText());
+                return;
             case Constants.DATATYPE_TIME:
-                return new TimeData((Date)answerValue).getDisplayText();
+                obj.put("answer", new TimeData((Date)answerValue).getDisplayText());
+                return;
             case Constants.DATATYPE_DATE_TIME:
-                return new DateTimeData((Date)answerValue).getDisplayText();
+                obj.put("answer", new DateTimeData((Date)answerValue).getDisplayText());
+                return;
             case Constants.DATATYPE_CHOICE:
-                return new SelectOneData((Selection) answerValue).getDisplayText();
+                obj.put("answer", new SelectOneData((Selection) answerValue).getDisplayText());
+                return;
             case Constants.DATATYPE_CHOICE_LIST:
-                return new SelectMultiData((Vector) answerValue).getDisplayText();
+                obj.put("answer", new SelectMultiData((Vector) answerValue).getDisplayText());
+                return;
 
             /* as yet unimplemented
             case Constants.DATATYPE_GEOPOINT:
@@ -120,8 +130,6 @@ public class PromptToJson {
             */
 
         }
-        //TODO WSP crash? unrecognized
-        return "";
     }
 
     private static JSONArray parseSelect(FormEntryPrompt prompt) {
