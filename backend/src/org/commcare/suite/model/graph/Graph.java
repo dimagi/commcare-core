@@ -11,6 +11,8 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -35,11 +37,12 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private Vector<XYSeries> mSeries;
     private Hashtable<String, Text> mConfiguration;
     private Vector<Annotation> mAnnotations;
+    private Vector<String> mExpandableConfiguration;
 
     public Graph() {
-        mSeries = new Vector<XYSeries>();
-        mConfiguration = new Hashtable<String, Text>();
-        mAnnotations = new Vector<Annotation>();
+        mSeries = new Vector<>();
+        mConfiguration = new Hashtable<>();
+        mAnnotations = new Vector<>();
     }
 
     public String getType() {
@@ -141,26 +144,35 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     }
 
     /*
-     * Helper for evaluate. Looks at a single series.
+     * Helper for evaluate. Looks at all series.
      */
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
         try {
             for (XYSeries s : mSeries) {
+                Hashtable<String, Text> expandableConfiguration = new Hashtable<>();
+                for (Enumeration<String> e = s.getExpandableConfigurationKeys(); e.hasMoreElements();) {
+                    String key = e.nextElement();
+                    Text value = s.getConfiguration(key);
+                    if (value != null) {
+                        expandableConfiguration.put(key, value);
+                    }
+                }
+
                 Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
-                evaluateConfiguration(s, seriesData, seriesContext);
-                // Guess at names for series, if it wasn't provided
-                if (seriesData.getConfiguration("name") == null) {
-                    seriesData.setConfiguration("name", s.getY());
-                }
-                if (seriesData.getConfiguration("x-name") == null) {
-                    seriesData.setConfiguration("x-name", s.getX());
-                }
-
+                Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
+                    for (Enumeration<String> e = expandableConfiguration.keys(); e.hasMoreElements();) {
+                        String key = e.nextElement();
+                        if (!expandedConfiguration.containsKey(key)) {
+                            expandedConfiguration.put(key, new Vector<String>());
+                        }
+                        String value = expandableConfiguration.get(key).evaluate(refContext);
+                        expandedConfiguration.get(key).addElement(value);
+                    }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
@@ -173,6 +185,27 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                 }
                 graphData.addSeries(seriesData);
+
+                for (Enumeration<String> e = expandedConfiguration.keys(); e.hasMoreElements();) {
+                    String key = e.nextElement();
+                    String json = "";
+                    for (String pointValue : expandedConfiguration.get(key)) {
+                        json += "," + "'" + pointValue.replaceAll("'", "&apos;") + "'";
+                    }
+                    json = "[" + json.substring(1) + "]";
+                    Text value = Text.PlainText(json);
+                    s.setConfiguration(key, value);
+                }
+
+                // Handle configuration after data, since data processing may update configuration
+                evaluateConfiguration(s, seriesData, seriesContext);
+                // Guess at names for series, if they weren't provided
+                if (seriesData.getConfiguration("name") == null) {
+                    seriesData.setConfiguration("name", s.getY());
+                }
+                if (seriesData.getConfiguration("x-name") == null) {
+                    seriesData.setConfiguration("x-name", s.getX());
+                }
             }
         } catch (XPathSyntaxException e) {
             e.printStackTrace();
