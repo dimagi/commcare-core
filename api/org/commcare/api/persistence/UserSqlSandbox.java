@@ -23,15 +23,18 @@ public class UserSqlSandbox extends UserSandbox {
      * Create a sandbox of the necessary storage objects with the shared
      * factory.
      */
-    public UserSqlSandbox(String username) {
+    public UserSqlSandbox(String username, String path) {
         //we can't name this table "Case" becase that's reserved by sqlite
-        caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase");
-        ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY);
-        userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY);
-        userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture");
-        appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture");
+        caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, "CCCase", path);
+        ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, Ledger.STORAGE_KEY, path);
+        userStorage = new SqliteIndexedStorageUtility<>(User.class, username, User.STORAGE_KEY, path);
+        userFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "UserFixture", path);
+        appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture", path);
     }
 
+    public UserSqlSandbox(String username) {
+        this(username, null);
+    }
 
     public SqliteIndexedStorageUtility<Case> getCaseStorage() {
         return caseStorage;

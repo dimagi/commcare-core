@@ -13,13 +13,28 @@ import java.io.File;
  * @author wspride
  */
 public class SqlSandboxUtils {
+
+    public static UserSqlSandbox getStaticStorage(String username, String path) {
+        System.out.println("Get STatic storage path: " + path);
+        return new UserSqlSandbox(username, path);
+    }
+
     public static UserSqlSandbox getStaticStorage(String username) {
-        return new UserSqlSandbox(username);
+        return new UserSqlSandbox(username, null);
     }
 
     public static void deleteDatabaseFolder(){
-        File databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
-        if(databaseFolder.exists()){
+        deleteDatabaseFolder(null);
+    }
+
+    public static void deleteDatabaseFolder(String path){
+        File databaseFolder;
+        if(path == null) {
+            databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
+        } else{
+            databaseFolder = new File(path);
+        }
+        if (databaseFolder.exists()) {
             deleteFolder(databaseFolder);
         }
     }
