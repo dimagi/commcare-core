@@ -7,6 +7,7 @@ import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
@@ -17,23 +18,44 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
- *
  * @author ctsims
  */
 public class StackFrameStep implements Externalizable {
     //Share the types with the commands
-    String elementType;
-    String id;
-    String value;
-    boolean valueIsXpath;
+    private String elementType;
+    private String id;
+    private String value;
+    private boolean valueIsXpath;
+    private Hashtable<String, String> extras = new Hashtable<String, String>();
 
     /**
      * Serialization Only
      */
     public StackFrameStep() {
 
+    }
+
+    public StackFrameStep(String type, String id, String value) {
+        this.elementType = type;
+        this.id = id;
+        this.value = value;
+    }
+
+    public StackFrameStep(String type, String id,
+                          String value, boolean valueIsXpath) throws XPathSyntaxException {
+        this.elementType = type;
+        this.id = id;
+        this.value = value;
+        this.valueIsXpath = valueIsXpath;
+
+        if (valueIsXpath) {
+            //Run the parser to ensure that we will fail fast when _creating_ the step, not when
+            //running it
+            XPathParseTool.parseXPath(value);
+        }
     }
 
     public String getType() {
@@ -52,23 +74,12 @@ public class StackFrameStep implements Externalizable {
         return valueIsXpath;
     }
 
-    public StackFrameStep(String type, String id, String value) {
-        this.elementType = type;
-        this.id = id;
-        this.value = value;
+    public void addExtra(String key, String value) {
+        extras.put(key, value);
     }
 
-    public StackFrameStep(String type, String id, String value, boolean valueIsXpath) throws XPathSyntaxException {
-        this.elementType = type;
-        this.id = id;
-        this.value = value;
-        this.valueIsXpath = valueIsXpath;
-
-        if (valueIsXpath) {
-            //Run the parser to ensure that we will fail fast when _creating_ the step, not when
-            //running it
-            XPathParseTool.parseXPath(value);
-        }
+    public String getExtra(String key) {
+        return extras.get(key);
     }
 
     /**
@@ -103,26 +114,25 @@ public class StackFrameStep implements Externalizable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.elementType = ExtUtil.readString(in);
         this.id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
+        this.extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, elementType);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
+        ExtUtil.write(out, new ExtWrapMap(extras));
     }
 
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof StackFrameStep)) {
             return false;
@@ -130,23 +140,17 @@ public class StackFrameStep implements Externalizable {
 
         StackFrameStep that = (StackFrameStep)o;
 
-        if (!propertiesEqual(this.getType(), that.getType())) {
-            return false;
-        }
+        return ((propertiesEqual(this.getType(), that.getType())) &&
+                (propertiesEqual(this.getId(), that.getId())) &&
+                (propertiesEqual(this.getValue(), that.getValue())) &&
+                (this.getValueIsXPath() == that.getValueIsXPath()));
+    }
 
-        if (!propertiesEqual(this.getId(), that.getId())) {
-            return false;
-        }
-
-        if (!propertiesEqual(this.getValue(), that.getValue())) {
-            return false;
-        }
-
-        if (this.getValueIsXPath() != that.getValueIsXPath()) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public int hashCode() {
+        final int valueIsXPathHash = getValueIsXPath() ? 1231 : 1237;
+        return (getType().hashCode() ^ getId().hashCode() ^
+                getValue().hashCode() ^ valueIsXPathHash);
     }
 
     private boolean propertiesEqual(String a, String b) {

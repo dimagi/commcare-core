@@ -43,14 +43,14 @@ public class SessionFrame {
 
 
     private String frameId;
-    protected Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
+    private final Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
 
-    protected Vector<StackFrameStep> snapshot;
+    private Vector<StackFrameStep> snapshot;
 
     /**
      * A Frame is dead if it's execution path has finished and it shouldn't be considered part of the stack *
      */
-    boolean dead = false;
+    private boolean dead = false;
 
     /**
      * Create a new, un-id'd session frame
@@ -155,5 +155,24 @@ public class SessionFrame {
      */
     public void kill() {
         dead = true;
+    }
+
+    public void addExtraTopStep(String key, String value) {
+        synchronized (steps) {
+            if (!steps.isEmpty()) {
+                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+                topStep.addExtra(key, value);
+            }
+        }
+    }
+
+    public String getTopStepExtra(String key) {
+        synchronized (steps) {
+            if (!steps.isEmpty()) {
+                StackFrameStep topStep = steps.elementAt(steps.size() - 1);
+                return topStep.getExtra(key);
+            }
+            return null;
+        }
     }
 }

@@ -144,5 +144,39 @@ public class SessionNavigatorTests {
         triggerSessionStepAndCheckResultCode(SessionNavigator.START_FORM_ENTRY);
     }
 
+    @Test
+    public void testSettingAndGettingSessionExtras() {
+        final String LAST_QUERY_KEY = "last-query-key";
+        final String COLOR_KEY = "color-key";
+        SessionWrapper session = mApp.getSession();
 
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+
+        // step forward and assign some extras to the current top of session stack
+        session.setCommand("m0");
+        session.addExtraToCurrentFrameStep(LAST_QUERY_KEY, "the lorax");
+        session.addExtraToCurrentFrameStep(COLOR_KEY, "orange");
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+
+        // set forward again, set more extras
+        session.setCommand("m0-f2");
+        session.addExtraToCurrentFrameStep(LAST_QUERY_KEY, "the cat in the hat");
+        Assert.assertEquals("the cat in the hat", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
+        triggerSessionStepAndCheckResultCode(SessionNavigator.START_ENTITY_SELECTION);
+
+        // step back and assert that initial extras are still there
+        session.stepBack();
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        Assert.assertEquals("m0", session.getCommand());
+        Assert.assertEquals("the lorax", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
+        Assert.assertEquals("orange", session.getCurrentFrameStepExtra(COLOR_KEY));
+
+        // step back and then forward into frame w/ same command and
+        // assert that extras are no longer present
+        session.stepBack();
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        session.setCommand("m0");
+        triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
+        Assert.assertEquals(null, session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
+    }
 }
