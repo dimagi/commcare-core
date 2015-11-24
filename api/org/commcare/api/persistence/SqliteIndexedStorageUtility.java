@@ -37,11 +37,22 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
     private final Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
-
+    private File databaseFolder;
+    
     public  SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName) {
+        this(prototype, sandboxId, tableName, null);
+    }
+
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName, String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
         this.prototype = prototype;
+
+        if(databasePath == null){
+            databaseFolder = new File(DATABASE_FOLDER);
+        } else{
+            databaseFolder = new File(databasePath);
+        }
 
         Connection c = null;
         try {
@@ -66,14 +77,13 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
 
     Connection getConnection() throws SQLException, ClassNotFoundException {
 
-        File databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
 
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + SqliteIndexedStorageUtility.DATABASE_FOLDER + "/" +  this.sandboxId + ".db");
+        dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" +  this.sandboxId + ".db");
         return dataSource.getConnection();
     }
 
