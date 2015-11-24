@@ -11,8 +11,6 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -37,7 +35,6 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private Vector<XYSeries> mSeries;
     private Hashtable<String, Text> mConfiguration;
     private Vector<Annotation> mAnnotations;
-    private Vector<String> mExpandableConfiguration;
 
     public Graph() {
         mSeries = new Vector<>();
