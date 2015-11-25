@@ -185,12 +185,18 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
 
                 for (Enumeration e = expandedConfiguration.keys(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
-                    String json = "";
+                    StringBuilder json = new StringBuilder();
                     for (String pointValue : expandedConfiguration.get(key)) {
-                        json += "," + "'" + pointValue.replaceAll("'", "&apos;") + "'";
+                        json.append(",'");
+                        json.append(pointValue.replaceAll("'", "&apos;"));
+                        json.append("'");
                     }
-                    json = "[" + json.substring(1) + "]";
-                    Text value = Text.PlainText(json);
+                    if (json.length() > 0) {
+                        json.deleteCharAt(0);
+                    }
+                    json.insert(0, "[");
+                    json.append("]");
+                    Text value = Text.PlainText(json.toString());
                     s.setConfiguration(key, value);
                 }
 

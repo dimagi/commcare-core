@@ -29,6 +29,10 @@ import java.util.Vector;
 public class XYSeries implements Externalizable, Configurable {
     private TreeReference mNodeSet;
     private Hashtable<String, Text> mConfiguration;
+
+    // List of keys that configure individual points. For these keys, the Text stored in
+    // mConfiguration is an XPath expression, which during evaluation will be applied to
+    // each point in turn to produce a list of one value for each point.
     private Vector<String> mPointConfiguration;
 
     private String mX;
