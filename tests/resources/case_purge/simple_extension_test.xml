@@ -1,0 +1,68 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account extensions!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>ee1d9a190c6010209d74201b3f5cc6d3</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>extensions</username>
+        <password>sha1$2hyI34E4uuEI$c9be2e0fe031d43dd120d1df9fead6da1ff85d9a</password>
+        <uuid>b047e0c29b3602c66f3dd891edde5160</uuid>
+        <date>2015-11-25</date>
+        <user_data>
+            <data key="thing">123</data>
+            <data key="commcare_last_name"/>
+            <data key="commcare_phone_number"/>
+            <data key="commcare_first_name">Farid</data>
+        </user_data>
+    </Registration>
+    <fixture id="user-groups" user_id="b047e0c29b3602c66f3dd891edde5160">
+        <groups/>
+    </fixture>
+    <fixture id="commcare:reports">
+        <reports last_sync="2015-11-25T15:38:33.106091"/>
+    </fixture>
+    <case case_id="02b42e6d641d4b6aac5e0299d81b3f0c" date_modified="2015-11-25T15:34:24.879077Z"
+          user_id="b047e0c29b3602c66f3dd891edde5160"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>commcare-user</case_type>
+            <case_name>Farid</case_name>
+            <owner_id>b047e0c29b3602c66f3dd891edde5160</owner_id>
+        </create>
+        <update>
+            <email/>
+            <hq_user_id>b047e0c29b3602c66f3dd891edde5160</hq_user_id>
+            <language/>
+            <phone_number/>
+            <thing>123</thing>
+            <username>extensions</username>
+        </update>
+    </case>
+    <case case_id="210e2708-7c02-48ab-8b6e-4956ec0df2c8" date_modified="2015-11-25T15:35:14.253000Z"
+          user_id="b047e0c29b3602c66f3dd891edde5160"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>cats</case_type>
+            <case_name>farid</case_name>
+            <owner_id>b047e0c29b3602c66f3dd891edde5160</owner_id>
+        </create>
+        <update>
+            <t/>
+        </update>
+    </case>
+    <case case_id="59922c48-bb52-49c6-acd3-4fcfa34ab6ac" date_modified="2015-11-25T15:35:29.350000Z"
+          user_id="b047e0c29b3602c66f3dd891edde5160"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>cats</case_type>
+            <case_name>farid_extensionfarid</case_name>
+            <owner_id>-</owner_id>
+        </create>
+        <update>
+            <index_type>extension</index_type>
+        </update>
+        <index>
+            <host case_type="cats" relationship="extension">210e2708-7c02-48ab-8b6e-4956ec0df2c8</host>
+        </index>
+    </case>
+</OpenRosaResponse>

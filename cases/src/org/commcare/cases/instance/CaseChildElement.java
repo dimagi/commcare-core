@@ -394,6 +394,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                         if (multiplicity >= 0 && child == null) {
                             TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
                             emptyNode.setAttribute(null, "case_type", "");
+                            emptyNode.setAttribute(null, "relationship", "");
                             this.addChild(emptyNode);
                             emptyNode.setParent(this);
                             return emptyNode;
@@ -416,6 +417,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                         if (children.size() == 0) {
                             TreeElement emptyNode = new TreeElement(name);
                             emptyNode.setAttribute(null, "case_type", "");
+                            emptyNode.setAttribute(null, "relationship", "");
 
                             this.addChild(emptyNode);
                             emptyNode.setParent(this);
@@ -430,6 +432,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                 for (CaseIndex i : indices) {
                     scratch = new TreeElement(i.getName());
                     scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
+                    scratch.setAttribute(null, "relationship", this.parent.intern(i.getRelationship()));
                     scratch.setValue(new UncastData(i.getTarget()));
                     index.addChild(scratch);
                 }
