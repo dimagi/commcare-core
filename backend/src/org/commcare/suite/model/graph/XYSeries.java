@@ -46,8 +46,8 @@ public class XYSeries implements Externalizable, Configurable {
 
     public XYSeries(String nodeSet) {
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
-        mConfiguration = new Hashtable<>();
-        mExpandableConfiguration = new Vector<>();
+        mConfiguration = new Hashtable<String, Text>();
+        mExpandableConfiguration = new Vector<String>();
         mExpandableConfiguration.addElement("bar-color");
     }
 

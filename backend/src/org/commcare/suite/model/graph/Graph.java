@@ -37,9 +37,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private Vector<Annotation> mAnnotations;
 
     public Graph() {
-        mSeries = new Vector<>();
-        mConfiguration = new Hashtable<>();
-        mAnnotations = new Vector<>();
+        mSeries = new Vector<XYSeries>();
+        mConfiguration = new Hashtable<String, Text>();
+        mAnnotations = new Vector<Annotation>();
     }
 
     public String getType() {
@@ -146,9 +146,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
         try {
             for (XYSeries s : mSeries) {
-                Hashtable<String, Text> expandableConfiguration = new Hashtable<>();
-                for (Enumeration<String> e = s.getExpandableConfigurationKeys(); e.hasMoreElements();) {
-                    String key = e.nextElement();
+                Hashtable<String, Text> expandableConfiguration = new Hashtable<String, Text>();
+                for (Enumeration e = s.getExpandableConfigurationKeys(); e.hasMoreElements();) {
+                    String key = (String) e.nextElement();
                     Text value = s.getConfiguration(key);
                     if (value != null) {
                         expandableConfiguration.put(key, value);
@@ -162,8 +162,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
-                    for (Enumeration<String> e = expandableConfiguration.keys(); e.hasMoreElements();) {
-                        String key = e.nextElement();
+                    for (Enumeration e = expandableConfiguration.keys(); e.hasMoreElements();) {
+                        String key = (String) e.nextElement();
                         if (!expandedConfiguration.containsKey(key)) {
                             expandedConfiguration.put(key, new Vector<String>());
                         }
@@ -183,8 +183,8 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 }
                 graphData.addSeries(seriesData);
 
-                for (Enumeration<String> e = expandedConfiguration.keys(); e.hasMoreElements();) {
-                    String key = e.nextElement();
+                for (Enumeration e = expandedConfiguration.keys(); e.hasMoreElements();) {
+                    String key = (String) e.nextElement();
                     String json = "";
                     for (String pointValue : expandedConfiguration.get(key)) {
                         json += "," + "'" + pointValue.replaceAll("'", "&apos;") + "'";
