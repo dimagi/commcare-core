@@ -81,7 +81,7 @@ public class XYSeries implements Externalizable, Configurable {
         mConfiguration.put(key, value);
     }
 
-    public Enumeration<String> getPointConfigurationKeys() {
+    public Enumeration getPointConfigurationKeys() {
         return mPointConfiguration.elements();
     }
 
