@@ -23,7 +23,7 @@ import java.util.Vector;
  * Created by willpride on 11/3/15.
  */
 public class PromptToJson {
-    public static JSONObject formEntryModelToJson(FormEntryModel model) throws JSONException {
+    public static String formEntryModelToJson(FormEntryModel model) throws JSONException {
         FormEntryPrompt prompt = model.getQuestionPrompt();
         JSONObject obj = new JSONObject();
         obj.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
@@ -39,7 +39,6 @@ public class PromptToJson {
         try {
             parsePutAnswer(obj, prompt);
         } catch(Exception e){
-            System.out.println("E: " + e);
             e.printStackTrace();
         }
         obj.put("ix", jsonNullIfNull(prompt.getIndex()));
@@ -48,7 +47,7 @@ public class PromptToJson {
         if(prompt.getDataType() == Constants.DATATYPE_CHOICE || prompt.getDataType() == Constants.DATATYPE_CHOICE_LIST){
             obj.put("choices", parseSelect(prompt));
         }
-        return obj;
+        return obj.toString();
     }
 
     public static Object jsonNullIfNull(Object obj){
@@ -111,19 +110,25 @@ public class PromptToJson {
                 obj.put("answer", (double)answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", answerValue.getValue());
+                obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
                 return;
             case Constants.DATATYPE_TIME:
-                obj.put("answer", answerValue.getValue());
+                obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                obj.put("answer", answerValue.getValue());
+                obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
                 return;
             case Constants.DATATYPE_CHOICE:
-                obj.put("answer", new SelectOneData((Selection) answerValue).getDisplayText());
+                obj.put("answer", ((Selection)answerValue.getValue()).index + 1);
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
-                obj.put("answer", new SelectMultiData((Vector) answerValue).getDisplayText());
+                Vector<Selection> selections = ((SelectMultiData)answerValue).getValue();
+                JSONArray acc = new JSONArray();
+                for(Selection selection: selections){
+                    int ordinal = selection.index + 1;
+                    acc.put(ordinal);
+                }
+                obj.put("answer", acc);
                 return;
 
             /* as yet unimplemented
