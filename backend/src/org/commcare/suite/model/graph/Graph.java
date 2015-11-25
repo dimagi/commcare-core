@@ -146,12 +146,12 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
         try {
             for (XYSeries s : mSeries) {
-                Hashtable<String, Text> expandableConfiguration = new Hashtable<String, Text>();
-                for (Enumeration e = s.getExpandableConfigurationKeys(); e.hasMoreElements();) {
+                Hashtable<String, Text> pointConfiguration = new Hashtable<String, Text>();
+                for (Enumeration e = s.getPointConfigurationKeys(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
                     Text value = s.getConfiguration(key);
                     if (value != null) {
-                        expandableConfiguration.put(key, value);
+                        pointConfiguration.put(key, value);
                     }
                 }
 
@@ -162,12 +162,12 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
-                    for (Enumeration e = expandableConfiguration.keys(); e.hasMoreElements();) {
+                    for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                         String key = (String) e.nextElement();
                         if (!expandedConfiguration.containsKey(key)) {
                             expandedConfiguration.put(key, new Vector<String>());
                         }
-                        String value = expandableConfiguration.get(key).evaluate(refContext);
+                        String value = pointConfiguration.get(key).evaluate(refContext);
                         expandedConfiguration.get(key).addElement(value);
                     }
                     String x = s.evaluateX(refContext);

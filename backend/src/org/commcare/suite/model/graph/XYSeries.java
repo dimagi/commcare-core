@@ -29,7 +29,7 @@ import java.util.Vector;
 public class XYSeries implements Externalizable, Configurable {
     private TreeReference mNodeSet;
     private Hashtable<String, Text> mConfiguration;
-    private Vector<String> mExpandableConfiguration;
+    private Vector<String> mPointConfiguration;
 
     private String mX;
     private String mY;
@@ -47,8 +47,8 @@ public class XYSeries implements Externalizable, Configurable {
     public XYSeries(String nodeSet) {
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
         mConfiguration = new Hashtable<String, Text>();
-        mExpandableConfiguration = new Vector<String>();
-        mExpandableConfiguration.addElement("bar-color");
+        mPointConfiguration = new Vector<String>();
+        mPointConfiguration.addElement("bar-color");
     }
 
     public TreeReference getNodeSet() {
@@ -77,8 +77,8 @@ public class XYSeries implements Externalizable, Configurable {
         mConfiguration.put(key, value);
     }
 
-    public Enumeration<String> getExpandableConfigurationKeys() {
-        return mExpandableConfiguration.elements();
+    public Enumeration<String> getPointConfigurationKeys() {
+        return mPointConfiguration.elements();
     }
 
     public Text getConfiguration(String key) {
@@ -99,7 +99,7 @@ public class XYSeries implements Externalizable, Configurable {
         mY = ExtUtil.readString(in);
         mNodeSet = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
-        mExpandableConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        mPointConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
 
     /*
@@ -111,7 +111,7 @@ public class XYSeries implements Externalizable, Configurable {
         ExtUtil.writeString(out, mY);
         ExtUtil.write(out, mNodeSet);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
-        ExtUtil.write(out, new ExtWrapList(mExpandableConfiguration));
+        ExtUtil.write(out, new ExtWrapList(mPointConfiguration));
     }
 
     /*
