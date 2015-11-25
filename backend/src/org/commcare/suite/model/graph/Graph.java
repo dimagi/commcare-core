@@ -141,26 +141,35 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     }
 
     /*
-     * Helper for evaluate. Looks at a single series.
+     * Helper for evaluate. Looks at all series.
      */
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
         try {
             for (XYSeries s : mSeries) {
+                Hashtable<String, Text> pointConfiguration = new Hashtable<String, Text>();
+                for (Enumeration e = s.getPointConfigurationKeys(); e.hasMoreElements();) {
+                    String key = (String) e.nextElement();
+                    Text value = s.getConfiguration(key);
+                    if (value != null) {
+                        pointConfiguration.put(key, value);
+                    }
+                }
+
                 Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
-                evaluateConfiguration(s, seriesData, seriesContext);
-                // Guess at names for series, if it wasn't provided
-                if (seriesData.getConfiguration("name") == null) {
-                    seriesData.setConfiguration("name", s.getY());
-                }
-                if (seriesData.getConfiguration("x-name") == null) {
-                    seriesData.setConfiguration("x-name", s.getX());
-                }
-
+                Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
+                    for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
+                        String key = (String) e.nextElement();
+                        if (!expandedConfiguration.containsKey(key)) {
+                            expandedConfiguration.put(key, new Vector<String>());
+                        }
+                        String value = pointConfiguration.get(key).evaluate(refContext);
+                        expandedConfiguration.get(key).addElement(value);
+                    }
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
@@ -173,6 +182,33 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                 }
                 graphData.addSeries(seriesData);
+
+                for (Enumeration e = expandedConfiguration.keys(); e.hasMoreElements();) {
+                    String key = (String) e.nextElement();
+                    StringBuilder json = new StringBuilder();
+                    for (String pointValue : expandedConfiguration.get(key)) {
+                        json.append(",'");
+                        json.append(pointValue.replaceAll("'", "&apos;"));
+                        json.append("'");
+                    }
+                    if (json.length() > 0) {
+                        json.deleteCharAt(0);
+                    }
+                    json.insert(0, "[");
+                    json.append("]");
+                    Text value = Text.PlainText(json.toString());
+                    s.setConfiguration(key, value);
+                }
+
+                // Handle configuration after data, since data processing may update configuration
+                evaluateConfiguration(s, seriesData, seriesContext);
+                // Guess at names for series, if they weren't provided
+                if (seriesData.getConfiguration("name") == null) {
+                    seriesData.setConfiguration("name", s.getY());
+                }
+                if (seriesData.getConfiguration("x-name") == null) {
+                    seriesData.setConfiguration("x-name", s.getX());
+                }
             }
         } catch (XPathSyntaxException e) {
             e.printStackTrace();

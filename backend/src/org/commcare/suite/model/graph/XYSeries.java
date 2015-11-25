@@ -5,6 +5,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -18,6 +19,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Single series (line) on an xy graph.
@@ -27,6 +29,11 @@ import java.util.Hashtable;
 public class XYSeries implements Externalizable, Configurable {
     private TreeReference mNodeSet;
     private Hashtable<String, Text> mConfiguration;
+
+    // List of keys that configure individual points. For these keys, the Text stored in
+    // mConfiguration is an XPath expression, which during evaluation will be applied to
+    // each point in turn to produce a list of one value for each point.
+    private Vector<String> mPointConfiguration;
 
     private String mX;
     private String mY;
@@ -44,6 +51,8 @@ public class XYSeries implements Externalizable, Configurable {
     public XYSeries(String nodeSet) {
         mNodeSet = XPathReference.getPathExpr(nodeSet).getReference(true);
         mConfiguration = new Hashtable<String, Text>();
+        mPointConfiguration = new Vector<String>();
+        mPointConfiguration.addElement("bar-color");
     }
 
     public TreeReference getNodeSet() {
@@ -72,6 +81,10 @@ public class XYSeries implements Externalizable, Configurable {
         mConfiguration.put(key, value);
     }
 
+    public Enumeration<String> getPointConfigurationKeys() {
+        return mPointConfiguration.elements();
+    }
+
     public Text getConfiguration(String key) {
         return mConfiguration.get(key);
     }
@@ -90,6 +103,7 @@ public class XYSeries implements Externalizable, Configurable {
         mY = ExtUtil.readString(in);
         mNodeSet = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
+        mPointConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
 
     /*
@@ -101,6 +115,7 @@ public class XYSeries implements Externalizable, Configurable {
         ExtUtil.writeString(out, mY);
         ExtUtil.write(out, mNodeSet);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
+        ExtUtil.write(out, new ExtWrapList(mPointConfiguration));
     }
 
     /*
