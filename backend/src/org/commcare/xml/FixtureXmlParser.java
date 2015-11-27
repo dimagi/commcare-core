@@ -106,7 +106,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         //the issue is that there are about 4 ways to set/override how this gets here
         //TODO: Fix this
         if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
         }
         return storage;
     }
