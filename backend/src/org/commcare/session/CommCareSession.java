@@ -25,6 +25,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -810,5 +811,9 @@ public class CommCareSession {
         restoredSession.syncState();
 
         return restoredSession;
+    }
+
+    public void serializeSessionState(DataOutputStream outputStream) throws IOException {
+        frame.writeExternal(outputStream);
     }
 }

@@ -5,6 +5,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -50,7 +51,7 @@ public class SessionFrame implements Externalizable {
 
     private String frameId;
     private Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
-    private Vector<StackFrameStep> snapshot;
+    private Vector<StackFrameStep> snapshot = new Vector<StackFrameStep>();
 
     /**
      * A Frame is dead if it's execution path has finished and it shouldn't
@@ -98,7 +99,7 @@ public class SessionFrame implements Externalizable {
      * of the frame to an earlier point
      */
     public synchronized void captureSnapshot() {
-        snapshot = new Vector<StackFrameStep>();
+        snapshot.clear();
         for (StackFrameStep s : steps) {
             snapshot.addElement(s);
         }
@@ -114,7 +115,7 @@ public class SessionFrame implements Externalizable {
      */
     public synchronized boolean isSnapshotIncompatible() {
         //No snapshot, can't be incompatible.
-        if (snapshot == null) {
+        if (snapshot.isEmpty()) {
             return false;
         }
 
@@ -134,7 +135,7 @@ public class SessionFrame implements Externalizable {
     }
 
     public synchronized void clearSnapshot() {
-        this.snapshot = null;
+        this.snapshot.clear();
     }
 
     /**
@@ -169,7 +170,7 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        frameId = ExtUtil.readString(in);
+        frameId = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         steps = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         snapshot = (Vector<StackFrameStep>)ExtUtil.read(in, new ExtWrapList(StackFrameStep.class), pf);
         dead = ExtUtil.readBool(in);
@@ -177,7 +178,7 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, frameId);
+        ExtUtil.write(out, new ExtWrapNullable(frameId));
         ExtUtil.write(out, new ExtWrapList(steps));
         ExtUtil.write(out, new ExtWrapList(snapshot));
         ExtUtil.writeBool(out, dead);
@@ -189,7 +190,7 @@ public class SessionFrame implements Externalizable {
 
         prettyPrintSteps(steps, output);
 
-        if (snapshot != null && !snapshot.isEmpty()) {
+        if (!snapshot.isEmpty()) {
             output.append("\nsnapshot:\t");
             prettyPrintSteps(snapshot, output);
         }
