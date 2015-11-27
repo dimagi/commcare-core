@@ -800,6 +800,10 @@ public class CommCareSession {
         return frame.getTopStepExtra(key);
     }
 
+    /**
+     * Builds a session from by restoring serialized SessionFrame and syncing
+     * from that. Doesn't support restoring the frame stack
+     */
     public static CommCareSession restoreSessionFromStream(CommCarePlatform ccPlatform,
                                                            DataInputStream inputStream)
             throws DeserializationException, IOException {
