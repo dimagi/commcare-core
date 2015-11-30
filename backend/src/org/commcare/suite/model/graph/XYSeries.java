@@ -32,7 +32,8 @@ public class XYSeries implements Externalizable, Configurable {
 
     // List of keys that configure individual points. For these keys, the Text stored in
     // mConfiguration is an XPath expression, which during evaluation will be applied to
-    // each point in turn to produce a list of one value for each point.
+    // each point in turn to produce a list of one value for each point. As the "expanded",
+    // point-level values are set, keys will be removed from this list.
     private Vector<String> mPointConfiguration;
 
     private String mX;
@@ -79,6 +80,11 @@ public class XYSeries implements Externalizable, Configurable {
 
     public void setConfiguration(String key, Text value) {
         mConfiguration.put(key, value);
+    }
+
+    public void setExpandedConfiguration(String key, Text value) {
+        mPointConfiguration.remove(key);
+        setConfiguration(key, value);
     }
 
     public Enumeration getPointConfigurationKeys() {
