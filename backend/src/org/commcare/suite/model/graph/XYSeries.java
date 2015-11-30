@@ -83,7 +83,7 @@ public class XYSeries implements Externalizable, Configurable {
     }
 
     public void setExpandedConfiguration(String key, Text value) {
-        mPointConfiguration.remove(key);
+        mPointConfiguration.removeElement(key);
         setConfiguration(key, value);
     }
 
