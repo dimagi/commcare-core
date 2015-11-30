@@ -160,13 +160,14 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
+                for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
+                    expandedConfiguration.put((String) e.nextElement(), new Vector<String>());
+                }
+
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
                     for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                         String key = (String) e.nextElement();
-                        if (!expandedConfiguration.containsKey(key)) {
-                            expandedConfiguration.put(key, new Vector<String>());
-                        }
                         String value = pointConfiguration.get(key).evaluate(refContext);
                         expandedConfiguration.get(key).addElement(value);
                     }
