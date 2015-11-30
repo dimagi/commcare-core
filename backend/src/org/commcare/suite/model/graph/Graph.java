@@ -197,7 +197,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     json.insert(0, "[");
                     json.append("]");
                     Text value = Text.PlainText(json.toString());
-                    s.setConfiguration(key, value);
+                    s.setExpandedConfiguration(key, value);
                 }
 
                 // Handle configuration after data, since data processing may update configuration
@@ -214,5 +214,4 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
             e.printStackTrace();
         }
     }
-
 }
