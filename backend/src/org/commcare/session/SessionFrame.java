@@ -99,7 +99,7 @@ public class SessionFrame implements Externalizable {
      * of the frame to an earlier point
      */
     public synchronized void captureSnapshot() {
-        snapshot.clear();
+        snapshot.removeAllElements();
         for (StackFrameStep s : steps) {
             snapshot.addElement(s);
         }
@@ -135,7 +135,7 @@ public class SessionFrame implements Externalizable {
     }
 
     public synchronized void clearSnapshot() {
-        this.snapshot.clear();
+        this.snapshot.removeAllElements();
     }
 
     /**
