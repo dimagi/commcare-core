@@ -452,8 +452,14 @@ public class TreeReference implements Externalizable {
             if (contextRef.getName(i).equals(newRef.getName(i))) {
                 // Only copy over multiplicity info if it won't overwrite any
                 // existing preds or filters
+
+                // don't copy multiplicity from context when new ref's
+                // multiplicity is already bound or when the context's
+                // multiplicity is not a position (but rather an attr or
+                // template)
                 if (newRef.getPredicate(i) == null &&
-                        newRef.getMultiplicity(i) == INDEX_UNBOUND) {
+                        newRef.getMultiplicity(i) == INDEX_UNBOUND &&
+                        contextRef.getMultiplicity(i) >= 0) {
                     newRef.setMultiplicity(i, contextRef.getMultiplicity(i));
                 }
             } else {

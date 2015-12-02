@@ -988,8 +988,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 if (genericRoot.isParentOf(target, false)) {
                     if (!triggeredDuringInsert.contains(triggerable)) {
                         applicable.addElement(triggerable);
+                        break;
                     }
-                    break;
                 }
             }
         }
