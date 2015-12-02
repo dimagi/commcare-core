@@ -237,7 +237,11 @@ public class FormDefTest {
         // make sure the language isn't the default language, 'esperanto',
         // which it is initially set to
         ExprEvalUtils.assertEqualsXpathEval("Check language set correctly",
-                "en", "/data/country[1]/language", evalCtx);
+                "en", "/data/iter/country[1]/language", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check id attr set correctly",
+                "1", "/data/iter/country[2]/@id", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check id node set correctly",
+                "1", "/data/iter/country[2]/id", evalCtx);
     }
 
     /**

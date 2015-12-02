@@ -16,19 +16,28 @@
                         <language short="ur">urdu</language>
                     </languages>
 
-                    <country id="" jr:template="">
-                        <language/>
-                        <population year_observed=""/>
-                    </country>
+                    <iter current_index="">
+                        <country id="" jr:template="">
+                            <language/>
+                            <population year_observed=""/>
+                            <id/>
+                        </country>
+                    </iter>
                 </data>
             </instance>
 
             <bind nodeset="/data/how_many" type="xsd:int"/>
             <bind nodeset="/data/default_language"/>
-            <bind nodeset="/data/country"/>
+            <bind nodeset="/data/iter/country"/>
+
+            <!-- test that attr and node with identical names aren't conflated -->
+            <bind
+                calculate="current()/../@id"
+                nodeset="/data/iter/country/id"/>
 
             <bind calculate="count(/data/languages) + 1 + int(random()*10000)"
-                  nodeset="/data/country/population"/>
+                  nodeset="/data/iter/country/population"/>
+            <bind nodeset="/data/iter/@current_index" calculate="int(count(/data/iter/country))"/>
 
             <!--
             Calculating the country language will get triggered twice:
@@ -40,14 +49,15 @@
             -->
             <bind
                 calculate="if(current()/../population > 0, /data/languages/language[((int(current()/../@id)) mod count(/data/languages)) + 1]/@short, /data/default_language)"
-                nodeset="/data/country/language"/>
+                nodeset="/data/iter/country/language"/>
 
             <setvalue event="xforms-ready" ref="/data/how_many" value="4"/>
             <setvalue event="xforms-ready" ref="/data/default_language" value="'esperanto'"/>
 
             <!-- inserting a new entry will set the @id, triggering the countries language to be set -->
-            <setvalue event="jr-insert" ref="/data/country/@id" value="int(count(/data/country))"/>
-            <setvalue event="jr-insert" ref="/data/country/language" value="'esperanto'"/>
+
+            <setvalue event="jr-insert" ref="/data/iter/country/@id" value="/data/iter/@current_index"/>
+            <setvalue event="jr-insert" ref="/data/iter/country/language" value="'esperanto'"/>
 
             <itext>
                 <translation default="" lang="en">
@@ -64,7 +74,7 @@
     <h:body>
         <group>
             <label ref="jr:itext('country-label')"/>
-            <repeat nodeset="/data/country" jr:count="/data/how_many" jr:noAddRemove="true()"/>
+            <repeat nodeset="/data/iter/country" jr:count="/data/how_many" jr:noAddRemove="true()"/>
         </group>
     </h:body>
 </h:html>
