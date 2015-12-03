@@ -1,6 +1,6 @@
 package org.commcare.applogic;
 
-import org.commcare.cases.util.CaseModelProcessor;
+import org.commcare.cases.CaseModelProcessor;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareContext;

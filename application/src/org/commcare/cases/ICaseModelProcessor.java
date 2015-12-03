@@ -1,10 +1,10 @@
 /**
  *
  */
-package org.commcare.cases.util;
+package org.commcare.cases;
 
 import org.commcare.cases.model.Case;
-import org.javarosa.core.model.utils.IInstanceProcessor;
+package org.javarosa.user.utility.IInstanceProcessor;
 
 /**
  * @author ctsims

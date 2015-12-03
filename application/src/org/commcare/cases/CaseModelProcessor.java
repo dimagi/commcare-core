@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.commcare.cases.util;
+package org.commcare.cases;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
