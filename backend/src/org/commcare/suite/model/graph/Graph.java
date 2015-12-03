@@ -160,13 +160,14 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
+                for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
+                    expandedConfiguration.put((String) e.nextElement(), new Vector<String>());
+                }
+
                 for (TreeReference ref : refList) {
                     EvaluationContext refContext = new EvaluationContext(seriesContext, ref);
                     for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                         String key = (String) e.nextElement();
-                        if (!expandedConfiguration.containsKey(key)) {
-                            expandedConfiguration.put(key, new Vector<String>());
-                        }
                         String value = pointConfiguration.get(key).evaluate(refContext);
                         expandedConfiguration.get(key).addElement(value);
                     }
@@ -197,7 +198,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     json.insert(0, "[");
                     json.append("]");
                     Text value = Text.PlainText(json.toString());
-                    s.setConfiguration(key, value);
+                    s.setExpandedConfiguration(key, value);
                 }
 
                 // Handle configuration after data, since data processing may update configuration
@@ -214,5 +215,4 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
             e.printStackTrace();
         }
     }
-
 }
