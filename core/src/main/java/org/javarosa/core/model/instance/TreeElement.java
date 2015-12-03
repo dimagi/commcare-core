@@ -764,16 +764,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      * failing that, we should wrap this scheme in an ExternalizableWrapper
      */
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.javarosa.core.services.storage.utilities.Externalizable#readExternal
-     * (java.io.DataInputStream)
-     */
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         multiplicity = ExtUtil.readInt(in);
@@ -834,16 +825,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         setAttributesFromSingleStringVector(attStrings);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.javarosa.core.services.storage.utilities.Externalizable#writeExternal
-     * (java.io.DataOutputStream)
-     */
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(name));
         ExtUtil.writeNumeric(out, multiplicity);
