@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases;
 
 import org.commcare.cases.model.Case;

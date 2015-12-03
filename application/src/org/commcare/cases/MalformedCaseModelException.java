@@ -1,7 +1,4 @@
-/**
- *
- */
-package org.commcare.cases.util;
+package org.commcare.cases;
 
 /**
  * @author ctsims
