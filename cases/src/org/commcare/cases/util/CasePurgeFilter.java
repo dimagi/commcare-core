@@ -213,8 +213,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
             for (Edge<String, String> edge : edgeSet) {
                 if (caseStatusIs(node[0], maskCondition) && (relationship == null || edge.e.equals(relationship))) {
-                    if(!requireOpenDestination || caseStatusIs(dag.getNode(edge.i)[0], STATUS_OPEN)) {
-                        dag.getNode(edge.i)[0] |= markToApply;
+                    int[] edgeNode = dag.getNode(edge.i);
+                    if (edgeNode != null) {
+                        if(!requireOpenDestination || caseStatusIs(edgeNode[0], STATUS_OPEN)) {
+                            edgeNode[0] |= markToApply;
+                        }
                     }
                 }
                 toProcess.addElement(edge.i);
