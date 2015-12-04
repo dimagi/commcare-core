@@ -9,7 +9,7 @@
                       uiVersion="1"
                       version="57"
                       xmlns="http://openrosa.org/formdesigner/313BF9C4-9DF3-4B92-A111-1AB7306EA8CA">
-                    <how_many/>
+                    <how_many date_modified=""/>
                     <default_language/>
                     <languages>
                         <language short="en">english</language>
@@ -27,6 +27,8 @@
             </instance>
 
             <bind nodeset="/data/how_many" type="xsd:int"/>
+            <bind calculate="now()"
+                  nodeset="/data/how_many/@date_modified" type="xsd:dateTime"/>
             <bind nodeset="/data/default_language"/>
             <bind nodeset="/data/iter/country"/>
 
@@ -37,7 +39,7 @@
 
             <bind calculate="count(/data/languages) + 1 + int(random()*10000)"
                   nodeset="/data/iter/country/population"/>
-            <bind nodeset="/data/iter/@current_index" calculate="int(count(/data/iter/country))"/>
+            <bind calculate="int(count(/data/iter/country))" nodeset="/data/iter/@current_index"/>
 
             <!--
             Calculating the country language will get triggered twice:
@@ -56,7 +58,8 @@
 
             <!-- inserting a new entry will set the @id, triggering the countries language to be set -->
 
-            <setvalue event="jr-insert" ref="/data/iter/country/@id" value="/data/iter/@current_index"/>
+            <setvalue event="jr-insert" ref="/data/iter/country/@id"
+                      value="/data/iter/@current_index"/>
             <setvalue event="jr-insert" ref="/data/iter/country/language" value="'esperanto'"/>
 
             <itext>
