@@ -169,6 +169,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 while (this.nextTagInBlock("index")) {
                     String indexName = parser.getName();
                     String caseType = parser.getAttributeValue(null, "case_type");
+
+                    String relationship = parser.getAttributeValue(null, "relationship");
+                    if (relationship == null) {
+                        relationship = CaseIndex.RELATIONSHIP_CHILD;
+                    }
+
                     String value = parser.nextText().trim();
 
                     if(value.equals(caseId)) {
@@ -178,10 +184,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     //Remove any ambiguity associated with empty values
                     if (value.equals("")) {
                         value = null;
-                    }
-                    String relationship = parser.getAttributeValue(null, "relationship");
-                    if (relationship == null) {
-                        relationship = CaseIndex.RELATIONSHIP_CHILD;
                     }
                     //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
                     if (value == null) {
