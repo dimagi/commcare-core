@@ -19,51 +19,68 @@ public class DAG<I, N, E> {
     //invariance, synchronicity, cycle detection, etc.
 
     private final Hashtable<I, N> nodes;
-    private final Hashtable<I, Vector<Edge<I, E>>> edge;
-    private final Hashtable<I, Vector<Edge<I, E>>> inverse;
+    private final Hashtable<I, Vector<Edge<I, E>>> edges;
+    private final Hashtable<I, Vector<Edge<I, E>>> inverseEdges;
 
     public DAG() {
         nodes = new Hashtable<I, N>();
-        edge = new Hashtable<I, Vector<Edge<I, E>>>();
-        inverse = new Hashtable<I, Vector<Edge<I, E>>>();
+        edges = new Hashtable<I, Vector<Edge<I, E>>>();
+        inverseEdges = new Hashtable<I, Vector<Edge<I, E>>>();
     }
 
     public void addNode(I i, N n) {
         nodes.put(i, n);
     }
 
+    public void removeNode(I i) {
+        nodes.remove(i);
+    }
+
     /**
      * Connect Source -> Destination
      */
     public void setEdge(I source, I destination, E edgeData) {
-        addToEdge(edge, source, destination, edgeData);
-        addToEdge(inverse, destination, source, edgeData);
+        addToEdges(edges, source, destination, edgeData);
+        addToEdges(inverseEdges, destination, source, edgeData);
     }
 
-    private void addToEdge(Hashtable<I, Vector<Edge<I, E>>> edgeList, I a, I b, E edgeData) {
+    private void addToEdges(Hashtable<I, Vector<Edge<I, E>>> edgeList, I source, I dest, E edgeData) {
         Vector<Edge<I, E>> edge;
-        if (edgeList.containsKey(a)) {
-            edge = edgeList.get(a);
+        if (edgeList.containsKey(source)) {
+            edge = edgeList.get(source);
         } else {
             edge = new Vector<Edge<I, E>>();
         }
-        edge.addElement(new Edge<I, E>(b, edgeData));
-        edgeList.put(a, edge);
+        edge.addElement(new Edge<I, E>(dest, edgeData));
+        edgeList.put(source, edge);
+    }
+
+    /**
+     * If an edge exists in the graph from sourceIndex to destinationIndex, remove it
+     */
+    public void removeEdge(I sourceIndex, I destinationIndex) {
+        Vector<Edge<I, E>> edgesFromSource = edges.get(sourceIndex);
+        for (Edge<I, E> edge : edgesFromSource) {
+            if (edge.i.equals(destinationIndex)) {
+                edgesFromSource.remove(edge);
+                return;
+            }
+        }
     }
 
     public Vector<Edge<I, E>> getParents(I index) {
-        if (inverse.containsKey(index)) {
-            return inverse.get(index);
+        if (inverseEdges.containsKey(index)) {
+            return inverseEdges.get(index);
         } else {
             return new Vector<Edge<I, E>>();
         }
     }
 
     public Vector<Edge<I, E>> getChildren(I index) {
-        if (!edge.containsKey(index)) {
+        if (!edges.containsKey(index)) {
             return new Vector<Edge<I, E>>();
         } else {
-            return edge.get(index);
+            return edges.get(index);
         }
     }
 
@@ -79,7 +96,7 @@ public class DAG<I, N, E> {
         Stack<I> sources = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
-            if (!inverse.containsKey(i)) {
+            if (!inverseEdges.containsKey(i)) {
                 sources.addElement(i);
             }
         }
@@ -93,7 +110,7 @@ public class DAG<I, N, E> {
         Stack<I> roots = new Stack<I>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
-            if (!edge.containsKey(i)) {
+            if (!edges.containsKey(i)) {
                 roots.addElement(i);
             }
         }
