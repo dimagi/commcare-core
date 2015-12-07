@@ -68,9 +68,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         //Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
         //[STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
         //nodes, which is one of the Case Index relationships (IE: parent, extension)
-        DAG<String, int[], String> graph = new DAG<String, int[], String>();
+        DAG<String, int[], String> graph = new DAG<>();
 
-        Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
+        Vector<CaseIndex> indexHolder = new Vector<>();
 
         //Pass 1:
         //Create a DAG which contains all of the cases on the phone as nodes, and has a directed
@@ -127,6 +127,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             indexHolder.removeAllElements();
         }
 
+        removeNullAndInvalidNodes(graph);
         propogateRelevance(graph);
         propogateAvailabile(graph);
         propogateLive(graph);
@@ -204,7 +205,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                                     boolean requireOpenDestination) {
         Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
         while (!toProcess.isEmpty()) {
-            //current node
+            // current node
             String index = toProcess.pop();
             int[] node = dag.getNode(index);
 
@@ -220,6 +221,46 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 toProcess.addElement(edge.i);
             }
         }
+    }
+
+    /**
+     * Traverse the graph to remove any edges to empty nodes (which are created when a child
+     * makes a placeholder index to a parent, but then the parent does not actually exist on the
+     * phone for some reason), and also to remove any nodes that are made invalid by that parent
+     * node not existing
+     */
+    private void removeNullAndInvalidNodes(DAG<String, int[], String> g) {
+        Stack<String> sinkNodes = g.getSinks();
+        for (String index : sinkNodes) {
+            int[] node = g.getNode(index);
+            if (node == null) {
+                invalidateAllChildAndExtensionCases(g, index);
+            }
+            // Note that the only nodes which can actually be null to start off are the sink nodes,
+            // so no need to recursively check for null nodes at deeper levels of the graph
+        }
+    }
+
+    /**
+     * Given the index of a parent node that has either a) been found to be missing (null) in the
+     * graph, or b) been removed due to a parent's removal, remove all nodes that are made
+     * invalid by the non-existence of that node (i.e. all of its child and extension cases)
+     */
+    private void invalidateAllChildAndExtensionCases(DAG<String, int[], String> g,
+                                                    String indexOfMissingOrRemovedNode) {
+        // Wording is confusing here -- because all edges in this graph are from a child case to
+        // a parent case, calling getParents() for a node returns all of its child/extension cases
+        Vector<Edge<String, String>> childCases = g.getParents(indexOfMissingOrRemovedNode);
+        for (Edge<String, String> child : childCases) {
+            // Remove the edge from child case to parent case
+            g.removeEdge(child.i, indexOfMissingOrRemovedNode);
+
+            // Recurse on child case
+            invalidateAllChildAndExtensionCases(g, child.i);
+        }
+
+        // Once all edges/refs to this node have been removed, delete the node itself
+        g.removeNode(indexOfMissingOrRemovedNode);
     }
 
     private boolean caseStatusIs(int status, int flag) {
