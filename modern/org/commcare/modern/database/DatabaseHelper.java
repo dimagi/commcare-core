@@ -76,6 +76,10 @@ public class DatabaseHelper {
 
             set = true;
         }
+        // we couldn't match any of the fields to our columns
+        if(!set){
+            throw new IllegalArgumentException();
+        }
 
         String[] retArray = new String[arguments.size()];
         for(int i =0; i< arguments.size(); i++){

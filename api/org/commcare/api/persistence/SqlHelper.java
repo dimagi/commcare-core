@@ -79,13 +79,14 @@ public class SqlHelper {
                                                                 String storageKey,
                                                                 String[] fields,
                                                                 String[] values,
-                                                                Persistable p) {
+                                                                Persistable p) throws IllegalArgumentException{
         org.commcare.modern.database.TableBuilder mTableBuilder =
                 new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
 
         try {
+
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
             PreparedStatement preparedStatement = c.prepareStatement(queryString);
