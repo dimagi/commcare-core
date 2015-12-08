@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
@@ -19,12 +16,17 @@ import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Stack;
@@ -52,7 +54,7 @@ public class CommCareSession {
     /**
      * A table of all datums (id --> value) that are currently on the session stack
      */
-    private final OrderedHashtable collectedDatums;
+    private final OrderedHashtable<String, String> collectedDatums;
     private String currentXmlns;
 
     /**
@@ -67,13 +69,13 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        collectedDatums = new OrderedHashtable();
+        collectedDatums = new OrderedHashtable<String, String>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
 
     public Vector<Entry> getEntriesForCommand(String commandId) {
-        return this.getEntriesForCommand(commandId, new OrderedHashtable());
+        return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
     /**
@@ -82,7 +84,8 @@ public class CommCareSession {
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    private Vector<Entry> getEntriesForCommand(String commandId, OrderedHashtable data) {
+    private Vector<Entry> getEntriesForCommand(String commandId,
+                                               OrderedHashtable<String, String> data) {
         Hashtable<String, Entry> map = platform.getMenuMap();
         Menu menu = null;
         Entry entry = null;
@@ -132,7 +135,7 @@ public class CommCareSession {
         return entries;
     }
 
-    private OrderedHashtable getData() {
+    private OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
 
@@ -148,7 +151,6 @@ public class CommCareSession {
      * the session does not need anything else to proceed
      */
     public String getNeededData() {
-
         // If we don't have a command yet, then need to get that first
         if (this.getCommand() == null) {
             return SessionFrame.STATE_COMMAND_ID;
@@ -796,5 +798,26 @@ public class CommCareSession {
 
     public String getCurrentFrameStepExtra(String key) {
         return frame.getTopStepExtra(key);
+    }
+
+    /**
+     * Builds a session from by restoring serialized SessionFrame and syncing
+     * from that. Doesn't support restoring the frame stack
+     */
+    public static CommCareSession restoreSessionFromStream(CommCarePlatform ccPlatform,
+                                                           DataInputStream inputStream)
+            throws DeserializationException, IOException {
+        SessionFrame restoredFrame = new SessionFrame();
+        restoredFrame.readExternal(inputStream, ExtUtil.defaultPrototypes());
+
+        CommCareSession restoredSession = new CommCareSession(ccPlatform);
+        restoredSession.frame = restoredFrame;
+        restoredSession.syncState();
+
+        return restoredSession;
+    }
+
+    public void serializeSessionState(DataOutputStream outputStream) throws IOException {
+        frame.writeExternal(outputStream);
     }
 }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.commcare.session.SessionFrame;
@@ -161,4 +158,12 @@ public class StackFrameStep implements Externalizable {
         }
     }
 
+    @Override
+    public String toString() {
+        if (value ==  null) {
+            return "(" + elementType + " " + id + ")";
+        } else {
+            return "(" + elementType + " " + id + " : " + value + ")";
+        }
+    }
 }
