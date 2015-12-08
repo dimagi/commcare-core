@@ -432,7 +432,7 @@ public class FormEntryModel {
                         try {
                             fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
                         } catch (IllegalArgumentException iae) {
-                            throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getLocalReference()).toString() + " must be a number!");
+                            throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
                         }
                         TreeReference ref = getForm().getChildInstanceRef(index);
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
