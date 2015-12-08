@@ -363,7 +363,7 @@ public class CommCareUtil {
     }
 
     public static FormInstance loadFixtureForUser(String refId, String userId) {
-        IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage("fixture");
+        IStorageUtilityIndexed storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
 
         FormInstance fixture = null;
         Vector<Integer> relevantFixtures = storage.getIDsForValue(FormInstance.META_ID, refId);
