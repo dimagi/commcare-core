@@ -8,7 +8,7 @@ import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import java.util.Date;
 
 public class Logger {
-    public static final int MAX_MSG_LENGTH = 2048;
+    private static final int MAX_MSG_LENGTH = 2048;
 
     private static ILogger logger;
 
@@ -36,7 +36,7 @@ public class Logger {
         }
     }
 
-    protected static void logForce(String type, String message) {
+    private static void logForce(String type, String message) {
         System.err.println("logger> " + type + ": " + message);
         if (message == null) {
             message = "";
@@ -108,10 +108,6 @@ public class Logger {
         } catch (InterruptedException ie) {
         }
         throw crashException;
-    }
-
-    public static void crashTest(String msg) {
-        throw new FatalException(msg != null ? msg : "shit has hit the fan");
     }
 
     public static void halt() {
