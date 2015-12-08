@@ -426,7 +426,7 @@ public class FormEntryModel {
             if (e instanceof GroupDef) {
                 GroupDef g = (GroupDef)e;
                 if (g.getRepeat() && g.getCountReference() != null) {
-                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getConextualizedCountReference(index.getLocalReference())).getValue();
+                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getConextualizedCountReference(index.getReference())).getValue();
                     if (count != null) {
                         int fullcount = -1;
                         try {
