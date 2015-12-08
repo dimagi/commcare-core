@@ -14,8 +14,10 @@ import java.io.File;
  */
 public class SqlSandboxUtils {
 
+    /**
+     * Used by touchforms
+     */
     public static UserSqlSandbox getStaticStorage(String username, String path) {
-        System.out.println("Get STatic storage path: " + path);
         return new UserSqlSandbox(username, path);
     }
 
@@ -24,16 +26,11 @@ public class SqlSandboxUtils {
     }
 
     public static void deleteDatabaseFolder(){
-        deleteDatabaseFolder(null);
+        deleteDatabaseFolder(SqliteIndexedStorageUtility.DATABASE_FOLDER);
     }
 
     public static void deleteDatabaseFolder(String path){
-        File databaseFolder;
-        if(path == null) {
-            databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
-        } else{
-            databaseFolder = new File(path);
-        }
+        File databaseFolder = new File(path);
         if (databaseFolder.exists()) {
             deleteFolder(databaseFolder);
         }

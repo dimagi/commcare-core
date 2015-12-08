@@ -78,7 +78,7 @@ public class DatabaseHelper {
         }
         // we couldn't match any of the fields to our columns
         if(!set){
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unable to match provided fields with columns.");
         }
 
         String[] retArray = new String[arguments.size()];
