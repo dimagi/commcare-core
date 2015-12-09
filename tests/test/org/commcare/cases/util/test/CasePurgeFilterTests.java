@@ -12,7 +12,6 @@ import org.commcare.util.mocks.LivePrototypeFactory;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
-import org.javarosa.core.util.DAG;
 import org.javarosa.core.util.DataUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 
-import java.util.Enumeration;
 import java.util.Vector;
 
 import static org.junit.Assert.fail;
@@ -127,44 +125,6 @@ public class CasePurgeFilterTests {
             Vector<Integer> removed = storage.removeAll(new CasePurgeFilter(storage));
             testOutcome(storage, present, toRemove);
             testRemovedClaim(removed, toRemove);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-            fail("Unexpected exception " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testValidateCaseGraphBeforePurge() {
-        // A is child of B
-        a.setIndex(new CaseIndex("a_b", "b", b.getCaseId(), CaseIndex.RELATIONSHIP_CHILD));
-        // B is child of D
-        b.setIndex(new CaseIndex("b_d", "d", d.getCaseId(), CaseIndex.RELATIONSHIP_CHILD));
-        // C is child of D
-        c.setIndex(new CaseIndex("c_d", "d", d.getCaseId(), CaseIndex.RELATIONSHIP_CHILD));
-
-        // E is child of F
-        e.setIndex(new CaseIndex("e_f", "f", f.getCaseId(), CaseIndex.RELATIONSHIP_CHILD));
-
-        try {
-            storage.write(a);
-            storage.write(b);
-            storage.write(c);
-            //storage.write(d);
-            storage.write(e);
-            storage.write(f);
-
-            CasePurgeFilter filter = new CasePurgeFilter(storage);
-            DAG<String, int[], String> internalCaseGraph = filter.getInternalCaseGraph();
-
-            Enumeration en = internalCaseGraph.getNodes();
-
-            /*int[] present = new int[] {a.getID(), e.getID(), b.getID(), c.getID(), d.getID()};
-            int[] toRemove = new int[] {};
-
-            Vector<Integer> removed = storage.removeAll(new CasePurgeFilter(storage));
-            testOutcome(storage, present, toRemove);
-            testRemovedClaim(removed, toRemove);*/
 
         } catch(Exception e) {
             e.printStackTrace();
