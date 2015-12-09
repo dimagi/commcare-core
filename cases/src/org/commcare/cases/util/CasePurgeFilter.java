@@ -5,6 +5,7 @@ package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -48,6 +49,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     Vector<Integer> idsToRemove = new Vector<Integer>();
 
     private DAG<String, int[], String> internalCaseDAG;
+    private boolean invalidEdgesWereRemoved;
 
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
         this(caseStorage, null);
@@ -130,7 +132,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             indexHolder.removeAllElements();
         }
 
-        removeInvalidEdges(internalCaseDAG);
+        invalidEdgesWereRemoved = removeInvalidEdges(internalCaseDAG);
         propogateRelevance(internalCaseDAG);
         propogateAvailabile(internalCaseDAG);
         propogateLive(internalCaseDAG);
@@ -231,16 +233,20 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * makes a placeholder index to a parent, but then the parent does not actually exist on the
      * phone for some reason). Then remove any nodes that are made invalid by that parent node
      * not existing
+     *
+     * @return Whether or not this method invocation removed any invalid edges from the DAG
      */
-    private static void removeInvalidEdges(DAG<String, int[], String> g) {
+    private static boolean removeInvalidEdges(DAG<String, int[], String> g) {
         Hashtable<String, Vector<Edge<String, String>>> allEdges = g.getEdges();
         Set<String> childOfNonexistentParent = new HashSet<>();
         Vector<String[]> edgesToRemove = new Vector<>();
+        boolean invalidEdgesRemoved = false;
         for (String originIndex : allEdges.keySet()) {
             Vector<Edge<String, String>> edgeListForOrigin = allEdges.get(originIndex);
             for (Edge<String, String> edge : edgeListForOrigin) {
                 String targetIndex = edge.i;
                 if (g.getNode(targetIndex) == null) {
+                    invalidEdgesRemoved = true;
                     edgesToRemove.add(new String[]{originIndex, targetIndex});
                     childOfNonexistentParent.add(originIndex);
                 }
@@ -258,6 +264,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         for (String index : childOfNonexistentParent) {
             removeNodeAndPropagate(g, index);
         }
+
+        return invalidEdgesRemoved;
     }
 
     /**
@@ -284,6 +292,14 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     // For use in tests
     public DAG<String, int[], String> getInternalCaseGraph() {
         return internalCaseDAG;
+    }
+
+    /**
+     * When the underlying case DAG for this case purge filter was created, were there any invalid
+     * edges (i.e. edges to non-existent nodes) that had to be removed?
+     */
+    public boolean invalidEdgesWereRemoved() {
+        return this.invalidEdgesWereRemoved;
     }
 
     private static boolean caseStatusIs(int status, int flag) {
