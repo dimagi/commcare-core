@@ -13,7 +13,9 @@ import org.javarosa.core.util.DAG.Edge;
 import org.javarosa.core.util.DataUtil;
 
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -132,7 +134,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             indexHolder.removeAllElements();
         }
 
-        removeNullAndInvalidNodes(internalCaseDAG);
+        removeInvalidEdges(internalCaseDAG);
         propogateRelevance(internalCaseDAG);
         propogateAvailabile(internalCaseDAG);
         propogateLive(internalCaseDAG);
@@ -234,38 +236,51 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * phone for some reason), and also to remove any nodes that are made invalid by that parent
      * node not existing
      */
-    private static void removeNullAndInvalidNodes(DAG<String, int[], String> g) {
-        Stack<String> sinkNodes = g.getSinks();
-        for (String index : sinkNodes) {
-            int[] node = g.getNode(index);
-            if (node == null) {
-                invalidateAllChildAndExtensionCases(g, index);
+    private static void removeInvalidEdges(DAG<String, int[], String> g) {
+        Hashtable<String, Vector<Edge<String, String>>> allEdges = g.getEdges();
+        Set<String> childOfNonexistentParent = new HashSet<>();
+        Vector<String[]> edgesToRemove = new Vector<>();
+        for (String originIndex : allEdges.keySet()) {
+            Vector<Edge<String, String>> edgeListForOrigin = allEdges.get(originIndex);
+            for (Edge<String, String> edge : edgeListForOrigin) {
+                String targetIndex = edge.i;
+                if (g.getNode(targetIndex) == null) {
+                    edgesToRemove.add(new String[]{originIndex, targetIndex});
+                    childOfNonexistentParent.add(originIndex);
+                }
             }
-            // Note that the only nodes which can actually be null to start off are the sink nodes,
-            // so no need to recursively check for null nodes at deeper levels of the graph
+        }
+        // Doing actual edge removal after we finish iterating through the edge list, to prevent
+        // concurrent modification error
+        for (String[] edge : edgesToRemove) {
+            g.removeEdge(edge[0], edge[1]);
+        }
+        // Any case nodes with a nonexistent parent should be removed from the graph, as should
+        // all of their descendants
+        for (String index : childOfNonexistentParent) {
+            removeNodeAndPropagate(g, index);
         }
     }
 
     /**
-     * Given the index of a parent node that has either a) been found to be missing (null) in the
-     * graph, or b) been removed due to a parent's removal, remove all nodes that are made
+     * Remove from the graph the node at this index, and remove all nodes that are made
      * invalid by the non-existence of that node (i.e. all of its child and extension cases)
      */
-    private static void invalidateAllChildAndExtensionCases(DAG<String, int[], String> g,
-                                                    String indexOfMissingOrRemovedNode) {
+    private static void removeNodeAndPropagate(DAG<String, int[], String> g,
+                                               String indexOfRemovedNode) {
         // Wording is confusing here -- because all edges in this graph are from a child case to
         // a parent case, calling getParents() for a node returns all of its child/extension cases
-        Vector<Edge<String, String>> childCases = g.getParents(indexOfMissingOrRemovedNode);
+        Vector<Edge<String, String>> childCases = g.getParents(indexOfRemovedNode);
         for (Edge<String, String> child : childCases) {
             // Remove the edge from child case to parent case
-            g.removeEdge(child.i, indexOfMissingOrRemovedNode);
+            g.removeEdge(child.i, indexOfRemovedNode);
 
             // Recurse on child case
-            invalidateAllChildAndExtensionCases(g, child.i);
+            removeNodeAndPropagate(g, child.i);
         }
 
         // Once all edges/refs to this node have been removed, delete the node itself
-        g.removeNode(indexOfMissingOrRemovedNode);
+        g.removeNode(indexOfRemovedNode);
     }
 
     private static boolean caseStatusIs(int status, int flag) {
