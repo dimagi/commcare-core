@@ -106,7 +106,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
 
             if (fixture == null) {
-                throw new FixtureInitializationException("Could not find an appropriate fixture for src: " + ref);
+                throw new FixtureInitializationException("Could not find an lookup table for src: " + ref);
             }
 
             TreeElement root = fixture.getRoot();
