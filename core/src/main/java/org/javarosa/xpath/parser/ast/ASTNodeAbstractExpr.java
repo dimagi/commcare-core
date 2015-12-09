@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xpath.parser.ast;
 
 import org.javarosa.xpath.expr.XPathExpression;
@@ -31,14 +15,15 @@ public class ASTNodeAbstractExpr extends ASTNode {
     public static final int CHILD = 1;
     public static final int TOKEN = 2;
 
-    public Vector content; //mixture of tokens and ASTNodes
+    // mixture of tokens and ASTNodes
+    public final Vector<Object> content;
 
     public ASTNodeAbstractExpr() {
-        content = new Vector();
+        content = new Vector<Object>();
     }
 
     public Vector getChildren() {
-        Vector children = new Vector();
+        Vector<Object> children = new Vector<Object>();
         for (int i = 0; i < content.size(); i++) {
             if (getType(i) == CHILD) {
                 children.addElement(content.elementAt(i));
@@ -150,20 +135,20 @@ public class ASTNodeAbstractExpr extends ASTNode {
         return (found ? i : -1);
     }
 
-    public class Partition {
-        public Partition() {
-            pieces = new Vector();
-            separators = new Vector();
-        }
+    public static class Partition {
+        public final Vector<ASTNodeAbstractExpr> pieces;
+        public final Vector<Integer> separators;
 
-        public Vector pieces;
-        public Vector separators;
+        public Partition() {
+            pieces = new Vector<ASTNodeAbstractExpr>();
+            separators = new Vector<Integer>();
+        }
     }
 
     //paritition the range [start,end), separating by any occurrence of separator
     public Partition partition(int[] separators, int start, int end) {
         Partition part = new Partition();
-        Vector sepIdxs = new Vector();
+        Vector<Integer> sepIdxs = new Vector<Integer>();
 
         for (int i = start; i < end; i++) {
             for (int j = 0; j < separators.length; j++) {
@@ -188,7 +173,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //start is the opening token of the current stack level
     public Partition partitionBalanced(int sep, int start, int leftPush, int rightPop) {
         Partition part = new Partition();
-        Vector sepIdxs = new Vector();
+        Vector<Integer> sepIdxs = new Vector<Integer>();
         int end = indexOfBalanced(start, rightPop, leftPush, rightPop);
         if (end == -1)
             return null;

@@ -1,22 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-/**
- *
- */
 package org.javarosa.model.xform;
 
 import org.javarosa.core.model.instance.TreeReference;
@@ -35,15 +16,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- *
- */
 public class XPathReference implements Externalizable {
     private TreeReference ref;
     private String nodeset;
 
     public XPathReference() {
-
+        // for externalization
     }
 
     public XPathReference(String nodeset) {
@@ -91,29 +69,24 @@ public class XPathReference implements Externalizable {
         //do nothing
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o instanceof XPathReference) {
-            return ref.equals(((XPathReference)o).ref);
-        } else {
-            return false;
-        }
+        return o instanceof XPathReference &&
+                ref.equals(((XPathReference)o).ref);
     }
 
+    @Override
     public int hashCode() {
         return ref.hashCode();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         nodeset = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         ref = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.utilities.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(nodeset));
         ExtUtil.write(out, ref);
