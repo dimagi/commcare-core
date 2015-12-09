@@ -426,13 +426,13 @@ public class FormEntryModel {
             if (e instanceof GroupDef) {
                 GroupDef g = (GroupDef)e;
                 if (g.getRepeat() && g.getCountReference() != null) {
-                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getConextualizedCountReference(index.getLocalReference())).getValue();
+                    IAnswerData count = getForm().getMainInstance().resolveReference(g.getConextualizedCountReference(index.getReference())).getValue();
                     if (count != null) {
                         int fullcount = -1;
                         try {
                             fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
                         } catch (IllegalArgumentException iae) {
-                            throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getLocalReference()).toString() + " must be a number!");
+                            throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
                         }
                         TreeReference ref = getForm().getChildInstanceRef(index);
                         TreeElement element = getForm().getMainInstance().resolveReference(ref);
