@@ -10,7 +10,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.commcare.util.cli.ApplicationHost;
-import org.commcare.util.mocks.LivePrototypeFactory;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import org.apache.commons.cli.CommandLineParser;
