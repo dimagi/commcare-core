@@ -62,7 +62,15 @@ public class DAG<I, N, E> {
         Vector<Edge<I, E>> edgesFromSource = edges.get(sourceIndex);
         for (Edge<I, E> edge : edgesFromSource) {
             if (edge.i.equals(destinationIndex)) {
+                // Remove the edge
                 edgesFromSource.remove(edge);
+
+                // If removing this edge has made it such that this source index no longer has
+                // any edges from it, remove that entire index from the edges hashtable
+                if (edgesFromSource.size() == 0) {
+                    edges.remove(sourceIndex);
+                }
+
                 return;
             }
         }
@@ -133,5 +141,9 @@ public class DAG<I, N, E> {
 
     public Enumeration getIndices() {
         return nodes.keys();
+    }
+
+    public Hashtable<I, Vector<Edge<I, E>>> getEdges() {
+        return this.edges;
     }
 }
