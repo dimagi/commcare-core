@@ -32,7 +32,6 @@ public class UserSqlSandbox extends UserSandbox {
         appFixtureStorage = new SqliteIndexedStorageUtility<>(FormInstance.class, username, "AppFixture");
     }
 
-
     public SqliteIndexedStorageUtility<Case> getCaseStorage() {
         return caseStorage;
     }

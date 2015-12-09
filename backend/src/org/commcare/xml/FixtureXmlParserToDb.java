@@ -18,21 +18,21 @@ import java.util.Vector;
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and
- * storing it to memory.
+ * storing a serialized blob representation in the fixture database.
  *
  * @author ctsims
  */
-public class FixtureXmlParser extends TransactionParser<FormInstance> {
+public class FixtureXmlParserToDb extends TransactionParser<FormInstance> {
 
     IStorageUtilityIndexed<FormInstance> storage;
     boolean overwrite = true;
 
-    public FixtureXmlParser(KXmlParser parser) {
+    public FixtureXmlParserToDb(KXmlParser parser) {
         this(parser, true, null);
     }
 
-    public FixtureXmlParser(KXmlParser parser, boolean overwrite,
-                            IStorageUtilityIndexed<FormInstance> storage) {
+    public FixtureXmlParserToDb(KXmlParser parser, boolean overwrite,
+                                IStorageUtilityIndexed<FormInstance> storage) {
         super(parser);
         this.overwrite = overwrite;
         this.storage = storage;

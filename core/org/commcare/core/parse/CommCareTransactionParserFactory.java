@@ -59,7 +59,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.initStockParser();
     }
 
-
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
         String name = parser.getName();
@@ -123,6 +122,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         userParser = new TransactionParserFactory() {
             UserXmlParser created = null;
 
+            @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new UserXmlParser(parser, sandbox.getUserStorage());
@@ -137,17 +137,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         fixtureParser = new TransactionParserFactory() {
             FixtureXmlParser created = null;
 
+            @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new FixtureXmlParser(parser) {
                         //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.FixtureXmlParser#storage()
-                         */
-
+                        @Override
                         public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
                                 fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
@@ -179,6 +176,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
+            @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if (created == null) {
                     created = new CaseXmlParser(parser, sandbox.getCaseStorage());
@@ -191,7 +189,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
     public void initStockParser() {
         stockParser = new TransactionParserFactory() {
-
+            @Override
             public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
                 return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
             }

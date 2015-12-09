@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;

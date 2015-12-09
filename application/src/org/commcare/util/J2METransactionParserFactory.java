@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import org.commcare.cases.ledger.Ledger;
@@ -8,8 +5,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
-import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
+import org.commcare.xml.FixtureXmlParserToDb;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.J2MEUserXmlParser;
 import org.javarosa.core.services.Logger;
@@ -117,6 +114,33 @@ public class J2METransactionParserFactory extends CommCareTransactionParserFacto
             public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
                     created = new J2MEUserXmlParser(parser, sandbox.getUserStorage(), getSyncToken());
+                }
+
+                return created;
+            }
+        };
+    }
+
+    @Override
+    public void initFixtureParser() {
+        fixtureParser = new TransactionParserFactory() {
+            FixtureXmlParser created = null;
+
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                if (created == null) {
+                    created = new FixtureXmlParserToDb(parser) {
+                        //TODO: store these on the file system instead of in DB?
+                        private IStorageUtilityIndexed<FormInstance> fixtureStorage;
+
+                        @Override
+                        public IStorageUtilityIndexed<FormInstance> storage() {
+                            if (fixtureStorage == null) {
+                                fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
+                            }
+                            return fixtureStorage;
+                        }
+                    };
                 }
 
                 return created;

@@ -1,8 +1,5 @@
 package org.commcare.api.persistence;
 
-import org.javarosa.core.api.ClassNameHasher;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
 import java.io.File;
 
 /**
