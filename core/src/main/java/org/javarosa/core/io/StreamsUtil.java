@@ -7,10 +7,6 @@ import java.io.OutputStream;
 
 public class StreamsUtil {
 
-    private StreamsUtil() {
-        // private constructor
-    }
-
     /**
      * Write everything from input stream to output stream, byte by byte then
      * close the streams

@@ -44,7 +44,7 @@ public class XFormUtils {
     }
 
     public static FormDef getFormFromInputStream(InputStream is,
-                                                          Vector<QuestionExtensionParser> extensionParsers)
+                                                 Vector<QuestionExtensionParser> extensionParsers)
             throws XFormParseException {
         InputStreamReader isr;
 
