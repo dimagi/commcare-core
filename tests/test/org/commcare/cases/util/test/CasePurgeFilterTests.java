@@ -30,51 +30,46 @@ import static org.junit.Assert.fail;
         runnables = {CasePurgeTest.class, FrameworkMethod.class})
 public class CasePurgeFilterTests {
 
-    Case a,b,c,d,e,f;
+    Case a,b,c,d,e;
     DummyIndexedStorageUtility<Case> storage;
     String owner;
     String groupOwner;
+    String otherOwner;
     Vector<String> groupOwned;
     Vector<String> userOwned;
 
 
     @Before
     public void setUp() throws Exception {
-        storage =  new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
+
+        storage =  new DummyIndexedStorageUtility<Case>(Case.class, new LivePrototypeFactory());
 
         owner ="owner";
+        otherOwner = "otherowner";
         groupOwner = "groupowned";
 
-        userOwned = new Vector<>();
+        userOwned = new Vector<String>();
         userOwned.addElement(owner);
 
-        groupOwned = new Vector<>();
+        groupOwned = new Vector<String>();
         groupOwned.addElement(owner);
         groupOwned.addElement(groupOwner);
 
         a = new Case("a","a");
         a.setCaseId("a");
         a.setUserId(owner);
-
         b = new Case("b","b");
         b.setCaseId("b");
         b.setUserId(owner);
-
         c = new Case("c","c");
         c.setCaseId("c");
         c.setUserId(owner);
-
         d = new Case("d","d");
         d.setCaseId("d");
         d.setUserId(owner);
-
         e = new Case("e","e");
         e.setCaseId("e");
         e.setUserId(groupOwner);
-
-        f = new Case("f", "f");
-        f.setCaseId("f");
-        f.setUserId(owner);
     }
 
     @RunWithResource("/case_relationship_tests.json")
@@ -111,6 +106,7 @@ public class CasePurgeFilterTests {
 
         e.setIndex(new CaseIndex("a_c", "a", a.getCaseId(), CaseIndex.RELATIONSHIP_CHILD));
         e.setIndex(new CaseIndex("a_e", "a", a.getCaseId(), CaseIndex.RELATIONSHIP_EXTENSION));
+
 
         try {
             storage.write(a);
