@@ -25,6 +25,8 @@ import java.util.Hashtable;
 public class FormInstance extends DataInstance<TreeElement> implements Persistable, IMetaData {
 
     public static final String STORAGE_KEY = "FORMDATA";
+    public static final String META_XMLNS = "XMLNS";
+    public static final String META_ID = "instance_id";
 
     /**
      * The date that this model was taken and recorded
@@ -383,21 +385,12 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return this;
     }
 
-    public static final String META_XMLNS = "XMLNS";
-    public static final String META_ID = "instance_id";
-
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{META_XMLNS, META_ID};
     }
 
-    public Hashtable getMetaData() {
-        Hashtable data = new Hashtable();
-        for (String key : getMetaDataFields()) {
-            data.put(key, getMetaData(key));
-        }
-        return data;
-    }
-
+    @Override
     public Object getMetaData(String fieldName) {
         if (META_XMLNS.equals(fieldName)) {
             return ExtUtil.emptyIfNull(schema);

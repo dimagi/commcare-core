@@ -93,6 +93,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
     /**
      * deserialize a compact instance. note the retrieval of the template data instance
      */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         int formID = ExtUtil.readInt(in);
         instance = getTemplateInstance(formID).clone();
@@ -108,6 +109,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
     /**
      * serialize a compact instance
      */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         if (instance == null) {
             throw new RuntimeException("instance has not yet been set via setData()");
@@ -260,6 +262,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
             this.dataType = dataType;
         }
 
+        @Override
         public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
             byte flag = in.readByte();
             if (flag == 0x00) {
@@ -298,6 +301,7 @@ public class CompactInstanceWrapper implements WrappingStorageUtility.Serializat
             }
         }
 
+        @Override
         public void writeExternal(DataOutputStream out) throws IOException {
             if (val == null) {
                 out.writeByte(0x00);

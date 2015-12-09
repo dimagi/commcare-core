@@ -24,7 +24,6 @@ import java.util.Vector;
  */
 public abstract class DataInstance<T extends AbstractTreeElement<T>> implements Persistable {
 
-
     /**
      * The integer Id of the model
      */
@@ -242,14 +241,15 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         return name;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordid = ExtUtil.readInt(in);
         formId = ExtUtil.readInt(in);
         name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         instanceid = (String)ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordid);
         ExtUtil.writeNumeric(out, formId);
@@ -258,10 +258,12 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
 
+    @Override
     public int getID() {
         return recordid;
     }
 
+    @Override
     public void setID(int recordid) {
         this.recordid = recordid;
     }

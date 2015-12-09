@@ -44,8 +44,6 @@ public class StorageManager {
             if (mustWork) {
                 Logger.die("A Storage Factory had already been set when storage factory " + fact.getClass().getName()
                         + " attempted to become the only storage factory", new RuntimeException("Duplicate Storage Factory set"));
-            } else {
-                //Not an issue
             }
         }
     }
