@@ -5,7 +5,6 @@ package org.commcare.cases.util;
 
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -46,7 +45,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private static final int STATUS_OPEN = 16;
 
-    Vector<Integer> idsToRemove = new Vector<Integer>();
+    Vector<Integer> idsToRemove = new Vector<>();
 
     private DAG<String, int[], String> internalCaseDAG;
     private boolean invalidEdgesWereRemoved;
@@ -236,7 +235,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *
      * @return Whether or not this method invocation removed any invalid edges from the DAG
      */
-    private static boolean removeInvalidEdges(DAG<String, int[], String> g) {
+    private boolean removeInvalidEdges(DAG<String, int[], String> g) {
         Hashtable<String, Vector<Edge<String, String>>> allEdges = g.getEdges();
         Set<String> childOfNonexistentParent = new HashSet<>();
         Vector<String[]> edgesToRemove = new Vector<>();
@@ -272,7 +271,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      * Remove from the graph the node at this index, and remove all nodes that are made
      * invalid by the non-existence of that node (i.e. all of its child and extension cases)
      */
-    private static void removeNodeAndPropagate(DAG<String, int[], String> g,
+    private void removeNodeAndPropagate(DAG<String, int[], String> g,
                                                String indexOfRemovedNode) {
         // Wording is confusing here -- because all edges in this graph are from a child case to
         // a parent case, calling getParents() for a node returns all of its child/extension cases
@@ -285,8 +284,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             removeNodeAndPropagate(g, child.i);
         }
 
-        // Once all edges/refs to this node have been removed, delete the node itself
+        // Once all edges/refs to this node have been removed, delete the node itself from the
+        // DAG, and add it to the list of cases to be purged
+        int storageIdOfRemovedNode = g.getNode(indexOfRemovedNode)[1];
         g.removeNode(indexOfRemovedNode);
+        idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
     }
 
     // For use in tests
