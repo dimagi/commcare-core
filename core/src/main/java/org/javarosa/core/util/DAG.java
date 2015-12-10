@@ -56,22 +56,32 @@ public class DAG<I, N, E> {
     }
 
     /**
-     * If an edge exists in the graph from sourceIndex to destinationIndex, remove it
+     * Removes the given edge from both edge lists
      */
     public void removeEdge(I sourceIndex, I destinationIndex) {
-        Vector<Edge<I, E>> edgesFromSource = edges.get(sourceIndex);
-        for (Edge<I, E> edge : edgesFromSource) {
-            if (edge.i.equals(destinationIndex)) {
-                // Remove the edge
-                edgesFromSource.remove(edge);
+        removeEdge(edges, sourceIndex, destinationIndex);
+        removeEdge(inverseEdges, destinationIndex, sourceIndex);
+    }
 
-                // If removing this edge has made it such that this source index no longer has
-                // any edges from it, remove that entire index from the edges hashtable
-                if (edgesFromSource.size() == 0) {
-                    edges.remove(sourceIndex);
+    /**
+     * If an edge from sourceIndex to destinationIndex exists in the given edge list, remove it
+     */
+    private void removeEdge(Hashtable<I, Vector<Edge<I, E>>> edgeList, I sourceIndex, I destinationIndex) {
+        Vector<Edge<I, E>> edgesFromSource = edgeList.get(sourceIndex);
+        if (edgesFromSource != null) {
+            for (Edge<I, E> edge : edgesFromSource) {
+                if (edge.i.equals(destinationIndex)) {
+                    // Remove the edge
+                    edgesFromSource.remove(edge);
+
+                    // If removing this edge has made it such that this source index no longer has
+                    // any edges from it, remove that entire index from the edges hashtable
+                    if (edgesFromSource.size() == 0) {
+                        edgeList.remove(sourceIndex);
+                    }
+
+                    return;
                 }
-
-                return;
             }
         }
     }
