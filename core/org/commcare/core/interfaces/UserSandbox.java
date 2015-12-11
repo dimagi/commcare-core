@@ -36,5 +36,4 @@ public abstract class UserSandbox {
     public String getSyncToken(){
         return syncToken;
     }
-
 }

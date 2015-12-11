@@ -5,6 +5,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -27,7 +28,7 @@ public class MockUserDataSandbox extends UserSandbox {
     private final IStorageUtilityIndexed<Ledger> ledgerStorage;
     private final IStorageUtilityIndexed<User> userStorage;
     private final IStorageUtilityIndexed<FormInstance> userFixtureStorage;
-    private final IStorageUtilityIndexed<FormInstance> appFixtureStorage;
+    private IStorageUtilityIndexed<FormInstance> appFixtureStorage;
     
     private User mUser;
     
@@ -83,5 +84,10 @@ public class MockUserDataSandbox extends UserSandbox {
     
     public User getLoggedInUser() {
         return mUser;
+    }
+
+    public void setAppFixtureStorageLocation(IStorageUtilityIndexed<FormInstance>
+                                                     appFixtureStorageLocation) {
+        this.appFixtureStorage = appFixtureStorageLocation;
     }
 }
