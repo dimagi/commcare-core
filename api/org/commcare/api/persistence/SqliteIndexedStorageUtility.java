@@ -32,27 +32,16 @@ import java.util.Vector;
  */
 public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
-    public static final String DATABASE_FOLDER = "dbs";
-
     private final Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
     private final File databaseFolder;
 
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName){
-        this(prototype, sandboxId, tableName, null);
-    }
-
     public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName, String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
         this.prototype = prototype;
-
-        if(databasePath == null){
-            databaseFolder = new File(DATABASE_FOLDER);
-        } else{
-            databaseFolder = new File(databasePath);
-        }
+        databaseFolder = new File(databasePath);
 
         Connection c = null;
         try {

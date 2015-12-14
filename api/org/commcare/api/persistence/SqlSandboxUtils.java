@@ -22,11 +22,7 @@ public class SqlSandboxUtils {
     }
 
     public static UserSqlSandbox getStaticStorage(String username) {
-        return new UserSqlSandbox(username, null);
-    }
-
-    public static void deleteDatabaseFolder(){
-        deleteDatabaseFolder(SqliteIndexedStorageUtility.DATABASE_FOLDER);
+        return new UserSqlSandbox(username);
     }
 
     public static void deleteDatabaseFolder(String path){

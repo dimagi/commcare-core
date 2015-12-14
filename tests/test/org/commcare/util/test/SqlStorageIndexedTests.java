@@ -5,6 +5,7 @@ import junit.framework.Assert;
 import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.JdbcSqlStorageIterator;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -87,7 +88,7 @@ public class SqlStorageIndexedTests {
             String storageKey = "TFCase";
             String username = "sql-storage-test";
 
-            caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey);
+            caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
 
             caseStorage.write(a);
 
@@ -132,7 +133,7 @@ public class SqlStorageIndexedTests {
             e.printStackTrace();
             fail("Unexpected exception " + e.getMessage());
         } finally {
-            SqlSandboxUtils.deleteDatabaseFolder();
+            SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
         }
     }
 
@@ -146,7 +147,7 @@ public class SqlStorageIndexedTests {
             String storageKey = "Ledger";
             String username = "wspride";
 
-            ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey);
+            ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
 
             ledgerStorage.write(l);
             ledgerStorage.write(l2);
@@ -186,7 +187,7 @@ public class SqlStorageIndexedTests {
 
     @After
     public void tearDown(){
-        SqlSandboxUtils.deleteDatabaseFolder();
+        SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
     }
 
 }

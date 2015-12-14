@@ -18,6 +18,7 @@ public class UserSqlSandbox extends UserSandbox {
     private final SqliteIndexedStorageUtility<FormInstance> userFixtureStorage;
     private final SqliteIndexedStorageUtility<FormInstance> appFixtureStorage;
     private User user = null;
+    public static final String DEFAULT_DATBASE_PATH = "dbs";
 
     /**
      * Create a sandbox of the necessary storage objects with the shared
@@ -33,7 +34,7 @@ public class UserSqlSandbox extends UserSandbox {
     }
 
     public UserSqlSandbox(String username) {
-        this(username, null);
+        this(username, DEFAULT_DATBASE_PATH);
     }
 
     public SqliteIndexedStorageUtility<Case> getCaseStorage() {

@@ -66,6 +66,6 @@ public class UserSqlSandboxTest {
 
     @After
     public void tearDown(){
-        SqlSandboxUtils.deleteDatabaseFolder();
+        SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
     }
 }
