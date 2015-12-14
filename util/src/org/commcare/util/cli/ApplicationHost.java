@@ -13,9 +13,13 @@ import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.engine.XFormPlayer;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -171,6 +175,19 @@ public class ApplicationHost {
 
                             continue;
                         }
+
+                        if (input.startsWith(":lang")) {
+                            String[] langArgs = input.split(" ");
+                            if(langArgs.length != 2) {
+                                System.out.println("Command format\n:lang [langcode]");
+                                continue;
+                            }
+
+                            String newLocale = langArgs[1];
+                            setLocale(newLocale);
+
+                            continue;
+                        }
                     }
 
                     screenIsRedrawing = s.handleInputAndUpdateSession(mSession, input);
@@ -321,7 +338,13 @@ public class ApplicationHost {
 
     private void setupSandbox() {
         //Set up our storage
-        mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+        MockUserDataSandbox sandbox = new MockUserDataSandbox(mPrototypeFactory);
+        //this gets configured earlier when we installed the app, should point it in the
+        //right direction!
+        sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
+                                              StorageManager.getStorage(FormInstance.STORAGE_KEY));
+
+        mSandbox = sandbox;
         if(mLocalUserCredentials != null) {
             restoreUserToSandbox(mSandbox, mLocalUserCredentials);
         } else {
@@ -396,5 +419,24 @@ public class ApplicationHost {
                 mSandbox.setLoggedInUser(u);
             }
         }
+    }
+
+    public void setLocale(String locale) {
+        Localizer localizer = Localization.getGlobalLocalizerAdvanced();
+
+        String availableLocales = "";
+
+        for(String availabile : localizer.getAvailableLocales()) {
+            availableLocales += availabile + "\n";
+            if(locale.equals(availabile)) {
+                localizer.setLocale(locale);
+
+                return;
+            }
+        }
+
+        System.out.println("Locale '" + locale + "' is undefined in this app! Available Locales:");
+        System.out.println("---------------------");
+        System.out.println(availableLocales);
     }
 }
