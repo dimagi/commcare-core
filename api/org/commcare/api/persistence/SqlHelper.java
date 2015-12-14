@@ -75,11 +75,15 @@ public class SqlHelper {
         }
     }
 
+    /**
+     * @throws IllegalArgumentException when one or more of the fields we're selecting on
+     * is not a valid key to select on for this object
+     */
     public static PreparedStatement prepareTableSelectStatement(Connection c,
                                                                 String storageKey,
                                                                 String[] fields,
                                                                 String[] values,
-                                                                Persistable p) throws IllegalArgumentException{
+                                                                Persistable p) {
         org.commcare.modern.database.TableBuilder mTableBuilder =
                 new org.commcare.modern.database.TableBuilder(storageKey);
         mTableBuilder.addData(p);
