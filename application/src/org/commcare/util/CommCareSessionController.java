@@ -220,11 +220,11 @@ public class CommCareSessionController {
 
             CommCareFormEntryState state = new CommCareFormEntryState(title,xmlns, getPreloaders(), CommCareContext._().getFuncHandlers(), getIif()) {
                 protected void goHome() {
+                    //Clear out any local caching, since transactions may have occurred since it was cached.
+                    initializer = null;
+
                     //Ok, now we just need to figure out if it's time to go home, or time to fire up a new session from the stack
                     if (session.finishExecuteAndPop(session.getEvaluationContext(getIif()))) {
-                        //Clear out any local caching, since transactions may have occurred since it was cached.
-                        initializer = null;
-
                         next();
                     } else {
                         J2MEDisplay.startStateWithLoadingScreen(new CommCareHomeState());
