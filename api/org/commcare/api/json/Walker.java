@@ -51,6 +51,7 @@ public class Walker {
 
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
+
             obj.put("relevant", relevant);
 
             if(obj.get("type").equals("sub-group")){
@@ -61,6 +62,7 @@ public class Walker {
                     obj.put("children", childObject);
                     walker = new Walker(childObject, currentIndex, fec, fem);
                 } else{
+                    compiler.put(obj);
                     walker = new Walker(compiler, currentIndex, fec, fem);
                 }
                 currentIndex = walker.walk();

@@ -9,6 +9,7 @@ import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -41,12 +42,16 @@ public class PromptToJson {
         return obj.toString();
     }
 
-    public static void parseQuestion(FormEntryModel model, FormEntryPrompt prompt, JSONObject obj){
+    public static void parseCaption(FormEntryCaption prompt, JSONObject obj){
         obj.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
         obj.put("caption", jsonNullIfNull(prompt.getLongText()));
         obj.put("caption_image", jsonNullIfNull(prompt.getImageText()));
         obj.put("caption_video", jsonNullIfNull(prompt.getVideoText()));
         obj.put("caption_markdown", jsonNullIfNull(prompt.getMarkdownText()));
+    }
+
+    public static void parseQuestion(FormEntryModel model, FormEntryPrompt prompt, JSONObject obj){
+        parseCaption(prompt, obj);
         obj.put("help", jsonNullIfNull(prompt.getHelpText()));
         obj.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
         obj.put("style", jsonNullIfNull(parseStyle(prompt)));
@@ -70,46 +75,13 @@ public class PromptToJson {
 
     public static String parseQuestionToString(FormEntryModel model) {
         JSONObject obj = new JSONObject();
-        obj.put("ix", model.getFormIndex().toString());
-        int status = model.getEvent();
-        switch(status) {
-            case FormEntryController.EVENT_BEGINNING_OF_FORM:
-                obj.put("type", "form-start");
-                break;
-            case FormEntryController.EVENT_END_OF_FORM:
-                obj.put("type", "form-complete");
-                break;
-            case FormEntryController.EVENT_QUESTION:
-                obj.put("type", "question");
-                parseQuestion(model, model.getQuestionPrompt(), obj);
-                break;
-            case FormEntryController.EVENT_REPEAT_JUNCTURE:
-                obj.put("type", "repeat-juncture");
-                break;
-            //parse repeat
-            case FormEntryController.EVENT_GROUP:
-                // we're in a subgroup
-                obj.put("type", "sub-group");
-                obj.put("repeatable", false);
-                break;
-            case FormEntryController.EVENT_REPEAT:
-                // we're in a subgroup
-                obj.put("type", "sub-group");
-                obj.put("repeatable", true);
-                obj.put("exists", true);
-                break;
-            case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                // we're in a subgroup
-                obj.put("type", "sub-group");
-                obj.put("repeatable", true);
-                obj.put("exists", false);
-                break;
-        }
+        parseQuestionType(model, obj);
         return obj.toString();
     }
 
     public static void parseQuestionType(FormEntryModel model, JSONObject obj) {
         int status = model.getEvent();
+        obj.put("ix", model.getFormIndex().toString());
         switch(status) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 obj.put("type", "form-start");
@@ -127,17 +99,20 @@ public class PromptToJson {
                 //parse repeat
             case FormEntryController.EVENT_GROUP:
                 // we're in a subgroup
+                parseCaption(model.getCaptionPrompt(), obj);
                 obj.put("type", "sub-group");
                 obj.put("repeatable", false);
                 break;
             case FormEntryController.EVENT_REPEAT:
                 // we're in a subgroup
+                parseCaption(model.getCaptionPrompt(), obj);
                 obj.put("type", "sub-group");
                 obj.put("repeatable", true);
                 obj.put("exists", true);
                 break;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                 // we're in a subgroup
+                parseCaption(model.getCaptionPrompt(), obj);
                 obj.put("type", "sub-group");
                 obj.put("repeatable", true);
                 obj.put("exists", false);
