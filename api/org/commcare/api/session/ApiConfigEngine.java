@@ -1,6 +1,7 @@
 package org.commcare.api.session;
 
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.resources.ArchiveFileRoot;
 import org.commcare.resources.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
@@ -118,11 +119,11 @@ public class ApiConfigEngine {
         setRoots();
 
         table = ResourceTable.RetrieveTable(new SqliteIndexedStorageUtility(Resource.class,
-                "api", "normalTable"));
+                "api", "normalTable", UserSqlSandbox.DEFAULT_DATBASE_PATH));
         updateTable = ResourceTable.RetrieveTable(new SqliteIndexedStorageUtility(Resource.class,
-                "api", "updateTable"));
+                "api", "updateTable", UserSqlSandbox.DEFAULT_DATBASE_PATH));
         recoveryTable = ResourceTable.RetrieveTable(new SqliteIndexedStorageUtility(Resource.class,
-                "api", "recoveryTable"));
+                "api", "recoveryTable", UserSqlSandbox.DEFAULT_DATBASE_PATH));
 
 
         //All of the below is on account of the fact that the installers
