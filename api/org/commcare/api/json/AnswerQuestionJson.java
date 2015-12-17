@@ -33,8 +33,6 @@ public class AnswerQuestionJson {
         JSONObject ret = new JSONObject();
         IAnswerData answerData = null;
 
-        System.out.println("Answer: " + answer);
-
         if(answer.equals("None")){
             answerData = null;
         } else {
@@ -66,6 +64,7 @@ public class AnswerQuestionJson {
 
     public static String questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
+        System.out.println("Java Answer: " + answer + " index " + index);
         try {
             FormIndex formIndex = indexFromString(index, model.getForm());
             FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
@@ -104,17 +103,21 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
+        System.out.println("Java Step from string: " + step);
+
         if(step.endsWith("J")){
             return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
         }
-        String[] split = step.split(":");
+        String[] split = step.split("[._]");
 
-        int i = Integer.parseInt(split[0]);
-        int mult = -10;
+        System.out.println("Split: " + Arrays.toString(split));
+
+        int i = Integer.parseInt(split[0].trim());
+        int mult = -1;
         try{
-            mult = Integer.getInteger(split[1]);
-        } catch(IndexOutOfBoundsException e){
-            // do nothing
+            mult = Integer.parseInt(split[1].trim());
+        } catch(IndexOutOfBoundsException | NullPointerException e){
+            System.out.println("E: " + e.getMessage());
         }
         return new Pair<>(i, mult);
     }
@@ -127,6 +130,7 @@ public class AnswerQuestionJson {
         for(String step: list){
             if(!step.trim().equals("")) {
                 Pair<Integer, Integer> pair = stepFromString(step);
+                System.out.println("Java Pair: " + pair);
                 ret.add(pair);
             }
         }
@@ -160,9 +164,9 @@ public class AnswerQuestionJson {
         if(answer.startsWith("[") && answer.endsWith("]")){
             answer = answer.substring(1, answer.length()-1);
         }
-        String[] ret = answer.split(",");
+        String[] ret = answer.split(" ");
         for(int i=0; i< ret.length; i++){
-            ret[i] = ret[i].trim();
+            ret[i] = ret[i].replace(",","");
         }
         return ret;
     }
