@@ -1,5 +1,6 @@
 package org.commcare.xml;
 
+import org.commcare.core.instance.FixtureFileReference;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -18,13 +19,13 @@ import java.util.Vector;
 
 /**
  * The Fixture XML Parser is responsible for parsing incoming fixture data and
- * storing it to memory.
+ * storing it as a file with a pointer in a db.
  *
  * @author ctsims
  */
-public class FixtureXmlParser extends TransactionParser<FormInstance> {
+public class FixtureXmlParser extends TransactionParser<FixtureFileReference> {
 
-    IStorageUtilityIndexed<FormInstance> storage;
+    IStorageUtilityIndexed<FixtureFileReference> storage;
     boolean overwrite = true;
 
     public FixtureXmlParser(KXmlParser parser) {
@@ -32,13 +33,14 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     public FixtureXmlParser(KXmlParser parser, boolean overwrite,
-                            IStorageUtilityIndexed<FormInstance> storage) {
+                            IStorageUtilityIndexed<FixtureFileReference> storage) {
         super(parser);
         this.overwrite = overwrite;
         this.storage = storage;
     }
 
-    public FormInstance parse() throws InvalidStructureException, IOException,
+    @Override
+    public FixtureFileReference parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("fixture");
 
@@ -89,7 +91,8 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         return instance;
     }
 
-    public void commit(FormInstance parsed) throws IOException {
+    @Override
+    public void commit(FixtureFileReference parsed) throws IOException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {
@@ -98,12 +101,9 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         }
     }
 
-    public IStorageUtilityIndexed<FormInstance> storage() {
-        //...ok... So. This is _not good_. It's badly written and redundant in a lot of ways.
-        //the issue is that there are about 4 ways to set/override how this gets here
-        //TODO: Fix this
+    public IStorageUtilityIndexed<FixtureFileReference> storage() {
         if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FixtureFileReference.STORAGE_KEY);
         }
         return storage;
     }
