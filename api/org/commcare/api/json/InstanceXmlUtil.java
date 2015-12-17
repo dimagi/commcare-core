@@ -6,6 +6,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.commcare.api.xml.XmlUtil;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -128,5 +129,9 @@ public class InstanceXmlUtil {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getSubmissionXML(FormDef form){
+        return getFormInstanceXml(form.getInstance());
     }
 }

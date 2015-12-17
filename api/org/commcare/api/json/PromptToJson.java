@@ -73,12 +73,6 @@ public class PromptToJson {
         return obj == null ? JSONObject.NULL : obj;
     }
 
-    public static String parseQuestionToString(FormEntryModel model) {
-        JSONObject obj = new JSONObject();
-        parseQuestionType(model, obj);
-        return obj.toString();
-    }
-
     public static void parseQuestionType(FormEntryModel model, JSONObject obj) {
         int status = model.getEvent();
         obj.put("ix", model.getFormIndex().toString());

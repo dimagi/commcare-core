@@ -57,16 +57,16 @@ public class AnswerQuestionJson {
         return ret;
     }
 
-    public static JSONObject questionAnswerToJson(FormEntryController controller,
+    public static String questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
         try {
             FormIndex formIndex = indexFromString(index, model.getForm());
             FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-            return questionAnswerToJson(controller, model, answer, prompt);
+            return questionAnswerToJson(controller, model, answer, prompt).toString();
         } catch(Exception e){
             e.printStackTrace();
         }
-        return new JSONObject();
+        return "";
     }
 
     public static JSONObject questionAnswerToJson(FormEntryController controller,
@@ -97,6 +97,8 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
+        System.out.println("Step: " + step);
+
         if(step.endsWith("J")){
             return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
         }
@@ -113,13 +115,16 @@ public class AnswerQuestionJson {
     }
 
     public static List<Pair<Integer, Integer>> stepToList(String index){
+        System.out.println("To List: " + index);
         ArrayList<Pair<Integer, Integer>> ret = new ArrayList<Pair<Integer, Integer>>();
         String[] split = index.split(",");
         List<String> list = Arrays.asList(split);
         Collections.reverse(list);
         for(String step: list){
-            Pair<Integer, Integer> pair = stepFromString(step);
-            ret.add(pair);
+            if(!step.trim().equals("")) {
+                Pair<Integer, Integer> pair = stepFromString(step);
+                ret.add(pair);
+            }
         }
         return ret;
     }
