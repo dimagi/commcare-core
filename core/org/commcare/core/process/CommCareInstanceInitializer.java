@@ -29,6 +29,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     protected final UserSandbox mSandbox;
     protected final CommCarePlatform mPlatform;
 
+    // default constructor because Jython is annoying
+    public CommCareInstanceInitializer() {
+        this(null, null, null);
+    }
 
     public CommCareInstanceInitializer(UserSandbox sandbox) {
         this(null, sandbox, null);
