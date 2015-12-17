@@ -130,7 +130,7 @@ public class SuiteParser extends ElementParser<Suite> {
     }
 
     protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage("fixture");
+        return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
     }
 
     protected boolean inValidationMode() {

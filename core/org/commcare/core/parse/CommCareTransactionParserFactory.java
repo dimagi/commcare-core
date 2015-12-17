@@ -147,7 +147,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         @Override
                         public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
-                                fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
+                                fixtureStorage = sandbox.getUserFixtureStorage();
                             }
                             return fixtureStorage;
                         }
