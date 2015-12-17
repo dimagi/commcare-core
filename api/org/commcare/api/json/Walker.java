@@ -56,13 +56,13 @@ public class Walker {
 
             if(obj.get("type").equals("sub-group")){
                 Walker walker;
-                if(obj.has("caption")){
+                if(obj.has("caption") && obj.get("caption") != JSONObject.NULL  ){
                     compiler.put(obj);
                     JSONArray childObject = new JSONArray();
                     obj.put("children", childObject);
                     walker = new Walker(childObject, currentIndex, fec, fem);
                 } else{
-                    compiler.put(obj);
+                    //compiler.put(obj);
                     walker = new Walker(compiler, currentIndex, fec, fem);
                 }
                 currentIndex = walker.walk();

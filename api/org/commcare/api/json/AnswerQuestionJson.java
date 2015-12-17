@@ -1,21 +1,36 @@
 package org.commcare.api.json;
 
+import org.commcare.modern.util.Pair;
+import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.SelectMultiData;
+import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.json.JSONObject;
 
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
+
 /**
  * Created by willpride on 11/18/15.
  */
 public class AnswerQuestionJson {
+
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer){
+                                                  FormEntryModel model, String answer, FormEntryPrompt prompt){
         JSONObject ret = new JSONObject();
-        FormEntryPrompt prompt = model.getQuestionPrompt();
         IAnswerData answerData = null;
         try {
             answerData = getAnswerData(prompt, answer);
@@ -25,7 +40,7 @@ public class AnswerQuestionJson {
             ret.put("reason", e.getMessage());
             return ret;
         }
-        int result = controller.answerQuestion(answerData);
+        int result = controller.answerQuestion(prompt.getIndex(), answerData);
         if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
             ret.put("status","error");
             ret.put("type", "required");
@@ -42,7 +57,92 @@ public class AnswerQuestionJson {
         return ret;
     }
 
+    public static JSONObject questionAnswerToJson(FormEntryController controller,
+                                                  FormEntryModel model, String answer, String index){
+        try {
+            FormIndex formIndex = indexFromString(index, model.getForm());
+            FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
+            return questionAnswerToJson(controller, model, answer, prompt);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return new JSONObject();
+    }
+
+    public static JSONObject questionAnswerToJson(FormEntryController controller,
+                                                  FormEntryModel model, String answer){
+        FormEntryPrompt prompt = model.getQuestionPrompt();
+        return questionAnswerToJson(controller, model, answer, prompt);
+    }
+
     public static IAnswerData getAnswerData(FormEntryPrompt fep, String data){
+
+        if(fep.getDataType() == Constants.DATATYPE_CHOICE){
+            int index = Integer.parseInt(data);
+            SelectChoice ans = fep.getSelectChoices().get(index -1);
+            return new SelectOneData(ans.selection());
+        } else if(fep.getDataType() == Constants.DATATYPE_CHOICE_LIST){
+            String[] split = data.split(" ");
+            Vector<Selection> ret = new Vector<>();
+            for (String s: split){
+                int index = Integer.parseInt(s);
+                Selection ans = fep.getSelectChoices().get(index -1).selection();
+                ret.add(ans);
+            }
+            return new SelectMultiData(ret);
+        }
+
         return data.equals("") ? null : AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(new UncastData(data));
+    }
+
+    public static Pair<Integer, Integer> stepFromString(String step){
+
+        if(step.endsWith("J")){
+            return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
+        }
+        String[] split = step.split(":");
+
+        int i = Integer.parseInt(split[0]);
+        int mult = -10;
+        try{
+            mult = Integer.getInteger(split[1]);
+        } catch(IndexOutOfBoundsException e){
+            // do nothing
+        }
+        return new Pair<>(i, mult);
+    }
+
+    public static List<Pair<Integer, Integer>> stepToList(String index){
+        ArrayList<Pair<Integer, Integer>> ret = new ArrayList<Pair<Integer, Integer>>();
+        String[] split = index.split(",");
+        List<String> list = Arrays.asList(split);
+        Collections.reverse(list);
+        for(String step: list){
+            Pair<Integer, Integer> pair = stepFromString(step);
+            ret.add(pair);
+        }
+        return ret;
+    }
+
+    public static FormIndex reduceFormIndex(List<Pair<Integer, Integer>> steps, FormIndex current){
+        if(steps.size() == 0){
+            return current;
+        }
+        Pair<Integer, Integer> currentStep = steps.remove(0);
+        FormIndex nextLevel = new FormIndex(current, currentStep.first, currentStep.second, null);
+        return reduceFormIndex(steps, nextLevel);
+    }
+
+    public static FormIndex indexFromString(String stringIndex, FormDef form){
+        if(stringIndex == null || stringIndex.equals("None")){
+            return null;
+        } else if(stringIndex.equals("<")){
+            return FormIndex.createBeginningOfFormIndex();
+        } else if(stringIndex.equals(">")){
+            return FormIndex.createEndOfFormIndex();
+        }
+        FormIndex ret = reduceFormIndex(stepToList(stringIndex), null);
+        ret.assignRefs(form);
+        return ret;
     }
 }
