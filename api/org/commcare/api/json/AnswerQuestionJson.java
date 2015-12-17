@@ -32,13 +32,20 @@ public class AnswerQuestionJson {
                                                   FormEntryModel model, String answer, FormEntryPrompt prompt){
         JSONObject ret = new JSONObject();
         IAnswerData answerData = null;
-        try {
-            answerData = getAnswerData(prompt, answer);
-        } catch(IllegalArgumentException e){
-            ret.put("status","error");
-            ret.put("type", "illegal-argument");
-            ret.put("reason", e.getMessage());
-            return ret;
+
+        System.out.println("Answer: " + answer);
+
+        if(answer.equals("None")){
+            answerData = null;
+        } else {
+            try {
+                answerData = getAnswerData(prompt, answer);
+            } catch (IllegalArgumentException e) {
+                ret.put("status", "error");
+                ret.put("type", "illegal-argument");
+                ret.put("reason", e.getMessage());
+                return ret;
+            }
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
         if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
@@ -82,7 +89,7 @@ public class AnswerQuestionJson {
             SelectChoice ans = fep.getSelectChoices().get(index -1);
             return new SelectOneData(ans.selection());
         } else if(fep.getDataType() == Constants.DATATYPE_CHOICE_LIST){
-            String[] split = data.split(" ");
+            String[] split = parseMultiSelectString(data);
             Vector<Selection> ret = new Vector<>();
             for (String s: split){
                 int index = Integer.parseInt(s);
@@ -96,8 +103,6 @@ public class AnswerQuestionJson {
     }
 
     public static Pair<Integer, Integer> stepFromString(String step){
-
-        System.out.println("Step: " + step);
 
         if(step.endsWith("J")){
             return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
@@ -115,7 +120,6 @@ public class AnswerQuestionJson {
     }
 
     public static List<Pair<Integer, Integer>> stepToList(String index){
-        System.out.println("To List: " + index);
         ArrayList<Pair<Integer, Integer>> ret = new ArrayList<Pair<Integer, Integer>>();
         String[] split = index.split(",");
         List<String> list = Arrays.asList(split);
@@ -148,6 +152,18 @@ public class AnswerQuestionJson {
         }
         FormIndex ret = reduceFormIndex(stepToList(stringIndex), null);
         ret.assignRefs(form);
+        return ret;
+    }
+
+    public static String[] parseMultiSelectString(String answer){
+        answer = answer.trim();
+        if(answer.startsWith("[") && answer.endsWith("]")){
+            answer = answer.substring(1, answer.length()-1);
+        }
+        String[] ret = answer.split(",");
+        for(int i=0; i< ret.length; i++){
+            ret[i] = ret[i].trim();
+        }
         return ret;
     }
 }
