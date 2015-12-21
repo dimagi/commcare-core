@@ -1,10 +1,29 @@
 package org.javarosa.core.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class StreamsUtil {
+
+    public static byte[] getStreamAsBytes(InputStream is) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            StreamsUtil.writeFromInputToOutput(is, baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                baos.close();
+            } catch (IOException e) {
+            }
+        }
+    }
+
 
     /**
      * Write everything from input stream to output stream, byte by byte then
