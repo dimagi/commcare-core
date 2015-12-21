@@ -85,6 +85,13 @@ public class TableBuilder {
     }
 
     public void addData(Persistable p) {
+        addPersistableIdAndMeta(p);
+
+        cols.add(DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(DatabaseHelper.DATA_COL);
+    }
+
+    private void addPersistableIdAndMeta(Persistable p) {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
 
@@ -104,11 +111,17 @@ public class TableBuilder {
                 }
             }
         }
-
-        cols.add(DatabaseHelper.DATA_COL + " BLOB");
-        rawCols.add(DatabaseHelper.DATA_COL);
     }
 
+    public void addFileBackedData(Persistable p) {
+        addPersistableIdAndMeta(p);
+
+        cols.add(DatabaseHelper.AES_COL + " BLOB");
+        rawCols.add(DatabaseHelper.AES_COL);
+
+        cols.add(DatabaseHelper.FILE_COL);
+        rawCols.add(DatabaseHelper.DATA_COL);
+    }
 
     HashSet<String> unique = new HashSet<String>();
     public void setUnique(String columnName) {

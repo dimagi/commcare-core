@@ -1,6 +1,5 @@
 package org.commcare.xml;
 
-import org.commcare.core.instance.FixtureFileReference;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -23,9 +22,9 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class FixtureXmlParser extends TransactionParser<FixtureFileReference> {
+public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
-    IStorageUtilityIndexed<FixtureFileReference> storage;
+    IStorageUtilityIndexed<FormInstance> storage;
     boolean overwrite = true;
 
     public FixtureXmlParser(KXmlParser parser) {
@@ -33,14 +32,14 @@ public class FixtureXmlParser extends TransactionParser<FixtureFileReference> {
     }
 
     public FixtureXmlParser(KXmlParser parser, boolean overwrite,
-                            IStorageUtilityIndexed<FixtureFileReference> storage) {
+                            IStorageUtilityIndexed<FormInstance> storage) {
         super(parser);
         this.overwrite = overwrite;
         this.storage = storage;
     }
 
     @Override
-    public FixtureFileReference parse() throws InvalidStructureException, IOException,
+    public FormInstance parse() throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("fixture");
 
@@ -92,7 +91,7 @@ public class FixtureXmlParser extends TransactionParser<FixtureFileReference> {
     }
 
     @Override
-    public void commit(FixtureFileReference parsed) throws IOException {
+    public void commit(FormInstance parsed) throws IOException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {
@@ -101,9 +100,9 @@ public class FixtureXmlParser extends TransactionParser<FixtureFileReference> {
         }
     }
 
-    public IStorageUtilityIndexed<FixtureFileReference> storage() {
+    public IStorageUtilityIndexed<FormInstance> storage() {
         if (storage == null) {
-            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FixtureFileReference.STORAGE_KEY);
+            storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
         }
         return storage;
     }
