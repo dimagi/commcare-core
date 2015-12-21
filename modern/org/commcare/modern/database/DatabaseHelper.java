@@ -21,12 +21,12 @@ import java.util.Set;
  * statements, args, content values, etc.
  *
  * @author wspride
- *
  */
 public class DatabaseHelper {
 
     public static final String ID_COL = "commcare_sql_id";
     public static final String DATA_COL = "commcare_sql_record";
+    public static final String FILE_COL = "commcare_sql_file";
 
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  Persistable p)  throws IllegalArgumentException {
         return createWhere(fieldNames, values, null, p);
@@ -86,9 +86,18 @@ public class DatabaseHelper {
     }
 
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
+        HashMap<String, Object> values = getNonDatatMetaEntries(e);
 
         byte[] blob = TableBuilder.toBlob(e);
+        if(blob.length > 1000000){
+            throw new RecordTooLargeException(blob.length / 1000000);
+        }
+        values.put(DATA_COL, blob);
 
+        return values;
+    }
+
+    public static HashMap<String, Object> getNonDatatMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<String, Object>();
 
         if(e instanceof IMetaData) {
@@ -100,11 +109,6 @@ public class DatabaseHelper {
                 values.put(TableBuilder.scrubName(key), value);
             }
         }
-        if(blob.length > 1000000){
-            throw new RecordTooLargeException(blob.length / 1000000);
-        }
-        values.put(DATA_COL, blob);
-
         return values;
     }
 
