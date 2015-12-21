@@ -258,10 +258,6 @@ public class RestoreUtils {
         return (ByteArrayPayload)xfFact.serializeInstance(dm);
     }
 
-    public static FormInstance receive(byte[] payload, Class restorableType) {
-        return xfFact.parseRestore(payload, restorableType);
-    }
-
     public static boolean getBoolean(Object o) {
         if (o instanceof String) {
             String bool = (String)o;
