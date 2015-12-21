@@ -106,7 +106,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             FormInstance fixture = SandboxUtils.loadFixture(mSandbox, refId, userId);
 
             if (fixture == null) {
-                throw new RuntimeException("Could not find lookup table for src: " + ref);
+                throw new FixtureInitializationException("Could not find an lookup table for src: " + ref);
             }
 
             TreeElement root = fixture.getRoot();
@@ -114,7 +114,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return root;
 
         } catch (IllegalStateException ise) {
-            throw new RuntimeException("Could not load fixture for src: " + ref);
+            throw new FixtureInitializationException("Could not load fixture for src: " + ref);
         }
     }
 
@@ -137,5 +137,12 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected String getVersionString(){
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
+    }
+
+    public static class FixtureInitializationException extends RuntimeException {
+
+        public FixtureInitializationException(String message) {
+            super(message);
+        }
     }
 }
