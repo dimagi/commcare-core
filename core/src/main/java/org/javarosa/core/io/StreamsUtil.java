@@ -1,6 +1,5 @@
 package org.javarosa.core.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,35 +40,9 @@ public class StreamsUtil {
     public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
         try {
             writeFromInputToOutput(in, out, null);
-        } catch (InputIOException e) {
-            throw e.internal;
-        } catch (OutputIOException e) {
+        } catch (OutputIOException | InputIOException e) {
             throw e.internal;
         }
-    }
-
-    private static final int CHUNK_SIZE = 2048;
-
-    /**
-     * Write the byte array to the output stream
-     */
-    public static void writeToOutput(byte[] bytes, OutputStream out, long[] tally) throws IOException {
-        int offset = 0;
-        int remain = bytes.length;
-
-        while (remain > 0) {
-            int toRead = (remain < CHUNK_SIZE) ? remain : CHUNK_SIZE;
-            out.write(bytes, offset, toRead);
-            remain -= toRead;
-            offset += toRead;
-            if (tally != null) {
-                tally[0] += toRead;
-            }
-        }
-    }
-
-    public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
-        writeToOutput(bytes, out, null);
     }
 
     private static void incr(long[] tally) {
@@ -77,51 +50,6 @@ public class StreamsUtil {
             tally[0]++;
         }
     }
-
-    /**
-     * Read bytes from an input stream into a byte array then close the input
-     * stream
-     *
-     * @throws IOException
-     */
-    public static byte[] readFromStream(InputStream in, int len)
-            throws IOException {
-
-        byte[] data;
-        int read;
-        if (len >= 0) {
-            data = new byte[len];
-            read = 0;
-            while (read < len) {
-                int k = in.read(data, read, len - read);
-                if (k == -1)
-                    break;
-                read += k;
-            }
-        } else {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            while (true) {
-                int b = in.read();
-                if (b == -1) {
-                    break;
-                }
-                buffer.write(b);
-            }
-            data = buffer.toByteArray();
-            read = data.length;
-        }
-
-        if (len > 0 && read < len) {
-            // System.out.println("WARNING: expected " + len + "!!");
-            throw new RuntimeException("expected: " + len + " bytes but read "
-                    + read);
-        }
-        // replyS
-        // System.out.println(new String(data, "UTF-8"));
-
-        return data;
-    }
-
 
     //Unify the functional aspects here
 
