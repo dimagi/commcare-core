@@ -26,22 +26,25 @@ import java.io.InputStream;
  */
 public class XmlFormRecordProcessor {
 
-    public static void process(UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-        final UserSandbox mSandbox = sandbox;
-
-        InputStream is = stream;
-
-        DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
+    public static void process(final UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+        process(sandbox, stream, new TransactionParserFactory() {
             public TransactionParser getParser(KXmlParser parser) {
                 if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
-                    return new LedgerXmlParsers(parser, mSandbox.getLedgerStorage());
+                    return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
                 } else if ("case".equalsIgnoreCase(parser.getName())) {
-                    return new CaseXmlParser(parser, mSandbox.getCaseStorage());
+                    return new CaseXmlParser(parser, sandbox.getCaseStorage());
                 }
                 return null;
             }
 
-        }, true, true);
+        });
+
+    }
+
+    public static void process(UserSandbox sandbox, InputStream stream, TransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+        InputStream is = stream;
+
+        DataModelPullParser parser = new DataModelPullParser(is, factory, true, true);
 
         parser.parse();
     }
