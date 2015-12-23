@@ -1325,9 +1325,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
         Vector<SelectChoice> choices = new Vector<SelectChoice>();
 
-        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(this.getMainInstance(),
-                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
-
         DataInstance fi = null;
         if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
         {
@@ -1339,6 +1336,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             fi = getMainInstance();
         }
 
+        Vector<TreeReference> matches = itemset.nodesetExpr.evalNodeset(fi,
+                new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 
         if (matches == null) {
             throw new XPathException("Could not find references depended on by " + itemset.nodesetRef.getInstanceName());
