@@ -6,6 +6,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
@@ -57,7 +58,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         StringBuilder row = new StringBuilder();
         int i = 0;
         for (DetailField field : fields) {
-            Object o = field.getTemplate().evaluate(context);
+            Object o;
+            try {
+                o = field.getTemplate().evaluate(context);
+            } catch(XPathException e) {
+                o = "error (see output)";
+                e.printStackTrace();
+            }
             String s;
             if (!(o instanceof String)) {
                 s = "";

@@ -459,7 +459,7 @@ public class CommCareContext {
 
     protected void registerAddtlStorage () {
         //do nothing
-        StorageManager.registerStorage("fixture", FormInstance.class);
+        StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
     }
 
     protected void initReferences() {
@@ -649,27 +649,6 @@ public class CommCareContext {
 
         //1) tx queue is self-managing
         //do nothing
-
-        //2) saved forms (keep forms not yet recorded; sent/unsent status should matter in future, but not now, because new tx layer is naive)
-        purgeRMS(FormInstance.STORAGE_KEY,
-            new EntityFilter<FormInstance> () {
-                EntityFilter<FormInstance> antiFilter = new RecentFormFilter();
-
-                //do the opposite of the recent form filter; i.e., if form shows up in the 'unrecorded forms' list, it is NOT safe to delete
-                public int preFilter (int id, Hashtable metaData) {
-                    int prefilter = antiFilter.preFilter(id, metaData);
-                    if(prefilter == EntityFilter.PREFILTER_FILTER) {
-                        return EntityFilter.PREFILTER_FILTER;
-                    }
-                    return  prefilter == EntityFilter.PREFILTER_INCLUDE ?
-                            EntityFilter.PREFILTER_EXCLUDE : EntityFilter.PREFILTER_INCLUDE;
-                }
-
-                public boolean matches(FormInstance sf) {
-                    return !antiFilter.matches(sf);
-                }
-            }, deletedLog);
-
 
         //3) cases (delete cases that are closed AND have no open cases which index them)
         purgeRMS(Case.STORAGE_KEY, caseFilter(), deletedLog);
