@@ -10,6 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+
+import java.io.File;
 import java.util.Vector;
 
 /**
@@ -41,9 +43,23 @@ public class UserSqlSandboxTest {
         assertEquals(loggedInUser.getUsername(), "test");
     }
 
+    @Test
+    public void testAlternativePath() throws Exception{
+        sandbox = SqlSandboxUtils.getStaticStorage(username, "alternative-dbs");
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
+        ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("ipm_restore.xml"), sandbox);
+        assertEquals(sandbox.getCaseStorage().getNumRecords(), 6);
+        assertEquals(sandbox.getLedgerStorage().getNumRecords(), 3);
+        assertEquals(sandbox.getUserFixtureStorage().getNumRecords(), 4);
+        File dbFolder = new File("alternative-dbs");
+        assert(dbFolder.exists() && dbFolder.isDirectory());
+        SqlSandboxUtils.deleteDatabaseFolder("alternative-dbs");
+        assert(!dbFolder.exists() && !dbFolder.isDirectory());
+    }
+
 
     @After
     public void tearDown(){
-        SqlSandboxUtils.deleteDatabaseFolder();
+        SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
     }
 }
