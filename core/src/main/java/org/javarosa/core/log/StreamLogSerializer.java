@@ -9,8 +9,8 @@ import java.io.IOException;
  */
 public abstract class StreamLogSerializer {
 
-    SortedIntSet logIDs;
-    Purger purger = null;
+    private final SortedIntSet logIDs;
+    private Purger purger = null;
 
     public interface Purger {
         void purge(SortedIntSet IDs);
