@@ -101,7 +101,7 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(Profile.STORAGE_KEY, Profile.class);
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
-        StorageManager.registerStorage("fixture", FormInstance.class);
+        StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
         //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }
 

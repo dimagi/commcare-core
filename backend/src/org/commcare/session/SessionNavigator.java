@@ -137,4 +137,7 @@ public class SessionNavigator {
         startNextSessionStep();
     }
 
+    public void stepBack() {
+        currentSession.stepBack();
+    }
 }

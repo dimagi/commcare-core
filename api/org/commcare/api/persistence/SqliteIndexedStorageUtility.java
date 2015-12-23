@@ -32,16 +32,16 @@ import java.util.Vector;
  */
 public class SqliteIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T>, Iterable<T> {
 
-    public static final String DATABASE_FOLDER = "dbs";
-
     private final Class<T> prototype;
     private final String tableName;
     private final String sandboxId;
+    private final File databaseFolder;
 
-    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName) {
+    public SqliteIndexedStorageUtility(Class<T> prototype, String sandboxId, String tableName, String databasePath) {
         this.tableName = tableName;
         this.sandboxId = sandboxId;
         this.prototype = prototype;
+        databaseFolder = new File(databasePath);
 
         Connection c = null;
         try {
@@ -66,14 +66,13 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
 
     Connection getConnection() throws SQLException, ClassNotFoundException {
 
-        File databaseFolder = new File(SqliteIndexedStorageUtility.DATABASE_FOLDER);
         if (!databaseFolder.exists()) {
             databaseFolder.mkdir();
         }
 
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + SqliteIndexedStorageUtility.DATABASE_FOLDER + "/" +  this.sandboxId + ".db");
+        dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" +  this.sandboxId + ".db");
         return dataSource.getConnection();
     }
 

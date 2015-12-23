@@ -75,6 +75,10 @@ public class SqlHelper {
         }
     }
 
+    /**
+     * @throws IllegalArgumentException when one or more of the fields we're selecting on
+     * is not a valid key to select on for this object
+     */
     public static PreparedStatement prepareTableSelectStatement(Connection c,
                                                                 String storageKey,
                                                                 String[] fields,
@@ -86,6 +90,7 @@ public class SqlHelper {
         Pair<String, String[]> mPair = DatabaseHelper.createWhere(fields, values, p);
 
         try {
+
             String queryString =
                     "SELECT * FROM " + storageKey + " WHERE " + mPair.first + ";";
             PreparedStatement preparedStatement = c.prepareStatement(queryString);
