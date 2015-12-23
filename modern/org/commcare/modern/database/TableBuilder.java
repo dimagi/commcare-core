@@ -113,6 +113,11 @@ public class TableBuilder {
         }
     }
 
+    /**
+     * Build a table to store provided persistable in the filesystem.  Creates
+     * filepath and encrypting key columns, along with normal metadata columns
+     * from the persistable
+     */
     public void addFileBackedData(Persistable p) {
         addPersistableIdAndMeta(p);
 
