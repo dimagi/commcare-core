@@ -120,7 +120,7 @@ public class TableBuilder {
         rawCols.add(DatabaseHelper.AES_COL);
 
         cols.add(DatabaseHelper.FILE_COL);
-        rawCols.add(DatabaseHelper.DATA_COL);
+        rawCols.add(DatabaseHelper.FILE_COL);
     }
 
     HashSet<String> unique = new HashSet<String>();
