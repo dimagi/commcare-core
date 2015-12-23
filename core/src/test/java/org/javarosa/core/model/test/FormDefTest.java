@@ -6,11 +6,13 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
 
@@ -284,4 +286,29 @@ public class FormDefTest {
                 "Relevancy of skipped genus entry should be irrelevant to, due to the way it is calculated",
                 "", "/data/disabled_species", evalCtx);
     }
+
+    /**
+     * Regressions around complex repeat behaviors
+     */
+    @Test
+    public void testLoopedRepeatIndexFetches() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_form_index_fetch.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        fec.stepToNextEvent();
+        fec.stepToNextEvent();
+
+        fec.answerQuestion(new IntegerData(2));
+        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION);
+
+        fec.answerQuestion(new UncastData("yes"));
+        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION) ;
+
+        fec.getNextIndex(fec.getModel().getFormIndex(), true);
+        fec.answerQuestion(new IntegerData(2));
+        fec.getNextIndex(fec.getModel().getFormIndex(), true);
+    }
+
 }
