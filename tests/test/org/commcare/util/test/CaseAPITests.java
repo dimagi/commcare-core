@@ -3,6 +3,7 @@ package org.commcare.util.test;
 import org.commcare.api.persistence.SqlHelper;
 import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
+import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
@@ -125,7 +126,7 @@ public class CaseAPITests {
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        SqlSandboxUtils.deleteDatabaseFolder();
+        SqlSandboxUtils.deleteDatabaseFolder(UserSqlSandbox.DEFAULT_DATBASE_PATH);
     }
 
 }
