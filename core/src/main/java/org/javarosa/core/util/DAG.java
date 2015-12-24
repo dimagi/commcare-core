@@ -32,8 +32,10 @@ public class DAG<I, N, E> {
         nodes.put(i, n);
     }
 
-    public void removeNode(I i) {
+    public N removeNode(I i) {
+        N removedNode = getNode(i);
         nodes.remove(i);
+        return removedNode;
     }
 
     /**
@@ -66,7 +68,9 @@ public class DAG<I, N, E> {
     /**
      * If an edge from sourceIndex to destinationIndex exists in the given edge list, remove it
      */
-    private void removeEdge(Hashtable<I, Vector<Edge<I, E>>> edgeList, I sourceIndex, I destinationIndex) {
+    private void removeEdge(Hashtable<I, Vector<Edge<I, E>>> edgeList,
+                            I sourceIndex,
+                            I destinationIndex) {
         Vector<Edge<I, E>> edgesFromSource = edgeList.get(sourceIndex);
         if (edgesFromSource != null) {
             for (Edge<I, E> edge : edgesFromSource) {
