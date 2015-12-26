@@ -1,6 +1,5 @@
 package org.javarosa.core.model.instance;
 
-import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
@@ -166,8 +165,6 @@ public class TreeReference implements Externalizable {
     }
 
     public void add(String name, int mult) {
-        hashCode = -1;
-        size = -1;
         add(new TreeReferenceLevel(name, mult).intern());
     }
 
@@ -212,10 +209,9 @@ public class TreeReference implements Externalizable {
      * @return a copy of this tree reference without any predicates
      */
     public TreeReference removePredicates() {
-        hashCode = -1;
         TreeReference predicateless = cloneWithEmptyData();
-        for (int i = 0; i < this.size(); ++i) {
-            predicateless.add(this.data.elementAt(i).setPredicates(null));
+        for (TreeReferenceLevel referenceLevel : data) {
+            predicateless.add(referenceLevel.setPredicates(null));
         }
         return predicateless;
     }
@@ -230,6 +226,7 @@ public class TreeReference implements Externalizable {
     }
 
     public void incrementRefLevel() {
+        hashCode = -1;
         if (!isAbsolute()) {
             refLevel++;
         }
@@ -240,40 +237,16 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * Does this reference reference contains any unbound multiplicities?
-     * Unbounded multiplicities means there is a chance that this reference
-     * could refer to more than one instance node.
-     *
-     * @return Does this reference have the potential to point to more than one
-     * instance node?
-     */
-    public boolean isAmbiguous() {
-        // ignore level 0, as /data implies /data[0]
-        for (int i = 1; i < size(); i++) {
-            if (getMultiplicity(i) == INDEX_UNBOUND) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
      * Return a copy of the reference
      */
+    @Override
     public TreeReference clone() {
-        TreeReference newRef = new TreeReference();
-        newRef.setRefLevel(this.refLevel);
+        TreeReference newRef = cloneWithEmptyData();
 
         for (TreeReferenceLevel l : data) {
             newRef.add(l.shallowCopy());
         }
 
-        //TODO: No more == null checks here, use context type
-        //copy instances
-        if (instanceName != null) {
-            newRef.setInstanceName(instanceName);
-        }
-        newRef.contextType = this.contextType;
         return newRef;
     }
 
@@ -304,10 +277,10 @@ public class TreeReference implements Externalizable {
      * parent, false if there were no higher levels
      */
     public boolean removeLastLevel() {
-        int size = size();
+        int oldSize = size();
         hashCode = -1;
         this.size = -1;
-        if (size == 0) {
+        if (oldSize == 0) {
             if (isAbsolute()) {
                 return false;
             } else {
@@ -315,7 +288,7 @@ public class TreeReference implements Externalizable {
                 return true;
             }
         } else {
-            data.removeElementAt(size - 1);
+            data.removeElementAt(oldSize - 1);
             return true;
         }
     }
@@ -362,7 +335,6 @@ public class TreeReference implements Externalizable {
             return newRef;
         }
     }
-
 
     /**
      * Evaluate this reference in terms of a base absolute reference.
@@ -573,10 +545,7 @@ public class TreeReference implements Externalizable {
                     TreeReferenceLevel thisLevel = data.elementAt(i);
                     TreeReferenceLevel otherLevel = ref.data.elementAt(i);
 
-                    // we should expect this to hit a lot due to interning
-                    if (thisLevel.equals(otherLevel)) {
-                        continue;
-                    } else {
+                    if (!thisLevel.equals(otherLevel)) {
                         return false;
                     }
                 }
@@ -616,6 +585,7 @@ public class TreeReference implements Externalizable {
         return hash;
     }
 
+    @Override
     public String toString() {
         return toString(true);
     }
@@ -623,7 +593,7 @@ public class TreeReference implements Externalizable {
     public String toString(boolean includePredicates) {
         StringBuffer sb = new StringBuffer();
         if (instanceName != null) {
-            sb.append("instance(" + instanceName + ")");
+            sb.append("instance(").append(instanceName).append(")");
         } else if (contextType == CONTEXT_ORIGINAL) {
             sb.append("current()/");
         }
@@ -648,7 +618,7 @@ public class TreeReference implements Externalizable {
                         Vector<XPathExpression> predicates = this.getPredicate(i);
                         if (predicates != null) {
                             for (XPathExpression expr : predicates) {
-                                sb.append("[" + expr.toPrettyString() + "]");
+                                sb.append("[").append(expr.toPrettyString()).append("]");
                             }
                         }
                         break;
@@ -663,18 +633,20 @@ public class TreeReference implements Externalizable {
                         // selecting the 1st element, since this is the default
                         // and showing brackets might confuse the user.
                         if ((i > 0 || mult != 0) && mult != -4) {
-                            sb.append("[" + (mult + 1) + "]");
+                            sb.append("[").append(mult + 1).append("]");
                         }
                         break;
                 }
             }
 
-            if (i < size() - 1)
+            if (i < size() - 1) {
                 sb.append("/");
+            }
         }
         return sb.toString();
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         refLevel = ExtUtil.readInt(in);
@@ -687,6 +659,7 @@ public class TreeReference implements Externalizable {
         }
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, refLevel);
         ExtUtil.write(out, new ExtWrapNullable(instanceName));

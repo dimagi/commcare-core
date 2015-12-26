@@ -1,8 +1,4 @@
-/**
- *
- */
 package org.javarosa.core.util;
-
 
 /**
  * An Interner is a special case of a a cache table that is used to intern objects
@@ -30,33 +26,25 @@ public class Interner<K> extends CacheTable<Integer, K> {
                 register(hash, k);
                 return k;
             }
+
             if (k.equals(nk)) {
                 return nk;
             } else {
                 //Collision. We should deal with this better for interning (and not manually caching) tables.
+                return k;
             }
-            return k;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.CacheTable#retrieve(java.lang.Object)
-     */
     public K retrieve(int key) {
         synchronized (this) {
             return super.retrieve(DataUtil.integer(key));
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.CacheTable#register(java.lang.Object, java.lang.Object)
-     */
     public void register(int key, K item) {
         synchronized (this) {
             super.register(DataUtil.integer(key), item);
         }
     }
-
 }
