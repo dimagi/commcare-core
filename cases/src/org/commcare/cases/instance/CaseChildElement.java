@@ -253,7 +253,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      */
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeElement.BuildRef(this);
+            ref = TreeElement.buildRef(this);
         }
         return ref;
     }
@@ -262,7 +262,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
      */
     public int getDepth() {
-        return TreeElement.CalculateDepth(this);
+        return TreeElement.calculateDepth(this);
     }
 
     /* (non-Javadoc)

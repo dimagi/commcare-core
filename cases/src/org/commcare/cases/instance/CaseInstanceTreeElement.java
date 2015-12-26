@@ -305,7 +305,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     public TreeReference getRef() {
         if (cachedRef == null) {
-            cachedRef = TreeElement.BuildRef(this);
+            cachedRef = TreeElement.buildRef(this);
         }
         return cachedRef;
     }
@@ -318,7 +318,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
      */
     public int getDepth() {
-        return TreeElement.CalculateDepth(this);
+        return TreeElement.calculateDepth(this);
     }
 
     /* (non-Javadoc)
