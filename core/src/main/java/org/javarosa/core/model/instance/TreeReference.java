@@ -78,38 +78,14 @@ public class TreeReference implements Externalizable {
         data = new Vector<TreeReferenceLevel>();
     }
 
-    public String getInstanceName() {
-        return instanceName;
+    public TreeReference(String instanceName, int refLevel) {
+        this(instanceName, refLevel, -1);
+
+        setupContextTypeFromInstanceName();
     }
 
-    /**
-     * Build a '/' reference
-     *
-     * @return a reference that represents a root/'/' path
-     */
-    public static TreeReference rootRef() {
-        TreeReference root = new TreeReference();
-        root.refLevel = REF_ABSOLUTE;
-        root.contextType = CONTEXT_ABSOLUTE;
-        return root;
-    }
-
-    /**
-     * Build a '.' reference
-     *
-     * @return a reference that represents a self/'.' path
-     */
-    public static TreeReference selfRef() {
-        TreeReference self = new TreeReference();
-        self.refLevel = 0;
-        self.contextType = CONTEXT_INHERITED;
-        return self;
-    }
-
-    //TODO: This should be constructed I think
-    public void setInstanceName(String newInstanceName) {
-        hashCode = -1;
-        if (newInstanceName == null) {
+    private void setupContextTypeFromInstanceName() {
+        if (this.instanceName == null) {
             if (this.refLevel == REF_ABSOLUTE) {
                 this.contextType = CONTEXT_ABSOLUTE;
             } else {
@@ -118,7 +94,43 @@ public class TreeReference implements Externalizable {
         } else {
             this.contextType = CONTEXT_INSTANCE;
         }
+    }
+
+    public TreeReference(String instanceName, int refLevel, int contextType) {
+        this.instanceName = instanceName;
+        this.refLevel = refLevel;
+        this.contextType = contextType;
+        this.data = new Vector<TreeReferenceLevel>();
+    }
+
+    /**
+     * Build a '/' reference
+     *
+     * @return a reference that represents a root/'/' path
+     */
+    public static TreeReference rootRef() {
+        return new TreeReference(null, REF_ABSOLUTE, CONTEXT_ABSOLUTE);
+    }
+
+    /**
+     * Build a '.' reference
+     *
+     * @return a reference that represents a self/'.' path
+     */
+    public static TreeReference selfRef() {
+        return new TreeReference(null, 0, CONTEXT_INHERITED);
+    }
+
+    public String getInstanceName() {
+        return instanceName;
+    }
+
+    //TODO: This should be constructed I think
+    public void setInstanceName(String newInstanceName) {
+        hashCode = -1;
         this.instanceName = newInstanceName;
+
+        setupContextTypeFromInstanceName();
     }
 
     public int getMultiplicity(int index) {
@@ -259,16 +271,7 @@ public class TreeReference implements Externalizable {
      * data.
      */
     private TreeReference cloneWithEmptyData() {
-        TreeReference newRef = new TreeReference();
-        newRef.setRefLevel(this.refLevel);
-
-        //TODO: No more == null checks here, use context type
-        //copy instances
-        if (instanceName != null) {
-            newRef.setInstanceName(instanceName);
-        }
-        newRef.contextType = this.contextType;
-        return newRef;
+        return new TreeReference(instanceName, refLevel, contextType);
     }
 
     /*

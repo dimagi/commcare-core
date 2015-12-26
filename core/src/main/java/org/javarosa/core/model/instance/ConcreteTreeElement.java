@@ -449,7 +449,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
      */
     public int getDepth() {
-        return TreeElement.CalculateDepth(this);
+        return TreeElement.calculateDepth(this);
     }
 
 
