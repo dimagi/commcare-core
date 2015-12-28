@@ -33,6 +33,7 @@ sourceSets {
         java {
             srcDir 'cases/src'
             srcDir 'backend/src'
+            srcDir 'graphing/src'
             srcDir 'core'
             srcDir 'modern'
         }

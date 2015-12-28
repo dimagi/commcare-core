@@ -1,4 +1,4 @@
-package org.commcare.suite.model.graph;
+package org.commcare.graphing;
 
 import java.util.Hashtable;
 import java.util.Vector;

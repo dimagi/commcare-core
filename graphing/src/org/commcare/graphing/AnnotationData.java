@@ -1,4 +1,4 @@
-package org.commcare.suite.model.graph;
+package org.commcare.graphing;
 
 /**
  * Data for an annotation, which is text drawn at a specified x, y coordinate on a graph.

@@ -1,4 +1,4 @@
-package org.commcare.suite.model.graph;
+package org.commcare.graphing;
 
 /**
  * Interface to be implemented by any classes in this package that store configuration data using a String => String mapping.

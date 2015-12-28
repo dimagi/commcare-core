@@ -1,5 +1,12 @@
 package org.commcare.suite.model.graph;
 
+import org.commcare.graphing.AnnotationData;
+import org.commcare.graphing.BubblePointData;
+import org.commcare.graphing.ConfigurableData;
+import org.commcare.graphing.GraphData;
+import org.commcare.graphing.SeriesData;
+import org.commcare.graphing.XYPointData;
+
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
