@@ -33,9 +33,7 @@ public class DAG<I, N, E> {
     }
 
     public N removeNode(I i) {
-        N removedNode = getNode(i);
-        nodes.remove(i);
-        return removedNode;
+        return nodes.remove(i);
     }
 
     /**
