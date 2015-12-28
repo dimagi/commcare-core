@@ -1094,7 +1094,12 @@ public class XPathFuncExpr extends XPathExpression {
         String re = toString(o2);
 
         RE regexp = new RE(re);
-        boolean result = regexp.match(str);
+        boolean result;
+        try {
+            result = regexp.match(str);
+        } catch (StackOverflowError e) {
+            throw new XPathException("The regular expression '" + str + "' is invalid.");
+        }
         return new Boolean(result);
     }
 
