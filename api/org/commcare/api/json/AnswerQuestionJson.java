@@ -108,7 +108,7 @@ public class AnswerQuestionJson {
         if(step.endsWith("J")){
             return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
         }
-        String[] split = step.split("[._]");
+        String[] split = step.split("[._:]");
 
         System.out.println("Split: " + Arrays.toString(split));
 
