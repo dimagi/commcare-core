@@ -150,7 +150,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
 
                         public IStorageUtilityIndexed<FormInstance> storage() {
                             if (fixtureStorage == null) {
-                                fixtureStorage = CommCareTransactionParserFactory.this.sandbox.getUserFixtureStorage();
+                                fixtureStorage = sandbox.getUserFixtureStorage();
                             }
                             return fixtureStorage;
                         }

@@ -9,6 +9,7 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -279,6 +280,9 @@ public class Text implements Externalizable, DetailTemplate {
                 } catch (XPathSyntaxException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
+                } catch (XPathException e) {
+                    e.setSource(argument);
+                    throw e;
                 }
                 //For testing;
                 return argument;
