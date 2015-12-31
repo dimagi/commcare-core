@@ -7,9 +7,6 @@ import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,18 +88,22 @@ public class DatabaseHelper {
     }
 
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
-        HashMap<String, Object> values = getNonDatatMetaEntries(e);
+        HashMap<String, Object> values = getNonDataMetaEntries(e);
 
-        byte[] blob = TableBuilder.toBlob(e);
-        if(blob.length > 1000000){
-            throw new RecordTooLargeException(blob.length / 1000000);
-        }
-        values.put(DATA_COL, blob);
-
+        addDataToValues(values, e);
         return values;
     }
 
-    public static HashMap<String, Object> getNonDatatMetaEntries(Externalizable e) {
+    private static void addDataToValues(HashMap<String, Object> values,
+                                        Externalizable e) throws RecordTooLargeException {
+        byte[] blob = TableBuilder.toBlob(e);
+        if (blob.length > 1000000) {
+            throw new RecordTooLargeException(blob.length / 1000000);
+        }
+        values.put(DATA_COL, blob);
+    }
+
+    public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<String, Object>();
 
         if(e instanceof IMetaData) {

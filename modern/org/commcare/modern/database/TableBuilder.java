@@ -119,7 +119,7 @@ public class TableBuilder {
      * from the persistable
      */
     public void addFileBackedData(Persistable p) {
-        addPersistableIdAndMeta(p);
+        addData(p);
 
         cols.add(DatabaseHelper.AES_COL + " BLOB");
         rawCols.add(DatabaseHelper.AES_COL);
