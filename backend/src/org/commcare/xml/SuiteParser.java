@@ -29,17 +29,24 @@ public class SuiteParser extends ElementParser<Suite> {
     Suite suite;
     ResourceTable table;
     String resourceGuid;
+    private final IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
     public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
+        this.fixtureStorage = (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
     }
 
-    public SuiteParser(KXmlParser parser, ResourceTable table, String resourceGuid) {
-        super(parser);
+    public SuiteParser(InputStream suiteStream,
+                       ResourceTable table,
+                       String resourceGuid,
+                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+        super(ElementParser.instantiateParser(suiteStream));
+
         this.table = table;
         this.resourceGuid = resourceGuid;
+        this.fixtureStorage = fixtureStorage;
     }
 
     public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
@@ -94,7 +101,7 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else if (parser.getName().toLowerCase().equals("fixture")) {
                         //this one automatically commits the fixture to the global memory
                         if (!inValidationMode()) {
-                            new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
+                            new FixtureXmlParser(parser, false, fixtureStorage).parse();
                         }
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
@@ -129,12 +136,7 @@ public class SuiteParser extends ElementParser<Suite> {
         maximumResourceAuthority = authority;
     }
 
-    protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
-    }
-
     protected boolean inValidationMode() {
         return false;
     }
-
 }
