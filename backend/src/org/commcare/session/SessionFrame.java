@@ -186,9 +186,12 @@ public class SessionFrame implements Externalizable {
 
     @Override
     public String toString() {
-        StringBuilder output = new StringBuilder("Session Frame:\n");
+        StringBuilder output = new StringBuilder();
 
-        prettyPrintSteps(steps, output);
+        if (!steps.isEmpty()) {
+            output.append("frame:\t");
+            prettyPrintSteps(steps, output);
+        }
 
         if (!snapshot.isEmpty()) {
             output.append("\nsnapshot:\t");
