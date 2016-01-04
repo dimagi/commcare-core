@@ -2,11 +2,11 @@ package org.commcare.test.utilities;
 
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.CommCareConfigEngine;
-import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 
 /**
  * A mock app is a quick test wrapper that makes it easy to start playing with a live instance
