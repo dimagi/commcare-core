@@ -242,20 +242,40 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         int i = children.size();
         if (child.getMult() == TreeReference.INDEX_TEMPLATE) {
             TreeElement anchor = getChild(child.getName(), 0);
-            if (anchor != null)
-                i = children.indexOf(anchor);
+            if (anchor != null) {
+                i = referenceIndexOf(children, anchor);
+            }
         } else {
             TreeElement anchor = getChild(child.getName(),
                     (child.getMult() == 0 ? TreeReference.INDEX_TEMPLATE : child.getMult() - 1));
-            if (anchor != null)
-                i = children.indexOf(anchor) + 1;
+            if (anchor != null) {
+                i = referenceIndexOf(children, anchor) + 1;
+            }
         }
         children.insertElementAt(child, i);
-        child.setParent(this);
 
-        child.setRelevant(isRelevant(), true);
-        child.setEnabled(isEnabled(), true);
-        child.setInstanceName(getInstanceName());
+        initAddedSubNode(child);
+    }
+
+    /**
+     * Implementation of Vector.indexOf that avoids calling TreeElement.equals,
+     * which is very slow.
+     */
+    private static int referenceIndexOf(Vector list, Object potentialEntry) {
+        for (int i = 0; i < list.size(); i++) {
+            Object element = list.get(i);
+            if (potentialEntry == element) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void initAddedSubNode(TreeElement node) {
+        node.setParent(this);
+        node.setRelevant(isRelevant(), true);
+        node.setEnabled(isEnabled(), true);
+        node.setInstanceName(getInstanceName());
     }
 
     public void removeChild(TreeElement child) {
@@ -305,12 +325,12 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         newNode.instanceName = instanceName;
         newNode.namespace = namespace;
 
-        newNode.setAttributesFromSingleStringVector(getSingleStringAttributeVector());
         if (value != null) {
             newNode.value = value.clone();
         }
 
         newNode.children = children;
+        newNode.attributes = attributes;
         return newNode;
     }
 
@@ -327,8 +347,32 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
         }
 
+        if (attributes != null) {
+            newNode.attributes = new Vector<TreeElement>();
+            for (TreeElement attr : attributes) {
+                if (includeTemplates || attr.getMult() != TreeReference.INDEX_TEMPLATE) {
+                    newNode.addAttribute(attr.deepCopy(includeTemplates));
+                }
+            }
+        }
+
         return newNode;
     }
+
+    private void addAttribute(TreeElement attr) {
+        if (attr.multiplicity != TreeReference.INDEX_ATTRIBUTE) {
+            throw new RuntimeException("Attribute doesn't have the correct index!");
+        }
+
+        if (attributes == null) {
+            attributes = new Vector<TreeElement>();
+        }
+
+        attributes.addElement(attr);
+
+        initAddedSubNode(attr);
+    }
+
 
     /* ==== MODEL PROPERTIES ==== */
 
@@ -524,6 +568,13 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (attributes == null) {
             this.attributes = new Vector<TreeElement>();
         }
+
+        if ("".equals(namespace)) {
+            // normalize to match how non-attribute TreeElements store namespaces
+            // NOTE PLM: "" and null are quite conflated, especially in read/writeExternal.
+            namespace = null;
+        }
+
         for (int i = attributes.size() - 1; i >= 0; i--) {
             TreeElement attribut = attributes.elementAt(i);
             if (attribut.name.equals(name) && (namespace == null || namespace.equals(attribut.namespace))) {
@@ -536,103 +587,12 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
         }
 
-        if (namespace == null) {
-            namespace = "";
-        }
-
         TreeElement attr = TreeElement.constructAttributeElement(namespace, name);
         attr.setValue(new UncastData(value));
         attr.setParent(this);
 
         attributes.addElement(attr);
     }
-
-    public Vector getSingleStringAttributeVector() {
-        Vector strings = new Vector();
-        if (attributes == null || attributes.size() == 0)
-            return null;
-        else {
-            for (int i = 0; i < this.attributes.size(); i++) {
-                TreeElement attribute = attributes.elementAt(i);
-                String value = getAttributeValue(attribute);
-                if (attribute.namespace == null || attribute.namespace.equals(""))
-                    strings.addElement(new String(attribute.getName() + "=" + value));
-                else
-                    strings.addElement(new String(attribute.namespace + ":" + attribute.getName()
-                            + "=" + value));
-            }
-            return strings;
-        }
-    }
-
-    public void setAttributesFromSingleStringVector(Vector attStrings) {
-        if (attStrings != null) {
-            this.attributes = new Vector<TreeElement>(0);
-            for (int i = 0; i < attStrings.size(); i++) {
-                addSingleAttribute(i, attStrings);
-            }
-        }
-    }
-
-    private void addSingleAttribute(int i, Vector attStrings) {
-        String att = (String)attStrings.elementAt(i);
-        String[] array = new String[3];
-
-        int pos = -1;
-
-        //TODO: The only current assumption here is that the namespace/name of the attribute doesn't have
-        //an equals sign in it. I think this is safe. not sure.
-
-        //Split into first and second parts
-        pos = att.indexOf("=");
-
-        //put the value in our output
-        array[2] = att.substring(pos + 1);
-
-        //now we're left with the xmlns (possibly) and the
-        //name. Get that into a single string.
-        att = att.substring(0, pos);
-
-        //reset position marker.
-        pos = -1;
-
-        // Clayton Sims - Jun 1, 2009 : Updated this code:
-        //    We want to find the _last_ possible ':', not the
-        // first one. Namespaces can have URLs in them.
-        //int pos = att.indexOf(":");
-        while (att.indexOf(":", pos + 1) != -1) {
-            pos = att.indexOf(":", pos + 1);
-        }
-
-        if (pos == -1) {
-            //No namespace
-            array[0] = null;
-
-            //for the name eval below
-            pos = 0;
-        } else {
-            //there is a namespace, grab it
-            array[0] = att.substring(0, pos);
-        }
-        // Now get the name part
-        array[1] = att.substring(pos);
-
-        this.setAttribute(array[0], array[1], array[2]);
-    }
-
-    /* ==== SERIALIZATION ==== */
-
-    /*
-     * TODO:
-     *
-     * this new serialization scheme is kind of lame. ideally, we shouldn't have
-     * to sub-class TreeElement at all; we should have an API that can
-     * seamlessly represent complex data model objects (like weight history or
-     * immunizations) as if they were explicity XML subtrees underneath the
-     * parent TreeElement
-     *
-     * failing that, we should wrap this scheme in an ExternalizableWrapper
-     */
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -641,46 +601,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         flags = ExtUtil.readInt(in);
         value = (IAnswerData)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
 
-        // children = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(in, new
-        // ExtWrapList(TreeElement.class), pf));
-
-        // Jan 22, 2009 - csims@dimagi.com
-        // old line: children = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(in, new
-        // ExtWrapList(TreeElement.class), pf));
-        // New Child deserialization
-        // 1. read null status as boolean
-        // 2. read number of children
-        // 3. for i < number of children
-        // 3.1 if read boolean true , then create TreeElement and deserialize
-        // directly.
-        // 3.2 if read boolean false then create tagged element and deserialize
-        // child
-        if (!ExtUtil.readBool(in)) {
-            // 1.
-            children = null;
-        } else {
-            children = new Vector<TreeElement>();
-            // 2.
-            int numChildren = (int)ExtUtil.readNumeric(in);
-            // 3.
-            for (int i = 0; i < numChildren; ++i) {
-                boolean normal = ExtUtil.readBool(in);
-                TreeElement child;
-
-                if (normal) {
-                    // 3.1
-                    child = new TreeElement();
-                    child.readExternal(in, pf);
-                } else {
-                    // 3.2
-                    child = (TreeElement)ExtUtil.read(in, new ExtWrapTagged(), pf);
-                }
-                child.setParent(this);
-                children.addElement(child);
-            }
-        }
-
-        // end Jan 22, 2009
+        readChildrenFromExternal(in, pf);
 
         dataType = ExtUtil.readInt(in);
         instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -690,9 +611,37 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 
-        Vector attStrings = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(in,
-                new ExtWrapList(String.class), pf));
-        setAttributesFromSingleStringVector(attStrings);
+        readAttributesFromExternal(in, pf);
+    }
+
+    private void readChildrenFromExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        if (!ExtUtil.readBool(in)) {
+            children = null;
+        } else {
+            children = new Vector<TreeElement>();
+            int numChildren = (int)ExtUtil.readNumeric(in);
+            for (int i = 0; i < numChildren; ++i) {
+                TreeElement child = new TreeElement();
+                child.readExternal(in, pf);
+                child.setParent(this);
+                children.addElement(child);
+            }
+        }
+    }
+
+    private void readAttributesFromExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        if (!ExtUtil.readBool(in)) {
+            attributes = null;
+        } else {
+            attributes = new Vector<TreeElement>();
+            int attrCount = (int)ExtUtil.readNumeric(in);
+            for (int i = 0; i < attrCount; ++i) {
+                TreeElement attr = new TreeElement();
+                attr.readExternal(in, pf);
+                attr.setParent(this);
+                attributes.addElement(attr);
+            }
+        }
     }
 
     @Override
@@ -702,42 +651,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         ExtUtil.writeNumeric(out, flags);
         ExtUtil.write(out, new ExtWrapNullable(value == null ? null : new ExtWrapTagged(value)));
 
-        // Jan 22, 2009 - csims@dimagi.com
-        // old line: ExtUtil.write(out, new
-        // ExtWrapList(ExtUtil.emptyIfNull(children)));
-        // New Child serialization
-        // 1. write null status as boolean
-        // 2. write number of children
-        // 3. for all child in children
-        // 3.1 if child type == TreeElement write boolean true , then serialize
-        // directly.
-        // 3.2 if child type != TreeElement, write boolean false, then tagged
-        // child
-        if (children == null) {
-            // 1.
-            ExtUtil.writeBool(out, false);
-        } else {
-            // 1.
-            ExtUtil.writeBool(out, true);
-            // 2.
-            ExtUtil.writeNumeric(out, children.size());
-            // 3.
-            Enumeration en = children.elements();
-            while (en.hasMoreElements()) {
-                TreeElement child = (TreeElement)en.nextElement();
-                if (child.getClass() == TreeElement.class) {
-                    // 3.1
-                    ExtUtil.writeBool(out, true);
-                    child.writeExternal(out);
-                } else {
-                    // 3.2
-                    ExtUtil.writeBool(out, false);
-                    ExtUtil.write(out, new ExtWrapTagged(child));
-                }
-            }
-        }
-
-        // end Jan 22, 2009
+        writeChildrenToExternal(out);
 
         ExtUtil.writeNumeric(out, dataType);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(instanceName));
@@ -746,9 +660,37 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(preloadParams));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
 
-        Vector attStrings = getSingleStringAttributeVector();
-        ExtUtil.write(out, new ExtWrapList(ExtUtil.emptyIfNull(attStrings)));
+        writeAttributesToExternal(out);
     }
+
+    private void writeChildrenToExternal(DataOutputStream out) throws IOException {
+        if (children == null) {
+            ExtUtil.writeBool(out, false);
+        } else {
+            ExtUtil.writeBool(out, true);
+            ExtUtil.writeNumeric(out, children.size());
+            Enumeration en = children.elements();
+            while (en.hasMoreElements()) {
+                TreeElement child = (TreeElement)en.nextElement();
+                child.writeExternal(out);
+            }
+        }
+    }
+
+    private void writeAttributesToExternal(DataOutputStream out) throws IOException {
+        if (attributes == null) {
+            ExtUtil.writeBool(out, false);
+        } else {
+            ExtUtil.writeBool(out, true);
+            ExtUtil.writeNumeric(out, attributes.size());
+            Enumeration en = attributes.elements();
+            while (en.hasMoreElements()) {
+                TreeElement attr = (TreeElement)en.nextElement();
+                attr.writeExternal(out);
+            }
+        }
+    }
+
 
     /**
      * Rebuilding this node from an imported instance
@@ -1041,5 +983,192 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        // NOTE PLM: does not compare equality of parents because that requires
+        // trickery to avoid looping indefinitely
+        if (o instanceof TreeElement) {
+            TreeElement otherTreeElement = (TreeElement)o;
+            final boolean doFieldsMatch = (name.equals(otherTreeElement.name) &&
+                    multiplicity == otherTreeElement.multiplicity &&
+                    flags == otherTreeElement.flags &&
+                    dataType == otherTreeElement.dataType &&
+                    ((instanceName != null && instanceName.equals(otherTreeElement.instanceName)) ||
+                            (instanceName == null && otherTreeElement.instanceName == null)) &&
+                    ((constraint != null && constraint.equals(otherTreeElement.constraint)) ||
+                            (constraint == null && otherTreeElement.constraint == null)) &&
+                    ((preloadHandler != null && preloadHandler.equals(otherTreeElement.preloadHandler)) ||
+                            (preloadHandler == null && otherTreeElement.preloadHandler == null)) &&
+                    ((preloadParams != null && preloadParams.equals(otherTreeElement.preloadParams)) ||
+                            (preloadParams == null && otherTreeElement.preloadParams == null)) &&
+                    ((namespace != null && namespace.equals(otherTreeElement.namespace)) ||
+                            (namespace == null && otherTreeElement.namespace == null)) &&
+                    ((value != null && value.uncast().getString().equals(otherTreeElement.value.uncast().getString())) ||
+                            value == null && otherTreeElement.value == null));
+            if (doFieldsMatch) {
+                if (children != null) {
+                    if (otherTreeElement.children == null) {
+                        return false;
+                    }
+                    for (TreeElement child : children) {
+                        if (!otherTreeElement.children.contains(child)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (otherTreeElement.children != null) {
+                        return false;
+                    }
+                }
+                if (attributes != null) {
+                    if (otherTreeElement.attributes == null) {
+                        return false;
+                    }
+                    for (TreeElement attr : attributes) {
+                        if (!otherTreeElement.attributes.contains(attr)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (otherTreeElement.attributes != null) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int childrenHashCode = 0;
+        if (children != null) {
+            for (TreeElement child : children) {
+                childrenHashCode ^= child.hashCode();
+            }
+        }
+
+        int attributesHashCode = 0;
+        if (attributes != null) {
+            for (TreeElement attr : attributes) {
+                attributesHashCode ^= attr.hashCode();
+            }
+        }
+
+        return multiplicity ^ flags ^ dataType ^
+                (instanceName == null ? 0 : instanceName.hashCode()) ^
+                (constraint == null ? 0 : constraint.hashCode()) ^
+                (preloadHandler == null ? 0 : preloadHandler.hashCode()) ^
+                (preloadParams == null ? 0 : preloadParams.hashCode()) ^
+                (namespace == null ? 0 : namespace.hashCode()) ^
+                (value == null ? 0 : value.hashCode()) ^
+                childrenHashCode ^ attributesHashCode;
+    }
+
+    /**
+     * Old externalization scheme used to migrate fixtures from CommCare 2.24 to 2.25
+     *
+     * This can be removed once we are certain no devices will be migrated up from 2.24
+     */
+    public void readExternalMigration(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        multiplicity = ExtUtil.readInt(in);
+        flags = ExtUtil.readInt(in);
+        value = (IAnswerData)ExtUtil.read(in, new ExtWrapNullable(new ExtWrapTagged()), pf);
+
+        if (!ExtUtil.readBool(in)) {
+            children = null;
+        } else {
+            children = new Vector<TreeElement>();
+            int numChildren = (int)ExtUtil.readNumeric(in);
+            for (int i = 0; i < numChildren; ++i) {
+                boolean normal = ExtUtil.readBool(in);
+                TreeElement child;
+
+                if (normal) {
+                    child = new TreeElement();
+                    child.readExternalMigration(in, pf);
+                } else {
+                    child = (TreeElement)ExtUtil.read(in, new ExtWrapTagged(), pf);
+                }
+                child.setParent(this);
+                children.addElement(child);
+            }
+        }
+
+        dataType = ExtUtil.readInt(in);
+        instanceName = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        constraint = (Constraint)ExtUtil.read(in, new ExtWrapNullable(
+                Constraint.class), pf);
+        preloadHandler = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        preloadParams = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+
+        Vector attStrings = ExtUtil.nullIfEmpty((Vector)ExtUtil.read(in,
+                new ExtWrapList(String.class), pf));
+        setAttributesFromSingleStringVector(attStrings);
+    }
+
+    private void setAttributesFromSingleStringVector(Vector attStrings) {
+        if (attStrings != null) {
+            this.attributes = new Vector<TreeElement>();
+            for (int i = 0; i < attStrings.size(); i++) {
+                addSingleAttribute(i, attStrings);
+            }
+        }
+    }
+
+    private void addSingleAttribute(int i, Vector attStrings) {
+        String att = (String)attStrings.elementAt(i);
+        String[] array = new String[3];
+
+        int pos = -1;
+
+        //TODO: The only current assumption here is that the namespace/name of the attribute doesn't have
+        //an equals sign in it. I think this is safe. not sure.
+
+        //Split into first and second parts
+        pos = att.indexOf("=");
+
+        //put the value in our output
+        array[2] = att.substring(pos + 1);
+
+        //now we're left with the xmlns (possibly) and the
+        //name. Get that into a single string.
+        att = att.substring(0, pos);
+
+        //reset position marker.
+        pos = -1;
+
+        // Clayton Sims - Jun 1, 2009 : Updated this code:
+        //    We want to find the _last_ possible ':', not the
+        // first one. Namespaces can have URLs in them.
+        //int pos = att.indexOf(":");
+        while (att.indexOf(":", pos + 1) != -1) {
+            pos = att.indexOf(":", pos + 1);
+        }
+
+        if (pos == -1) {
+            //No namespace
+            array[0] = null;
+
+            //for the name eval below
+            pos = 0;
+        } else {
+            //there is a namespace, grab it
+            array[0] = att.substring(0, pos);
+        }
+        // Now get the name part
+        array[1] = att.substring(pos);
+
+        setAttribute(array[0], array[1], array[2]);
     }
 }
