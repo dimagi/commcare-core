@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.instance;
 
 import org.javarosa.core.model.FormDef;
@@ -35,7 +19,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
 /**
  * This class represents the xform model instance
  */
@@ -54,14 +37,13 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
 
     Hashtable namespaces = new Hashtable();
 
-
     /**
      * The root of this tree
      */
     protected TreeElement root = new TreeElement();
 
     public FormInstance() {
-
+        // for externalization
     }
 
     public FormInstance(TreeElement root) {
@@ -423,5 +405,40 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             return ExtUtil.emptyIfNull(this.getInstanceId());
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the form instance storage system");
+    }
+
+
+    /**
+     * Custom deserializer for migrating fixtures off of CommCare 2.24.
+     *
+     * The migration is needed because attribute serialization was redone to
+     * capture data-type information.  If this migration is not performed
+     * between 2.24 and subsequent versions, fixtures can not be opened. If the
+     * migration fails the user can always sync, clear user data, and restore
+     * to get reload the fixtures.
+     *
+     * Used in Android app db migration V.7 and user db migration V.9
+     *
+     * This can be removed once no devices running 2.24 remain
+     */
+    public void migrateSerialization(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+        schema = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
+        dateSaved = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+
+        namespaces = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        TreeElement newRoot;
+        try {
+            newRoot = TreeElement.class.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        } catch (IllegalAccessException e){
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        newRoot.readExternalMigration(in, pf);
+        setRoot(newRoot);
     }
 }
