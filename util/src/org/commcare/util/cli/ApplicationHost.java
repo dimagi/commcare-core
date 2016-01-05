@@ -280,15 +280,6 @@ public class ApplicationHost {
         }
     }
 
-    public String getInstanceXML(String path, String root){
-        return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
-    }
-
-    public String evaluateXPath(String xpath) throws Exception {
-        Text text = Text.XPathText(xpath, null);
-        return text.evaluate(mSession.getEvaluationContext());
-    }
-
     private void printStack(SessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
         System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
