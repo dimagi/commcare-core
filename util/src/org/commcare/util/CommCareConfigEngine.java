@@ -22,7 +22,6 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.mocks.LivePrototypeFactory;
 import org.commcare.resources.reference.JavaResourceRoot;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
@@ -37,6 +36,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.services.storage.StorageManager;
 import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
+import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathMissingInstanceException;
@@ -59,7 +59,6 @@ import java.util.zip.ZipFile;
  *
  */
 public class CommCareConfigEngine {
-    private OutputStream output;
     private ResourceTable table;
     private ResourceTable updateTable;
     private ResourceTable recoveryTable;
@@ -79,7 +78,6 @@ public class CommCareConfigEngine {
     }
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
-        this.output = output;
         this.print = new PrintStream(output);
         this.platform = new CommCarePlatform(2, 26);
 
