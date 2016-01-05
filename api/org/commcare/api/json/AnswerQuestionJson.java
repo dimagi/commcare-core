@@ -64,7 +64,6 @@ public class AnswerQuestionJson {
 
     public static String questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
-        System.out.println("Java Answer: " + answer + " index " + index);
         try {
             FormIndex formIndex = indexFromString(index, model.getForm());
             FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
@@ -103,14 +102,10 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
-        System.out.println("Java Step from string: " + step);
-
         if(step.endsWith("J")){
             return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
         }
         String[] split = step.split("[._:]");
-
-        System.out.println("Split: " + Arrays.toString(split));
 
         int i = Integer.parseInt(split[0].trim());
         int mult = -1;
@@ -130,7 +125,6 @@ public class AnswerQuestionJson {
         for(String step: list){
             if(!step.trim().equals("")) {
                 Pair<Integer, Integer> pair = stepFromString(step);
-                System.out.println("Java Pair: " + pair);
                 ret.add(pair);
             }
         }
