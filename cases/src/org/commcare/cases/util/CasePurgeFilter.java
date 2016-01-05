@@ -13,9 +13,7 @@ import org.javarosa.core.util.DAG.Edge;
 import org.javarosa.core.util.DataUtil;
 
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -255,8 +253,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             for (Edge<String, String> edge : edgeListForOrigin) {
                 String targetIndex = edge.i;
                 if (internalCaseDAG.getNode(targetIndex) == null) {
-                    edgesToRemove.add(new String[]{originIndex, targetIndex});
-                    childOfNonexistentParent.add(originIndex);
+                    edgesToRemove.addElement(new String[]{originIndex, targetIndex});
+                    childOfNonexistentParent.addElement(originIndex);
                 }
             }
         }
@@ -285,7 +283,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         Vector<Edge<String, String>> childCases = internalCaseDAG.getParents(indexOfRemovedNode);
         for (Edge<String, String> child : childCases) {
             // Want to remove the edge from child case to parent case
-            accumulatedEdgesToRemove.add(new String[]{child.i, indexOfRemovedNode});
+            accumulatedEdgesToRemove.addElement(new String[]{child.i, indexOfRemovedNode});
 
             // Recurse on child case
             removeNodeAndPropagate(child.i, accumulatedEdgesToRemove);
@@ -295,7 +293,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         // parents because they are still valid)
         Vector<Edge<String, String>> parentCases = internalCaseDAG.getChildren(indexOfRemovedNode);
         for (Edge<String, String> parent : parentCases) {
-            accumulatedEdgesToRemove.add(new String[]{indexOfRemovedNode, parent.i});
+            accumulatedEdgesToRemove.addElement(new String[]{indexOfRemovedNode, parent.i});
         }
 
         // Once all edges to/from this node have been removed, delete the node itself from the
