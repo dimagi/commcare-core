@@ -45,7 +45,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private static final int STATUS_OPEN = 16;
 
-    private final Vector<Integer> idsToRemove = new Vector<>();
+    private final Vector<Integer> idsToRemove = new Vector<Integer>();
 
     private DAG<String, int[], String> internalCaseDAG;
     private boolean invalidEdgesWereRemoved;
