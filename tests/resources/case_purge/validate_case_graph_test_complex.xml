@@ -1,0 +1,114 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account extensions!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>ee1d9a190c6010209d74201b3f5cc6d3</restore_id>
+    </Sync>
+    <Registration xmlns="http://openrosa.org/user/registration">
+        <username>test</username>
+        <password>sha1$2hyI34E4uuEI$c9be2e0fe031d43dd120d1df9fead6da1ff85d9a</password>
+        <uuid>test_user</uuid>
+        <date>2015-11-25</date>
+        <user_data>
+            <data key="thing">123</data>
+            <data key="commcare_last_name"/>
+            <data key="commcare_phone_number"/>
+            <data key="commcare_first_name">Farid</data>
+        </user_data>
+    </Registration>
+
+    <case case_id="case_one"
+        date_modified="2015-11-25T15:34:24.879077Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 1</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+    </case>
+
+    <case case_id="case_two"
+        date_modified="2015-11-25T15:35:14.253000Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 2</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="extension">case_one</host>
+        </index>
+    </case>
+
+    <case case_id="case_three"
+        date_modified="2015-11-25T15:34:24.879077Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 3</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="child">nonexistent_case_id</host>
+        </index>
+    </case>
+
+    <case case_id="case_four"
+        date_modified="2015-11-25T15:35:14.253000Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 3</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="extension">nonexistent_case_id</host>
+        </index>
+    </case>
+
+    <case case_id="case_five"
+        date_modified="2015-11-25T15:35:14.253000Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 5</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="child">case_three</host>
+        </index>
+    </case>
+
+    <case case_id="case_six"
+        date_modified="2015-11-25T15:35:14.253000Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 6</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="extension">case_four</host>
+        </index>
+    </case>
+
+    <case case_id="case_seven"
+        date_modified="2015-11-25T15:35:14.253000Z"
+        user_id="test_user"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>test_case</case_type>
+            <case_name>Test Case 7</case_name>
+            <owner_id>test_user</owner_id>
+        </create>
+        <index>
+            <host case_type="test_case" relationship="child">case_six</host>
+        </index>
+    </case>
+
+</OpenRosaResponse>
