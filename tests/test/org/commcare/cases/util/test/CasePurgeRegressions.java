@@ -3,8 +3,6 @@ package org.commcare.cases.util.test;
 import org.commcare.cases.model.Case;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
-import org.javarosa.core.util.DataUtil;
 import org.junit.Assert;
 
 import org.commcare.cases.util.CasePurgeFilter;
@@ -22,8 +20,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
-
-import static org.junit.Assert.fail;
 
 /**
  * Quick test to be able to restore a set of user data
@@ -108,7 +104,7 @@ public class CasePurgeRegressions {
         // Check that the edges and nodes still present in the graph are as expected
         DAG<String, int[], String> internalCaseGraph = filter.getInternalCaseGraph();
         checkProperNodesPresent(nodesExpectedToBeLeft, internalCaseGraph);
-        //checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
+        checkProperEdgesPresent(edgesExpectedToBeLeft, internalCaseGraph);
 
         // Check that the correct cases were actually purged
         Vector<Integer> expectedToRemove = new Vector<>();
@@ -118,7 +114,7 @@ public class CasePurgeRegressions {
         expectedToRemove.add(caseIdsToRecordIds.get("case_six"));
         expectedToRemove.add(caseIdsToRecordIds.get("case_seven"));
         Vector<Integer> removed = storage.removeAll(filter);
-        //checkProperCasesRemoved(expectedToRemove, removed);
+        checkProperCasesRemoved(expectedToRemove, removed);
     }
 
     /**
