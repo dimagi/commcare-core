@@ -112,7 +112,7 @@ public class AnswerQuestionJson {
         try{
             mult = Integer.parseInt(split[1].trim());
         } catch(IndexOutOfBoundsException | NullPointerException e){
-            System.out.println("E: " + e.getMessage());
+            // do nothing, leave mult as -1
         }
         return new Pair<>(i, mult);
     }
