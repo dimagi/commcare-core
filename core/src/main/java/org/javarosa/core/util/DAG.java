@@ -74,7 +74,7 @@ public class DAG<I, N, E> {
             for (Edge<I, E> edge : edgesFromSource) {
                 if (edge.i.equals(destinationIndex)) {
                     // Remove the edge
-                    edgesFromSource.remove(edge);
+                    edgesFromSource.removeElement(edge);
 
                     // If removing this edge has made it such that this source index no longer has
                     // any edges from it, remove that entire index from the edges hashtable
