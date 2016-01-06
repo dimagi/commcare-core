@@ -1,6 +1,7 @@
 <project name="javarosa-validator-tools" default="build-all">
 	<property name="compile.source" value="true" />
 	<property name="polish.home" value="C:\\Program Files\\J2ME-Polish\\" />
+	
 	<property name="dir.root" value="${basedir}/../../../" />
 
 	<target name="build-all">
