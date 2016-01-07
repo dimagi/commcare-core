@@ -1,0 +1,29 @@
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml"
+>
+    <h:head>
+        <h:title>Test loading geopoints</h:title>
+        <model>
+            <instance>
+                <data
+                    name="Geopoint tests"
+                    uiVersion="1" version="1"
+                    xmlns="http://openrosa.org/formdesigner/C1417AEE-F51D-4BA6-9769-381896D4CB9F">
+
+                    <geo_with_acc_and_alt>100.2231 3.1 100 1.0</geo_with_acc_and_alt>
+                    <random_geopoint>5.1111 23.23111</random_geopoint>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/random_geopoint"
+                  relevant="true()"
+                  type="geopoint"/>
+
+            <bind nodeset="/data/geo_with_acc_and_alt"
+                  relevant="true()"
+                  type="geopoint"/>
+        </model>
+    </h:head>
+    <h:body>
+    </h:body>
+</h:html>
