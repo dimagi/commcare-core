@@ -427,8 +427,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return pi();
             }else if (name.equals("distance")) {
                 checkArity(name, 2, args.length);
-                return GeoPointUtils.computeDistanceBetween(
-                        (GeoPointData) argVals[0], (GeoPointData) argVals[1]);
+                return distance(argVals[0], argVals[1]);
             }else {
                 if (customFuncArityError != null) {
                     throw customFuncArityError;
@@ -1435,6 +1434,21 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
+
+    /**
+     * Returns the distance between two GeoPointData locations, in meters, given objects to unpack.
+     * Ignores altitude and accuracy.
+     */
+    public static double distance(Object from, Object to) {
+        Object unpacked_from = unpack(from);
+        Object unpacked_to = unpack(to);
+
+        if (unpacked_from instanceof GeoPointData && unpacked_to instanceof GeoPointData) {
+            return GeoPointUtils.computeDistanceBetween(
+                    (GeoPointData) unpacked_from, (GeoPointData) unpacked_to);
+        }
+        throw new XPathTypeMismatchException("converting to GeoPointData");
+    }
 
     /**
      * Take in a value (only a string for now, TODO: Extend?) that doesn't

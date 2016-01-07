@@ -33,7 +33,7 @@ public class GeoPointUtils {
     /**
      * Returns distance on the unit sphere; the arguments are in radians.
      */
-    public static double distanceRadians(double lat1, double lng1, double lat2, double lng2) {
+    private static double distanceRadians(double lat1, double lng1, double lat2, double lng2) {
         return arcHav(havDistance(lat1, lat2, lng1 - lng2));
     }
 
@@ -42,7 +42,7 @@ public class GeoPointUtils {
      * Returns haversine(angle-in-radians).
      * hav(x) == (1 - cos(x)) / 2 == sin(x / 2)^2.
      */
-    public static double hav(double x) {
+    private static double hav(double x) {
         double sinHalf = sin(x * 0.5);
         return sinHalf * sinHalf;
     }
@@ -53,7 +53,7 @@ public class GeoPointUtils {
      * arcHav(x) == acos(1 - 2 * x) == 2 * asin(sqrt(x)).
      * The argument must be in [0, 1], and the result is positive.
      */
-    public static double arcHav(double x) {
+    private static double arcHav(double x) {
         return 2 * asin(sqrt(x));
     }
 
@@ -61,7 +61,7 @@ public class GeoPointUtils {
     /**
      * Returns hav() of distance from (lat1, lng1) to (lat2, lng2) on the unit sphere.
      */
-    public static double havDistance(double lat1, double lat2, double dLng) {
+    private static double havDistance(double lat1, double lat2, double dLng) {
         return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
     }
 }

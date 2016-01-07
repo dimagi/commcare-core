@@ -4,6 +4,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
@@ -24,11 +25,9 @@ public class GeoPointTests {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
-        /*
-        // Uncomment this when 'distance' is implemented to test it works
+
         ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to itself is 0",
-                "0.0", "distance(/data/custom_location, /data/custom_location)", evalCtx);
-        */
+                "0.0", "distance(/data/random_geopoint, /data/random_geopoint)", evalCtx);
 
         // extend with more tests
     }
