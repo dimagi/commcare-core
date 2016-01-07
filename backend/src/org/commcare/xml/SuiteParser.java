@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
@@ -25,6 +22,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * Parses a suite file resource and creates the associated object 
+ * containing the menu, detail, entry, etc definitions. This parser
+ * will also create models for any resource installers that are defined
+ * by the suite file and add them to the resource table provided
+ * with the suite resource as the parent, that behavior can be skipped
+ * by setting a flag if the resources have already been promised.
+ * 
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
@@ -32,6 +36,8 @@ public class SuiteParser extends ElementParser<Suite> {
     Suite suite;
     ResourceTable table;
     String resourceGuid;
+
+    private boolean skipResources = false;
 
     public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
@@ -75,19 +81,25 @@ public class SuiteParser extends ElementParser<Suite> {
                         //resource def
                         parser.nextTag();
                         Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
+                        if(!skipResources) {
+                            table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
+                        }
                     } else if (parser.getName().toLowerCase().equals("media")) {
                         String path = parser.getAttributeValue(null, "path");
                         //Can be an arbitrary number of resources inside of a media block.
                         while (this.nextTagInBlock("media")) {
                             Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                            table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                            if(!skipResources) {
+                                table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                            }
                         }
                     } else if (parser.getName().toLowerCase().equals("xform")) {
                         //skip xform stuff for now
                         parser.nextTag();
                         Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                        if(!skipResources) {
+                            table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                        }
                     } else if (parser.getName().toLowerCase().equals("detail")) {
                         Detail d = new DetailParser(parser).parse();
                         details.put(d.getId(), d);
@@ -140,4 +152,11 @@ public class SuiteParser extends ElementParser<Suite> {
         return false;
     }
 
+    /**
+     * If set to true, the parser won't process adding incoming resources to the resource table.
+     * This is helpful if the suite is being processed during a non-install phase
+     */
+    public void setSkipResources(boolean skipResources) {
+        this.skipResources = skipResources;
+    }
 }
