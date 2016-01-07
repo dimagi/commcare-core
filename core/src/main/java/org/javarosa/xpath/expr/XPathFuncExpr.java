@@ -3,9 +3,11 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
@@ -423,6 +425,10 @@ public class XPathFuncExpr extends XPathExpression {
             }else if (name.equals("pi")) { //XPath 3.0
                 checkArity(name, 0, args.length);
                 return pi();
+            }else if (name.equals("distance")) {
+                checkArity(name, 2, args.length);
+                return GeoPointUtils.computeDistanceBetween(
+                        (GeoPointData) argVals[0], (GeoPointData) argVals[1]);
             }else {
                 if (customFuncArityError != null) {
                     throw customFuncArityError;
