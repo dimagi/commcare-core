@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
@@ -25,6 +22,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * Parses a suite file resource and creates the associated object 
+ * containing the menu, detail, entry, etc definitions. This parser
+ * will also create models for any resource installers that are defined
+ * by the suite file and add them to the resource table provided
+ * with the suite resource as the parent, that behavior can be skipped
+ * by setting a flag if the resources have already been promised.
+ * 
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
@@ -151,7 +155,6 @@ public class SuiteParser extends ElementParser<Suite> {
     /**
      * If set to true, the parser won't process adding incoming resources to the resource table.
      * This is helpful if the suite is being processed during a non-install phase
-     * @param skipResources
      */
     public void setSkipResources(boolean skipResources) {
         this.skipResources = skipResources;
