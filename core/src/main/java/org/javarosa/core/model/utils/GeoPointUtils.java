@@ -54,7 +54,11 @@ public class GeoPointUtils {
      * The argument must be in [0, 1], and the result is positive.
      */
     private static double arcHav(double x) {
+        //#if polish.cldc
+        //# throw new XPathUnsupportedException("Sorry, arc sines are not supported on your platform");
+        //#else
         return 2 * asin(sqrt(x));
+        //#endif
     }
 
 
