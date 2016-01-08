@@ -1,9 +1,10 @@
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.util.MathUtils;
 import org.javarosa.xpath.XPathUnsupportedException;
 
-import static java.lang.Math.*;
+import java.lang.Math;
 
 /**
  * Static utility methods for GeoPointData.
@@ -23,10 +24,10 @@ public class GeoPointUtils {
      */
     public static double computeDistanceBetween(GeoPointData from, GeoPointData to) {
         return EARTH_RADIUS * distanceRadians(
-                toRadians(from.getLatitude()),
-                toRadians(from.getLongitude()),
-                toRadians(to.getLatitude()),
-                toRadians(to.getLongitude())
+                Math.toRadians(from.getLatitude()),
+                Math.toRadians(from.getLongitude()),
+                Math.toRadians(to.getLatitude()),
+                Math.toRadians(to.getLongitude())
         );
     }
 
@@ -44,7 +45,7 @@ public class GeoPointUtils {
      * hav(x) == (1 - cos(x)) / 2 == sin(x / 2)^2.
      */
     private static double hav(double x) {
-        double sinHalf = sin(x * 0.5);
+        double sinHalf = Math.sin(x * 0.5);
         return sinHalf * sinHalf;
     }
 
@@ -56,9 +57,9 @@ public class GeoPointUtils {
      */
     private static double arcHav(double x) {
         //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc sines are not supported on your platform");
+        //# return 2 * MathUtils.asin(Math.sqrt(x));
         //#else
-        return 2 * asin(sqrt(x));
+        return 2 * Math.asin(Math.sqrt(x));
         //#endif
     }
 
@@ -67,6 +68,6 @@ public class GeoPointUtils {
      * Returns hav() of distance from (lat1, lng1) to (lat2, lng2) on the unit sphere.
      */
     private static double havDistance(double lat1, double lat2, double dLng) {
-        return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
+        return hav(lat1 - lat2) + hav(dLng) * Math.cos(lat1) * Math.cos(lat2);
     }
 }
