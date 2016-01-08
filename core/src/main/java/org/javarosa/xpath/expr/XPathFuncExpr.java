@@ -1439,16 +1439,17 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Returns the distance between two GeoPointData locations, in meters, given objects to unpack.
      * Ignores altitude and accuracy.
+     * Note that the arguments can be strings.
      */
     public static double distance(Object from, Object to) {
-        String unpacked_from = (String) unpack(from);
-        String unpacked_to = (String) unpack(to);
+        String unpackedFrom = (String) unpack(from);
+        String unpackedTo = (String) unpack(to);
 
         // Casting and uncasting seems strange but is consistent with the codebase
-        GeoPointData casted_from = new GeoPointData().cast(new UncastData(unpacked_from));
-        GeoPointData casted_to = new GeoPointData().cast(new UncastData(unpacked_to));
+        GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
+        GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
-        return GeoPointUtils.computeDistanceBetween(casted_from, casted_to);
+        return GeoPointUtils.computeDistanceBetween(castedFrom, castedTo);
     }
 
     /**

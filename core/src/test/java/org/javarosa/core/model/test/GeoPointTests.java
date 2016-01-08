@@ -17,14 +17,6 @@ public class GeoPointTests {
     @Before
     public void setUp() {
         geopointFpi = new FormParseInit("/geopoint_tests.xml");
-
-        FormEntryController fec = geopointFpi.getFormEntryController();
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
-        // step through entire form
-        do {
-        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
-
         geopointEvalCtx = geopointFpi.getFormDef().getEvaluationContext();
     }
 
@@ -42,11 +34,12 @@ public class GeoPointTests {
     }
 
     /**
-     * Tests distance from New York to San Francisco with a tolerance of 10km
+     * Tests distance from New York to San Francisco with a tolerance of 1m.
+     * Note that New York and San Francisco are given as strings.
      */
     @Test
     public void testDistanceFunctionBetweenDifferentPoints() throws XPathSyntaxException {
         ExprEvalUtils.assertAlmostEqualsXpathEval(
-                4128850.0, 10000.0, "distance(/data/new_york, /data/san_francisco)", geopointEvalCtx);
+                4127316.0, 1.0, "distance(/data/new_york, /data/san_francisco)", geopointEvalCtx);
     }
 }

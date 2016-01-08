@@ -12,8 +12,8 @@
 
                     <geo_with_acc_and_alt>100.2231 3.1 100 1.0</geo_with_acc_and_alt>
                     <random_geopoint>5.1111 23.23111</random_geopoint>
-                    <new_york>40.7 74.0 95 0</new_york>
-                    <san_francisco>37.8 122.4 16 0</san_francisco>
+                    <new_york>40.7 -74.0 95 0</new_york>
+                    <san_francisco>37.8 -122.4 16 0</san_francisco>
                 </data>
             </instance>
 
