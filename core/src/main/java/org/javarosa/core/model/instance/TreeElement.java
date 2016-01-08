@@ -263,7 +263,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     private static int referenceIndexOf(Vector list, Object potentialEntry) {
         for (int i = 0; i < list.size(); i++) {
-            Object element = list.get(i);
+            Object element = list.elementAt(i);
             if (potentialEntry == element) {
                 return i;
             }
