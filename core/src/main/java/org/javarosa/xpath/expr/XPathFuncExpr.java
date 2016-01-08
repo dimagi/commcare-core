@@ -1441,7 +1441,7 @@ public class XPathFuncExpr extends XPathExpression {
      * Ignores altitude and accuracy.
      * Note that the arguments can be strings.
      */
-    public static double distance(Object from, Object to) {
+    public static Double distance(Object from, Object to) {
         String unpackedFrom = (String) unpack(from);
         String unpackedTo = (String) unpack(to);
 
@@ -1449,7 +1449,7 @@ public class XPathFuncExpr extends XPathExpression {
         GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
         GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
 
-        return GeoPointUtils.computeDistanceBetween(castedFrom, castedTo);
+        return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
     }
 
     /**
