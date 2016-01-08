@@ -60,25 +60,6 @@ public class DetailField implements Externalizable {
     public DetailField() {
     }
 
-    public DetailField(
-            Text header, DetailTemplate template, Text sort, String relevancy,
-            String headerWidthHint, String templateWidthHint,
-            String headerForm, String templateForm,
-            int sortOrder, int sortDirection, int sortType
-    ) {
-        this.header = header;
-        this.template = template;
-        this.sort = sort;
-        this.relevancy = relevancy;
-        this.headerWidthHint = headerWidthHint;
-        this.templateWidthHint = templateWidthHint;
-        this.headerForm = headerForm;
-        this.templateForm = templateForm;
-        this.sortOrder = sortOrder;
-        this.sortDirection = sortDirection;
-    }
-
-
     /**
      * @return the header
      */
@@ -86,14 +67,12 @@ public class DetailField implements Externalizable {
         return header;
     }
 
-
     /**
      * @return the template
      */
     public DetailTemplate getTemplate() {
         return template;
     }
-
 
     /**
      * @return the sort
@@ -128,14 +107,12 @@ public class DetailField implements Externalizable {
         return headerWidthHint;
     }
 
-
     /**
      * @return the templateHint
      */
     public String getTemplateWidthHint() {
         return templateWidthHint;
     }
-
 
     /**
      * @return the headerForm
@@ -144,7 +121,6 @@ public class DetailField implements Externalizable {
         return headerForm;
     }
 
-
     /**
      * @return the templateForm
      */
@@ -152,14 +128,12 @@ public class DetailField implements Externalizable {
         return templateForm;
     }
 
-
     /**
      * @return the sortOrder
      */
     public int getSortOrder() {
         return sortOrder;
     }
-
 
     /**
      * @return the sortDirection
@@ -172,10 +146,7 @@ public class DetailField implements Externalizable {
         return sortType;
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         header = (Text)ExtUtil.read(in, Text.class, pf);
         template = (DetailTemplate)ExtUtil.read(in, new ExtWrapTagged(DetailTemplate.class), pf);
@@ -194,9 +165,7 @@ public class DetailField implements Externalizable {
         sortType = ExtUtil.readInt(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, header);
         ExtUtil.write(out, new ExtWrapTagged(template));
@@ -256,8 +225,8 @@ public class DetailField implements Externalizable {
         this.background = background;
     }
 
-    public class Builder {
-        DetailField field;
+    public static class Builder {
+        final DetailField field;
 
         public Builder() {
             field = new DetailField();
@@ -274,14 +243,12 @@ public class DetailField implements Externalizable {
             field.header = header;
         }
 
-
         /**
          * @param template the template to set
          */
         public void setTemplate(DetailTemplate template) {
             field.template = template;
         }
-
 
         /**
          * @param sort the sort to set
@@ -297,22 +264,13 @@ public class DetailField implements Externalizable {
             field.relevancy = relevancy;
         }
 
-
-        /**
-         * @param headerWidthHint the headerWidthHint to set
-         */
         public void setHeaderWidthHint(String hint) {
             field.headerWidthHint = hint;
         }
 
-
-        /**
-         * @param templateWidthHint the templateWidthHint to set
-         */
         public void setTemplateWidthHint(String hint) {
             field.templateWidthHint = hint;
         }
-
 
         /**
          * @param headerForm the headerForm to set
@@ -321,7 +279,6 @@ public class DetailField implements Externalizable {
             field.headerForm = headerForm;
         }
 
-
         /**
          * @param templateForm the templateForm to set
          */
@@ -329,14 +286,12 @@ public class DetailField implements Externalizable {
             field.templateForm = templateForm;
         }
 
-
         /**
          * @param sortOrder the sortOrder to set
          */
         public void setSortOrder(int sortOrder) {
             field.sortOrder = sortOrder;
         }
-
 
         /**
          * @param sortDirection the sortDirection to set
@@ -360,7 +315,6 @@ public class DetailField implements Externalizable {
         public void setGridWidth(int gridWidth) {
             field.gridWidth = gridWidth;
         }
-
 
         public void setGridHeight(int gridHeight) {
             field.gridHeight = gridHeight;
