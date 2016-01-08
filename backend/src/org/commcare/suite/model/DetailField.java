@@ -38,7 +38,6 @@ public class DetailField implements Externalizable {
     private Text header;
     private DetailTemplate template; // Text or Graph
     private Text sort;
-    private Text background;
     private String relevancy;
     private XPathExpression parsedRelevancy;
     private String headerWidthHint = null;  // Something like "500" or "10%"
