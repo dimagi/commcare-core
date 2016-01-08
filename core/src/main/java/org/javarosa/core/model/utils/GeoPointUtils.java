@@ -1,6 +1,7 @@
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.xpath.XPathUnsupportedException;
 
 import static java.lang.Math.*;
 
