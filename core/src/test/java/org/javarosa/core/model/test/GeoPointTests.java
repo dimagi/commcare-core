@@ -27,7 +27,7 @@ public class GeoPointTests {
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
 
         ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to itself is 0",
-                "0.0", "distance(/data/random_geopoint, /data/random_geopoint)", evalCtx);
+                0.0, "distance(/data/random_geopoint, /data/random_geopoint)", evalCtx);
 
         // extend with more tests
     }

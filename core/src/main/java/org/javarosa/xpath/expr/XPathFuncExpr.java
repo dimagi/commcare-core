@@ -4,6 +4,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
@@ -1440,14 +1441,14 @@ public class XPathFuncExpr extends XPathExpression {
      * Ignores altitude and accuracy.
      */
     public static double distance(Object from, Object to) {
-        Object unpacked_from = unpack(from);
-        Object unpacked_to = unpack(to);
+        String unpacked_from = (String) unpack(from);
+        String unpacked_to = (String) unpack(to);
 
-        if (unpacked_from instanceof GeoPointData && unpacked_to instanceof GeoPointData) {
-            return GeoPointUtils.computeDistanceBetween(
-                    (GeoPointData) unpacked_from, (GeoPointData) unpacked_to);
-        }
-        throw new XPathTypeMismatchException("converting to GeoPointData");
+        // Casting and uncasting seems strange but is consistent with the codebase
+        GeoPointData casted_from = new GeoPointData().cast(new UncastData(unpacked_from));
+        GeoPointData casted_to = new GeoPointData().cast(new UncastData(unpacked_to));
+
+        return GeoPointUtils.computeDistanceBetween(casted_from, casted_to);
     }
 
     /**
