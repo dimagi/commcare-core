@@ -170,7 +170,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     String name = parser.getName().toLowerCase();
 
                     if (name.equals("sort")) {
-
                         //So in the past we've been fairly flexible about inputs to attributes and such
                         //in case we want to expand their function in the future. These are limited sets,
                         //and it'd be nice to limit their inputs and fail fast, but that also means
@@ -218,11 +217,10 @@ public class DetailParser extends CommCareElementParser<Detail> {
                         }
                     } else if (name.equals("background")) {
                         if (nextTagInBlock("background")) {
+                            // parse but don't use
+                            // TODO PLM: is there a way to just skip over entire tag?
                             checkNode("text");
-                            //Get it if so
-
-                            Text background = new TextParser(parser).parse();
-                            builder.setBackground(background);
+                            new TextParser(parser).parse();
                         }
                     }
                 }

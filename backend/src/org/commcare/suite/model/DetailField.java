@@ -217,14 +217,6 @@ public class DetailField implements Externalizable {
         return cssID;
     }
 
-    public Text getBackground() {
-        return background;
-    }
-
-    public void setBackground(Text background) {
-        this.background = background;
-    }
-
     public static class Builder {
         final DetailField field;
 
@@ -334,10 +326,6 @@ public class DetailField implements Externalizable {
 
         public void setCssID(String id) {
             field.cssID = id;
-        }
-
-        public void setBackground(Text background) {
-            field.background = background;
         }
     }
 }
