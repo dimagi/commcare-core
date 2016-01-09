@@ -72,14 +72,4 @@ public class EvaluationTrace {
         }
         return XPathFuncExpr.toString(value);
     }
-
-    /**
-     * @return A tag representing the type
-     * of evaluation that was performed at
-     * this step.
-     */
-    public String getEvaluationType() {
-        return "xpath";
-    }
-
 }

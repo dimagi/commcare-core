@@ -36,7 +36,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     //I made all of these null again because there are so many treeelements that they
     //take up a huuuge amount of space together.
-    private Vector observers = null;
     protected Vector<T> attributes = null;
     protected Vector<T> children = null;
 

@@ -197,10 +197,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return getMainInstance();
     }
 
-    public void fireEvent() {
-
-    }
-
     // ---------- child elements
     public void addChild(IFormElement fe) {
         this.children.addElement(fe);

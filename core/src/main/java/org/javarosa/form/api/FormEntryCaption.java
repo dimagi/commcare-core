@@ -104,16 +104,6 @@ public class FormEntryCaption implements FormElementStateListener {
 
     /**
      * Convenience method
-     * Get video URI from Text form for THIS element (if available)
-     *
-     * @return audio URI form stored in current locale of Text, returns null if not available
-     */
-    public String getVideoText() {
-        return getSpecialFormQuestionText(getTextID(), TEXT_FORM_VIDEO);
-    }
-
-    /**
-     * Convenience method
      * Get the markdown styled text (if available)
      *
      * @return Text with MarkDown styling
