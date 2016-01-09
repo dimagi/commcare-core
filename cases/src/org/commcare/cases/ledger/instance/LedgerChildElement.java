@@ -296,11 +296,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
         return 0;
     }
 
-    //TODO: Thread Safety!
-    public void clearCaches() {
-        //cached = null;
-    }
-
     //TODO: THIS IS NOT THREAD SAFE
     private TreeElement cache() {
         if (recordId == TreeReference.INDEX_TEMPLATE) {

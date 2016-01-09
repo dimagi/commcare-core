@@ -303,10 +303,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return 0;
     }
 
-    //TODO: Thread Safety!
-    public void clearCaches() {
-        //cached = null;
-    }
 
     static final String LAST_MODIFIED_KEY = "last_modified";
 

@@ -324,10 +324,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return 0;
     }
 
-    public void clearCaches() {
-        // TODO Auto-generated method stub
-    }
-
     public String getNamespace() {
         return null;
     }

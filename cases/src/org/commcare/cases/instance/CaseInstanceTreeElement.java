@@ -358,10 +358,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return 0;
     }
 
-    public void clearCaches() {
-        // TODO Auto-generated method stub
-    }
-
     //Xpath parsing is sllllllloooooooowwwwwww
     final static private XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
     final static private XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
