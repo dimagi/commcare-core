@@ -84,8 +84,6 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
     //return the tree reference that corresponds to this tree element
     TreeReference getRef();
 
-    int getDepth();
-
     String getName();
 
     int getMult();

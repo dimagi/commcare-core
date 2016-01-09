@@ -127,11 +127,6 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
         return TreeReference.rootRef();
     }
 
-    public int getDepth() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
     public String getName() {
         return null;
     }
