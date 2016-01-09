@@ -58,10 +58,6 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
 
     Vector additionalSerializers = new Vector();
 
-    public void registerAnswerSerializer(IAnswerDataSerializer ads) {
-        additionalSerializers.addElement(ads);
-    }
-
     public boolean canSerialize(IAnswerData data) {
         if (data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
