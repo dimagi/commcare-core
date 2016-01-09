@@ -923,12 +923,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //setters.
     TreeReference[] refCache = new TreeReference[1];
 
-    private void expireReferenceCache() {
-        synchronized (refCache) {
-            refCache[0] = null;
-        }
-    }
-
     //return the tree reference that corresponds to this tree element
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()

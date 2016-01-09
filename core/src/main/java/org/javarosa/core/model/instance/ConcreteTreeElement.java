@@ -530,10 +530,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
         return multiplicity;
     }
 
-    public void clearCaches() {
-
-    }
-
     public String getNamespace() {
         return namespace;
     }

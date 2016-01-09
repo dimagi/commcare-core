@@ -97,8 +97,6 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
     int getDataType();
 
-    void clearCaches();
-
     boolean isRelevant();
 
     String getNamespace();

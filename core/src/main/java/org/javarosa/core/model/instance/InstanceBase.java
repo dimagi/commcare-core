@@ -154,11 +154,6 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
         return 0;
     }
 
-    public void clearCaches() {
-        // TODO Auto-generated method stub
-
-    }
-
     public boolean isRelevant() {
         return true;
     }
