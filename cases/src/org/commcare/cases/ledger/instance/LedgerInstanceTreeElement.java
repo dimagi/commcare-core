@@ -281,13 +281,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
