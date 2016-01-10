@@ -1150,10 +1150,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 public boolean rawArgs() {
                     return false;
                 }
-
-                public boolean realTime() {
-                    return false;
-                }
             });
         }
 
@@ -1221,10 +1217,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 }
 
                 public boolean rawArgs() {
-                    return false;
-                }
-
-                public boolean realTime() {
                     return false;
                 }
             });

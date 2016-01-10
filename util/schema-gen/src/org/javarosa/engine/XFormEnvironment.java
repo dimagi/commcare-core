@@ -135,10 +135,6 @@ public class XFormEnvironment {
             return false;
         }
 
-        public boolean realTime() {
-            return true;
-        }
-
         public Object eval(Object[] args, EvaluationContext ec) {
             if(mockup != null && mockup.getDate() != null) {
                 return mockup.getDate();

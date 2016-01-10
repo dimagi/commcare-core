@@ -667,10 +667,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.TRUE;
             }
@@ -702,11 +698,6 @@ public class XPathEvalTest {
             public boolean rawArgs() {
                 return false;
             }
-
-            public boolean realTime() {
-                return false;
-            }
-
         });
 
 
@@ -722,10 +713,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -752,10 +739,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
@@ -776,10 +759,6 @@ public class XPathEvalTest {
                 return true;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
@@ -795,10 +774,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -818,10 +793,6 @@ public class XPathEvalTest {
 
             public boolean rawArgs() {
                 return true;
-            }
-
-            public boolean realTime() {
-                return false;
             }
 
             public Object eval(Object[] args, EvaluationContext ec) {
@@ -844,10 +815,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -883,10 +850,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Object();
             }
@@ -907,10 +870,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
             }
@@ -928,10 +887,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -1009,10 +964,6 @@ public class XPathEvalTest {
         public String val;
 
         public boolean rawArgs() {
-            return false;
-        }
-
-        public boolean realTime() {
             return false;
         }
     }
