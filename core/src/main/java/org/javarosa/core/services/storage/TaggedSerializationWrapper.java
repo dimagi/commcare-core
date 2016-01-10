@@ -24,10 +24,6 @@ public class TaggedSerializationWrapper implements SerializationWrapper {
     public TaggedSerializationWrapper() {
     }
 
-    public Class baseType() {
-        return Externalizable.class;
-    }
-
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.WrappingStorageUtility.SerializationWrapper#getData()
      */

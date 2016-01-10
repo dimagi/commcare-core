@@ -558,10 +558,6 @@ public class XPathEvalTest {
 //        //testEval("/..", null, null, new XPathUnsupportedException());
     }
 
-    private FormInstance newDataModel() {
-        return new FormInstance(new TreeElement());
-    }
-
     private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
         TreeReference treeRef = XPathReference.getPathExpr(ref).getReference(true);
         treeRef = inlinePositionArgs(treeRef);
@@ -929,10 +925,6 @@ public class XPathEvalTest {
     }
 
     private class CustomType {
-        public String val() {
-            return "custom";
-        }
-
         public String toString() {
             return "";
         }
@@ -943,9 +935,6 @@ public class XPathEvalTest {
     }
 
     private class CustomSubType extends CustomType {
-        public String val() {
-            return "custom-sub";
-        }
     }
 
     /* unused

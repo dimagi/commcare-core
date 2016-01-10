@@ -22,6 +22,9 @@ import java.util.Vector;
 public class XFormUtils {
     private static XFormParserFactory _factory = new XFormParserFactory();
 
+    /**
+     * Used by J2ME
+     */
     public static XFormParserFactory setXFormParserFactory(XFormParserFactory factory) {
         XFormParserFactory oldFactory = _factory;
         _factory = factory;

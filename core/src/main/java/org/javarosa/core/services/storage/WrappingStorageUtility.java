@@ -47,11 +47,6 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
          */
         Externalizable getData();
 
-        /**
-         * return type of underlying object
-         */
-        Class baseType();
-
         void clean();
     }
 
