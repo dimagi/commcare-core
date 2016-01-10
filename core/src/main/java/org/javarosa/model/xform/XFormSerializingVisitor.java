@@ -88,14 +88,6 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         dataPointers = new Vector();
     }
 
-    public byte[] serializeInstance(FormInstance model, FormDef formDef) throws IOException {
-
-        //LEGACY: Should remove
-        init();
-        this.schema = formDef;
-        return serializeInstance(model);
-    }
-
     public byte[] serializeInstance(FormInstance model) throws IOException {
         return serializeInstance(model, new XPathReference("/"));
     }

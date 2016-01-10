@@ -51,13 +51,6 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
         theSmsStr = "";
     }
 
-    public byte[] serializeInstance(FormInstance model, FormDef formDef) throws IOException {
-        init();
-        this.schema = formDef;
-        return serializeInstance(model);
-    }
-
-
     /*
      * (non-Javadoc)
      * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeInstance(org.javarosa.core.model.instance.FormInstance)
