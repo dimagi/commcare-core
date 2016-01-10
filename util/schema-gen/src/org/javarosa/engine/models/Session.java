@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.engine.models;
 
 import org.javarosa.core.util.PropertyUtils;
@@ -15,16 +12,11 @@ import java.util.Vector;
 public class Session {
 
     String uuid;
-    String label;
     Vector<Step> steps;
 
     public Session() {
         uuid = PropertyUtils.genUUID();
         steps = new Vector();
-    }
-
-    public String getUUID() {
-        return uuid;
     }
 
     public Vector<Step> getSteps() {
