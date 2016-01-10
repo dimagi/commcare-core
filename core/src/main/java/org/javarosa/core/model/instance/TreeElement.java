@@ -587,13 +587,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#unregisterAll()
-     */
-    public void unregisterAll() {
-        observers = null;
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#alertStateObservers(int)
      */
     public void alertStateObservers(int changeFlags) {
