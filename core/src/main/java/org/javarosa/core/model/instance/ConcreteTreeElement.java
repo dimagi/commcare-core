@@ -235,33 +235,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(java.lang.String, int)
-     */
-    public void removeChild(String name, int multiplicity) {
-        T child = getChild(name, multiplicity);
-        if (child != null) {
-            removeChild(child);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String)
-     */
-    public void removeChildren(String name) {
-        removeChildren(name, false);
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String, boolean)
-     */
-    public void removeChildren(String name, boolean includeTemplate) {
-        Vector<T> v = getChildrenWithName(name, includeTemplate);
-        for (int i = 0; i < v.size(); i++) {
-            removeChild(v.elementAt(i));
-        }
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildAt(int)
      */
     public void removeChildAt(int i) {

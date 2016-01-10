@@ -334,33 +334,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(java.lang.String, int)
-     */
-    public void removeChild(String name, int multiplicity) {
-        TreeElement child = getChild(name, multiplicity);
-        if (child != null) {
-            removeChild(child);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String)
-     */
-    public void removeChildren(String name) {
-        removeChildren(name, false);
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String, boolean)
-     */
-    public void removeChildren(String name, boolean includeTemplate) {
-        Vector v = getChildrenWithName(name, includeTemplate);
-        for (int i = 0; i < v.size(); i++) {
-            removeChild((TreeElement)v.elementAt(i));
-        }
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildAt(int)
      */
     public void removeChildAt(int i) {
@@ -959,17 +932,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return ref;
     }
 
-    public static int CalculateDepth(AbstractTreeElement elem) {
-        int depth = 0;
-
-        while (elem.getName() != null) {
-            depth++;
-            elem = elem.getParent();
-        }
-
-        return depth;
-    }
-
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getPreloadHandler()
      */
@@ -1100,14 +1062,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     public void setRepeatable(boolean repeatable) {
         setMaskVar(MASK_REPEATABLE, repeatable);
-    }
-
-    public int getMultiplicity() {
-        return multiplicity;
-    }
-
-    public void clearCaches() {
-        expireReferenceCache();
     }
 
     public String getNamespace() {
