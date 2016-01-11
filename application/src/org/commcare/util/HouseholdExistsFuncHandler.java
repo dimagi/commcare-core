@@ -60,9 +60,4 @@ public class HouseholdExistsFuncHandler implements IFunctionHandler {
     public boolean rawArgs() {
         return false;
     }
-
-    public boolean realTime() {
-        return true;
-    }
-
 }

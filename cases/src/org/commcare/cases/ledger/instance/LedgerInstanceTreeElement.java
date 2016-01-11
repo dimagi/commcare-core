@@ -281,13 +281,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
@@ -322,10 +315,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    public void clearCaches() {
-        // TODO Auto-generated method stub
     }
 
     public String getNamespace() {
