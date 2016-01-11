@@ -3,9 +3,12 @@ package org.javarosa.xpath.expr;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.core.util.CacheTable;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
@@ -424,6 +427,9 @@ public class XPathFuncExpr extends XPathExpression {
             }else if (name.equals("pi")) { //XPath 3.0
                 checkArity(name, 0, args.length);
                 return pi();
+            }else if (name.equals("distance")) {
+                checkArity(name, 2, args.length);
+                return distance(argVals[0], argVals[1]);
             }else {
                 if (customFuncArityError != null) {
                     throw customFuncArityError;
@@ -1442,6 +1448,22 @@ public class XPathFuncExpr extends XPathExpression {
     }
 
     public static final double DOUBLE_TOLERANCE = 1.0e-12;
+
+    /**
+     * Returns the distance between two GeoPointData locations, in meters, given objects to unpack.
+     * Ignores altitude and accuracy.
+     * Note that the arguments can be strings.
+     */
+    public static Double distance(Object from, Object to) {
+        String unpackedFrom = (String) unpack(from);
+        String unpackedTo = (String) unpack(to);
+
+        // Casting and uncasting seems strange but is consistent with the codebase
+        GeoPointData castedFrom = new GeoPointData().cast(new UncastData(unpackedFrom));
+        GeoPointData castedTo = new GeoPointData().cast(new UncastData(unpackedTo));
+
+        return new Double(GeoPointUtils.computeDistanceBetween(castedFrom, castedTo));
+    }
 
     /**
      * Take in a value (only a string for now, TODO: Extend?) that doesn't

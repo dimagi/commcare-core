@@ -162,20 +162,6 @@ public class FormEntryController {
         return commitAnswer(element, index, data);
     }
 
-
-    /**
-     * saveAnswer attempts to save the current answer into the data model
-     * without doing any constraint checking. Only use this if you know what
-     * you're doing. For normal form filling you should always use
-     * answerQuestion().
-     *
-     * @return true if saved successfully, false otherwise.
-     */
-    public boolean saveAnswer(IAnswerData data) {
-        return saveAnswer(model.getFormIndex(), data);
-    }
-
-
     /**
      * commitAnswer actually saves the data into the datamodel.
      *
@@ -235,13 +221,6 @@ public class FormEntryController {
     public int stepToPreviousEvent() {
         // second parameter doesn't matter because stepping backwards never involves descending into repeats
         return stepEvent(false, false);
-    }
-
-    /**
-     * Find the FormIndex that comes before the given one.
-     */
-    public FormIndex getPreviousIndex(FormIndex index, boolean expandRepeats) {
-        return getAdjacentIndex(index, false, expandRepeats);
     }
 
     /**
@@ -318,14 +297,20 @@ public class FormEntryController {
         return model.getEvent(index);
     }
 
-    public FormIndex descendIntoRepeat(int n) {
-        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
-        return model.getFormIndex();
-    }
-
+    /**
+     * Used by J2ME
+     */
     public FormIndex descendIntoNewRepeat() {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));
         newRepeat(model.getFormIndex());
+        return model.getFormIndex();
+    }
+
+    /**
+     * Used by J2ME
+     */
+    public FormIndex descendIntoRepeat(int n) {
+        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
         return model.getFormIndex();
     }
 
@@ -359,15 +344,9 @@ public class FormEntryController {
         return model.getForm().deleteRepeat(questionIndex);
     }
 
-
     /**
-     * Deletes a repeated instance of a group referenced by the current
-     * FormIndex.
+     * Used by J2ME
      */
-    public FormIndex deleteRepeat() {
-        return deleteRepeat(model.getFormIndex());
-    }
-
     public void deleteRepeat(int n) {
         deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
     }

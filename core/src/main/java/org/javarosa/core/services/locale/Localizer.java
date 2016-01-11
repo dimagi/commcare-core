@@ -565,13 +565,6 @@ public class Localizer implements Externalizable {
     }
 
     /**
-     * Unregister all ILocalizables.
-     */
-    public void unregisterAll() {
-        observers.removeAllElements();
-    }
-
-    /**
      * Send a locale change update to all registered ILocalizables.
      */
     private void alertLocalizables() {
@@ -580,11 +573,6 @@ public class Localizer implements Externalizable {
     }
     
     /* === Managing Arguments === */
-
-    private static String arg(String in) {
-        return "${" + in + "}";
-    }
-
     public static Vector getArgs(String text) {
         Vector args = new Vector();
         int i = text.indexOf("${");

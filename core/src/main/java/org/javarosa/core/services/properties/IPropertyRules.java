@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.services.properties;
 
 import java.util.Vector;
@@ -35,7 +19,7 @@ public interface IPropertyRules {
      * @param propertyName The name of the property that is being identified
      * @return A Vector containing all of the values that this property may be set to
      */
-    public Vector allowableValues(String propertyName);
+    Vector allowableValues(String propertyName);
 
     /**
      * Identifies whether the given value is an acceptable for a property.
@@ -44,14 +28,14 @@ public interface IPropertyRules {
      * @param potentialValue The value that is being tested
      * @return True if the property specified may be set to potentialValue, False otherwise
      */
-    public boolean checkValueAllowed(String propertyName, String potentialValue);
+    boolean checkValueAllowed(String propertyName, String potentialValue);
 
     /**
      * Identifies what properties are acceptable for this rules set
      *
      * @return A Vector containing all of the properties that may be set
      */
-    public Vector allowableProperties();
+    Vector allowableProperties();
 
     /**
      * Identifies whether the given property is usable
@@ -59,7 +43,7 @@ public interface IPropertyRules {
      * @param propertyName The name of the property that is being tested
      * @return True if the property specified may used. False otherwise
      */
-    public boolean checkPropertyAllowed(String propertyName);
+    boolean checkPropertyAllowed(String propertyName);
 
     /**
      * Identifies whether the property should be revealed to users. Note
@@ -69,7 +53,7 @@ public interface IPropertyRules {
      * @param propertyName The name of the property that is being tested
      * @return True if the property specified may not be modified by the user. false otherwise
      */
-    public boolean checkPropertyUserReadOnly(String propertyName);
+    boolean checkPropertyUserReadOnly(String propertyName);
 
     /**
      * Returns a human readable string representing the description of a
@@ -78,7 +62,7 @@ public interface IPropertyRules {
      * @param propertyName The name of the property to be described
      * @return A string that describes the meaning of the property name
      */
-    public String getHumanReadableDescription(String propertyName);
+    String getHumanReadableDescription(String propertyName);
 
     /**
      * Returns a human readable string representing the value of a specific
@@ -92,7 +76,7 @@ public interface IPropertyRules {
      * @return A string representing the passed in value that can be parsed by
      * a user to determine what its significance is.
      */
-    public String getHumanReadableValue(String propertyName, String value);
+    String getHumanReadableValue(String propertyName, String value);
 
     /**
      * Handles any state changes that would be required upon a specific value
@@ -100,5 +84,5 @@ public interface IPropertyRules {
      *
      * @param propertyName The name of the property that has changed
      */
-    public void handlePropertyChanges(String propertyName);
+    void handlePropertyChanges(String propertyName);
 }

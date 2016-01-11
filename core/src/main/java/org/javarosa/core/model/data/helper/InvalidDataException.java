@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.data.helper;
 
 import org.javarosa.core.model.data.IAnswerData;
@@ -17,8 +14,10 @@ public class InvalidDataException extends Exception {
         this.standin = standin;
     }
 
+    /**
+     * Used by J2ME
+     */
     public IAnswerData getUncastStandin() {
         return standin;
     }
-
 }

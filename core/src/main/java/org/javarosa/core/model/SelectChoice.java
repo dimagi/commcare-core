@@ -110,14 +110,6 @@ public class SelectChoice implements Externalizable, Localizable {
         return new Selection(this);
     }
 
-    public boolean isLocalizable() {
-        return isLocalizable;
-    }
-
-    public void setLocalizable(boolean localizable) {
-        this.isLocalizable = localizable;
-    }
-
     public String toString() {
         return ((textID != null && textID != "") ? "{" + textID + "}" : "") + (labelInnerText != null ? labelInnerText : "") + " => " + value;
     }

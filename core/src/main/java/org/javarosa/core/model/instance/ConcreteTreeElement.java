@@ -36,7 +36,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     //I made all of these null again because there are so many treeelements that they
     //take up a huuuge amount of space together.
-    private Vector observers = null;
     protected Vector<T> attributes = null;
     protected Vector<T> children = null;
 
@@ -236,33 +235,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(java.lang.String, int)
-     */
-    public void removeChild(String name, int multiplicity) {
-        T child = getChild(name, multiplicity);
-        if (child != null) {
-            removeChild(child);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String)
-     */
-    public void removeChildren(String name) {
-        removeChildren(name, false);
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String, boolean)
-     */
-    public void removeChildren(String name, boolean includeTemplate) {
-        Vector<T> v = getChildrenWithName(name, includeTemplate);
-        for (int i = 0; i < v.size(); i++) {
-            removeChild(v.elementAt(i));
-        }
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildAt(int)
      */
     public void removeChildAt(int i) {
@@ -446,14 +418,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
-    }
-
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
@@ -528,10 +492,6 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
 
     public int getMultiplicity() {
         return multiplicity;
-    }
-
-    public void clearCaches() {
-
     }
 
     public String getNamespace() {

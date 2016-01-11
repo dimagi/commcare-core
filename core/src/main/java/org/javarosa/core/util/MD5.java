@@ -453,7 +453,7 @@ public class MD5 {
      *
      * @return String of this object's hash
      */
-    public static final String toHex(final byte[] hash) {
+    public static String toHex(final byte[] hash) {
         char buf[] = new char[hash.length * 2];
         for (int i = 0, x = 0; i < hash.length; i++) {
             buf[x++] = HEX_CHARS[(hash[i] >>> 4) & 0xf];
@@ -462,70 +462,7 @@ public class MD5 {
         return new String(buf);
     }
 
-    public static final String toBase64(final byte[] data) {
-        char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".toCharArray();
-        char[] out = new char[((data.length + 2) / 3) * 4];
-        for (int i = 0, index = 0; i < data.length; i += 3, index += 4) {
-            boolean quad = false;
-            boolean trip = false;
-
-            int val = (0xFF & data[i]);
-            val <<= 8;
-            if ((i + 1) < data.length) {
-                val |= (0xFF & data[i + 1]);
-                trip = true;
-            }
-            val <<= 8;
-            if ((i + 2) < data.length) {
-                val |= (0xFF & data[i + 2]);
-                quad = true;
-            }
-            out[index + 3] = alphabet[(quad ? (val & 0x3F) : 64)];
-            val >>= 6;
-            out[index + 2] = alphabet[(trip ? (val & 0x3F) : 64)];
-            val >>= 6;
-            out[index + 1] = alphabet[val & 0x3F];
-            val >>= 6;
-            out[index + 0] = alphabet[val & 0x3F];
-        }
-        return new String(out);
-    }
-
     public static byte[] hash(byte[] data) {
         return (new MD5(data)).doFinal();
-    }
-
-    /**
-     * Calculates and returns the hash of the contents of the given file.
-     */
-    public final byte[] fingerprint(final byte[] data) {
-        update(data);
-        return doFinal();
-    }
-
-    /**
-     * @return true iff the first 16 bytes of both hash1 and hash2 are equal;
-     * both hash1 and hash2 are null; or either hash array is less than
-     * 16 bytes in length and their lengths and all of their bytes are
-     * equal.
-     */
-    public static final boolean equals(byte[] hash1, byte[] hash2) {
-        if (hash1 == null)
-            return hash2 == null;
-        if (hash2 == null)
-            return false;
-        int targ = 16;
-        if (hash1.length < 16) {
-            if (hash2.length != hash1.length)
-                return false;
-            targ = hash1.length;
-        } else if (hash2.length < 16) {
-            return false;
-        }
-        for (int i = 0; i < targ; i++) {
-            if (hash1[i] != hash2[i])
-                return false;
-        }
-        return true;
     }
 }
