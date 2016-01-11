@@ -46,19 +46,6 @@ public class XPathNodeset {
         this.ec = ec;
     }
 
-
-    /**
-     * Construct an XPath nodeset.
-     */
-    public XPathNodeset(Vector<TreeReference> nodes, DataInstance instance, EvaluationContext ec) {
-        if (nodes == null) {
-            throw new NullPointerException("Node list cannot be null when constructing a nodeset");
-        }
-        this.nodes = nodes;
-        this.instance = instance;
-        this.ec = ec;
-    }
-
     public static XPathNodeset constructInvalidPathNodeset(String pathEvaluated, String originalPath) {
         XPathNodeset nodeset = new XPathNodeset();
         nodeset.nodes = null;
@@ -76,7 +63,6 @@ public class XPathNodeset {
     protected Vector<TreeReference> getReferences() {
         return this.nodes;
     }
-
 
     /**
      * @return The value represented by this xpath. Can only be evaluated when this xpath represents exactly one

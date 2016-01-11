@@ -9,11 +9,11 @@ import java.util.Vector;
 
 public interface AbstractTreeElement<T extends AbstractTreeElement> {
 
-    public abstract boolean isLeaf();
+    boolean isLeaf();
 
-    public abstract boolean isChildable();
+    boolean isChildable();
 
-    public abstract String getInstanceName();
+    String getInstanceName();
 
     /**
      * Get a child element with the given name and occurence position (multiplicity)
@@ -21,51 +21,51 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      * @param name         the name of the child element to select
      * @param multiplicity is the n-th occurence of an element with a given name
      */
-    public abstract T getChild(String name, int multiplicity);
+    T getChild(String name, int multiplicity);
 
     /**
      * Get all the child nodes of this element, with specific name
      */
-    public abstract Vector<T> getChildrenWithName(String name);
+    Vector<T> getChildrenWithName(String name);
 
-    public abstract boolean hasChildren();
+    boolean hasChildren();
 
-    public abstract int getNumChildren();
+    int getNumChildren();
 
-    public abstract T getChildAt(int i);
+    T getChildAt(int i);
 
-    public abstract boolean isRepeatable();
+    boolean isRepeatable();
 
-    public abstract boolean isAttribute();
+    boolean isAttribute();
 
-    public abstract int getChildMultiplicity(String name);
+    int getChildMultiplicity(String name);
 
     /**
      * Visitor pattern acceptance method.
      *
      * @param visitor The visitor traveling this tree
      */
-    public abstract void accept(ITreeVisitor visitor);
+    void accept(ITreeVisitor visitor);
 
     /**
      * Returns the number of attributes of this element.
      */
-    public abstract int getAttributeCount();
+    int getAttributeCount();
 
     /**
      * get namespace of attribute at 'index' in the vector
      */
-    public abstract String getAttributeNamespace(int index);
+    String getAttributeNamespace(int index);
 
     /**
      * get name of attribute at 'index' in the vector
      */
-    public abstract String getAttributeName(int index);
+    String getAttributeName(int index);
 
     /**
      * get value of attribute at 'index' in the vector
      */
-    public abstract String getAttributeValue(int index);
+    String getAttributeValue(int index);
 
     /**
      * Retrieves the TreeElement representing the attribute at
@@ -74,34 +74,30 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      * If 'null' is provided for the namespace, it will match the first
      * attribute with the matching name.
      */
-    public abstract T getAttribute(String namespace, String name);
+    T getAttribute(String namespace, String name);
 
     /**
      * get value of attribute with namespace:name' in the vector
      */
-    public abstract String getAttributeValue(String namespace, String name);
+    String getAttributeValue(String namespace, String name);
 
     //return the tree reference that corresponds to this tree element
-    public abstract TreeReference getRef();
+    TreeReference getRef();
 
-    public abstract int getDepth();
+    String getName();
 
-    public abstract String getName();
-
-    public abstract int getMult();
+    int getMult();
 
     //Support?
-    public abstract AbstractTreeElement getParent();
+    AbstractTreeElement getParent();
 
-    public abstract IAnswerData getValue();
+    IAnswerData getValue();
 
-    public abstract int getDataType();
+    int getDataType();
 
-    public abstract void clearCaches();
+    boolean isRelevant();
 
-    public abstract boolean isRelevant();
-
-    public abstract String getNamespace();
+    String getNamespace();
 
     /**
      * TODO: Worst method name ever. Don't use this unless you know what's up.
@@ -109,5 +105,5 @@ public interface AbstractTreeElement<T extends AbstractTreeElement> {
      * @param predicates  possibly list of predicates to be evaluated. predicates will be removed from list if they are
      *                    able to be evaluated
      */
-    public abstract Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext);
+    Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext);
 }

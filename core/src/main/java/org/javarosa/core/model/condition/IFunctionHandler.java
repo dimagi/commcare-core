@@ -40,13 +40,6 @@ public interface IFunctionHandler {
     boolean rawArgs();
 
     /**
-     * @return true if the result of this handler depends on some dynamic data
-     * source, and the expression cannot be pre-computed before the
-     * question is reached (un-supported)
-     */
-    boolean realTime();
-
-    /**
      * Evaluate the function
      */
     Object eval(Object[] args, EvaluationContext ec) throws XPathArityException;

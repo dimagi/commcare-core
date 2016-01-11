@@ -104,16 +104,6 @@ public class FormEntryCaption implements FormElementStateListener {
 
     /**
      * Convenience method
-     * Get video URI from Text form for THIS element (if available)
-     *
-     * @return audio URI form stored in current locale of Text, returns null if not available
-     */
-    public String getVideoText() {
-        return getSpecialFormQuestionText(getTextID(), TEXT_FORM_VIDEO);
-    }
-
-    /**
-     * Convenience method
      * Get the markdown styled text (if available)
      *
      * @return Text with MarkDown styling
@@ -325,7 +315,7 @@ public class FormEntryCaption implements FormElementStateListener {
         return reps;
     }
 
-    public class RepeatOptions {
+    public static class RepeatOptions {
         public String header;
         public String add;
         public String delete;
@@ -333,6 +323,9 @@ public class FormEntryCaption implements FormElementStateListener {
         public String delete_header;
     }
 
+    /**
+     * Used by J2ME
+     */
     public RepeatOptions getRepeatOptions() {
         RepeatOptions ro = new RepeatOptions();
         boolean has_repetitions = (getNumRepetitions() > 0);

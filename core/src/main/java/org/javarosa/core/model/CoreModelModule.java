@@ -40,14 +40,12 @@ public class CoreModelModule implements IModule {
                 "org.javarosa.core.model.data.GeoPointData",
                 "org.javarosa.core.model.data.IntegerData",
                 "org.javarosa.core.model.data.LongData",
-                "org.javarosa.core.model.data.MultiPointerAnswerData",
                 "org.javarosa.core.model.data.PointerAnswerData",
                 "org.javarosa.core.model.data.SelectMultiData",
                 "org.javarosa.core.model.data.SelectOneData",
                 "org.javarosa.core.model.data.StringData",
                 "org.javarosa.core.model.data.TimeData",
                 "org.javarosa.core.model.data.UncastData",
-                "org.javarosa.core.model.data.helper.BasicDataPointer",
                 "org.javarosa.core.model.Action",
                 "org.javarosa.core.model.actions.SetValueAction"
         };

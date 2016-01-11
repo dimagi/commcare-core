@@ -26,7 +26,6 @@ import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.LongData;
-import org.javarosa.core.model.data.MultiPointerAnswerData;
 import org.javarosa.core.model.data.PointerAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
@@ -58,15 +57,11 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
 
     Vector additionalSerializers = new Vector();
 
-    public void registerAnswerSerializer(IAnswerDataSerializer ads) {
-        additionalSerializers.addElement(ads);
-    }
-
     public boolean canSerialize(IAnswerData data) {
         if (data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
                 data instanceof IntegerData || data instanceof DecimalData || data instanceof PointerAnswerData ||
-                data instanceof MultiPointerAnswerData || data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData) {
+                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData) {
             return true;
         } else {
             return false;
@@ -128,30 +123,6 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         //with this serializer
         IDataPointer pointer = (IDataPointer)data.getValue();
         return pointer.getDisplayText();
-    }
-
-    /**
-     * @param data The AnswerDataObject to be serialized
-     * @return A String which contains a reference to the
-     * data
-     */
-    public Object serializeAnswerData(MultiPointerAnswerData data) {
-        //Note: In order to override this default behavior, a
-        //new serializer should be used, and then registered
-        //with this serializer
-        IDataPointer[] pointers = (IDataPointer[])data.getValue();
-        if (pointers.length == 1) {
-            return pointers[0].getDisplayText();
-        }
-        Element parent = new Element();
-        for (int i = 0; i < pointers.length; ++i) {
-            Element datael = new Element();
-            datael.setName("data");
-
-            datael.addChild(Element.TEXT, pointers[i].getDisplayText());
-            parent.addChild(Element.ELEMENT, datael);
-        }
-        return parent;
     }
 
     /**
@@ -242,8 +213,6 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
             return serializeAnswerData((TimeData)data);
         } else if (data instanceof PointerAnswerData) {
             return serializeAnswerData((PointerAnswerData)data);
-        } else if (data instanceof MultiPointerAnswerData) {
-            return serializeAnswerData((MultiPointerAnswerData)data);
         } else if (data instanceof GeoPointData) {
             return serializeAnswerData((GeoPointData)data);
         } else if (data instanceof DateTimeData) {
@@ -272,8 +241,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
                 return contains;
             }
         }
-        if (data instanceof PointerAnswerData ||
-                data instanceof MultiPointerAnswerData) {
+        if (data instanceof PointerAnswerData) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -292,8 +260,6 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
             IDataPointer[] pointer = new IDataPointer[1];
             pointer[0] = (IDataPointer)((PointerAnswerData)data).getValue();
             return pointer;
-        } else if (data instanceof MultiPointerAnswerData) {
-            return (IDataPointer[])((MultiPointerAnswerData)data).getValue();
         }
         //This shouldn't have been called.
         return null;

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.api;
 
 import org.javarosa.core.util.TrivialTransitions;
@@ -14,6 +11,5 @@ import org.javarosa.core.util.TrivialTransitions;
  */
 public interface State {
 
-    public void start();
-
+    void start();
 }

@@ -73,6 +73,10 @@ public class GeoPointData implements IAnswerData {
         return gp;
     }
 
+    public double getLatitude() { return gp[0]; }
+
+    public double getLongitude() { return gp[1]; }
+
     @Override
     public void setValue(Object o) {
         if (o == null) {

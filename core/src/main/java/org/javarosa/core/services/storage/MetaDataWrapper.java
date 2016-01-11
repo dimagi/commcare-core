@@ -33,13 +33,6 @@ public class MetaDataWrapper implements IMetaData {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
-     */
-    public Hashtable getMetaData() {
-        return data;
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
      */
     public Object getMetaData(String fieldName) {
