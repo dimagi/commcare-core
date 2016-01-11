@@ -34,6 +34,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import me.regexp.RE;
+import me.regexp.RESyntaxException;
 
 /**
  * Representation of an xpath function expression.
@@ -1099,8 +1100,20 @@ public class XPathFuncExpr extends XPathExpression {
         String str = toString(o1);
         String re = toString(o2);
 
-        RE regexp = new RE(re);
-        boolean result = regexp.match(str);
+        RE regexp;
+        try {
+            regexp = new RE(re);
+        } catch (RESyntaxException e) {
+            throw new XPathException("The regular expression '" + str + "' is invalid.");
+        }
+
+        boolean result;
+        try {
+            result = regexp.match(str);
+        } catch (StackOverflowError e) {
+            throw new XPathException("The regular expression '" + str + "' took too long to process.");
+        }
+
         return new Boolean(result);
     }
 
