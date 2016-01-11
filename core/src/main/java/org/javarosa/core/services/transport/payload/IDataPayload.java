@@ -51,10 +51,4 @@ public interface IDataPayload extends Externalizable {
     public <T> T accept(IDataPayloadVisitor<T> visitor);
 
     public long getLength();
-
-    /**
-     * @return A unique Id for the transport manager to use to be able to identify
-     * the status of transmissions related to this payload
-     */
-    public int getTransportId();
 }

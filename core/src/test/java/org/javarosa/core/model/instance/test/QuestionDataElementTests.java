@@ -75,7 +75,7 @@ public class QuestionDataElementTests {
 
     }
 
-    private class MutableBoolean {
+    private static class MutableBoolean {
         private boolean bool;
 
         public MutableBoolean(boolean bool) {

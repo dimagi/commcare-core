@@ -65,10 +65,6 @@ public class XPathReference implements Externalizable {
         return ref;
     }
 
-    public void setReference(Object o) {
-        //do nothing
-    }
-
     @Override
     public boolean equals(Object o) {
         return o instanceof XPathReference &&

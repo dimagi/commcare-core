@@ -200,29 +200,8 @@ public class FormEntryModel {
         return null;
     }
 
-
     /**
-     * Not yet implemented
-     *
-     * Should get the number of completed questions to this point.
-     */
-    public int getCompletedRelevantQuestionCount() {
-        // TODO: Implement me.
-        return 0;
-    }
-
-
-    /**
-     * Not yet implemented
-     *
-     * Should get the total possible questions given the current path through the form.
-     */
-    public int getTotalRelevantQuestionCount() {
-        // TODO: Implement me.
-        return 0;
-    }
-
-    /**
+     * Used by J2ME
      * @return total number of questions in the form, regardless of relevancy
      */
     public int getNumQuestions() {
@@ -248,14 +227,6 @@ public class FormEntryModel {
      */
     public String getLanguage() {
         return form.getLocalizer().getLocale();
-    }
-
-    /**
-     * Set the FormIndex for the current question.
-     * Creates any necessary models (i.e., expands repeat groups).
-     */
-    public void setQuestionIndex(FormIndex index) {
-        setQuestionIndex(index, true);
     }
 
     /**
@@ -339,15 +310,6 @@ public class FormEntryModel {
         }
     }
 
-
-    /**
-     * @return true if the element at the current index is read only
-     */
-    public boolean isIndexReadonly() {
-        return isIndexReadonly(currentFormIndex);
-    }
-
-
     /**
      * Determine if the current FormIndex is relevant. Only relevant indexes
      * should be returned when filling out a form.
@@ -391,18 +353,6 @@ public class FormEntryModel {
 
         return relevant;
     }
-
-
-    /**
-     * Determine if the current FormIndex is relevant. Only relevant indexes
-     * should be returned when filling out a form.
-     *
-     * @return true if current element at FormIndex is relevant
-     */
-    public boolean isIndexRelevant() {
-        return isIndexRelevant(currentFormIndex);
-    }
-
 
     /**
      * For the current index: Checks whether the index represents a node which
@@ -452,18 +402,9 @@ public class FormEntryModel {
         }
     }
 
-
-    public boolean isIndexCompoundContainer() {
-        return isIndexCompoundContainer(getFormIndex());
-    }
-
     public boolean isIndexCompoundContainer(FormIndex index) {
         FormEntryCaption caption = getCaptionPrompt(index);
         return getEvent(index) == FormEntryController.EVENT_GROUP && caption.getAppearanceHint() != null && caption.getAppearanceHint().toLowerCase().equals("full");
-    }
-
-    public boolean isIndexCompoundElement() {
-        return isIndexCompoundElement(getFormIndex());
     }
 
     public boolean isIndexCompoundElement(FormIndex index) {
@@ -482,10 +423,6 @@ public class FormEntryModel {
             }
         }
         return false;
-    }
-
-    public FormIndex[] getCompoundIndices() {
-        return getCompoundIndices(getFormIndex());
     }
 
     public FormIndex[] getCompoundIndices(FormIndex container) {
@@ -507,6 +444,7 @@ public class FormEntryModel {
 
 
     /**
+     * Used by J2ME
      * @return The Current Repeat style which should be used.
      */
     public int getRepeatStructure() {

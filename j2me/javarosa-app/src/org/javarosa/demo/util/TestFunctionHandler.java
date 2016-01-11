@@ -53,8 +53,4 @@ public class TestFunctionHandler implements IFunctionHandler {
     public boolean rawArgs() {
         return false;
     }
-
-    public boolean realTime () {
-        return false;
-    }
 }

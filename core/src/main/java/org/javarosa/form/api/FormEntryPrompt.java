@@ -62,12 +62,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         return mTreeElement.getDataType();
     }
 
-    // attributes available in the bind, instance and body
-    public String getPromptAttributes() {
-        // TODO: implement me.
-        return null;
-    }
-
     //note: code overlap with FormDef.copyItemsetAnswer
     public IAnswerData getAnswerValue() {
         QuestionDef q = getQuestion();

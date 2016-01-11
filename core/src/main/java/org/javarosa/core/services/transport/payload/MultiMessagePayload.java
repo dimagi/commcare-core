@@ -92,10 +92,6 @@ public class MultiMessagePayload implements IDataPayload {
         return IDataPayload.PAYLOAD_TYPE_MULTI;
     }
 
-    public int getTransportId() {
-        return -1;
-    }
-
     public long getLength() {
         int len = 0;
         Enumeration en = payloads.elements();

@@ -116,10 +116,6 @@ public class ModelReferencePayload implements IDataPayload {
         }
     }
 
-    public int getTransportId() {
-        return recordId;
-    }
-
     public void setDestination(String destination) {
         this.destination = destination;
     }
