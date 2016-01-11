@@ -25,6 +25,10 @@ import java.util.Vector;
 public class PropertyUtils {
 
     //need 'addpropery' too.
+
+    /**
+     * Used by J2ME
+     */
     public static String initializeProperty(String propName, String defaultValue) {
         Vector propVal = PropertyManager._().getProperty(propName);
         if (propVal == null || propVal.size() == 0) {
@@ -40,6 +44,9 @@ public class PropertyUtils {
         return (String)propVal.elementAt(0);
     }
 
+    /**
+     * Used by J2ME
+     */
     public static void initalizeDeviceID() {
         String[] possibleIMEIrequests = {"phone.imei", "com.nokia.mid.imei", "com.nokia.IMEI", "com.sonyericsson.imei", "IMEI", "com.motorola.IMEI", "com.samsung.imei", "com.siemens.imei"};
 

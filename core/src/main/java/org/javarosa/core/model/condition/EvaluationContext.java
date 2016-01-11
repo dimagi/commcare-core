@@ -471,6 +471,8 @@ public class EvaluationContext {
      * Point the local progress tracking array to the address passed in. Used
      * to enable processes that call expandReference to keep track of
      * predicates evaluation over candidate reference results.
+     *
+     * Used by J2ME
      */
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {

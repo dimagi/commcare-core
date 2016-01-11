@@ -51,17 +51,24 @@ public class SizeBoundVector<E> extends Vector<E> {
         badVideoReferenceCount++;
     }
 
+    /**
+     * Used by J2ME
+     */
     public int getBadImageReferenceCount() {
         return badImageReferenceCount;
     }
 
+    /**
+     * Used by J2ME
+     */
     public int getBadAudioReferenceCount() {
         return badAudioReferenceCount;
     }
 
+    /**
+     * Used by J2ME
+     */
     public int getBadVideoReferenceCount() {
         return badVideoReferenceCount;
     }
-
-
 }

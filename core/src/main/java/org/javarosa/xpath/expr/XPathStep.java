@@ -38,6 +38,9 @@ public class XPathStep implements Externalizable {
 
     private static Interner<XPathStep> refs;
 
+    /**
+     * Used by J2ME
+     */
     public static void attachInterner(Interner<XPathStep> refs) {
         XPathStep.refs = refs;
     }

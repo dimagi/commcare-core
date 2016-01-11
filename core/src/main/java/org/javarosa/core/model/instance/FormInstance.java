@@ -267,19 +267,6 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return (String)namespaces.get(prefix);
     }
 
-    public TreeElement processSaved(FormInstance template, FormDef f) {
-        TreeElement fixedInstanceRoot = template.getRoot().deepCopy(true);
-        TreeElement incomingRoot = root.getChildAt(0);
-
-        if (!fixedInstanceRoot.getName().equals(incomingRoot.getName()) || incomingRoot.getMult() != 0) {
-            throw new RuntimeException("Saved form instance to restore does not match form definition");
-        }
-
-        fixedInstanceRoot.populate(incomingRoot);
-        return fixedInstanceRoot;
-    }
-
-
     public FormInstance clone() {
         FormInstance cloned = new FormInstance(this.getRoot().deepCopy(true));
 

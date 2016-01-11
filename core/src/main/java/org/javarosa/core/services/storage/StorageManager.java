@@ -67,6 +67,9 @@ public class StorageManager {
         storageRegistry.put(key, storage);
     }
 
+    /**
+     * Used by J2ME
+     */
     public static void registerWrappedStorage(String key, String storeName, SerializationWrapper wrapper) {
         StorageManager.registerStorage(key, new WrappingStorageUtility(storeName, wrapper, storageFactory));
     }
@@ -79,12 +82,18 @@ public class StorageManager {
         }
     }
 
+    /**
+     * Used by J2ME
+     */
     public static void repairAll() {
         for (Enumeration e = storageRegistry.elements(); e.hasMoreElements(); ) {
             ((IStorageUtility)e.nextElement()).repair();
         }
     }
 
+    /**
+     * Used by J2ME
+     */
     public static String[] listRegisteredUtilities() {
         String[] returnVal = new String[storageRegistry.size()];
         int i = 0;

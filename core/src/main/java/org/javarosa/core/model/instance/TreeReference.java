@@ -240,24 +240,6 @@ public class TreeReference implements Externalizable {
     }
 
     /**
-     * Does this reference reference contains any unbound multiplicities?
-     * Unbounded multiplicities means there is a chance that this reference
-     * could refer to more than one instance node.
-     *
-     * @return Does this reference have the potential to point to more than one
-     * instance node?
-     */
-    public boolean isAmbiguous() {
-        // ignore level 0, as /data implies /data[0]
-        for (int i = 1; i < size(); i++) {
-            if (getMultiplicity(i) == INDEX_UNBOUND) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
      * Return a copy of the reference
      */
     public TreeReference clone() {

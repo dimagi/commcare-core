@@ -306,7 +306,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     private static int referenceIndexOf(Vector list, Object potentialEntry) {
         for (int i = 0; i < list.size(); i++) {
-            Object element = list.get(i);
+            Object element = list.elementAt(i);
             if (potentialEntry == element) {
                 return i;
             }
@@ -331,33 +331,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             return;
         }
         children.removeElement(child);
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(java.lang.String, int)
-     */
-    public void removeChild(String name, int multiplicity) {
-        TreeElement child = getChild(name, multiplicity);
-        if (child != null) {
-            removeChild(child);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String)
-     */
-    public void removeChildren(String name) {
-        removeChildren(name, false);
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildren(java.lang.String, boolean)
-     */
-    public void removeChildren(String name, boolean includeTemplate) {
-        Vector v = getChildrenWithName(name, includeTemplate);
-        for (int i = 0; i < v.size(); i++) {
-            removeChild((TreeElement)v.elementAt(i));
-        }
     }
 
     /* (non-Javadoc)
@@ -584,13 +557,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             if (observers.isEmpty())
                 observers = null;
         }
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#unregisterAll()
-     */
-    public void unregisterAll() {
-        observers = null;
     }
 
     /* (non-Javadoc)
@@ -929,6 +895,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
+
     //return the tree reference that corresponds to this tree element
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
@@ -963,24 +930,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             elem = elem.getParent();
         }
         return ref;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
-    }
-
-    public static int CalculateDepth(AbstractTreeElement elem) {
-        int depth = 0;
-
-        while (elem.getName() != null) {
-            depth++;
-            elem = elem.getParent();
-        }
-
-        return depth;
     }
 
     /* (non-Javadoc)
@@ -1113,14 +1062,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
      */
     public void setRepeatable(boolean repeatable) {
         setMaskVar(MASK_REPEATABLE, repeatable);
-    }
-
-    public int getMultiplicity() {
-        return multiplicity;
-    }
-
-    public void clearCaches() {
-        expireReferenceCache();
     }
 
     public String getNamespace() {
