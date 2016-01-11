@@ -101,19 +101,6 @@ public class PeriodicEventRecord implements Persistable, IMetaData {
      * (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
      */
-    public Hashtable getMetaData() {
-        Hashtable ret = new Hashtable();
-
-        for(String field : getMetaDataFields()) {
-            ret.put(field, getMetaData(field));
-        }
-        return ret;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
-     */
     public String[] getMetaDataFields() {
         return new String[] {META_EVENT_KEY};
     }

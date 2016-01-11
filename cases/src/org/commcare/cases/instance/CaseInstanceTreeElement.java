@@ -315,13 +315,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.calculateDepth(this);
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
@@ -356,10 +349,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    public void clearCaches() {
-        // TODO Auto-generated method stub
     }
 
     //Xpath parsing is sllllllloooooooowwwwwww

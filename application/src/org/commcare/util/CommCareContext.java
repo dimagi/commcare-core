@@ -819,10 +819,6 @@ public class CommCareContext {
             return false;
         }
 
-        public boolean realTime() {
-            return false;
-        }
-
         public Object eval(Object[] args, EvaluationContext ec) {
             //each repeat has a hidden generated uid. we cache the generated referral code
             //under this uid, so we don't regenerate it if we navigate through the repeititon

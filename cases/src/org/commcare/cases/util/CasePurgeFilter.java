@@ -43,7 +43,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private static final int STATUS_OPEN = 16;
 
-    Vector<Integer> idsToRemove = new Vector<Integer>();
+    private final Vector<Integer> idsToRemove = new Vector<Integer>();
+
+    private DAG<String, int[], String> internalCaseDAG;
+    private boolean invalidEdgesWereRemoved;
 
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
         this(caseStorage, null);
@@ -65,17 +68,16 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        //Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
-        //[STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
-        //nodes, which is one of the Case Index relationships (IE: parent, extension)
-        DAG<String, int[], String> graph = new DAG<String, int[], String>();
+        // Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
+        // [STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
+        // nodes, which is one of the Case Index relationships (IE: parent, extension)
+        internalCaseDAG = new DAG<String, int[], String>();
 
         Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
 
-        //Pass 1:
-        //Create a DAG which contains all of the cases on the phone as nodes, and has a directed
-        //edge for each index (from the 'child' case pointing to the 'parent' case) with the
-        //appropriate relationship tagged
+        // Pass 1: Create a DAG which contains all of the cases on the phone as nodes, and has a
+        // directed edge for each index (from the 'child' case pointing to the 'parent' case) with
+        // the appropriate relationship tagged
         for (IStorageIterator<Case> i = caseStorage.iterate(); i.hasMore(); ) {
             Case c = i.nextRecord();
             boolean owned = true;
@@ -83,9 +85,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 owned = owners.contains(c.getUserId());
             }
 
-            //In order to deal with multiple indices pointing to the same case
-            //with different relationships, we'll need to traverse once to eliminate any
-            //ambiguity (TODO: How do we speed this up? Do we need to?)
+            // In order to deal with multiple indices pointing to the same case with different
+            // relationships, we'll need to traverse once to eliminate any ambiguity
+            // TODO: How do we speed this up? Do we need to?
             for (CaseIndex index : c.getIndices()) {
                 CaseIndex toReplace = null;
                 boolean skip = false;
@@ -119,21 +121,29 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 nodeStatus |= STATUS_RELEVANT;
             }
 
-            graph.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
+            internalCaseDAG.addNode(c.getCaseId(), new int[]{nodeStatus, c.getID()});
 
             for (CaseIndex index : indexHolder) {
-                graph.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
+                internalCaseDAG.setEdge(c.getCaseId(), index.getTarget(), index.getRelationship());
             }
             indexHolder.removeAllElements();
         }
 
-        propogateRelevance(graph);
-        propogateAvailabile(graph);
-        propogateLive(graph);
 
-        //Ok, so now just go through all nodes and signal that we need to remove anything
-        //that isn't live!
-        for (Enumeration iterator = graph.getNodes(); iterator.hasMoreElements(); ) {
+        // It is important that actual edge removal be done after the call to getInvalidEdges() is
+        // complete, to prevent a ConcurrentModificationException
+        Vector<String[]> edgesToRemove = getInvalidEdges();
+        for (String[] edge : edgesToRemove) {
+            internalCaseDAG.removeEdge(edge[0], edge[1]);
+        }
+
+        propagateRelevance(internalCaseDAG);
+        propagateAvailabile(internalCaseDAG);
+        propagateLive(internalCaseDAG);
+
+        // Ok, so now just go through all nodes and signal that we need to remove anything
+        // that isn't live!
+        for (Enumeration iterator = internalCaseDAG.getNodes(); iterator.hasMoreElements(); ) {
             int[] node = (int[])iterator.nextElement();
             if (!caseStatusIs(node[0], STATUS_ALIVE)) {
                 idsToRemove.addElement(new Integer(node[1]));
@@ -141,12 +151,12 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         }
     }
 
-    private void propogateRelevance(DAG<String, int[], String> g) {
-        propogateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
-        propogateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION, false);
+    private static void propagateRelevance(DAG<String, int[], String> g) {
+        propagateMarkToDAG(g, true, STATUS_RELEVANT, STATUS_RELEVANT);
+        propagateMarkToDAG(g, false, STATUS_RELEVANT, STATUS_RELEVANT, CaseIndex.RELATIONSHIP_EXTENSION, false);
     }
 
-    private void propogateAvailabile(DAG<String, int[], String> g) {
+    private static void propagateAvailabile(DAG<String, int[], String> g) {
         for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
@@ -155,10 +165,10 @@ public class CasePurgeFilter extends EntityFilter<Case> {
                 node[0] |= STATUS_AVAILABLE;
             }
         }
-        propogateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION, true);
+        propagateMarkToDAG(g, false, STATUS_AVAILABLE, STATUS_AVAILABLE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
 
-    private boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
+    private static boolean hasOutgoingExtension(DAG<String, int[], String> g, String index) {
         for (Edge<String, String> edge : g.getChildren(index)) {
             if (edge.e.equals(CaseIndex.RELATIONSHIP_EXTENSION)) {
                 return true;
@@ -167,7 +177,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         return false;
     }
 
-    private void propogateLive(DAG<String, int[], String> g) {
+    private static void propagateLive(DAG<String, int[], String> g) {
         for (Enumeration e = g.getIndices(); e.hasMoreElements(); ) {
             String index = (String)e.nextElement();
             int[] node = g.getNode(index);
@@ -176,12 +186,12 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             }
         }
 
-        propogateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
-        propogateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
+        propagateMarkToDAG(g, true, STATUS_ALIVE, STATUS_ALIVE);
+        propagateMarkToDAG(g, false, STATUS_ALIVE, STATUS_ALIVE, CaseIndex.RELATIONSHIP_EXTENSION, true);
     }
 
-    private void propogateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
-        propogateMarkToDAG(g, direction, mask, mark, null, false);
+    private static void propagateMarkToDAG(DAG<String, int[], String> g, boolean direction, int mask, int mark) {
+        propagateMarkToDAG(g, direction, mask, mark, null, false);
     }
 
     /**
@@ -199,12 +209,12 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      *                             A node will only be marked if the edge walked to put it on the stack
      *                             meets this criteria.
      */
-    private void propogateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
+    private static void propagateMarkToDAG(DAG<String, int[], String> dag, boolean walkFromSourceToSink,
                                     int maskCondition, int markToApply, String relationship,
                                     boolean requireOpenDestination) {
         Stack<String> toProcess = walkFromSourceToSink ? dag.getSources() : dag.getSinks();
         while (!toProcess.isEmpty()) {
-            //current node
+            // current node
             String index = toProcess.pop();
             int[] node = dag.getNode(index);
 
@@ -222,7 +232,90 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         }
     }
 
-    private boolean caseStatusIs(int status, int flag) {
+    /**
+     * Traverse the graph to accumulate a list of any edges to empty nodes (which are created when
+     * a child makes a placeholder index to a parent, but then the parent does not actually exist
+     * on the phone for some reason).
+     *
+     * Then remove any nodes that are made invalid by that parent node not existing, which further
+     * accumulates the list of invalid edges
+     *
+     * @return Whether or not this method invocation removed any invalid edges from the DAG
+     */
+    private Vector<String[]> getInvalidEdges() {
+        Hashtable<String, Vector<Edge<String, String>>> allEdges = internalCaseDAG.getEdges();
+        Vector<String> childOfNonexistentParent = new Vector<String>();
+        Vector<String[]> edgesToRemove = new Vector<String[]>();
+        Enumeration edgeOriginIndices = allEdges.keys();
+        while (edgeOriginIndices.hasMoreElements()) {
+            String originIndex = (String)edgeOriginIndices.nextElement();
+            Vector<Edge<String, String>> edgeListForOrigin = allEdges.get(originIndex);
+            for (Edge<String, String> edge : edgeListForOrigin) {
+                String targetIndex = edge.i;
+                if (internalCaseDAG.getNode(targetIndex) == null) {
+                    edgesToRemove.addElement(new String[]{originIndex, targetIndex});
+                    childOfNonexistentParent.addElement(originIndex);
+                }
+            }
+        }
+
+        // Any case node with a nonexistent parent should be removed from the graph, as should
+        // all of its descendants, and any edges to or from it
+        for (String index : childOfNonexistentParent) {
+            removeNodeAndPropagate(index, edgesToRemove);
+        }
+
+        invalidEdgesWereRemoved = edgesToRemove.size() > 0;
+        return edgesToRemove;
+    }
+
+    /**
+     * Remove from the graph the node at this index, and remove all nodes that are made
+     * invalid by the non-existence of that node (i.e. all of its child and extension cases).
+     * Also accumulate a list of edges that need to be removed as a result of this method call.
+     * Actual edge removal should then be done all at once by the caller, to avoid
+     * ConcurrentModificationException
+     */
+    private void removeNodeAndPropagate(String indexOfRemovedNode,
+                                        Vector<String[]> accumulatedEdgesToRemove) {
+        // Wording is confusing here -- because all edges in this graph are from a child case to
+        // a parent case, calling getParents() for a node returns all of its child/extension cases
+        Vector<Edge<String, String>> childCases = internalCaseDAG.getParents(indexOfRemovedNode);
+        for (Edge<String, String> child : childCases) {
+            // Want to remove the edge from child case to parent case
+            accumulatedEdgesToRemove.addElement(new String[]{child.i, indexOfRemovedNode});
+
+            // Recurse on child case
+            removeNodeAndPropagate(child.i, accumulatedEdgesToRemove);
+        }
+
+        // Also want to remove any outgoing edges to other parents (but do NOT delete those
+        // parents because they are still valid)
+        Vector<Edge<String, String>> parentCases = internalCaseDAG.getChildren(indexOfRemovedNode);
+        for (Edge<String, String> parent : parentCases) {
+            accumulatedEdgesToRemove.addElement(new String[]{indexOfRemovedNode, parent.i});
+        }
+
+        // Once all edges to/from this node have been removed, delete the node itself from the
+        // DAG, and add it to the list of cases to be purged
+        int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
+        idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
+    }
+
+    // For use in tests
+    public DAG<String, int[], String> getInternalCaseGraph() {
+        return internalCaseDAG;
+    }
+
+    /**
+     * When the underlying case DAG for this case purge filter was created, were there any invalid
+     * edges (i.e. edges to non-existent nodes) that had to be removed?
+     */
+    public boolean invalidEdgesWereRemoved() {
+        return this.invalidEdgesWereRemoved;
+    }
+
+    private static boolean caseStatusIs(int status, int flag) {
         return (status & flag) == flag;
     }
 
