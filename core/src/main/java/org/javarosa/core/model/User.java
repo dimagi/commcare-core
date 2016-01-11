@@ -179,14 +179,6 @@ public class User implements Persistable, Restorable, IMetaData {
         RestoreUtils.applyDataType(dm, "remember", parentRef, Boolean.class);
     }
 
-    public Hashtable getMetaData() {
-        Hashtable ret = new Hashtable();
-        for (String name : getMetaDataFields()) {
-            ret.put(name, getMetaData(name));
-        }
-        return ret;
-    }
-
     @Override
     public Object getMetaData(String fieldName) {
         if (META_UID.equals(fieldName)) {

@@ -81,13 +81,6 @@ public class RestoreUtils {
         return dm;
     }
 
-    public static FormInstance createRootDataModel(Restorable r) {
-        FormInstance inst = createDataModel(r);
-        inst.schema = "http://openrosa.org/backup";
-        addData(inst, "timestamp", new Date(), Constants.DATATYPE_DATE_TIME);
-        return inst;
-    }
-
     public static void addData(FormInstance dm, String xpath, Object data) {
         addData(dm, xpath, data, getDataType(data));
     }
@@ -213,13 +206,6 @@ public class RestoreUtils {
             TreeElement e = dm.resolveReference((TreeReference)v.elementAt(i));
             e.setDataType(dataType);
         }
-    }
-
-    public static void templateChild(FormInstance dm, String prefixPath, TreeReference parent, Restorable r) {
-        TreeReference childRef = (prefixPath == null ? parent : RestoreUtils.childRef(prefixPath, parent));
-        childRef = childRef(r.getRestorableType(), childRef);
-
-        templateData(r, dm, childRef);
     }
 
     public static void templateData(Restorable r, FormInstance dm, TreeReference parent) {

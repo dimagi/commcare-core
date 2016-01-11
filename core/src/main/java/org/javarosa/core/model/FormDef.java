@@ -197,10 +197,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return getMainInstance();
     }
 
-    public void fireEvent() {
-
-    }
-
     // ---------- child elements
     public void addChild(IFormElement fe) {
         this.children.addElement(fe);
@@ -1154,10 +1150,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 public boolean rawArgs() {
                     return false;
                 }
-
-                public boolean realTime() {
-                    return false;
-                }
             });
         }
 
@@ -1225,10 +1217,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
                 }
 
                 public boolean rawArgs() {
-                    return false;
-                }
-
-                public boolean realTime() {
                     return false;
                 }
             });
@@ -1737,24 +1725,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     public void setOutputFragments(Vector outputFragments) {
         this.outputFragments = outputFragments;
-    }
-
-    public Hashtable getMetaData() {
-        Hashtable metadata = new Hashtable();
-        String[] fields = getMetaDataFields();
-
-        for (int i = 0; i < fields.length; i++) {
-            try {
-                metadata.put(fields[i], getMetaData(fields[i]));
-            } catch (NullPointerException npe) {
-                if (getMetaData(fields[i]) == null) {
-                    System.out.println("ERROR! XFORM MUST HAVE A NAME!");
-                    npe.printStackTrace();
-                }
-            }
-        }
-
-        return metadata;
     }
 
     public Object getMetaData(String fieldName) {
