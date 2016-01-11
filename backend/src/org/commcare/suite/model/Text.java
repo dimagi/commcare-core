@@ -234,10 +234,6 @@ public class Text implements Externalizable, DetailTemplate {
                             return false;
                         }
 
-                        public boolean realTime() {
-                            return false;
-                        }
-
                     });
 
                     temp.addFunctionHandler(new IFunctionHandler() {
@@ -262,11 +258,6 @@ public class Text implements Externalizable, DetailTemplate {
                         public boolean rawArgs() {
                             return false;
                         }
-
-                        public boolean realTime() {
-                            return false;
-                        }
-
                     });
 
 
