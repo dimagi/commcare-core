@@ -43,10 +43,6 @@ public class XFormsModule implements IModule {
                 }
             }
 
-            public FormInstance parseRestore(byte[] data, Class restorableType) {
-                return XFormParser.restoreDataModel(data, restorableType);
-            }
-
             public IConditionExpr refToPathExpr(TreeReference ref) {
                 return new XPathConditional(XPathPathExpr.fromRef(ref));
             }
