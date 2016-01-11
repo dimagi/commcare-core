@@ -1116,7 +1116,7 @@ public class XPathFuncExpr extends XPathExpression {
         //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
         //# }
         //#else
-        catch (import java.lang.StackOverflowError e) {
+        catch (java.lang.StackOverflowError e) {
             throw new XPathException("The regular expression '" + str + "' took too long to process.");
         } 
         //#endif
