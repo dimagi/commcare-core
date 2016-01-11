@@ -259,13 +259,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     }
 
     /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
-    }
-
-    /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
      */
     public String getName() {
@@ -303,10 +296,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return 0;
     }
 
-    //TODO: Thread Safety!
-    public void clearCaches() {
-        //cached = null;
-    }
 
     static final String LAST_MODIFIED_KEY = "last_modified";
 
