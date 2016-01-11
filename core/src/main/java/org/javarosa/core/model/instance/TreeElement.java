@@ -473,12 +473,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-<<<<<<< HEAD
-=======
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#alertStateObservers(int)
-     */
->>>>>>> master
     public void alertStateObservers(int changeFlags) {
         if (observers != null) {
             for (Enumeration e = observers.elements(); e.hasMoreElements(); )
@@ -825,28 +819,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return ref;
     }
 
-<<<<<<< HEAD
-    @Override
-    public int getDepth() {
-        return TreeElement.calculateDepth(this);
-    }
-
-    public static int calculateDepth(AbstractTreeElement elem) {
-        int depth = 0;
-
-        while (elem.getName() != null) {
-            depth++;
-            elem = elem.getParent();
-        }
-
-        return depth;
-    }
-
-=======
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getPreloadHandler()
-     */
->>>>>>> master
     public String getPreloadHandler() {
         return preloadHandler;
     }
