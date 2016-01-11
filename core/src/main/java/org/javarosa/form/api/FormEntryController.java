@@ -300,6 +300,15 @@ public class FormEntryController {
     /**
      * Used by J2ME
      */
+    public FormIndex descendIntoNewRepeat() {
+        jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));
+        newRepeat(model.getFormIndex());
+        return model.getFormIndex();
+    }
+
+    /**
+     * Used by J2ME
+     */
     public FormIndex descendIntoRepeat(int n) {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
         return model.getFormIndex();
