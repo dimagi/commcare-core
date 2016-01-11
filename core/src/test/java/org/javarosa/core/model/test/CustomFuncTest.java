@@ -81,10 +81,6 @@ public class CustomFuncTest {
             public boolean rawArgs() {
                 return false;
             }
-
-            public boolean realTime() {
-                return false;
-            }
         };
 
         fpi.getFormDef().exprEvalContext.addFunctionHandler(myDouble);
@@ -133,10 +129,6 @@ public class CustomFuncTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
         };

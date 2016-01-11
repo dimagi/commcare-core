@@ -31,6 +31,13 @@ public class TreeReferenceLevel implements Externalizable {
     // Do we want to keep a cache of all reference levels?
     public static boolean treeRefLevelInterningEnabled = true;
 
+    /**
+     * Used by J2ME
+     */
+    public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
+        TreeReferenceLevel.refs = refs;
+    }
+
     public TreeReferenceLevel() {
         // for externalization
     }

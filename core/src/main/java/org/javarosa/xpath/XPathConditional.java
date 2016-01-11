@@ -44,10 +44,6 @@ public class XPathConditional implements IConditionExpr {
 
     }
 
-    public XPathExpression getExpr() {
-        return expr;
-    }
-
     public Object evalRaw(DataInstance model, EvaluationContext evalContext) {
         try {
             return XPathFuncExpr.unpack(expr.eval(model, evalContext));

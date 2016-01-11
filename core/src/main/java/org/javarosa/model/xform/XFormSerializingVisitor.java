@@ -65,11 +65,6 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
      */
     TreeReference rootRef;
 
-    /**
-     * The schema to be used to serialize answer data
-     */
-    FormDef schema;    //not used
-
     Vector dataPointers;
 
     boolean respectRelevance = true;
@@ -84,16 +79,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     private void init() {
         theXmlDoc = null;
-        schema = null;
         dataPointers = new Vector();
-    }
-
-    public byte[] serializeInstance(FormInstance model, FormDef formDef) throws IOException {
-
-        //LEGACY: Should remove
-        init();
-        this.schema = formDef;
-        return serializeInstance(model);
     }
 
     public byte[] serializeInstance(FormInstance model) throws IOException {

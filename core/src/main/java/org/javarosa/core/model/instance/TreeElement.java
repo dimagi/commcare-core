@@ -285,20 +285,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         children.removeElement(child);
     }
 
-    public void removeChild(String name, int multiplicity) {
-        TreeElement child = getChild(name, multiplicity);
-        if (child != null) {
-            removeChild(child);
-        }
-    }
-
-    public void removeChildren(String name, boolean includeTemplate) {
-        Vector v = getChildrenWithName(name, includeTemplate);
-        for (int i = 0; i < v.size(); i++) {
-            removeChild((TreeElement)v.elementAt(i));
-        }
-    }
-
     public void removeChildAt(int i) {
         children.removeElementAt(i);
     }
@@ -487,6 +473,12 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
+<<<<<<< HEAD
+=======
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.instance.AbstractTreeElement#alertStateObservers(int)
+     */
+>>>>>>> master
     public void alertStateObservers(int changeFlags) {
         if (observers != null) {
             for (Enumeration e = observers.elements(); e.hasMoreElements(); )
@@ -798,6 +790,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
+
     //return the tree reference that corresponds to this tree element
     @Override
     public TreeReference getRef() {
@@ -832,6 +825,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return ref;
     }
 
+<<<<<<< HEAD
     @Override
     public int getDepth() {
         return TreeElement.calculateDepth(this);
@@ -848,6 +842,11 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return depth;
     }
 
+=======
+    /* (non-Javadoc)
+     * @see org.javarosa.core.model.instance.AbstractTreeElement#getPreloadHandler()
+     */
+>>>>>>> master
     public String getPreloadHandler() {
         return preloadHandler;
     }
@@ -933,14 +932,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     public void setRepeatable(boolean repeatable) {
         setMaskVar(MASK_REPEATABLE, repeatable);
-    }
-
-    public int getMultiplicity() {
-        return multiplicity;
-    }
-
-    public void clearCaches() {
-        expireReferenceCache();
     }
 
     public String getNamespace() {

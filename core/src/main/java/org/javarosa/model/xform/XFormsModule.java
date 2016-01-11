@@ -63,14 +63,6 @@ public class XFormsModule implements IModule {
                 return XFormParser.restoreDataModel(data, restorableType);
             }
 
-            public IAnswerData parseData(String textVal, int dataType, TreeReference ref, FormDef f) {
-                return AnswerDataFactory.templateByDataType(dataType).cast(new UncastData(textVal));
-            }
-
-            public String serializeData(IAnswerData data) {
-                return (String)(new XFormAnswerDataSerializer().serializeAnswerData(data));
-            }
-
             public IConditionExpr refToPathExpr(TreeReference ref) {
                 return new XPathConditional(XPathPathExpr.fromRef(ref));
             }

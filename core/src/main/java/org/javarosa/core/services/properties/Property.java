@@ -98,15 +98,6 @@ public class Property implements Persistable, IMetaData {
         return recordId;
     }
 
-    public Hashtable getMetaData() {
-        Hashtable metadata = new Hashtable();
-        String[] fields = getMetaDataFields();
-        for (int i = 0; i < fields.length; i++) {
-            metadata.put(fields[i], getMetaData(fields[i]));
-        }
-        return metadata;
-    }
-
     public Object getMetaData(String fieldName) {
         if (fieldName.equals("NAME")) {
             return name;
