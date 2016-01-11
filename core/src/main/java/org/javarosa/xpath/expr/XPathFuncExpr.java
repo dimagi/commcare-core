@@ -28,7 +28,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.StackOverflowError;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -1111,9 +1110,16 @@ public class XPathFuncExpr extends XPathExpression {
         boolean result;
         try {
             result = regexp.match(str);
-        } catch (StackOverflowError e) {
+        } 
+        //#if polish.cldc
+        //# catch (java.lang.OutOfMemoryError e) {
+        //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
+        //# }
+        //#else
+        catch (import java.lang.StackOverflowError e) {
             throw new XPathException("The regular expression '" + str + "' took too long to process.");
-        }
+        } 
+        //#endif
 
         return new Boolean(result);
     }
