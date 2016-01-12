@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.ledger.instance;
 
 import org.commcare.cases.ledger.Ledger;
@@ -21,10 +18,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * The root element for the <casedb> abstract type. All children are
- * nodes in the case database. Depending on instantiation, the <casedb>
- * may include only a subset of the full db.
- *
  * @author ctsims
  */
 public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChildElement> {
@@ -34,7 +27,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     private AbstractTreeElement instanceRoot;
 
     IStorageUtilityIndexed<Ledger> storage;
-    private String[] ledgerRecords;
 
     //TODO: much of this is still shared w/the casedb and should be centralized there
     protected Vector<LedgerChildElement> ledgers;
@@ -136,14 +128,10 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
      */
     public int getNumChildren() {
-        if (ledgerRecords != null) {
-            return ledgerRecords.length;
-        } else {
-            if (numRecords == -1) {
-                numRecords = storage.getNumRecords();
-            }
-            return numRecords;
+        if (numRecords == -1) {
+            numRecords = storage.getNumRecords();
         }
+        return numRecords;
     }
 
     /* (non-Javadoc)
@@ -160,21 +148,12 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         ledgers = new Vector<LedgerChildElement>();
-        if (ledgerRecords != null) {
-            int i = 0;
-            for (String id : ledgerRecords) {
-                ledgers.addElement(new LedgerChildElement(this, -1, id, i));
-                ++i;
-            }
-        } else {
-            int mult = 0;
-            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-                int id = i.nextID();
-                ledgers.addElement(new LedgerChildElement(this, id, null, mult));
-                objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-                mult++;
-            }
-
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            ledgers.addElement(new LedgerChildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
         }
     }
 
