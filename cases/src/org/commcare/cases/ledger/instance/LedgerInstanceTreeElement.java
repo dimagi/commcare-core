@@ -24,6 +24,9 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     public static final String MODEL_NAME = "ledgerdb";
 
+    private final static XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
+    private final static XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
+
     private AbstractTreeElement instanceRoot;
 
     IStorageUtilityIndexed<Ledger> storage;
@@ -34,6 +37,8 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 
     protected Interner<String> stringCache;
+
+    int numRecords = -1;
 
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
         this.instanceRoot = instanceRoot;
@@ -68,6 +73,9 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return instanceRoot.getInstanceName();
     }
 
+    /**
+     * Used by J2ME
+     */
     public void attachStringCache(Interner<String> stringCache) {
         this.stringCache = stringCache;
     }
@@ -103,14 +111,9 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     }
 
-    int numRecords = -1;
-
     @Override
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return (getNumChildren() > 0);
     }
 
     @Override
@@ -258,10 +261,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     protected String getChildHintName() {
         return "ledger";
     }
-
-    final static private XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
-    final static private XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
-
 
     @Override
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
