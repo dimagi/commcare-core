@@ -101,12 +101,12 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     }
 
     @Override
-    public Vector getChildrenWithName(String name) {
+    public Vector<LedgerChildElement> getChildrenWithName(String name) {
         if (name.equals(LedgerChildElement.NAME)) {
             getLedgers();
             return ledgers;
         } else {
-            return new Vector();
+            return new Vector<LedgerChildElement>();
         }
 
     }
