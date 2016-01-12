@@ -60,20 +60,15 @@ public class XPathPathExpr extends XPathExpression {
         this.filtExpr = filtExpr;
     }
 
-    public TreeReference getReference() throws XPathUnsupportedException {
-        return getReference(false);
-    }
-
     /**
      * Translate an xpath path reference into a TreeReference
      * TreeReferences only support a subset of xpath paths:
      * - only simple child name tests 'child::name', '.', and '..' allowed.
      * - '../' steps must come before anything else
      *
-     * @param allowPredicates Is deprecated! Don't use this.
      * @return a reference built from this path expression
      */
-    public TreeReference getReference(boolean allowPredicates) throws XPathUnsupportedException {
+    public TreeReference getReference() throws XPathUnsupportedException {
         TreeReference ref = new TreeReference();
         boolean parentsAllowed;
         // process the beginning of the reference
@@ -91,7 +86,6 @@ public class XPathPathExpr extends XPathExpression {
                     XPathFuncExpr func = (XPathFuncExpr)(this.filtExpr.x);
                     if (func.id.toString().equals("instance")) {
                         // i assume when refering the non main instance you have to be absolute
-                        ref.setRefLevel(TreeReference.REF_ABSOLUTE);
                         parentsAllowed = false;
                         if (func.args.length != 1) {
                             throw new XPathUnsupportedException("instance() function used with " +
@@ -102,7 +96,7 @@ public class XPathPathExpr extends XPathExpression {
                         }
                         XPathStringLiteral strLit = (XPathStringLiteral)(func.args[0]);
                         // we've got a non-standard instance in play, watch out
-                        ref.setInstanceName(strLit.s);
+                        ref = new TreeReference(strLit.s, TreeReference.REF_ABSOLUTE);
                     } else if (func.id.toString().equals("current")) {
                         parentsAllowed = true;
                         ref.setContext(TreeReference.CONTEXT_ORIGINAL);
@@ -430,7 +424,6 @@ public class XPathPathExpr extends XPathExpression {
 
     @Override
     public String toPrettyString() {
-        return getReference(true).toString(true);
+        return getReference().toString(true);
     }
-
 }
