@@ -44,7 +44,7 @@ public class SessionDatum implements Externalizable {
                         String inlineDetail, String persistentDetail, String value, String autoselect) {
         type = DATUM_TYPE_NORMAL;
         this.id = id;
-        this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
+        this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         this.shortDetail = shortDetail;
         this.longDetail = longDetail;
         this.inlineDetail = inlineDetail;
@@ -180,7 +180,7 @@ public class SessionDatum implements Externalizable {
                                                 EvaluationContext ec) {
         // Grab the session's (form) element reference, and load it.
         TreeReference elementRef =
-                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+                XPathReference.getPathExpr(selectDatum.getValue()).getReference();
         AbstractTreeElement element =
                 ec.resolveReference(elementRef.contextualize(contextRef));
 

@@ -253,7 +253,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
      */
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeElement.BuildRef(this);
+            ref = TreeElement.buildRef(this);
         }
         return ref;
     }
