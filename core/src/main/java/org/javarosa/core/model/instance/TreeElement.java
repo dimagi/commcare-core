@@ -64,15 +64,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     private String preloadHandler = null;
     private String preloadParams = null;
 
-    //private boolean required = false;// TODO
-    //protected boolean repeatable;
-    //protected boolean isAttribute;
-    //private boolean relevant = true;
-    //private boolean enabled = true;
-    // inherited properties
-    //private boolean relevantInherited = true;
-    //private boolean enabledInherited = true;
-
     private static final int MASK_REQUIRED = 0x01;
     private static final int MASK_REPEATABLE = 0x02;
     private static final int MASK_ATTRIBUTE = 0x04;
@@ -122,24 +113,17 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         setMaskVar(MASK_ATTRIBUTE, attribute);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
+    @Override
     public boolean isLeaf() {
         return (children == null || children.size() == 0);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
+    @Override
     public boolean isChildable() {
         return (value == null);
     }
 
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
+    @Override
     public String getInstanceName() {
         //CTS: I think this is a better way to do this, although I really, really don't like the duplicated code
         if (parent != null) {
@@ -148,16 +132,10 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return instanceName;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setInstanceName(java.lang.String)
-     */
     public void setInstanceName(String instanceName) {
         this.instanceName = instanceName;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setValue(org.javarosa.core.model.data.IAnswerData)
-     */
     public void setValue(IAnswerData value) {
         if (isLeaf()) {
             this.value = value;
@@ -166,9 +144,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
+    @Override
     public TreeElement getChild(String name, int multiplicity) {
         if (this.children == null) {
             return null;
@@ -190,9 +166,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
+    @Override
     public Vector<TreeElement> getChildrenWithName(String name) {
         return getChildrenWithName(name, false);
     }
@@ -213,51 +187,34 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return v;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
+    @Override
     public int getNumChildren() {
         return children == null ? 0 : this.children.size();
     }
 
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return (getNumChildren() > 0);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
+    @Override
     public TreeElement getChildAt(int i) {
-        return (TreeElement)children.elementAt(i);
+        return children.elementAt(i);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
-     */
+    @Override
     public boolean isRepeatable() {
         return getMaskVar(MASK_REPEATABLE);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
-     */
+    @Override
     public boolean isAttribute() {
         return getMaskVar(MASK_ATTRIBUTE);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setDataType(int)
-     */
     public void setDataType(int dataType) {
         this.dataType = dataType;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#addChild(org.javarosa.core.model.instance.TreeElement)
-     */
     public void addChild(TreeElement child) {
         addChild(child, false);
     }
@@ -278,7 +235,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
         }
         if (children == null) {
-            children = new Vector();
+            children = new Vector<TreeElement>();
         }
 
         // try to keep things in order
@@ -321,11 +278,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         node.setInstanceName(getInstanceName());
     }
 
-
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChild(org.javarosa.core.model.instance.TreeElement)
-     */
     public void removeChild(TreeElement child) {
         if (children == null) {
             return;
@@ -333,24 +285,15 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         children.removeElement(child);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#removeChildAt(int)
-     */
     public void removeChildAt(int i) {
         children.removeElementAt(i);
-
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
+    @Override
     public int getChildMultiplicity(String name) {
         return getChildrenWithName(name, false).size();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#shallowCopy()
-     */
     public TreeElement shallowCopy() {
         TreeElement newNode = new TreeElement(name, multiplicity);
         newNode.parent = parent;
@@ -377,14 +320,11 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return newNode;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#deepCopy(boolean)
-     */
     public TreeElement deepCopy(boolean includeTemplates) {
         TreeElement newNode = shallowCopy();
 
         if (children != null) {
-            newNode.children = new Vector();
+            newNode.children = new Vector<TreeElement>();
             for (int i = 0; i < children.size(); i++) {
                 TreeElement child = (TreeElement)children.elementAt(i);
                 if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
@@ -423,26 +363,18 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     /* ==== MODEL PROPERTIES ==== */
 
     // factoring inheritance rules
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRelevant()
-     */
+    @Override
     public boolean isRelevant() {
         return getMaskVar(MASK_RELEVANT_INH) && getMaskVar(MASK_RELEVANT);
     }
 
     // factoring in inheritance rules
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isEnabled()
-     */
     public boolean isEnabled() {
         return getMaskVar(MASK_ENABLED_INH) && getMaskVar(MASK_ENABLED);
     }
 
     /* ==== SPECIAL SETTERS (SETTERS WITH SIDE-EFFECTS) ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setAnswer(org.javarosa.core.model.data.IAnswerData)
-     */
     public boolean setAnswer(IAnswerData answer) {
         if (value != null || answer != null) {
             setValue(answer);
@@ -453,9 +385,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setRequired(boolean)
-     */
     public void setRequired(boolean required) {
         if (getMaskVar(MASK_REQUIRED) != required) {
             setMaskVar(MASK_REQUIRED, required);
@@ -475,9 +404,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setRelevant(boolean)
-     */
     public void setRelevant(boolean relevant) {
         setRelevant(relevant, false);
     }
@@ -498,23 +424,17 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
             if (children != null) {
                 for (int i = 0; i < children.size(); i++) {
-                    ((TreeElement)children.elementAt(i)).setRelevant(isRelevant(), true);
+                    children.elementAt(i).setRelevant(isRelevant(), true);
                 }
             }
             alertStateObservers(FormElementStateListener.CHANGE_RELEVANT);
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setEnabled(boolean)
-     */
     public void setEnabled(boolean enabled) {
         setEnabled(enabled, false);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setEnabled(boolean, boolean)
-     */
     public void setEnabled(boolean enabled, boolean inherited) {
         boolean oldEnabled = isEnabled();
         if (inherited) {
@@ -536,9 +456,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     /* ==== OBSERVER PATTERN ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#registerStateObserver(org.javarosa.core.model.FormElementStateListener)
-     */
     public void registerStateObserver(FormElementStateListener qsl) {
         if (observers == null)
             observers = new Vector();
@@ -548,9 +465,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#unregisterStateObserver(org.javarosa.core.model.FormElementStateListener)
-     */
     public void unregisterStateObserver(FormElementStateListener qsl) {
         if (observers != null) {
             observers.removeElement(qsl);
@@ -559,9 +473,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#alertStateObservers(int)
-     */
     public void alertStateObservers(int changeFlags) {
         if (observers != null) {
             for (Enumeration e = observers.elements(); e.hasMoreElements(); )
@@ -572,9 +483,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     /* ==== VISITOR PATTERN ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
+    @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
 
@@ -590,30 +499,22 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     /* ==== Attributes ==== */
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
+    @Override
     public int getAttributeCount() {
         return attributes == null ? 0 : attributes.size();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
+    @Override
     public String getAttributeNamespace(int index) {
         return attributes.elementAt(index).namespace;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
+    @Override
     public String getAttributeName(int index) {
         return attributes.elementAt(index).name;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
+    @Override
     public String getAttributeValue(int index) {
         return getAttributeValue(attributes.elementAt(index));
     }
@@ -630,9 +531,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
+    @Override
     public TreeElement getAttribute(String namespace, String name) {
         if (attributes == null) {
             return null;
@@ -645,17 +544,12 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getAttributeValue(String namespace, String name) {
         TreeElement element = getAttribute(namespace, name);
         return element == null ? null : getAttributeValue(element);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setAttribute(java.lang.String, java.lang.String, java.lang.String)
-     */
     public void setAttribute(String namespace, String name, String value) {
         if (attributes == null) {
             this.attributes = new Vector<TreeElement>();
@@ -685,8 +579,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
         attributes.addElement(attr);
     }
-
-    /* ==== SERIALIZATION ==== */
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -849,9 +741,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //is used for overall structure (including data types), and the itemset source node is used for
     //raw data. note that data may be coerced across types, which may result in type conversion error
     //very similar in structure to populate()
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#populateTemplate(org.javarosa.core.model.instance.TreeElement, org.javarosa.core.model.FormDef)
-     */
     public void populateTemplate(TreeElement incoming, FormDef f) {
         if (this.isLeaf()) {
             IAnswerData value = incoming.getValue();
@@ -871,7 +760,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                         TreeElement newChild = template.deepCopy(false);
                         newChild.setMult(k);
                         if (children == null) {
-                            children = new Vector();
+                            children = new Vector<TreeElement>();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
                         newChild.populateTemplate((TreeElement)newChildren.elementAt(k), f);
@@ -887,7 +776,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     //TODO: This is probably silly because this object is likely already
     //not thread safe in any way. Also, we should be wrapping all of the
     //setters.
-    TreeReference[] refCache = new TreeReference[1];
+    final TreeReference[] refCache = new TreeReference[1];
 
     private void expireReferenceCache() {
         synchronized (refCache) {
@@ -897,20 +786,18 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
 
     //return the tree reference that corresponds to this tree element
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
+    @Override
     public TreeReference getRef() {
         //TODO: Expire cache somehow;
         synchronized (refCache) {
             if (refCache[0] == null) {
-                refCache[0] = TreeElement.BuildRef(this);
+                refCache[0] = TreeElement.buildRef(this);
             }
             return refCache[0];
         }
     }
 
-    public static TreeReference BuildRef(AbstractTreeElement elem) {
+    public static TreeReference buildRef(AbstractTreeElement elem) {
         TreeReference ref = TreeReference.selfRef();
 
         while (elem != null) {
@@ -932,103 +819,66 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return ref;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getPreloadHandler()
-     */
     public String getPreloadHandler() {
         return preloadHandler;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getConstraint()
-     */
     public Constraint getConstraint() {
         return constraint;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setPreloadHandler(java.lang.String)
-     */
     public void setPreloadHandler(String preloadHandler) {
         this.preloadHandler = preloadHandler;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setConstraint(org.javarosa.core.model.condition.Constraint)
-     */
     public void setConstraint(Constraint constraint) {
         this.constraint = constraint;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getPreloadParams()
-     */
     public String getPreloadParams() {
         return preloadParams;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setPreloadParams(java.lang.String)
-     */
     public void setPreloadParams(String preloadParams) {
         this.preloadParams = preloadParams;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setName(java.lang.String)
-     */
     public void setName(String name) {
         expireReferenceCache();
         this.name = name;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
+    @Override
     public int getMult() {
         return multiplicity;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setMult(int)
-     */
     public void setMult(int multiplicity) {
         expireReferenceCache();
         this.multiplicity = multiplicity;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setParent(org.javarosa.core.model.instance.TreeElement)
-     */
     public void setParent(AbstractTreeElement parent) {
         expireReferenceCache();
         this.parent = parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
+    @Override
     public AbstractTreeElement getParent() {
         return parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
+    @Override
     public IAnswerData getValue() {
         return value;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#toString()
-     */
+    @Override
     public String toString() {
         String name = "NULL";
         if (this.name != null) {
@@ -1043,23 +893,15 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return name + " - Children: " + childrenCount;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
+    @Override
     public int getDataType() {
         return dataType;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRequired()
-     */
     public boolean isRequired() {
         return getMaskVar(MASK_REQUIRED);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#setRepeatable(boolean)
-     */
     public void setRepeatable(boolean repeatable) {
         setMaskVar(MASK_REPEATABLE, repeatable);
     }
@@ -1101,10 +943,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         this.mChildStepMapping = childAttributeHintMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#tryBatchChildFetch(java.lang.String, int, java.util.Vector, org.javarosa.core.model.condition.EvaluationContext)
-     */
+    @Override
     public Vector<TreeReference> tryBatchChildFetch(String name, int mult, Vector<XPathExpression> predicates, EvaluationContext evalContext) {
         return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext);
     }

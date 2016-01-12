@@ -1351,7 +1351,7 @@ public class XFormParser {
         XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
         itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
-        itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference(true)), itemset.contextRef));
+        itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference()), itemset.contextRef));
 
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);

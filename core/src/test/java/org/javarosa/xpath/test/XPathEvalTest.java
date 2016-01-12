@@ -559,7 +559,7 @@ public class XPathEvalTest {
     }
 
     private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
-        TreeReference treeRef = XPathReference.getPathExpr(ref).getReference(true);
+        TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);
 
         addNodeRef(dm, treeRef);
