@@ -1819,7 +1819,7 @@ public class XFormParser {
         return false;
     }
 
-    protected DataBinding processStandardBindAttributes(Vector<String> usedAtts, Element e) {
+    private DataBinding processStandardBindAttributes(Vector<String> usedAtts, Element e) {
         usedAtts.addElement(ID_ATTR);
         usedAtts.addElement(NODESET_ATTR);
         usedAtts.addElement("type");
@@ -1935,7 +1935,7 @@ public class XFormParser {
         return new XFormParseException("Problem with bind for " + nodeset + " contains invalid " + attribute + " expression [" + expression + "] " + message);
     }
 
-    protected void parseBind(Element e) {
+    private void parseBind(Element e) {
         Vector<String> usedAtts = new Vector<String>();
 
         DataBinding binding = processStandardBindAttributes(usedAtts, e);
@@ -1992,7 +1992,7 @@ public class XFormParser {
         return r;
     }
 
-    protected void addBinding(DataBinding binding) {
+    private void addBinding(DataBinding binding) {
         bindings.addElement(binding);
 
         if (binding.getId() != null) {
@@ -2124,7 +2124,7 @@ public class XFormParser {
             if (typeMappings.get(modelType) == null) {
                 throw new XFormParseException("ModelType " + modelType + " is not recognized.", node);
             }
-            element = (TreeElement)modelPrototypes.getNewInstance(((Integer)typeMappings.get(modelType)).toString());
+            element = (TreeElement)modelPrototypes.getNewInstance((typeMappings.get(modelType)).toString());
             if (element == null) {
                 element = new TreeElement(name, multiplicity);
                 System.out.println("No model type prototype available for " + modelType);

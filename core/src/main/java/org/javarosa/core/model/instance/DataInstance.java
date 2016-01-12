@@ -257,7 +257,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         ExtUtil.write(out, ExtUtil.emptyIfNull(instanceid));
     }
 
-
     @Override
     public int getID() {
         return recordid;
