@@ -327,19 +327,6 @@ public class Resource implements Persistable, IMetaData {
 
     /*
      * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData()
-     */
-    public Hashtable getMetaData() {
-        Hashtable md = new Hashtable();
-        String[] fields = getMetaDataFields();
-        for (int i = 0; i < fields.length; ++i) {
-            md.put(fields[i], getMetaData(fields[i]));
-        }
-        return md;
-    }
-
-    /*
-     * (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
      */
     public Object getMetaData(String fieldName) {
