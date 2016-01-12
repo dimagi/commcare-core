@@ -305,7 +305,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
      */
     public TreeReference getRef() {
         if (cachedRef == null) {
-            cachedRef = TreeElement.BuildRef(this);
+            cachedRef = TreeElement.buildRef(this);
         }
         return cachedRef;
     }

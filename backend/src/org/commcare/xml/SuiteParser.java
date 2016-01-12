@@ -32,15 +32,16 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
-
-    Suite suite;
-    ResourceTable table;
-    String resourceGuid;
     private final IStorageUtilityIndexed<FormInstance> fixtureStorage;
 
+    private ResourceTable table;
+    private String resourceGuid;
+    private int maximumResourceAuthority = -1;
     private boolean skipResources = false;
 
-    public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) throws IOException {
+    public SuiteParser(InputStream suiteStream,
+                       ResourceTable table,
+                       String resourceGuid) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
@@ -58,7 +59,8 @@ public class SuiteParser extends ElementParser<Suite> {
         this.fixtureStorage = fixtureStorage;
     }
 
-    public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public Suite parse() throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("suite");
 
         String sVersion = parser.getAttributeValue(null, "version");
@@ -72,11 +74,9 @@ public class SuiteParser extends ElementParser<Suite> {
             //start traversing.
             parser.next();
 
-            int eventType;
-            eventType = parser.getEventType();
+            int eventType = parser.getEventType();
             do {
-                if (eventType == KXmlParser.END_DOCUMENT) {
-                } else if (eventType == KXmlParser.START_TAG) {
+                if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("entry")) {
                         Entry e = new EntryParser(parser).parse();
                         entries.put(e.getCommandId(), e);
@@ -121,20 +121,12 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
                     }
-                } else if (eventType == KXmlParser.END_TAG) {
-                    //we shouldn't ever get this I don't believe, maybe on the last node?
-                } else if (eventType == KXmlParser.TEXT) {
-                    //Shouldn't ever get this (Delete the if, if so).
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
 
-            suite = new Suite(version, details, entries, menus);
-            return suite;
-
-
+            return new Suite(version, details, entries, menus);
         } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
         } catch (StorageFullException e) {
@@ -144,8 +136,6 @@ public class SuiteParser extends ElementParser<Suite> {
             throw new InvalidStructureException("Problem storing parser suite XML", parser);
         }
     }
-
-    int maximumResourceAuthority = -1;
 
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
