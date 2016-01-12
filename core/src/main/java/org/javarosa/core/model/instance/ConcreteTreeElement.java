@@ -390,12 +390,12 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     public TreeReference getRef() {
         //TODO: Expire cache somehow;
         if (refCache == null) {
-            refCache = ConcreteTreeElement.BuildRef(this);
+            refCache = ConcreteTreeElement.buildRef(this);
         }
         return refCache;
     }
 
-    public static TreeReference BuildRef(AbstractTreeElement elem) {
+    public static TreeReference buildRef(AbstractTreeElement elem) {
         TreeReference ref = TreeReference.selfRef();
 
         while (elem != null) {
