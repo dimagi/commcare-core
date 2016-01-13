@@ -72,7 +72,9 @@ public class StackFrameStep implements Externalizable {
     }
 
     public void addExtra(String key, String value) {
-        extras.put(key, value);
+        if (value != null) {
+            extras.put(key, value);
+        }
     }
 
     public String getExtra(String key) {
