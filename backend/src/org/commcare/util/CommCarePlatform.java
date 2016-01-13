@@ -1,6 +1,5 @@
 package org.commcare.util;
 
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
@@ -42,11 +41,12 @@ public class CommCarePlatform implements CommCareInstance {
         this.minorVersion = minorVersion;
     }
 
-
+    @Override
     public int getMajorVersion() {
         return majorVersion;
     }
 
+    @Override
     public int getMinorVersion() {
         return minorVersion;
     }
@@ -77,10 +77,12 @@ public class CommCarePlatform implements CommCareInstance {
         return null;
     }
 
+    @Override
     public void setProfile(Profile p) {
         this.profile = p.getID();
     }
 
+    @Override
     public void registerSuite(Suite s) {
     }
 
