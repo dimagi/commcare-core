@@ -15,6 +15,7 @@ import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
@@ -350,14 +351,18 @@ public class CommCareConfigEngine {
         return formStorage.getRecordForValue("XMLNS", xmlns);
     }
 
-    private void print(Suite s, Entry e, int level) {
+    private void print(Suite s, EntryBase e, int level) {
         String head = "";
         String emptyhead = "";
         for(int i = 0; i < level; ++i ){
             head +=      "|- ";
             emptyhead += "   ";
         }
-        print.println(head + "Entry: " + e.getText().evaluate());
+        if (e.isView()) {
+            print.println(head + "View: " + e.getText().evaluate());
+        } else {
+            print.println(head + "Entry: " + e.getText().evaluate());
+        }
         for(SessionDatum datum : e.getSessionDataReqs()) {
             if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
                 print.println(emptyhead + "Form: " + datum.getValue());

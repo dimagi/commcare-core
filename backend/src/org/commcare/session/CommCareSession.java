@@ -2,6 +2,7 @@ package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -74,7 +75,7 @@ public class CommCareSession {
         this.frameStack = new Stack<SessionFrame>();
     }
 
-    public Vector<Entry> getEntriesForCommand(String commandId) {
+    public Vector<EntryBase> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
 
@@ -84,11 +85,11 @@ public class CommCareSession {
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
-    private Vector<Entry> getEntriesForCommand(String commandId,
+    private Vector<EntryBase> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> data) {
-        Hashtable<String, Entry> map = platform.getMenuMap();
+        Hashtable<String, EntryBase> map = platform.getMenuMap();
         Menu menu = null;
-        Entry entry = null;
+        EntryBase entry = null;
         top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -105,7 +106,7 @@ public class CommCareSession {
             }
         }
 
-        Vector<Entry> entries = new Vector<Entry>();
+        Vector<EntryBase> entries = new Vector<EntryBase>();
         if (entry != null) {
             entries.addElement(entry);
         }
@@ -114,7 +115,7 @@ public class CommCareSession {
             //We're in a menu we have a set of requirements which
             //need to be fulfilled
             for (String cmd : menu.getCommandIds()) {
-                Entry e = map.get(cmd);
+                EntryBase e = map.get(cmd);
                 if (e == null) {
                     throw new RuntimeException("No entry found for menu command [" + cmd + "]");
                 }
@@ -156,13 +157,13 @@ public class CommCareSession {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
+        Vector<EntryBase> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
 
         //Get data. Checking first to see if the relevant key is needed by all entries
 
         String needDatum = null;
         String nextKey = null;
-        for (Entry e : possibleEntries) {
+        for (EntryBase e : possibleEntries) {
 
             SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
@@ -215,7 +216,7 @@ public class CommCareSession {
         String[] returnVal = new String[steps.size()];
 
 
-        Hashtable<String, Entry> entries = platform.getMenuMap();
+        Hashtable<String, EntryBase> entries = platform.getMenuMap();
         int i = 0;
         for (StackFrameStep step : steps) {
             if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
@@ -248,7 +249,7 @@ public class CommCareSession {
      * an entry on the stack
      */
     public SessionDatum getNeededDatum() {
-        Entry entry = getEntriesForCommand(getCommand()).elementAt(0);
+        EntryBase entry = getEntriesForCommand(getCommand()).elementAt(0);
         return getNeededDatum(entry);
     }
 
@@ -256,7 +257,7 @@ public class CommCareSession {
      * @param entry An entry which is consistent as a step on the stack
      * @return A session datum definition if one is pending. Null otherwise.
      */
-    public SessionDatum getNeededDatum(Entry entry) {
+    public SessionDatum getNeededDatum(EntryBase entry) {
         return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
     }
 
@@ -397,8 +398,12 @@ public class CommCareSession {
             return null;
         }
 
-        Entry e = platform.getMenuMap().get(command);
-        return e.getXFormNamespace();
+        EntryBase e = platform.getMenuMap().get(command);
+        if (e.isView()) {
+            return null;
+        } else {
+            return ((Entry)e).getXFormNamespace();
+        }
     }
 
     public String getCommand() {
@@ -488,7 +493,7 @@ public class CommCareSession {
         if (command == null) {
             return new EvaluationContext(null);
         }
-        Entry entry = getEntriesForCommand(command).elementAt(0);
+        EntryBase entry = getEntriesForCommand(command).elementAt(0);
 
         Hashtable<String, DataInstance> instances = entry.getInstances();
 
@@ -710,8 +715,8 @@ public class CommCareSession {
      * @return The unique valid entry built on this session. Will throw an exception if there isn't
      * a unique entry.
      */
-    public Entry getCurrentEntry() {
-        Vector<Entry> e = getEntriesForCommand(getCommand());
+    public EntryBase getCurrentEntry() {
+        Vector<EntryBase> e = getEntriesForCommand(getCommand());
         if (e.size() > 1) {
             throw new IllegalStateException("The current session does not contain a single valid entry");
         }
@@ -757,10 +762,10 @@ public class CommCareSession {
         //associated with our ID
         for (int i = stepId; i >= 0; i--) {
             if (steps.elementAt(i).getType().equals(SessionFrame.STATE_COMMAND_ID)) {
-                Vector<Entry> entries = this.getEntriesForCommand(steps.elementAt(i).getId());
+                Vector<EntryBase> entries = this.getEntriesForCommand(steps.elementAt(i).getId());
 
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
-                for (Entry entry : entries) {
+                for (EntryBase entry : entries) {
                     for (SessionDatum datum : entry.getSessionDataReqs()) {
                         if (datum.getDataId().equals(datumId)) {
                             return datum;
@@ -781,15 +786,8 @@ public class CommCareSession {
      * to take?
      */
     public boolean isViewCommand(String command) {
-        Vector<Entry> entries = this.getEntriesForCommand(command);
-        Entry prototype = entries.elementAt(0);
-
-        // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
-        // commcare core for release issues
-        return (entries.size() == 1 &&
-                (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals(""))) &&
-                prototype.getPostEntrySessionOperations().size() == 0;
+        Vector<EntryBase> entries = this.getEntriesForCommand(command);
+        return entries.elementAt(0).isView();
     }
 
     public void addExtraToCurrentFrameStep(String key, String value) {

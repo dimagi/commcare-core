@@ -3,8 +3,10 @@ package org.commcare.xml;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
+import org.commcare.suite.model.View;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -18,7 +20,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class EntryParser extends CommCareElementParser<Entry> {
+public class EntryParser extends CommCareElementParser<EntryBase> {
     boolean isEntry = true;
 
     public EntryParser(KXmlParser parser) {
@@ -30,10 +32,8 @@ public class EntryParser extends CommCareElementParser<Entry> {
         this.isEntry = isEntry;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
-    public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    @Override
+    public EntryBase parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String block = isEntry ? "entry" : "view";
         this.checkNode(block);
 
@@ -91,7 +91,11 @@ public class EntryParser extends CommCareElementParser<Entry> {
         if (display == null) {
             throw new InvalidStructureException("<entry> block must define display text details", parser);
         }
-        Entry e = new Entry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
-        return e;
+
+        if (isEntry) {
+            return new Entry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
+        } else {
+            return new View(commandId, display, data, instances, stackOps, assertions);
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
@@ -109,12 +110,12 @@ public class CommCarePlatform implements CommCareInstance {
         suites.removeAllElements();
     }
 
-    public Hashtable<String, Entry> getMenuMap() {
+    public Hashtable<String, EntryBase> getMenuMap() {
         Vector<Suite> installed = getInstalledSuites();
-        Hashtable<String, Entry> merged = new Hashtable<String, Entry>();
+        Hashtable<String, EntryBase> merged = new Hashtable<String, EntryBase>();
 
         for (Suite s : installed) {
-            Hashtable<String, Entry> table = s.getEntries();
+            Hashtable<String, EntryBase> table = s.getEntries();
             for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 merged.put(key, table.get(key));
