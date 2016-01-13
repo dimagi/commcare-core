@@ -86,31 +86,27 @@ public class CommCareSession {
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
                                                OrderedHashtable<String, String> data) {
-        Hashtable<String, Entry> map = platform.getMenuMap();
-        Menu menu = null;
-        Entry entry = null;
-        top:
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
-                    menu = m;
-                    break top;
+                    return getEntriesFromMenu(m, data);
                 }
 
                 if (s.getEntries().containsKey(commandId)) {
-                    entry = s.getEntries().get(commandId);
-                    break top;
+                    Vector<Entry> entries = new Vector<Entry>();
+                    entries.addElement(s.getEntries().get(commandId));
+                    return entries;
                 }
             }
         }
 
-        Vector<Entry> entries = new Vector<Entry>();
-        if (entry != null) {
-            entries.addElement(entry);
-        }
+        return new Vector<Entry>();
+    }
 
-        if (menu != null) {
+    private Vector<Entry> getEntriesFromMenu(Menu menu, OrderedHashtable<String, String> data) {
+        Vector<Entry> entries = new Vector<Entry>();
+        Hashtable<String, Entry> map = platform.getMenuMap();
             //We're in a menu we have a set of requirements which
             //need to be fulfilled
             for (String cmd : menu.getCommandIds()) {
@@ -131,7 +127,6 @@ public class CommCareSession {
                     entries.addElement(e);
                 }
             }
-        }
         return entries;
     }
 
