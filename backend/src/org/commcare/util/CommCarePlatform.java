@@ -32,8 +32,6 @@ import java.util.Vector;
 public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
-
-    private Vector<Integer> suites;
     private int profile;
 
     private int majorVersion;
@@ -41,7 +39,6 @@ public class CommCarePlatform implements CommCareInstance {
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
-        suites = new Vector<Integer>();
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
     }
@@ -85,9 +82,7 @@ public class CommCarePlatform implements CommCareInstance {
         this.profile = p.getID();
     }
 
-
     public void registerSuite(Suite s) {
-        this.suites.addElement(new Integer(s.getID()));
     }
 
     /**
@@ -106,7 +101,6 @@ public class CommCarePlatform implements CommCareInstance {
     public void clearAppState() {
         //Clear out any app state
         profile = -1;
-        suites.removeAllElements();
     }
 
     public Hashtable<String, Entry> getMenuMap() {
