@@ -8,7 +8,6 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
@@ -34,8 +33,8 @@ public class CommCarePlatform implements CommCareInstance {
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
     private int profile;
 
-    private int majorVersion;
-    private int minorVersion;
+    private final int majorVersion;
+    private final int minorVersion;
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
@@ -137,26 +136,6 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return null;
-    }
-
-    public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
-        Vector<Resource> unresolved = new Vector<Resource>();
-        Vector<Resource> resolved = new Vector<Resource>();
-        Resource r = master.getResourceWithId(APP_PROFILE_RESOURCE_ID);
-        if (r == null) {
-            return resolved;
-        }
-        unresolved.addElement(r);
-        while (unresolved.size() > 0) {
-            Resource current = unresolved.firstElement();
-            unresolved.removeElement(current);
-            resolved.addElement(current);
-            Vector<Resource> children = master.getResourcesForParent(current.getRecordGuid());
-            for (Resource child : children) {
-                unresolved.addElement(child);
-            }
-        }
-        return resolved;
     }
 
     public String getMenuDisplayStyle(String menuId) {
