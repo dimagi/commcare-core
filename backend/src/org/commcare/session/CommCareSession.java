@@ -92,12 +92,12 @@ public class CommCareSession {
                 if (commandId.equals(m.getId())) {
                     return getEntriesFromMenu(m, data);
                 }
+            }
 
-                if (s.getEntries().containsKey(commandId)) {
-                    Vector<Entry> entries = new Vector<Entry>();
-                    entries.addElement(s.getEntries().get(commandId));
-                    return entries;
-                }
+            if (s.getEntries().containsKey(commandId)) {
+                Vector<Entry> entries = new Vector<Entry>();
+                entries.addElement(s.getEntries().get(commandId));
+                return entries;
             }
         }
 
