@@ -104,29 +104,30 @@ public class CommCareSession {
         return new Vector<Entry>();
     }
 
-    private Vector<Entry> getEntriesFromMenu(Menu menu, OrderedHashtable<String, String> data) {
+    private Vector<Entry> getEntriesFromMenu(Menu menu,
+                                             OrderedHashtable<String, String> data) {
         Vector<Entry> entries = new Vector<Entry>();
         Hashtable<String, Entry> map = platform.getMenuMap();
-            //We're in a menu we have a set of requirements which
-            //need to be fulfilled
-            for (String cmd : menu.getCommandIds()) {
-                Entry e = map.get(cmd);
-                if (e == null) {
-                    throw new RuntimeException("No entry found for menu command [" + cmd + "]");
-                }
-                boolean valid = true;
-                Vector<SessionDatum> requirements = e.getSessionDataReqs();
-                if (requirements.size() >= data.size()) {
-                    for (int i = 0; i < data.size(); ++i) {
-                        if (!requirements.elementAt(i).getDataId().equals(data.keyAt(i))) {
-                            valid = false;
-                        }
+        //We're in a menu we have a set of requirements which
+        //need to be fulfilled
+        for (String cmd : menu.getCommandIds()) {
+            Entry e = map.get(cmd);
+            if (e == null) {
+                throw new RuntimeException("No entry found for menu command [" + cmd + "]");
+            }
+            boolean valid = true;
+            Vector<SessionDatum> requirements = e.getSessionDataReqs();
+            if (requirements.size() >= data.size()) {
+                for (int i = 0; i < data.size(); ++i) {
+                    if (!requirements.elementAt(i).getDataId().equals(data.keyAt(i))) {
+                        valid = false;
                     }
                 }
-                if (valid) {
-                    entries.addElement(e);
-                }
             }
+            if (valid) {
+                entries.addElement(e);
+            }
+        }
         return entries;
     }
 
