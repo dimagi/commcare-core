@@ -21,7 +21,7 @@ import java.util.Vector;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class EntryBase implements Externalizable, MenuDisplayable {
+public abstract class EntryBase implements Externalizable, MenuDisplayable {
     Vector<SessionDatum> data;
     DisplayUnit display;
     private String commandId;

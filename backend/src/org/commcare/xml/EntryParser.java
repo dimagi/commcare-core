@@ -21,15 +21,20 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntryParser extends CommCareElementParser<EntryBase> {
-    boolean isEntry = true;
+    private boolean isEntry = true;
 
-    public EntryParser(KXmlParser parser) {
-        this(parser, true);
+    private EntryParser(KXmlParser parser, boolean isEntry) {
+        super(parser);
+
+        this.isEntry = isEntry;
     }
 
-    public EntryParser(KXmlParser parser, boolean isEntry) {
-        super(parser);
-        this.isEntry = isEntry;
+    public static EntryParser buildViewParser(KXmlParser parser) {
+        return new EntryParser(parser, false);
+    }
+
+    public static EntryParser buildEntryParser(KXmlParser parser) {
+        return new EntryParser(parser, true);
     }
 
     @Override
