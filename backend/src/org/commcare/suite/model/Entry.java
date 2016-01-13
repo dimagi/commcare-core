@@ -47,8 +47,7 @@ public class Entry extends EntryBase {
 
     /**
      * @return The XForm Namespce of the form which should be filled out in
-     * the form entry session triggered by this action. null if no entry
-     * should occur [HACK].
+     * the form entry session triggered by this action.
      */
     public String getXFormNamespace() {
         return xFormNamespace;
