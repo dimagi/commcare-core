@@ -19,6 +19,10 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * Describes a user-initiated action, what information needs to be collected
+ * before that action can begin, and what the UI should present to the user
+ * regarding this action.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public abstract class EntryBase implements Externalizable, MenuDisplayable {
@@ -33,11 +37,13 @@ public abstract class EntryBase implements Externalizable, MenuDisplayable {
      * Serialization only!
      */
     public EntryBase() {
-
     }
 
-    public EntryBase(String commandId, DisplayUnit display, Vector<SessionDatum> data, Hashtable<String, DataInstance> instances,
-                     Vector<StackOperation> stackOperations, AssertionSet assertions) {
+    public EntryBase(String commandId, DisplayUnit display,
+                     Vector<SessionDatum> data,
+                     Hashtable<String, DataInstance> instances,
+                     Vector<StackOperation> stackOperations,
+                     AssertionSet assertions) {
         this.commandId = commandId == null ? "" : commandId;
         this.display = display;
         this.data = data;

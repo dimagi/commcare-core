@@ -6,6 +6,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * An entry action used for viewing data; main difference from an Entry is that
+ * it doesn't end in launching form entry.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class View extends EntryBase {

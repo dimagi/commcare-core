@@ -19,9 +19,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * An Entry definition describes a user initiated form entry action, what
- * information needs to be collected before that action can begin, and what the
- * User Interface should present to the user regarding these actions
+ * Describes a user-initiated form entry action. Includes information that
+ * needs to be collected before that action can begin and what the UI should
+ * present to the user regarding this action.
  *
  * @author ctsims
  */
