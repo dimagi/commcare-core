@@ -76,7 +76,12 @@ public class StackFrameStep implements Externalizable {
     }
 
     public String getExtra(String key) {
-        return extras.get(key);
+        String value = extras.get(key);
+        if (value == null) {
+            return "";
+        } else {
+            return value;
+        }
     }
 
     /**
