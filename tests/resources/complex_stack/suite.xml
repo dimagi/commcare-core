@@ -51,6 +51,9 @@
                     <xpath function="case_name"/>
                 </text>
             </template>
+            <background>
+                <text>Regression for deprecated background tag</text>
+            </background>
         </field>
     </detail>
 
