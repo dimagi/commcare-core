@@ -59,7 +59,9 @@ public class StreamsUtil {
     public static void writeFromInputToOutput(InputStream in, OutputStream out) throws IOException {
         try {
             writeFromInputToOutput(in, out, null);
-        } catch (OutputIOException | InputIOException e) {
+        } catch (InputIOException e) {
+            throw e.internal;
+        } catch (OutputIOException e) {
             throw e.internal;
         }
     }
