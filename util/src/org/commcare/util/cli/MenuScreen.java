@@ -7,7 +7,7 @@ import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.SessionWrapper;
+import org.commcare.util.mocks.CLISessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -27,7 +27,6 @@ import java.util.Vector;
 public class MenuScreen extends Screen {
     private MenuDisplayable[] mChoices;
     CommCarePlatform mPlatform;
-    SessionWrapper mSession;
     UserSandbox mSandbox;
     
     String mTitle;
@@ -35,7 +34,7 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(SessionWrapper session) throws CommCareSessionException{
+    public void init(CLISessionWrapper session) throws CommCareSessionException{
         
         String root = deriveMenuRoot(session);
         
@@ -127,7 +126,7 @@ public class MenuScreen extends Screen {
         return mTitle;
     }
 
-    private String deriveMenuRoot(SessionWrapper session) {
+    private String deriveMenuRoot(CLISessionWrapper session) {
         if (session.getCommand() == null) {
             return "root";
         } else {

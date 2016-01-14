@@ -9,8 +9,8 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.SessionFrame;
+import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
-import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -53,7 +53,7 @@ public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
     private UserSandbox mSandbox;
-    private SessionWrapper mSession;
+    private CLISessionWrapper mSession;
 
     private boolean mUpdatePending = false;
     private boolean mForceLatestUpdate = false;
@@ -91,7 +91,7 @@ public class ApplicationHost {
         }
         setupSandbox();
 
-        mSession = new SessionWrapper(mPlatform, mSandbox);
+        mSession = new CLISessionWrapper(mPlatform, mSandbox);
 
         try {
             loop();
@@ -100,7 +100,7 @@ public class ApplicationHost {
             System.exit(-1);
         }
     }
-    
+
     private void loop() throws IOException {
         boolean keepExecuting = true;
         while (keepExecuting) {
@@ -111,7 +111,7 @@ public class ApplicationHost {
             keepExecuting = loopSession();
 
             if(this.mUpdatePending) {
-               processAppUpdate();
+                processAppUpdate();
             }
         }
     }
@@ -243,7 +243,7 @@ public class ApplicationHost {
         return true;
     }
 
-    private void printStack(SessionWrapper mSession) {
+    private void printStack(CLISessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
         System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
         System.out.println("----------");
@@ -342,7 +342,7 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                                              StorageManager.getStorage(FormInstance.STORAGE_KEY));
+                StorageManager.getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
         if(mLocalUserCredentials != null) {
