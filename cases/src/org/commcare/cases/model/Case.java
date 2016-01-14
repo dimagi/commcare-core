@@ -179,19 +179,6 @@ public class Case implements Persistable, IMetaData, Secure {
         return "case";
     }
 
-    public Hashtable getMetaData() {
-        Hashtable h = new Hashtable();
-        String[] fields = getMetaDataFields();
-        for (int i = 0; i < fields.length; i++) {
-            String field = fields[i];
-            Object value = getMetaData(field);
-            if (value != null) {
-                h.put(field, value);
-            }
-        }
-        return h;
-    }
-
     public Object getMetaData(String fieldName) {
         if (fieldName.equals(INDEX_CASE_ID)) {
             return id;

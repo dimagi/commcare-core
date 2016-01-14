@@ -74,7 +74,7 @@ public class EntityScreen extends CompoundScreenHost {
     private String getReturnValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
-                XPathReference.getPathExpr(needed.getValue()).getReference(true);
+                XPathReference.getPathExpr(needed.getValue()).getReference();
 
         AbstractTreeElement element =
                 context.resolveReference(elementRef.contextualize(contextRef));

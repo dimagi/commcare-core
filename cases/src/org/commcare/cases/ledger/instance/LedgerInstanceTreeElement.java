@@ -271,20 +271,13 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
      */
     public TreeReference getRef() {
         if (cachedRef == null) {
-            cachedRef = TreeElement.BuildRef(this);
+            cachedRef = TreeElement.buildRef(this);
         }
         return cachedRef;
     }
 
     private void expireCachedRef() {
         cachedRef = null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
     }
 
     /* (non-Javadoc)
@@ -322,10 +315,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    public void clearCaches() {
-        // TODO Auto-generated method stub
     }
 
     public String getNamespace() {
