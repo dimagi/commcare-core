@@ -156,7 +156,7 @@ public class Detail implements Externalizable {
 
     /**
      * Given an array of details, count their total number of fields.
-     * @return int
+     * Used by J2ME code
      */
     public int getFlattenedFieldCount() {
         Detail[] details = this.getFlattenedDetails();
