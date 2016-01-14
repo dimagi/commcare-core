@@ -7,20 +7,14 @@ import java.io.OutputStream;
 
 public class StreamsUtil {
 
-    public static byte[] getStreamAsBytes(InputStream is) {
+    public static byte[] getStreamAsBytes(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {
             StreamsUtil.writeFromInputToOutput(is, baos);
             return baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         } finally {
-            try {
-                baos.close();
-            } catch (IOException e) {
-            }
+            baos.close();
         }
     }
 
