@@ -216,12 +216,8 @@ public class DetailParser extends CommCareElementParser<Detail> {
                             builder.setSort(sort);
                         }
                     } else if (name.equals("background")) {
-                        if (nextTagInBlock("background")) {
-                            // parse but don't use
-                            // TODO PLM: is there a way to just skip over entire tag?
-                            checkNode("text");
-                            new TextParser(parser).parse();
-                        }
+                        // background tag in fields is deprecated
+                        skipBlock("background");
                     }
                 }
                 fields.addElement(builder.build());
