@@ -438,4 +438,23 @@ public class FormIndex {
         }
         return parent.getLocalIndex() == child.getLocalIndex();
     }
+
+    public void assignRefs(org.javarosa.core.model.FormDef var1) {
+        FormIndex var2 = this;
+        Vector var3 = new Vector();
+        Vector var4 = new Vector();
+        Vector var5 = new Vector();
+        var1.collapseIndex(this, var3, var4, var5);
+        Vector var6 = new Vector();
+        Vector var7 = new Vector();
+
+        for(int var8 = 0; var2 != null; ++var8) {
+            var6.addElement(var4.elementAt(var8));
+            var7.addElement(var5.elementAt(var8));
+            TreeReference var9 = var1.getChildInstanceRef(var7, var6);
+            var2.reference = var9;
+            var2 = var2.getNextLevel();
+        }
+
+    }
 }
