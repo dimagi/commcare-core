@@ -246,7 +246,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
      */
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeElement.BuildRef(this);
+            ref = TreeElement.buildRef(this);
         }
         return ref;
     }

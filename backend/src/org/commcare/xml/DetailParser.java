@@ -33,8 +33,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
         String id = parser.getAttributeValue(null, "id");
         String nodeset = parser.getAttributeValue(null, "nodeset");
 
-        Text background = new Text();
-
         //First fetch the title
         getNextTagInBlock("detail");
         //inside title, should be a text node or a display node as the child
@@ -48,7 +46,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         Callout callout = null;
-
         Action action = null;
 
         //Now get the headers and templates.
@@ -57,7 +54,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
         OrderedHashtable<String, String> variables = new OrderedHashtable<String, String>();
 
         while (nextTagInBlock("detail")) {
-
             if ("lookup".equals(parser.getName().toLowerCase())) {
                 try {
                     checkNode("lookup");
@@ -88,7 +84,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 action = new ActionParser(parser).parse();
                 continue;
             }
-            DetailField.Builder builder = new DetailField().new Builder();
+            DetailField.Builder builder = new DetailField.Builder();
 
             if (parser.getName().equals("detail")) {
                 subdetails.addElement((new DetailParser(parser)).parse());
@@ -174,7 +170,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     String name = parser.getName().toLowerCase();
 
                     if (name.equals("sort")) {
-
                         //So in the past we've been fairly flexible about inputs to attributes and such
                         //in case we want to expand their function in the future. These are limited sets,
                         //and it'd be nice to limit their inputs and fail fast, but that also means
@@ -211,7 +206,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
                             //see above comment
                         }
 
-
                         //See if this has a text value for the sort
                         if (nextTagInBlock("sort")) {
                             //Make sure the internal element _is_ a text
@@ -222,40 +216,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
                             builder.setSort(sort);
                         }
                     } else if (name.equals("background")) {
-                        if (nextTagInBlock("background")) {
-                            checkNode("text");
-                            //Get it if so
-                            background = new TextParser(parser).parse();
-                            builder.setBackground(background);
-                        }
+                        // background tag in fields is deprecated
+                        skipBlock("background");
                     }
                 }
                 fields.addElement(builder.build());
             }
         }
 
-        Detail d = new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
-        return d;
+        return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
     }
-
-    private int[] toIntArray(Vector<Integer> vector) {
-        int[] ret = new int[vector.size()];
-        for (int i = 0; i < ret.length; ++i) {
-            ret[i] = vector.elementAt(i).intValue();
-        }
-        return ret;
-    }
-
-    private String[] toStringArray(Vector<String> vector) {
-        String[] ret = new String[vector.size()];
-        for (int i = 0; i < ret.length; ++i) {
-            if (vector.elementAt(i).equals("")) {
-                ret[i] = null;
-            } else {
-                ret[i] = vector.elementAt(i);
-            }
-        }
-        return ret;
-    }
-
 }
