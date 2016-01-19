@@ -106,7 +106,7 @@ public class Detail implements Externalizable {
         this.id = id;
         this.title = title;
         if (nodeset != null) {
-            this.nodeset = XPathReference.getPathExpr(nodeset).getReference(true);
+            this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         }
         this.details = details;
         this.fields = fields;
@@ -156,7 +156,7 @@ public class Detail implements Externalizable {
 
     /**
      * Given an array of details, count their total number of fields.
-     * @return int
+     * Used by J2ME code
      */
     public int getFlattenedFieldCount() {
         Detail[] details = this.getFlattenedDetails();

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
@@ -25,27 +22,31 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * Parses a suite file resource and creates the associated object 
+ * containing the menu, detail, entry, etc definitions. This parser
+ * will also create models for any resource installers that are defined
+ * by the suite file and add them to the resource table provided
+ * with the suite resource as the parent, that behavior can be skipped
+ * by setting a flag if the resources have already been promised.
+ * 
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
+    private ResourceTable table;
+    private String resourceGuid;
+    private int maximumResourceAuthority = -1;
+    private boolean skipResources = false;
 
-    Suite suite;
-    ResourceTable table;
-    String resourceGuid;
-
-    public SuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid) throws IOException {
+    public SuiteParser(InputStream suiteStream,
+                       ResourceTable table,
+                       String resourceGuid) throws IOException {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
     }
 
-    public SuiteParser(KXmlParser parser, ResourceTable table, String resourceGuid) {
-        super(parser);
-        this.table = table;
-        this.resourceGuid = resourceGuid;
-    }
-
-    public Suite parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    public Suite parse() throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("suite");
 
         String sVersion = parser.getAttributeValue(null, "version");
@@ -59,11 +60,9 @@ public class SuiteParser extends ElementParser<Suite> {
             //start traversing.
             parser.next();
 
-            int eventType;
-            eventType = parser.getEventType();
+            int eventType = parser.getEventType();
             do {
-                if (eventType == KXmlParser.END_DOCUMENT) {
-                } else if (eventType == KXmlParser.START_TAG) {
+                if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("entry")) {
                         Entry e = new EntryParser(parser).parse();
                         entries.put(e.getCommandId(), e);
@@ -75,19 +74,25 @@ public class SuiteParser extends ElementParser<Suite> {
                         //resource def
                         parser.nextTag();
                         Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
+                        if(!skipResources) {
+                            table.addResource(r, table.getInstallers().getLocaleFileInstaller(localeKey), resourceGuid);
+                        }
                     } else if (parser.getName().toLowerCase().equals("media")) {
                         String path = parser.getAttributeValue(null, "path");
                         //Can be an arbitrary number of resources inside of a media block.
                         while (this.nextTagInBlock("media")) {
                             Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                            table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                            if(!skipResources) {
+                                table.addResource(r, table.getInstallers().getMediaInstaller(path), resourceGuid);
+                            }
                         }
                     } else if (parser.getName().toLowerCase().equals("xform")) {
                         //skip xform stuff for now
                         parser.nextTag();
                         Resource r = new ResourceParser(parser, maximumResourceAuthority).parse();
-                        table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                        if(!skipResources) {
+                            table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
+                        }
                     } else if (parser.getName().toLowerCase().equals("detail")) {
                         Detail d = new DetailParser(parser).parse();
                         details.put(d.getId(), d);
@@ -102,20 +107,12 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
                     }
-                } else if (eventType == KXmlParser.END_TAG) {
-                    //we shouldn't ever get this I don't believe, maybe on the last node?
-                } else if (eventType == KXmlParser.TEXT) {
-                    //Shouldn't ever get this (Delete the if, if so).
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
 
-            suite = new Suite(version, details, entries, menus);
-            return suite;
-
-
+            return new Suite(version, details, entries, menus);
         } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);
         } catch (StorageFullException e) {
@@ -125,8 +122,6 @@ public class SuiteParser extends ElementParser<Suite> {
             throw new InvalidStructureException("Problem storing parser suite XML", parser);
         }
     }
-
-    int maximumResourceAuthority = -1;
 
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
@@ -140,4 +135,11 @@ public class SuiteParser extends ElementParser<Suite> {
         return false;
     }
 
+    /**
+     * If set to true, the parser won't process adding incoming resources to the resource table.
+     * This is helpful if the suite is being processed during a non-install phase
+     */
+    public void setSkipResources(boolean skipResources) {
+        this.skipResources = skipResources;
+    }
 }

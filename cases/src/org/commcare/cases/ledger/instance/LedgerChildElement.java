@@ -246,16 +246,9 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
      */
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeElement.BuildRef(this);
+            ref = TreeElement.buildRef(this);
         }
         return ref;
-    }
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDepth()
-     */
-    public int getDepth() {
-        return TreeElement.CalculateDepth(this);
     }
 
     /* (non-Javadoc)
@@ -294,11 +287,6 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    //TODO: Thread Safety!
-    public void clearCaches() {
-        //cached = null;
     }
 
     //TODO: THIS IS NOT THREAD SAFE
