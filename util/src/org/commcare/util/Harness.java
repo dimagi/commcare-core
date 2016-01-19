@@ -10,11 +10,14 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.commcare.util.cli.ApplicationHost;
+import org.commcare.util.cli.EnketoTransformer;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+
+import java.io.File;
 
 /**
  * @author ctsims
@@ -71,7 +74,7 @@ public class Harness {
                     host.setRestoreToLocalFile(cmd.getOptionValue("r"));
                 } else {
                     if(args.length < 4) {
-                        printplayformat();
+                        printPlayFormat();
                         System.exit(-1);
                         return;
                     }
@@ -88,6 +91,80 @@ public class Harness {
                 re.printStackTrace();
                 throw re;
             }finally {
+                //Since the CommCare libs start up threads for things like caching, if unhandled
+                //exceptions bubble up they will prevent the process from dying unless we kill it
+                System.exit(0);
+            }
+        }
+
+        if ("test".equals(args[0])) {
+            try {
+                CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
+                ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
+
+                if(cmd.hasOption("r")) {
+                    host.setRestoreToLocalFile(cmd.getOptionValue("r"));
+                } else {
+                    if(args.length < 5) {
+                        printTestFormat();
+                        System.exit(-1);
+                        return;
+                    }
+                    String username = args[2];
+                    String password = args[3];
+                    username = username.trim().toLowerCase();
+                    host.setRestoreToRemoteUser(username, password);
+                }
+                String testPlan = args[4];
+                File testFile = new File(testPlan);
+                TestHarness testHarness = new TestHarness(host, testFile);
+                testHarness.runTests();
+                System.exit(-1);
+            } catch (RuntimeException re) {
+                System.out.print("Unhandled Fatal Error executing CommCare app");
+                re.printStackTrace();
+                throw re;
+            }finally {
+                //Since the CommCare libs start up threads for things like caching, if unhandled
+                //exceptions bubble up they will prevent the process from dying unless we kill it
+                System.exit(0);
+            }
+        }
+
+        if ("transform".equals(args[0])) {
+            try {
+                CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
+                ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
+
+                if(cmd.hasOption("r")) {
+                    host.setRestoreToLocalFile(cmd.getOptionValue("r"));
+                } else {
+                    if(args.length < 5) {
+                        printTestFormat();
+                        System.exit(-1);
+                        return;
+                    }
+                    String username = args[2];
+                    String password = args[3];
+                    username = username.trim().toLowerCase();
+                    host.setRestoreToRemoteUser(username, password);
+                }
+                String xformPath = args[4];
+                File xformFile = new File(xformPath);
+
+                host.init();
+
+                EnketoTransformer transformer = new EnketoTransformer(xformFile, host);
+                //transformer.buildXmlDoc();
+
+                System.exit(-1);
+            } catch (RuntimeException re) {
+                System.out.print("Unhandled Fatal Error executing CommCare app");
+                re.printStackTrace();
+                throw re;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
                 //Since the CommCare libs start up threads for things like caching, if unhandled
                 //exceptions bubble up they will prevent the process from dying unless we kill it
                 System.exit(0);
@@ -127,8 +204,12 @@ public class Harness {
         return prototypeFactory;
     }
 
-    private static void printplayformat() {
+    private static void printPlayFormat() {
         System.out.println("Usage: java -jar thejar.jar play path/to/commcare.ccz username password");
+    }
+
+    private static void printTestFormat() {
+        System.out.println("Usage: java -jar thejar.jar test path/to/commcare.ccz username password path/to/tests.txt");
     }
 
     private static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {

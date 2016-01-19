@@ -1,16 +1,19 @@
 package org.commcare.util.cli;
 
+import org.commcare.api.session.SessionWrapper;
+import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.session.SessionFrame;
+import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
-import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -53,7 +56,7 @@ public class ApplicationHost {
     private final CommCareConfigEngine mEngine;
     private final CommCarePlatform mPlatform;
     private UserSandbox mSandbox;
-    private SessionWrapper mSession;
+    private CLISessionWrapper mSession;
 
     private boolean mUpdatePending = false;
     private boolean mForceLatestUpdate = false;
@@ -61,7 +64,7 @@ public class ApplicationHost {
 
     private final PrototypeFactory mPrototypeFactory;
 
-    private final BufferedReader reader;
+    private BufferedReader reader;
 
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
@@ -83,15 +86,22 @@ public class ApplicationHost {
         mRestoreStrategySet = true;
     }
 
+    public void setReader(BufferedReader reader){
+        this.reader = reader;
+    }
 
-    public void run() {
+    public void init(){
         if(!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of hte setRestore*() methods before running the app");
         }
         setupSandbox();
 
-        mSession = new SessionWrapper(mPlatform, mSandbox);
+        mSession = new CLISessionWrapper(mPlatform, mSandbox);
+    }
+
+    public void run() {
+        init();
 
         try {
             loop();
@@ -159,10 +169,31 @@ public class ApplicationHost {
                             }
                             return true;
                         }
+                    if(input.equals(":home")) {
+                        return true;
+                    }
 
-                        if (input.equals(":home")) {
-                            return true;
+                    if(input.equals(":cases")) {
+                        IStorageUtilityIndexed<Case> caseStorage = mSandbox.getCaseStorage();
+                        IStorageIterator<Case> iterate = caseStorage.iterate();
+                        while(iterate.hasMore()){
+                            Case mCase = iterate.nextRecord();
+                            System.out.println("Case: " + mCase.getName());
                         }
+                    }
+
+                    if(input.contains(":eval")){
+                        System.out.println("Evaluating");
+                        int spaceIndex = input.indexOf(" ");
+                        if (input.length() == spaceIndex || spaceIndex == -1) {
+                            System.out.println("Entering eval mode, exit by entering a blank line");
+                        }
+                        String arg = input.substring(spaceIndex + 1);
+                        System.out.println("Arg: " + arg);
+                        String evaled = APIUtils.evalExpression(arg, mSession.getEvaluationContext());
+                        System.out.println("Eval: " + evaled);
+                    }
+
 
                         if (input.equals(":back")) {
                             mSession.stepBack();
@@ -210,37 +241,52 @@ public class ApplicationHost {
 
             System.out.println("Starting form entry with the following stack frame");
             printStack(mSession);
-            //Get our form object
-            String formXmlns = mSession.getForm();
 
-            if (formXmlns == null) {
-                finishSession();
-                return true;
-            } else {
-                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
-                player.setSessionIIF(mSession.getIIF());
-                player.start(mEngine.loadFormByXmlns(formXmlns));
-
-                //If the form saved properly, process the output
-                if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
-                    if (!processResultInstance(player.getResultStream())) {
-                        return true;
-                    }
-                    finishSession();
-                    return true;
-                } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
-                    mSession.stepBack();
-                    s = getNextScreen();
-                    continue;
-                } else {
-                    //Handle this later
-                    return true;
-                }
+            boolean back = startFormEntry(mSession);
+            if(back){
+                continue;
             }
         }
         //After we finish, continue executing
         return true;
+    }
+
+    private boolean startFormEntry(CLISessionWrapper mSession) {
+        //Get our form object
+        String formXmlns = mSession.getForm();
+        if (formXmlns == null) {
+            finishSession();
+            return true;
+        } else {
+            XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+            player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+            player.setSessionIIF(mSession.getIIF());
+            player.start(mEngine.loadFormByXmlns(formXmlns));
+
+            //If the form saved properly, process the output
+            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                if (!processResultInstance(player.getResultStream())) {
+                    return true;
+                }
+                finishSession();
+                return true;
+            } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                mSession.stepBack();
+                return false;
+            } else {
+                //Handle this later
+                return true;
+            }
+        }
+    }
+
+    public String getInstanceXML(String path, String root){
+        return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
+    }
+
+    public String evaluateXPath(String xpath) throws Exception {
+        Text text = Text.XPathText(xpath, null);
+        return text.evaluate(mSession.getEvaluationContext());
     }
 
     private void printStack(SessionWrapper mSession) {

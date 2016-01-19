@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.Vector;
 
 /**
- * Tests for the SqlSandbox API. Just initializes and makes sure we can access at the moment.
+ * Tests for the SqlSandsbox API. Just initializes and makes sure we can access at the moment.
  *
  * @author wspride
  */
