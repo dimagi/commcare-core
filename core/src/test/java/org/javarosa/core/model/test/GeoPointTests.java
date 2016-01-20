@@ -45,11 +45,11 @@ public class GeoPointTests {
 
     @Test
     public void testDistanceFunctionBetweenEmptyPoints() throws XPathSyntaxException {
-        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
-                0.0, "distance(/data/new_york, /data/empty)", geopointEvalCtx);
-        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
-                0.0, "/data/empty, /data/new_york)", geopointEvalCtx);
-        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
-                0.0, "/data/empty, /data/empty)", geopointEvalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is -1",
+                -1.0, "distance(/data/new_york, /data/empty)", geopointEvalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is -1",
+                -1.0, "distance(/data/empty, /data/new_york)", geopointEvalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is -1",
+                -1.0, "distance(/data/empty, /data/empty)", geopointEvalCtx);
     }
 }
