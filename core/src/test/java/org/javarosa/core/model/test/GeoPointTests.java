@@ -42,4 +42,14 @@ public class GeoPointTests {
         ExprEvalUtils.assertAlmostEqualsXpathEval(
                 4127316.0, 1.0, "distance(/data/new_york, /data/san_francisco)", geopointEvalCtx);
     }
+
+    @Test
+    public void testDistanceFunctionBetweenEmptyPoints() throws XPathSyntaxException {
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
+                0.0, "distance(/data/new_york, /data/empty)", geopointEvalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
+                0.0, "/data/empty, /data/new_york)", geopointEvalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Make sure the distance from a point to an empty string is 0",
+                0.0, "/data/empty, /data/empty)", geopointEvalCtx);
+    }
 }
