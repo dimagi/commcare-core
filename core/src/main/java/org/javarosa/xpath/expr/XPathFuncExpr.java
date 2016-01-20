@@ -1466,7 +1466,7 @@ public class XPathFuncExpr extends XPathExpression {
         String unpackedFrom = (String) unpack(from);
         String unpackedTo = (String) unpack(to);
 
-        if (unpackedFrom == "" || unpackedFrom == null || unpackedTo == "" || unpackedTo == null) {
+        if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
             return -1.0;
         }
 
