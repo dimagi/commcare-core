@@ -1467,7 +1467,7 @@ public class XPathFuncExpr extends XPathExpression {
         String unpackedTo = (String) unpack(to);
 
         if (unpackedFrom == null || "".equals(unpackedFrom) || unpackedTo == null || "".equals(unpackedTo)) {
-            return -1.0;
+            return new Double(-1.0);
         }
 
         // Casting and uncasting seems strange but is consistent with the codebase
