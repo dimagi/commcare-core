@@ -116,6 +116,10 @@ public class GeoPointData implements IAnswerData {
         double[] ret = new double[4];
 
         Vector<String> choices = DateUtils.split(data.value, " ", true);
+        if (choices.size() < 2) {
+            throw new IllegalArgumentException("Fewer than two coordinates provided");
+        }
+
         int i = 0;
         for (String s : choices) {
             double d = Double.parseDouble(s);
