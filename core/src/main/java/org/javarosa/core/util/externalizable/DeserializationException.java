@@ -13,6 +13,11 @@ public class DeserializationException extends Exception {
     }
 
     public DeserializationException(String message, Throwable cause) {
+        //#if polish.cldc
+        //# super(cause.getMessage() + ": " + message);
+        //#else
         super(message, cause);
+        //#endif
+
     }
 }
