@@ -47,7 +47,7 @@ public class UserXmlParser extends TransactionParser<User> {
         if (u == null) {
             u = new User(username, passwordHash, uuid);
         } else {
-            if (passwordHash != null && !passwordHash.equals(u.getPassword())) {
+            if (passwordHash != null && !passwordHash.equals(u.getPasswordHash())) {
                 u.setPassword(passwordHash);
             }
         }
