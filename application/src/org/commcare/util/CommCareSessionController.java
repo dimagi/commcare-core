@@ -106,7 +106,7 @@ public class CommCareSessionController {
                                 }
                             }
                             Entry e = suite.getEntries().get(id);
-                            if (e.getXFormNamespace() == null) {
+                            if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its
                                 //datums are not already present
