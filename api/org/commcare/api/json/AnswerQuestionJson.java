@@ -59,19 +59,22 @@ public class AnswerQuestionJson {
             ret.put("status","success");
             //controller.stepToNextEvent();
         }
+
+        ret.put("tree", WalkJson.walkToString(model, controller));
+
         return ret;
     }
 
-    public static String questionAnswerToJson(FormEntryController controller,
+    public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
         try {
             FormIndex formIndex = indexFromString(index, model.getForm());
             FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-            return questionAnswerToJson(controller, model, answer, prompt).toString();
+            return questionAnswerToJson(controller, model, answer, prompt);
         } catch(Exception e){
             e.printStackTrace();
         }
-        return "";
+        return null;
     }
 
     public static JSONObject questionAnswerToJson(FormEntryController controller,
