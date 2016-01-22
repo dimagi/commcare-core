@@ -4,11 +4,11 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
 
 public interface CommCareInstance {
-    public void registerSuite(Suite s);
+    void registerSuite(Suite s);
 
-    public void setProfile(Profile p);
+    void setProfile(Profile p);
 
-    public int getMajorVersion();
+    int getMajorVersion();
 
-    public int getMinorVersion();
+    int getMinorVersion();
 }
