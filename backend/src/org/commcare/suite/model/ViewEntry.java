@@ -11,7 +11,7 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class ViewEntry extends EntryBase {
+public class ViewEntry extends Entry {
     /**
      * Serialization only!
      */

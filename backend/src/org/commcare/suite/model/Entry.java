@@ -25,7 +25,7 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public abstract class EntryBase implements Externalizable, MenuDisplayable {
+public abstract class Entry implements Externalizable, MenuDisplayable {
     Vector<SessionDatum> data;
     DisplayUnit display;
     private String commandId;
@@ -36,14 +36,14 @@ public abstract class EntryBase implements Externalizable, MenuDisplayable {
     /**
      * Serialization only!
      */
-    public EntryBase() {
+    public Entry() {
     }
 
-    public EntryBase(String commandId, DisplayUnit display,
-                     Vector<SessionDatum> data,
-                     Hashtable<String, DataInstance> instances,
-                     Vector<StackOperation> stackOperations,
-                     AssertionSet assertions) {
+    public Entry(String commandId, DisplayUnit display,
+                 Vector<SessionDatum> data,
+                 Hashtable<String, DataInstance> instances,
+                 Vector<StackOperation> stackOperations,
+                 AssertionSet assertions) {
         this.commandId = commandId == null ? "" : commandId;
         this.display = display;
         this.data = data;

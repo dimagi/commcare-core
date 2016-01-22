@@ -3,7 +3,7 @@ package org.commcare.xml;
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.FormEntry;
-import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.ViewEntry;
@@ -20,7 +20,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class EntryParser extends CommCareElementParser<EntryBase> {
+public class EntryParser extends CommCareElementParser<Entry> {
     private boolean isEntry = true;
 
     private EntryParser(KXmlParser parser, boolean isEntry) {
@@ -38,7 +38,7 @@ public class EntryParser extends CommCareElementParser<EntryBase> {
     }
 
     @Override
-    public EntryBase parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String block = isEntry ? "entry" : "view";
         this.checkNode(block);
 

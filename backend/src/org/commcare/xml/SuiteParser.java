@@ -3,7 +3,7 @@ package org.commcare.xml;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.javarosa.core.model.instance.FormInstance;
@@ -52,7 +52,7 @@ public class SuiteParser extends ElementParser<Suite> {
         String sVersion = parser.getAttributeValue(null, "version");
         int version = Integer.parseInt(sVersion);
         Hashtable<String, Detail> details = new Hashtable<String, Detail>();
-        Hashtable<String, EntryBase> entries = new Hashtable<String, EntryBase>();
+        Hashtable<String, Entry> entries = new Hashtable<String, Entry>();
         Vector<Menu> menus = new Vector<Menu>();
 
         try {
@@ -64,10 +64,10 @@ public class SuiteParser extends ElementParser<Suite> {
             do {
                 if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("entry")) {
-                        EntryBase e = EntryParser.buildEntryParser(parser).parse();
+                        Entry e = EntryParser.buildEntryParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("view")) {
-                        EntryBase e = EntryParser.buildViewParser(parser).parse();
+                        Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
                         String localeKey = parser.getAttributeValue(null, "language");

@@ -2,7 +2,7 @@ package org.commcare.util.cli;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.FormEntry;
-import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
@@ -45,7 +45,7 @@ public class MenuScreen extends Screen {
         
         Vector<MenuDisplayable> choices = new Vector<MenuDisplayable>();
         
-        Hashtable<String, EntryBase> map = mPlatform.getMenuMap();
+        Hashtable<String, Entry> map = mPlatform.getMenuMap();
         EvaluationContext ec = null;
         for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
@@ -83,7 +83,7 @@ public class MenuScreen extends Screen {
                                 }
                             }
 
-                            EntryBase e = map.get(command);
+                            Entry e = map.get(command);
                             if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 

@@ -41,7 +41,7 @@ public class Suite implements Persistable {
     /**
      * String(Entry id (also the same for menus) ) -> Entry Object *
      */
-    private Hashtable<String, EntryBase> entries;
+    private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
 
     /**
@@ -51,7 +51,7 @@ public class Suite implements Persistable {
 
     }
 
-    public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, EntryBase> entries, Vector<Menu> menus) {
+    public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries, Vector<Menu> menus) {
         this.version = version;
         this.details = details;
         this.entries = entries;
@@ -89,7 +89,7 @@ public class Suite implements Persistable {
      * suite, indexed by their id (which is present in the menu
      * definitions).
      */
-    public Hashtable<String, EntryBase> getEntries() {
+    public Hashtable<String, Entry> getEntries() {
         return entries;
     }
 
