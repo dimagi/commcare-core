@@ -7,9 +7,17 @@ import java.io.OutputStream;
 
 public class StreamsUtil {
 
-    private StreamsUtil() {
-        // private constructor
+    public static byte[] getStreamAsBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            StreamsUtil.writeFromInputToOutput(is, baos);
+            return baos.toByteArray();
+        } finally {
+            baos.close();
+        }
     }
+
 
     /**
      * Write everything from input stream to output stream, byte by byte then

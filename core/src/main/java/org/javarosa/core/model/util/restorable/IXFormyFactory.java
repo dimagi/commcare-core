@@ -10,8 +10,6 @@ public interface IXFormyFactory {
 
     IDataPayload serializeInstance(FormInstance dm);
 
-    FormInstance parseRestore(byte[] data, Class restorableType);
-
     //kinda ghetto
     IConditionExpr refToPathExpr(TreeReference ref);
 }

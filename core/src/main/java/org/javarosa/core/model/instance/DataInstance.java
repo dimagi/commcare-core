@@ -24,7 +24,6 @@ import java.util.Vector;
  */
 public abstract class DataInstance<T extends AbstractTreeElement<T>> implements Persistable {
 
-
     /**
      * The integer Id of the model
      */
@@ -248,7 +247,6 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         formId = ExtUtil.readInt(in);
         name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
         instanceid = (String)ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-
     }
 
     @Override
