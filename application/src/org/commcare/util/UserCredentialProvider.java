@@ -33,7 +33,7 @@ public class UserCredentialProvider implements HttpCredentialProvider {
      * @see org.javarosa.service.transport.securehttp.HttpCredentialProvider#getPassword()
      */
     public String getPassword() {
-        return user.getPassword();
+        return user.getPasswordHash();
     }
 
     /* (non-Javadoc)

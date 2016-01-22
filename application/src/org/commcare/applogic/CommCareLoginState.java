@@ -39,7 +39,7 @@ public class CommCareLoginState extends LoginState {
             super.start();
         } else {
             User u = getLoggedInUser();
-            loggedIn(u, u.getPassword());
+            loggedIn(u, u.getPasswordHash());
         }
     }
 
