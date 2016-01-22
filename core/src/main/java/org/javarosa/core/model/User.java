@@ -39,9 +39,9 @@ public class User implements Persistable, Restorable, IMetaData {
     public static final String META_SYNC_TOKEN = "synctoken";
 
     public int recordId = -1; //record id on device
-    public String username;
-    public String password;
-    public String uniqueId;  //globally-unique id
+    private String username;
+    private String passwordHash;
+    private String uniqueId;  //globally-unique id
 
     static private User demo_user;
 
@@ -63,7 +63,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public User(String name, String passw, String uniqueID, String userType) {
         username = name;
-        password = passw;
+        passwordHash = passw;
         uniqueId = uniqueID;
         setUserType(userType);
         rememberMe = false;
@@ -73,7 +73,7 @@ public class User implements Persistable, Restorable, IMetaData {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.username = ExtUtil.readString(in);
-        this.password = ExtUtil.readString(in);
+        this.passwordHash = ExtUtil.readString(in);
         this.recordId = ExtUtil.readInt(in);
         this.uniqueId = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.rememberMe = ExtUtil.readBool(in);
@@ -85,7 +85,7 @@ public class User implements Persistable, Restorable, IMetaData {
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, username);
-        ExtUtil.writeString(out, password);
+        ExtUtil.writeString(out, passwordHash);
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(uniqueId));
         ExtUtil.writeBool(out, rememberMe);
@@ -102,8 +102,8 @@ public class User implements Persistable, Restorable, IMetaData {
         return username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     @Override
@@ -132,8 +132,8 @@ public class User implements Persistable, Restorable, IMetaData {
         this.username = username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void setRememberMe(boolean rememberMe) {
@@ -226,14 +226,6 @@ public class User implements Persistable, Restorable, IMetaData {
             demo_user.setUuid(User.DEMO_USER);
         }
         return demo_user;
-    }
-
-    public int getRecordId(){
-        return recordId;
-    }
-
-    public void setRecordId(int recordId){
-        this.recordId = recordId;
     }
 
     public void setWrappedKey(byte[] key) {
