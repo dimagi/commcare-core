@@ -11,19 +11,19 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class View extends EntryBase {
+public class ViewEntry extends EntryBase {
     /**
      * Serialization only!
      */
-    public View() {
+    public ViewEntry() {
 
     }
 
-    public View(String commandId, DisplayUnit display,
-                Vector<SessionDatum> data,
-                Hashtable<String, DataInstance> instances,
-                Vector<StackOperation> stackOperations,
-                AssertionSet assertions) {
+    public ViewEntry(String commandId, DisplayUnit display,
+                     Vector<SessionDatum> data,
+                     Hashtable<String, DataInstance> instances,
+                     Vector<StackOperation> stackOperations,
+                     AssertionSet assertions) {
         super(commandId, display, data, instances, stackOperations, assertions);
     }
 }

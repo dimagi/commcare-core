@@ -53,7 +53,7 @@ public abstract class EntryBase implements Externalizable, MenuDisplayable {
     }
 
     public boolean isView() {
-        return this instanceof View;
+        return this instanceof ViewEntry;
     }
 
     /**

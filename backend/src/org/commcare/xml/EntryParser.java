@@ -6,7 +6,7 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.View;
+import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -100,7 +100,7 @@ public class EntryParser extends CommCareElementParser<EntryBase> {
         if (isEntry) {
             return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
         } else {
-            return new View(commandId, display, data, instances, stackOps, assertions);
+            return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         }
     }
 }
