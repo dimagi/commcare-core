@@ -25,21 +25,21 @@ import java.util.Vector;
  *
  * @author ctsims
  */
-public class Entry extends EntryBase {
+public class FormEntry extends EntryBase {
 
     private String xFormNamespace;
 
     /**
      * Serialization only!
      */
-    public Entry() {
+    public FormEntry() {
 
     }
 
-    public Entry(String commandId, DisplayUnit display,
-                 Vector<SessionDatum> data, String formNamespace,
-                 Hashtable<String, DataInstance> instances,
-                 Vector<StackOperation> stackOperations, AssertionSet assertions) {
+    public FormEntry(String commandId, DisplayUnit display,
+                     Vector<SessionDatum> data, String formNamespace,
+                     Hashtable<String, DataInstance> instances,
+                     Vector<StackOperation> stackOperations, AssertionSet assertions) {
         super(commandId, display, data, instances, stackOperations, assertions);
 
         this.xFormNamespace = formNamespace;

@@ -2,7 +2,7 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
@@ -98,7 +98,7 @@ public class EntryParser extends CommCareElementParser<EntryBase> {
         }
 
         if (isEntry) {
-            return new Entry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
+            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
         } else {
             return new View(commandId, display, data, instances, stackOps, assertions);
         }

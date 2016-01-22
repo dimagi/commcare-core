@@ -1,7 +1,7 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -402,7 +402,7 @@ public class CommCareSession {
         if (e.isView()) {
             return null;
         } else {
-            return ((Entry)e).getXFormNamespace();
+            return ((FormEntry)e).getXFormNamespace();
         }
     }
 

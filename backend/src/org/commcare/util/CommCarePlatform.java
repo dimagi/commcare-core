@@ -4,12 +4,11 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.Suite;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.StorageManager;
@@ -127,18 +126,18 @@ public class CommCarePlatform implements CommCareInstance {
     /**
      * Given an form entry object, return the module's id that contains it.
      *
-     * @param entry Get the module's id that contains this Entry
+     * @param formEntry Get the module's id that contains this Entry
      *
      * @return The ID of the module that contains the provided entry. Null if
      * the entry can't be found in the installed suites.
      */
-    public String getModuleNameForEntry(Entry entry) {
+    public String getModuleNameForEntry(FormEntry formEntry) {
         Vector<Suite> installed = getInstalledSuites();
 
         for (Suite suite : installed) {
             for (Enumeration e = suite.getEntries().elements(); e.hasMoreElements(); ) {
-                Entry suiteEntry = (Entry)e.nextElement();
-                if (suiteEntry.getCommandId().equals(entry.getCommandId())) {
+                FormEntry suiteEntry = (FormEntry)e.nextElement();
+                if (suiteEntry.getCommandId().equals(formEntry.getCommandId())) {
                     return suite.getMenus().firstElement().getId();
                 }
             }

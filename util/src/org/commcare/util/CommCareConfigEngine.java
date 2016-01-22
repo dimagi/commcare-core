@@ -14,7 +14,6 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.resources.model.installers.LocaleFileInstaller;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
