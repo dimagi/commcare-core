@@ -165,7 +165,7 @@ public class SessionFrame implements Externalizable {
             StackFrameStep topStep = steps.elementAt(steps.size() - 1);
             return topStep.getExtra(key);
         }
-        return null;
+        return "";
     }
 
     @Override
