@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.data.xml;
 
 import org.commcare.resources.model.CommCareOTARestoreListener;
@@ -137,7 +134,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
                         transaction.parse();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        deal(e, parser.getDepth(), name);
+                        deal(e, name);
                     }
                 } else {
                     transaction.parse();
@@ -146,7 +143,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         }
     }
 
-    private void deal(Exception e, int depth, String parentTag) throws XmlPullParserException, IOException {
+    private void deal(Exception e, String parentTag) throws XmlPullParserException, IOException {
         errors.addElement(WrappedException.printException(e));
         this.skipBlock(parentTag);
 
@@ -164,10 +161,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
     }
 
     public boolean listenerSet() {
-        if (rListener == null) {
-            return false;
-        }
-        return true;
+        return (rListener != null);
     }
 
     public void requireRootEnvelopeType(String string) {
