@@ -79,6 +79,9 @@ public class SelectChoice implements Externalizable, Localizable {
         return index;
     }
 
+    public boolean isLocalizable() {
+        return this.isLocalizable;
+    }
 
     public void localeChanged(String locale, Localizer localizer) {
 //        if (captionLocalizable) {
@@ -120,5 +123,63 @@ public class SelectChoice implements Externalizable, Localizable {
 
     public void setTextID(String textID) {
         this.textID = textID;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        result = textID != null ? textID.hashCode() : 0;
+        result = result ^ value.hashCode();
+        result = result ^ index;
+        result = result ^ (isLocalizable ? 1 : 0);
+        result = result ^ (labelInnerText != null ? labelInnerText.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof SelectChoice)) {
+            return false;
+        }
+
+        SelectChoice otherChoice = (SelectChoice)obj;
+
+        String otherTextID = otherChoice.getTextID();
+        if (otherTextID == null) {
+            if (this.textID != null) {
+                return false;
+            }
+        }
+        else if (!otherTextID.equals(this.textID)) {
+            return false;
+        }
+
+        if (!otherChoice.getValue().equals(this.value)) {
+            return false;
+        }
+
+        if (otherChoice.getIndex() != this.index) {
+            return false;
+        }
+
+        if (otherChoice.isLocalizable() != this.isLocalizable) {
+            return false;
+        }
+
+        String otherLabelText = otherChoice.getLabelInnerText();
+        if (otherLabelText == null) {
+            if (this.labelInnerText != null) {
+                return false;
+            }
+        }
+        else if (!otherLabelText.equals(this.labelInnerText)) {
+            return false;
+        }
+
+        return true;
     }
 }
