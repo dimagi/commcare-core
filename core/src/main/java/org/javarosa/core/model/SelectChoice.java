@@ -79,6 +79,9 @@ public class SelectChoice implements Externalizable, Localizable {
         return index;
     }
 
+    public boolean isLocalizable() {
+        return this.isLocalizable;
+    }
 
     public void localeChanged(String locale, Localizer localizer) {
 //        if (captionLocalizable) {
@@ -126,8 +129,10 @@ public class SelectChoice implements Externalizable, Localizable {
     public int hashCode() {
         int result;
         result = textID != null ? textID.hashCode() : 0;
-        result = 31 * result + value.hashCode();
-        result = 31 * result + index;
+        result = result ^ value.hashCode();
+        result = result ^ index;
+        result = result ^ (isLocalizable ? 1 : 0);
+        result = result ^ (labelInnerText != null ? labelInnerText.hashCode() : 0);
         return result;
     }
 
@@ -149,7 +154,7 @@ public class SelectChoice implements Externalizable, Localizable {
                 return false;
             }
         }
-        else if (!otherChoice.getTextID().equals(this.textID)) {
+        else if (!otherTextID.equals(this.textID)) {
             return false;
         }
 
@@ -158,6 +163,20 @@ public class SelectChoice implements Externalizable, Localizable {
         }
 
         if (otherChoice.getIndex() != this.index) {
+            return false;
+        }
+
+        if (otherChoice.isLocalizable() != this.isLocalizable) {
+            return false;
+        }
+
+        String otherLabelText = otherChoice.getLabelInnerText();
+        if (otherLabelText == null) {
+            if (this.labelInnerText != null) {
+                return false;
+            }
+        }
+        else if (!otherLabelText.equals(this.labelInnerText)) {
             return false;
         }
 
