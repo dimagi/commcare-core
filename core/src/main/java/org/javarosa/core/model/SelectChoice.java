@@ -121,4 +121,46 @@ public class SelectChoice implements Externalizable, Localizable {
     public void setTextID(String textID) {
         this.textID = textID;
     }
+
+    @Override
+    public int hashCode() {
+        int result;
+        result = textID != null ? textID.hashCode() : 0;
+        result = 31 * result + value.hashCode();
+        result = 31 * result + index;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof SelectChoice)) {
+            return false;
+        }
+
+        SelectChoice otherChoice = (SelectChoice)obj;
+
+        String otherTextID = otherChoice.getTextID();
+        if (otherTextID == null) {
+            if (this.textID != null) {
+                return false;
+            }
+        }
+        else if (!otherChoice.getTextID().equals(this.textID)) {
+            return false;
+        }
+
+        if (!otherChoice.getValue().equals(this.value)) {
+            return false;
+        }
+
+        if (otherChoice.getIndex() != this.index) {
+            return false;
+        }
+
+        return true;
+    }
 }
