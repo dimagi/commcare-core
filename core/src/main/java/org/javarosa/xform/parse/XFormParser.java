@@ -490,19 +490,17 @@ public class XFormParser {
             //CTS - 12/09/2012 - Stop swallowing IO Exceptions
             throw e;
         } catch (Exception e) {
-            //#if debug.output==verbose || debug.output==exception
             String errorMsg = "Unhandled Exception while Parsing XForm";
             System.err.println(errorMsg);
             e.printStackTrace();
             throw new XFormParseException(errorMsg);
-            //#endif
-        }
-
-        try {
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Error closing reader");
-            e.printStackTrace();
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                System.out.println("Error closing reader");
+                e.printStackTrace();
+            }
         }
 
         //For escaped unicode strings we end up with a looooot of cruft,
@@ -3036,15 +3034,6 @@ public class XFormParser {
         loadInstanceData(e, te);
 
         return dm;
-    }
-
-    public static FormInstance restoreDataModel(byte[] data, Class restorableType) {
-        try {
-            return restoreDataModel(new ByteArrayInputStream(data), restorableType);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new XFormParseException("Bad parsing from byte array " + e.getMessage());
-        }
     }
 
     public static String getVagueLocation(Element e) {
