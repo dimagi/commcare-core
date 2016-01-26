@@ -27,6 +27,16 @@ import java.util.Vector;
  * Created by willpride on 11/18/15.
  */
 public class AnswerQuestionJson {
+    public static JSONObject descendRepeatToJson(FormEntryController controller,
+                                                 FormEntryModel model, String formIndexString){
+        JSONObject ret = new JSONObject();
+        FormIndex formIndex = indexFromString(formIndexString, model.getForm());
+        System.out.println("Form index: " + formIndex);
+        controller.jumpToIndex(formIndex);
+        controller.descendIntoNewRepeat();
+        ret.put("tree", WalkJson.walkToString(model, controller));
+        return ret;
+    }
 
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, FormEntryPrompt prompt){
@@ -105,8 +115,11 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
+        System.out.println("Step: " + step);
+
         if(step.endsWith("J")){
-            return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
+            System.out.println("First: " + Integer.parseInt(step.substring(0, step.length()-1)));
+            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), -10);
         }
         String[] split = step.split("[._:]");
 
@@ -139,8 +152,10 @@ public class AnswerQuestionJson {
             return current;
         }
         Pair<Integer, Integer> currentStep = steps.remove(0);
+        System.out.println("Current Step: " + currentStep);
         FormIndex nextLevel = new FormIndex(current, currentStep.first, currentStep.second, null);
-        return reduceFormIndex(steps, nextLevel);
+        reduceFormIndex(steps, nextLevel);
+        return nextLevel;
     }
 
     public static FormIndex indexFromString(String stringIndex, FormDef form){
