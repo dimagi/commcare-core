@@ -85,6 +85,13 @@ public class TableBuilder {
     }
 
     public void addData(Persistable p) {
+        addPersistableIdAndMeta(p);
+
+        cols.add(DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(DatabaseHelper.DATA_COL);
+    }
+
+    private void addPersistableIdAndMeta(Persistable p) {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
 
@@ -104,11 +111,22 @@ public class TableBuilder {
                 }
             }
         }
-
-        cols.add(DatabaseHelper.DATA_COL + " BLOB");
-        rawCols.add(DatabaseHelper.DATA_COL);
     }
 
+    /**
+     * Build a table to store provided persistable in the filesystem.  Creates
+     * filepath and encrypting key columns, along with normal metadata columns
+     * from the persistable
+     */
+    public void addFileBackedData(Persistable p) {
+        addData(p);
+
+        cols.add(DatabaseHelper.AES_COL + " BLOB");
+        rawCols.add(DatabaseHelper.AES_COL);
+
+        cols.add(DatabaseHelper.FILE_COL);
+        rawCols.add(DatabaseHelper.FILE_COL);
+    }
 
     HashSet<String> unique = new HashSet<String>();
     public void setUnique(String columnName) {

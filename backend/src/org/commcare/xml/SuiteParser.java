@@ -32,6 +32,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
+    private final IStorageUtilityIndexed<FormInstance> fixtureStorage;
+
     private ResourceTable table;
     private String resourceGuid;
     private int maximumResourceAuthority = -1;
@@ -43,6 +45,18 @@ public class SuiteParser extends ElementParser<Suite> {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
+        this.fixtureStorage = (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+    }
+
+    public SuiteParser(InputStream suiteStream,
+                       ResourceTable table,
+                       String resourceGuid,
+                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+        super(ElementParser.instantiateParser(suiteStream));
+
+        this.table = table;
+        this.resourceGuid = resourceGuid;
+        this.fixtureStorage = fixtureStorage;
     }
 
     public Suite parse() throws InvalidStructureException, IOException,
@@ -102,7 +116,7 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else if (parser.getName().toLowerCase().equals("fixture")) {
                         //this one automatically commits the fixture to the global memory
                         if (!inValidationMode()) {
-                            new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
+                            new FixtureXmlParser(parser, false, fixtureStorage).parse();
                         }
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
@@ -125,10 +139,6 @@ public class SuiteParser extends ElementParser<Suite> {
 
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
-    }
-
-    protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
     }
 
     protected boolean inValidationMode() {
