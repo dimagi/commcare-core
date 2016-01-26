@@ -439,22 +439,27 @@ public class FormIndex {
         return parent.getLocalIndex() == child.getLocalIndex();
     }
 
-    public void assignRefs(org.javarosa.core.model.FormDef var1) {
-        FormIndex var2 = this;
-        Vector var3 = new Vector();
-        Vector var4 = new Vector();
-        Vector var5 = new Vector();
-        var1.collapseIndex(this, var3, var4, var5);
-        Vector var6 = new Vector();
-        Vector var7 = new Vector();
+    public void assignRefs(FormDef f) {
+        FormIndex cur = this;
 
-        for(int var8 = 0; var2 != null; ++var8) {
-            var6.addElement(var4.elementAt(var8));
-            var7.addElement(var5.elementAt(var8));
-            TreeReference var9 = var1.getChildInstanceRef(var7, var6);
-            var2.reference = var9;
-            var2 = var2.getNextLevel();
+        Vector<Integer> indexes = new Vector<Integer>();
+        Vector<Integer> multiplicities = new Vector<Integer>();
+        Vector<IFormElement> elements = new Vector<IFormElement>();
+        f.collapseIndex(this, indexes, multiplicities, elements);
+
+        Vector<Integer> curMults = new Vector<Integer>();
+        Vector<IFormElement> curElems = new Vector<IFormElement>();
+
+        int i = 0;
+        while (cur != null) {
+            curMults.addElement(multiplicities.elementAt(i));
+            curElems.addElement(elements.elementAt(i));
+
+            TreeReference ref = f.getChildInstanceRef(curElems, curMults);
+            cur.reference = ref;
+
+            cur = cur.getNextLevel();
+            i++;
         }
-
     }
 }
