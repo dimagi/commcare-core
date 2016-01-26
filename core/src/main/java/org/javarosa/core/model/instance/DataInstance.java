@@ -128,6 +128,8 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     public T getTemplate(TreeReference ref) {
         T node = getTemplatePath(ref);
 
+        System.out.println("Node: " + node);
+
         if (node == null || !(node.isRepeatable() || node.isAttribute())) {
             return null;
         }
