@@ -54,9 +54,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private boolean invalidEdgesWereRemoved;
     // List of case ids for cases that were indexed and expected to be on the phone, but were
     // actually not present
-    private Vector<String> missingCases;
+    private Vector<String> missingCases = new Vector<String>();
     // List of case ids for cases that were deleted off of the device as a result missing cases
-    private Vector<String> casesRemovedDueToMissingCases;
+    private Vector<String> casesRemovedDueToMissingCases = new Vector<String>();
 
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
         this(caseStorage, null);
