@@ -27,11 +27,20 @@ import java.util.Vector;
  * Created by willpride on 11/18/15.
  */
 public class AnswerQuestionJson {
+
+    public static JSONObject deleteRepeatToJson(FormEntryController controller,
+                                                 FormEntryModel model, String formIndexString){
+        JSONObject ret = new JSONObject();
+        FormIndex formIndex = indexFromString(formIndexString, model.getForm());
+        controller.deleteRepeat(formIndex);
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        return ret;
+    }
+
     public static JSONObject descendRepeatToJson(FormEntryController controller,
                                                  FormEntryModel model, String formIndexString){
         JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
-        System.out.println("Form index: " + formIndex);
         controller.jumpToIndex(formIndex);
         controller.descendIntoNewRepeat();
         ret.put("tree", WalkJson.walkToJSON(model, controller));
