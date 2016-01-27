@@ -34,7 +34,14 @@ public class AnswerQuestionJson {
         System.out.println("Form index: " + formIndex);
         controller.jumpToIndex(formIndex);
         controller.descendIntoNewRepeat();
-        ret.put("tree", WalkJson.walkToString(model, controller));
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        return ret;
+    }
+
+    public static JSONObject getCurrentJson(FormEntryController controller,
+                                            FormEntryModel model){
+        JSONObject ret = new JSONObject();
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
         return ret;
     }
 
@@ -70,7 +77,7 @@ public class AnswerQuestionJson {
             //controller.stepToNextEvent();
         }
 
-        ret.put("tree", WalkJson.walkToString(model, controller));
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
 
         return ret;
     }

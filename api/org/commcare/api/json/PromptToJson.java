@@ -1,6 +1,7 @@
 package org.commcare.api.json;
 
 import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.DateTimeData;
@@ -75,7 +76,8 @@ public class PromptToJson {
 
     public static void parseQuestionType(FormEntryModel model, JSONObject obj) {
         int status = model.getEvent();
-        obj.put("ix", model.getFormIndex().toString());
+        FormIndex ix = model.getFormIndex();
+        obj.put("ix", ix.toString());
         switch(status) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 obj.put("type", "form-start");
@@ -89,8 +91,8 @@ public class PromptToJson {
                 return;
             case FormEntryController.EVENT_REPEAT_JUNCTURE:
                 obj.put("type", "repeat-juncture");
+                parseRepeatJuncture(model, obj, ix);
                 return;
-                //parse repeat
             case FormEntryController.EVENT_GROUP:
                 // we're in a subgroup
                 parseCaption(model.getCaptionPrompt(), obj);
@@ -112,6 +114,18 @@ public class PromptToJson {
                 obj.put("exists", false);
                 break;
         }
+    }
+
+    private static void parseRepeatJuncture(FormEntryModel model, JSONObject obj, FormIndex ix) {
+        FormEntryCaption formEntryCaption = model.getCaptionPrompt(ix);
+        FormEntryCaption.RepeatOptions repeatOptions = formEntryCaption.getRepeatOptions();
+        parseCaption(formEntryCaption, obj);
+        obj.put("header", repeatOptions.header);
+        obj.put("repetitions", formEntryCaption.getRepetitionsText());
+        obj.put("add-choice", repeatOptions.add);
+        obj.put("delete-choice", repeatOptions.delete);
+        obj.put("del-header", repeatOptions.delete_header);
+        obj.put("done-choice", repeatOptions.done);
     }
 
     private static void parsePutAnswer(JSONObject obj, FormEntryPrompt prompt){
