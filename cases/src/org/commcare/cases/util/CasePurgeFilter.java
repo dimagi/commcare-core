@@ -333,12 +333,11 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private static String flattenVectorOfStrings(Vector<String> v) {
-        String s = "";
+        StringBuilder builder = new StringBuilder();
         for (String caseId : v) {
-            s = s + caseId + ", ";
+            builder.append(caseId + " ");
         }
-        s = s.substring(0, s.length()-2);
-        return s;
+        return builder.toString();
     }
 
     private static boolean caseStatusIs(int status, int flag) {
