@@ -1,6 +1,6 @@
 package org.commcare.xml;
 
-import org.commcare.suite.model.graph.Graph;
+import org.commcare.suite.model.DetailTemplate;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -12,7 +12,7 @@ import java.io.IOException;
  * Parser for a <graph> element, typically used as a detail field's template.
  * @author jschweers
  */
-public class GraphParser extends ElementParser<Graph> {
+public class GraphParser extends ElementParser<DetailTemplate> {
     public GraphParser(KXmlParser parser) {
         super(parser);
     }
@@ -21,7 +21,7 @@ public class GraphParser extends ElementParser<Graph> {
      * (non-Javadoc)
      * @see org.javarosa.xml.ElementParser#parse()
      */
-    public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
+    public DetailTemplate parse() throws InvalidStructureException, IOException, XmlPullParserException {
         throw new InvalidStructureException("Unable to parse graph", parser);
     }
 }
