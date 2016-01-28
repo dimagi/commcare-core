@@ -1,4 +1,4 @@
-package org.commcare.suite.model.graph;
+package org.commcare.suite.model;
 
 /**
  * Created by wpride1 on 4/24/15.
