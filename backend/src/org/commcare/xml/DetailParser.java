@@ -87,7 +87,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             DetailField.Builder builder = new DetailField.Builder();
 
             if (parser.getName().equals("detail")) {
-                subdetails.addElement((new DetailParser(parser)).parse());
+                subdetails.addElement(getDetailParser().parse());
             } else {
                 checkNode("field");
                 //Get the fields
@@ -225,6 +225,10 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
+    }
+
+    protected DetailParser getDetailParser() {
+        return new DetailParser(parser);
     }
 
     protected GraphParser getGraphParser() {
