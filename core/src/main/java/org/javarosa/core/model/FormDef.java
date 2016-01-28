@@ -1365,8 +1365,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
         }
 
-        System.out.println("121 populate choices: " + choices);
-
         itemset.setChoices(choices, this.getLocalizer());
     }
 
