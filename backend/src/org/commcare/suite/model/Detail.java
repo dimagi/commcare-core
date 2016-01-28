@@ -27,15 +27,15 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * <p>A Detail model defines the structure in which
+ * A Detail model defines the structure in which
  * the details about something should be displayed
- * to users (generally cases or referrals).</p>
+ * to users (generally cases or referrals).
  *
- * <p>Detail models maintain a set of Text objects
+ * Detail models maintain a set of Text objects
  * which provide a template for how details about
  * objects should be displayed, along with a model
  * which defines the context of what data should be
- * obtained to fill in those templates.</p>
+ * obtained to fill in those templates.
  *
  * @author ctsims
  */
@@ -64,41 +64,31 @@ public class Detail implements Externalizable {
 
     }
 
-    public Detail(
-            String id, DisplayUnit title, String nodeset,
-            Vector<Detail> details,
-            Vector<DetailField> fields,
-            OrderedHashtable<String, String> variables, Action action, Callout callout
-    ) {
-        this(
-                id, title, nodeset,
-                details, fields,
-                variables, action
-        );
+    public Detail(String id, DisplayUnit title, String nodeset,
+                  Vector<Detail> details,
+                  Vector<DetailField> fields,
+                  OrderedHashtable<String, String> variables,
+                  Action action, Callout callout) {
+        this(id, title, nodeset, details, fields, variables, action);
 
         this.callout = callout;
     }
 
-    public Detail(
-            String id, DisplayUnit title, String nodeset,
-            Vector<Detail> details,
-            Vector<DetailField> fields,
-            OrderedHashtable<String, String> variables, Action action
-    ) {
-        this(
-                id, title, nodeset,
+    public Detail(String id, DisplayUnit title, String nodeset,
+                  Vector<Detail> details,
+                  Vector<DetailField> fields,
+                  OrderedHashtable<String, String> variables, Action action) {
+        this(id, title, nodeset,
                 ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
                 ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
-                variables, action
-        );
+                variables, action);
     }
 
-    public Detail(
-            String id, DisplayUnit title, String nodeset,
-            Detail[] details,
-            DetailField[] fields,
-            OrderedHashtable<String, String> variables, Action action
-    ) {
+    public Detail(String id, DisplayUnit title, String nodeset,
+                  Detail[] details,
+                  DetailField[] fields,
+                  OrderedHashtable<String, String> variables,
+                  Action action) {
         if (details.length > 0 && fields.length > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
@@ -133,7 +123,9 @@ public class Detail implements Externalizable {
      * @return A reference to a set of sub-elements of this detail. If provided,
      * the detail will display fields for each element of this nodeset.
      */
-    public TreeReference getNodeset() { return nodeset; }
+    public TreeReference getNodeset() {
+        return nodeset;
+    }
 
     /**
      * @return Any child details of this detail.
@@ -151,7 +143,7 @@ public class Detail implements Externalizable {
         if (this.isCompound()) {
             return this.getDetails();
         }
-        return new Detail[] {this};
+        return new Detail[]{this};
     }
 
     /**
