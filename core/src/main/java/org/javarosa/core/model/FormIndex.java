@@ -438,4 +438,28 @@ public class FormIndex {
         }
         return parent.getLocalIndex() == child.getLocalIndex();
     }
+    //used by Touchforms
+    public void assignRefs(FormDef f) {
+        FormIndex cur = this;
+
+        Vector<Integer> indexes = new Vector<Integer>();
+        Vector<Integer> multiplicities = new Vector<Integer>();
+        Vector<IFormElement> elements = new Vector<IFormElement>();
+        f.collapseIndex(this, indexes, multiplicities, elements);
+
+        Vector<Integer> curMults = new Vector<Integer>();
+        Vector<IFormElement> curElems = new Vector<IFormElement>();
+
+        int i = 0;
+        while (cur != null) {
+            curMults.addElement(multiplicities.elementAt(i));
+            curElems.addElement(elements.elementAt(i));
+
+            TreeReference ref = f.getChildInstanceRef(curElems, curMults);
+            cur.reference = ref;
+
+            cur = cur.getNextLevel();
+            i++;
+        }
+    }
 }
