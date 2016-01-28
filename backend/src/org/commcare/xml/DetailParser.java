@@ -46,7 +46,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         Callout callout = null;
-        Action action = null;
+        Vector<Action> actions = new Vector<Action>();
 
         //Now get the headers and templates.
         Vector<Detail> subdetails = new Vector<Detail>();
@@ -81,7 +81,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 continue;
             }
             if (ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
-                action = new ActionParser(parser).parse();
+                actions.addElement(new ActionParser(parser).parse());
                 continue;
             }
             DetailField.Builder builder = new DetailField.Builder();
@@ -224,6 +224,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
+        return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout);
     }
 }

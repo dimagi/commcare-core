@@ -55,7 +55,7 @@ public class Detail implements Externalizable {
     OrderedHashtable<String, XPathExpression> variablesCompiled;
 
     //This will probably be a list sooner rather than later?
-    Action action;
+    Vector<Action> action;
 
     /**
      * Serialization Only
@@ -68,7 +68,7 @@ public class Detail implements Externalizable {
                   Vector<Detail> details,
                   Vector<DetailField> fields,
                   OrderedHashtable<String, String> variables,
-                  Action action, Callout callout) {
+                  Vector<Action> action, Callout callout) {
         this(id, title, nodeset, details, fields, variables, action);
 
         this.callout = callout;
@@ -77,7 +77,7 @@ public class Detail implements Externalizable {
     public Detail(String id, DisplayUnit title, String nodeset,
                   Vector<Detail> details,
                   Vector<DetailField> fields,
-                  OrderedHashtable<String, String> variables, Action action) {
+                  OrderedHashtable<String, String> variables, Vector<Action> action) {
         this(id, title, nodeset,
                 ArrayUtilities.copyIntoArray(details, new Detail[details.size()]),
                 ArrayUtilities.copyIntoArray(fields, new DetailField[fields.size()]),
@@ -88,7 +88,7 @@ public class Detail implements Externalizable {
                   Detail[] details,
                   DetailField[] fields,
                   OrderedHashtable<String, String> variables,
-                  Action action) {
+                  Vector<Action> action) {
         if (details.length > 0 && fields.length > 0) {
             throw new IllegalArgumentException("A detail may contain either sub-details or fields, but not both.");
         }
