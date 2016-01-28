@@ -187,10 +187,7 @@ public class Detail implements Externalizable {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         id = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         title = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
@@ -206,10 +203,7 @@ public class Detail implements Externalizable {
         action = (Action)ExtUtil.read(in, new ExtWrapNullable(Action.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapNullable(id));
         ExtUtil.write(out, title);
@@ -247,22 +241,6 @@ public class Detail implements Externalizable {
      */
     public Action getCustomAction() {
         return action;
-    }
-
-    public Vector<String> toVector(String[] array) {
-        Vector<String> ret = new Vector<String>();
-        for (String s : array) {
-            ret.addElement(ExtUtil.emptyIfNull(s));
-        }
-        return ret;
-    }
-
-    public String[] toArray(Vector<String> v) {
-        String[] a = new String[v.size()];
-        for (int i = 0; i < a.length; ++i) {
-            a[i] = ExtUtil.nullIfEmpty(v.elementAt(i));
-        }
-        return a;
     }
 
     /**
