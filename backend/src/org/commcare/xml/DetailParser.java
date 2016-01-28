@@ -148,7 +148,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     parser.nextTag();
                     DetailTemplate template;
                     if (form.equals("graph")) {
-                        template = new GraphParser(parser).parse();
+                        template = getGraphParser().parse();
                     } else if (form.equals("callout")) {
                         template = new CalloutParser(parser).parse();
                     } else {
@@ -225,5 +225,9 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
+    }
+
+    protected GraphParser getGraphParser() {
+        return new GraphParser(parser);
     }
 }
