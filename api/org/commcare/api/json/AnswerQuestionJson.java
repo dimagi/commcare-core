@@ -72,6 +72,7 @@ public class AnswerQuestionJson {
             }
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
+        System.out.println("RESULT!: " + result);
         if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
             ret.put("status","error");
             ret.put("type", "required");
@@ -82,30 +83,20 @@ public class AnswerQuestionJson {
             ret.put("reason", prompt.getConstraintText());
         }
         else if (result == FormEntryController.ANSWER_OK){
+            ret.put("tree", WalkJson.walkToJSON(model, controller));
             ret.put("status","success");
             //controller.stepToNextEvent();
         }
 
-        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        System.out.println("RET: " + ret);
 
         return ret;
     }
 
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
-        try {
-            FormIndex formIndex = indexFromString(index, model.getForm());
-            FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-            return questionAnswerToJson(controller, model, answer, prompt);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer){
-        FormEntryPrompt prompt = model.getQuestionPrompt();
+        FormIndex formIndex = indexFromString(index, model.getForm());
+        FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
         return questionAnswerToJson(controller, model, answer, prompt);
     }
 
