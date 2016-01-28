@@ -438,7 +438,7 @@ public class FormIndex {
         }
         return parent.getLocalIndex() == child.getLocalIndex();
     }
-
+    //used by Touchforms
     public void assignRefs(FormDef f) {
         FormIndex cur = this;
 
