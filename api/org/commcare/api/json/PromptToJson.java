@@ -147,7 +147,7 @@ public class PromptToJson {
                 obj.put("answer", (double)answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
+                obj.put("answer", (answerValue.getDisplayText()));
                 return;
             case Constants.DATATYPE_TIME:
                 obj.put("answer", answerValue.getDisplayText());
