@@ -133,6 +133,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
         if("action".equals(input) && mAction != null) {
+            // TODO PLM: handle multiple actions
             host.setPendingAction(mAction);
             return true;
         }
