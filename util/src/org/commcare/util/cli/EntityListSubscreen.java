@@ -45,7 +45,8 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
 
-        mAction = shortDetail.getCustomAction();
+        // TODO PLM: actually handle more than 1 action
+        mAction = shortDetail.getCustomActions().firstElement();
     }
 
     private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
