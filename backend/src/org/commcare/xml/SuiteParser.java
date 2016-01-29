@@ -108,7 +108,7 @@ public class SuiteParser extends ElementParser<Suite> {
                             table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
                         }
                     } else if (parser.getName().toLowerCase().equals("detail")) {
-                        Detail d = new DetailParser(parser).parse();
+                        Detail d = getDetailParser().parse();
                         details.put(d.getId(), d);
                     } else if (parser.getName().toLowerCase().equals("menu")) {
                         Menu m = new MenuParser(parser).parse();
@@ -151,5 +151,9 @@ public class SuiteParser extends ElementParser<Suite> {
      */
     public void setSkipResources(boolean skipResources) {
         this.skipResources = skipResources;
+    }
+
+    protected DetailParser getDetailParser() {
+        return new DetailParser(parser);
     }
 }
