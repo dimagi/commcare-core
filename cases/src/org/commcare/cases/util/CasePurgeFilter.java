@@ -45,8 +45,18 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private final Vector<Integer> idsToRemove = new Vector<Integer>();
 
+    // The index is a string containing the case GUID. The Nodes will be a int array containing
+    // [STATUS_FLAGS, storageid]. Edges are a string representing the relationship between the
+    // nodes, which is one of the Case Index relationships (IE: parent, extension)
     private DAG<String, int[], String> internalCaseDAG;
+
+    // Flag that gets checked by DataPullTask, in order to report to device logs
     private boolean invalidEdgesWereRemoved;
+    // List of case ids for cases that were indexed and expected to be on the phone, but were
+    // actually not present
+    private Vector<String> missingCases = new Vector<String>();
+    // List of case ids for cases that were deleted off of the device as a result missing cases
+    private Vector<String> casesRemovedDueToMissingCases = new Vector<String>();
 
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
         this(caseStorage, null);
@@ -68,9 +78,6 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        // Create a DAG. The Index will be the case GUID. The Nodes will be a int array containing
-        // [STATUS_FLAGS, storageid], Edges are a string representing the relationship between the
-        // nodes, which is one of the Case Index relationships (IE: parent, extension)
         internalCaseDAG = new DAG<String, int[], String>();
 
         Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
@@ -253,6 +260,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             for (Edge<String, String> edge : edgeListForOrigin) {
                 String targetIndex = edge.i;
                 if (internalCaseDAG.getNode(targetIndex) == null) {
+                    missingCases.addElement(targetIndex);
                     edgesToRemove.addElement(new String[]{originIndex, targetIndex});
                     childOfNonexistentParent.addElement(originIndex);
                 }
@@ -300,6 +308,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         // DAG, and add it to the list of cases to be purged
         int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
         idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
+        casesRemovedDueToMissingCases.addElement(indexOfRemovedNode);
     }
 
     // For use in tests
@@ -313,6 +322,22 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      */
     public boolean invalidEdgesWereRemoved() {
         return this.invalidEdgesWereRemoved;
+    }
+
+    public String getMissingCasesString() {
+        return flattenVectorOfStrings(this.missingCases);
+    }
+
+    public String getRemovedCasesString() {
+        return flattenVectorOfStrings(this.casesRemovedDueToMissingCases);
+    }
+
+    private static String flattenVectorOfStrings(Vector<String> v) {
+        StringBuilder builder = new StringBuilder();
+        for (String caseId : v) {
+            builder.append(caseId + " ");
+        }
+        return builder.toString();
     }
 
     private static boolean caseStatusIs(int status, int flag) {
