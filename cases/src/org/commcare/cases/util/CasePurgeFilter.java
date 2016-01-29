@@ -260,7 +260,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
             for (Edge<String, String> edge : edgeListForOrigin) {
                 String targetIndex = edge.i;
                 if (internalCaseDAG.getNode(targetIndex) == null) {
-                    missingCases.add(targetIndex);
+                    missingCases.addElement(targetIndex);
                     edgesToRemove.addElement(new String[]{originIndex, targetIndex});
                     childOfNonexistentParent.addElement(originIndex);
                 }
@@ -308,7 +308,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
         // DAG, and add it to the list of cases to be purged
         int storageIdOfRemovedNode = internalCaseDAG.removeNode(indexOfRemovedNode)[1];
         idsToRemove.addElement(new Integer(storageIdOfRemovedNode));
-        casesRemovedDueToMissingCases.add(indexOfRemovedNode);
+        casesRemovedDueToMissingCases.addElement(indexOfRemovedNode);
     }
 
     // For use in tests
