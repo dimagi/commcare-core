@@ -21,7 +21,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntryParser extends CommCareElementParser<Entry> {
-    private boolean isEntry = true;
+    private final boolean isEntry;
 
     private EntryParser(KXmlParser parser, boolean isEntry) {
         super(parser);
@@ -52,24 +52,25 @@ public class EntryParser extends CommCareElementParser<Entry> {
         AssertionSet assertions = null;
 
         while (nextTagInBlock(block)) {
-            if (parser.getName().equals("form")) {
+            String tagName = parser.getName();
+            if ("form".equals(tagName)) {
                 if (!isEntry) {
-                    throw new InvalidStructureException("<view>'s cannot specify XForms!!", this.parser);
+                    throw new InvalidStructureException("<" + block + ">'s cannot specify XForms!!", parser);
                 }
                 xFormNamespace = parser.nextText();
-            } else if (parser.getName().equals("command")) {
+            } else if ("command".equals(tagName)) {
                 commandId = parser.getAttributeValue(null, "id");
                 display = parseCommandDisplay();
-            } else if ("instance".equals(parser.getName().toLowerCase())) {
+            } else if ("instance".equals(tagName.toLowerCase())) {
                 parseInstance(instances);
-            } else if (parser.getName().equals("session")) {
+            } else if ("session".equals(tagName)) {
                 parseSessionData(data);
-            } else if (parser.getName().equals("entity") || parser.getName().equals("details")) {
+            } else if ("entity".equals(tagName) || "details".equals(tagName)) {
                 throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + block + ">. " +
-                        parser.getName() + " is not a valid construct in 2.0 CaseXML", parser);
-            } else if (parser.getName().equals("stack")) {
+                        tagName + " is not a valid construct in 2.0 CaseXML", parser);
+            } else if ("stack".equals(tagName)) {
                 parseStack(stackOps);
-            } else if (parser.getName().equals("assertions")) {
+            } else if ("assertions".equals(tagName)) {
                 assertions = new AssertionSetParser(parser).parse();
             }
         }
@@ -88,9 +89,10 @@ public class EntryParser extends CommCareElementParser<Entry> {
     private DisplayUnit parseCommandDisplay() throws InvalidStructureException, IOException, XmlPullParserException {
         parser.nextTag();
         DisplayUnit display = null;
-        if (parser.getName().equals("text")) {
+        String tagName = parser.getName();
+        if ("text".equals(tagName)) {
             display = new DisplayUnit(new TextParser(parser).parse(), null, null);
-        } else if (parser.getName().equals("display")) {
+        } else if ("display".equals(tagName)) {
             display = parseDisplayBlock();
             //check that we have text to display;
             if (display.getText() == null) {
