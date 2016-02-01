@@ -46,7 +46,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
         Vector<SessionDatum> data = new Vector<SessionDatum>();
         Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
 
-
         String commandId = "";
         DisplayUnit display = null;
         Vector<StackOperation> stackOps = new Vector<StackOperation>();
@@ -60,34 +59,16 @@ public class EntryParser extends CommCareElementParser<Entry> {
                 xFormNamespace = parser.nextText();
             } else if (parser.getName().equals("command")) {
                 commandId = parser.getAttributeValue(null, "id");
-                parser.nextTag();
-                if (parser.getName().equals("text")) {
-                    display = new DisplayUnit(new TextParser(parser).parse(), null, null);
-                } else if (parser.getName().equals("display")) {
-                    display = parseDisplayBlock();
-                    //check that we have text to display;
-                    if (display.getText() == null) {
-                        throw new InvalidStructureException("Expected CommandText in Display block", parser);
-                    }
-                }
+                display = parseCommandDisplay();
             } else if ("instance".equals(parser.getName().toLowerCase())) {
-                String instanceId = parser.getAttributeValue(null, "id");
-                String location = parser.getAttributeValue(null, "src");
-                instances.put(instanceId, new ExternalDataInstance(location, instanceId));
-
+                parseInstance(instances);
             } else if (parser.getName().equals("session")) {
-                while (nextTagInBlock("session")) {
-                    SessionDatumParser parser = new SessionDatumParser(this.parser);
-                    data.addElement(parser.parse());
-                }
+                parseSessionData(data);
             } else if (parser.getName().equals("entity") || parser.getName().equals("details")) {
                 throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + block + ">. " +
                         parser.getName() + " is not a valid construct in 2.0 CaseXML", parser);
             } else if (parser.getName().equals("stack")) {
-                StackOpParser sop = new StackOpParser(parser);
-                while (this.nextTagInBlock("stack")) {
-                    stackOps.addElement(sop.parse());
-                }
+                parseStack(stackOps);
             } else if (parser.getName().equals("assertions")) {
                 assertions = new AssertionSetParser(parser).parse();
             }
@@ -102,5 +83,40 @@ public class EntryParser extends CommCareElementParser<Entry> {
         } else {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         }
+    }
+
+    private DisplayUnit parseCommandDisplay() throws InvalidStructureException, IOException, XmlPullParserException {
+        parser.nextTag();
+        DisplayUnit display = null;
+        if (parser.getName().equals("text")) {
+            display = new DisplayUnit(new TextParser(parser).parse(), null, null);
+        } else if (parser.getName().equals("display")) {
+            display = parseDisplayBlock();
+            //check that we have text to display;
+            if (display.getText() == null) {
+                throw new InvalidStructureException("Expected CommandText in Display block", parser);
+            }
+        }
+        return display;
+    }
+
+    private void parseSessionData(Vector<SessionDatum> data) throws InvalidStructureException, IOException, XmlPullParserException {
+        while (nextTagInBlock("session")) {
+            SessionDatumParser parser = new SessionDatumParser(this.parser);
+            data.addElement(parser.parse());
+        }
+    }
+
+    private void parseStack(Vector<StackOperation> stackOps) throws InvalidStructureException, IOException, XmlPullParserException {
+        StackOpParser sop = new StackOpParser(parser);
+        while (this.nextTagInBlock("stack")) {
+            stackOps.addElement(sop.parse());
+        }
+    }
+
+    private void parseInstance(Hashtable<String, DataInstance> instances) {
+        String instanceId = parser.getAttributeValue(null, "id");
+        String location = parser.getAttributeValue(null, "src");
+        instances.put(instanceId, new ExternalDataInstance(location, instanceId));
     }
 }
