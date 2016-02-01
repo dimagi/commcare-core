@@ -2,9 +2,11 @@ package org.commcare.xml;
 
 import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
+import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -19,20 +21,23 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntryParser extends CommCareElementParser<Entry> {
-    boolean isEntry = true;
+    private boolean isEntry = true;
 
-    public EntryParser(KXmlParser parser) {
-        this(parser, true);
-    }
-
-    public EntryParser(KXmlParser parser, boolean isEntry) {
+    private EntryParser(KXmlParser parser, boolean isEntry) {
         super(parser);
+
         this.isEntry = isEntry;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    public static EntryParser buildViewParser(KXmlParser parser) {
+        return new EntryParser(parser, false);
+    }
+
+    public static EntryParser buildEntryParser(KXmlParser parser) {
+        return new EntryParser(parser, true);
+    }
+
+    @Override
     public Entry parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String block = isEntry ? "entry" : "view";
         this.checkNode(block);
@@ -91,7 +96,11 @@ public class EntryParser extends CommCareElementParser<Entry> {
         if (display == null) {
             throw new InvalidStructureException("<entry> block must define display text details", parser);
         }
-        Entry e = new Entry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
-        return e;
+
+        if (isEntry) {
+            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
+        } else {
+            return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
+        }
     }
 }

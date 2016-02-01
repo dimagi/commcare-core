@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -101,31 +102,23 @@ public class Suite implements Persistable {
         return details.get(id);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
         this.version = ExtUtil.readInt(in);
         this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
-        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in, new ExtWrapMap(String.class, Entry.class), pf);
+        this.entries = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, version);
         ExtUtil.write(out, new ExtWrapMap(details));
-        ExtUtil.write(out, new ExtWrapMap(entries));
+        ExtUtil.write(out, new ExtWrapMapPoly(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
     }
-
-
 }

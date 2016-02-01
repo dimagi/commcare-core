@@ -8,10 +8,9 @@ package org.commcare.suite.model;
  */
 public interface MenuDisplayable {
 
-    public String getAudioURI();
+    String getAudioURI();
 
-    public String getImageURI();
+    String getImageURI();
 
-    public String getDisplayText();
-
+    String getDisplayText();
 }
