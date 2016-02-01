@@ -52,9 +52,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         this.assertions = assertions;
     }
 
-    public boolean isView() {
-        return this instanceof ViewEntry;
-    }
+    public abstract boolean isView();
 
     /**
      * @return the ID of this entry command. Used by Menus to determine
@@ -98,7 +96,6 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     public AssertionSet getAssertions() {
         return assertions == null ? new AssertionSet(new Vector<String>(), new Vector<Text>()) : assertions;
     }
-
 
     /**
      * Retrieve the stack operations that should be processed after this entry

@@ -26,4 +26,9 @@ public class ViewEntry extends Entry {
                      AssertionSet assertions) {
         super(commandId, display, data, instances, stackOperations, assertions);
     }
+
+    @Override
+    public boolean isView() {
+        return true;
+    }
 }
