@@ -1,6 +1,5 @@
 package org.commcare.util;
 
-import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Detail;
@@ -32,25 +31,23 @@ import java.util.Vector;
 public class CommCarePlatform implements CommCareInstance {
     // TODO: We should make this unique using the parser to invalidate this ID or something
     public static final String APP_PROFILE_RESOURCE_ID = "commcare-application-profile";
-
-    private Vector<Integer> suites;
     private int profile;
 
-    private int majorVersion;
-    private int minorVersion;
+    private final int majorVersion;
+    private final int minorVersion;
 
     public CommCarePlatform(int majorVersion, int minorVersion) {
         profile = -1;
-        suites = new Vector<Integer>();
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
     }
 
-
+    @Override
     public int getMajorVersion() {
         return majorVersion;
     }
 
+    @Override
     public int getMinorVersion() {
         return minorVersion;
     }
@@ -81,13 +78,13 @@ public class CommCarePlatform implements CommCareInstance {
         return null;
     }
 
+    @Override
     public void setProfile(Profile p) {
         this.profile = p.getID();
     }
 
-
+    @Override
     public void registerSuite(Suite s) {
-        this.suites.addElement(new Integer(s.getID()));
     }
 
     /**
@@ -106,7 +103,6 @@ public class CommCarePlatform implements CommCareInstance {
     public void clearAppState() {
         //Clear out any app state
         profile = -1;
-        suites.removeAllElements();
     }
 
     public Hashtable<String, Entry> getMenuMap() {
@@ -143,26 +139,6 @@ public class CommCarePlatform implements CommCareInstance {
             }
         }
         return null;
-    }
-
-    public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
-        Vector<Resource> unresolved = new Vector<Resource>();
-        Vector<Resource> resolved = new Vector<Resource>();
-        Resource r = master.getResourceWithId(APP_PROFILE_RESOURCE_ID);
-        if (r == null) {
-            return resolved;
-        }
-        unresolved.addElement(r);
-        while (unresolved.size() > 0) {
-            Resource current = unresolved.firstElement();
-            unresolved.removeElement(current);
-            resolved.addElement(current);
-            Vector<Resource> children = master.getResourcesForParent(current.getRecordGuid());
-            for (Resource child : children) {
-                unresolved.addElement(child);
-            }
-        }
-        return resolved;
     }
 
     public String getMenuDisplayStyle(String menuId) {

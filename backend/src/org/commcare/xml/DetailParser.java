@@ -87,7 +87,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
             DetailField.Builder builder = new DetailField.Builder();
 
             if (parser.getName().equals("detail")) {
-                subdetails.addElement((new DetailParser(parser)).parse());
+                subdetails.addElement(getDetailParser().parse());
             } else {
                 checkNode("field");
                 //Get the fields
@@ -148,7 +148,11 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     parser.nextTag();
                     DetailTemplate template;
                     if (form.equals("graph")) {
-                        template = new GraphParser(parser).parse();
+                        GraphParser gp = getGraphParser();
+                        if (gp == null) {
+                            throw new InvalidStructureException("No graph parser available", parser);
+                        }
+                        template = getGraphParser().parse();
                     } else if (form.equals("callout")) {
                         template = new CalloutParser(parser).parse();
                     } else {
@@ -225,5 +229,13 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
+    }
+
+    protected DetailParser getDetailParser() {
+        return new DetailParser(parser);
+    }
+
+    protected GraphParser getGraphParser() {
+        return null;
     }
 }
