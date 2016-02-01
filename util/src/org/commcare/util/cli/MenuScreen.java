@@ -1,6 +1,7 @@
 package org.commcare.util.cli;
 
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -83,7 +84,7 @@ public class MenuScreen extends Screen {
                             }
 
                             Entry e = map.get(command);
-                            if (e.getXFormNamespace() == null) {
+                            if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 
                                 //datums are not already present
@@ -148,8 +149,8 @@ public class MenuScreen extends Screen {
         try {
             int i = Integer.parseInt(input);
             String commandId;
-            if (mChoices[i] instanceof Entry) {
-                commandId = ((Entry)mChoices[i]).getCommandId();
+            if (mChoices[i] instanceof FormEntry) {
+                commandId = ((FormEntry)mChoices[i]).getCommandId();
             } else {
                 commandId = ((Menu)mChoices[i]).getId();
             }

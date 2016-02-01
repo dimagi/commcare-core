@@ -70,6 +70,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return setupFixtureData(instance);
         } else if (instance.getReference().indexOf("session") != -1) {
             return setupSessionData(instance);
+        } else if (ref.indexOf("migration") != -1) {
+            return setupMigrationData(instance);
         }
         return null;
     }
@@ -116,7 +118,6 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             TreeElement root = fixture.getRoot();
             root.setParent(instance.getBase());
             return root;
-
         } catch (IllegalStateException ise) {
             throw new FixtureInitializationException("Could not load fixture for src: " + ref);
         }
@@ -141,6 +142,10 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
 
     protected String getVersionString(){
         return "CommCare Version: " + mPlatform.getMajorVersion() + "." + mPlatform.getMinorVersion();
+    }
+
+    protected AbstractTreeElement setupMigrationData(ExternalDataInstance instance) {
+        return null;
     }
 
     public static class FixtureInitializationException extends RuntimeException {
