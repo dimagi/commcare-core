@@ -78,10 +78,10 @@ public class SuiteParser extends ElementParser<Suite> {
             do {
                 if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("entry")) {
-                        Entry e = new EntryParser(parser).parse();
+                        Entry e = EntryParser.buildEntryParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("view")) {
-                        Entry e = new EntryParser(parser, false).parse();
+                        Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
                         String localeKey = parser.getAttributeValue(null, "language");
