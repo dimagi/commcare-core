@@ -1173,8 +1173,8 @@ public class FormDef extends ActionTriggerSource
 
                 public Object eval(Object[] args, EvaluationContext ec) {
                     try {
-                        String value = (String) args[0];
-                        String questionXpath = (String) args[1];
+                        String value = (String)args[0];
+                        String questionXpath = (String)args[1];
                         TreeReference ref = RestoreUtils.xfFact.ref(questionXpath);
 
                         QuestionDef q = f.findQuestionByRef(ref, f);
