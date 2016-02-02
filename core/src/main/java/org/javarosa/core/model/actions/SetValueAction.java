@@ -1,6 +1,7 @@
 package org.javarosa.core.model.actions;
 
 import org.javarosa.core.model.Action;
+import org.javarosa.core.model.ActionTriggerSource;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
@@ -30,26 +31,28 @@ public class SetValueAction extends Action {
     private XPathExpression value;
     private String explicitValue;
 
-    public static final String SET_VALUE_COMMAND = "setvalue";
+    public static final String ELEMENT_NAME = "setvalue";
 
     public SetValueAction() {
         // for externalization
     }
 
     public SetValueAction(TreeReference target, XPathExpression value) {
-        super(SET_VALUE_COMMAND);
+        super(ELEMENT_NAME);
         this.target = target;
         this.value = value;
     }
 
     public SetValueAction(TreeReference target, String explicitValue) {
-        super(SET_VALUE_COMMAND);
+        super(ELEMENT_NAME);
         this.target = target;
         this.explicitValue = explicitValue;
     }
 
     @Override
-    public TreeReference processAction(FormDef model, TreeReference contextRef) {
+    public TreeReference processAction(ActionTriggerSource actionTriggerSource, TreeReference contextRef) {
+        FormDef model = (FormDef) actionTriggerSource;
+
         //Qualify the reference if necessary
         TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
 
@@ -58,7 +61,7 @@ public class SetValueAction extends Action {
         //insert events should only trigger on the right nodes
         if (contextRef != null) {
 
-            //Note: right now we're qualifying then testing parentage to see wheter
+            //Note: right now we're qualifying then testing parentage to see whether
             //there was a conflict, but it's not super clear whether this is a perfect
             //strategy
             if (!contextRef.isParentOf(qualifiedReference, false)) {
@@ -72,14 +75,14 @@ public class SetValueAction extends Action {
 
         String failMessage = "Target of TreeReference " + target.toString(true) + " could not be resolved!";
 
-        if(qualifiedReference.hasPredicates()) {
+        if (qualifiedReference.hasPredicates()) {
             //CTS: in theory these predicates could contain logic which breaks if the qualified ref
             //contains unbound repeats (IE: nested repeats).
             Vector<TreeReference> references = context.expandReference(qualifiedReference);
             if (references.size() == 0) {
                 //If after finding our concrete reference it is a template, this action is outside of the
                 //scope of the current target, so we can leave.
-                if(model.getMainInstance().hasTemplatePath(target)) {
+                if (model.getMainInstance().hasTemplatePath(target)) {
                     return null;
                 }
                 throw new NullPointerException(failMessage);

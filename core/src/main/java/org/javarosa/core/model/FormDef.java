@@ -55,7 +55,8 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa, Drew Roos
  */
-public class FormDef implements IFormElement, Localizable, Persistable, IMetaData {
+public class FormDef extends ActionTriggerSource
+        implements IFormElement, Localizable, Persistable, IMetaData {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
@@ -125,8 +126,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     private Hashtable<String, DataInstance> formInstances;
 
     private FormInstance mainInstance = null;
-
-    Hashtable<String, Vector<Action>> eventListeners;
 
     boolean mDebugModeEnabled = false;
 
@@ -1174,8 +1173,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
                 public Object eval(Object[] args, EvaluationContext ec) {
                     try {
-                        String value = (String)args[0];
-                        String questionXpath = (String)args[1];
+                        String value = (String) args[0];
+                        String questionXpath = (String) args[1];
                         TreeReference ref = RestoreUtils.xfFact.ref(questionXpath);
 
                         QuestionDef q = f.findQuestionByRef(ref, f);
@@ -1421,7 +1420,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     }
 
     public boolean postProcessInstance() {
-        dispatchFormEvent(Action.EVENT_XFORMS_REVALIDATE);
+        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE);
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1525,7 +1524,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
-            dispatchFormEvent(Action.EVENT_XFORMS_READY);
+            triggerActionsFromEvent(Action.EVENT_XFORMS_READY);
         }
 
         initAllTriggerables();
@@ -1859,30 +1858,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
     }
 
-    public Vector<Action> getEventListeners(String event) {
-        if (this.eventListeners.containsKey(event)) {
-            return eventListeners.get(event);
-        }
-        return new Vector<Action>();
-    }
 
-    public void registerEventListener(String event, Action action) {
-        Vector<Action> actions;
-
-        if (eventListeners.containsKey(event)) {
-            actions = eventListeners.get(event);
-        } else {
-            actions = new Vector<Action>();
-            eventListeners.put(event, actions);
-        }
-        actions.addElement(action);
-    }
-
-    private void dispatchFormEvent(String event) {
-        for (Action action : getEventListeners(event)) {
-            action.processAction(this, null);
-        }
-    }
 
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
         for (XFormExtension ex : extensions) {

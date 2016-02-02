@@ -14,9 +14,12 @@ import java.io.IOException;
  * @author ctsims
  */
 public class Action implements Externalizable {
+
+    // Events that can trigger an action
     public static final String EVENT_XFORMS_READY = "xforms-ready";
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
     public static final String EVENT_JR_INSERT = "jr-insert";
+    public static final String EVENT_VALUE_CHANGED = "xforms-value-changed";
 
     private String name;
 
@@ -37,7 +40,7 @@ public class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public TreeReference processAction(FormDef model, TreeReference context) {
+    public TreeReference processAction(ActionTriggerSource target, TreeReference context) {
         return null;
     }
 

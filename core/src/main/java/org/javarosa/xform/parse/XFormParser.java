@@ -1,6 +1,7 @@
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.Action;
+import org.javarosa.core.model.ActionTriggerSource;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -53,7 +54,6 @@ import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -125,7 +125,7 @@ public class XFormParser {
     private Vector<String> itextKnownForms;
 
     private static Vector<String> namedActions;
-    private static Hashtable<String, IElementHandler> structuredActionHandlers;
+    private static Hashtable<String, IElementHandler> actionHandlers;
 
 
     private FormInstance repeatTree; //pseudo-data model tree that describes the repeat structure of the instance;
@@ -248,12 +248,22 @@ public class XFormParser {
 
         groupLevelHandlers.put(LABEL_ELEMENT, groupLabel);
 
-        structuredActionHandlers = new Hashtable<String, IElementHandler>();
-        registerStructuredAction(SetValueAction.SET_VALUE_COMMAND, new IElementHandler() {
-            public void handle(XFormParser p, Element e, Object parent) {
-                p.parseSetValueAction((FormDef)parent, e);
-            }
-        });
+        actionHandlers = new Hashtable<String, IElementHandler>();
+
+        registerActionHandler(
+                SetValueAction.ELEMENT_NAME,
+                new IElementHandler() {
+                    public void handle(XFormParser p, Element e, Object parent) {
+                        if (!(parent instanceof ActionTriggerSource)) {
+                            // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
+                            throw new XFormParseException("<setvalue> element occurred in an " +
+                                    "invalid location. Must be either a child of a control " +
+                                    "element, or a child of the <model>");
+                        }
+                        p.parseSetValueAction((ActionTriggerSource)parent, e);
+                    }
+                }
+        );
     }
 
     /**
@@ -735,7 +745,7 @@ public class XFormParser {
                 parseBind(child);
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
-            } else if (namedActions.contains(childName) || (childName != null && structuredActionHandlers.containsKey(childName))) {
+            } else if (namedActions.contains(childName) || (childName != null && actionHandlers.containsKey(childName))) {
                 delayedParseElements.addElement(child);
             } else { //invalid model content
                 if (type == Node.ELEMENT) {
@@ -769,7 +779,7 @@ public class XFormParser {
                 if (namedActions.contains(name)) {
                     parseNamedAction(child);
                 } else {
-                    structuredActionHandlers.get(name).handle(this, child, _f);
+                    actionHandlers.get(name).handle(this, child, _f);
                 }
             }
         }
@@ -779,15 +789,14 @@ public class XFormParser {
         //TODO: Anything useful
     }
 
-    private void parseSetValueAction(FormDef form, Element e) {
+    private void parseSetValueAction(ActionTriggerSource source, Element e) {
         String ref = e.getAttributeValue(null, REF_ATTR);
         String bind = e.getAttributeValue(null, BIND_ATTR);
 
         String event = e.getAttributeValue(null, "event");
 
-        XPathReference dataRef = null;
+        XPathReference dataRef;
         boolean refFromBind = false;
-
 
         //TODO: There is a _lot_ of duplication of this code, fix that!
         if (bind != null) {
@@ -828,7 +837,8 @@ public class XFormParser {
                 throw new XFormParseException("Invalid XPath in value set action declaration: '" + valueRef + "'", e);
             }
         }
-        form.registerEventListener(event, action);
+
+        source.registerEventListener(event, action);
     }
 
     private void parseSubmission(Element submission) {
@@ -1025,20 +1035,8 @@ public class XFormParser {
         question.setControlType(controlType);
         question.setAppearanceAttr(e.getAttributeValue(null, APPEARANCE_ATTR));
 
-        for (int i = 0; i < e.getChildCount(); i++) {
-            int type = e.getType(i);
-            Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
-            String childName = (child != null ? child.getName() : null);
+        parseControlChildren(e, question, parent, isSelect);
 
-            if (LABEL_ELEMENT.equals(childName) || HINT_ELEMENT.equals(childName)
-                    || HELP_ELEMENT.equals(childName) || CONSTRAINT_ELEMENT.equals(childName)) {
-                parseHelperText(question, child);
-            } else if (isSelect && "item".equals(childName)) {
-                parseItem(question, child);
-            } else if (isSelect && "itemset".equals(childName)) {
-                parseItemset(question, child, parent);
-            }
-        }
         if (isSelect) {
             if (question.getNumChoices() > 0 && question.getDynamicChoices() != null) {
                 throw new XFormParseException("Multiple choice question contains both literal choices and <itemset>");
@@ -1054,6 +1052,26 @@ public class XFormParser {
         }
 
         return question;
+    }
+
+    private void parseControlChildren(Element e, QuestionDef question, IFormElement parent,
+                                      boolean isSelect) {
+        for (int i = 0; i < e.getChildCount(); i++) {
+            int type = e.getType(i);
+            Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
+            String childName = (child != null ? child.getName() : null);
+
+            if (LABEL_ELEMENT.equals(childName) || HINT_ELEMENT.equals(childName)
+                    || HELP_ELEMENT.equals(childName) || CONSTRAINT_ELEMENT.equals(childName)) {
+                parseHelperText(question, child);
+            } else if (isSelect && "item".equals(childName)) {
+                parseItem(question, child);
+            } else if (isSelect && "itemset".equals(childName)) {
+                parseItemset(question, child, parent);
+            } else if (actionHandlers.contains(childName)) {
+                actionHandlers.get(childName).handle(this, child, question);
+            }
+        }
     }
 
     /**
@@ -2970,8 +2988,8 @@ public class XFormParser {
      * @param type    Name of tag.
      * @param handler Handler for tag.
      */
-    public static void registerStructuredAction(String type, IElementHandler handler) {
-        structuredActionHandlers.put(type, handler);
+    public static void registerActionHandler(String type, IElementHandler handler) {
+        actionHandlers.put(type, handler);
     }
 
     /**

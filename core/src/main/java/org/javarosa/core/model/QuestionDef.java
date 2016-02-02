@@ -48,7 +48,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa/Drew Roos
  */
-public class QuestionDef implements IFormElement, Localizable {
+public class QuestionDef extends ActionTriggerSource implements IFormElement, Localizable {
     private int id;
 
     // reference to the location in the model from which to load data for the question,
