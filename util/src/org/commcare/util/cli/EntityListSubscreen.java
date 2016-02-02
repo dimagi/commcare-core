@@ -3,16 +3,11 @@ package org.commcare.util.cli;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.PrintStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -29,7 +24,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     private String[] rows;
     private String mHeader;
 
-    private Action mAction;
+    private Vector<Action> actions;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);
@@ -45,8 +40,7 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         this.mChoices = new TreeReference[references.size()];
         references.copyInto(mChoices);
 
-        // TODO PLM: actually handle more than 1 action
-        mAction = shortDetail.getCustomActions().firstElement();
+        actions = shortDetail.getCustomActions();
     }
 
     private String createRow(TreeReference entity, Detail shortDetail, EvaluationContext ec) {
@@ -124,18 +118,29 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             out.println(CliUtils.pad(String.valueOf(i), maxLength) + ")" + d);
         }
 
-        if(mAction != null) {
-            out.println();
-            out.println("action) " + mAction.getDisplay().evaluate().getName());
+        if(actions != null) {
+            int actionCount = 0;
+            for (Action action : actions) {
+                out.println();
+                out.println("action " + actionCount + ") " + action.getDisplay().evaluate().getName());
+                actionCount += 1;
+            }
         }
     }
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
-        if("action".equals(input) && mAction != null) {
-            // TODO PLM: handle multiple actions
-            host.setPendingAction(mAction);
-            return true;
+        if(input.startsWith("action ") && actions != null) {
+            int chosenActionIndex;
+            try {
+                chosenActionIndex = Integer.valueOf(input.substring("action ".length()).trim());
+            } catch (NumberFormatException e) {
+                return false;
+            }
+            if (actions.size() > chosenActionIndex) {
+                host.setPendingAction(actions.elementAt(chosenActionIndex));
+                return true;
+            }
         }
 
         try {
