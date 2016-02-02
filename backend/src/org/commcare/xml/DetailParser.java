@@ -232,6 +232,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
     }
 
     protected GraphParser getGraphParser() {
-        return new GraphParser(parser);
+        return new DummyGraphParser(parser);
     }
 }
