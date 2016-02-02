@@ -30,18 +30,20 @@ public class SetValueAction extends Action {
     private XPathExpression value;
     private String explicitValue;
 
+    public static final String SET_VALUE_COMMAND = "setvalue";
+
     public SetValueAction() {
         // for externalization
     }
 
     public SetValueAction(TreeReference target, XPathExpression value) {
-        super("setvalue");
+        super(SET_VALUE_COMMAND);
         this.target = target;
         this.value = value;
     }
 
     public SetValueAction(TreeReference target, String explicitValue) {
-        super("setvalue");
+        super(SET_VALUE_COMMAND);
         this.target = target;
         this.explicitValue = explicitValue;
     }

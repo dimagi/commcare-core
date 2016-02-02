@@ -125,7 +125,7 @@ public class XFormParser {
     private Vector<String> itextKnownForms;
 
     private static Vector<String> namedActions;
-    private static Hashtable<String, IElementHandler> structuredActions;
+    private static Hashtable<String, IElementHandler> structuredActionHandlers;
 
 
     private FormInstance repeatTree; //pseudo-data model tree that describes the repeat structure of the instance;
@@ -248,8 +248,8 @@ public class XFormParser {
 
         groupLevelHandlers.put(LABEL_ELEMENT, groupLabel);
 
-        structuredActions = new Hashtable<String, IElementHandler>();
-        registerStructuredAction("setvalue", new IElementHandler() {
+        structuredActionHandlers = new Hashtable<String, IElementHandler>();
+        registerStructuredAction(SetValueAction.SET_VALUE_COMMAND, new IElementHandler() {
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseSetValueAction((FormDef)parent, e);
             }
@@ -735,7 +735,7 @@ public class XFormParser {
                 parseBind(child);
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
-            } else if (namedActions.contains(childName) || (childName != null && structuredActions.containsKey(childName))) {
+            } else if (namedActions.contains(childName) || (childName != null && structuredActionHandlers.containsKey(childName))) {
                 delayedParseElements.addElement(child);
             } else { //invalid model content
                 if (type == Node.ELEMENT) {
@@ -769,7 +769,7 @@ public class XFormParser {
                 if (namedActions.contains(name)) {
                     parseNamedAction(child);
                 } else {
-                    structuredActions.get(name).handle(this, child, _f);
+                    structuredActionHandlers.get(name).handle(this, child, _f);
                 }
             }
         }
@@ -2971,7 +2971,7 @@ public class XFormParser {
      * @param handler Handler for tag.
      */
     public static void registerStructuredAction(String type, IElementHandler handler) {
-        structuredActions.put(type, handler);
+        structuredActionHandlers.put(type, handler);
     }
 
     /**
