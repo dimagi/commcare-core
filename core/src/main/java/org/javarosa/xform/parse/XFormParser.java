@@ -790,7 +790,7 @@ public class XFormParser {
     private void parseAction(Element e, Object parent, IElementHandler specificHandler) {
         // Check that the event registered to trigger this action is a valid event that we support
         String event = e.getAttributeValue(null, EVENT_ATTR);
-        if (!Action.Event.isValidEvent(event)) {
+        if (!Action.isValidEvent(event)) {
             throw new XFormParseException("An action was registered for an invalid event: " + event);
         }
 

@@ -11,8 +11,8 @@ public abstract class ActionTriggerSource {
     // map from an event to the actions it should trigger
     Hashtable<String, Vector<Action>> eventListeners;
 
-    public Vector<Action> getListenersForEvent(Action.Event event) {
-        if (this.eventListeners.containsKey(event.nodeName)) {
+    public Vector<Action> getListenersForEvent(String event) {
+        if (this.eventListeners.containsKey(event)) {
             return eventListeners.get(event);
         }
         return new Vector<Action>();
@@ -30,7 +30,7 @@ public abstract class ActionTriggerSource {
         actions.addElement(action);
     }
 
-    public void triggerActionsFromEvent(Action.Event event) {
+    public void triggerActionsFromEvent(String event) {
         for (Action action : getListenersForEvent(event)) {
             action.processAction(this, null);
         }

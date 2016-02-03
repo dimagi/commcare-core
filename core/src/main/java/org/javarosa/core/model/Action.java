@@ -34,7 +34,7 @@ public class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public TreeReference processAction(ActionTriggerSource target, TreeReference context) {
+    public TreeReference processAction(ActionTriggerSource source, TreeReference context) {
         return null;
     }
 
@@ -47,26 +47,20 @@ public class Action implements Externalizable {
     }
 
     // Events that can trigger an action
-    public enum Event {
+    public static final String EVENT_XFORMS_READY = "xforms-ready";
+    public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
+    public static final String EVENT_JR_INSERT = "jr-insert";
+    public static final String EVENT_QUESTION_VALUE_CHANGED = "xforms-value-changed";
 
-        EVENT_XFORMS_READY("xforms-ready"),
-        EVENT_XFORMS_REVALIDATE("xforms-revalidate"),
-        EVENT_JR_INSERT("jr-insert"),
-        EVENT_QUESTION_VALUE_CHANGED("xforms-value-changed");
-
-        String nodeName;
-
-        Event(String s) {
-            this.nodeName = s;
-        }
-
-        public static boolean isValidEvent(String s)  {
-            for (Event e : values()) {
-                if (e.nodeName.equals(s)) {
-                    return true;
-                }
+    public static boolean isValidEvent(String s)  {
+        String[] allEvents = new String[] {EVENT_JR_INSERT,
+                EVENT_QUESTION_VALUE_CHANGED, EVENT_XFORMS_READY, EVENT_XFORMS_REVALIDATE};
+        for (String event : allEvents) {
+            if (event.equals(s)) {
+                return true;
             }
-            return false;
         }
+        return false;
     }
+
 }
