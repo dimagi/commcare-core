@@ -148,10 +148,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     parser.nextTag();
                     DetailTemplate template;
                     if (form.equals("graph")) {
-                        GraphParser gp = getGraphParser();
-                        if (gp == null) {
-                            throw new InvalidStructureException("No graph parser available", parser);
-                        }
                         template = getGraphParser().parse();
                     } else if (form.equals("callout")) {
                         template = new CalloutParser(parser).parse();
@@ -236,6 +232,6 @@ public class DetailParser extends CommCareElementParser<Detail> {
     }
 
     protected GraphParser getGraphParser() {
-        return null;
+        return new DummyGraphParser(parser);
     }
 }
