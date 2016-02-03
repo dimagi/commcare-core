@@ -1,6 +1,7 @@
 package org.javarosa.core.services.locale;
 
 import org.javarosa.core.reference.ReferenceDataSource;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Hashtable;
 
@@ -24,6 +25,18 @@ public class Localization {
     public static String get(String key, Hashtable args) {
         checkRep();
         return globalLocalizer.getText(key, args);
+    }
+
+    public static String getWithDefault(String key, String valueIfKeyMissing) {
+        return getWithDefault(key, new String[]{}, valueIfKeyMissing);
+    }
+
+    public static String getWithDefault(String key, String[] args, String valueIfKeyMissing) {
+        try {
+            return get(key, args);
+        } catch (NoLocalizedTextException e) {
+            return valueIfKeyMissing;
+        }
     }
 
     /**
