@@ -15,12 +15,6 @@ import java.io.IOException;
  */
 public class Action implements Externalizable {
 
-    // Events that can trigger an action
-    public static final String EVENT_XFORMS_READY = "xforms-ready";
-    public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
-    public static final String EVENT_JR_INSERT = "jr-insert";
-    public static final String EVENT_VALUE_CHANGED = "xforms-value-changed";
-
     private String name;
 
     public Action() {
@@ -50,5 +44,29 @@ public class Action implements Externalizable {
 
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, name);
+    }
+
+    // Events that can trigger an action
+    public enum Event {
+
+        EVENT_XFORMS_READY("xforms-ready"),
+        EVENT_XFORMS_REVALIDATE("xforms-revalidate"),
+        EVENT_JR_INSERT("jr-insert"),
+        EVENT_QUESTION_VALUE_CHANGED("xforms-value-changed");
+
+        String nodeName;
+
+        Event(String s) {
+            this.nodeName = s;
+        }
+
+        public static boolean isValidEvent(String s)  {
+            for (Event e : values()) {
+                if (e.nodeName.equals(s)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

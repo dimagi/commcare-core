@@ -5,4 +5,6 @@ package org.javarosa.core.model;
  */
 public class InsertAction extends Action {
 
+    public static final String ELEMENT_NAME = "";
+
 }

@@ -7,6 +7,7 @@ import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
+import org.javarosa.core.model.InsertAction;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionDef;
@@ -85,6 +86,7 @@ public class XFormParser {
     private static final String ITEXT_OPEN = "jr:itext('";
     private static final String BIND_ATTR = "bind";
     private static final String REF_ATTR = "ref";
+    private static final String EVENT_ATTR = "event";
     private static final String SELECTONE = "select1";
     private static final String SELECT = "select";
 
@@ -124,7 +126,6 @@ public class XFormParser {
     private String defaultNamespace;
     private Vector<String> itextKnownForms;
 
-    private static Vector<String> namedActions;
     private static Hashtable<String, IElementHandler> actionHandlers;
 
 
@@ -166,21 +167,12 @@ public class XFormParser {
     }
 
     private static void initProcessingRules() {
-        IElementHandler title = new IElementHandler() {
-            public void handle(XFormParser p, Element e, Object parent) {
-                p.parseTitle(e);
-            }
-        };
-        IElementHandler meta = new IElementHandler() {
-            public void handle(XFormParser p, Element e, Object parent) {
-                p.parseMeta(e);
-            }
-        };
-        IElementHandler model = new IElementHandler() {
-            public void handle(XFormParser p, Element e, Object parent) {
-                p.parseModel(e);
-            }
-        };
+        setupGroupLevelHandlers();
+        setupTopLevelHandlers();
+        setupActionHandlers();
+    }
+
+    private static void setupGroupLevelHandlers() {
         IElementHandler input = new IElementHandler() {
             public void handle(XFormParser p, Element e, Object parent) {
                 p.parseControl((IFormElement)parent, e, Constants.CONTROL_INPUT);
@@ -236,6 +228,25 @@ public class XFormParser {
         groupLevelHandlers.put("repeat", repeat);
         groupLevelHandlers.put("trigger", trigger); //multi-purpose now; need to dig deeper
         groupLevelHandlers.put(Constants.XFTAG_UPLOAD, upload);
+        groupLevelHandlers.put(LABEL_ELEMENT, groupLabel);
+    }
+
+    private static void setupTopLevelHandlers() {
+        IElementHandler title = new IElementHandler() {
+            public void handle(XFormParser p, Element e, Object parent) {
+                p.parseTitle(e);
+            }
+        };
+        IElementHandler meta = new IElementHandler() {
+            public void handle(XFormParser p, Element e, Object parent) {
+                p.parseMeta(e);
+            }
+        };
+        IElementHandler model = new IElementHandler() {
+            public void handle(XFormParser p, Element e, Object parent) {
+                p.parseModel(e);
+            }
+        };
 
         topLevelHandlers = new Hashtable<String, IElementHandler>();
         for (Enumeration en = groupLevelHandlers.keys(); en.hasMoreElements(); ) {
@@ -245,22 +256,25 @@ public class XFormParser {
         topLevelHandlers.put("model", model);
         topLevelHandlers.put("title", title);
         topLevelHandlers.put("meta", meta);
+    }
 
-        groupLevelHandlers.put(LABEL_ELEMENT, groupLabel);
-
+    private static void setupActionHandlers() {
         actionHandlers = new Hashtable<String, IElementHandler>();
 
         registerActionHandler(
                 SetValueAction.ELEMENT_NAME,
                 new IElementHandler() {
                     public void handle(XFormParser p, Element e, Object parent) {
-                        if (!(parent instanceof ActionTriggerSource)) {
-                            // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
-                            throw new XFormParseException("<setvalue> element occurred in an " +
-                                    "invalid location. Must be either a child of a control " +
-                                    "element, or a child of the <model>");
-                        }
-                        p.parseSetValueAction((ActionTriggerSource)parent, e);
+                        p.parseSetValueAction((ActionTriggerSource) parent, e);
+                    }
+                }
+        );
+
+        registerActionHandler(InsertAction.ELEMENT_NAME,
+                new IElementHandler() {
+                    @Override
+                    public void handle(XFormParser p, Element e, Object parent) {
+                        //TODO: implement
                     }
                 }
         );
@@ -319,14 +333,6 @@ public class XFormParser {
         itextKnownForms.addElement("short");
         itextKnownForms.addElement("image");
         itextKnownForms.addElement("audio");
-
-        namedActions = new Vector<String>();
-        namedActions.addElement("rebuild");
-        namedActions.addElement("recalculate");
-        namedActions.addElement("revalidate");
-        namedActions.addElement("refresh");
-        namedActions.addElement("setfocus");
-        namedActions.addElement("reset");
     }
 
     XFormParserReporter reporter = new XFormParserReporter();
@@ -745,7 +751,7 @@ public class XFormParser {
                 parseBind(child);
             } else if ("submission".equals(childName)) {
                 delayedParseElements.addElement(child);
-            } else if (namedActions.contains(childName) || (childName != null && actionHandlers.containsKey(childName))) {
+            } else if (childName != null && actionHandlers.containsKey(childName)) {
                 delayedParseElements.addElement(child);
             } else { //invalid model content
                 if (type == Node.ELEMENT) {
@@ -775,25 +781,33 @@ public class XFormParser {
             if (name.equals("submission")) {
                 parseSubmission(child);
             } else {
-                //For now, anything that isn't a submission is an action
-                if (namedActions.contains(name)) {
-                    parseNamedAction(child);
-                } else {
-                    actionHandlers.get(name).handle(this, child, _f);
-                }
+                // For now, anything that isn't a submission is an action
+                actionHandlers.get(name).handle(this, child, _f);
             }
         }
     }
 
-    private void parseNamedAction(Element action) {
-        //TODO: Anything useful
+    private void parseAction(Element e, Object parent, IElementHandler specificHandler) {
+        // Check that the event registered to trigger this action is a valid event that we support
+        String event = e.getAttributeValue(null, EVENT_ATTR);
+        if (!Action.Event.isValidEvent(event)) {
+            throw new XFormParseException("An action was registered for an invalid event: " + event);
+        }
+
+        // Check that the action was included in a valid place within the XForm
+        if (!(parent instanceof ActionTriggerSource)) {
+            // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
+            throw new XFormParseException("<setvalue> element occurred in an " +
+                    "invalid location. Must be either a child of a control " +
+                    "element, or a child of the <model>");
+        }
+
+        specificHandler.handle(this, e, parent);
     }
 
     private void parseSetValueAction(ActionTriggerSource source, Element e) {
         String ref = e.getAttributeValue(null, REF_ATTR);
         String bind = e.getAttributeValue(null, BIND_ATTR);
-
-        String event = e.getAttributeValue(null, "event");
 
         XPathReference dataRef;
         boolean refFromBind = false;
@@ -838,6 +852,7 @@ public class XFormParser {
             }
         }
 
+        String event = e.getAttributeValue(null, EVENT_ATTR);
         source.registerEventListener(event, action);
     }
 
@@ -2983,13 +2998,22 @@ public class XFormParser {
     }
 
     /**
-     * Let parser know how to handle a given action.
+     * Let the parser know how to handle a given action -- All actions are first parsed by the
+     * generic parseAction() method, which is passed another handler to invoke after the generic
+     * handler is done
      *
-     * @param type    Name of tag.
-     * @param handler Handler for tag.
+     * @param specificHandler the handler for the specific action indicated by name, which
+     *                        is passed to and invoked by the generic parseAction() handler
      */
-    public static void registerActionHandler(String type, IElementHandler handler) {
-        actionHandlers.put(type, handler);
+    public static void registerActionHandler(String name, final IElementHandler specificHandler) {
+        actionHandlers.put(
+                name,
+                new IElementHandler() {
+                    public void handle(XFormParser p, Element e, Object parent) {
+                        p.parseAction(e, parent, specificHandler);
+                    }
+                }
+        );
     }
 
     /**

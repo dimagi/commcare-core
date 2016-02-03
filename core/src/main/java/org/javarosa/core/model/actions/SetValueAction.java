@@ -13,6 +13,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xform.parse.IElementHandler;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -50,8 +51,8 @@ public class SetValueAction extends Action {
     }
 
     @Override
-    public TreeReference processAction(ActionTriggerSource actionTriggerSource, TreeReference contextRef) {
-        FormDef model = (FormDef) actionTriggerSource;
+    public TreeReference processAction(ActionTriggerSource source, TreeReference contextRef) {
+        //TODO START HERE -- need to make processAction() work when actionTriggerSource is a QuestionDef, rather than FormDef
 
         //Qualify the reference if necessary
         TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
