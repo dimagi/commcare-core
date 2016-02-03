@@ -30,9 +30,9 @@ public abstract class ActionTriggerSource {
         actions.addElement(action);
     }
 
-    public void triggerActionsFromEvent(String event) {
+    public void triggerActionsFromEvent(String event, FormDef model) {
         for (Action action : getListenersForEvent(event)) {
-            action.processAction(this, null);
+            action.processAction(model, null);
         }
     }
 

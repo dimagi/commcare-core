@@ -153,12 +153,6 @@ public class QuestionDef extends ActionTriggerSource implements IFormElement, Lo
         }
     }
 
-    public void removeAllSelectChoices() {
-        if (choices != null) {
-            choices.removeAllElements();
-        }
-    }
-
     public Vector<SelectChoice> getChoices() {
         return choices;
     }

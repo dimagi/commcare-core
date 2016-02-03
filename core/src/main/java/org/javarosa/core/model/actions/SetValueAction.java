@@ -14,10 +14,12 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xform.parse.IElementHandler;
+import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.kxml2.kdom.Element;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -28,8 +30,13 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SetValueAction extends Action {
+
+    // node that this action is targeting
     private TreeReference target;
+
+    // the value to be assigned to the target when this action is triggered
     private XPathExpression value;
+
     private String explicitValue;
 
     public static final String ELEMENT_NAME = "setvalue";
@@ -50,12 +57,20 @@ public class SetValueAction extends Action {
         this.explicitValue = explicitValue;
     }
 
-    @Override
-    public TreeReference processAction(ActionTriggerSource source, TreeReference contextRef) {
-        //TODO START HERE -- need to make processAction() work when actionTriggerSource is a QuestionDef, rather than FormDef
+    public static IElementHandler getHandler() {
+        return new IElementHandler() {
+            public void handle(XFormParser p, Element e, Object parent) {
+                p.parseSetValueAction((ActionTriggerSource) parent, e);
+            }
+        };
+    }
 
-        //Qualify the reference if necessary
-        TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
+    @Override
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
+
+        // Qualify the reference if necessary
+        TreeReference targetReference =
+                contextRef == null ? target : target.contextualize(contextRef);
 
         //For now we only process setValue actions which are within the
         //context if a context is provided. This happens for repeats where
@@ -65,21 +80,20 @@ public class SetValueAction extends Action {
             //Note: right now we're qualifying then testing parentage to see whether
             //there was a conflict, but it's not super clear whether this is a perfect
             //strategy
-            if (!contextRef.isParentOf(qualifiedReference, false)) {
+            if (!contextRef.isParentOf(targetReference, false)) {
                 return null;
             }
         }
 
-        //TODO: either the target or the value's node might not exist here, catch and throw
-        //reasonably
-        EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), qualifiedReference);
+        //TODO: either the target or the value's node might not exist here, catch and throw reasonably
+        EvaluationContext context = new EvaluationContext(model.getEvaluationContext(), targetReference);
 
         String failMessage = "Target of TreeReference " + target.toString(true) + " could not be resolved!";
 
-        if (qualifiedReference.hasPredicates()) {
+        if (targetReference.hasPredicates()) {
             //CTS: in theory these predicates could contain logic which breaks if the qualified ref
             //contains unbound repeats (IE: nested repeats).
-            Vector<TreeReference> references = context.expandReference(qualifiedReference);
+            Vector<TreeReference> references = context.expandReference(targetReference);
             if (references.size() == 0) {
                 //If after finding our concrete reference it is a template, this action is outside of the
                 //scope of the current target, so we can leave.
@@ -90,11 +104,11 @@ public class SetValueAction extends Action {
             } else if (references.size() > 1) {
                 throw new XPathTypeMismatchException("XPath nodeset has more than one node [" + XPathNodeset.printNodeContents(references) + "]; Actions can only target a single node reference. Refine path expression to match only one node.");
             } else {
-                qualifiedReference = references.elementAt(0);
+                targetReference = references.elementAt(0);
             }
         }
 
-        AbstractTreeElement node = context.resolveReference(qualifiedReference);
+        AbstractTreeElement node = context.resolveReference(targetReference);
         if (node == null) {
             //After all that, there's still the possibility that the qualified reference contains
             //an unbound template, so see if such a reference could exist. Unfortunately this
@@ -122,12 +136,12 @@ public class SetValueAction extends Action {
         IAnswerData val = Recalculate.wrapData(result, dataType);
 
         if (val == null) {
-            model.setValue(null, qualifiedReference);
+            model.setValue(null, targetReference);
         } else {
             model.setValue(AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()),
-                    qualifiedReference);
+                    targetReference);
         }
-        return qualifiedReference;
+        return targetReference;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {

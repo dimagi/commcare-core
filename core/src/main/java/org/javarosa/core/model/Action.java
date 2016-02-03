@@ -34,7 +34,7 @@ public class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public TreeReference processAction(ActionTriggerSource source, TreeReference context) {
+    public TreeReference processAction(FormDef model, TreeReference context) {
         return null;
     }
 

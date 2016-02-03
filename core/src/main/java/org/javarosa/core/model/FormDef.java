@@ -1420,7 +1420,7 @@ public class FormDef extends ActionTriggerSource
     }
 
     public boolean postProcessInstance() {
-        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE);
+        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1524,7 +1524,7 @@ public class FormDef extends ActionTriggerSource
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
-            triggerActionsFromEvent(Action.EVENT_XFORMS_READY);
+            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
 
         initAllTriggerables();

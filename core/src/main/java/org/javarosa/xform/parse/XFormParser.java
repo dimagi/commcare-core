@@ -260,24 +260,8 @@ public class XFormParser {
 
     private static void setupActionHandlers() {
         actionHandlers = new Hashtable<String, IElementHandler>();
-
-        registerActionHandler(
-                SetValueAction.ELEMENT_NAME,
-                new IElementHandler() {
-                    public void handle(XFormParser p, Element e, Object parent) {
-                        p.parseSetValueAction((ActionTriggerSource) parent, e);
-                    }
-                }
-        );
-
-        registerActionHandler(InsertAction.ELEMENT_NAME,
-                new IElementHandler() {
-                    @Override
-                    public void handle(XFormParser p, Element e, Object parent) {
-                        //TODO: implement
-                    }
-                }
-        );
+        registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler());
+        registerActionHandler(InsertAction.ELEMENT_NAME, InsertAction.getHandler());
     }
 
     /**
@@ -805,7 +789,7 @@ public class XFormParser {
         specificHandler.handle(this, e, parent);
     }
 
-    private void parseSetValueAction(ActionTriggerSource source, Element e) {
+    public void parseSetValueAction(ActionTriggerSource source, Element e) {
         String ref = e.getAttributeValue(null, REF_ATTR);
         String bind = e.getAttributeValue(null, BIND_ATTR);
 
