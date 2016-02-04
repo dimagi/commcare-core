@@ -5,8 +5,10 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
+import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
@@ -15,6 +17,8 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,9 +35,7 @@ public class FormDefTest {
     @Test
     public void testCurrentFuncInTriggers() {
         FormParseInit fpi = new FormParseInit("/trigger_and_current_tests.xml");
-
-        FormEntryController fec = fpi.getFormEntryController();
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormEntryController fec = initFormEntry(fpi);
 
         do {
             QuestionDef q = fpi.getCurrentQuestion();
@@ -95,10 +97,8 @@ public class FormDefTest {
 
     @Test
     public void testAnswerConstraint() {
-        IntegerData ans = new IntegerData(13);
         FormParseInit fpi = new FormParseInit("/ImageSelectTester.xhtml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormEntryController fec = initFormEntry(fpi);
 
         do {
             QuestionDef q = fpi.getCurrentQuestion();
@@ -106,7 +106,7 @@ public class FormDefTest {
                 continue;
             }
             if (q.getTextID().equals("constraint-test")) {
-                int response = fec.answerQuestion(ans);
+                int response = fec.answerQuestion(new IntegerData(13));
                 if (response == FormEntryController.ANSWER_CONSTRAINT_VIOLATED) {
                     fail("Answer Constraint test failed.");
                 } else if (response == FormEntryController.ANSWER_OK) {
@@ -122,8 +122,7 @@ public class FormDefTest {
     public void testAnswerConstraintOldText() {
         IntegerData ans = new IntegerData(7);
         FormParseInit fpi = new FormParseInit("/ImageSelectTester.xhtml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormEntryController fec = initFormEntry(fpi);
         fec.setLanguage("English");
 
         do {
@@ -180,9 +179,7 @@ public class FormDefTest {
     @Test
     public void testSetValuePredicate() {
         FormParseInit fpi = new FormParseInit("/test_setvalue_predicate.xml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormEntryController fec = initFormEntry(fpi);
 
         boolean testPassed = false;
         do {
@@ -206,12 +203,8 @@ public class FormDefTest {
     @Test
     public void testNestedRepeatActions() throws Exception {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_model_iteration.xml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
-        do {
-        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+        FormEntryController fec = initFormEntry(fpi);
+        stepThroughEntireForm(fec);
 
         ExprEvalUtils.assertEqualsXpathEval("Nested repeats did not evaluate to the proper outcome",
                 30.0,
@@ -228,12 +221,8 @@ public class FormDefTest {
     public void testRepeatInsertTriggering() throws Exception {
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_repeat_insert_duplicate_triggering.xml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
-        do {
-        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+        FormEntryController fec = initFormEntry(fpi);
+        stepThroughEntireForm(fec);
 
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         // make sure the language isn't the default language, 'esperanto',
@@ -246,6 +235,38 @@ public class FormDefTest {
                 "1", "/data/iter/country[2]/id", evalCtx);
     }
 
+    @Test
+    public void testQuestionLevelAction_timeStamp() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_question_level_actions.xml");
+        FormEntryController fec = initFormEntry(fpi);
+
+        int questionIndex = 0;
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null) {
+                continue;
+            }
+
+            // Note this relies on the questions in the test xml file staying in the current order
+            if (questionIndex == 0) {
+                fec.answerQuestion(new StringData("Answer to text question"));
+            } else if (questionIndex == 1) {
+                fec.answerQuestion(new SelectOneData(new Selection("one")));
+            }
+
+            questionIndex++;
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        Object evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/text/@time");
+        assertTrue(evalResult.getClass().equals(Date.class));
+        /*ExprEvalUtils.assertEqualsXpathEval("Check that a timestamp was set for the text question",
+                "en", "/data/text/@time", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check that a timestamp was set for the select question",
+                "en", "/data/selection/@time", evalCtx);*/
+    }
+
     /**
      * Tests trigger caching related to cascading relevancy calculations to children.
      */
@@ -254,12 +275,8 @@ public class FormDefTest {
         // Running the form creates a few animals with weights that count down from the init_weight.
         // Skips over a specified entry by setting it to irrelevant.
         FormParseInit fpi = new FormParseInit("/xform_tests/test_trigger_caching.xml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
-
-        do {
-        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+        FormEntryController fec = initFormEntry(fpi);
+        stepThroughEntireForm(fec);
 
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         ExprEvalUtils.assertEqualsXpathEval("Check max animal weight",
@@ -293,9 +310,7 @@ public class FormDefTest {
     @Test
     public void testLoopedRepeatIndexFetches() throws Exception {
         FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_form_index_fetch.xml");
-        FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
-        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        FormEntryController fec = initFormEntry(fpi);
 
         fec.stepToNextEvent();
         fec.stepToNextEvent();
@@ -309,6 +324,18 @@ public class FormDefTest {
         fec.getNextIndex(fec.getModel().getFormIndex(), true);
         fec.answerQuestion(new IntegerData(2));
         fec.getNextIndex(fec.getModel().getFormIndex(), true);
+    }
+
+    private static void stepThroughEntireForm(FormEntryController fec) {
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+    }
+
+    private static FormEntryController initFormEntry(FormParseInit fpi) {
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+        return fec;
     }
 
 }

@@ -1065,7 +1065,7 @@ public class XFormParser {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
                 parseItemset(question, child, parent);
-            } else if (actionHandlers.contains(childName)) {
+            } else if (actionHandlers.containsKey(childName)) {
                 actionHandlers.get(childName).handle(this, child, question);
             }
         }

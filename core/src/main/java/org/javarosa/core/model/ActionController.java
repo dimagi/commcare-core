@@ -14,7 +14,7 @@ import java.util.Vector;
 public class ActionController {
 
     // map from an event to the actions it should trigger
-    Hashtable<String, Vector<Action>> eventListeners;
+    Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<Action>>();
 
     public Vector<Action> getListenersForEvent(String event) {
         if (this.eventListeners.containsKey(event)) {
@@ -25,7 +25,6 @@ public class ActionController {
 
     public void registerEventListener(String event, Action action) {
         Vector<Action> actions;
-
         if (eventListeners.containsKey(event)) {
             actions = eventListeners.get(event);
         } else {
