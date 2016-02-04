@@ -235,11 +235,20 @@ public class FormDefTest {
                 "1", "/data/iter/country[2]/id", evalCtx);
     }
 
+    /**
+     * Test adding a timestamp attribute to a node in the model when the corresponding question's
+     * value is changed
+     */
     @Test
     public void testQuestionLevelAction_timeStamp() throws Exception {
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_question_level_actions.xml");
         FormEntryController fec = initFormEntry(fpi);
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+
+        ExprEvalUtils.assertEqualsXpathEval(
+                "Test that xforms-ready event triggered the form-level setvalue action",
+                "default value", "/data/selection", evalCtx);
 
         int questionIndex = 0;
         do {
@@ -258,13 +267,25 @@ public class FormDefTest {
             questionIndex++;
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
-        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         Object evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/text/@time");
-        assertTrue(evalResult.getClass().equals(Date.class));
-        /*ExprEvalUtils.assertEqualsXpathEval("Check that a timestamp was set for the text question",
-                "en", "/data/text/@time", evalCtx);
-        ExprEvalUtils.assertEqualsXpathEval("Check that a timestamp was set for the select question",
-                "en", "/data/selection/@time", evalCtx);*/
+        assertTrue("Check that a timestamp was set for the text question",
+                evalResult.getClass().equals(Date.class));
+
+        evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/selection/@time");
+        assertTrue("Check that a timestamp was set for the selection question",
+                evalResult.getClass().equals(Date.class));
+    }
+
+    /**
+     * Test assigning a default value to question, based on the answer to different
+     * question
+     */
+    @Test
+    public void testQuestionLevelAction_dependentDefaultValues() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_question_level_actions.xml");
+        FormEntryController fec = initFormEntry(fpi);
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
     }
 
     /**
