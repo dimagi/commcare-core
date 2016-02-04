@@ -60,7 +60,7 @@ public class SetValueAction extends Action {
     public static IElementHandler getHandler() {
         return new IElementHandler() {
             public void handle(XFormParser p, Element e, Object parent) {
-                p.parseSetValueAction((ActionTriggerSource) parent, e);
+                p.parseSetValueAction((ActionTriggerSource)parent, e);
             }
         };
     }

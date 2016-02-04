@@ -44,6 +44,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -128,6 +129,8 @@ public class FormDef extends ActionTriggerSource
     private FormInstance mainInstance = null;
 
     boolean mDebugModeEnabled = false;
+
+    Vector<Triggerable> triggeredDuringInsert;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -371,45 +374,41 @@ public class FormDef extends ActionTriggerSource
     }
 
     public void createNewRepeat(FormIndex index) throws InvalidReferenceException {
-        TreeReference destRef = getChildInstanceRef(index);
-        TreeElement template = mainInstance.getTemplate(destRef);
+        TreeReference repeatContextRef = getChildInstanceRef(index);
+        TreeElement template = mainInstance.getTemplate(repeatContextRef);
 
-        mainInstance.copyNode(template, destRef);
+        mainInstance.copyNode(template, repeatContextRef);
 
-        preloadInstance(mainInstance.resolveReference(destRef));
+        preloadInstance(mainInstance.resolveReference(repeatContextRef));
 
         // Fire jr-insert events before "calculate"s
-        Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
-        processInsertAction(destRef, triggeredDuringInsert);
+        triggeredDuringInsert = new Vector<Triggerable>();
+        triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef,
+                getMethodToInvokeOnResultOfActions(), this);
 
         // trigger conditions that depend on the creation of this new node
-        triggerTriggerables(destRef);
+        triggerTriggerables(repeatContextRef);
 
         // trigger conditions for the node (and sub-nodes)
-        initTriggerablesRootedBy(destRef, triggeredDuringInsert);
+        initTriggerablesRootedBy(repeatContextRef, triggeredDuringInsert);
     }
 
-    /**
-     * Fire insert actions for repeat entry, storing triggerables that were
-     * triggered so we can avoid triggering them during trigger initialization
-     * for the new repeat entry later on.
-     *
-     * @param triggeredDuringInsert collect triggerables that were directly
-     * fired while processing the action. Used to prevent duplicate triggering
-     * later on.
-     */
-    private void processInsertAction(TreeReference newRepeatEntryRef,
-                                     Vector<Triggerable> triggeredDuringInsert) {
-        Vector<Action> listeners = getListenersForEvent(Action.EVENT_JR_INSERT);
-        for (Action a : listeners) {
-            TreeReference refSetByAction = a.processAction(this, newRepeatEntryRef);
-            if (refSetByAction != null) {
-                Vector<Triggerable> triggerables =
-                        triggerIndex.get(refSetByAction.genericize());
-                if (triggerables != null) {
-                    for (Triggerable elem : triggerables) {
-                        triggeredDuringInsert.addElement(elem);
-                    }
+    private Method getMethodToInvokeOnResultOfActions() {
+        try {
+            return this.getClass().getMethod("processRefAfterInsertEvent", new Class[]{TreeReference.class});
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    // Only accessed via Method.invoke(), which is why AS sees it as unused
+    public void processRefAfterInsertEvent(TreeReference refSetByAction) {
+        if (refSetByAction != null) {
+            Vector<Triggerable> triggerables =
+                    triggerIndex.get(refSetByAction.genericize());
+            if (triggerables != null) {
+                for (Triggerable elem : triggerables) {
+                    triggeredDuringInsert.addElement(elem);
                 }
             }
         }
@@ -1420,7 +1419,7 @@ public class FormDef extends ActionTriggerSource
     }
 
     public boolean postProcessInstance() {
-        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
+        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this, null);
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1524,7 +1523,7 @@ public class FormDef extends ActionTriggerSource
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
-            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
+            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this, null);
         }
 
         initAllTriggerables();

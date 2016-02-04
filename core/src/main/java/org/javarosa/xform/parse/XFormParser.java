@@ -7,7 +7,6 @@ import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.GroupDef;
 import org.javarosa.core.model.IFormElement;
-import org.javarosa.core.model.InsertAction;
 import org.javarosa.core.model.ItemsetBinding;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionDef;
@@ -261,7 +260,6 @@ public class XFormParser {
     private static void setupActionHandlers() {
         actionHandlers = new Hashtable<String, IElementHandler>();
         registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler());
-        registerActionHandler(InsertAction.ELEMENT_NAME, InsertAction.getHandler());
     }
 
     /**
