@@ -57,7 +57,7 @@ import java.util.Vector;
  * @author Daniel Kayiwa, Drew Roos
  */
 public class FormDef extends ActionTriggerSource
-        implements IFormElement, Localizable, Persistable, IMetaData {
+        implements IFormElement, Localizable, Persistable, IMetaData, ActionTriggerSource.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
@@ -383,8 +383,7 @@ public class FormDef extends ActionTriggerSource
 
         // Fire jr-insert events before "calculate"s
         triggeredDuringInsert = new Vector<Triggerable>();
-        triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef,
-                getMethodToInvokeOnResultOfActions(), this);
+        triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
 
         // trigger conditions that depend on the creation of this new node
         triggerTriggerables(repeatContextRef);
@@ -393,17 +392,9 @@ public class FormDef extends ActionTriggerSource
         initTriggerablesRootedBy(repeatContextRef, triggeredDuringInsert);
     }
 
-    private Method getMethodToInvokeOnResultOfActions() {
-        try {
-            return this.getClass().getMethod("processRefAfterInsertEvent", new Class[]{TreeReference.class});
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-    }
-
-    // Only accessed via Method.invoke(), which is why AS sees it as unused
-    public void processRefAfterInsertEvent(TreeReference refSetByAction) {
-        if (refSetByAction != null) {
+    @Override
+    public void processResultOfAction(TreeReference refSetByAction, String event) {
+        if (Action.EVENT_JR_INSERT.equals(event)) {
             Vector<Triggerable> triggerables =
                     triggerIndex.get(refSetByAction.genericize());
             if (triggerables != null) {

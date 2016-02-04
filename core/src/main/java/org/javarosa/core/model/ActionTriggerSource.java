@@ -3,7 +3,6 @@ package org.javarosa.core.model;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -35,22 +34,25 @@ public class ActionTriggerSource {
     }
 
     public void triggerActionsFromEvent(String event, FormDef model, TreeReference contextForAction) {
-        triggerActionsFromEvent(event, model, contextForAction, null, null);
+        triggerActionsFromEvent(event, model, contextForAction, null);
     }
 
     public void triggerActionsFromEvent(String event, FormDef model, TreeReference contextForAction,
-                                        Method applyToResultingRef, Object methodCaller) {
+                                        ActionResultProcessor resultProcessor) {
         for (Action action : getListenersForEvent(event)) {
             TreeReference refSetByAction = action.processAction(model, contextForAction);
-            if (applyToResultingRef != null) {
-                try {
-                    applyToResultingRef.invoke(methodCaller, refSetByAction);
-                } catch(IllegalAccessException | InvocationTargetException e) {
-
-                }
+            if (resultProcessor != null && refSetByAction != null) {
+                resultProcessor.processResultOfAction(refSetByAction, event);
             }
         }
+    }
 
+    public interface ActionResultProcessor {
+        /**
+         * @param targetRef - the ref that this action targeted
+         * @param event - the event that triggered this action
+         */
+        void processResultOfAction(TreeReference targetRef, String event);
     }
 
 }
