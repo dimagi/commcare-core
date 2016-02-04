@@ -16,6 +16,7 @@
 
 package org.javarosa.form.api;
 
+import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
@@ -61,7 +62,6 @@ public class FormEntryController {
         return answerQuestion(model.getFormIndex(), data);
     }
 
-
     /**
      * Attempts to save the answer at the specified FormIndex into the
      * datamodel.
@@ -101,6 +101,7 @@ public class FormEntryController {
                     ire.printStackTrace();
                     throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
                 }
+                q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm(), null);
                 return ANSWER_OK;
             }
         } else {
@@ -109,6 +110,7 @@ public class FormEntryController {
                 return ANSWER_CONSTRAINT_VIOLATED;
             }
             commitAnswer(element, index, data);
+            q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm(), null);
             return ANSWER_OK;
         }
     }

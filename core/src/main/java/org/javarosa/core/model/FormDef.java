@@ -44,7 +44,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -56,8 +55,8 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa, Drew Roos
  */
-public class FormDef extends ActionTriggerSource
-        implements IFormElement, Localizable, Persistable, IMetaData, ActionTriggerSource.ActionResultProcessor {
+public class FormDef extends ActionController
+        implements IFormElement, Localizable, Persistable, IMetaData, ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 

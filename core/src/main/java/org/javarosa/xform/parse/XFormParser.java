@@ -1,7 +1,7 @@
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.model.Action;
-import org.javarosa.core.model.ActionTriggerSource;
+import org.javarosa.core.model.ActionController;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;
@@ -777,7 +777,7 @@ public class XFormParser {
         }
 
         // Check that the action was included in a valid place within the XForm
-        if (!(parent instanceof ActionTriggerSource)) {
+        if (!(parent instanceof ActionController)) {
             // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
             throw new XFormParseException("<setvalue> element occurred in an " +
                     "invalid location. Must be either a child of a control " +
@@ -787,7 +787,7 @@ public class XFormParser {
         specificHandler.handle(this, e, parent);
     }
 
-    public void parseSetValueAction(ActionTriggerSource source, Element e) {
+    public void parseSetValueAction(ActionController source, Element e) {
         String ref = e.getAttributeValue(null, REF_ATTR);
         String bind = e.getAttributeValue(null, BIND_ATTR);
 

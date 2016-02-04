@@ -2,14 +2,16 @@ package org.javarosa.core.model;
 
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
 import java.util.Vector;
 
 /**
+ * Registers actions that should be triggered by certain events, and handles the triggering
+ * of those actions when an event occurs.
+ *
  * Created by amstone326 on 2/2/16.
  */
-public class ActionTriggerSource {
+public class ActionController {
 
     // map from an event to the actions it should trigger
     Hashtable<String, Vector<Action>> eventListeners;

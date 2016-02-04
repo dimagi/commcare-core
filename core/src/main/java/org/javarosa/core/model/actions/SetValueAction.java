@@ -1,7 +1,7 @@
 package org.javarosa.core.model.actions;
 
 import org.javarosa.core.model.Action;
-import org.javarosa.core.model.ActionTriggerSource;
+import org.javarosa.core.model.ActionController;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
@@ -60,7 +60,7 @@ public class SetValueAction extends Action {
     public static IElementHandler getHandler() {
         return new IElementHandler() {
             public void handle(XFormParser p, Element e, Object parent) {
-                p.parseSetValueAction((ActionTriggerSource)parent, e);
+                p.parseSetValueAction((ActionController)parent, e);
             }
         };
     }
