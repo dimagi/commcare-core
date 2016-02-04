@@ -19,7 +19,17 @@ public class RemoteQuery implements Externalizable {
     private String storageInstance;
     private String url;
 
+    @SuppressWarnings("unused")
     public RemoteQuery() {
+    }
+
+    public RemoteQuery(String url, String storageInstance,
+                       Hashtable<String, TreeReference> hiddenQueryValues,
+                       Hashtable<String, DisplayUnit> userQueryPrompts) {
+        this.url = url;
+        this.storageInstance = storageInstance;
+        this.hiddenQueryValues = hiddenQueryValues;
+        this.userQueryPrompts = userQueryPrompts;
     }
 
     @Override

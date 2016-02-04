@@ -121,8 +121,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
     private void parseSessionData(Vector<SessionDatum> data, Vector<RemoteQuery> queries) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("session")) {
             if ("query".equals(parser.getName())) {
-                // TODO PLM
-                queries.addElement(new RemoteQuery());
+                queries.addElement(new SessionQueryParser(parser).parse());
             } else {
                 SessionDatumParser parser = new SessionDatumParser(this.parser);
                 data.addElement(parser.parse());

@@ -19,9 +19,7 @@ public class SyncEntry extends Entry {
     private Vector<RemoteQuery> queries;
     private SyncPost post;
 
-    /**
-     * Serialization only!
-     */
+    @SuppressWarnings("unused")
     public SyncEntry() {
 
     }
