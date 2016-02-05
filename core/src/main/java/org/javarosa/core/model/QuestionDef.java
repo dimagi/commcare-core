@@ -16,6 +16,7 @@
 
 package org.javarosa.core.model;
 
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;

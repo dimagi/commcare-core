@@ -1,7 +1,5 @@
 package org.javarosa.core.model.actions;
 
-import org.javarosa.core.model.Action;
-import org.javarosa.core.model.ActionController;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;

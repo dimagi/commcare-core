@@ -1,6 +1,8 @@
 package org.javarosa.core.model;
 
 import org.javarosa.core.log.WrappedException;
+import org.javarosa.core.model.actions.Action;
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.condition.Condition;
 import org.javarosa.core.model.condition.Constraint;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -23,7 +25,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTrace;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.model.utils.QuestionPreloader;
-import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -56,7 +57,7 @@ import java.util.Vector;
  * @author Daniel Kayiwa, Drew Roos
  */
 public class FormDef extends ActionController
-        implements IFormElement, Localizable, IMetaData, ActionController.ActionResultProcessor {
+        implements IFormElement, Persistable, IMetaData, ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
@@ -1685,10 +1686,12 @@ public class FormDef extends ActionController
         this.title = title;
     }
 
+    @Override
     public int getID() {
         return id;
     }
 
+    @Override
     public void setID(int id) {
         this.id = id;
     }

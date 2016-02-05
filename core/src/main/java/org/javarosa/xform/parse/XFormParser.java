@@ -1,7 +1,7 @@
 package org.javarosa.xform.parse;
 
-import org.javarosa.core.model.Action;
-import org.javarosa.core.model.ActionController;
+import org.javarosa.core.model.actions.Action;
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.DataBinding;
 import org.javarosa.core.model.FormDef;

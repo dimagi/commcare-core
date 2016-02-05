@@ -1,5 +1,6 @@
-package org.javarosa.core.model;
+package org.javarosa.core.model.actions;
 
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -13,7 +14,7 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public class Action implements Externalizable {
+public abstract class Action implements Externalizable {
 
     private String name;
 
@@ -34,9 +35,7 @@ public class Action implements Externalizable {
      * @return TreeReference targeted by the action or null if the action
      * wasn't completed.
      */
-    public TreeReference processAction(FormDef model, TreeReference context) {
-        return null;
-    }
+    public abstract TreeReference processAction(FormDef model, TreeReference context);
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         name = ExtUtil.readString(in);

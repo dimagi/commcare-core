@@ -243,7 +243,7 @@ public class FormDefTest {
      * -Setting a default value for one question based on the answer to another
      */
     @Test
-    public void testQuestionLevelAction_timeStamp() throws Exception {
+    public void testQuestionLevelActions() throws Exception {
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_question_level_actions.xml");
         FormEntryController fec = initFormEntry(fpi);
@@ -287,7 +287,7 @@ public class FormDefTest {
         long birthdayInMillis = birthday.getTimeInMillis();
         long diff = currentInMillis - birthdayInMillis;
         long MILLISECONDS_IN_A_YEAR = 31536000000L;
-        int expectedAge = (int) (diff / MILLISECONDS_IN_A_YEAR);
+        double expectedAge = (double) (diff / MILLISECONDS_IN_A_YEAR);
 
         ExprEvalUtils.assertEqualsXpathEval("Check that age was set correctly based upon " +
                         "provided answer to birthday question", expectedAge, "/data/age", evalCtx);
