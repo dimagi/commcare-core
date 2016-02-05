@@ -42,6 +42,8 @@ public class SessionFrame implements Externalizable {
      */
     public static final String STATE_DATUM_COMPUTED = "COMPUTED_DATUM";
 
+    public static final String STATE_REMOTE_QUERY = "REMOTE_QUERY";
+
     /**
      * CommCare needs the XMLNS of the form to be entered to proceed *
      */
