@@ -4,6 +4,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.StringData;
@@ -14,10 +15,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.Assert.assertTrue;
@@ -236,8 +237,10 @@ public class FormDefTest {
     }
 
     /**
-     * Test adding a timestamp attribute to a node in the model when the corresponding question's
+     * Tests:
+     * -Adding a timestamp attribute to a node in the model when the corresponding question's
      * value is changed
+     * -Setting a default value for one question based on the answer to another
      */
     @Test
     public void testQuestionLevelAction_timeStamp() throws Exception {
@@ -249,6 +252,9 @@ public class FormDefTest {
         ExprEvalUtils.assertEqualsXpathEval(
                 "Test that xforms-ready event triggered the form-level setvalue action",
                 "default value", "/data/selection", evalCtx);
+
+        Calendar birthday = Calendar.getInstance();
+        birthday.set(1993, 2, 26);
 
         int questionIndex = 0;
         do {
@@ -262,6 +268,8 @@ public class FormDefTest {
                 fec.answerQuestion(new StringData("Answer to text question"));
             } else if (questionIndex == 1) {
                 fec.answerQuestion(new SelectOneData(new Selection("one")));
+            } else if (questionIndex == 2) {
+                fec.answerQuestion(new DateData(birthday.getTime()));
             }
 
             questionIndex++;
@@ -274,18 +282,15 @@ public class FormDefTest {
         evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/selection/@time");
         assertTrue("Check that a timestamp was set for the selection question",
                 evalResult.getClass().equals(Date.class));
-    }
 
-    /**
-     * Test assigning a default value to question, based on the answer to different
-     * question
-     */
-    @Test
-    public void testQuestionLevelAction_dependentDefaultValues() throws Exception {
-        FormParseInit fpi =
-                new FormParseInit("/xform_tests/test_question_level_actions.xml");
-        FormEntryController fec = initFormEntry(fpi);
-        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        long currentInMillis = Calendar.getInstance().getTimeInMillis();
+        long birthdayInMillis = birthday.getTimeInMillis();
+        long diff = currentInMillis - birthdayInMillis;
+        long MILLISECONDS_IN_A_YEAR = 31536000000L;
+        int expectedAge = (int) (diff / MILLISECONDS_IN_A_YEAR);
+
+        ExprEvalUtils.assertEqualsXpathEval("Check that age was set correctly based upon " +
+                        "provided answer to birthday question", expectedAge, "/data/age", evalCtx);
     }
 
     /**

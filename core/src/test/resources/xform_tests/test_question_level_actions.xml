@@ -13,12 +13,16 @@
                     <text time=""/>
                     <selection time=""/>
                     <default/>
+                    <birthday/>
+                    <age/>
                 </data>
             </instance>
 
             <setvalue event="xforms-ready" ref="/data/selection" value=" 'default value' "/>
             <bind nodeset="/data/text/@time" type="xsd:dateTime"/>
             <bind nodeset="/data/selection/@time" type="xsd:dateTime"/>
+            <bind nodeset="/data/birthday" type="xsd:dateTime"/>
+            <bind nodeset="/data/age" type="xsd:int"/>
         </model>
     </h:head>
     <h:body>
@@ -44,7 +48,11 @@
             </item>
         </select1>
 
-
+        <input ref="/data/birthday">
+            <label>Birthday</label>
+            <setvalue event="xforms-value-changed" ref="/data/age"
+                value="if(/data/age = '', int((today() - date(/data/birthday)) div 365), /data/age)"/>
+        </input>
 
     </h:body>
 </h:html>
