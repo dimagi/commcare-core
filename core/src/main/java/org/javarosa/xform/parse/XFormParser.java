@@ -773,15 +773,14 @@ public class XFormParser {
         // Check that the event registered to trigger this action is a valid event that we support
         String event = e.getAttributeValue(null, EVENT_ATTR);
         if (!Action.isValidEvent(event)) {
-            throw new XFormParseException("An action was registered for an invalid event: " + event);
+            throw new XFormParseException("An action was registered for an unsupported event: " + event);
         }
 
         // Check that the action was included in a valid place within the XForm
         if (!(parent instanceof ActionController)) {
             // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
-            throw new XFormParseException("<setvalue> element occurred in an " +
-                    "invalid location. Must be either a child of a control " +
-                    "element, or a child of the <model>");
+            throw new XFormParseException("An action element occurred in an invalid location. " +
+                    "Must be either a child of a control element, or a child of the <model>");
         }
 
         specificHandler.handle(this, e, parent);
