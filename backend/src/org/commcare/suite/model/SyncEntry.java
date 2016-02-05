@@ -3,6 +3,9 @@ package org.commcare.suite.model;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -43,24 +46,16 @@ public class SyncEntry extends Entry {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
+
+        post = (SyncPost)ExtUtil.read(in, SyncPost.class, pf);
+        queries = (Vector<RemoteQuery>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
-    }
 
-    public static class SyncPost implements Externalizable {
-        private String postUrl;
-        private Hashtable<String, TreeReference> postKeys;
-
-        @Override
-        public void readExternal(DataInputStream in, PrototypeFactory pf)
-                throws IOException, DeserializationException {
-        }
-
-        @Override
-        public void writeExternal(DataOutputStream out) throws IOException {
-        }
+        ExtUtil.write(out, post);
+        ExtUtil.write(out, new ExtWrapListPoly(queries));
     }
 }

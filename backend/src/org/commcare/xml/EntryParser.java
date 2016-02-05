@@ -8,9 +8,12 @@ import org.commcare.suite.model.RemoteQuery;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.SyncEntry;
+import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -58,7 +61,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         DisplayUnit display = null;
         Vector<StackOperation> stackOps = new Vector<StackOperation>();
         AssertionSet assertions = null;
-        SyncEntry.SyncPost post = null;
+        SyncPost post = null;
         Vector<RemoteQuery> queries = new Vector<RemoteQuery>();
 
         while (nextTagInBlock(parserBlockTag)) {
@@ -142,8 +145,18 @@ public class EntryParser extends CommCareElementParser<Entry> {
         instances.put(instanceId, new ExternalDataInstance(location, instanceId));
     }
 
-    private SyncEntry.SyncPost parsePost() {
-        // TODO PLM
-        return null;
+    private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
+        String url = parser.getAttributeValue(null, "url");
+        Hashtable<String, TreeReference> postData = new Hashtable<String, TreeReference>();
+        while (nextTagInBlock("post")) {
+            if ("data".equals(parser.getName())) {
+                TreeReference ref = XPathReference.getPathExpr(parser.getAttributeValue(null, "ref")).getReference();
+                postData.put(parser.getAttributeValue(null, "key"), ref);
+            } else{
+                throw new InvalidStructureException("Expected <data> element in a <post> structure.",
+                        parser);
+            }
+        }
+        return new SyncPost(url, postData);
     }
 }

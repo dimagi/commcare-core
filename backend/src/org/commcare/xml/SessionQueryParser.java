@@ -3,6 +3,7 @@ package org.commcare.xml;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQuery;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xpath.XPathParseTool;
 import org.kxml2.io.KXmlParser;
@@ -25,15 +26,20 @@ public class SessionQueryParser extends CommCareElementParser<RemoteQuery> {
     @Override
     public RemoteQuery parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("query");
+
         String queryUrl = parser.getAttributeValue(null, "url");
-        String queryResultStorageInstance = parser.getAttributeValue(null, "instance");
+        String queryResultStorageInstance = parser.getAttributeValue(null, "storage-instance");
+        if (queryUrl == null || queryResultStorageInstance == null) {
+            throw new InvalidStructureException("<query> element missing 'url' or 'storage-instance' attribute", parser);
+        }
+
         while (nextTagInBlock("query")) {
             String tagName = parser.getName();
-            if ("hidden".equals(tagName)) {
+            if ("data".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 String ref = parser.getAttributeValue(null, "ref");
-                hiddenQueryValues.put(key, XPathParseTool.parseXPath(ref));
-            } else if ("param".equals(tagName)) {
+                hiddenQueryValues.put(key, XPathReference.getPathExpr(ref).getReference());
+            } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 DisplayUnit display = parseDisplayBlock();
                 userQueryPrompts.put(key, display);
