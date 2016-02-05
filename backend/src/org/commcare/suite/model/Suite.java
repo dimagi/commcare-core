@@ -93,6 +93,10 @@ public class Suite implements Persistable {
         return entries;
     }
 
+    public Entry getEntry(String id) {
+        return entries.get(id);
+    }
+
     /**
      * @param id The String ID of a detail definition
      * @return A Detail definition associated with the provided
