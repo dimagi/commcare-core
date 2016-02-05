@@ -769,6 +769,11 @@ public class XFormParser {
         }
     }
 
+    /**
+     * Generic parse method that all actions get passed through. Checks that the action element's
+     * event attribute and location in the xform are both valid, and then invokes the more specific
+     * handler that is provided.
+     */
     private void parseAction(Element e, Object parent, IElementHandler specificHandler) {
         // Check that the event registered to trigger this action is a valid event that we support
         String event = e.getAttributeValue(null, EVENT_ATTR);

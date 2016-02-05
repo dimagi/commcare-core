@@ -293,8 +293,9 @@ public class FormDefTest {
         long MILLISECONDS_IN_A_YEAR = 31536000000L;
         double expectedAge = (double) (diff / MILLISECONDS_IN_A_YEAR);
 
-        ExprEvalUtils.assertEqualsXpathEval("Check that age was set correctly based upon " +
-                        "provided answer to birthday question", expectedAge, "/data/age", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check that a default value for the age question was " +
+                "set correctly based upon provided answer to birthday question",
+                expectedAge, "/data/age", evalCtx);
     }
 
     /**

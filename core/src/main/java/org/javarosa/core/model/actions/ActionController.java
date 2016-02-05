@@ -70,6 +70,7 @@ public class ActionController implements Externalizable {
         ExtUtil.write(outStream, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
     }
 
+    // Allows defining of a custom callback to execute on a result of processAction()
     public interface ActionResultProcessor {
         /**
          * @param targetRef - the ref that this action targeted
