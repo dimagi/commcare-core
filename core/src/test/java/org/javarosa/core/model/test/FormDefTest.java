@@ -283,6 +283,10 @@ public class FormDefTest {
         assertTrue("Check that a timestamp was set for the selection question",
                 evalResult.getClass().equals(Date.class));
 
+        evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/birthday/@time");
+        assertTrue("Check that a timestamp was set for the date question",
+                evalResult.getClass().equals(Date.class));
+
         long currentInMillis = Calendar.getInstance().getTimeInMillis();
         long birthdayInMillis = birthday.getTimeInMillis();
         long diff = currentInMillis - birthdayInMillis;
