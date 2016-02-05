@@ -22,6 +22,10 @@ public class SyncPost implements Externalizable {
     private String postUrl;
     private Hashtable<String, TreeReference> postKeys;
 
+    @SuppressWarnings("unused")
+    public SyncPost() {
+    }
+
     public SyncPost(String postUrl, Hashtable<String, TreeReference> postKeys) {
         this.postUrl = (postUrl == null) ? "" : postUrl;
         this.postKeys = postKeys;
