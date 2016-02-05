@@ -1,7 +1,16 @@
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
+import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -11,10 +20,12 @@ import java.util.Vector;
  *
  * Created by amstone326 on 2/2/16.
  */
-public class ActionController {
+public class ActionController implements Persistable {
+
+    private int id;
 
     // map from an event to the actions it should trigger
-    Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<Action>>();
+    private Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<Action>>();
 
     public Vector<Action> getListenersForEvent(String event) {
         if (this.eventListeners.containsKey(event)) {
@@ -46,6 +57,27 @@ public class ActionController {
                 resultProcessor.processResultOfAction(refSetByAction, event);
             }
         }
+    }
+
+    @Override
+    public int getID() {
+        return id;
+    }
+
+    @Override
+    public void setID(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public void readExternal(DataInputStream inStream, PrototypeFactory pf) throws IOException, DeserializationException {
+        eventListeners = (Hashtable<String, Vector<Action>>) ExtUtil.read(inStream,
+                new ExtWrapMap(String.class, new ExtWrapListPoly()), pf);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream outStream) throws IOException {
+        ExtUtil.write(outStream, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
     }
 
     public interface ActionResultProcessor {

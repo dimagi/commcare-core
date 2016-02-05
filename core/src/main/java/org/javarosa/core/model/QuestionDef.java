@@ -230,6 +230,7 @@ public class QuestionDef extends ActionController implements IFormElement, Local
      * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(dis, pf);
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
         setAppearanceAttr((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -248,6 +249,7 @@ public class QuestionDef extends ActionController implements IFormElement, Local
      * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream dos) throws IOException {
+        super.writeExternal(dos);
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));

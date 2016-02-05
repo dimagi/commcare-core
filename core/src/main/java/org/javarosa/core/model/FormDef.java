@@ -56,7 +56,7 @@ import java.util.Vector;
  * @author Daniel Kayiwa, Drew Roos
  */
 public class FormDef extends ActionController
-        implements IFormElement, Localizable, Persistable, IMetaData, ActionController.ActionResultProcessor {
+        implements IFormElement, Localizable, IMetaData, ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
@@ -150,7 +150,6 @@ public class FormDef extends ActionController
         outputFragments = new Vector();
         submissionProfiles = new Hashtable<String, SubmissionProfile>();
         formInstances = new Hashtable<String, DataInstance>();
-        eventListeners = new Hashtable<String, Vector<Action>>();
         extensions = new Vector<XFormExtension>();
     }
 
@@ -1457,6 +1456,7 @@ public class FormDef extends ActionController
      * @param dis - the stream to read from.
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(dis, pf);
         setID(ExtUtil.readInt(dis));
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
         setTitle((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -1480,8 +1480,6 @@ public class FormDef extends ActionController
         submissionProfiles = (Hashtable<String, SubmissionProfile>)ExtUtil.read(dis, new ExtWrapMap(String.class, SubmissionProfile.class), pf);
 
         formInstances = (Hashtable<String, DataInstance>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
-
-        eventListeners = (Hashtable<String, Vector<Action>>)ExtUtil.read(dis, new ExtWrapMap(String.class, new ExtWrapListPoly()), pf);
 
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
@@ -1526,6 +1524,7 @@ public class FormDef extends ActionController
      * @throws IOException
      */
     public void writeExternal(DataOutputStream dos) throws IOException {
+        super.writeExternal(dos);
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
         ExtUtil.write(dos, new ExtWrapNullable(getTitle()));
@@ -1552,7 +1551,6 @@ public class FormDef extends ActionController
         //for support of multi-instance forms
 
         ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
-        ExtUtil.write(dos, new ExtWrapMap(eventListeners, new ExtWrapListPoly()));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
     }
 
