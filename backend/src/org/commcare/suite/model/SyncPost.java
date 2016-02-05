@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
+ * Entry config for posting data to a remote server as part of synchronous
+ * request transaction.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SyncPost implements Externalizable {
@@ -28,7 +31,8 @@ public class SyncPost implements Externalizable {
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         postUrl = ExtUtil.readString(in);
-        postKeys = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class));
+        postKeys = (Hashtable<String, TreeReference>)ExtUtil.read(in,
+                new ExtWrapMap(String.class, TreeReference.class));
     }
 
     @Override

@@ -13,11 +13,14 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
+ * Entry config for querying a remote server with user and session provided
+ * parameters and storing the xml data response in an instance.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class RemoteQuery implements Externalizable {
-    Hashtable<String, TreeReference> hiddenQueryValues;
-    Hashtable<String, DisplayUnit> userQueryPrompts;
+    private Hashtable<String, TreeReference> hiddenQueryValues;
+    private Hashtable<String, DisplayUnit> userQueryPrompts;
     private String storageInstance;
     private String url;
 
@@ -39,8 +42,12 @@ public class RemoteQuery implements Externalizable {
             throws IOException, DeserializationException {
         url = ExtUtil.readString(in);
         storageInstance = ExtUtil.readString(in);
-        hiddenQueryValues = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class));
-        userQueryPrompts = (Hashtable<String, DisplayUnit>)ExtUtil.read(in, new ExtWrapMap(String.class, DisplayUnit.class));
+        hiddenQueryValues =
+                (Hashtable<String, TreeReference>)ExtUtil.read(in,
+                        new ExtWrapMap(String.class, TreeReference.class));
+        userQueryPrompts =
+                (Hashtable<String, DisplayUnit>)ExtUtil.read(in,
+                        new ExtWrapMap(String.class, DisplayUnit.class));
     }
 
     @Override
