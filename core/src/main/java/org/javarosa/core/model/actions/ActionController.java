@@ -22,7 +22,7 @@ import java.util.Vector;
  *
  * @author Aliza Stone
  */
-public class ActionController implements Externalizable {
+public abstract class ActionController implements Externalizable {
 
     // map from an event to the actions it should trigger
     private Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<org.javarosa.core.model.actions.Action>>();
