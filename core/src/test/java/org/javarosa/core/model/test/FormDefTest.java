@@ -13,6 +13,7 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
+import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
@@ -241,11 +242,30 @@ public class FormDefTest {
      * -Adding a timestamp attribute to a node in the model when the corresponding question's
      * value is changed
      * -Setting a default value for one question based on the answer to another
+     * -Deserialization of a FormDef
      */
     @Test
-    public void testQuestionLevelActions() throws Exception {
+    public void testQuestionLevelActionsAndSerialization() throws Exception {
+        // Generate a normal version of the fpi
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_question_level_actions.xml");
+
+        // Then generate one from a deserialized version of the initial form def
+        FormDef fd = fpi.getFormDef();
+        PersistableSandbox sandbox = new PersistableSandbox();
+        byte[] serialized = sandbox.serialize(fd);
+        FormDef deserializedFormDef = sandbox.deserialize(serialized, FormDef.class);
+        FormParseInit fpiFromDeserialization = new FormParseInit(deserializedFormDef);
+
+        // First test normally
+        testQuestionLevelActions(fpi);
+
+        // Then test with the deserialized version (to test that FormDef serialization is working properly)
+        testQuestionLevelActions(fpiFromDeserialization);
+    }
+
+    public void testQuestionLevelActions(FormParseInit fpi)
+            throws Exception {
         FormEntryController fec = initFormEntry(fpi);
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
 
