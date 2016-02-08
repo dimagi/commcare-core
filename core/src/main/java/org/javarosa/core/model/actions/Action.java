@@ -10,11 +10,22 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Vector;
 
 /**
  * @author ctsims
  */
 public abstract class Action implements Externalizable {
+
+    // Events that can trigger an action
+    public static final String EVENT_XFORMS_READY = "xforms-ready";
+    public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
+    public static final String EVENT_JR_INSERT = "jr-insert";
+    public static final String EVENT_QUESTION_VALUE_CHANGED = "xforms-value-changed";
+    private static final Vector<String> allEvents =
+            new Vector<String>(Arrays.asList(EVENT_JR_INSERT, EVENT_QUESTION_VALUE_CHANGED,
+                    EVENT_XFORMS_READY, EVENT_XFORMS_REVALIDATE));
 
     private String name;
 
@@ -45,21 +56,8 @@ public abstract class Action implements Externalizable {
         ExtUtil.writeString(out, name);
     }
 
-    // Events that can trigger an action
-    public static final String EVENT_XFORMS_READY = "xforms-ready";
-    public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
-    public static final String EVENT_JR_INSERT = "jr-insert";
-    public static final String EVENT_QUESTION_VALUE_CHANGED = "xforms-value-changed";
-
-    public static boolean isValidEvent(String s)  {
-        String[] allEvents = new String[] {EVENT_JR_INSERT,
-                EVENT_QUESTION_VALUE_CHANGED, EVENT_XFORMS_READY, EVENT_XFORMS_REVALIDATE};
-        for (String event : allEvents) {
-            if (event.equals(s)) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isValidEvent(String actionEventAttribute)  {
+        return allEvents.contains(actionEventAttribute);
     }
 
 }

@@ -1060,7 +1060,10 @@ public class XFormParser {
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
             Element child = (type == Node.ELEMENT ? e.getElement(i) : null);
-            String childName = (child != null ? child.getName() : null);
+            if (child == null) {
+                continue;
+            }
+            String childName = child.getName();
 
             if (LABEL_ELEMENT.equals(childName) || HINT_ELEMENT.equals(childName)
                     || HELP_ELEMENT.equals(childName) || CONSTRAINT_ELEMENT.equals(childName)) {

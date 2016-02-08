@@ -25,9 +25,9 @@ import java.util.Vector;
 public abstract class ActionController implements Externalizable {
 
     // map from an event to the actions it should trigger
-    private Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<org.javarosa.core.model.actions.Action>>();
+    private Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<Action>>();
 
-    public Vector<Action> getListenersForEvent(String event) {
+    private Vector<Action> getListenersForEvent(String event) {
         if (this.eventListeners.containsKey(event)) {
             return eventListeners.get(event);
         }
@@ -45,8 +45,8 @@ public abstract class ActionController implements Externalizable {
         actions.addElement(action);
     }
 
-    public void triggerActionsFromEvent(String event, FormDef model, TreeReference contextForAction) {
-        triggerActionsFromEvent(event, model, contextForAction, null);
+    public void triggerActionsFromEvent(String event, FormDef model) {
+        triggerActionsFromEvent(event, model, null, null);
     }
 
     public void triggerActionsFromEvent(String event, FormDef model, TreeReference contextForAction,
@@ -61,7 +61,7 @@ public abstract class ActionController implements Externalizable {
 
     @Override
     public void readExternal(DataInputStream inStream, PrototypeFactory pf) throws IOException, DeserializationException {
-        eventListeners = (Hashtable<String, Vector<org.javarosa.core.model.actions.Action>>) ExtUtil.read(inStream,
+        eventListeners = (Hashtable<String, Vector<Action>>) ExtUtil.read(inStream,
                 new ExtWrapMap(String.class, new ExtWrapListPoly()), pf);
     }
 

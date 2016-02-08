@@ -130,7 +130,7 @@ public class FormDef extends ActionController
 
     boolean mDebugModeEnabled = false;
 
-    Vector<Triggerable> triggeredDuringInsert;
+    private final Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -381,7 +381,7 @@ public class FormDef extends ActionController
         preloadInstance(mainInstance.resolveReference(repeatContextRef));
 
         // Fire jr-insert events before "calculate"s
-        triggeredDuringInsert = new Vector<Triggerable>();
+        triggeredDuringInsert.clear();
         triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
 
         // trigger conditions that depend on the creation of this new node
@@ -1409,7 +1409,7 @@ public class FormDef extends ActionController
     }
 
     public boolean postProcessInstance() {
-        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this, null);
+        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1512,7 +1512,7 @@ public class FormDef extends ActionController
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
-            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this, null);
+            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
 
         initAllTriggerables();

@@ -254,7 +254,7 @@ public class FormDefTest {
                 "default value", "/data/selection", evalCtx);
 
         Calendar birthday = Calendar.getInstance();
-        birthday.set(1993, 2, 26);
+        birthday.set(1993, Calendar.MARCH, 26);
 
         int questionIndex = 0;
         do {
@@ -277,15 +277,15 @@ public class FormDefTest {
 
         Object evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/text/@time");
         assertTrue("Check that a timestamp was set for the text question",
-                evalResult.getClass().equals(Date.class));
+                evalResult instanceof Date);
 
         evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/selection/@time");
         assertTrue("Check that a timestamp was set for the selection question",
-                evalResult.getClass().equals(Date.class));
+                evalResult instanceof Date);
 
         evalResult = ExprEvalUtils.xpathEval(evalCtx, "/data/birthday/@time");
         assertTrue("Check that a timestamp was set for the date question",
-                evalResult.getClass().equals(Date.class));
+                evalResult instanceof Date);
 
         long currentInMillis = Calendar.getInstance().getTimeInMillis();
         long birthdayInMillis = birthday.getTimeInMillis();

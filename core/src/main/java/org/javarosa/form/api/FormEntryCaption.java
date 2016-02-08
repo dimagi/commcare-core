@@ -415,7 +415,4 @@ public class FormEntryCaption implements FormElementStateListener {
         return this.textID;
     }
 
-    public FormDef getForm() {
-        return form;
-    }
 }

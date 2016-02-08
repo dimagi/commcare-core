@@ -101,7 +101,7 @@ public class FormEntryController {
                     ire.printStackTrace();
                     throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
                 }
-                q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm(), null);
+                q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
                 return ANSWER_OK;
             }
         } else {
@@ -110,7 +110,7 @@ public class FormEntryController {
                 return ANSWER_CONSTRAINT_VIOLATED;
             }
             commitAnswer(element, index, data);
-            q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm(), null);
+            q.triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
             return ANSWER_OK;
         }
     }
