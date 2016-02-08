@@ -82,8 +82,8 @@ public class DateData implements IAnswerData {
      * @see org.javarosa.core.services.storage.utilities.Externalizable#readExternal(java.io.DataInputStream)
      */
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        init();
         setValue(ExtUtil.readDate(in));
+        init();
     }
 
     /* (non-Javadoc)
