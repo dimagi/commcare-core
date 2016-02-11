@@ -234,7 +234,6 @@ public class ApplicationHost {
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
                     mSession.stepBack();
                     s = getNextScreen();
-                    continue;
                 } else {
                     //Handle this later
                     return true;
@@ -277,6 +276,7 @@ public class ApplicationHost {
             try {
                 resultStream.close();
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return true;
@@ -362,6 +362,7 @@ public class ApplicationHost {
             fios = new FileInputStream(restoreFile);
         } catch (FileNotFoundException e) {
             System.out.println("No restore file found at" + restoreFile);
+            System.exit(-1);
         }
         try {
             ParseUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
@@ -372,12 +373,9 @@ public class ApplicationHost {
         }
 
         //Initialize our User
-        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
-            User u = iterator.nextRecord();
-            mSandbox.setLoggedInUser(u);
-            System.out.println("Setting logged in user to: " + u.getUsername());
-            break;
-        }
+        User u = mSandbox.getUserStorage().read(0);
+        mSandbox.setLoggedInUser(u);
+        System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
     private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
@@ -403,15 +401,10 @@ public class ApplicationHost {
             System.out.println("Restoring user " + username + " to domain " + domain);
 
             ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
-        } catch (IOException e) {
+        } catch (InvalidStructureException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
+        } catch (XmlPullParserException | UnfullfilledRequirementsException e) {
             e.printStackTrace();
         }
 
@@ -424,7 +417,7 @@ public class ApplicationHost {
         }
     }
 
-    public void setLocale(String locale) {
+    private void setLocale(String locale) {
         Localizer localizer = Localization.getGlobalLocalizerAdvanced();
 
         String availableLocales = "";
