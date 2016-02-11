@@ -207,6 +207,15 @@ public class FormIndex {
     }
 
     @Override
+    public int hashCode() {
+        return (beginningOfForm ? 0 : 31)
+                ^ (endOfForm ? 0 : 31)
+                ^ localIndex
+                ^ instanceIndex
+                ^ (nextLevel == null ? 0 : nextLevel.hashCode());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof FormIndex))
             return false;
