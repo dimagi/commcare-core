@@ -295,21 +295,22 @@ public class FormIndex {
 
     @Override
     public String toString() {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         FormIndex ref = this;
         while (ref != null) {
-            ret += ref.getLocalIndex();
-            ret += ref.getInstanceIndex() == -1 ? ", " : "_" + ref.getInstanceIndex() + ", ";
+            ret.append(ref.getLocalIndex())
+                    .append(ref.getInstanceIndex() == -1 ? ", " : "_")
+                    .append(ref.getInstanceIndex())
+                    .append(", ");
             ref = ref.nextLevel;
         }
-        return ret;
+        return ret.toString();
     }
 
     /**
      * @return the level of this index relative to the top level of the form
      */
     public int getDepth() {
-
         int depth = 0;
         FormIndex ref = this;
         while (ref != null) {
@@ -317,7 +318,6 @@ public class FormIndex {
             depth++;
         }
         return depth;
-
     }
 
     private static boolean isSubIndex(FormIndex parent, FormIndex child) {
