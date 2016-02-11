@@ -50,12 +50,12 @@ import java.util.Vector;
 public class XFormPlayer {
 
     XFormEnvironment environment;
-    FormEntryController fec;
-    InstanceInitializationFactory mIIF;
+    private FormEntryController fec;
+    private InstanceInitializationFactory mIIF;
     //FormIndex current;
 
-    PrintStream out;
-    InputStream in;
+    private final PrintStream out;
+    private final InputStream in;
 
     public enum FormResult {
         Cancelled,
@@ -63,17 +63,17 @@ public class XFormPlayer {
         Output_Error,
         Quit,
         Unknown,
-        Completed;
+        Completed
     }
 
-    boolean mProcessOnExit = false;
+    private boolean mProcessOnExit = false;
     private FormResult mExecutionResult = FormResult.Unknown;
 
     private byte[] mExecutionInstance;
 
-    BufferedReader reader;
+    private BufferedReader reader;
 
-    boolean forward = true;
+    private boolean forward = true;
 
     private Step current;
 
@@ -85,7 +85,7 @@ public class XFormPlayer {
 
     private String mPreferredLocale;
 
-    Mockup mockup;
+    private final Mockup mockup;
 
     public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
         this.in = in;
@@ -107,7 +107,7 @@ public class XFormPlayer {
     }
 
 
-    public void start(FormDef form, Session session) {
+    private void start(FormDef form, Session session) {
         this.environment = new XFormEnvironment(form, session);
         fec = environment.setup();
         reader = new BufferedReader(new InputStreamReader(in));
@@ -206,7 +206,7 @@ public class XFormPlayer {
                         exit = command(input.substring(1));
                     } else {
                             //what we do depends on the current item
-                        exit = input(input);
+                        exit = answerQuestion(input);
                     }
                 } catch(InvalidInputException e) {
                     //User will retry after receiving message
@@ -252,8 +252,6 @@ public class XFormPlayer {
     /**
      * Evaluate input to eval mode, and exit eval mode if
      * the input is blank.
-     *
-     * @param evalModeInput
      */
     private void evalModeInput(String evalModeInput) {
         if (evalModeInput.equals("")) {
@@ -328,7 +326,7 @@ public class XFormPlayer {
         }
     }
 
-    public void evalExpression(String xpath) {
+    private void evalExpression(String xpath) {
         out.println(xpath);
         XPathExpression expr;
         try {
@@ -370,7 +368,7 @@ public class XFormPlayer {
         }
     }
     
-    public void printExternalInstance(PrintStream out, String instanceRef) {
+    private void printExternalInstance(PrintStream out, String instanceRef) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, mIIF);
@@ -395,7 +393,7 @@ public class XFormPlayer {
         }
     }
 
-    private boolean input(String input) throws BadPlaybackException, InvalidInputException{
+    private boolean answerQuestion(String input) throws BadPlaybackException, InvalidInputException{
         switch (fec.getModel().getEvent()) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 environment.recordAction(new Action(new Command("next")));
@@ -593,7 +591,7 @@ public class XFormPlayer {
         mIIF = iif; 
     }
 
-    public static final class InvalidInputException extends Exception {
+    private static final class InvalidInputException extends Exception {
 
     }
 }
