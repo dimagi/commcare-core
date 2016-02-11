@@ -29,7 +29,7 @@ public class FormIndex {
     /**
      * The index of the questiondef in the current context
      */
-    private int localIndex;
+    private final int localIndex;
 
     /**
      * The multiplicity of the current instance of a repeated question or group
@@ -320,15 +320,9 @@ public class FormIndex {
 
     }
 
-    public static boolean isSubIndex(FormIndex parent, FormIndex child) {
-        if (child.equals(parent)) {
-            return true;
-        } else {
-            if (parent == null) {
-                return false;
-            }
-            return isSubIndex(parent.nextLevel, child);
-        }
+    private static boolean isSubIndex(FormIndex parent, FormIndex child) {
+        return child.equals(parent) ||
+                (parent != null && isSubIndex(parent.nextLevel, child));
     }
 
     public static boolean isSubElement(FormIndex parent, FormIndex child) {
@@ -366,11 +360,8 @@ public class FormIndex {
             return true;
         }
         if (!a.isTerminal() && !b.isTerminal()) {
-            if (a.getLocalIndex() != b.getLocalIndex()) {
-                return false;
-            }
-
-            return areSiblings(a.nextLevel, b.nextLevel);
+            return a.getLocalIndex() == b.getLocalIndex() &&
+                    areSiblings(a.nextLevel, b.nextLevel);
         }
 
         return false;
