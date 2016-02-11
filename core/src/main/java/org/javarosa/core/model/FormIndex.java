@@ -24,7 +24,6 @@ import java.util.Vector;
 public class FormIndex {
 
     private boolean beginningOfForm = false;
-
     private boolean endOfForm = false;
 
     /**
@@ -207,6 +206,7 @@ public class FormIndex {
         return beginningOfForm;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof FormIndex))
             return false;
@@ -215,25 +215,6 @@ public class FormIndex {
         FormIndex b = (FormIndex)o;
 
         return (a.compareTo(b) == 0);
-
-//        //TODO: while(true) loops freak me out, this should probably
-//        //get written more safely. -ctsims
-//
-//        //Iterate over each level of reference, and identify whether
-//        //each object stays in sync
-//        while(true) {
-//            if(index.isTerminal() != local.isTerminal() ||
-//                    index.getLocalIndex() != local.getLocalIndex() ||
-//                    index.getInstanceIndex() != local.getInstanceIndex()) {
-//                return false;
-//            }
-//            if(index.isTerminal()) {
-//                return true;
-//            }
-//            local = local.getNextLevel();
-//            index = index.getNextLevel();
-//        }
-//
     }
 
     public int compareTo(Object o) {
@@ -267,49 +248,13 @@ public class FormIndex {
         } else {
             return 0;
         }
-
-//        int comp = 0;
-//
-//        //TODO: while(true) loops freak me out, this should probably
-//        //get written more safely. -ctsims
-//        while(comp == 0) {
-//            if(index.isTerminal() != local.isTerminal() ||
-//                    index.getLocalIndex() != local.getLocalIndex() ||
-//                    index.getInstanceIndex() != local.getInstanceIndex()) {
-//                if(local.localIndex > index.localIndex) {
-//                    return 1;
-//                } else if(local.localIndex < index.localIndex) {
-//                    return -1;
-//                } else if (local.instanceIndex > index.instanceIndex) {
-//                    return 1;
-//                } else if (local.instanceIndex < index.instanceIndex) {
-//                    return -1;
-//                }
-//
-//                //This case is here as a fallback, but it shouldn't really
-//                //ever be the case that two references have the same chain
-//                //of indices without terminating at the same level.
-//                else if (local.isTerminal() && !index.isTerminal()) {
-//                    return -1;
-//                } else {
-//                    return 1;
-//                }
-//            }
-//            else if(local.isTerminal()) {
-//                break;
-//            }
-//            local = local.getNextLevel();
-//            index = index.getNextLevel();
-//        }
-//        return comp;
     }
 
     /**
      * @return Only the local component of this Form Index.
      */
     public FormIndex snip() {
-        FormIndex retval = new FormIndex(localIndex, instanceIndex, reference);
-        return retval;
+        return new FormIndex(localIndex, instanceIndex, reference);
     }
 
     /**
@@ -339,6 +284,7 @@ public class FormIndex {
         return new FormIndex(nextLevel.diff(subIndex), this.snip());
     }
 
+    @Override
     public String toString() {
         String ret = "";
         FormIndex ref = this;
@@ -438,7 +384,11 @@ public class FormIndex {
         }
         return parent.getLocalIndex() == child.getLocalIndex();
     }
-    //used by Touchforms
+
+    /**
+     * Used by Touchforms
+     */
+    @SuppressWarnings("unused")
     public void assignRefs(FormDef f) {
         FormIndex cur = this;
 
@@ -455,8 +405,7 @@ public class FormIndex {
             curMults.addElement(multiplicities.elementAt(i));
             curElems.addElement(elements.elementAt(i));
 
-            TreeReference ref = f.getChildInstanceRef(curElems, curMults);
-            cur.reference = ref;
+            cur.reference = f.getChildInstanceRef(curElems, curMults);
 
             cur = cur.getNextLevel();
             i++;
