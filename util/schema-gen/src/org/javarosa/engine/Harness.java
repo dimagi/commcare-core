@@ -32,7 +32,6 @@ public class Harness {
             //XFormPlayer xfp = new XFormPlayer(System.console(), System.out);
             try {
                 xfp.start(args[0]);
-                Session s = xfp.environment.getSessionRecording();
             } catch (FileNotFoundException e) {
                 System.out.println("File not found at " + args[0]+ "!!!!");
             }
