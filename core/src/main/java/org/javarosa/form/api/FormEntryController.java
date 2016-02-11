@@ -331,4 +331,8 @@ public class FormEntryController {
     public void setLanguage(String language) {
         model.setLanguage(language);
     }
+
+    public FormEntrySession getFormEntrySession() {
+        return formSession;
+    }
 }
