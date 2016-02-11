@@ -35,6 +35,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -66,6 +67,7 @@ public class ApplicationHost {
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
     private boolean mRestoreStrategySet = false;
+    private FileOutputStream mRecordFile;
 
     public ApplicationHost(CommCareConfigEngine engine, PrototypeFactory prototypeFactory) {
         this.mEngine = engine;
@@ -83,6 +85,14 @@ public class ApplicationHost {
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
         mRestoreStrategySet = true;
+    }
+
+    public void setRecordFile(String filename) {
+        try {
+            mRecordFile = new FileOutputStream(filename);
+        } catch (FileNotFoundException e) {
+            System.exit(-1);
+        }
     }
 
 

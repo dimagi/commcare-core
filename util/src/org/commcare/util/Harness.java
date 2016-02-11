@@ -72,6 +72,9 @@ public class Harness {
                     username = username.trim().toLowerCase();
                     host.setRestoreToRemoteUser(username, password);
                 }
+                if (cmd.hasOption("R")) {
+                    host.setRecordFile(cmd.getOptionValue("R"));
+                }
 
                 host.run();
                 System.exit(-1);
@@ -106,6 +109,15 @@ public class Harness {
 
         options.addOption(Option.builder("h")
                 .desc("Get a list of options")
+                .build());
+
+        options.addOption(Option.builder("R")
+                .argName("RECORD")
+                .hasArg()
+                .desc("Record play session to a file")
+                .longOpt("record")
+                .required(false)
+                .optionalArg(false)
                 .build());
 
         return options;
