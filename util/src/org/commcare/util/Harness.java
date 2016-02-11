@@ -23,13 +23,13 @@ public class Harness {
 
         try {
             cmd = parser.parse(options, args);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             System.out.println("Invalid arguments: " + e.getMessage());
             System.exit(-1);
             return;
         }
 
-        if(cmd.hasOption("h")) {
+        if (cmd.hasOption("h")) {
             printHelpText(options);
             System.exit(0);
             return;
@@ -38,12 +38,12 @@ public class Harness {
         args = cmd.getArgs();
 
         PrototypeFactory prototypeFactory = setupStaticStorage();
-        if(args[0].equals("validate")) {
-            if(args.length < 2) {
+        if (args[0].equals("validate")) {
+            if (args.length < 2) {
                 printvalidateformat();
                 System.exit(-1);
             }
-            
+
             CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
             engine.describeApplication();
 
@@ -55,10 +55,10 @@ public class Harness {
                 CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
                 ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
 
-                if(cmd.hasOption("r")) {
+                if (cmd.hasOption("r")) {
                     host.setRestoreToLocalFile(cmd.getOptionValue("r"));
                 } else {
-                    if(args.length < 4) {
+                    if (args.length < 4) {
                         printplayformat();
                         System.exit(-1);
                         return;
@@ -75,7 +75,7 @@ public class Harness {
                 System.out.print("Unhandled Fatal Error executing CommCare app");
                 re.printStackTrace();
                 throw re;
-            }finally {
+            } finally {
                 //Since the CommCare libs start up threads for things like caching, if unhandled
                 //exceptions bubble up they will prevent the process from dying unless we kill it
                 System.exit(0);
@@ -85,7 +85,7 @@ public class Harness {
 
     private static void printHelpText(Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp( "java -jar commcare-cli.jar", options );
+        formatter.printHelp("java -jar commcare-cli.jar", options);
     }
 
     private static Options getOptions() {

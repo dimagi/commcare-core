@@ -74,10 +74,12 @@ public class ApplicationHost {
         reader = new BufferedReader(new InputStreamReader(System.in));
         this.mPrototypeFactory = prototypeFactory;
     }
+
     public void setRestoreToRemoteUser(String username, String password) {
         this.mLocalUserCredentials = new String[]{username, password};
         mRestoreStrategySet = true;
     }
+
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
         mRestoreStrategySet = true;
@@ -85,7 +87,7 @@ public class ApplicationHost {
 
 
     public void run() {
-        if(!mRestoreStrategySet) {
+        if (!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of hte setRestore*() methods before running the app");
         }
@@ -95,23 +97,23 @@ public class ApplicationHost {
 
         try {
             loop();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
     }
-    
+
     private void loop() throws IOException {
         boolean keepExecuting = true;
         while (keepExecuting) {
-            if(!mSessionHasNextFrameReady) {
+            if (!mSessionHasNextFrameReady) {
                 mSession.clearAllState();
             }
             mSessionHasNextFrameReady = false;
             keepExecuting = loopSession();
 
-            if(this.mUpdatePending) {
-               processAppUpdate();
+            if (this.mUpdatePending) {
+                processAppUpdate();
             }
         }
     }
@@ -129,7 +131,7 @@ public class ApplicationHost {
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
-        while(sessionIsLive) {
+        while (sessionIsLive) {
             while (s != null) {
                 try {
                     if (!screenIsRedrawing) {
@@ -178,7 +180,7 @@ public class ApplicationHost {
 
                         if (input.startsWith(":lang")) {
                             String[] langArgs = input.split(" ");
-                            if(langArgs.length != 2) {
+                            if (langArgs.length != 2) {
                                 System.out.println("Command format\n:lang [langcode]");
                                 continue;
                             }
@@ -229,7 +231,7 @@ public class ApplicationHost {
                     }
                     finishSession();
                     return true;
-                } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
                     mSession.stepBack();
                     s = getNextScreen();
                     continue;
@@ -247,7 +249,7 @@ public class ApplicationHost {
         SessionFrame frame = mSession.getFrame();
         System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
         System.out.println("----------");
-        for(StackFrameStep step : frame.getSteps()) {
+        for (StackFrameStep step : frame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {
                 System.out.println("COMMAND: " + step.getId());
             } else {
@@ -258,7 +260,7 @@ public class ApplicationHost {
 
     private void finishSession() {
         mSession.clearVolitiles();
-        if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+        if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
             mSessionHasNextFrameReady = true;
         }
     }
@@ -274,7 +276,8 @@ public class ApplicationHost {
         } finally {
             try {
                 resultStream.close();
-            } catch(IOException e) {}
+            } catch (IOException e) {
+            }
         }
         return true;
     }
@@ -342,10 +345,10 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                                              StorageManager.getStorage(FormInstance.STORAGE_KEY));
+                StorageManager.getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if(mLocalUserCredentials != null) {
+        if (mLocalUserCredentials != null) {
             restoreUserToSandbox(mSandbox, mLocalUserCredentials);
         } else {
             restoreFileToSandbox(mSandbox, mRestoreFile);
@@ -426,9 +429,9 @@ public class ApplicationHost {
 
         String availableLocales = "";
 
-        for(String availabile : localizer.getAvailableLocales()) {
+        for (String availabile : localizer.getAvailableLocales()) {
             availableLocales += availabile + "\n";
-            if(locale.equals(availabile)) {
+            if (locale.equals(availabile)) {
                 localizer.setLocale(locale);
 
                 return;
