@@ -1,12 +1,8 @@
-/**
- *
- */
 package org.commcare.util;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.commcare.util.cli.ApplicationHost;
@@ -18,16 +14,8 @@ import org.apache.commons.cli.DefaultParser;
 
 /**
  * @author ctsims
- *
  */
 public class Harness {
-
-
-    static CommandLineParser parser;
-
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
         Options options = getOptions();
@@ -103,8 +91,6 @@ public class Harness {
     private static Options getOptions() {
         Options options = new Options();
 
-        OptionGroup play = new OptionGroup();
-
         options.addOption(Option.builder("r")
                 .argName("FILE")
                 .hasArg()
@@ -122,9 +108,7 @@ public class Harness {
     }
 
     private static PrototypeFactory setupStaticStorage() {
-        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        //Set up our storage
-        return prototypeFactory;
+        return new LivePrototypeFactory();
     }
 
     private static void printplayformat() {
@@ -144,10 +128,6 @@ public class Harness {
         }
         engine.initEnvironment();
         return engine;
-    }
-
-    private static void printformat() {
-        System.out.println("Usage: java -jar thejar.jar [validate|otherstuff]");
     }
 
     private static void printvalidateformat() {
