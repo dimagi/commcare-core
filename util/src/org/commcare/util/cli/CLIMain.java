@@ -1,11 +1,11 @@
-package org.commcare.util;
+package org.commcare.util.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.commcare.util.cli.ApplicationHost;
+import org.commcare.util.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -15,7 +15,7 @@ import org.apache.commons.cli.DefaultParser;
 /**
  * @author ctsims
  */
-public class Harness {
+public class CliMain {
     public static void main(String[] args) {
         CommandLineParser parser = new DefaultParser();
         Options options = getOptions();
