@@ -40,7 +40,7 @@ public class Harness {
         PrototypeFactory prototypeFactory = setupStaticStorage();
         if (args[0].equals("validate")) {
             if (args.length < 2) {
-                printvalidateformat();
+                printValidateUsage();
                 System.exit(-1);
             }
 
@@ -51,6 +51,10 @@ public class Harness {
         }
 
         if ("play".equals(args[0])) {
+            if (args.length < 2) {
+                printPlayUsage();
+                System.exit(-1);
+            }
             try {
                 CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
                 ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
@@ -59,7 +63,7 @@ public class Harness {
                     host.setRestoreToLocalFile(cmd.getOptionValue("r"));
                 } else {
                     if (args.length < 4) {
-                        printplayformat();
+                        printPlayUsage();
                         System.exit(-1);
                         return;
                     }
@@ -111,10 +115,6 @@ public class Harness {
         return new LivePrototypeFactory();
     }
 
-    private static void printplayformat() {
-        System.out.println("Usage: java -jar thejar.jar play path/to/commcare.ccz username password");
-    }
-
     private static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
         CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
 
@@ -130,8 +130,11 @@ public class Harness {
         return engine;
     }
 
-    private static void printvalidateformat() {
-        System.out.println("Usage: java -jar thejar.jar validate inputfile.xml [-nojarresources|path/to/jar/resources]");
+    private static void printValidateUsage() {
+        System.out.println("Usage: java -jar commcare-cli.jar validate inputfile.xml [-nojarresources|path/to/jar/resources]");
     }
 
+    private static void printPlayUsage() {
+        System.out.println("Usage: java -jar commcare-cli.jar play <commcare.ccz url/path> <username> <password> [-r <restore.xml>]");
+    }
 }
