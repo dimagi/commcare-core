@@ -101,11 +101,9 @@ public class XFormPlayer {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)));
     }
 
-
     public void start(String formPath, Session session) throws FileNotFoundException {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)), session);
     }
-
 
     private void start(FormDef form, Session session) {
         this.environment = new XFormEnvironment(form, session);
@@ -260,7 +258,6 @@ public class XFormPlayer {
         } else {
             evalExpression(evalModeInput);
         }
-
     }
 
     private boolean command(String command) throws BadPlaybackException, InvalidInputException {
@@ -498,10 +495,6 @@ public class XFormPlayer {
             throw new InvalidInputException();
         }
         return i;
-    }
-
-    private void badInput(String input) throws BadPlaybackException, InvalidInputException {
-        badInput(input, null);
     }
 
     private void badInput(String input, String msg) throws BadPlaybackException, InvalidInputException {
