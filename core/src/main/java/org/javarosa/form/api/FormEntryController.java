@@ -24,6 +24,7 @@ public class FormEntryController {
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
     private final FormEntryModel model;
+    private final FormEntrySession formSession = new FormEntrySession();
 
     /**
      * Creates a new form entry controller for the model provided
@@ -152,6 +153,9 @@ public class FormEntryController {
             // we should check if the data to be saved is already the same as
             // the data in the model, but we can't (no IAnswerData.equals())
             model.getForm().setValue(data, index.getReference(), element);
+
+            formSession.addValueSet(index, data.uncast().getString());
+
             return true;
         } else {
             return false;
@@ -294,6 +298,7 @@ public class FormEntryController {
     public void newRepeat(FormIndex questionIndex) {
         try {
             model.getForm().createNewRepeat(questionIndex);
+            formSession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
             throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
         }
