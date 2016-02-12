@@ -23,9 +23,8 @@ public abstract class Action implements Externalizable {
     public static final String EVENT_XFORMS_REVALIDATE = "xforms-revalidate";
     public static final String EVENT_JR_INSERT = "jr-insert";
     public static final String EVENT_QUESTION_VALUE_CHANGED = "xforms-value-changed";
-    private static final Vector<String> allEvents =
-            new Vector<String>(Arrays.asList(EVENT_JR_INSERT, EVENT_QUESTION_VALUE_CHANGED,
-                    EVENT_XFORMS_READY, EVENT_XFORMS_REVALIDATE));
+    private static final String[] allEvents = new String[]{EVENT_JR_INSERT,
+            EVENT_QUESTION_VALUE_CHANGED, EVENT_XFORMS_READY, EVENT_XFORMS_REVALIDATE};
 
     private String name;
 
@@ -57,7 +56,12 @@ public abstract class Action implements Externalizable {
     }
 
     public static boolean isValidEvent(String actionEventAttribute)  {
-        return allEvents.contains(actionEventAttribute);
+        for (String event : allEvents) {
+            if (event.equals(actionEventAttribute)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
