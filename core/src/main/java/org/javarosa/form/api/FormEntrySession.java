@@ -19,6 +19,10 @@ public class FormEntrySession implements Serializable {
         actions.addElement(FormEntryAction.buildValueSetAction(formIndex.toString(), value));
     }
 
+    public void addQuestionSkip(FormIndex formIndex) {
+        actions.addElement(FormEntryAction.buildSkipAction(formIndex.toString()));
+    }
+
     public FormEntryAction popAction() {
         if (actions.size() > 0) {
             return actions.remove(0);
@@ -61,33 +65,44 @@ public class FormEntrySession implements Serializable {
     public static class FormEntryAction implements Serializable {
         public final String formIndexString;
         public final String value;
-        public final boolean isNewRepeatAddition;
+        public final String action;
+        private final static String NEW_REPEAT = "NEW_REPEAT";
+        private final static String SKIP = "SKIP";
+        private final static String VALUE = "VALUE";
 
-        private FormEntryAction(String formIndexString, String value, boolean isNewRepeatAddition) {
+        private FormEntryAction(String formIndexString, String value, String action) {
             this.formIndexString = formIndexString;
             this.value = value;
-            this.isNewRepeatAddition = isNewRepeatAddition;
+            this.action = action;
         }
 
         public static FormEntryAction buildNewRepeatAction(String formIndexString) {
-            return new FormEntryAction(formIndexString, "", true);
+            return new FormEntryAction(formIndexString, "", NEW_REPEAT);
         }
 
         public static FormEntryAction buildValueSetAction(String formIndexString, String value) {
-            return new FormEntryAction(formIndexString, value, false);
+            return new FormEntryAction(formIndexString, value, VALUE);
+        }
+
+        public static FormEntryAction buildSkipAction(String formIndexString) {
+            return new FormEntryAction(formIndexString, "", SKIP);
         }
 
         public static FormEntryAction buildNullAction() {
-            return new FormEntryAction("", "", false);
+            return new FormEntryAction("", "", "");
         }
 
         @Override
         public String toString() {
-            if (isNewRepeatAddition) {
+            if (NEW_REPEAT.equals(action)) {
                 return "((" + formIndexString + ") (NEW_REPEAT))";
-            } else {
+            } else if (VALUE.equals(action)) {
                 // TODO PLM: escape 'value' field
                 return "((" + formIndexString + ") (VALUE) (" + value + "))";
+            } else if (SKIP.equals(action)) {
+                return "((" + formIndexString + ") (SKIP))";
+            } else {
+                return "";
             }
         }
 
@@ -110,6 +125,14 @@ public class FormEntrySession implements Serializable {
                 String value = wrappedValue.substring(1, wrappedValue.length() - 1);
                 return buildValueSetAction(formIndexString, value);
             }
+        }
+
+        public boolean isNewRepeatAction() {
+            return NEW_REPEAT.equals(action);
+        }
+
+        public boolean isSkipAction() {
+            return SKIP.equals(action);
         }
     }
 

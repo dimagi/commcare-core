@@ -149,14 +149,16 @@ public class FormEntryController {
      * @return true if saved successfully, false otherwise
      */
     private boolean commitAnswer(TreeElement element, FormIndex index, IAnswerData data) {
+        if (data != null) {
+            formSession.addValueSet(index, data.uncast().getString());
+        } else {
+            formSession.addQuestionSkip(index);
+        }
+
         if (data != null || element.getValue() != null) {
             // we should check if the data to be saved is already the same as
             // the data in the model, but we can't (no IAnswerData.equals())
             model.getForm().setValue(data, index.getReference(), element);
-
-            if (data != null) {
-                formSession.addValueSet(index, data.uncast().getString());
-            }
 
             return true;
         } else {
