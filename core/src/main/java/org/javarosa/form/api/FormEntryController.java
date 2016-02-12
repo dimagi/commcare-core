@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.actions.Action;
@@ -40,7 +24,7 @@ public class FormEntryController {
     public static final int EVENT_REPEAT = 16;
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
-    FormEntryModel model;
+    private final FormEntryModel model;
 
     /**
      * Creates a new form entry controller for the model provided
@@ -49,11 +33,9 @@ public class FormEntryController {
         this.model = model;
     }
 
-
     public FormEntryModel getModel() {
         return model;
     }
-
 
     /**
      * Attempts to save answer at the current FormIndex into the datamodel.
@@ -147,7 +129,6 @@ public class FormEntryController {
         }
     }
 
-
     /**
      * saveAnswer attempts to save the current answer into the data model
      * without doing any constraint checking. Only use this if you know what
@@ -240,12 +221,12 @@ public class FormEntryController {
     /**
      * Find a FormIndex next to the given one.
      *
-     * @param forward       If true, get the next FormIndex, else get the previous one.
+     * @param forward If true, get the next FormIndex, else get the previous one.
      */
-    public FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
+    private FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
-        boolean relevant = true;
-        boolean inForm = true;
+        boolean relevant;
+        boolean inForm;
 
         do {
             if (forward) {
@@ -257,9 +238,6 @@ public class FormEntryController {
             //reset all step rules
             descend = true;
             relevant = true;
-            inForm = true;
-
-
             inForm = index.isInForm();
             if (inForm) {
                 relevant = model.isIndexRelevant(index);
@@ -299,18 +277,14 @@ public class FormEntryController {
         return model.getEvent(index);
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public FormIndex descendIntoNewRepeat() {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), -1));
         newRepeat(model.getFormIndex());
         return model.getFormIndex();
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public FormIndex descendIntoRepeat(int n) {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
         return model.getFormIndex();
@@ -328,7 +302,6 @@ public class FormEntryController {
         }
     }
 
-
     /**
      * Creates a new repeated instance of the group referenced by the current
      * FormIndex.
@@ -336,7 +309,6 @@ public class FormEntryController {
     public void newRepeat() {
         newRepeat(model.getFormIndex());
     }
-
 
     /**
      * Deletes a repeated instance of a group referenced by the specified
@@ -346,9 +318,7 @@ public class FormEntryController {
         return model.getForm().deleteRepeat(questionIndex);
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public void deleteRepeat(int n) {
         deleteRepeat(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
     }
