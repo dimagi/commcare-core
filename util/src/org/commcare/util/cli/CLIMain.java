@@ -5,9 +5,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.commcare.util.CommCareConfigEngine;
-import org.javarosa.core.util.externalizable.LivePrototypeFactory;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -20,70 +17,52 @@ public class CliMain {
         CommandLineParser parser = new DefaultParser();
         Options options = getOptions();
         CommandLine cmd;
+        CliCommand cliCommand;
 
         try {
-            cmd = parser.parse(options, args);
+            cliCommand = getCliCommand(args);
+        } catch (CliCommandNotFound e) {
+            try {
+                cmd = parser.parse(options, args);
+            } catch (ParseException parseException) {
+                System.out.println("Invalid arguments: " + parseException.getMessage());
+                System.exit(-1);
+                return;
+            }
+
+            if (cmd.hasOption("h")) {
+                printHelpText(options);
+                System.exit(0);
+                return;
+            } else {
+                System.out.println("Invalid command  " + e.getCommandName());
+                printHelpText(options);
+                System.exit(-1);
+                return;
+            }
+        }
+
+        try {
+            cliCommand.parseArguments();
         } catch (ParseException e) {
             System.out.println("Invalid arguments: " + e.getMessage());
             System.exit(-1);
             return;
         }
 
-        if (cmd.hasOption("h")) {
-            printHelpText(options);
-            System.exit(0);
-            return;
-        }
+        cliCommand.handle();
+    }
 
-        args = cmd.getArgs();
-
-        PrototypeFactory prototypeFactory = setupStaticStorage();
-        if (args[0].equals("validate")) {
-            if (args.length < 2) {
-                printValidateUsage();
-                System.exit(-1);
-            }
-
-            CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
-            engine.describeApplication();
-
-            System.exit(0);
-        }
-
-        if ("play".equals(args[0])) {
-            if (args.length < 2) {
-                printPlayUsage();
-                System.exit(-1);
-            }
-            try {
-                CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
-                ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
-
-                if (cmd.hasOption("r")) {
-                    host.setRestoreToLocalFile(cmd.getOptionValue("r"));
-                } else {
-                    if (args.length < 4) {
-                        printPlayUsage();
-                        System.exit(-1);
-                        return;
-                    }
-                    String username = args[2];
-                    String password = args[3];
-                    username = username.trim().toLowerCase();
-                    host.setRestoreToRemoteUser(username, password);
-                }
-
-                host.run();
-                System.exit(-1);
-            } catch (RuntimeException re) {
-                System.out.print("Unhandled Fatal Error executing CommCare app");
-                re.printStackTrace();
-                throw re;
-            } finally {
-                //Since the CommCare libs start up threads for things like caching, if unhandled
-                //exceptions bubble up they will prevent the process from dying unless we kill it
-                System.exit(0);
-            }
+    private static CliCommand getCliCommand(String[] args) throws CliCommandNotFound {
+        final String commandName = args[0];
+        final String[] restArgs = java.util.Arrays.copyOfRange(args, 1, args.length);
+        switch (commandName) {
+            case "validate":
+                return new CliValidateCommand(commandName, restArgs);
+            case "play":
+                return new CliPlayCommand(commandName, restArgs);
+            default:
+                throw new CliCommandNotFound(commandName);
         }
     }
 
@@ -95,15 +74,6 @@ public class CliMain {
     private static Options getOptions() {
         Options options = new Options();
 
-        options.addOption(Option.builder("r")
-                .argName("FILE")
-                .hasArg()
-                .desc("Restore user data from FILE instead of querying the server")
-                .longOpt("restore-file")
-                .required(false)
-                .optionalArg(false)
-                .build());
-
         options.addOption(Option.builder("h")
                 .desc("Get a list of options")
                 .build());
@@ -111,30 +81,13 @@ public class CliMain {
         return options;
     }
 
-    private static PrototypeFactory setupStaticStorage() {
-        return new LivePrototypeFactory();
-    }
-
-    private static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
-        CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);
-
-        //TODO: check arg for whether it's a local or global file resource and
-        //make sure it's absolute
-
-        if (resourcePath.endsWith(".ccz")) {
-            engine.initFromArchive(resourcePath);
-        } else {
-            engine.initFromLocalFileResource(resourcePath);
+    private static class CliCommandNotFound extends Exception {
+        private final String commandName;
+        public CliCommandNotFound(String commandName) {
+            this.commandName = commandName;
         }
-        engine.initEnvironment();
-        return engine;
-    }
-
-    private static void printValidateUsage() {
-        System.out.println("Usage: java -jar commcare-cli.jar validate inputfile.xml [-nojarresources|path/to/jar/resources]");
-    }
-
-    private static void printPlayUsage() {
-        System.out.println("Usage: java -jar commcare-cli.jar play <commcare.ccz url/path> <username> <password> [-r <restore.xml>]");
+        public String getCommandName() {
+            return commandName;
+        }
     }
 }
