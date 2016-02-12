@@ -154,7 +154,9 @@ public class FormEntryController {
             // the data in the model, but we can't (no IAnswerData.equals())
             model.getForm().setValue(data, index.getReference(), element);
 
-            formSession.addValueSet(index, data.uncast().getString());
+            if (data != null) {
+                formSession.addValueSet(index, data.uncast().getString());
+            }
 
             return true;
         } else {

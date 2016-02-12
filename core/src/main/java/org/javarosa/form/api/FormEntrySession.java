@@ -2,12 +2,13 @@ package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormIndex;
 
+import java.io.Serializable;
 import java.util.Vector;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FormEntrySession {
+public class FormEntrySession implements Serializable {
     private final Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
 
     public void addNewRepeat(FormIndex formIndex) {
@@ -16,6 +17,25 @@ public class FormEntrySession {
 
     public void addValueSet(FormIndex formIndex, String value) {
         actions.addElement(FormEntryAction.buildValueSetAction(formIndex.toString(), value));
+    }
+
+    public FormEntryAction popAction() {
+        if (actions.size() > 0) {
+            return actions.remove(0);
+        } else {
+            return FormEntryAction.buildNullAction();
+        }
+    }
+
+    public FormEntryAction peekAction() {
+        if (actions.size() > 0) {
+            return actions.get(0);
+        } else {
+            return FormEntryAction.buildNullAction();
+        }
+    }
+    public int size() {
+        return actions.size();
     }
 
     @Override
@@ -38,7 +58,7 @@ public class FormEntrySession {
         return formEntrySession;
     }
 
-    public static class FormEntryAction {
+    public static class FormEntryAction implements Serializable {
         public final String formIndexString;
         public final String value;
         public final boolean isNewRepeatAddition;
@@ -55,6 +75,10 @@ public class FormEntrySession {
 
         public static FormEntryAction buildValueSetAction(String formIndexString, String value) {
             return new FormEntryAction(formIndexString, value, false);
+        }
+
+        public static FormEntryAction buildNullAction() {
+            return new FormEntryAction("", "", false);
         }
 
         @Override

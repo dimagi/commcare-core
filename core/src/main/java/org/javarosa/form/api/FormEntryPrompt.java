@@ -409,9 +409,6 @@ public class FormEntryPrompt extends FormEntryCaption {
         return substituteStringArgs(returnText);
     }
 
-    /**
-     * @see getSelectItemText(Selection sel)
-     */
     public String getSelectChoiceText(SelectChoice selection) {
         return getSelectItemText(selection.selection());
     }
