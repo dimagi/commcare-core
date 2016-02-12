@@ -2,13 +2,19 @@ package org.commcare.util.cli;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.commcare.util.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.LivePrototypeFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class CliPlayCommand extends CliCommand {
-    public CliPlayCommand(String commandName, String[] args) {
-        super(commandName, args);
+
+    protected String resourcePath;
+    protected String username = null;
+    protected String password = null;
+
+    public CliPlayCommand() {
+        super("play", "Play a CommCare app from the command line", "<commcare.ccz url/path> [<username> <password>]");
     }
 
     @Override
@@ -26,27 +32,26 @@ public class CliPlayCommand extends CliCommand {
     }
 
     @Override
+    public void parseArguments(String[] args) throws ParseException {
+        super.parseArguments(args);
+        resourcePath = this.args[0];
+        if (!cmd.hasOption("r")) {
+            username = this.args[1];
+            password = this.args[2];
+        }
+    }
+
+    @Override
     public void handle() {
         super.handle();
         PrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        if (args.length < 2) {
-            printHelpText();
-            System.exit(-1);
-        }
         try {
-            CommCareConfigEngine engine = configureApp(args[1], prototypeFactory);
+            CommCareConfigEngine engine = configureApp(args[0], prototypeFactory);
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
 
             if (cmd.hasOption("r")) {
                 host.setRestoreToLocalFile(cmd.getOptionValue("r"));
             } else {
-                if (args.length < 4) {
-                    printHelpText();
-                    System.exit(-1);
-                    return;
-                }
-                String username = args[2];
-                String password = args[3];
                 username = username.trim().toLowerCase();
                 host.setRestoreToRemoteUser(username, password);
             }
@@ -62,15 +67,5 @@ public class CliPlayCommand extends CliCommand {
             //exceptions bubble up they will prevent the process from dying unless we kill it
             System.exit(0);
         }
-    }
-
-    @Override
-    protected String getPositionalArgsHelpText() {
-        return "<commcare.ccz url/path> <username> <password>";
-    }
-
-    @Override
-    protected String getHelpTextDescription() {
-        return "Play a CommCare app from the command line";
     }
 }

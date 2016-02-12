@@ -11,20 +11,28 @@ import org.commcare.util.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public abstract class CliCommand {
-    protected String commandName;
+    protected final String commandName;
+    protected final String helpTextDescription;
+    protected final String positionalArgsHelpText;
+
     protected String[] args;
     protected Options options;
     protected CommandLine cmd;
 
-    public CliCommand(String commandName, String[] args) {
-        this.commandName = commandName;
-        this.args = args;
-
+    public CliCommand(String commandName, String helpTextDescription, String positionalArgsHelpText) {
         options = getOptions();
+        this.commandName = commandName;
+        this.helpTextDescription = helpTextDescription;
+        this.positionalArgsHelpText = positionalArgsHelpText;
     }
-    public void parseArguments() throws ParseException {
+
+    /*
+        :args: - all the args after (not including) commandName
+     */
+    public void parseArguments(String[] args) throws ParseException {
         CommandLineParser parser = new DefaultParser();
         cmd = parser.parse(options, args);
+        this.args = cmd.getArgs();
     }
 
     public void checkHelpOption() {
@@ -47,15 +55,20 @@ public abstract class CliCommand {
     }
 
     protected void printHelpText() {
-        String usage = "java -jar commcare-cli.jar " + commandName + " " + getPositionalArgsHelpText();
-        String header = getHelpTextDescription() + "\n";
+        String usage = "java -jar commcare-cli.jar " + commandName + " " + positionalArgsHelpText;
+        String header = helpTextDescription + "\n";
         HelpFormatter formatter = new HelpFormatter();
         formatter.setWidth(200);
         formatter.printHelp(usage, header, options, "", true);
     }
 
-    protected abstract String getPositionalArgsHelpText();
-    protected abstract String getHelpTextDescription();
+    public String getHelpTextDescription() {
+        return helpTextDescription;
+    }
+
+    public String getCommandName() {
+        return commandName;
+    }
 
     protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {
         CommCareConfigEngine engine = new CommCareConfigEngine(System.out, factory);

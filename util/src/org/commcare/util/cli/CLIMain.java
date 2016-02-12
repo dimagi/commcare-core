@@ -20,32 +20,44 @@ public class CliMain {
         CliCommand cliCommand;
 
         try {
-            cliCommand = getCliCommand(args);
+            cliCommand = getCliCommand(args[0]);
         } catch (CliCommandNotFound e) {
             try {
                 cmd = parser.parse(options, args);
             } catch (ParseException parseException) {
                 System.out.println("Invalid arguments: " + parseException.getMessage());
+                printHelpText();
                 System.exit(-1);
                 return;
             }
 
             if (cmd.hasOption("h")) {
-                printHelpText(options);
+                printHelpText();
                 System.exit(0);
                 return;
             } else {
                 System.out.println("Invalid command  " + e.getCommandName());
-                printHelpText(options);
+                printHelpText();
                 System.exit(-1);
                 return;
             }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            printHelpText();
+            System.exit(-1);
+            return;
+
         }
 
         try {
-            cliCommand.parseArguments();
+            final String[] restArgs = java.util.Arrays.copyOfRange(args, 1, args.length);
+            cliCommand.parseArguments(restArgs);
         } catch (ParseException e) {
             System.out.println("Invalid arguments: " + e.getMessage());
+            cliCommand.printHelpText();
+            System.exit(-1);
+            return;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            cliCommand.printHelpText();
             System.exit(-1);
             return;
         }
@@ -53,22 +65,28 @@ public class CliMain {
         cliCommand.handle();
     }
 
-    private static CliCommand getCliCommand(String[] args) throws CliCommandNotFound {
-        final String commandName = args[0];
-        final String[] restArgs = java.util.Arrays.copyOfRange(args, 1, args.length);
+    private static CliCommand getCliCommand(String commandName) throws CliCommandNotFound {
         switch (commandName) {
             case "validate":
-                return new CliValidateCommand(commandName, restArgs);
+                return new CliValidateCommand();
             case "play":
-                return new CliPlayCommand(commandName, restArgs);
+                return new CliPlayCommand();
             default:
                 throw new CliCommandNotFound(commandName);
         }
     }
 
-    private static void printHelpText(Options options) {
+    private static void printHelpText() {
+        Options options = getOptions();
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java -jar commcare-cli.jar", options);
+        String header = "The Command Line Interface for CommCare\n\n" +
+                "The available commands are\n";
+        CliCommand[] commands = {new CliValidateCommand(), new CliPlayCommand()};
+        for (CliCommand command : commands) {
+            header += String.format("   %-11s%s\n", command.getCommandName(), command.getHelpTextDescription());
+        }
+        header += "\n";
+        formatter.printHelp("java -jar commcare-cli.jar <command> [<args>]", header, options, "");
     }
 
     private static Options getOptions() {
