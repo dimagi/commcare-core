@@ -12,15 +12,30 @@ public class FormEntrySession implements Serializable {
     private final Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
 
     public void addNewRepeat(FormIndex formIndex) {
-        actions.addElement(FormEntryAction.buildNewRepeatAction(formIndex.toString()));
+        final String formIndexString = formIndex.toString();
+        removeDuplicateAction(formIndexString);
+        actions.addElement(FormEntryAction.buildNewRepeatAction(formIndexString));
+    }
+
+    private void removeDuplicateAction(String formIndexString) {
+        for (int i = actions.size() - 1; i >= 0; i--) {
+            if (actions.get(i).formIndexString.equals(formIndexString)) {
+                actions.remove(i);
+                return;
+            }
+        }
     }
 
     public void addValueSet(FormIndex formIndex, String value) {
-        actions.addElement(FormEntryAction.buildValueSetAction(formIndex.toString(), value));
+        final String formIndexString = formIndex.toString();
+        removeDuplicateAction(formIndexString);
+        actions.addElement(FormEntryAction.buildValueSetAction(formIndexString, value));
     }
 
     public void addQuestionSkip(FormIndex formIndex) {
-        actions.addElement(FormEntryAction.buildSkipAction(formIndex.toString()));
+        final String formIndexString = formIndex.toString();
+        removeDuplicateAction(formIndexString);
+        actions.addElement(FormEntryAction.buildSkipAction(formIndexString));
     }
 
     public FormEntryAction popAction() {
@@ -119,7 +134,11 @@ public class FormEntrySession implements Serializable {
             String wrappedFormIndexString = actionEntries.get(0);
             String formIndexString = wrappedFormIndexString.substring(1, wrappedFormIndexString.length() - 1);
             if (entryCount == 2) {
-                return buildNewRepeatAction(formIndexString);
+                if (("("+NEW_REPEAT+")").equals(actionEntries.get(1))){
+                    return buildNewRepeatAction(formIndexString);
+                } else {
+                    return buildSkipAction(formIndexString);
+                }
             } else {
                 String wrappedValue = actionEntries.get(2);
                 String value = wrappedValue.substring(1, wrappedValue.length() - 1);

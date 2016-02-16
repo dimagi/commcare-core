@@ -36,4 +36,17 @@ public class FormEntrySessionTest {
         String sessionAsString = formEntrySession.toString();
         Assert.assertEquals(sessionAsString, FormEntrySession.fromString(sessionAsString).toString());
     }
+
+    @Test
+    public void testAddingDuplicate() {
+        FormEntrySession formEntrySession = new FormEntrySession();
+        formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
+        formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
+        Assert.assertEquals(1, formEntrySession.size());
+
+        FormIndex randomIndex = new FormIndex(FormIndex.createBeginningOfFormIndex(), 52, 2, null);
+        formEntrySession.addValueSet(randomIndex, "bar");
+        formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
+        Assert.assertEquals(2, formEntrySession.size());
+    }
 }
