@@ -11,9 +11,9 @@ import org.commcare.util.CommCareConfigEngine;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public abstract class CliCommand {
-    protected final String commandName;
-    protected final String helpTextDescription;
-    protected final String positionalArgsHelpText;
+    public final String commandName;
+    public final String helpTextDescription;
+    public final String positionalArgsHelpText;
 
     protected String[] args;
     protected Options options;
@@ -60,14 +60,6 @@ public abstract class CliCommand {
         HelpFormatter formatter = new HelpFormatter();
         formatter.setWidth(200);
         formatter.printHelp(usage, header, options, "", true);
-    }
-
-    public String getHelpTextDescription() {
-        return helpTextDescription;
-    }
-
-    public String getCommandName() {
-        return commandName;
     }
 
     protected static CommCareConfigEngine configureApp(String resourcePath, PrototypeFactory factory) {

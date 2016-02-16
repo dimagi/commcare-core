@@ -83,7 +83,7 @@ public class CliMain {
                 "The available commands are\n";
         CliCommand[] commands = {new CliValidateCommand(), new CliPlayCommand()};
         for (CliCommand command : commands) {
-            header += String.format("   %-11s%s\n", command.getCommandName(), command.getHelpTextDescription());
+            header += String.format("   %-11s%s\n", command.commandName, command.helpTextDescription);
         }
         header += "\n";
         formatter.printHelp("java -jar commcare-cli.jar <command> [<args>]", header, options, "");
