@@ -26,8 +26,8 @@ public abstract class CliCommand {
         this.positionalArgsHelpText = positionalArgsHelpText;
     }
 
-    /*
-        :args: - all the args after (not including) commandName
+    /**
+     * @param args    all the args after (not including) commandName
      */
     public void parseArguments(String[] args) throws ParseException {
         CommandLineParser parser = new DefaultParser();
