@@ -33,4 +33,6 @@ public abstract class Subscreen<T extends CompoundScreenHost> {
      * Display this subscreen
      */
     public abstract void prompt(PrintStream out);
+
+    public abstract String[] getOptions();
 }

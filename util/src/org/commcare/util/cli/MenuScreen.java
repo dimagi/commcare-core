@@ -144,6 +144,16 @@ public class MenuScreen extends Screen {
     }
 
     @Override
+    public String[] getOptions() {
+        String[] ret = new String[mChoices.length];
+        for (int i = 0; i < mChoices.length; ++i) {
+            MenuDisplayable d = mChoices[i];
+            ret[i] = d.getDisplayText();
+        }
+        return ret;
+    }
+
+    @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
         try {
             int i = Integer.parseInt(input);

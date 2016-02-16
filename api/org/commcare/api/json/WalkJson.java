@@ -4,7 +4,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * Created by willpride on 12/8/15.

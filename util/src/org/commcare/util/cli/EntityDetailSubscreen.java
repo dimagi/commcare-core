@@ -5,6 +5,7 @@ import org.commcare.suite.model.DetailField;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * An entity detail subscreen displays one of the detail screens associated with an
@@ -80,6 +81,12 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         out.println(msg);
     }
 
+    @Override
+    public String[] getOptions() {
+        System.out.println("Entity Detail get options: " + Arrays.toString(rows));
+        return rows;
+    }
+
     private void createTabHeader(PrintStream out) {
         StringBuilder sb = new StringBuilder();
         int widthPerTab = (int)(SCREEN_WIDTH * 1.0 / mDetailListTitles.length);
@@ -96,6 +103,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
+        System.out.println("Entity Detail handle input: " + input);
         if (input.trim().equals("")) {
             return true;
         }
@@ -109,5 +117,9 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             //This will result in things just executing again, which is fine.
         }
         return false;
+    }
+
+    public int getCurrentIndex(){
+        return mCurrentIndex;
     }
 }

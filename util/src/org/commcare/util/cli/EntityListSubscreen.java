@@ -3,16 +3,11 @@ package org.commcare.util.cli;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.io.PrintStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -130,7 +125,13 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
+    public String[] getOptions() {
+        return rows;
+    }
+
+    @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
+        System.out.println("List Subscreen handle: " + input);
         if("action".equals(input) && mAction != null) {
             host.setPendingAction(mAction);
             return true;
@@ -146,5 +147,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
             //This will result in things just executing again, which is fine.
         }
         return false;
+    }
+
+    public String[] getRows(){
+        return rows;
     }
 }

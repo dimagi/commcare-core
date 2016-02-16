@@ -20,6 +20,7 @@ import java.io.PrintStream;
 public abstract class Screen {
     public abstract void init(SessionWrapper session) throws CommCareSessionException;
     public abstract void prompt(PrintStream out) throws CommCareSessionException;
+    public abstract String[] getOptions();
 
     /**
      * Based on the the input provided from the user to the command line, either update the session

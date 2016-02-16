@@ -36,6 +36,7 @@ sourceSets {
             srcDir 'core'
             srcDir 'modern'
             srcDir 'api'
+            srcDir 'util/src'
         }
         resources {
             srcDir 'cases/resources'

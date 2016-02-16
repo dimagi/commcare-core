@@ -60,7 +60,7 @@ public class CommCareSession {
     /**
      * The current session frame data
      */
-    private SessionFrame frame;
+    public SessionFrame frame;
 
     /**
      * The stack of pending Frames
@@ -131,7 +131,7 @@ public class CommCareSession {
         return entries;
     }
 
-    private OrderedHashtable<String, String> getData() {
+    public OrderedHashtable<String, String> getData() {
         return collectedDatums;
     }
 
@@ -359,7 +359,7 @@ public class CommCareSession {
         syncState();
     }
 
-    private void syncState() {
+    public void syncState() {
         this.collectedDatums.clear();
         this.currentCmd = null;
         this.currentXmlns = null;
