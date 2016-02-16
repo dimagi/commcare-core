@@ -35,7 +35,7 @@ public abstract class CliCommand {
         this.args = cmd.getArgs();
     }
 
-    public void checkHelpOption() {
+    private void checkHelpOption() {
         if (cmd.hasOption("h")) {
             printHelpText();
             System.exit(0);
