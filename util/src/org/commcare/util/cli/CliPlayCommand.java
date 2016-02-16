@@ -46,7 +46,7 @@ public class CliPlayCommand extends CliCommand {
         super.handle();
         PrototypeFactory prototypeFactory = new LivePrototypeFactory();
         try {
-            CommCareConfigEngine engine = configureApp(args[0], prototypeFactory);
+            CommCareConfigEngine engine = configureApp(resourcePath, prototypeFactory);
             ApplicationHost host = new ApplicationHost(engine, prototypeFactory);
 
             if (cmd.hasOption("r")) {
