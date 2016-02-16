@@ -9,9 +9,9 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class CliPlayCommand extends CliCommand {
 
-    protected String resourcePath;
-    protected String username = null;
-    protected String password = null;
+    private String resourcePath;
+    private String username;
+    private String password;
 
     public CliPlayCommand() {
         super("play", "Play a CommCare app from the command line", "<commcare.ccz url/path> [<username> <password>]");

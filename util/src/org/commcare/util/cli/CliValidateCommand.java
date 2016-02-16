@@ -7,7 +7,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 public class CliValidateCommand extends CliCommand {
 
-    protected String resourcePath;
+    private String resourcePath;
 
     public CliValidateCommand() {
         super("validate", "Validate a CommCare app", "<inputfile> [-nojarresources|path/to/jar/resources]");
