@@ -32,6 +32,7 @@ public class FormEntrySessionReplayer {
     }
 
     private void replayForm() {
+        formEntryController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         int event = formEntryController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         while (event != FormEntryController.EVENT_END_OF_FORM && isRestoringFormSession()) {
             replayEvent(event);

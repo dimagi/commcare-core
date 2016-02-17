@@ -24,6 +24,8 @@ import org.javarosa.engine.playback.BadPlaybackException;
 import org.javarosa.engine.xml.XmlUtil;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.form.api.FormEntrySession;
+import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.xform.util.XFormUtils;
@@ -299,6 +301,25 @@ public class XFormPlayer {
             }
             String arg = command.substring(spaceIndex + 1);
             evalExpression(arg);
+            return false;
+        } else if (command.startsWith("replay")) {
+            command = command.trim();
+            int spaceIndex = command.indexOf(" ");
+            if (spaceIndex != -1) {
+                String sessionString = command.substring(spaceIndex + 1);
+                try {
+                    FormEntrySessionReplayer.tryReplayingFormEntry(fec, FormEntrySession.fromString(sessionString));
+                } catch (FormEntrySessionReplayer.ReplayError e) {
+                    out.println("Error replaying form: " + e.getMessage());
+                    out.println("Aborting form entry");
+                    return true;
+                }
+            } else {
+                out.println("Invalid command, please provide session string to replay");
+            }
+            return false;
+        } else if (command.startsWith("entry-session")) {
+            out.println(fec.getFormEntrySession().toString());
             return false;
         } else if (command.startsWith("relevant")) {
             displayRelevant();
