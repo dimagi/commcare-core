@@ -26,6 +26,9 @@ public class FormEntryController {
     private final FormEntryModel model;
     private final FormEntrySession formSession = new FormEntrySession();
 
+    public static final boolean STEP_OVER_GROUP = true;
+    public static final boolean STEP_INTO_GROUP = false;
+
     /**
      * Creates a new form entry controller for the model provided
      */
