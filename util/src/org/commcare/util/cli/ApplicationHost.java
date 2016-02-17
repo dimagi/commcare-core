@@ -398,6 +398,11 @@ public class ApplicationHost {
             URL url = new URL(otaRestoreURL);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                System.out.println("\nInvalid username or password!");
+                System.exit(-1);
+            }
+
             System.out.println("Restoring user " + username + " to domain " + domain);
 
             ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
