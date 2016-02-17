@@ -20,9 +20,9 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final int SCREEN_WIDTH = 100;
 
-    private TreeReference[] mChoices;
-    private String[] rows;
-    private String mHeader;
+    protected TreeReference[] mChoices;
+    protected String[] rows;
+    protected String mHeader;
 
     private Vector<Action> actions;
 
@@ -146,9 +146,12 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         try {
             int i = Integer.parseInt(input);
 
-            host.setHighlightedEntity(this.mChoices[i]);
+            if (i >= 0 && i < mChoices.length) {
+                host.setHighlightedEntity(this.mChoices[i]);
+                return !host.setCurrentScreenToDetail();
+            }
 
-            return !host.setCurrentScreenToDetail();
+            return false;
         } catch (NumberFormatException e) {
             //This will result in things just executing again, which is fine.
         }
