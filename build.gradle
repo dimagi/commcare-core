@@ -106,7 +106,7 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
         }
     }
     manifest {
-        attributes 'Main-Class': 'org.commcare.util.Harness'
+        attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
     }
     
 }
