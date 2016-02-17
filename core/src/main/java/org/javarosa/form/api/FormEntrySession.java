@@ -6,11 +6,17 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
+ * Records form entry actions, associating form indexes with user (string)
+ * answers.  For simplicity's sake each form index appears only once in the
+ * action list. If a question answer is updated, the original form index entry
+ * is removed, and the updated entry is added to the end.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FormEntrySession implements Serializable {
+public class FormEntrySession implements FormEntrySessionRecorder, Serializable {
     private final Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
 
+    @Override
     public void addNewRepeat(FormIndex formIndex) {
         final String formIndexString = formIndex.toString();
         removeDuplicateAction(formIndexString);
@@ -26,12 +32,14 @@ public class FormEntrySession implements Serializable {
         }
     }
 
+    @Override
     public void addValueSet(FormIndex formIndex, String value) {
         final String formIndexString = formIndex.toString();
         removeDuplicateAction(formIndexString);
         actions.addElement(FormEntryAction.buildValueSetAction(formIndexString, value));
     }
 
+    @Override
     public void addQuestionSkip(FormIndex formIndex) {
         final String formIndexString = formIndex.toString();
         removeDuplicateAction(formIndexString);
@@ -53,6 +61,7 @@ public class FormEntrySession implements Serializable {
             return FormEntryAction.buildNullAction();
         }
     }
+
     public int size() {
         return actions.size();
     }
@@ -134,7 +143,7 @@ public class FormEntrySession implements Serializable {
             String wrappedFormIndexString = actionEntries.get(0);
             String formIndexString = wrappedFormIndexString.substring(1, wrappedFormIndexString.length() - 1);
             if (entryCount == 2) {
-                if (("("+NEW_REPEAT+")").equals(actionEntries.get(1))){
+                if (("(" + NEW_REPEAT + ")").equals(actionEntries.get(1))) {
                     return buildNewRepeatAction(formIndexString);
                 } else {
                     return buildSkipAction(formIndexString);
@@ -161,7 +170,7 @@ public class FormEntrySession implements Serializable {
         int topParenStart = 0;
         Vector<String> tokens = new Vector<String>();
 
-        for(int i = 0, n = sessionString.length() ; i < n ; i++) {
+        for (int i = 0, n = sessionString.length(); i < n; i++) {
             char c = sessionString.charAt(i);
             if (c == '\\') {
                 wasEscapeChar = !wasEscapeChar;
@@ -174,7 +183,7 @@ public class FormEntrySession implements Serializable {
                 }
             } else if (c == ')') {
                 if (parenDepth == 1) {
-                    tokens.addElement(sessionString.substring(topParenStart, i+1));
+                    tokens.addElement(sessionString.substring(topParenStart, i + 1));
                 }
                 parenDepth--;
             }

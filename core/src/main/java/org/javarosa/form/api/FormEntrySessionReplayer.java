@@ -6,6 +6,10 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
 
 /**
+ * Replay form entry session. Steps through form, applying answers from the
+ * session to corresponding questions by matching form indices. Replay aborts
+ * if form indices don't match and stops when the session is empty.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormEntrySessionReplayer {

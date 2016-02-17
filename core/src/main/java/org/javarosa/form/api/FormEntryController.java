@@ -24,7 +24,7 @@ public class FormEntryController {
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
     private final FormEntryModel model;
-    private final FormEntrySession formSession = new FormEntrySession();
+    private final FormEntrySessionRecorder formEntrySession;
 
     public static final boolean STEP_OVER_GROUP = true;
     public static final boolean STEP_INTO_GROUP = false;
@@ -33,7 +33,20 @@ public class FormEntryController {
      * Creates a new form entry controller for the model provided
      */
     public FormEntryController(FormEntryModel model) {
+        this(model, new DummyFormEntrySession());
+    }
+
+    private FormEntryController(FormEntryModel model, FormEntrySessionRecorder formEntrySession) {
         this.model = model;
+        this.formEntrySession = formEntrySession;
+    }
+
+    /**
+     * Builds controller that records form entry actions to human readable
+     * format that allows for replaying
+     */
+    public static FormEntryController buildRecordingController(FormEntryModel model) {
+        return new FormEntryController(model, new FormEntrySession());
     }
 
     public FormEntryModel getModel() {
@@ -153,9 +166,9 @@ public class FormEntryController {
      */
     private boolean commitAnswer(TreeElement element, FormIndex index, IAnswerData data) {
         if (data != null) {
-            formSession.addValueSet(index, data.uncast().getString());
+            formEntrySession.addValueSet(index, data.uncast().getString());
         } else {
-            formSession.addQuestionSkip(index);
+            formEntrySession.addQuestionSkip(index);
         }
 
         if (data != null || element.getValue() != null) {
@@ -305,7 +318,7 @@ public class FormEntryController {
     public void newRepeat(FormIndex questionIndex) {
         try {
             model.getForm().createNewRepeat(questionIndex);
-            formSession.addNewRepeat(questionIndex);
+            formEntrySession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
             throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
         }
@@ -339,7 +352,7 @@ public class FormEntryController {
         model.setLanguage(language);
     }
 
-    public FormEntrySession getFormEntrySession() {
-        return formSession;
+    public String getFormEntrySessionString() {
+        return formEntrySession.toString();
     }
 }

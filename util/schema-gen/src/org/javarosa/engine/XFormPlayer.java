@@ -319,7 +319,7 @@ public class XFormPlayer {
             }
             return false;
         } else if (command.startsWith("entry-session")) {
-            out.println(fec.getFormEntrySession().toString());
+            out.println(fec.getFormEntrySessionString());
             return false;
         } else if (command.startsWith("relevant")) {
             displayRelevant();
