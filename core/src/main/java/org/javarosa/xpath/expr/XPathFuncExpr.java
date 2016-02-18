@@ -19,6 +19,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.IExprDataType;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathLazyNodeset;
 import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
@@ -246,7 +247,16 @@ public class XPathFuncExpr extends XPathExpression {
                     throw new XPathArityException(name, "0 or 1 arguments", args.length);
                 }
                 if (args.length == 1) {
-                    return position(((XPathNodeset)argVals[0]).getRefAt(0));
+                    XPathNodeset expr = (XPathNodeset)argVals[0];
+                    try {
+                        return position(expr.getRefAt(0));
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        if (expr instanceof XPathLazyNodeset) {
+                            throw new XPathTypeMismatchException("Unable to evaluate `position` on " + ((XPathLazyNodeset)expr).getUnexpandedRefString() + ", which is empty.");
+                        } else {
+                            throw new XPathTypeMismatchException("Unable to evaluate `position` on empty reference in the context of " + evalContext.getContextRef());
+                        }
+                    }
                 } else if (evalContext.getContextPosition() != -1) {
                     return new Double(evalContext.getContextPosition());
                 } else {
