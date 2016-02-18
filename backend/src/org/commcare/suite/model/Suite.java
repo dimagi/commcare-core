@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.javarosa.core.services.storage.Persistable;
@@ -18,11 +15,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * <p>Suites are containers for a set of actions,
+ * Suites are containers for a set of actions,
  * detail definitions, and UI information. A suite
  * generally contains a set of form entry actions
  * related to the same case ID, sometimes including
- * referrals.</p>
+ * referrals.
  *
  * @author ctsims
  */
@@ -31,7 +28,7 @@ public class Suite implements Persistable {
     public static final String STORAGE_KEY = "SUITE";
 
     private int version;
-    int recordId = -1;
+    private int recordId = -1;
 
     /**
      * String(detail id) -> Detail Object *
@@ -44,32 +41,25 @@ public class Suite implements Persistable {
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
 
-    /**
-     * For serialization only;
-     */
+    @SuppressWarnings("unused")
     public Suite() {
 
     }
 
-    public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries, Vector<Menu> menus) {
+    public Suite(int version, Hashtable<String, Detail> details,
+                 Hashtable<String, Entry> entries, Vector<Menu> menus) {
         this.version = version;
         this.details = details;
         this.entries = entries;
         this.menus = menus;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
+    @Override
     public int getID() {
         return recordId;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
