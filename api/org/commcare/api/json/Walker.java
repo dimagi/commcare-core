@@ -52,7 +52,7 @@ public class Walker {
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
 
-            obj.put("relevant", relevant);
+            obj.put("relevant", relevant ? 1 : 0);
 
             if(obj.get("type").equals("sub-group")){
                 Walker walker;

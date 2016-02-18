@@ -26,17 +26,6 @@ import java.util.Vector;
  */
 public class PromptToJson {
 
-    public static String parseEvent(FormEntryModel model){
-        JSONObject obj = new JSONObject();
-        parseQuestionType(model, obj);
-        parseQuestion(model, model.getQuestionPrompt(), obj);
-        return obj.toString();
-    }
-
-    public static String formEntryModelToJson(FormEntryModel model) throws JSONException {
-        return formEntryModelToJson(model, model.getQuestionPrompt());
-    }
-
     public static String formEntryModelToJson(FormEntryModel model, FormEntryPrompt prompt) throws JSONException {
         JSONObject obj = new JSONObject();
         parseQuestion(model, prompt, obj);
@@ -57,7 +46,7 @@ public class PromptToJson {
         obj.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
         obj.put("style", jsonNullIfNull(parseStyle(prompt)));
         obj.put("datatype", jsonNullIfNull(parseControlType(prompt)));
-        obj.put("required", jsonNullIfNull(prompt.isRequired()));
+        obj.put("required", prompt.isRequired() ? 1 : 0);
         try {
             parsePutAnswer(obj, prompt);
         } catch(Exception e){
@@ -78,6 +67,7 @@ public class PromptToJson {
         int status = model.getEvent();
         FormIndex ix = model.getFormIndex();
         obj.put("ix", ix.toString());
+
         switch(status) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 obj.put("type", "form-start");

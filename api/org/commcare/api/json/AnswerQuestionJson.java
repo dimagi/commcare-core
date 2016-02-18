@@ -84,7 +84,7 @@ public class AnswerQuestionJson {
         }
         else if (result == FormEntryController.ANSWER_OK){
             ret.put("tree", WalkJson.walkToJSON(model, controller));
-            ret.put("status","success");
+            ret.put("status","accepted");
             //controller.stepToNextEvent();
         }
 
