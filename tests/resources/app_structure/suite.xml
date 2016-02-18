@@ -61,6 +61,43 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
   </entry>
+
+  <sync-request>
+    <post url="fake.com/claim_patient/">
+      <data key="selected_name" ref="instance('patients')/case[@case_type='test_case'][@status='open'][0]/name"/>
+      <data key="selected_case_id" ref="instance('patients')/case[@case_type='test_case'][@status='open'][0]/@case_id"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <command id="patient-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="fake.com/patient_search/" storage-instance="patients">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <data key="device_case_count" ref="instance('session')/session/data/case_count"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/case[@case_type='geriatric'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+    <stack>
+      <push>
+        <command value="'m1-f0'"/>
+        <datum id="calculated_data" value="'claimed'"/>
+      </push>
+    </stack>
+  </sync-request>
+
   <menu id="m0">
     <text>Menu</text>
     <command id="m0-f0"/>

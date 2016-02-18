@@ -38,11 +38,6 @@ public class FormEntry extends Entry {
         this.xFormNamespace = formNamespace;
     }
 
-    @Override
-    public boolean isView() {
-        return false;
-    }
-
     /**
      * @return The XForm Namespce of the form which should be filled out in
      * the form entry session triggered by this action.

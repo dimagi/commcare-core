@@ -52,7 +52,9 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         this.assertions = assertions;
     }
 
-    public abstract boolean isView();
+    public boolean isView() {
+        return false;
+    }
 
     /**
      * @return the ID of this entry command. Used by Menus to determine
