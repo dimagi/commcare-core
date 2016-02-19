@@ -19,31 +19,32 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
     @Override
     public void addNewRepeat(FormIndex formIndex) {
         final String formIndexString = formIndex.toString();
-        removeDuplicateAction(formIndexString);
-        actions.addElement(FormEntryAction.buildNewRepeatAction(formIndexString));
+        int insertIndex = removeDuplicateAction(formIndexString);
+        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(formIndexString), insertIndex);
     }
 
-    private void removeDuplicateAction(String formIndexString) {
+    private int removeDuplicateAction(String formIndexString) {
         for (int i = actions.size() - 1; i >= 0; i--) {
             if (actions.get(i).formIndexString.equals(formIndexString)) {
                 actions.remove(i);
-                return;
+                return i;
             }
         }
+        return actions.size();
     }
 
     @Override
     public void addValueSet(FormIndex formIndex, String value) {
         final String formIndexString = formIndex.toString();
-        removeDuplicateAction(formIndexString);
-        actions.addElement(FormEntryAction.buildValueSetAction(formIndexString, value));
+        int insertIndex = removeDuplicateAction(formIndexString);
+        actions.insertElementAt(FormEntryAction.buildValueSetAction(formIndexString, value), insertIndex);
     }
 
     @Override
     public void addQuestionSkip(FormIndex formIndex) {
         final String formIndexString = formIndex.toString();
-        removeDuplicateAction(formIndexString);
-        actions.addElement(FormEntryAction.buildSkipAction(formIndexString));
+        int insertIndex = removeDuplicateAction(formIndexString);
+        actions.insertElementAt(FormEntryAction.buildSkipAction(formIndexString), insertIndex);
     }
 
     public FormEntryAction popAction() {
@@ -128,6 +129,25 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
             } else {
                 return "";
             }
+        }
+
+        @Override
+        public int hashCode() {
+            return formIndexString.hashCode() ^ value.hashCode() ^ action.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (other instanceof FormEntryAction) {
+                FormEntryAction otherAction = (FormEntryAction)other;
+                return formIndexString.equals(otherAction.formIndexString) &&
+                        value.equals(otherAction.value) &&
+                        action.equals(otherAction.action);
+            }
+            return false;
         }
 
         public static FormEntryAction fromString(String entryActionString) {

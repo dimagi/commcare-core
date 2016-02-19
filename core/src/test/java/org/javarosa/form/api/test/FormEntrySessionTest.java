@@ -46,7 +46,11 @@ public class FormEntrySessionTest {
 
         FormIndex randomIndex = new FormIndex(FormIndex.createBeginningOfFormIndex(), 52, 2, null);
         formEntrySession.addValueSet(randomIndex, "bar");
+        FormEntrySession.FormEntryAction secondAction = formEntrySession.peekAction();
+
         formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
+
         Assert.assertEquals(2, formEntrySession.size());
+        Assert.assertEquals(secondAction, formEntrySession.peekAction());
     }
 }
