@@ -102,7 +102,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post, queries);
         }
 
-        throw new RuntimeException("Misconfigured entry parser");
+        throw new RuntimeException("Misconfigured entry parser with unsupported '" + parseDisplayBlock + "' tag.");
     }
 
     private DisplayUnit parseCommandDisplay() throws InvalidStructureException, IOException, XmlPullParserException {
