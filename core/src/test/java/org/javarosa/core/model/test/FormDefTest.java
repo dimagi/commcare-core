@@ -311,4 +311,17 @@ public class FormDefTest {
         fec.getNextIndex(fec.getModel().getFormIndex(), true);
     }
 
+    @Test
+    public void testModelIterationLookahead() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/model_iteration_lookahead.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("",
+                "20", "/data/myiterator/iterator[1]/target_value", evalCtx);
+    }
 }
