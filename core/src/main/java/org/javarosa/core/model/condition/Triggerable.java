@@ -292,11 +292,11 @@ public abstract class Triggerable implements Externalizable {
     }
 
     private int smallestIntersectingLevelWithPred(TreeReference refInExpr) {
-        TreeReference intersectionRef = contextRef.intersect(refInExpr);
-        for (int refLevel = 0; refLevel <= intersectionRef.size(); refLevel++) {
+        TreeReference intersectionRef = contextRef.intersect(refInExpr.removePredicates());
+        for (int refLevel = 0; refLevel < Math.min(refInExpr.size(), intersectionRef.size()); refLevel++) {
             Vector<XPathExpression> predicates = refInExpr.getPredicate(refLevel);
             if (predicates != null && predicates.size() > 0) {
-                return refLevel - 1;
+                return refLevel;
             }
         }
         return -1;
