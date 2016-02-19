@@ -59,7 +59,7 @@ public class AnswerQuestionJson {
         JSONObject ret = new JSONObject();
         IAnswerData answerData = null;
 
-        if(answer.equals("None")){
+        if(answer == null || answer.equals("None")){
             answerData = null;
         } else {
             try {
@@ -87,9 +87,6 @@ public class AnswerQuestionJson {
             ret.put("status","accepted");
             //controller.stepToNextEvent();
         }
-
-        System.out.println("RET: " + ret);
-
         return ret;
     }
 
