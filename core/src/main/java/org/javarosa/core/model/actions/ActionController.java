@@ -22,10 +22,14 @@ import java.util.Vector;
  *
  * @author Aliza Stone
  */
-public abstract class ActionController implements Externalizable {
+public class ActionController implements Externalizable {
 
     // map from an event to the actions it should trigger
-    private Hashtable<String, Vector<Action>> eventListeners = new Hashtable<String, Vector<Action>>();
+    private Hashtable<String, Vector<Action>> eventListeners;
+
+    public ActionController() {
+        this.eventListeners = new Hashtable<String, Vector<Action>>();
+    }
 
     private Vector<Action> getListenersForEvent(String event) {
         if (this.eventListeners.containsKey(event)) {

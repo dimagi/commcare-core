@@ -782,8 +782,8 @@ public class XFormParser {
         }
 
         // Check that the action was included in a valid place within the XForm
-        if (!(parent instanceof ActionController)) {
-            // parent must either be a FormDef or QuestionDef, both of which are ActionTriggerSources
+        if (!(parent instanceof IFormElement)) {
+            // parent must either be a FormDef or QuestionDef, both of which are IFormElements
             throw new XFormParseException("An action element occurred in an invalid location. " +
                     "Must be either a child of a control element, or a child of the <model>");
         }

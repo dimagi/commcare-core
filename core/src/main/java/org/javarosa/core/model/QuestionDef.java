@@ -49,7 +49,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa/Drew Roos
  */
-public class QuestionDef extends ActionController implements IFormElement, Localizable {
+public class QuestionDef implements IFormElement, Localizable {
     private int id;
 
     // reference to the location in the model from which to load data for the question,
@@ -69,6 +69,8 @@ public class QuestionDef extends ActionController implements IFormElement, Local
 
     Vector observers;
 
+    private ActionController actionController;
+
     public QuestionDef() {
         this(Constants.NULL_ID, Constants.DATATYPE_TEXT);
     }
@@ -84,6 +86,7 @@ public class QuestionDef extends ActionController implements IFormElement, Local
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
         //work reliably
         mQuestionStrings.put(XFormParser.LABEL_ELEMENT, new QuestionString(XFormParser.LABEL_ELEMENT, null));
+        actionController = new ActionController();
     }
 
     public void putQuestionString(String key, QuestionString value){
@@ -128,6 +131,11 @@ public class QuestionDef extends ActionController implements IFormElement, Local
 
     public void setAppearanceAttr(String appearanceAttr) {
         this.appearanceAttr = appearanceAttr;
+    }
+
+    @Override
+    public ActionController getActionController() {
+        return this.actionController;
     }
 
 
@@ -231,7 +239,6 @@ public class QuestionDef extends ActionController implements IFormElement, Local
      * @see org.javarosa.core.util.Externalizable#readExternal(java.io.DataInputStream)
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(dis, pf);
         setID(ExtUtil.readInt(dis));
         binding = (XPathReference)ExtUtil.read(dis, new ExtWrapNullable(new ExtWrapTagged()), pf);
         setAppearanceAttr((String) ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -243,6 +250,7 @@ public class QuestionDef extends ActionController implements IFormElement, Local
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
         mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
+        actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
 
     /*
@@ -250,7 +258,6 @@ public class QuestionDef extends ActionController implements IFormElement, Local
      * @see org.javarosa.core.util.Externalizable#writeExternal(java.io.DataOutputStream)
      */
     public void writeExternal(DataOutputStream dos) throws IOException {
-        super.writeExternal(dos);
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.write(dos, new ExtWrapNullable(binding == null ? null : new ExtWrapTagged(binding)));
         ExtUtil.write(dos, new ExtWrapNullable(getAppearanceAttr()));
@@ -259,6 +266,7 @@ public class QuestionDef extends ActionController implements IFormElement, Local
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
+        ExtUtil.write(dos, new ExtWrapNullable(actionController));
     }
 
     /* === MANAGING OBSERVERS === */

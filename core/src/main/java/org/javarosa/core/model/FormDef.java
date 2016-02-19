@@ -56,8 +56,8 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa, Drew Roos
  */
-public class FormDef extends ActionController
-        implements IFormElement, Persistable, IMetaData, ActionController.ActionResultProcessor {
+public class FormDef implements IFormElement, Persistable, IMetaData,
+        ActionController.ActionResultProcessor {
     public static final String STORAGE_KEY = "FORMDEF";
     public static final int TEMPLATING_RECURSION_LIMIT = 10;
 
@@ -132,6 +132,8 @@ public class FormDef extends ActionController
 
     private final Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
 
+    private ActionController actionController;
+
     /**
      * Cache children that trigger target will cascade to. For speeding up
      * calculations that determine what needs to be triggered when a value
@@ -152,6 +154,7 @@ public class FormDef extends ActionController
         submissionProfiles = new Hashtable<String, SubmissionProfile>();
         formInstances = new Hashtable<String, DataInstance>();
         extensions = new Vector<XFormExtension>();
+        actionController = new ActionController();
     }
 
 
@@ -382,7 +385,7 @@ public class FormDef extends ActionController
 
         // Fire jr-insert events before "calculate"s
         triggeredDuringInsert.clear();
-        triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
+        actionController.triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
 
         // trigger conditions that depend on the creation of this new node
         triggerTriggerables(repeatContextRef);
@@ -1409,7 +1412,7 @@ public class FormDef extends ActionController
     }
 
     public boolean postProcessInstance() {
-        triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
+        actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1457,7 +1460,6 @@ public class FormDef extends ActionController
      * @param dis - the stream to read from.
      */
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(dis, pf);
         setID(ExtUtil.readInt(dis));
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
         setTitle((String)ExtUtil.read(dis, new ExtWrapNullable(String.class), pf));
@@ -1485,6 +1487,7 @@ public class FormDef extends ActionController
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
         setEvaluationContext(new EvaluationContext(null));
+        actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
 
     /**
@@ -1512,7 +1515,7 @@ public class FormDef extends ActionController
             // only dispatch on a form's first opening, not subsequent loadings
             // of saved instances. Ensures setvalues triggered by xform-ready,
             // useful for recording form start dates.
-            triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
+            actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
 
         initAllTriggerables();
@@ -1525,7 +1528,6 @@ public class FormDef extends ActionController
      * @throws IOException
      */
     public void writeExternal(DataOutputStream dos) throws IOException {
-        super.writeExternal(dos);
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
         ExtUtil.write(dos, new ExtWrapNullable(getTitle()));
@@ -1553,6 +1555,7 @@ public class FormDef extends ActionController
 
         ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
+        ExtUtil.write(dos, new ExtWrapNullable(actionController));
     }
 
     public void collapseIndex(FormIndex index,
@@ -1809,6 +1812,11 @@ public class FormDef extends ActionController
      */
     public void setAppearanceAttr(String appearanceAttr) {
         throw new RuntimeException("This method call is not relevant for FormDefs setAppearanceAttr()");
+    }
+
+    @Override
+    public ActionController getActionController() {
+        return this.actionController;
     }
 
     /**

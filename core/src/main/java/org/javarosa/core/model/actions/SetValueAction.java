@@ -1,6 +1,7 @@
 package org.javarosa.core.model.actions;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.IFormElement;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -58,7 +59,9 @@ public class SetValueAction extends Action {
     public static IElementHandler getHandler() {
         return new IElementHandler() {
             public void handle(XFormParser p, Element e, Object parent) {
-                p.parseSetValueAction((ActionController)parent, e);
+                // the generic parseAction() method in XFormParser already checks to make sure
+                // that parent is an IFormElement, and throws an exception if it is not
+                p.parseSetValueAction(((IFormElement) parent).getActionController(), e);
             }
         };
     }
