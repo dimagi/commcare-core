@@ -1930,7 +1930,7 @@ public class XFormParser {
             try {
                 binding.constraint = new XPathConditional(xpathConstr);
             } catch (XPathSyntaxException xse) {
-                throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "constraint");
+                throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "validation");
             }
             binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
         }
