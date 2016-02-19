@@ -10,6 +10,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -53,6 +54,8 @@ public abstract class Triggerable implements Externalizable {
      */
     public TreeReference originalContextRef;
 
+    private int stopContextualizingAt;
+
     /**
      * Whether this trigger is collecting debug traces *
      */
@@ -74,6 +77,7 @@ public abstract class Triggerable implements Externalizable {
         this.contextRef = contextRef;
         this.originalContextRef = contextRef;
         this.targets = new Vector<TreeReference>();
+        this.stopContextualizingAt = -1;
     }
 
     protected abstract Object eval(FormInstance instance, EvaluationContext ec);
@@ -243,6 +247,7 @@ public abstract class Triggerable implements Externalizable {
         contextRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         originalContextRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         targets = (Vector<TreeReference>)ExtUtil.read(in, new ExtWrapList(TreeReference.class), pf);
+        stopContextualizingAt = ExtUtil.readInt(in);
     }
 
     @Override
@@ -251,6 +256,7 @@ public abstract class Triggerable implements Externalizable {
         ExtUtil.write(out, contextRef);
         ExtUtil.write(out, originalContextRef);
         ExtUtil.write(out, new ExtWrapList(targets));
+        ExtUtil.writeNumeric(out, stopContextualizingAt);
     }
 
     @Override
@@ -262,5 +268,37 @@ public abstract class Triggerable implements Externalizable {
                 sb.append(",");
         }
         return "trig[expr:" + expr.toString() + ";targets[" + sb.toString() + "]]";
+    }
+
+    public TreeReference contextualizeContext(TreeReference anchorRef) {
+        TreeReference contextulizedUsingAnchor = contextRef.contextualize(anchorRef);
+        if (stopContextualizingAt != -1) {
+            return contextulizedUsingAnchor.genericizeAfter(stopContextualizingAt);
+        } else {
+            return contextulizedUsingAnchor;
+        }
+    }
+
+    public void updateStopContextualizingAt(TreeReference refInExpr) {
+        int smallestIntersectionForRef = smallestIntersectingLevelWithPred(refInExpr);
+
+        if (smallestIntersectionForRef != -1) {
+            if (stopContextualizingAt == -1) {
+                stopContextualizingAt = smallestIntersectionForRef;
+            } else {
+                stopContextualizingAt = Math.min(stopContextualizingAt, smallestIntersectionForRef);
+            }
+        }
+    }
+
+    private int smallestIntersectingLevelWithPred(TreeReference refInExpr) {
+        TreeReference intersectionRef = contextRef.intersect(refInExpr);
+        for (int refLevel = 0; refLevel <= intersectionRef.size(); refLevel++) {
+            Vector<XPathExpression> predicates = refInExpr.getPredicate(refLevel);
+            if (predicates != null && predicates.size() > 0) {
+                return refLevel - 1;
+            }
+        }
+        return -1;
     }
 }

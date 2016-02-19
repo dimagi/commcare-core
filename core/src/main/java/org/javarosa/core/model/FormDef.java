@@ -593,10 +593,12 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggerablesInOrder = false;
 
             for (TreeReference trigger : t.getTriggers()) {
-                if (!triggerIndex.containsKey(trigger)) {
-                    triggerIndex.put(trigger.clone(), new Vector<Triggerable>());
+                t.updateStopContextualizingAt(trigger);
+                TreeReference plainTrigger = trigger.removePredicates();
+                if (!triggerIndex.containsKey(plainTrigger)) {
+                    triggerIndex.put(plainTrigger.clone(), new Vector<Triggerable>());
                 }
-                Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(trigger);
+                Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(plainTrigger);
                 if (!triggered.contains(t)) {
                     triggered.addElement(t);
                 }
@@ -1070,7 +1072,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      */
     private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
-        TreeReference contextRef = t.contextRef.contextualize(anchorRef);
+        TreeReference contextRef = t.contextualizeContext(anchorRef);
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
