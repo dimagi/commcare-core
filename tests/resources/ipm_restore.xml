@@ -279,7 +279,7 @@
           user_id="" xmlns="http://commcarehq.org/case/transaction/v2">
         <create>
             <case_type>user-owner-mapping-case</case_type>
-            <case_name/>
+            <case_name>Will Rules</case_name>
             <owner_id>a8f5a98c4ce767c35b9132bc75eb225c</owner_id>
         </create>
         <update>
