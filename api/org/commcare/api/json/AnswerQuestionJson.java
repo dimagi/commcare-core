@@ -72,7 +72,6 @@ public class AnswerQuestionJson {
             }
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
-        System.out.println("RESULT!: " + result);
         if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
             ret.put("status","error");
             ret.put("type", "required");

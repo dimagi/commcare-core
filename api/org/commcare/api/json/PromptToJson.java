@@ -10,6 +10,7 @@ import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -137,7 +138,7 @@ public class PromptToJson {
                 obj.put("answer", (double)answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", (answerValue.getDisplayText()));
+                obj.put("answer", (DateUtils.formatDate((Date)answerValue.getValue(), DateUtils.FORMAT_ISO8601)));
                 return;
             case Constants.DATATYPE_TIME:
                 obj.put("answer", answerValue.getDisplayText());
