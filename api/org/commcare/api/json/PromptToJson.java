@@ -3,12 +3,7 @@ package org.commcare.api.json;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.DateTimeData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.TimeData;
+import org.javarosa.core.model.data.*;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.form.api.FormEntryCaption;
@@ -19,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
@@ -147,21 +143,25 @@ public class PromptToJson {
                 obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
                 return;
             case Constants.DATATYPE_CHOICE:
+                Selection singleSelection = ((Selection)answerValue.getValue());
+                singleSelection.attachChoice(prompt.getQuestion());
                 obj.put("answer", ((Selection)answerValue.getValue()).index + 1);
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
                 Vector<Selection> selections = ((SelectMultiData)answerValue).getValue();
                 JSONArray acc = new JSONArray();
                 for(Selection selection: selections){
+                    selection.attachChoice(prompt.getQuestion());
                     int ordinal = selection.index + 1;
                     acc.put(ordinal);
                 }
                 obj.put("answer", acc);
                 return;
-
-            /* as yet unimplemented
             case Constants.DATATYPE_GEOPOINT:
-                return "geo";
+                double[] coords = ((GeoPointData)prompt.getAnswerValue()).getValue();
+                obj.put("answer", Arrays.copyOfRange(coords, 0, 2));
+                return;
+            /*
             case Constants.DATATYPE_BARCODE:
                 return "barcode";
             case Constants.DATATYPE_BINARY:

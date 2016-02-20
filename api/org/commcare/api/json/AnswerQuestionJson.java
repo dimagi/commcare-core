@@ -5,11 +5,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.data.*;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -91,7 +87,9 @@ public class AnswerQuestionJson {
 
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, String index){
+
         FormIndex formIndex = indexFromString(index, model.getForm());
+
         FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
         return questionAnswerToJson(controller, model, answer, prompt);
     }
@@ -100,7 +98,9 @@ public class AnswerQuestionJson {
 
         if(fep.getDataType() == Constants.DATATYPE_CHOICE){
             int index = Integer.parseInt(data);
+
             SelectChoice ans = fep.getSelectChoices().get(index -1);
+
             return new SelectOneData(ans.selection());
         } else if(fep.getDataType() == Constants.DATATYPE_CHOICE_LIST){
             String[] split = parseMultiSelectString(data);
@@ -111,6 +111,9 @@ public class AnswerQuestionJson {
                 ret.add(ans);
             }
             return new SelectMultiData(ret);
+        } else if (fep.getDataType() == Constants.DATATYPE_GEOPOINT){
+            return AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(
+                    new UncastData(data.replace(",", " ").replace("[","").replace("]", "")));
         }
 
         return data.equals("") ? null : AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(new UncastData(data));
@@ -118,10 +121,8 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
-        System.out.println("Step: " + step);
 
         if(step.endsWith("J")){
-            System.out.println("First: " + Integer.parseInt(step.substring(0, step.length()-1)));
             return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), -10);
         }
         String[] split = step.split("[._:]");
@@ -155,10 +156,8 @@ public class AnswerQuestionJson {
             return current;
         }
         Pair<Integer, Integer> currentStep = steps.remove(0);
-        System.out.println("Current Step: " + currentStep);
         FormIndex nextLevel = new FormIndex(current, currentStep.first, currentStep.second, null);
-        reduceFormIndex(steps, nextLevel);
-        return nextLevel;
+        return reduceFormIndex(steps, nextLevel);
     }
 
     public static FormIndex indexFromString(String stringIndex, FormDef form){
@@ -169,7 +168,10 @@ public class AnswerQuestionJson {
         } else if(stringIndex.equals(">")){
             return FormIndex.createEndOfFormIndex();
         }
-        FormIndex ret = reduceFormIndex(stepToList(stringIndex), null);
+
+        List<Pair<Integer, Integer>> list = stepToList(stringIndex);
+
+        FormIndex ret = reduceFormIndex(list, null);
         ret.assignRefs(form);
         return ret;
     }
