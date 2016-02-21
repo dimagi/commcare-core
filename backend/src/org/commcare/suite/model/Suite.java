@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.suite.model;
 
 import org.javarosa.core.services.storage.Persistable;
@@ -8,6 +5,7 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -17,11 +15,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * <p>Suites are containers for a set of actions,
+ * Suites are containers for a set of actions,
  * detail definitions, and UI information. A suite
  * generally contains a set of form entry actions
  * related to the same case ID, sometimes including
- * referrals.</p>
+ * referrals.
  *
  * @author ctsims
  */
@@ -30,7 +28,7 @@ public class Suite implements Persistable {
     public static final String STORAGE_KEY = "SUITE";
 
     private int version;
-    int recordId = -1;
+    private int recordId = -1;
 
     /**
      * String(detail id) -> Detail Object *
@@ -43,32 +41,25 @@ public class Suite implements Persistable {
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
 
-    /**
-     * For serialization only;
-     */
+    @SuppressWarnings("unused")
     public Suite() {
 
     }
 
-    public Suite(int version, Hashtable<String, Detail> details, Hashtable<String, Entry> entries, Vector<Menu> menus) {
+    public Suite(int version, Hashtable<String, Detail> details,
+                 Hashtable<String, Entry> entries, Vector<Menu> menus) {
         this.version = version;
         this.details = details;
         this.entries = entries;
         this.menus = menus;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
+    @Override
     public int getID() {
         return recordId;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
@@ -101,31 +92,23 @@ public class Suite implements Persistable {
         return details.get(id);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
         this.version = ExtUtil.readInt(in);
         this.details = (Hashtable<String, Detail>)ExtUtil.read(in, new ExtWrapMap(String.class, Detail.class), pf);
-        this.entries = (Hashtable<String, Entry>)ExtUtil.read(in, new ExtWrapMap(String.class, Entry.class), pf);
+        this.entries = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
         this.menus = (Vector<Menu>)ExtUtil.read(in, new ExtWrapList(Menu.class), pf);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, version);
         ExtUtil.write(out, new ExtWrapMap(details));
-        ExtUtil.write(out, new ExtWrapMap(entries));
+        ExtUtil.write(out, new ExtWrapMapPoly(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
     }
-
-
 }

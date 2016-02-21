@@ -1,6 +1,7 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -394,7 +395,11 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        return e.getXFormNamespace();
+        if (e.isView()) {
+            return null;
+        } else {
+            return ((FormEntry)e).getXFormNamespace();
+        }
     }
 
     public String getCommand() {
@@ -778,14 +783,7 @@ public class CommCareSession {
      */
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        Entry prototype = entries.elementAt(0);
-
-        // NOTE: We shouldn't need the "" here, but we're avoiding making changes to
-        // commcare core for release issues
-        return (entries.size() == 1 &&
-                (prototype.getXFormNamespace() == null ||
-                        prototype.getXFormNamespace().equals(""))) &&
-                prototype.getPostEntrySessionOperations().size() == 0;
+        return entries.elementAt(0).isView();
     }
 
     public void addExtraToCurrentFrameStep(String key, String value) {

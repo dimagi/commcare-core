@@ -16,43 +16,38 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * <p>
  * Profile is a model which defines the operating profile
  * of a CommCare application. An applicaiton's profile
  * defines what CommCare features should be activated,
  * certain properties which should be defined, and
  * any JavaRosa URI reference roots which should be
- * available.</p>
+ * available.
  *
  * @author ctsims
  */
-
 public class Profile implements Persistable {
 
     public static final String STORAGE_KEY = "PROFILE";
-
     public static final String FEATURE_REVIEW = "checkoff";
-
     public static final String FEATURE_USERS = "users";
 
-    int recordId = -1;
-    int version;
-    String authRef;
-    Vector<PropertySetter> properties;
-    Vector<RootTranslator> roots;
-    Hashtable<String, Boolean> featureStatus;
+    private int recordId = -1;
+    private int version;
+    private String authRef;
+    private Vector<PropertySetter> properties;
+    private Vector<RootTranslator> roots;
+    private Hashtable<String, Boolean> featureStatus;
 
-    String uniqueId;
-    String displayName;
+    private String uniqueId;
+    private String displayName;
+
     /**
      * Indicates if this was generated from an old version of the profile file, before fields
      * were added for multiple app seating functionality
      */
-    boolean fromOld;
+    private boolean fromOld;
 
-    /**
-     * Serialization Only!
-     */
+    @SuppressWarnings("unused")
     public Profile() {
 
     }
@@ -84,12 +79,14 @@ public class Profile implements Persistable {
         featureStatus.put("users", new Boolean(true));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
+    @Override
     public int getID() {
         return recordId;
+    }
+
+    @Override
+    public void setID(int ID) {
+        recordId = ID;
     }
 
     /**
@@ -116,14 +113,6 @@ public class Profile implements Persistable {
 	    return this.fromOld;
 	}
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
-    public void setID(int ID) {
-        recordId = ID;
-    }
-
     /**
      * @return The version of this profile which
      * is represented by this definition.
@@ -143,7 +132,6 @@ public class Profile implements Persistable {
         return authRef;
     }
 
-
     /**
      * Determines whether or not a specific CommCare feature should
      * be active in the current application.
@@ -154,10 +142,8 @@ public class Profile implements Persistable {
      * to end users.
      */
     public boolean isFeatureActive(String feature) {
-        if (!featureStatus.containsKey(feature)) {
-            return false;
-        }
-        return featureStatus.get(feature).booleanValue();
+        return featureStatus.containsKey(feature) &&
+                featureStatus.get(feature).booleanValue();
     }
 
     // The below methods should all be replaced by a model builder
@@ -207,10 +193,7 @@ public class Profile implements Persistable {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
@@ -225,10 +208,7 @@ public class Profile implements Persistable {
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, version);

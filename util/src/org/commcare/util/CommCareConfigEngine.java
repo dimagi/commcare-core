@@ -360,7 +360,11 @@ public class CommCareConfigEngine {
             head +=      "|- ";
             emptyhead += "   ";
         }
-        print.println(head + "Entry: " + e.getText().evaluate());
+        if (e.isView()) {
+            print.println(head + "View: " + e.getText().evaluate());
+        } else {
+            print.println(head + "Entry: " + e.getText().evaluate());
+        }
         for(SessionDatum datum : e.getSessionDataReqs()) {
             if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
                 print.println(emptyhead + "Form: " + datum.getValue());

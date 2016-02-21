@@ -1,6 +1,6 @@
 package org.commcare.suite.model;
 
-import org.commcare.suite.model.graph.DisplayData;
+import org.commcare.suite.model.DisplayData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;

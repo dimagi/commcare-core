@@ -100,6 +100,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 if (data[0] == null || data[2] == null) {
                     throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
                 }
+                if ("".equals(data[2])) {
+                    throw new InvalidStructureException("<case_name> for case <create> with ID: '" + caseId + "' must not be empty" + caseId, parser);
+                }
                 boolean overriden = false;
                 //CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
                 if (acceptCreateOverwrites) {
