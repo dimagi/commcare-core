@@ -29,7 +29,7 @@ import java.util.Vector;
 public class XPathLazyNodeset extends XPathNodeset {
 
     Boolean evaluated = Boolean.FALSE;
-    TreeReference unExpandedRef;
+    private TreeReference unExpandedRef;
 
     /**
      * Construct an XPath nodeset.
@@ -137,5 +137,8 @@ public class XPathLazyNodeset extends XPathNodeset {
     protected String nodeContents() {
         performEvaluation();
         return super.nodeContents();
+    }
+    public String getUnexpandedRefString() {
+        return unExpandedRef.toString();
     }
 }
