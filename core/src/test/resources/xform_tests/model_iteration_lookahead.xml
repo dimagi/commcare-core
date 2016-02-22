@@ -1,6 +1,7 @@
 <h:html xmlns="http://www.w3.org/2002/xforms"
         xmlns:h="http://www.w3.org/1999/xhtml" xmlns:jr="http://openrosa.org/javarosa"
-        xmlns:orx="http://openrosa.org/jr/xforms" xmlns:vellum="http://commcarehq.org/xforms/vellum_markup"
+        xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum_markup"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
         <h:title>Model Iteration</h:title>
@@ -8,7 +9,9 @@
             <instance>
                 <data name="Model Iteration"
                       uiVersion="1"
-                      version="279" xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                      version="279"
+                      xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                      xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
 
                     <!-- This is just here so the form works independently. This data connector might be case data or something instead. -->
                     <itemdata>
@@ -27,6 +30,7 @@
                             <value/>
                             <target/>
                             <target_value/>
+                            <relevancy_depending_on_future/>
                         </iterator>
                     </myiterator>
 
@@ -45,17 +49,24 @@
             <bind calculate="join(' ', /data/itemdata/item/@id)"
                   nodeset="/data/myiterator/elements"/>
 
-            <setvalue event="jr-insert" ref="/data/myiterator/iterator/@index"
+            <bind calculate="100"
+                  nodeset="/data/myiterator/iterator/relevancy_depending_on_future"
+                  relevant="/data/myiterator/iterator/target_value != ''"/>
+
+            <setvalue event="jr-insert"
+                      ref="/data/myiterator/iterator/@index"
                       value="int(/data/myiterator/cur_element)"/>
 
-            <bind calculate="count-selected(/data/myiterator/elements)" nodeset="/data/myiterator/num_elements"
+            <bind calculate="count-selected(/data/myiterator/elements)"
+                  nodeset="/data/myiterator/num_elements"
                   type="int"/>
             <bind calculate="count(/data/myiterator/iterator)"
                   nodeset="/data/myiterator/cur_element"/>
 
             <bind calculate="selected-at(/data/myiterator/elements,../@index)"
                   nodeset="/data/myiterator/iterator/@id"/>
-            <bind nodeset="/data/myiterator/iterator/question" relevant="false()"/>
+            <bind nodeset="/data/myiterator/iterator/question"
+                  relevant="false()"/>
 
             <itext>
                 <translation default="" lang="en">

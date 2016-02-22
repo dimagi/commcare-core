@@ -289,6 +289,14 @@ public abstract class Triggerable implements Externalizable {
         }
     }
 
+    public void updateStopContextualizingAtFromDominator(Triggerable dominator) {
+        if (dominator.stopContextualizingAt != -1 &&
+                (stopContextualizingAt == -1 || dominator.stopContextualizingAt < stopContextualizingAt) &&
+                dominator.contextRef.intersect(contextRef).size() >= dominator.stopContextualizingAt) {
+            stopContextualizingAt = dominator.stopContextualizingAt;
+        }
+    }
+
     private int smallestIntersectingLevelWithPred(TreeReference refInExpr) {
         TreeReference intersectionRef = contextRef.intersect(refInExpr.removePredicates());
         for (int refLevel = 0; refLevel < Math.min(refInExpr.size(), intersectionRef.size()); refLevel++) {

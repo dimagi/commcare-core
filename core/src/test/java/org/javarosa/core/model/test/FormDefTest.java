@@ -323,5 +323,7 @@ public class FormDefTest {
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         ExprEvalUtils.assertEqualsXpathEval("",
                 "20", "/data/myiterator/iterator[1]/target_value", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("",
+                100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
     }
 }
