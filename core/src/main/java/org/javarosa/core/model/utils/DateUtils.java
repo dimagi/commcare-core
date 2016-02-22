@@ -28,7 +28,9 @@ public class DateUtils {
      */
     public static final int FORMAT_TIMESTAMP_HTTP = 9;
 
-    public static final long DAY_IN_MS = 86400000l;
+    public static final long DAY_IN_MS = 86400000L;
+    private static final Date EPOCH_DATE = getDate(1970, 1, 1);
+    private final static long EPOCH_TIME = roundDate(EPOCH_DATE).getTime();
 
     public DateUtils() {
         super();
@@ -459,7 +461,6 @@ public class DateUtils {
         // it in the local timezone.
 
         c.setTimeZone(TimeZone.getDefault());
-        long four = c.get(Calendar.HOUR);
 
         DateFields adjusted = getFields(c.getTime());
 
@@ -575,7 +576,6 @@ public class DateUtils {
      * the provided date and the current date.
      */
     private static String formatDaysFromToday(DateFields f) {
-        String daysAgoStr = "";
         Date d = DateUtils.getDate(f);
         int daysAgo = DateUtils.daysSinceEpoch(new Date()) - DateUtils.daysSinceEpoch(d);
 
@@ -711,12 +711,12 @@ public class DateUtils {
      * @return The number of days (as a double precision floating point) since the Epoch
      */
     public static int daysSinceEpoch(Date date) {
-        return dateDiff(getDate(1970, 1, 1), date);
+        return (int)MathUtils.divLongNotSuck(roundDate(date).getTime() - EPOCH_TIME + DAY_IN_MS / 2, DAY_IN_MS);
     }
 
 
     public static Double fractionalDaysSinceEpoch(Date a) {
-        return new Double((a.getTime() - getDate(1970, 1, 1).getTime()) / (double)DAY_IN_MS);
+        return new Double((a.getTime() - EPOCH_DATE.getTime()) / (double)DAY_IN_MS);
     }
 
     /**

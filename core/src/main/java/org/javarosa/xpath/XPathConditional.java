@@ -176,7 +176,7 @@ public class XPathConditional implements IConditionExpr {
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         expr = (XPathExpression)ExtUtil.read(in, new ExtWrapTagged(), pf);
-        hasNow = (boolean)ExtUtil.readBool(in);
+        hasNow = ExtUtil.readBool(in);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
