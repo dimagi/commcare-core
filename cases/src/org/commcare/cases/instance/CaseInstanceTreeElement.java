@@ -44,6 +44,8 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     String syncToken;
     String stateHash;
+    int numRecords = -1;
+    TreeReference cachedRef = null;
 
     /**
      * In report mode, casedb is not the root of a document, and we only build the top
@@ -75,25 +77,19 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         expireCachedRef();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
+    @Override
     public boolean isLeaf() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
+    @Override
     public boolean isChildable() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
+    @Override
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
     }
@@ -102,9 +98,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         this.stringCache = stringCache;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
+    @Override
     public CaseChildElement getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
                 "case".equals(name)) {
@@ -124,9 +118,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
+    @Override
     public Vector getChildrenWithName(String name) {
         if (name.equals("case")) {
             getCases();
@@ -137,8 +129,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     }
 
-    int numRecords = -1;
-
+    @Override
     public boolean hasChildren() {
         if (getNumChildren() > 0) {
             return true;
@@ -146,9 +137,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
+    @Override
     public int getNumChildren() {
         if (caseRecords != null) {
             return caseRecords.length;
@@ -160,9 +149,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
+    @Override
     public CaseChildElement getChildAt(int i) {
         getCases();
         return cases.elementAt(i);
@@ -197,25 +184,19 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         this.stateHash = stateHash;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
-     */
+    @Override
     public boolean isRepeatable() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
-     */
+    @Override
     public boolean isAttribute() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
+    @Override
     public int getChildMultiplicity(String name) {
         //All children have the same name;
         if (name.equals("case")) {
@@ -225,24 +206,18 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRelevant()
-     */
+    @Override
     public boolean isRelevant() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
+    @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
+    @Override
     public int getAttributeCount() {
         if (syncToken == null) {
             return 0;
@@ -250,16 +225,12 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return 2;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
+    @Override
     public String getAttributeNamespace(int index) {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
+    @Override
     public String getAttributeName(int index) {
         if (index == 0) {
             return "syncToken";
@@ -270,9 +241,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
+    @Override
     public String getAttributeValue(int index) {
         if (index == 0) {
             return syncToken;
@@ -283,26 +252,19 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
+    @Override
     public CaseChildElement getAttribute(String namespace, String name) {
         //Oooooof, this is super janky;
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getAttributeValue(String namespace, String name) {
         return getAttributeValue("syncToken".equals(name) ? 0 : "stateHash".equals(name) ? 1 : -1);
     }
 
-    TreeReference cachedRef = null;
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
+    @Override
     public TreeReference getRef() {
         if (cachedRef == null) {
             cachedRef = TreeElement.buildRef(this);
@@ -314,38 +276,28 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         cachedRef = null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
+    @Override
     public String getName() {
         return MODEL_NAME;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
+    @Override
     public int getMult() {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
+    @Override
     public AbstractTreeElement getParent() {
         return instanceRoot;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
+    @Override
     public IAnswerData getValue() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
+    @Override
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
@@ -365,12 +317,13 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         //If we're matching a case index, we've got some magic to take care of. First,
         //generate the expected case ID
         if (expressionTemplate == CASE_INDEX_EXPR) {
-            filter += ((XPathPathExpr)matchingExpr).steps[1].name.name;
+            filter += matchingExpr.steps[1].name.name;
         }
 
         return filter;
     }
 
+    @Override
     public String getNamespace() {
         return null;
     }
@@ -387,10 +340,12 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return (Case)storage.read(recordId);
     }
 
+    @Override
     protected String getChildHintName() {
         return "case";
     }
 
+    @Override
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
         Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
 
@@ -404,10 +359,12 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         return indices;
     }
 
+    @Override
     protected IStorageUtilityIndexed<?> getStorage() {
         return storage;
     }
 
+    @Override
     protected void initStorageCache() {
         getCases();
     }
