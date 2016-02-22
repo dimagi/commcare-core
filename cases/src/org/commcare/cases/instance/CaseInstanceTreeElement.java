@@ -31,27 +31,34 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     public static final String MODEL_NAME = "casedb";
 
+    //Xpath parsing is sllllllloooooooowwwwwww
+    private final static XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
+    private final static XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
+    private final static XPathPathExpr CASE_TYPE_EXPR = XPathReference.getPathExpr("@case_type");
+    private final static XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
+    private final static XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
+
     private AbstractTreeElement instanceRoot;
 
-    protected IStorageUtilityIndexed storage;
+    protected final IStorageUtilityIndexed storage;
     private String[] caseRecords;
 
     protected Vector<CaseChildElement> cases;
 
     protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
 
-    protected Interner<String> stringCache;
+    private Interner<String> stringCache;
 
-    String syncToken;
-    String stateHash;
-    int numRecords = -1;
-    TreeReference cachedRef = null;
+    private String syncToken;
+    private String stateHash;
+    private int numRecords = -1;
+    private TreeReference cachedRef = null;
 
     /**
      * In report mode, casedb is not the root of a document, and we only build the top
      * level case node (not the whole thing)
      */
-    boolean reportMode;
+    final boolean reportMode;
 
     public CaseInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage, String[] caseIDs) {
         this(instanceRoot, storage, false);
@@ -131,10 +138,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return (getNumChildren() > 0);
     }
 
     @Override
@@ -302,13 +306,6 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         // TODO Auto-generated method stub
         return 0;
     }
-
-    //Xpath parsing is sllllllloooooooowwwwwww
-    final static private XPathPathExpr CASE_ID_EXPR = XPathReference.getPathExpr("@case_id");
-    final static private XPathPathExpr CASE_ID_EXPR_TWO = XPathReference.getPathExpr("./@case_id");
-    final static private XPathPathExpr CASE_TYPE_EXPR = XPathReference.getPathExpr("@case_type");
-    final static private XPathPathExpr CASE_STATUS_EXPR = XPathReference.getPathExpr("@status");
-    final static private XPathPathExpr CASE_INDEX_EXPR = XPathReference.getPathExpr("index/*");
 
 
     protected String translateFilterExpr(XPathPathExpr expressionTemplate, XPathPathExpr matchingExpr, Hashtable<XPathPathExpr, String> indices) {
