@@ -1,17 +1,10 @@
 apply plugin: 'java'
-apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
 sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
-}
-
-findbugs {
-  ignoreFailures = true
-  sourceSets = [sourceSets.main]
-  effort = "max"
 }
 
 pmd {
