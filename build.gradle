@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
@@ -7,10 +6,6 @@ sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
-}
-
-checkstyle {
-    toolVersion = "6.7"
 }
 
 findbugs {
@@ -109,7 +104,7 @@ task cliJar(type: Jar, dependsOn: cliClasses) {
         }
     }
     manifest {
-        attributes 'Main-Class': 'org.commcare.util.cli.CliMain'
+        attributes 'Main-Class': 'org.commcare.util.Harness'
     }
     
 }
