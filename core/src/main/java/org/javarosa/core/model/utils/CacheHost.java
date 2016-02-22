@@ -19,8 +19,7 @@ public interface CacheHost {
      * are constant time entities that require no side computation, and is unlikely
      * that optimizations will work if they are not.
      */
-    public String getCacheIndex(TreeReference ref);
-
+    String getCacheIndex(TreeReference ref);
 
     /**
      * Evaluates whether the provided tree reference pattern can
@@ -34,7 +33,7 @@ public interface CacheHost {
      * cache index, but merely that if one is returned that it will
      * be meaningful
      */
-    public boolean isReferencePatternCachable(TreeReference ref);
+    boolean isReferencePatternCachable(TreeReference ref);
 
     /**
      * Get the set of parameters expected to yield the best results for
@@ -49,5 +48,5 @@ public interface CacheHost {
      * String[] keys = returvalue[0];
      * String[] values = returnvalue[1];
      */
-    public String[][] getCachePrimeGuess();
+    String[][] getCachePrimeGuess();
 }
