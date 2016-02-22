@@ -142,13 +142,11 @@ public abstract class Triggerable implements Externalizable {
 
         Object result = eval(instance, triggerEval);
 
-        for (int i = 0; i < targets.size(); i++) {
-            TreeReference targetRef =
-                    ((TreeReference)targets.elementAt(i)).contextualize(ec.getContextRef());
-            Vector v = ec.expandReference(targetRef);
+        for (TreeReference baseTargetRef : targets) {
+            TreeReference targetRef = baseTargetRef.contextualize(ec.getContextRef());
+            Vector<TreeReference> expandedReferences = ec.expandReference(targetRef);
 
-            for (int j = 0; j < v.size(); j++) {
-                TreeReference affectedRef = (TreeReference)v.elementAt(j);
+            for (TreeReference affectedRef : expandedReferences) {
                 if (mIsDebugOn) {
                     mTriggerDebugs.put(affectedRef, triggerEval.getEvaluationTrace());
                 }
@@ -186,7 +184,7 @@ public abstract class Triggerable implements Externalizable {
         // construct absolute references by anchoring against the original context reference
         Vector<TreeReference> absTriggers = new Vector<TreeReference>();
         for (int i = 0; i < relTriggers.size(); i++) {
-            TreeReference ref = ((TreeReference)relTriggers.elementAt(i)).anchor(originalContextRef);
+            TreeReference ref = relTriggers.elementAt(i).anchor(originalContextRef);
             absTriggers.addElement(ref);
         }
         return absTriggers;
@@ -263,7 +261,7 @@ public abstract class Triggerable implements Externalizable {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < targets.size(); i++) {
-            sb.append(((TreeReference)targets.elementAt(i)).toString());
+            sb.append(targets.elementAt(i).toString());
             if (i < targets.size() - 1)
                 sb.append(",");
         }

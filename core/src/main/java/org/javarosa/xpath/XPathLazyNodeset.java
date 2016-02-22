@@ -75,10 +75,8 @@ public class XPathLazyNodeset extends XPathNodeset {
             //multiplicites) we should be able to do this without doing the expansion
 
             //first, see if this treeref is usable without expansion
-            int size = unExpandedRef.size();
             boolean safe = true;
-
-            for (int i = 0; i < size; ++i) {
+            for (int i = 0; i < unExpandedRef.size(); ++i) {
                 //We can't evaluated any predicates for sure
                 if (unExpandedRef.getPredicate(i) != null) {
                     safe = false;
@@ -95,8 +93,8 @@ public class XPathLazyNodeset extends XPathNodeset {
                 return super.unpack();
             }
 
-            //TOOD: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
-            //the same way, although invalid multiplicities should be fine.
+            // TODO: Evaluate error fallbacks, here. I don't know whether this handles the 0 case
+            // the same way, although invalid multiplicities should be fine.
             try {
                 //TODO: This doesn't handle templated nodes (repeats which may exist in the future)
                 //figure out if we can roll that in easily. For now the catch handles it
