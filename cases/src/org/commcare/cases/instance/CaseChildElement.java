@@ -281,13 +281,11 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             //If we're not in report node, fill in all of this data
             if (!parent.reportMode) {
-
                 TreeElement scratch = new TreeElement("case_name");
                 String name = c.getName();
                 //This shouldn't be possible
                 scratch.setAnswer(new StringData(name == null ? "" : name));
                 cacheBuilder.addChild(scratch);
-
 
                 scratch = new TreeElement("date_opened");
                 scratch.setAnswer(new DateData(c.getDateOpened()));
@@ -297,112 +295,12 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                 scratch.setAnswer(new DateData(c.getLastModified()));
                 cacheBuilder.addChild(scratch);
 
-                for (Enumeration en = c.getProperties().keys(); en.hasMoreElements(); ) {
-                    String key = (String)en.nextElement();
+                setCaseProperties(c, cacheBuilder);
 
-                    //this is an unfortunate complication of our internal model
-                    if (LAST_MODIFIED_KEY.equals(key)) {
-                        continue;
-                    }
-
-                    scratch = new TreeElement(parent.intern(key));
-                    Object temp = c.getProperty(key);
-                    if (temp instanceof String) {
-                        scratch.setValue(new UncastData((String)temp));
-                    } else {
-                        scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
-                    }
-                    cacheBuilder.addChild(scratch);
-                }
-                //TODO: Extract this pattern
-                TreeElement index = new TreeElement("index") {
-                    @Override
-                    public TreeElement getChild(String name, int multiplicity) {
-                        TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
-
-                        //TODO: Skeeeetchy, this is not a good way to do this,
-                        //should extract pattern instead.
-
-                        //If we haven't finished caching yet, we can safely not return
-                        //something useful here, so we can construct as normal.
-                        if (!done[0]) {
-                            return child;
-                        }
-
-                        //blank template index for repeats and such to not crash
-                        if (multiplicity >= 0 && child == null) {
-                            TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
-                            emptyNode.setAttribute(null, "case_type", "");
-                            emptyNode.setAttribute(null, "relationship", "");
-                            this.addChild(emptyNode);
-                            emptyNode.setParent(this);
-                            return emptyNode;
-                        }
-                        return child;
-                    }
-
-                    @Override
-                    public Vector<TreeElement> getChildrenWithName(String name) {
-                        Vector<TreeElement> children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
-
-                        //If we haven't finished caching yet, we can safely not return
-                        //something useful here, so we can construct as normal.
-                        if (!done[0]) {
-                            return children;
-                        }
-
-                        if (children.size() == 0) {
-                            TreeElement emptyNode = new TreeElement(name);
-                            emptyNode.setAttribute(null, "case_type", "");
-                            emptyNode.setAttribute(null, "relationship", "");
-
-                            this.addChild(emptyNode);
-                            emptyNode.setParent(this);
-                            children.addElement(emptyNode);
-                        }
-                        return children;
-                    }
-
-                };
-
-                Vector<CaseIndex> indices = c.getIndices();
-                for (CaseIndex i : indices) {
-                    scratch = new TreeElement(i.getName());
-                    scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
-                    scratch.setAttribute(null, "relationship", this.parent.intern(i.getRelationship()));
-                    scratch.setValue(new UncastData(i.getTarget()));
-                    index.addChild(scratch);
-                }
+                TreeElement index = buildIndexTreeElement(c, done);
                 cacheBuilder.addChild(index);
 
-                TreeElement attachments = new TreeElement("attachment") {
-                    public TreeElement getChild(String name, int multiplicity) {
-                        TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
-
-                        //TODO: Skeeeetchy, this is not a good way to do this,
-                        //should extract pattern instead.
-
-                        //If we haven't finished caching yet, we can safely not return
-                        //something useful here, so we can construct as normal.
-                        if (!done[0]) {
-                            return child;
-                        }
-                        if (multiplicity >= 0 && child == null) {
-                            TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
-                            this.addChild(emptyNode);
-                            emptyNode.setParent(this);
-                            return emptyNode;
-                        }
-                        return child;
-                    }
-
-                };
-
-                for (String attachment : c.getAttachments()) {
-                    scratch = new TreeElement(attachment);
-                    scratch.setValue(new UncastData(c.getAttachmentSource(attachment)));
-                    attachments.addChild(scratch);
-                }
+                TreeElement attachments = buildAttachmentTreeElement(c, done);
                 cacheBuilder.addChild(attachments);
             }
 
@@ -413,6 +311,118 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
             return cacheBuilder;
         }
+    }
+
+    private void setCaseProperties(Case c, TreeElement cacheBuilder) {
+        for (Enumeration en = c.getProperties().keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+
+            //this is an unfortunate complication of our internal model
+            if (LAST_MODIFIED_KEY.equals(key)) {
+                continue;
+            }
+
+            TreeElement scratch = new TreeElement(parent.intern(key));
+            Object temp = c.getProperty(key);
+            if (temp instanceof String) {
+                scratch.setValue(new UncastData((String)temp));
+            } else {
+                scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
+            }
+            cacheBuilder.addChild(scratch);
+        }
+    }
+
+    private TreeElement buildIndexTreeElement(Case c, final boolean[] done) {
+        TreeElement index = new TreeElement("index") {
+            @Override
+            public TreeElement getChild(String name, int multiplicity) {
+                TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
+
+                //TODO: Skeeeetchy, this is not a good way to do this,
+                //should extract pattern instead.
+
+                //If we haven't finished caching yet, we can safely not return
+                //something useful here, so we can construct as normal.
+                if (!done[0]) {
+                    return child;
+                }
+
+                //blank template index for repeats and such to not crash
+                if (multiplicity >= 0 && child == null) {
+                    TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
+                    emptyNode.setAttribute(null, "case_type", "");
+                    emptyNode.setAttribute(null, "relationship", "");
+                    this.addChild(emptyNode);
+                    emptyNode.setParent(this);
+                    return emptyNode;
+                }
+                return child;
+            }
+
+            @Override
+            public Vector<TreeElement> getChildrenWithName(String name) {
+                Vector<TreeElement> children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
+
+                //If we haven't finished caching yet, we can safely not return
+                //something useful here, so we can construct as normal.
+                if (!done[0]) {
+                    return children;
+                }
+
+                if (children.size() == 0) {
+                    TreeElement emptyNode = new TreeElement(name);
+                    emptyNode.setAttribute(null, "case_type", "");
+                    emptyNode.setAttribute(null, "relationship", "");
+
+                    this.addChild(emptyNode);
+                    emptyNode.setParent(this);
+                    children.addElement(emptyNode);
+                }
+                return children;
+            }
+        };
+
+        Vector<CaseIndex> indices = c.getIndices();
+        for (CaseIndex i : indices) {
+            TreeElement scratch = new TreeElement(i.getName());
+            scratch.setAttribute(null, "case_type", this.parent.intern(i.getTargetType()));
+            scratch.setAttribute(null, "relationship", this.parent.intern(i.getRelationship()));
+            scratch.setValue(new UncastData(i.getTarget()));
+            index.addChild(scratch);
+        }
+        return index;
+    }
+
+    private TreeElement buildAttachmentTreeElement(Case c, final boolean[] done) {
+        TreeElement attachments = new TreeElement("attachment") {
+            public TreeElement getChild(String name, int multiplicity) {
+                TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
+
+                //TODO: Skeeeetchy, this is not a good way to do this,
+                //should extract pattern instead.
+
+                //If we haven't finished caching yet, we can safely not return
+                //something useful here, so we can construct as normal.
+                if (!done[0]) {
+                    return child;
+                }
+                if (multiplicity >= 0 && child == null) {
+                    TreeElement emptyNode = new TreeElement(CaseChildElement.this.parent.intern(name));
+                    this.addChild(emptyNode);
+                    emptyNode.setParent(this);
+                    return emptyNode;
+                }
+                return child;
+            }
+        };
+
+        for (String attachment : c.getAttachments()) {
+            TreeElement scratch = new TreeElement(attachment);
+            scratch.setValue(new UncastData(c.getAttachmentSource(attachment)));
+            attachments.addChild(scratch);
+        }
+        return attachments;
     }
 
     public boolean isRelevant() {
