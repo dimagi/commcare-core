@@ -31,8 +31,11 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     int mult;
 
     TreeElement empty;
+    TreeReference ref;
 
     int numChildren = -1;
+
+    static final String LAST_MODIFIED_KEY = "last_modified";
 
     public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
         if (recordId == -1 && caseId == null) {
@@ -44,7 +47,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         this.mult = mult;
     }
 
-    /*
+    /**
      * Template constructor (For elements that need to create reference nodesets but never look up values)
      */
     private CaseChildElement(CaseInstanceTreeElement parent) {
@@ -75,31 +78,23 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         empty.addChild(scratch);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
+    @Override
     public boolean isLeaf() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
+    @Override
     public boolean isChildable() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
+    @Override
     public String getInstanceName() {
         return parent.getInstanceName();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
+    @Override
     public TreeElement getChild(String name, int multiplicity) {
         TreeElement cached = cache();
         TreeElement child = cached.getChild(name, multiplicity);
@@ -112,9 +107,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return child;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
+    @Override
     public Vector getChildrenWithName(String name) {
         //In order
         TreeElement cached = cache();
@@ -128,13 +121,12 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return children;
     }
 
+    @Override
     public boolean hasChildren() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
+    @Override
     public int getNumChildren() {
         if (numChildren == -1) {
             numChildren = cache().getNumChildren();
@@ -142,74 +134,54 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return numChildren;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
+    @Override
     public TreeElement getChildAt(int i) {
         return cache().getChildAt(i);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
-     */
+    @Override
     public boolean isRepeatable() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
-     */
+    @Override
     public boolean isAttribute() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
+    @Override
     public int getChildMultiplicity(String name) {
         return cache().getChildMultiplicity(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
+    @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
+    @Override
     public int getAttributeCount() {
         //TODO: Attributes should be fixed and possibly only include meta-details
         return cache().getAttributeCount();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
+    @Override
     public String getAttributeNamespace(int index) {
         return cache().getAttributeNamespace(index);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
+    @Override
     public String getAttributeName(int index) {
         return cache().getAttributeName(index);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
+    @Override
     public String getAttributeValue(int index) {
         return cache().getAttributeValue(index);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
+    @Override
     public TreeElement getAttribute(String namespace, String name) {
         if (name.equals("case_id")) {
             if (recordId != TreeReference.INDEX_TEMPLATE) {
@@ -236,9 +208,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return cache().getAttribute(namespace, name);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getAttributeValue(String namespace, String name) {
         if (name.equals("case_id")) {
             return caseId;
@@ -246,11 +216,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return cache().getAttributeValue(namespace, name);
     }
 
-    TreeReference ref;
-
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
+    @Override
     public TreeReference getRef() {
         if (ref == null) {
             ref = TreeElement.buildRef(this);
@@ -258,46 +224,33 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         return ref;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
+    @Override
     public String getName() {
         return "case";
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
+    @Override
     public int getMult() {
         // TODO Auto-generated method stub
         return mult;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
+    @Override
     public AbstractTreeElement getParent() {
         return parent;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
+    @Override
     public IAnswerData getValue() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
+    @Override
     public int getDataType() {
         // TODO Auto-generated method stub
         return 0;
     }
-
-
-    static final String LAST_MODIFIED_KEY = "last_modified";
 
     //TODO: THIS IS NOT THREAD SAFE
     private TreeElement cache() {
@@ -367,6 +320,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                 }
                 //TODO: Extract this pattern
                 TreeElement index = new TreeElement("index") {
+                    @Override
                     public TreeElement getChild(String name, int multiplicity) {
                         TreeElement child = super.getChild(CaseChildElement.this.parent.intern(name), multiplicity);
 
@@ -391,9 +345,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                         return child;
                     }
 
-                    /* (non-Javadoc)
-                     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-                     */
+                    @Override
                     public Vector getChildrenWithName(String name) {
                         Vector children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
 
@@ -483,5 +435,4 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     public String getNamespace() {
         return null;
     }
-
 }
