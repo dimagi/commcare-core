@@ -220,7 +220,7 @@ public class FormEntryController {
      *
      * @param forward If true, get the next FormIndex, else get the previous one.
      */
-    private FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
+    public FormIndex getAdjacentIndex(FormIndex index, boolean forward, boolean expandRepeats) {
         boolean descend = true;
         boolean relevant;
         boolean inForm;
