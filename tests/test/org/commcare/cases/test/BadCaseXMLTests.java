@@ -42,14 +42,4 @@ public class BadCaseXMLTests {
             Assert.assertEquals("Case XML with invalid index not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
         }
     }
-
-    @Test(expected = InvalidStructureException.class)
-    public void testNoCaseName() throws Exception {
-        try {
-            ParseUtils.parseIntoSandbox(this.getClass().getResourceAsStream("/case_parse/case_create_broken_no_casename.xml"), sandbox, true);
-        } finally {
-            // Ensure we didn't make a case entry for the bad case
-            Assert.assertEquals("Case XML with no name should not have created a case record", sandbox.getCaseStorage().getNumRecords(), 0);
-        }
-    }
 }
