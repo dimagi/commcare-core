@@ -45,7 +45,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     protected Vector<CaseChildElement> cases;
 
-    protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
+    protected final Interner<TreeElement> treeCache = new Interner<TreeElement>();
 
     private Interner<String> stringCache;
 

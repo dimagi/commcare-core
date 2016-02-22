@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.instance;
 
 import org.commcare.cases.model.Case;
@@ -25,17 +22,17 @@ import java.util.Vector;
  */
 public class CaseChildElement implements AbstractTreeElement<TreeElement> {
 
-    CaseInstanceTreeElement parent;
-    int recordId;
-    String caseId;
-    int mult;
+    private CaseInstanceTreeElement parent;
+    private int recordId;
+    private String caseId;
+    private int mult;
 
-    TreeElement empty;
-    TreeReference ref;
+    private TreeElement empty;
+    private TreeReference ref;
 
-    int numChildren = -1;
+    private int numChildren = -1;
 
-    static final String LAST_MODIFIED_KEY = "last_modified";
+    private static final String LAST_MODIFIED_KEY = "last_modified";
 
     public CaseChildElement(CaseInstanceTreeElement parent, int recordId, String caseId, int mult) {
         if (recordId == -1 && caseId == null) {
@@ -108,10 +105,10 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     }
 
     @Override
-    public Vector getChildrenWithName(String name) {
+    public Vector<TreeElement> getChildrenWithName(String name) {
         //In order
         TreeElement cached = cache();
-        Vector children = cached.getChildrenWithName(name);
+        Vector<TreeElement> children = cached.getChildrenWithName(name);
         if (children.size() == 0) {
             TreeElement emptyNode = new TreeElement(name);
             cached.addChild(emptyNode);
@@ -264,14 +261,13 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             }
             //For now this seems impossible
             if (recordId == -1) {
-                Vector<Integer> ids = parent.storage.getIDsForValue("case_id", caseId);
+                Vector<Integer> ids = (Vector<Integer>)parent.storage.getIDsForValue("case_id", caseId);
                 recordId = ids.elementAt(0).intValue();
             }
 
-            TreeElement cacheBuilder = new TreeElement("case");
             Case c = parent.getCase(recordId);
             caseId = c.getCaseId();
-            cacheBuilder = new TreeElement("case");
+            TreeElement cacheBuilder = new TreeElement("case");
             cacheBuilder.setMult(this.mult);
 
             cacheBuilder.setAttribute(null, "case_id", c.getCaseId());
@@ -346,8 +342,8 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
                     }
 
                     @Override
-                    public Vector getChildrenWithName(String name) {
-                        Vector children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
+                    public Vector<TreeElement> getChildrenWithName(String name) {
+                        Vector<TreeElement> children = super.getChildrenWithName(CaseChildElement.this.parent.intern(name));
 
                         //If we haven't finished caching yet, we can safely not return
                         //something useful here, so we can construct as normal.
