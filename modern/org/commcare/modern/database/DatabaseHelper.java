@@ -80,9 +80,7 @@ public class DatabaseHelper {
         }
 
         String[] retArray = new String[arguments.size()];
-        for(int i =0; i< arguments.size(); i++){
-            retArray[i] = arguments.get(i);
-        }
+        arguments.toArray(retArray);
 
         return new Pair<String, String[]>(stringBuilder.toString(), retArray);
     }
