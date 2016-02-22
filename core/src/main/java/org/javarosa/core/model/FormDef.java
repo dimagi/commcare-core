@@ -419,7 +419,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     public boolean isRepeatRelevant(TreeReference repeatRef) {
         boolean relev = true;
 
-        Condition c = (Condition)conditionRepeatTargetIndex.get(repeatRef.genericize());
+        Condition c = conditionRepeatTargetIndex.get(repeatRef.genericize());
         if (c != null) {
             relev = c.evalBool(mainInstance, new EvaluationContext(exprEvalContext, repeatRef));
         }
@@ -641,7 +641,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      * the appropriate ordering and dependencies to ensure the conditions will be evaluated
      * in the appropriate orders.
      *
-     * @throws IllegalStateException - If the trigger ordering contains an illegal cycle and the
+     * @throws IllegalStateException If the trigger ordering contains an illegal cycle and the
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
@@ -649,81 +649,94 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
         //trigbles come only after the trigbles they depend on
 
         Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = triggerables.elementAt(i);
-
-            Vector<Triggerable> deps = new Vector<Triggerable>();
-            fillTriggeredElements(t, deps, false);
-
-            for (int j = 0; j < deps.size(); j++) {
-                Triggerable u = deps.elementAt(j);
-                Triggerable[] edge = {t, u};
-                partialOrdering.addElement(edge);
-            }
-        }
+        buildPartialOrdering(partialOrdering);
 
         Vector<Triggerable> vertices = new Vector<Triggerable>();
-        for (int i = 0; i < triggerables.size(); i++)
-            vertices.addElement(triggerables.elementAt(i));
+        for (Triggerable triggerable : triggerables) {
+            vertices.addElement(triggerable);
+        }
         triggerables.removeAllElements();
 
         while (vertices.size() > 0) {
-            //determine root nodes
-            Vector<Triggerable> roots = new Vector<Triggerable>();
-            for (int i = 0; i < vertices.size(); i++) {
-                roots.addElement(vertices.elementAt(i));
-            }
-            for (int i = 0; i < partialOrdering.size(); i++) {
-                Triggerable[] edge = partialOrdering.elementAt(i);
-                roots.removeElement(edge[1]);
-            }
+            Vector<Triggerable> roots = buildRootNodes(vertices, partialOrdering);
 
-            //if no root nodes while graph still has nodes, graph has cycles
             if (roots.size() == 0) {
-                String hints = "";
-                for (Triggerable t : vertices) {
-                    for (TreeReference r : t.getTargets()) {
-                        hints += "\n" + r.toString(true);
-                    }
-                }
-                String message = "Cycle detected in form's relevant and calculation logic!";
-                if (!hints.equals("")) {
-                    message += "\nThe following nodes are likely involved in the loop:" + hints;
-                }
-                throw new IllegalStateException(message);
+                // if no root nodes while graph still has nodes, graph has cycles
+                throwGraphCyclesException(vertices);
             }
 
-            //remove root nodes and edges originating from them
-            for (int i = 0; i < roots.size(); i++) {
-                Triggerable root = roots.elementAt(i);
-                triggerables.addElement(root);
-                vertices.removeElement(root);
-            }
-            for (int i = partialOrdering.size() - 1; i >= 0; i--) {
-                Triggerable[] edge = partialOrdering.elementAt(i);
-                if (roots.contains(edge[0]))
-                    partialOrdering.removeElementAt(i);
-            }
+            setOrderOfTriggerable(roots, vertices, partialOrdering);
         }
 
         triggerablesInOrder = true;
 
-        //build the condition index for repeatable nodes
+        buildConditionRepeatTargetIndex();
+    }
 
+    private void buildPartialOrdering(Vector<Triggerable[]> partialOrdering) {
+        for (Triggerable t : triggerables) {
+            Vector<Triggerable> deps = new Vector<Triggerable>();
+            fillTriggeredElements(t, deps, false);
+
+            for (Triggerable u : deps) {
+                Triggerable[] edge = {t, u};
+                partialOrdering.addElement(edge);
+            }
+        }
+    }
+
+    private static Vector<Triggerable> buildRootNodes(Vector<Triggerable> vertices,
+                                                      Vector<Triggerable[]> partialOrdering) {
+        Vector<Triggerable> roots = new Vector<Triggerable>();
+        for (int i = 0; i < vertices.size(); i++) {
+            roots.addElement(vertices.elementAt(i));
+        }
+        for (int i = 0; i < partialOrdering.size(); i++) {
+            Triggerable[] edge = partialOrdering.elementAt(i);
+            roots.removeElement(edge[1]);
+        }
+        return roots;
+    }
+
+    private void throwGraphCyclesException(Vector<Triggerable> vertices) {
+        String hints = "";
+        for (Triggerable t : vertices) {
+            for (TreeReference r : t.getTargets()) {
+                hints += "\n" + r.toString(true);
+            }
+        }
+        String message = "Cycle detected in form's relevant and calculation logic!";
+        if (!hints.equals("")) {
+            message += "\nThe following nodes are likely involved in the loop:" + hints;
+        }
+        throw new IllegalStateException(message);
+    }
+
+    private void setOrderOfTriggerable(Vector<Triggerable> roots,
+                                       Vector<Triggerable> vertices,
+                                       Vector<Triggerable[]> partialOrdering) {
+        for (Triggerable root : roots) {
+            triggerables.addElement(root);
+            vertices.removeElement(root);
+        }
+        for (int i = partialOrdering.size() - 1; i >= 0; i--) {
+            Triggerable[] edge = partialOrdering.elementAt(i);
+            if (roots.contains(edge[0]))
+                partialOrdering.removeElementAt(i);
+        }
+    }
+
+    private void buildConditionRepeatTargetIndex() {
         conditionRepeatTargetIndex = new Hashtable<TreeReference, Condition>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = triggerables.elementAt(i);
+        for (Triggerable t : triggerables) {
             if (t instanceof Condition) {
-                Vector targets = t.getTargets();
-                for (int j = 0; j < targets.size(); j++) {
-                    TreeReference target = (TreeReference)targets.elementAt(j);
+                for (TreeReference target : t.getTargets()) {
                     if (mainInstance.getTemplate(target) != null) {
                         conditionRepeatTargetIndex.put(target, (Condition)t);
                     }
                 }
             }
         }
-
     }
 
     /**
