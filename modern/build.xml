@@ -9,6 +9,7 @@
         <path id="classpath">
             <fileset dir="${dir.lib}" includes="*.jar"/>
             <fileset dir="${dir.jrlib}" includes="*.jar"/>
+            <fileset dir="${dir.modern.lib}" includes="*.jar"/>
         </path>
         <mkdir dir="bin/"/>
         <mkdir dir="dist/"/>
@@ -28,6 +29,8 @@
                debuglevel="lines,source" source="1.7" target="1.7"/>
     <javac srcdir="${dir.commcare.modern}/" destdir="bin/" classpathref="classpath" debug="true"
                debuglevel="lines,source" source="1.7" target="1.7"/>
+        <javac srcdir="${dir.commcare.api}/" destdir="bin/" classpathref="classpath" debug="true"
+            debuglevel="lines,source" source="1.7" target="1.7"/>
     </target>
 
     <target name="package" depends="compile" description="package binary into jar">
