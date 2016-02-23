@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.xml.util;
 
 import org.kxml2.io.KXmlParser;
