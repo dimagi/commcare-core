@@ -277,7 +277,7 @@ public abstract class Triggerable implements Externalizable {
         }
     }
 
-    public void updateStopContextualizingAt(TreeReference refInExpr) {
+    public TreeReference widenContextToAndClearPredicates(TreeReference refInExpr) {
         int smallestIntersectionForRef = smallestIntersectingLevelWithPred(refInExpr);
 
         if (smallestIntersectionForRef != -1) {
@@ -287,6 +287,7 @@ public abstract class Triggerable implements Externalizable {
                 stopContextualizingAt = Math.min(stopContextualizingAt, smallestIntersectionForRef);
             }
         }
+        return refInExpr.removePredicates();
     }
 
     public void updateStopContextualizingAtFromDominator(Triggerable dominator) {

@@ -593,12 +593,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggerablesInOrder = false;
 
             for (TreeReference trigger : t.getTriggers()) {
-                t.updateStopContextualizingAt(trigger);
-                TreeReference plainTrigger = trigger.removePredicates();
-                if (!triggerIndex.containsKey(plainTrigger)) {
-                    triggerIndex.put(plainTrigger.clone(), new Vector<Triggerable>());
+                TreeReference predicatelessTrigger = t.widenContextToAndClearPredicates(trigger);
+                if (!triggerIndex.containsKey(predicatelessTrigger)) {
+                    triggerIndex.put(predicatelessTrigger.clone(), new Vector<Triggerable>());
                 }
-                Vector<Triggerable> triggered = triggerIndex.get(plainTrigger);
+                Vector<Triggerable> triggered = triggerIndex.get(predicatelessTrigger);
                 if (!triggered.contains(t)) {
                     triggered.addElement(t);
                 }
