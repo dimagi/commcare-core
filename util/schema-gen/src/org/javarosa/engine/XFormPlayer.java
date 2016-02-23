@@ -50,12 +50,12 @@ import java.util.Vector;
 public class XFormPlayer {
 
     XFormEnvironment environment;
-    FormEntryController fec;
-    InstanceInitializationFactory mIIF;
+    private FormEntryController fec;
+    private InstanceInitializationFactory mIIF;
     //FormIndex current;
 
-    PrintStream out;
-    InputStream in;
+    private final PrintStream out;
+    private final InputStream in;
 
     public enum FormResult {
         Cancelled,
@@ -63,17 +63,17 @@ public class XFormPlayer {
         Output_Error,
         Quit,
         Unknown,
-        Completed;
+        Completed
     }
 
-    boolean mProcessOnExit = false;
+    private boolean mProcessOnExit = false;
     private FormResult mExecutionResult = FormResult.Unknown;
 
     private byte[] mExecutionInstance;
 
-    BufferedReader reader;
+    private BufferedReader reader;
 
-    boolean forward = true;
+    private boolean forward = true;
 
     private Step current;
 
@@ -85,7 +85,7 @@ public class XFormPlayer {
 
     private String mPreferredLocale;
 
-    Mockup mockup;
+    private final Mockup mockup;
 
     public XFormPlayer(InputStream in, PrintStream out, Mockup mockup) {
         this.in = in;
@@ -101,13 +101,11 @@ public class XFormPlayer {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)));
     }
 
-
     public void start(String formPath, Session session) throws FileNotFoundException {
         this.start(XFormUtils.getFormFromInputStream(new FileInputStream(formPath)), session);
     }
 
-
-    public void start(FormDef form, Session session) {
+    private void start(FormDef form, Session session) {
         this.environment = new XFormEnvironment(form, session);
         fec = environment.setup();
         reader = new BufferedReader(new InputStreamReader(in));
@@ -116,7 +114,7 @@ public class XFormPlayer {
 
     public void start(FormDef form) {
         this.environment = new XFormEnvironment(form, mockup);
-        if(mPreferredLocale != null) {
+        if (mPreferredLocale != null) {
             this.environment.setLocale(mPreferredLocale);
         }
         fec = environment.setup(this.mIIF);
@@ -205,10 +203,10 @@ public class XFormPlayer {
                     if (input.startsWith(":")) {
                         exit = command(input.substring(1));
                     } else {
-                            //what we do depends on the current item
-                        exit = input(input);
+                        //what we do depends on the current item
+                        exit = answerQuestion(input);
                     }
-                } catch(InvalidInputException e) {
+                } catch (InvalidInputException e) {
                     //User will retry after receiving message
                     exit = false;
                 }
@@ -222,7 +220,7 @@ public class XFormPlayer {
         }
         //Form is finished.
         //TODO: Final constraint/etc validation
-        if(mProcessOnExit) {
+        if (mProcessOnExit) {
             fec.getModel().getForm().postProcessInstance();
             serializeResult();
         }
@@ -231,7 +229,7 @@ public class XFormPlayer {
     private void serializeResult() {
         XFormSerializingVisitor visitor = new XFormSerializingVisitor();
         try {
-            mExecutionInstance  = visitor.serializeInstance(fec.getModel().getForm().getInstance());
+            mExecutionInstance = visitor.serializeInstance(fec.getModel().getForm().getInstance());
             clear();
             out.println(new String(mExecutionInstance));
             mExecutionResult = FormResult.Completed;
@@ -252,8 +250,6 @@ public class XFormPlayer {
     /**
      * Evaluate input to eval mode, and exit eval mode if
      * the input is blank.
-     *
-     * @param evalModeInput
      */
     private void evalModeInput(String evalModeInput) {
         if (evalModeInput.equals("")) {
@@ -262,7 +258,6 @@ public class XFormPlayer {
         } else {
             evalExpression(evalModeInput);
         }
-
     }
 
     private boolean command(String command) throws BadPlaybackException, InvalidInputException {
@@ -281,7 +276,7 @@ public class XFormPlayer {
             out.println("Cancelling form entry!");
             mExecutionResult = FormResult.Cancelled;
             return true;
-        }  else if ("finish".equalsIgnoreCase(command)) {
+        } else if ("finish".equalsIgnoreCase(command)) {
             out.println("Attempting to finish the form in its current state...");
             mProcessOnExit = true;
             return true;
@@ -289,7 +284,7 @@ public class XFormPlayer {
             int spaceIndex = command.indexOf(" ");
             if (command.length() == spaceIndex || spaceIndex == -1) {
                 printInstance(out, fec.getModel().getForm().getInstance());
-            } else{
+            } else {
                 //This is the instance the user wants to print
                 String arg = command.substring(spaceIndex + 1);
                 printExternalInstance(out, arg);
@@ -317,7 +312,7 @@ public class XFormPlayer {
             return false;
         }
     }
-    
+
     private void displayRelevant() {
         FormIndex current = this.fec.getModel().getFormIndex();
         String output = this.fec.getModel().getDebugInfo(current, "relevant", new StringEvaluationTraceSerializer());
@@ -328,7 +323,7 @@ public class XFormPlayer {
         }
     }
 
-    public void evalExpression(String xpath) {
+    private void evalExpression(String xpath) {
         out.println(xpath);
         XPathExpression expr;
         try {
@@ -369,13 +364,13 @@ public class XFormPlayer {
             return XPathFuncExpr.toString(value);
         }
     }
-    
-    public void printExternalInstance(PrintStream out, String instanceRef) {
+
+    private void printExternalInstance(PrintStream out, String instanceRef) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             DataModelSerializer s = new DataModelSerializer(bos, mIIF);
 
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
+            s.serialize(new ExternalDataInstance(instanceRef, "instance"), null);
 
             out.println(XmlUtil.getPrettyXml(bos.toByteArray()));
         } catch (IOException e) {
@@ -395,7 +390,7 @@ public class XFormPlayer {
         }
     }
 
-    private boolean input(String input) throws BadPlaybackException, InvalidInputException{
+    private boolean answerQuestion(String input) throws BadPlaybackException, InvalidInputException {
         switch (fec.getModel().getEvent()) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 environment.recordAction(new Action(new Command("next")));
@@ -415,11 +410,11 @@ public class XFormPlayer {
                 } else {
                     Vector<SelectChoice> choices = fep.getSelectChoices();
                     if (choices != null) {
-                        if(input.equals("") &&
+                        if (input.equals("") &&
                                 fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
                             Vector<Selection> answers = new Vector<Selection>();
-                            for(int i = 0 ; i < mCurrentSelectList.length ; ++i) {
-                                if(mCurrentSelectList[i]) {
+                            for (int i = 0; i < mCurrentSelectList.length; ++i) {
+                                if (mCurrentSelectList[i]) {
                                     answers.addElement(choices.elementAt(i).selection());
                                 }
                             }
@@ -474,11 +469,11 @@ public class XFormPlayer {
                 return true;
             case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                 int index = parseAndValidate(input, 2);
-                if(index == 1) {
+                if (index == 1) {
                     fec.newRepeat();
                     fec.stepToNextEvent();
                     return false;
-                } else if(index == 2) {
+                } else if (index == 2) {
                     fec.stepToNextEvent();
                     return false;
                 }
@@ -487,11 +482,11 @@ public class XFormPlayer {
         return true;
     }
 
-    private int parseAndValidate(String input, int max) throws BadPlaybackException, InvalidInputException{
+    private int parseAndValidate(String input, int max) throws BadPlaybackException, InvalidInputException {
         int i;
         try {
             i = Integer.parseInt(input);
-            if ( i < 1 || i > max) {
+            if (i < 1 || i > max) {
                 badInput(input, "Enter a number between 1 and " + max);
                 throw new InvalidInputException();
             }
@@ -502,11 +497,7 @@ public class XFormPlayer {
         return i;
     }
 
-    private void badInput(String input) throws BadPlaybackException, InvalidInputException {
-        badInput(input, null);
-    }
-
-    private void badInput(String input, String msg) throws BadPlaybackException, InvalidInputException{
+    private void badInput(String input, String msg) throws BadPlaybackException, InvalidInputException {
         String message = "Input " + input + " is invalid!";
         if (msg != null) {
             message += " " + msg;
@@ -545,7 +536,7 @@ public class XFormPlayer {
             initSelectList(fep);
             for (int i = 0; i < choices.size(); ++i) {
                 String prefix = "";
-                if(fep.getControlType() == Constants.CONTROL_SELECT_MULTI) {
+                if (fep.getControlType() == Constants.CONTROL_SELECT_MULTI) {
                     prefix = "[" + (mCurrentSelectList[i] ? "X" : " ") + "] ";
                 }
                 System.out.println(prefix + (i + 1) + ") " + fep.getSelectChoiceText(choices.elementAt(i)));
@@ -558,15 +549,15 @@ public class XFormPlayer {
     }
 
     private void initSelectList(FormEntryPrompt fep) {
-        if(fep.getControlType() != Constants.CONTROL_SELECT_MULTI) {
+        if (fep.getControlType() != Constants.CONTROL_SELECT_MULTI) {
             return;
         }
 
-        if(!fep.getIndex().equals(mCurrentSelectIndex)) {
+        if (!fep.getIndex().equals(mCurrentSelectIndex)) {
             mCurrentSelectIndex = null;
         }
 
-        if(mCurrentSelectIndex != null) {
+        if (mCurrentSelectIndex != null) {
             return;
         }
 
@@ -576,24 +567,24 @@ public class XFormPlayer {
         mCurrentSelectList = new boolean[choices.size()];
 
         IAnswerData data = fep.getAnswerValue();
-        if(data == null) {
+        if (data == null) {
             //default is false
             return;
         }
         SelectMultiData selectData = new SelectMultiData().cast(data.uncast());
 
-        for(int i = 0; i < choices.size(); ++i) {
-            if(selectData.isInSelection(choices.elementAt(i).getValue())) {
+        for (int i = 0; i < choices.size(); ++i) {
+            if (selectData.isInSelection(choices.elementAt(i).getValue())) {
                 mCurrentSelectList[i] = true;
             }
         }
     }
 
     public void setSessionIIF(InstanceInitializationFactory iif) {
-        mIIF = iif; 
+        mIIF = iif;
     }
 
-    public static final class InvalidInputException extends Exception {
+    private static final class InvalidInputException extends Exception {
 
     }
 }

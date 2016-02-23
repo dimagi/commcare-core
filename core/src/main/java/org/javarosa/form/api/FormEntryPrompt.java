@@ -35,7 +35,7 @@ import java.util.Vector;
 public class FormEntryPrompt extends FormEntryCaption {
 
     TreeElement mTreeElement;
-    boolean dynamicChoicesPopulated = false;
+    Vector<SelectChoice> populatedDynamicChoices;
 
     /**
      * This empty constructor exists for convenience of any supertypes of this prompt
@@ -60,12 +60,6 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     public int getDataType() {
         return mTreeElement.getDataType();
-    }
-
-    // attributes available in the bind, instance and body
-    public String getPromptAttributes() {
-        // TODO: implement me.
-        return null;
     }
 
     //note: code overlap with FormDef.copyItemsetAnswer
@@ -211,11 +205,11 @@ public class FormEntryPrompt extends FormEntryCaption {
         QuestionDef q = getQuestion();
         ItemsetBinding itemset = q.getDynamicChoices();
         if (itemset != null) {
-            if (shouldAttemptDynamicPopulation && !dynamicChoicesPopulated) {
+            if (populatedDynamicChoices == null && shouldAttemptDynamicPopulation) {
                 form.populateDynamicChoices(itemset, mTreeElement.getRef());
-                dynamicChoicesPopulated = true;
+                populatedDynamicChoices = itemset.getChoices();
             }
-            return itemset.getChoices();
+            return populatedDynamicChoices;
         } else {
             // static choices
             return q.getChoices();
@@ -447,10 +441,15 @@ public class FormEntryPrompt extends FormEntryCaption {
 
         return substituteStringArgs(returnText);
 
+
     }
 
     public String getSpecialFormSelectChoiceText(SelectChoice sel, String form) {
         return getSpecialFormSelectItemText(sel.selection(), form);
+    }
+
+    public String getSelectItemMarkdownText(SelectChoice sel){
+        return getSpecialFormSelectChoiceText(sel, FormEntryCaption.TEXT_FORM_MARKDOWN);
     }
 
     public void requestConstraintHint(ConstraintHint hint) throws UnpivotableExpressionException {

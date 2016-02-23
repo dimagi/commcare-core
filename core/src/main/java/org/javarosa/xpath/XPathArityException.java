@@ -59,36 +59,4 @@ public class XPathArityException extends XPathException {
         this.providedArity = providedArity;
         this.funcName = funcName;
     }
-
-    /**
-     * @return the expected number of arguments to a function call of
-     * mismatched arity. Returns -1 if arity expectations are more complex than
-     * a given number.
-     */
-    public int getExpectedArity() {
-        return expectedArity;
-    }
-
-    /**
-     * @return name of the function that was called with an incorrect number of
-     * arguments.
-     */
-    public String getFunctionName() {
-        return funcName;
-    }
-
-    /**
-     * @return the provided number of arguments to a function call of
-     * mismatched arity.
-     */
-    public int getProvidedArity() {
-        return providedArity;
-    }
-
-    /**
-     * @return message detailing arity mismatch for a function call.
-     */
-    public String getErrorMessage() {
-        return errorMessage;
-    }
 }

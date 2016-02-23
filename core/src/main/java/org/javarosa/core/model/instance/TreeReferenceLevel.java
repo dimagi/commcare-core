@@ -31,14 +31,9 @@ public class TreeReferenceLevel implements Externalizable {
     // Do we want to keep a cache of all reference levels?
     public static boolean treeRefLevelInterningEnabled = true;
 
-    public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
-        TreeReferenceLevel.refs = refs;
-    }
-
     public TreeReferenceLevel() {
         // for externalization
     }
-
 
     public TreeReferenceLevel(String name, int multiplicity, Vector<XPathExpression> predicates) {
         this.name = name;
@@ -49,7 +44,6 @@ public class TreeReferenceLevel implements Externalizable {
     public TreeReferenceLevel(String name, int multiplicity) {
         this(name, multiplicity, null);
     }
-
 
     public int getMultiplicity() {
         return multiplicity;
@@ -165,5 +159,12 @@ public class TreeReferenceLevel implements Externalizable {
         } else {
             return refs.intern(this);
         }
+    }
+
+    /**
+     * Used by J2ME
+     */
+    public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
+        TreeReferenceLevel.refs = refs;
     }
 }

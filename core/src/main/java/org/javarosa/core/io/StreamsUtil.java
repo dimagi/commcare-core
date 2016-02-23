@@ -7,9 +7,17 @@ import java.io.OutputStream;
 
 public class StreamsUtil {
 
-    private StreamsUtil() {
-        // private constructor
+    public static byte[] getStreamAsBytes(InputStream is) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            StreamsUtil.writeFromInputToOutput(is, baos);
+            return baos.toByteArray();
+        } finally {
+            baos.close();
+        }
     }
+
 
     /**
      * Write everything from input stream to output stream, byte by byte then
@@ -72,6 +80,9 @@ public class StreamsUtil {
         }
     }
 
+    /**
+     * Used by J2ME
+     */
     public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
         writeToOutput(bytes, out, null);
     }
@@ -81,51 +92,6 @@ public class StreamsUtil {
             tally[0]++;
         }
     }
-
-    /**
-     * Read bytes from an input stream into a byte array then close the input
-     * stream
-     *
-     * @throws IOException
-     */
-    public static byte[] readFromStream(InputStream in, int len)
-            throws IOException {
-
-        byte[] data;
-        int read;
-        if (len >= 0) {
-            data = new byte[len];
-            read = 0;
-            while (read < len) {
-                int k = in.read(data, read, len - read);
-                if (k == -1)
-                    break;
-                read += k;
-            }
-        } else {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            while (true) {
-                int b = in.read();
-                if (b == -1) {
-                    break;
-                }
-                buffer.write(b);
-            }
-            data = buffer.toByteArray();
-            read = data.length;
-        }
-
-        if (len > 0 && read < len) {
-            // System.out.println("WARNING: expected " + len + "!!");
-            throw new RuntimeException("expected: " + len + " bytes but read "
-                    + read);
-        }
-        // replyS
-        // System.out.println(new String(data, "UTF-8"));
-
-        return data;
-    }
-
 
     //Unify the functional aspects here
 

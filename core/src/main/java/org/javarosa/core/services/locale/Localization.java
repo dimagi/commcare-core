@@ -1,6 +1,7 @@
 package org.javarosa.core.services.locale;
 
 import org.javarosa.core.reference.ReferenceDataSource;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Hashtable;
 
@@ -26,6 +27,21 @@ public class Localization {
         return globalLocalizer.getText(key, args);
     }
 
+    public static String getWithDefault(String key, String valueIfKeyMissing) {
+        return getWithDefault(key, new String[]{}, valueIfKeyMissing);
+    }
+
+    public static String getWithDefault(String key, String[] args, String valueIfKeyMissing) {
+        try {
+            return get(key, args);
+        } catch (NoLocalizedTextException e) {
+            return valueIfKeyMissing;
+        }
+    }
+
+    /**
+     * Used by J2ME
+     */
     public static void registerLanguageFile(String localeName, String resourceFileURI) {
         init(false);
         if (!globalLocalizer.hasLocale(localeName)) {
@@ -63,23 +79,12 @@ public class Localization {
         globalLocalizer.setDefaultLocale(defaultLocale);
     }
 
-    /**
-     *
-     */
     public static void init(boolean force) {
         if (globalLocalizer == null || force) {
             globalLocalizer = new Localizer(true, false);
         }
     }
 
-    public static void setLocalizationData(Localizer localizer) {
-        globalLocalizer = localizer;
-
-    }
-
-    /**
-     *
-     */
     private static void checkRep() {
         init(false);
         if (globalLocalizer.getAvailableLocales().length == 0) {

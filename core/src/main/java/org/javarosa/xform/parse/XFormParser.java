@@ -490,19 +490,17 @@ public class XFormParser {
             //CTS - 12/09/2012 - Stop swallowing IO Exceptions
             throw e;
         } catch (Exception e) {
-            //#if debug.output==verbose || debug.output==exception
             String errorMsg = "Unhandled Exception while Parsing XForm";
             System.err.println(errorMsg);
             e.printStackTrace();
             throw new XFormParseException(errorMsg);
-            //#endif
-        }
-
-        try {
-            reader.close();
-        } catch (IOException e) {
-            System.out.println("Error closing reader");
-            e.printStackTrace();
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                System.out.println("Error closing reader");
+                e.printStackTrace();
+            }
         }
 
         //For escaped unicode strings we end up with a looooot of cruft,
@@ -1353,7 +1351,7 @@ public class XFormParser {
         XPathPathExpr path = XPathReference.getPathExpr(nodesetStr);
         itemset.nodesetExpr = new XPathConditional(path);
         itemset.contextRef = getFormElementRef(q);
-        itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference(true)), itemset.contextRef));
+        itemset.nodesetRef = FormInstance.unpackReference(getAbsRef(new XPathReference(path.getReference()), itemset.contextRef));
 
         for (int i = 0; i < e.getChildCount(); i++) {
             int type = e.getType(i);
@@ -1821,7 +1819,7 @@ public class XFormParser {
         return false;
     }
 
-    protected DataBinding processStandardBindAttributes(Vector<String> usedAtts, Element e) {
+    private DataBinding processStandardBindAttributes(Vector<String> usedAtts, Element e) {
         usedAtts.addElement(ID_ATTR);
         usedAtts.addElement(NODESET_ATTR);
         usedAtts.addElement("type");
@@ -1910,7 +1908,7 @@ public class XFormParser {
             try {
                 binding.constraint = new XPathConditional(xpathConstr);
             } catch (XPathSyntaxException xse) {
-                throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "constraint");
+                throw buildParseException(nodeset, xse.getMessage(), xpathConstr, "validation");
             }
             binding.constraintMessage = e.getAttributeValue(NAMESPACE_JAVAROSA, "constraintMsg");
         }
@@ -1937,7 +1935,7 @@ public class XFormParser {
         return new XFormParseException("Problem with bind for " + nodeset + " contains invalid " + attribute + " expression [" + expression + "] " + message);
     }
 
-    protected void parseBind(Element e) {
+    private void parseBind(Element e) {
         Vector<String> usedAtts = new Vector<String>();
 
         DataBinding binding = processStandardBindAttributes(usedAtts, e);
@@ -1994,7 +1992,7 @@ public class XFormParser {
         return r;
     }
 
-    protected void addBinding(DataBinding binding) {
+    private void addBinding(DataBinding binding) {
         bindings.addElement(binding);
 
         if (binding.getId() != null) {
@@ -2126,7 +2124,7 @@ public class XFormParser {
             if (typeMappings.get(modelType) == null) {
                 throw new XFormParseException("ModelType " + modelType + " is not recognized.", node);
             }
-            element = (TreeElement)modelPrototypes.getNewInstance(((Integer)typeMappings.get(modelType)).toString());
+            element = (TreeElement)modelPrototypes.getNewInstance((typeMappings.get(modelType)).toString());
             if (element == null) {
                 element = new TreeElement(name, multiplicity);
                 System.out.println("No model type prototype available for " + modelType);
@@ -3036,15 +3034,6 @@ public class XFormParser {
         loadInstanceData(e, te);
 
         return dm;
-    }
-
-    public static FormInstance restoreDataModel(byte[] data, Class restorableType) {
-        try {
-            return restoreDataModel(new ByteArrayInputStream(data), restorableType);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new XFormParseException("Bad parsing from byte array " + e.getMessage());
-        }
     }
 
     public static String getVagueLocation(Element e) {

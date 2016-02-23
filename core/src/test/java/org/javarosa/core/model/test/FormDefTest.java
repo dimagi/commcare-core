@@ -6,11 +6,13 @@ import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.junit.Test;
 
@@ -218,6 +220,33 @@ public class FormDefTest {
     }
 
     /**
+     * Test triggers fired from inserting a new repeat entry. Triggers fired
+     * during insert action don't need to be fired again when all triggers
+     * rooted by that repeat entry are fired.
+     */
+    @Test
+    public void testRepeatInsertTriggering() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_repeat_insert_duplicate_triggering.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        do {
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        // make sure the language isn't the default language, 'esperanto',
+        // which it is initially set to
+        ExprEvalUtils.assertEqualsXpathEval("Check language set correctly",
+                "en", "/data/iter/country[1]/language", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check id attr set correctly",
+                "1", "/data/iter/country[2]/@id", evalCtx);
+        ExprEvalUtils.assertEqualsXpathEval("Check id node set correctly",
+                "1", "/data/iter/country[2]/id", evalCtx);
+    }
+
+    /**
      * Tests trigger caching related to cascading relevancy calculations to children.
      */
     @Test
@@ -257,4 +286,29 @@ public class FormDefTest {
                 "Relevancy of skipped genus entry should be irrelevant to, due to the way it is calculated",
                 "", "/data/disabled_species", evalCtx);
     }
+
+    /**
+     * Regressions around complex repeat behaviors
+     */
+    @Test
+    public void testLoopedRepeatIndexFetches() throws Exception {
+        FormParseInit fpi = new FormParseInit("/xform_tests/test_looped_form_index_fetch.xml");
+        FormEntryController fec = fpi.getFormEntryController();
+        fpi.getFormDef().initialize(true, null);
+        fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        fec.stepToNextEvent();
+        fec.stepToNextEvent();
+
+        fec.answerQuestion(new IntegerData(2));
+        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION);
+
+        fec.answerQuestion(new UncastData("yes"));
+        while(fec.stepToNextEvent() != FormEntryController.EVENT_QUESTION) ;
+
+        fec.getNextIndex(fec.getModel().getFormIndex(), true);
+        fec.answerQuestion(new IntegerData(2));
+        fec.getNextIndex(fec.getModel().getFormIndex(), true);
+    }
+
 }

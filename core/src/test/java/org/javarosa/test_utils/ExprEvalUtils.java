@@ -97,6 +97,18 @@ public class ExprEvalUtils {
         Assert.assertEquals(failureMessage, expectedOutput, evalResult);
     }
 
+    // Evaluated expression must be castable to Double
+    public static void assertAlmostEqualsXpathEval(Double expectedOutput,
+                                                   Double tolerance,
+                                                   String input,
+                                                   EvaluationContext evalContext)
+            throws XPathSyntaxException {
+        Double evalResult = (Double) xpathEval(evalContext, input);
+        Double difference = Math.abs(evalResult - expectedOutput);
+        Assert.assertTrue("Evaluated result and expected output differ by " + difference,
+                difference < tolerance);
+    }
+
     public static Object xpathEval(EvaluationContext evalContext,
                                               String input)
             throws XPathSyntaxException {

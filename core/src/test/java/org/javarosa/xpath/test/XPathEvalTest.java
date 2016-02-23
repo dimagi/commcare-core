@@ -558,12 +558,8 @@ public class XPathEvalTest {
 //        //testEval("/..", null, null, new XPathUnsupportedException());
     }
 
-    private FormInstance newDataModel() {
-        return new FormInstance(new TreeElement());
-    }
-
     private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
-        TreeReference treeRef = XPathReference.getPathExpr(ref).getReference(true);
+        TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);
 
         addNodeRef(dm, treeRef);
@@ -667,10 +663,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return Boolean.TRUE;
             }
@@ -702,11 +694,6 @@ public class XPathEvalTest {
             public boolean rawArgs() {
                 return false;
             }
-
-            public boolean realTime() {
-                return false;
-            }
-
         });
 
 
@@ -722,10 +709,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -752,10 +735,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
@@ -776,10 +755,6 @@ public class XPathEvalTest {
                 return true;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return printArgs(args);
             }
@@ -795,10 +770,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -818,10 +789,6 @@ public class XPathEvalTest {
 
             public boolean rawArgs() {
                 return true;
-            }
-
-            public boolean realTime() {
-                return false;
             }
 
             public Object eval(Object[] args, EvaluationContext ec) {
@@ -844,10 +811,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -883,10 +846,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return new Object();
             }
@@ -907,10 +866,6 @@ public class XPathEvalTest {
                 return false;
             }
 
-            public boolean realTime() {
-                return false;
-            }
-
             public Object eval(Object[] args, EvaluationContext ec) {
                 return ((Boolean)args[0]).booleanValue() ? new CustomSubType() : new CustomType();
             }
@@ -928,10 +883,6 @@ public class XPathEvalTest {
             }
 
             public boolean rawArgs() {
-                return false;
-            }
-
-            public boolean realTime() {
                 return false;
             }
 
@@ -974,10 +925,6 @@ public class XPathEvalTest {
     }
 
     private class CustomType {
-        public String val() {
-            return "custom";
-        }
-
         public String toString() {
             return "";
         }
@@ -988,9 +935,6 @@ public class XPathEvalTest {
     }
 
     private class CustomSubType extends CustomType {
-        public String val() {
-            return "custom-sub";
-        }
     }
 
     /* unused
@@ -1009,10 +953,6 @@ public class XPathEvalTest {
         public String val;
 
         public boolean rawArgs() {
-            return false;
-        }
-
-        public boolean realTime() {
             return false;
         }
     }

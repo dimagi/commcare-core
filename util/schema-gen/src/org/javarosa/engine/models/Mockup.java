@@ -31,10 +31,6 @@ public class Mockup {
         return date;
     }
 
-    public Session[] getSessions() {
-        return sessions.toArray(new Session[0]);
-    }
-
     public MockupEditor getEditor() {
         return new MockupEditor(this);
     }

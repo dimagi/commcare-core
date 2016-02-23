@@ -66,16 +66,6 @@ public interface IAnswerDataSerializer {
     Object serializeAnswerData(IAnswerData data);
 
     /**
-     * Extends the serializing capabilities of this serializer
-     * by registering another, and allowing this serializer
-     * to operate on all of the data types that the argument
-     * can.
-     *
-     * @param ads An IAnswerDataSerializer
-     */
-    void registerAnswerSerializer(IAnswerDataSerializer ads);
-
-    /**
      * Identifies whether an answer data object contains data
      * that needs to be extracted to be handled differently
      * than the serialized answer data.
