@@ -9,6 +9,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -133,7 +134,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 while (this.nextTagInBlock("update")) {
                     String key = parser.getName();
@@ -156,7 +157,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 caseForBlock.setClosed(true);
                 commit(caseForBlock);
