@@ -322,8 +322,8 @@ public class FormDefTest {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
         EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
         ExprEvalUtils.assertEqualsXpathEval("",
-                "20", "/data/myiterator/iterator[1]/target_value", evalCtx);
+                "20", "/data/myiterator/iterator[1]/target_value/value", evalCtx);
         ExprEvalUtils.assertEqualsXpathEval("",
-                100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
+                "20", "/data/myiterator/iterator[1]/target_value/value_again", evalCtx);
     }
 }
