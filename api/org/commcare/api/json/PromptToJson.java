@@ -23,12 +23,6 @@ import java.util.Vector;
  */
 public class PromptToJson {
 
-    public static String formEntryModelToJson(FormEntryModel model, FormEntryPrompt prompt) throws JSONException {
-        JSONObject obj = new JSONObject();
-        parseQuestion(model, prompt, obj);
-        return obj.toString();
-    }
-
     public static void parseCaption(FormEntryCaption prompt, JSONObject obj){
         obj.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
         obj.put("caption", jsonNullIfNull(prompt.getLongText()));
@@ -37,7 +31,7 @@ public class PromptToJson {
         obj.put("caption_markdown", jsonNullIfNull(prompt.getMarkdownText()));
     }
 
-    public static void parseQuestion(FormEntryModel model, FormEntryPrompt prompt, JSONObject obj){
+    public static void parseQuestion(FormEntryPrompt prompt, JSONObject obj){
         parseCaption(prompt, obj);
         obj.put("help", jsonNullIfNull(prompt.getHelpText()));
         obj.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
@@ -74,7 +68,7 @@ public class PromptToJson {
                 return;
             case FormEntryController.EVENT_QUESTION:
                 obj.put("type", "question");
-                parseQuestion(model, model.getQuestionPrompt(), obj);
+                parseQuestion(model.getQuestionPrompt(), obj);
                 return;
             case FormEntryController.EVENT_REPEAT_JUNCTURE:
                 obj.put("type", "repeat-juncture");
