@@ -10,8 +10,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * @author ctsims
