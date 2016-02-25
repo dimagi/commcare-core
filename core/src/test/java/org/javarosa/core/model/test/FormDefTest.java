@@ -14,6 +14,7 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -311,8 +312,17 @@ public class FormDefTest {
         fec.getNextIndex(fec.getModel().getFormIndex(), true);
     }
 
+    /**
+     * Android-level form save on complete used to run through all
+     * triggerables.  Disabling this, for performance reasons, exposed a bug
+     * were triggerables that fire on repeat inserts and have expressions that
+     * reference future (to be inserted) repeat entries never get re-fired due
+     * to over contextualization. This has been fixed by generalizing the
+     * triggerable context where path predicates are present for intersecting
+     * references in the triggerable expression.
+     */
     @Test
-    public void testModelIterationLookahead() throws Exception {
+    public void testModelIterationLookahead() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/model_iteration_lookahead.xml");
         FormEntryController fec = fpi.getFormEntryController();
         fpi.getFormDef().initialize(true, null);
