@@ -593,10 +593,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
             triggerablesInOrder = false;
 
             for (TreeReference trigger : t.getTriggers()) {
-                if (!triggerIndex.containsKey(trigger)) {
-                    triggerIndex.put(trigger.clone(), new Vector<Triggerable>());
+                TreeReference predicatelessTrigger = t.widenContextToAndClearPredicates(trigger);
+                if (!triggerIndex.containsKey(predicatelessTrigger)) {
+                    triggerIndex.put(predicatelessTrigger.clone(), new Vector<Triggerable>());
                 }
-                Vector<Triggerable> triggered = triggerIndex.get(trigger);
+                Vector<Triggerable> triggered = triggerIndex.get(predicatelessTrigger);
                 if (!triggered.contains(t)) {
                     triggered.addElement(t);
                 }
@@ -645,9 +646,6 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        //DAGify the triggerables based on dependencies and sort them so that
-        //trigbles come only after the trigbles they depend on
-
         Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
         buildPartialOrdering(partialOrdering);
 
@@ -688,11 +686,11 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
     private static Vector<Triggerable> buildRootNodes(Vector<Triggerable> vertices,
                                                       Vector<Triggerable[]> partialOrdering) {
         Vector<Triggerable> roots = new Vector<Triggerable>();
-        for (int i = 0; i < vertices.size(); i++) {
-            roots.addElement(vertices.elementAt(i));
+        for (Triggerable vertex : vertices) {
+            roots.addElement(vertex);
         }
-        for (int i = 0; i < partialOrdering.size(); i++) {
-            Triggerable[] edge = partialOrdering.elementAt(i);
+        for (Triggerable[] edge : partialOrdering) {
+            edge[1].updateStopContextualizingAtFromDominator(edge[0]);
             roots.removeElement(edge[1]);
         }
         return roots;
@@ -1081,7 +1079,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      */
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
-        TreeReference contextRef = triggerable.contextRef.contextualize(anchorRef);
+        TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
@@ -1473,9 +1471,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      *
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
-     *
-     * @param dis - the stream to read from.
      */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
@@ -1541,10 +1538,8 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
 
     /**
      * Writes the form definition object to the supplied stream.
-     *
-     * @param dos - the stream to write to.
-     * @throws IOException
      */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
