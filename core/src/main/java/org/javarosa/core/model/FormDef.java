@@ -384,7 +384,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         preloadInstance(mainInstance.resolveReference(repeatContextRef));
 
         // Fire jr-insert events before "calculate"s
-        triggeredDuringInsert.clear();
+        triggeredDuringInsert.removeAllElements();
         actionController.triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
 
         // trigger conditions that depend on the creation of this new node
