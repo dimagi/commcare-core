@@ -208,7 +208,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     public IFormElement getChild(int i) {
         if (i < this.children.size())
-            return (IFormElement)this.children.elementAt(i);
+            return this.children.elementAt(i);
 
         throw new ArrayIndexOutOfBoundsException(
                 "FormDef: invalid child index: " + i + " only "
@@ -232,9 +232,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * yet-to-be-created repeat node (similar to repeats that already exist)
      */
     public Vector explodeIndex(FormIndex index) {
-        Vector<Integer> indexes = new Vector();
-        Vector<Integer> multiplicities = new Vector();
-        Vector<IFormElement> elements = new Vector();
+        Vector<Integer> indexes = new Vector<Integer>();
+        Vector<Integer> multiplicities = new Vector<Integer>();
+        Vector<IFormElement> elements = new Vector<IFormElement>();
 
         collapseIndex(index, indexes, multiplicities, elements);
         return elements;
@@ -244,9 +244,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     // multiplicities)
 
     public TreeReference getChildInstanceRef(FormIndex index) {
-        Vector<Integer> indexes = new Vector();
-        Vector<Integer> multiplicities = new Vector();
-        Vector<IFormElement> elements = new Vector();
+        Vector<Integer> indexes = new Vector<Integer>();
+        Vector<Integer> multiplicities = new Vector<Integer>();
+        Vector<IFormElement> elements = new Vector<IFormElement>();
 
         collapseIndex(index, indexes, multiplicities, elements);
         return getChildInstanceRef(elements, multiplicities);
@@ -263,7 +263,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         // get reference for target element
-        TreeReference ref = FormInstance.unpackReference(((IFormElement)elements.lastElement()).getBind()).clone();
+        TreeReference ref = FormInstance.unpackReference(elements.lastElement().getBind()).clone();
         for (int i = 0; i < ref.size(); i++) {
             //There has to be a better way to encapsulate this
             if (ref.getMultiplicity(i) != TreeReference.INDEX_ATTRIBUTE) {
@@ -410,7 +410,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     public boolean isRepeatRelevant(TreeReference repeatRef) {
         boolean relev = true;
 
-        Condition c = (Condition)conditionRepeatTargetIndex.get(repeatRef.genericize());
+        Condition c = conditionRepeatTargetIndex.get(repeatRef.genericize());
         if (c != null) {
             relev = c.evalBool(mainInstance, new EvaluationContext(exprEvalContext, repeatRef));
         }
@@ -569,7 +569,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             // the two), otherwise we can end up failing to trigger when the
             // ignored context exists and the used one doesn't
 
-            Triggerable existingTriggerable = (Triggerable)triggerables.elementAt(existingIx);
+            Triggerable existingTriggerable = triggerables.elementAt(existingIx);
 
             existingTriggerable.contextRef = existingTriggerable.contextRef.intersect(t.contextRef);
 
@@ -584,10 +584,11 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             triggerablesInOrder = false;
 
             for (TreeReference trigger : t.getTriggers()) {
-                if (!triggerIndex.containsKey(trigger)) {
-                    triggerIndex.put(trigger.clone(), new Vector<Triggerable>());
+                TreeReference predicatelessTrigger = t.widenContextToAndClearPredicates(trigger);
+                if (!triggerIndex.containsKey(predicatelessTrigger)) {
+                    triggerIndex.put(predicatelessTrigger.clone(), new Vector<Triggerable>());
                 }
-                Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(trigger);
+                Vector<Triggerable> triggered = triggerIndex.get(predicatelessTrigger);
                 if (!triggered.contains(t)) {
                     triggered.addElement(t);
                 }
@@ -632,89 +633,99 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * the appropriate ordering and dependencies to ensure the conditions will be evaluated
      * in the appropriate orders.
      *
-     * @throws IllegalStateException - If the trigger ordering contains an illegal cycle and the
+     * @throws IllegalStateException If the trigger ordering contains an illegal cycle and the
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        //DAGify the triggerables based on dependencies and sort them so that
-        //trigbles come only after the trigbles they depend on
-
         Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
-
-            Vector<Triggerable> deps = new Vector<Triggerable>();
-            fillTriggeredElements(t, deps, false);
-
-            for (int j = 0; j < deps.size(); j++) {
-                Triggerable u = (Triggerable)deps.elementAt(j);
-                Triggerable[] edge = {t, u};
-                partialOrdering.addElement(edge);
-            }
-        }
+        buildPartialOrdering(partialOrdering);
 
         Vector<Triggerable> vertices = new Vector<Triggerable>();
-        for (int i = 0; i < triggerables.size(); i++)
-            vertices.addElement(triggerables.elementAt(i));
+        for (Triggerable triggerable : triggerables) {
+            vertices.addElement(triggerable);
+        }
         triggerables.removeAllElements();
 
         while (vertices.size() > 0) {
-            //determine root nodes
-            Vector<Triggerable> roots = new Vector<Triggerable>();
-            for (int i = 0; i < vertices.size(); i++) {
-                roots.addElement(vertices.elementAt(i));
-            }
-            for (int i = 0; i < partialOrdering.size(); i++) {
-                Triggerable[] edge = (Triggerable[])partialOrdering.elementAt(i);
-                roots.removeElement(edge[1]);
-            }
+            Vector<Triggerable> roots = buildRootNodes(vertices, partialOrdering);
 
-            //if no root nodes while graph still has nodes, graph has cycles
             if (roots.size() == 0) {
-                String hints = "";
-                for (Triggerable t : vertices) {
-                    for (TreeReference r : t.getTargets()) {
-                        hints += "\n" + r.toString(true);
-                    }
-                }
-                String message = "Cycle detected in form's relevant and calculation logic!";
-                if (!hints.equals("")) {
-                    message += "\nThe following nodes are likely involved in the loop:" + hints;
-                }
-                throw new IllegalStateException(message);
+                // if no root nodes while graph still has nodes, graph has cycles
+                throwGraphCyclesException(vertices);
             }
 
-            //remove root nodes and edges originating from them
-            for (int i = 0; i < roots.size(); i++) {
-                Triggerable root = (Triggerable)roots.elementAt(i);
-                triggerables.addElement(root);
-                vertices.removeElement(root);
-            }
-            for (int i = partialOrdering.size() - 1; i >= 0; i--) {
-                Triggerable[] edge = (Triggerable[])partialOrdering.elementAt(i);
-                if (roots.contains(edge[0]))
-                    partialOrdering.removeElementAt(i);
-            }
+            setOrderOfTriggerable(roots, vertices, partialOrdering);
         }
 
         triggerablesInOrder = true;
 
-        //build the condition index for repeatable nodes
+        buildConditionRepeatTargetIndex();
+    }
 
+    private void buildPartialOrdering(Vector<Triggerable[]> partialOrdering) {
+        for (Triggerable t : triggerables) {
+            Vector<Triggerable> deps = new Vector<Triggerable>();
+            fillTriggeredElements(t, deps, false);
+
+            for (Triggerable u : deps) {
+                Triggerable[] edge = {t, u};
+                partialOrdering.addElement(edge);
+            }
+        }
+    }
+
+    private static Vector<Triggerable> buildRootNodes(Vector<Triggerable> vertices,
+                                                      Vector<Triggerable[]> partialOrdering) {
+        Vector<Triggerable> roots = new Vector<Triggerable>();
+        for (Triggerable vertex : vertices) {
+            roots.addElement(vertex);
+        }
+        for (Triggerable[] edge : partialOrdering) {
+            edge[1].updateStopContextualizingAtFromDominator(edge[0]);
+            roots.removeElement(edge[1]);
+        }
+        return roots;
+    }
+
+    private void throwGraphCyclesException(Vector<Triggerable> vertices) {
+        String hints = "";
+        for (Triggerable t : vertices) {
+            for (TreeReference r : t.getTargets()) {
+                hints += "\n" + r.toString(true);
+            }
+        }
+        String message = "Cycle detected in form's relevant and calculation logic!";
+        if (!hints.equals("")) {
+            message += "\nThe following nodes are likely involved in the loop:" + hints;
+        }
+        throw new IllegalStateException(message);
+    }
+
+    private void setOrderOfTriggerable(Vector<Triggerable> roots,
+                                       Vector<Triggerable> vertices,
+                                       Vector<Triggerable[]> partialOrdering) {
+        for (Triggerable root : roots) {
+            triggerables.addElement(root);
+            vertices.removeElement(root);
+        }
+        for (int i = partialOrdering.size() - 1; i >= 0; i--) {
+            Triggerable[] edge = partialOrdering.elementAt(i);
+            if (roots.contains(edge[0]))
+                partialOrdering.removeElementAt(i);
+        }
+    }
+
+    private void buildConditionRepeatTargetIndex() {
         conditionRepeatTargetIndex = new Hashtable<TreeReference, Condition>();
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
+        for (Triggerable t : triggerables) {
             if (t instanceof Condition) {
-                Vector targets = t.getTargets();
-                for (int j = 0; j < targets.size(); j++) {
-                    TreeReference target = (TreeReference)targets.elementAt(j);
+                for (TreeReference target : t.getTargets()) {
                     if (mainInstance.getTemplate(target) != null) {
                         conditionRepeatTargetIndex.put(target, (Condition)t);
                     }
                 }
             }
         }
-
     }
 
     /**
@@ -850,8 +861,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             if (ref.hasPredicates()) {
                 predicatelessRef = ref.removePredicates();
             }
-            Vector<Triggerable> triggered =
-                    (Vector<Triggerable>)triggerIndex.get(predicatelessRef);
+            Vector<Triggerable> triggered = triggerIndex.get(predicatelessRef);
 
             if (triggered != null) {
                 //If so, walk all of these triggerables that we found
@@ -878,7 +888,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     public void enableDebugTraces() {
         if (!mDebugModeEnabled) {
             for (int i = 0; i < triggerables.size(); i++) {
-                Triggerable t = (Triggerable)triggerables.elementAt(i);
+                Triggerable t = triggerables.elementAt(i);
                 t.setDebug(true);
             }
 
@@ -895,7 +905,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     public void disableDebugTraces() {
         if (mDebugModeEnabled) {
             for (int i = 0; i < triggerables.size(); i++) {
-                Triggerable t = (Triggerable)triggerables.elementAt(i);
+                Triggerable t = triggerables.elementAt(i);
                 t.setDebug(false);
             }
             mDebugModeEnabled = false;
@@ -925,7 +935,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 new Hashtable<TreeReference, Hashtable<String, EvaluationTrace>>();
 
         for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
+            Triggerable t = triggerables.elementAt(i);
 
             Hashtable<TreeReference, EvaluationTrace> triggerOutputs = t.getEvaluationTraces();
 
@@ -1035,7 +1045,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         // Update the list of triggerables that need to be evaluated.
         for (int i = 0; i < tv.size(); i++) {
             // NOTE PLM: tv may grow in size through iteration.
-            Triggerable t = (Triggerable)tv.elementAt(i);
+            Triggerable t = tv.elementAt(i);
             fillTriggeredElements(t, tv, isRepeatEntryInit);
         }
 
@@ -1043,10 +1053,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         // going to need to be addressed by this update.
         // 'triggerables' is topologically-ordered by dependencies, so evaluate
         // the triggerables in 'tv' in the order they appear in 'triggerables'
-        for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
-            if (tv.contains(t)) {
-                evaluateTriggerable(t, anchorRef);
+        for (Triggerable triggerable : triggerables) {
+            if (tv.contains(triggerable)) {
+                evaluateTriggerable(triggerable, anchorRef);
             }
         }
     }
@@ -1056,24 +1065,19 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * against the anchor (the value that changed which triggered
      * recomputation)
      *
-     * @param t         The triggerable to be updated
+     * @param triggerable         The triggerable to be updated
      * @param anchorRef The reference to the value which was changed.
      */
-    private void evaluateTriggerable(Triggerable t, TreeReference anchorRef) {
+    private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
-        TreeReference contextRef = t.contextRef.contextualize(anchorRef);
+        TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
-        Vector<TreeReference> v = exprEvalContext.expandReference(contextRef);
+        Vector<TreeReference> expandedReferences = exprEvalContext.expandReference(contextRef);
 
-        // Go through each one and evaluate the trigger expresion
-        for (int i = 0; i < v.size(); i++) {
-            try {
-                t.apply(mainInstance, exprEvalContext, v.elementAt(i), this);
-            } catch (RuntimeException e) {
-                throw e;
-            }
+        for (TreeReference treeReference : expandedReferences) {
+            triggerable.apply(mainInstance, exprEvalContext, treeReference, this);
         }
     }
 
@@ -1109,10 +1113,12 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         if (!ec.getFunctionHandlers().containsKey("jr:itext")) {
             final FormDef f = this;
             ec.addFunctionHandler(new IFunctionHandler() {
+                @Override
                 public String getName() {
                     return "jr:itext";
                 }
 
+                @Override
                 public Object eval(Object[] args, EvaluationContext ec) {
                     String textID = (String)args[0];
                     try {
@@ -1131,13 +1137,15 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                     }
                 }
 
+                @Override
                 public Vector getPrototypes() {
                     Class[] proto = {String.class};
-                    Vector v = new Vector();
+                    Vector<Class[]> v = new Vector<Class[]>();
                     v.addElement(proto);
                     return v;
                 }
 
+                @Override
                 public boolean rawArgs() {
                     return false;
                 }
@@ -1159,10 +1167,12 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         if (!ec.getFunctionHandlers().containsKey("jr:choice-name")) {
             final FormDef f = this;
             ec.addFunctionHandler(new IFunctionHandler() {
+                @Override
                 public String getName() {
                     return "jr:choice-name";
                 }
 
+                @Override
                 public Object eval(Object[] args, EvaluationContext ec) {
                     try {
                         String value = (String)args[0];
@@ -1200,13 +1210,15 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                     }
                 }
 
+                @Override
                 public Vector getPrototypes() {
                     Class[] proto = {String.class, String.class};
-                    Vector v = new Vector();
+                    Vector<Class[]> v = new Vector<Class[]>();
                     v.addElement(proto);
                     return v;
                 }
 
+                @Override
                 public boolean rawArgs() {
                     return false;
                 }
@@ -1367,13 +1379,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         this.preloader = preloads;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.javarosa.core.model.utils.Localizable#localeChanged(java.lang.String,
-     * org.javarosa.core.model.utils.Localizer)
-     */
+    @Override
     public void localeChanged(String locale, Localizer localizer) {
         for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
             ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
@@ -1456,9 +1462,8 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      *
      * Requires that the instance has been set to a prototype of the instance that
      * should be used for deserialization.
-     *
-     * @param dis - the stream to read from.
      */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         setID(ExtUtil.readInt(dis));
         setName(ExtUtil.nullIfEmpty(ExtUtil.readString(dis)));
@@ -1523,10 +1528,8 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     /**
      * Writes the form definition object to the supplied stream.
-     *
-     * @param dos - the stream to write to.
-     * @throws IOException
      */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeNumeric(dos, getID());
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(getName()));
@@ -1538,7 +1541,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         Vector<Condition> conditions = new Vector<Condition>();
         Vector<Recalculate> recalcs = new Vector<Recalculate>();
         for (int i = 0; i < triggerables.size(); i++) {
-            Triggerable t = (Triggerable)triggerables.elementAt(i);
+            Triggerable t = triggerables.elementAt(i);
             if (t instanceof Condition) {
                 conditions.addElement((Condition)t);
             } else if (t instanceof Recalculate) {
