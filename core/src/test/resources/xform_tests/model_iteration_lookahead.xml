@@ -29,10 +29,8 @@
                             <question/>
                             <value/>
                             <target/>
-                            <target_value>
-                                <value/>
-                                <value_again/>
-                            </target_value>
+                            <target_value/>
+                            <relevancy_depending_on_future/>
                         </iterator>
                     </myiterator>
 
@@ -45,28 +43,15 @@
                   nodeset="/data/myiterator/iterator/value"/>
             <bind calculate="/data/itemdata/item[@id=current()/../@id]/@target"
                   nodeset="/data/myiterator/iterator/target"/>
-            <bind calculate="/data/myiterator/iterator[@id = current()/../../target]/value"
-                  nodeset="/data/myiterator/iterator/target_value/value"/>
+            <bind calculate="/data/myiterator/iterator[@id = current()/../target]/value"
+                  nodeset="/data/myiterator/iterator/target_value"/>
 
             <bind calculate="join(' ', /data/itemdata/item/@id)"
                   nodeset="/data/myiterator/elements"/>
 
-            <!--
-            Tests the propagation of trigger context widening:
-            since the nodeset and a subexpression in the calculate share a
-            prefix path and there are predicates in that path, when this
-            calculate is triggered it has to widden its context for all path
-            steps including and after the occurrence of that predicate. Tricky
-            part is if the triggering occurs due to an earlier, dominating
-            calculate being fired, which also has had widening applied to it,
-            we must take the minimum of the two.
-
-            If this didn't work correctly, you might expect the
-            /data/myiterator/iterator/target_value/value ref to not reflect the
-            most up-to-date value
-            -->
-            <bind calculate="/data/myiterator/iterator/target_value[true()]/value"
-                  nodeset="/data/myiterator/iterator/target_value/value_again" />
+            <bind calculate="100"
+                  nodeset="/data/myiterator/iterator/relevancy_depending_on_future"
+                  relevant="/data/myiterator/iterator/target_value != ''"/>
 
             <setvalue event="jr-insert"
                       ref="/data/myiterator/iterator/@index"
