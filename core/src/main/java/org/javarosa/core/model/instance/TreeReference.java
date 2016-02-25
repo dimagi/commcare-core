@@ -465,8 +465,12 @@ public class TreeReference implements Externalizable {
      * multiplicity set to unbounded.
      */
     public TreeReference genericize() {
+        return genericizeAfter(0);
+    }
+
+    public TreeReference genericizeAfter(int levelToStartGenericizing) {
         TreeReference genericRef = clone();
-        for (int i = 0; i < genericRef.size(); i++) {
+        for (int i = levelToStartGenericizing; i < genericRef.size(); i++) {
             // TODO: It's not super clear whether template refs should get
             // genericized or not
             if (genericRef.getMultiplicity(i) > -1 ||

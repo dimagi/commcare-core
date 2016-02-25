@@ -10,6 +10,7 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -53,6 +54,8 @@ public abstract class Triggerable implements Externalizable {
      */
     public TreeReference originalContextRef;
 
+    private int stopContextualizingAt;
+
     /**
      * Whether this trigger is collecting debug traces *
      */
@@ -74,6 +77,7 @@ public abstract class Triggerable implements Externalizable {
         this.contextRef = contextRef;
         this.originalContextRef = contextRef;
         this.targets = new Vector<TreeReference>();
+        this.stopContextualizingAt = -1;
     }
 
     protected abstract Object eval(FormInstance instance, EvaluationContext ec);
@@ -241,6 +245,7 @@ public abstract class Triggerable implements Externalizable {
         contextRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         originalContextRef = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
         targets = (Vector<TreeReference>)ExtUtil.read(in, new ExtWrapList(TreeReference.class), pf);
+        stopContextualizingAt = ExtUtil.readInt(in);
     }
 
     @Override
@@ -249,6 +254,7 @@ public abstract class Triggerable implements Externalizable {
         ExtUtil.write(out, contextRef);
         ExtUtil.write(out, originalContextRef);
         ExtUtil.write(out, new ExtWrapList(targets));
+        ExtUtil.writeNumeric(out, stopContextualizingAt);
     }
 
     @Override
@@ -260,5 +266,75 @@ public abstract class Triggerable implements Externalizable {
                 sb.append(",");
         }
         return "trig[expr:" + expr.toString() + ";targets[" + sb.toString() + "]]";
+    }
+
+    /**
+     * Copy over predicate/multiplicity context from anchorRef into the context
+     * ref of this triggerable.  
+     * 
+     * If references in the triggerable's expression have predicates that
+     * overlap with the context ref, wipe out any contextualization that
+     * occurred from anchorRef. Contextual widening is needed to target the
+     * correct nodes during the triggerable evaluation: the expression's
+     * references might point to a non-existent node, so we want to re-fire
+     * evaluation when that node comes into existence
+     */
+    public TreeReference narrowContextBy(TreeReference anchorRef) {
+        TreeReference contextulizedUsingAnchor = contextRef.contextualize(anchorRef);
+        if (stopContextualizingAt != -1) {
+            return contextulizedUsingAnchor.genericizeAfter(stopContextualizingAt);
+        } else {
+            return contextulizedUsingAnchor;
+        }
+    }
+
+    /**
+     * Calculate lowest occurring predicate in refInExpr that overlaps with
+     * this triggerables context reference.  Needed to narrow the context the
+     * correct amount during triggerable evalution.
+     *
+     * @return copy of refInExpr with predicates cleared.
+     */
+    public TreeReference widenContextToAndClearPredicates(TreeReference refInExpr) {
+        int smallestIntersectionForRef = smallestIntersectingLevelWithPred(refInExpr);
+
+        if (smallestIntersectionForRef != -1) {
+            if (stopContextualizingAt == -1) {
+                stopContextualizingAt = smallestIntersectionForRef;
+            } else {
+                stopContextualizingAt = Math.min(stopContextualizingAt, smallestIntersectionForRef);
+            }
+        }
+        return refInExpr.removePredicates();
+    }
+
+    /**
+     * Propagate context widening parameters from a triggerable that dominates
+     * (causes the firing of) another triggerable.  If dominator's context is
+     * widened at a specific point and the dominated context shares part of the
+     * widened context, then we must propagate that widening parameter such
+     * that the dominated nodes get fired correctly in triggerable evaluation.
+     */
+    public void updateStopContextualizingAtFromDominator(Triggerable dominator) {
+        if (dominator.stopContextualizingAt != -1 &&
+                (stopContextualizingAt == -1 || dominator.stopContextualizingAt < stopContextualizingAt) &&
+                dominator.contextRef.intersect(contextRef).size() >= dominator.stopContextualizingAt) {
+            stopContextualizingAt = dominator.stopContextualizingAt;
+        }
+    }
+
+    /**
+     * Find position of the first step with a predicate in the provided
+     * reference that intersects with this triggerable's context reference
+     */
+    private int smallestIntersectingLevelWithPred(TreeReference refInExpr) {
+        TreeReference intersectionRef = contextRef.intersect(refInExpr.removePredicates());
+        for (int refLevel = 0; refLevel < Math.min(refInExpr.size(), intersectionRef.size()); refLevel++) {
+            Vector<XPathExpression> predicates = refInExpr.getPredicate(refLevel);
+            if (predicates != null && predicates.size() > 0) {
+                return refLevel;
+            }
+        }
+        return -1;
     }
 }
