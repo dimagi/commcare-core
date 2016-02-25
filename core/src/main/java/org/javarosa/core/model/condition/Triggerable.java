@@ -268,7 +268,18 @@ public abstract class Triggerable implements Externalizable {
         return "trig[expr:" + expr.toString() + ";targets[" + sb.toString() + "]]";
     }
 
-    public TreeReference contextualizeContext(TreeReference anchorRef) {
+    /**
+     * Copy over predicate/multiplicity context from anchorRef into the context
+     * ref of this triggerable.  
+     * 
+     * If references in the triggerable's expression have predicates that
+     * overlap with the context ref, wipe out any contextualization that
+     * occurred from anchorRef. Contextual widening is needed to target the
+     * correct nodes during the triggerable evaluation: the expression's
+     * references might point to a non-existent node, so we want to re-fire
+     * evaluation when that node comes into existence
+     */
+    public TreeReference narrowContextBy(TreeReference anchorRef) {
         TreeReference contextulizedUsingAnchor = contextRef.contextualize(anchorRef);
         if (stopContextualizingAt != -1) {
             return contextulizedUsingAnchor.genericizeAfter(stopContextualizingAt);
@@ -277,6 +288,13 @@ public abstract class Triggerable implements Externalizable {
         }
     }
 
+    /**
+     * Calculate lowest occurring predicate in refInExpr that overlaps with
+     * this triggerables context reference.  Needed to narrow the context the
+     * correct amount during triggerable evalution.
+     *
+     * @return copy of refInExpr with predicates cleared.
+     */
     public TreeReference widenContextToAndClearPredicates(TreeReference refInExpr) {
         int smallestIntersectionForRef = smallestIntersectingLevelWithPred(refInExpr);
 
@@ -290,6 +308,13 @@ public abstract class Triggerable implements Externalizable {
         return refInExpr.removePredicates();
     }
 
+    /**
+     * Propagate context widening parameters from a triggerable that dominates
+     * (causes the firing of) another triggerable.  If dominator's context is
+     * widened at a specific point and the dominated context shares part of the
+     * widened context, then we must propagate that widening parameter such
+     * that the dominated nodes get fired correctly in triggerable evaluation.
+     */
     public void updateStopContextualizingAtFromDominator(Triggerable dominator) {
         if (dominator.stopContextualizingAt != -1 &&
                 (stopContextualizingAt == -1 || dominator.stopContextualizingAt < stopContextualizingAt) &&
@@ -298,6 +323,10 @@ public abstract class Triggerable implements Externalizable {
         }
     }
 
+    /**
+     * Find position of the first step with a predicate in the provided
+     * reference that intersects with this triggerable's context reference
+     */
     private int smallestIntersectingLevelWithPred(TreeReference refInExpr) {
         TreeReference intersectionRef = contextRef.intersect(refInExpr.removePredicates());
         for (int refLevel = 0; refLevel < Math.min(refInExpr.size(), intersectionRef.size()); refLevel++) {

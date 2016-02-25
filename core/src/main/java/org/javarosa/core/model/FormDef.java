@@ -1079,7 +1079,7 @@ public class FormDef implements IFormElement, Localizable, Persistable, IMetaDat
      */
     private void evaluateTriggerable(Triggerable triggerable, TreeReference anchorRef) {
         // Contextualize the reference used by the triggerable against the anchor
-        TreeReference contextRef = triggerable.contextualizeContext(anchorRef);
+        TreeReference contextRef = triggerable.narrowContextBy(anchorRef);
 
         // Now identify all of the fully qualified nodes which this triggerable
         // updates. (Multiple nodes can be updated by the same trigger)
