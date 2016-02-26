@@ -51,12 +51,12 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         String userId = parser.getAttributeValue(null, "user_id");
 
         TreeElement root;
-        if (nextTagInBlock("fixture")) {
-            //TODO: We need to overwrite any matching records here.
-            root = new TreeElementParser(parser, 0, fixtureId).parse();
-        } else {
-            root = new TreeElement();
+        if (!nextTagInBlock("fixture")) {
+            // fixture with no body; don't commit to storage
+            return null;
         }
+        //TODO: We need to overwrite any matching records here.
+        root = new TreeElementParser(parser, 0, fixtureId).parse();
 
         FormInstance instance = new FormInstance(root, fixtureId);
 
