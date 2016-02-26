@@ -10,7 +10,7 @@ import java.io.PrintStream;
  *
  * Created by ctsims on 8/20/2015.
  */
-public abstract class Subscreen<T extends CompoundScreenHost> {
+public abstract class Subscreen<T extends CompoundScreenHost> implements OptionsScreen{
 
     /**
      * The subscreen should process the provided input, and update any relevant state in its
@@ -33,6 +33,4 @@ public abstract class Subscreen<T extends CompoundScreenHost> {
      * Display this subscreen
      */
     public abstract void prompt(PrintStream out);
-
-    public abstract String[] getOptions();
 }
