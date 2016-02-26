@@ -7,6 +7,7 @@
 		</update>
         <index>
             <new_index case_type="new">new</new_index>
+            <didnt_exist/>
         </index>
 	</case>
 
