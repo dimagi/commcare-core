@@ -16,6 +16,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * The CaseXML Parser is responsible for processing and performing
@@ -145,6 +146,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     } else if (key.equals("date_opened")) {
                         caseForBlock.setDateOpened(DateUtils.parseDate(value));
                     } else if (key.equals("owner_id")) {
+                        String oldUserId = caseForBlock.getUserId();
+
+                        if(!oldUserId.equals(value)) {
+                            onIndexDisrupted(caseId);
+                        }
                         caseForBlock.setUserId(value);
                     } else {
                         caseForBlock.setProperty(key, value);
@@ -160,6 +166,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 }
                 caseForBlock.setClosed(true);
                 commit(caseForBlock);
+                this.onIndexDisrupted(caseId);
                 //Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
                 close = true;
             } else if (action.equals("index")) {
@@ -187,9 +194,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     }
                     //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
                     if (value == null) {
-                        caseForBlock.removeIndex(indexName);
+                        if(caseForBlock.removeIndex(indexName)) {
+                            onIndexDisrupted(caseId);
+                        }
                     } else {
-                        caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
+                        if(caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
+                                relationship))) {
+                            onIndexDisrupted(caseId);
+                        }
                     }
                 }
             } else if (action.equals("attachment")) {
@@ -266,6 +278,21 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     public IStorageUtilityIndexed storage() {
         return storage;
+    }
+
+    /**
+     * A signal that notes that processing a transaction has resulted in a
+     * potential change in what cases should be on the phone. This can be
+     * due to a case's owner changing, a case closing, an index moving, etc.
+     *
+     * Does not have to be consumed, but can be used to identify proactively
+     * when to reconcile what cases should be available.
+     *
+     * @param caseId The ID of a case which has changed in a potentially
+     *               disruptive way
+     */
+    public void onIndexDisrupted(String caseId) {
+
     }
 
 }
