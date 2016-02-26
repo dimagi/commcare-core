@@ -63,12 +63,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         String caseId = parser.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
-            throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The case_id attribute of a <case> wasn't set", parser);
         }
 
         String dateModified = parser.getAttributeValue(null, "date_modified");
         if (dateModified == null) {
-            throw new InvalidStructureException("<case> block with no date_modified attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The date_modified attribute of a <case> wasn't set", parser);
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
