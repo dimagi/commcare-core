@@ -27,4 +27,14 @@ public class InvalidStructureException extends Exception {
     public InvalidStructureException(String message, String file, KXmlParser parser) {
         super("Invalid XML Structure in document " + file + "(" + parser.getPositionDescription() + "): " + message);
     }
+
+    public InvalidStructureException(String message) {
+        super(message);
+    }
+
+    public static InvalidStructureException readableInvalidStructureException(String message, KXmlParser parser) {
+        String humanReadableMessage =
+                message + InvalidStorageStructureException.buildParserMessage(parser);
+        return new InvalidStructureException(humanReadableMessage);
+    }
 }

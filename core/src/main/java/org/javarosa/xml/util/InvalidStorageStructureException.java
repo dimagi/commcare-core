@@ -13,7 +13,7 @@ public class InvalidStorageStructureException extends RuntimeException {
         super(message + buildParserMessage(parser));
     }
 
-    private static String buildParserMessage(KXmlParser parser) {
+    public static String buildParserMessage(KXmlParser parser) {
         String prefix = parser.getPrefix();
         if (prefix != null) {
             return ". Source: <" + prefix + ":" + parser.getName() + "> tag in namespace: " + parser.getNamespace();
