@@ -27,7 +27,7 @@ import java.io.InputStream;
 public class XmlFormRecordProcessor {
 
     public static void process(final UserSandbox sandbox, InputStream stream) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
-        process(sandbox, stream, new TransactionParserFactory() {
+        process(stream, new TransactionParserFactory() {
             public TransactionParser getParser(KXmlParser parser) {
                 if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, sandbox.getLedgerStorage());
@@ -41,7 +41,7 @@ public class XmlFormRecordProcessor {
 
     }
 
-    public static void process(UserSandbox sandbox, InputStream stream, TransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public static void process(InputStream stream, TransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         InputStream is = stream;
 
         DataModelPullParser parser = new DataModelPullParser(is, factory, true, true);
