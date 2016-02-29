@@ -85,12 +85,17 @@ public class Localizer implements Externalizable {
 
     @Override
     public int hashCode() {
-        return locales.hashCode() ^
+        int hash = locales.hashCode() ^
                 localeResources.hashCode() ^
-                defaultLocale.hashCode() ^
-                currentLocale.hashCode() ^
                 (fallbackDefaultLocale ? 0 : 31) ^
                 (fallbackDefaultForm ? 0 : 31);
+        if (defaultLocale != null) {
+            hash ^= defaultLocale.hashCode();
+        }
+        if (currentLocale != null) {
+            hash ^= currentLocale.hashCode();
+        }
+        return hash;
     }
 
     /**
