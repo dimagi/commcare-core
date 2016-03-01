@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import org.commcare.resources.ResourceManager;
@@ -50,10 +47,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.zip.ZipFile;
 
-
 /**
  * @author ctsims
- *
  */
 public class CommCareConfigEngine {
     private ResourceTable table;
@@ -223,11 +218,6 @@ public class CommCareConfigEngine {
                 //we don't support other file types yet
             }
         }
-    }
-
-
-    public void addResource(String reference) {
-
     }
 
     private void init(String profileRef) {
