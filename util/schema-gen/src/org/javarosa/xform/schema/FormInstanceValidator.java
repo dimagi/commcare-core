@@ -135,7 +135,7 @@ public class FormInstanceValidator {
             //Check for one or multi
             if (prompt.getControlType() == Constants.CONTROL_SELECT_MULTI) {
                 SelectMultiData data = new SelectMultiData().cast(answerValue.uncast());
-                Vector<Selection> values = (Vector<Selection>)data.getValue();
+                Vector<Selection> values = data.getValue();
                 for(Selection selection : values) {
                     if(!(validChoice(selection.xmlValue, choices))) {
                         System.out.println("Selection contains an invalid value [" + selection.xmlValue + "] at node " + ref.toString(true));

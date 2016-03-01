@@ -42,7 +42,7 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
      */
     public int nextID() {
         count++;
-        return ((Integer)keys[count - 1]).intValue();
+        return keys[count - 1].intValue();
     }
 
     /* (non-Javadoc)
@@ -60,7 +60,7 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
     }
 
     public int peekID() {
-        return (Integer)keys[count];
+        return keys[count];
     }
 
 }

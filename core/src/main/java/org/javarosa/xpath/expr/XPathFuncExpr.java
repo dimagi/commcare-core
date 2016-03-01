@@ -400,7 +400,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round")) {
                 checkArity(name, 1, args.length);
-                return new Double((double)(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
+                return new Double(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
             } else if (name.equals("log")) { //XPath 3.0
                 checkArity(name, 1, args.length);
                 return log(argVals[0]);
@@ -728,7 +728,7 @@ public class XPathFuncExpr extends XPathExpression {
         } else if (o instanceof Date) {
             val = DateUtils.formatDate((Date)o, DateUtils.FORMAT_ISO8601);
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType)o).toString();
+            val = o.toString();
         }
 
         if (val != null) {

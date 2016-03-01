@@ -77,7 +77,7 @@ public class JavaRosaPropertyRules implements IPropertyRules {
             //Check whether this is a dynamic property
             if (prop.size() == 1 && checkPropertyAllowed((String)prop.elementAt(0))) {
                 // If so, get its list of available values, and see whether the potentival value is acceptable.
-                return ((Vector)PropertyManager._().getProperty((String)prop.elementAt(0))).contains(potentialValue);
+                return PropertyManager._().getProperty((String)prop.elementAt(0)).contains(potentialValue);
             } else {
                 return ((Vector)rules.get(propertyName)).contains(potentialValue);
             }

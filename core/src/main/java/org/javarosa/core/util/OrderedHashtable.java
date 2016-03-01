@@ -78,7 +78,7 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
     }
 
     public V remove(Object key) {
-        orderedKeys.removeElement((K)key);
+        orderedKeys.removeElement(key);
         return super.remove(key);
     }
 

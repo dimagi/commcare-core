@@ -51,7 +51,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     private void initMeta() {
         Persistable p;
         try {
-            p = (Persistable)prototype.newInstance();
+            p = prototype.newInstance();
         } catch (java.lang.InstantiationException e) {
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
         } catch (java.lang.IllegalAccessException e) {
@@ -322,7 +322,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         this.initMeta();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            Externalizable e = (Externalizable)data.get(i);
+            Externalizable e = data.get(i);
 
             if (e instanceof IMetaData) {
 

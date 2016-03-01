@@ -49,7 +49,7 @@ public class XPathLazyNodeset extends XPathNodeset {
 
             //to fix conditions based on non-relevant data, filter the nodeset by relevancy
             for (int i = 0; i < nodes.size(); i++) {
-                if (!instance.resolveReference((TreeReference)nodes.elementAt(i)).isRelevant()) {
+                if (!instance.resolveReference(nodes.elementAt(i)).isRelevant()) {
                     nodes.removeElementAt(i);
                     i--;
                 }

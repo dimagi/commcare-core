@@ -65,7 +65,7 @@ public class PrefixTreeNode {
             sb.append("*");
         if (children != null) {
             for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-                sb.append(((PrefixTreeNode)e.nextElement()).toString());
+                sb.append(e.nextElement().toString());
             }
         }
         sb.append("}");

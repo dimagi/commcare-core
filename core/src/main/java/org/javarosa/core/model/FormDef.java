@@ -273,11 +273,11 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
         // fill in multiplicities for repeats along the way
         for (int i = 0; i < elements.size(); i++) {
-            IFormElement temp = (IFormElement)elements.elementAt(i);
+            IFormElement temp = elements.elementAt(i);
             if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
                 TreeReference repRef = FormInstance.unpackReference(temp.getBind());
                 if (repRef.isParentOf(ref, false)) {
-                    int repMult = ((Integer)multiplicities.elementAt(i)).intValue();
+                    int repMult = multiplicities.elementAt(i).intValue();
                     ref.setMultiplicity(repRef.size() - 1, repMult);
                 } else {
                     // question/repeat hierarchy is not consistent with
@@ -1008,7 +1008,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         TreeReference genericRef = ref.genericize();
 
         //get triggerables which are activated by the generic reference
-        Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(genericRef);
+        Vector<Triggerable> triggered = triggerIndex.get(genericRef);
         if (triggered == null) {
             return;
         }

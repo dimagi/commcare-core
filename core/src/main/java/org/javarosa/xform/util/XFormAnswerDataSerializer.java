@@ -77,7 +77,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains the given answer
      */
     public Object serializeAnswerData(StringData data) {
-        return (String)data.getValue();
+        return data.getValue();
     }
 
     /**
@@ -151,15 +151,15 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     public Object serializeAnswerData(IntegerData data) {
-        return ((Integer)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(LongData data) {
-        return ((Long)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(DecimalData data) {
-        return ((Double)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(GeoPointData data) {
@@ -252,7 +252,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         }
         if (data instanceof PointerAnswerData) {
             IDataPointer[] pointer = new IDataPointer[1];
-            pointer[0] = (IDataPointer)((PointerAnswerData)data).getValue();
+            pointer[0] = (IDataPointer)data.getValue();
             return pointer;
         }
         //This shouldn't have been called.

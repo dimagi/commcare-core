@@ -246,7 +246,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
         recordid = ExtUtil.readInt(in);
         formId = ExtUtil.readInt(in);
         name = (String)ExtUtil.read(in, new ExtWrapNullable(String.class), pf);
-        instanceid = (String)ExtUtil.nullIfEmpty(ExtUtil.readString(in));
+        instanceid = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override

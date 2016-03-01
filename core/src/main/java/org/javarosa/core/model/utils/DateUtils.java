@@ -763,7 +763,7 @@ public class DateUtils {
         // remove all pieces that are empty string
         if (combineMultipleDelimiters) {
             for (int i = 0; i < pieces.size(); i++) {
-                if (((String)pieces.elementAt(i)).length() == 0) {
+                if (pieces.elementAt(i).length() == 0) {
                     pieces.removeElementAt(i);
                     i--;
                 }

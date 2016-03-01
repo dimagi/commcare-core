@@ -185,7 +185,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
                 e = (Element)serializedAnswer;
             } else if (serializedAnswer instanceof String) {
                 e = new Element();
-                e.addChild(Node.TEXT, (String)serializedAnswer);
+                e.addChild(Node.TEXT, serializedAnswer);
             } else {
                 throw new RuntimeException("Can't handle serialized output for" + instanceNode.getValue().toString() + ", " + serializedAnswer);
             }

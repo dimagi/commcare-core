@@ -2189,11 +2189,11 @@ public class XFormParser {
         Vector<TreeReference> refs = new Vector<TreeReference>();
 
         for (int i = 0; i < repeats.size(); i++) {
-            refs.addElement((TreeReference)repeats.elementAt(i));
+            refs.addElement(repeats.elementAt(i));
         }
 
         for (int i = 0; i < itemsets.size(); i++) {
-            ItemsetBinding itemset = (ItemsetBinding)itemsets.elementAt(i);
+            ItemsetBinding itemset = itemsets.elementAt(i);
             TreeReference srcRef = itemset.nodesetRef;
             if (!refs.contains(srcRef)) {
                 //CTS: Being an itemset root is not sufficient to mark
@@ -2516,10 +2516,10 @@ public class XFormParser {
             String type = null;
 
             if (child instanceof GroupDef) {
-                ref = ((GroupDef)child).getBind();
+                ref = child.getBind();
                 type = (((GroupDef)child).getRepeat() ? "Repeat" : "Group");
             } else if (child instanceof QuestionDef) {
-                ref = ((QuestionDef)child).getBind();
+                ref = child.getBind();
                 type = "Question";
             }
             TreeReference tref = FormInstance.unpackReference(ref);
@@ -2824,9 +2824,9 @@ public class XFormParser {
             Vector<Triggerable> triggered = (Vector<Triggerable>)_f.conditionsTriggeredByRef(trigger);
             Vector targets = new Vector();
             for (int i = 0; i < triggered.size(); i++) {
-                Triggerable t = (Triggerable)triggered.elementAt(i);
+                Triggerable t = triggered.elementAt(i);
                 for (int j = 0; j < t.getTargets().size(); j++) {
-                    TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+                    TreeReference target = t.getTargets().elementAt(j);
                     if (!targets.contains(target))
                         targets.addElement(target);
                 }
@@ -2939,7 +2939,7 @@ public class XFormParser {
             }
 
             if (typeMappings.containsKey(type)) {
-                dataType = ((Integer)typeMappings.get(type)).intValue();
+                dataType = typeMappings.get(type).intValue();
             } else {
                 dataType = Constants.DATATYPE_UNSUPPORTED;
                 reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "unrecognized data type [" + type + "]", null);

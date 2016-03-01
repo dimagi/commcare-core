@@ -44,7 +44,7 @@ public class PrefixTree {
     public PrefixTree(int minimumPrefixLength) {
         root = new PrefixTreeNode(new char[0]);
         this.minimumPrefixLength = Math.max(minimumPrefixLength++, 0);
-        this.minimumHeuristicLength = Math.max((int)(minimumPrefixLength / 2), 3);
+        this.minimumHeuristicLength = Math.max(minimumPrefixLength / 2, 3);
     }
 
     public static int sharedPrefixLength(char[] a, int aStart, char[] b) {

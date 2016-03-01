@@ -45,7 +45,7 @@ public class CacheTable<T, K> {
 
                                 synchronized (cache) {
                                     //See whether or not the cached reference has been cleared by the GC
-                                    if (((WeakReference)table.get(key)).get() == null) {
+                                    if (table.get(key).get() == null) {
                                         //If so, remove the entry, it's no longer useful.
                                         table.remove(key);
                                     }
