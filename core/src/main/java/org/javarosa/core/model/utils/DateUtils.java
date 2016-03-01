@@ -823,10 +823,6 @@ public class DateUtils {
         if (string == null || substring == null) {
             return false;
         }
-        if (string.indexOf(substring) == -1) {
-            return false;
-        } else {
-            return true;
-        }
+        return string.indexOf(substring) != -1;
     }
 }

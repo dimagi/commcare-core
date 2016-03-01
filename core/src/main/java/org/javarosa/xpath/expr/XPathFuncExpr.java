@@ -582,10 +582,8 @@ public class XPathFuncExpr extends XPathExpression {
             return true; //true 'null' values aren't allowed in the xpath engine, but whatever
         } else if (o instanceof String && ((String)o).length() == 0) {
             return true;
-        } else if (o instanceof Double && ((Double)o).isNaN()) {
-            return true;
         } else {
-            return false;
+            return o instanceof Double && ((Double)o).isNaN();
         }
     }
 

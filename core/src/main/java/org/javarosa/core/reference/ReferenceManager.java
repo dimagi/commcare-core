@@ -249,9 +249,6 @@ public class ReferenceManager {
      * @return Whether the provided URI describe a relative reference.
      */
     public static boolean isRelative(String URI) {
-        if (URI.startsWith("./")) {
-            return true;
-        }
-        return false;
+        return URI.startsWith("./");
     }
 }

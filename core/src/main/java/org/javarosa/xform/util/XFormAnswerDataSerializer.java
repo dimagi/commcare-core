@@ -57,14 +57,10 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     final Vector additionalSerializers = new Vector();
 
     public boolean canSerialize(IAnswerData data) {
-        if (data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
+        return data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
                 data instanceof IntegerData || data instanceof DecimalData || data instanceof PointerAnswerData ||
-                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData) {
-            return true;
-        } else {
-            return false;
-        }
+                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData;
     }
 
     /**
