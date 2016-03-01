@@ -352,7 +352,7 @@ public class CommCareConfigEngine {
                 System.out.print(".");
             }
         }
-    };
+    }
 
     public void attemptAppUpdate(boolean forceNew) {
         ResourceTable global = table;
