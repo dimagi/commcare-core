@@ -1071,7 +1071,7 @@ public class XFormParser {
             } else if (isSelect && "item".equals(childName)) {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
-                parseItemset(question, child, parent);
+                parseItemset(question, child);
             } else if (actionHandlers.containsKey(childName)) {
                 actionHandlers.get(childName).handle(this, child, question);
             }
@@ -1349,7 +1349,7 @@ public class XFormParser {
         }
     }
 
-    private void parseItemset(QuestionDef q, Element e, IFormElement qparent) {
+    private void parseItemset(QuestionDef q, Element e) {
         ItemsetBinding itemset = new ItemsetBinding();
 
         ////////////////USED FOR PARSER WARNING OUTPUT ONLY
