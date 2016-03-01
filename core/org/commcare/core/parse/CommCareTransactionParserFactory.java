@@ -159,15 +159,17 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    // overwritten in J2ME
+    @SuppressWarnings("unused")
     public String getResponseMessage(){
         return null;
     }
-    // overwritten in J2ME
+
+    @SuppressWarnings("unused")
     public int[] getCaseTallies() {
         return null;
     }
-    // overwritten in J2ME
+
+    @SuppressWarnings("unused")
     public OrderedHashtable<String,String> getResponseMessageMap() {
         return null;
     }

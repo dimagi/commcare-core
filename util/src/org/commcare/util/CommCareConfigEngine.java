@@ -181,44 +181,6 @@ public class CommCareConfigEngine {
         return "jr://file/" + filePart;
     }
 
-    /**
-     * super, super hacky for now, gets a jar directory and loads language resources
-     * from it.
-     * @param pathToResources
-     */
-    public void addJarResources(String pathToResources) {
-        File resources = new File(pathToResources);
-        if(!resources.exists() && resources.isDirectory()) {
-            throw new RuntimeException("Couldn't find jar resources at " + resources.getAbsolutePath() + " . Please correct the path, or use the -nojarresources flag to skip loading jar resources.");
-        }
-
-        fileuricount++;
-        String jrroot = "extfile" + fileuricount;
-        ReferenceManager._().addReferenceFactory(new JavaFileRoot(new String[]{jrroot}, resources.getAbsolutePath()));
-
-        for(File file : resources.listFiles()) {
-            String name = file.getName();
-            if(name.endsWith("txt")) {
-                ResourceLocation location = new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, "jr://" + jrroot + "/" + name);
-                Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-                locations.add(location);
-                if(!(name.lastIndexOf("_") < name.lastIndexOf("."))) {
-                    //skip it
-                } else {
-                    String locale = name.substring(name.lastIndexOf("_") + 1, name.lastIndexOf("."));
-                    Resource test = new Resource(-2, name, locations, "Internal Strings: " + locale);
-                    try {
-                        table.addResource(test, new LocaleFileInstaller(locale),null);
-                    } catch (StorageFullException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                //we don't support other file types yet
-            }
-        }
-    }
 
     private void init(String profileRef) {
             try {

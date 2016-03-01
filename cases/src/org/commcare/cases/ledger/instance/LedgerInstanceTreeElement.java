@@ -73,9 +73,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return instanceRoot.getInstanceName();
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public void attachStringCache(Interner<String> stringCache) {
         this.stringCache = stringCache;
     }
