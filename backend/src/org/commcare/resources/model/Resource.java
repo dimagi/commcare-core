@@ -182,11 +182,7 @@ public class Resource implements Persistable, IMetaData {
      * otherwise.
      */
     public boolean hasParent() {
-        if (parent == null || "".equals(parent)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(parent == null || "".equals(parent));
     }
 
     /**

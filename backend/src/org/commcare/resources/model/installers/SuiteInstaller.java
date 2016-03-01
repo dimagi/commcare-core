@@ -136,9 +136,6 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             System.out.println("fail: " + exc.getMessage());
             System.out.println("fail: " + exc.toString());
         }
-        if (problems.size() == 0) {
-            return false;
-        }
-        return true;
+        return problems.size() != 0;
     }
 }

@@ -47,12 +47,8 @@ public class BasicInstaller implements ResourceInstaller<CommCareInstance> {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
             try {
-                if (ref.doesBinaryExist()) {
-                    return true;
-                } else {
-                    //If the file isn't there, not much we can do about it.
-                    return false;
-                }
+                //If the file isn't there, not much we can do about it.
+                return ref.doesBinaryExist();
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;

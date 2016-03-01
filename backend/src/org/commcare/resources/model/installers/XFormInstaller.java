@@ -221,9 +221,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                 }
             }
         }
-        if (sizeBoundProblems.size() == 0) {
-            return false;
-        }
-        return true;
+        return sizeBoundProblems.size() != 0;
     }
 }
