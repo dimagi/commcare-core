@@ -1007,7 +1007,7 @@ public class XFormParser {
                             "of a <trigger> isn't allowed to have predicates.", e);
                 }
             } catch (RuntimeException el) {
-                System.out.println(this.getVagueLocation(e));
+                System.out.println(getVagueLocation(e));
                 throw el;
             }
         } else {

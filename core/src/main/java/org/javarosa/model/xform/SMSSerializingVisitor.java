@@ -65,7 +65,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
      */
     public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
-        rootRef = model.unpackReference(ref);
+        rootRef = FormInstance.unpackReference(ref);
         if (this.serializer == null) {
             this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
         }
@@ -89,7 +89,7 @@ public class SMSSerializingVisitor implements IInstanceSerializingVisitor {
     public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref)
             throws IOException {
         init();
-        rootRef = model.unpackReference(ref);
+        rootRef = FormInstance.unpackReference(ref);
         if (this.serializer == null) {
             this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
         }

@@ -96,7 +96,7 @@ public class FormOverview {
                 }
             }
 
-        }while(fec.stepToNextEvent()!=fec.EVENT_END_OF_FORM);
+        }while(fec.stepToNextEvent()!=FormEntryController.EVENT_END_OF_FORM);
 
         //Old Recursive Algorithm
 //        if (fe instanceof QuestionDef) {

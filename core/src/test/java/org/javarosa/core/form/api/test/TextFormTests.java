@@ -120,7 +120,7 @@ public class TextFormTests {
             if (t.equals("Non-Localized label inner text!")) testFlag = true;
 
 
-        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
         if (!testFlag) fail("Failed to fallback to labelInnerText in testNonLocalizedText()");
     }

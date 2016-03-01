@@ -284,23 +284,23 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
         String cmd = e.getActionCommand();
         if (cmd.equals("eval")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             // If user clicked "validate" button
             if(checkNewForm())
                 this.validateFile();
         }else if(cmd.equals("test")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             if(!checkParams()) {
-                this.addToTextArea("ERROR: Please fix parameters on the settings screen!");
+                addToTextArea("ERROR: Please fix parameters on the settings screen!");
                 return;
             }
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
+                addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
                 return;
             }
 
@@ -313,11 +313,11 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
             this.testBtn.setEnabled(true);
         } else if(cmd.equals("summary")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
+                addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
                 return;
             }
 
@@ -325,16 +325,16 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 
         } else if(cmd.equals("deploy")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             if(!checkDeployJar() || !checkNewForm()) {
-                this.addToTextArea("ERROR: Please fix parameters on the settings screen!");
+                addToTextArea("ERROR: Please fix parameters on the settings screen!");
                 return;
             }
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot deploy form to new jar unless it validates!");
+                addToTextArea("\n\nERROR: cannot deploy form to new jar unless it validates!");
                 return;
             }
 
@@ -528,8 +528,8 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
         System.setOut(origO);
 
         // and show the output
-        String prev = this.textarea.getText();
-        this.textarea.setText(prev + this.bufferedlogger.flush2());
+        String prev = textarea.getText();
+        textarea.setText(prev + this.bufferedlogger.flush2());
 
         return success;
     }

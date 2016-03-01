@@ -126,7 +126,7 @@ public class ExternalizableTest {
         //base types (built-in + externalizable)
 
         PrototypeFactory pf = new PrototypeFactory();
-        pf.setStaticHasher(new ClassNameHasher());
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
 
         testExternalizable("string", String.class);
         testExternalizable(new Byte((byte)0), Byte.class);
