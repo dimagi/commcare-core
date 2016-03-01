@@ -2341,7 +2341,7 @@ public class XFormParser {
     //helper function for removeInvalidTemplates
     private boolean removeInvalidTemplates(TreeElement instanceNode, TreeElement repeatTreeNode, boolean templateAllowed) {
         int mult = instanceNode.getMult();
-        boolean repeatable = (repeatTreeNode == null ? false : repeatTreeNode.isRepeatable());
+        boolean repeatable = (repeatTreeNode != null && repeatTreeNode.isRepeatable());
 
         if (mult == TreeReference.INDEX_TEMPLATE) {
             if (!templateAllowed) {
@@ -2581,7 +2581,7 @@ public class XFormParser {
             //check that no nodes between the parent repeat and the target are repeatable
             for (int k = repeatBind.size(); k < childBind.size(); k++) {
                 TreeElement rChild = (k < repeatAncestry.size() ? repeatAncestry.elementAt(k) : null);
-                boolean repeatable = (rChild == null ? false : rChild.isRepeatable());
+                boolean repeatable = (rChild != null && rChild.isRepeatable());
                 if (repeatable && !(k == childBind.size() - 1 && isRepeat)) {
                     //catch <repeat nodeset="/a/b"><input ref="/a/b/c/d" /></repeat>...<repeat nodeset="/a/b/c">...</repeat>:
                     //  question's/group's/repeat's most immediate repeat parent in the instance is not its most immediate repeat parent in the form def

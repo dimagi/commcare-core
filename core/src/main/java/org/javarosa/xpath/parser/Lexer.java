@@ -214,10 +214,10 @@ public class Lexer {
     }
 
     private static boolean isDigit(int c) {
-        return (c < 0 ? false : Character.isDigit((char)c));
+        return (c >= 0 && Character.isDigit((char)c));
     }
 
     private static boolean isAlpha(int c) {
-        return (c < 0 ? false : Character.isLowerCase((char)c) || Character.isUpperCase((char)c));
+        return (c >= 0 && (Character.isLowerCase((char)c) || Character.isUpperCase((char)c)));
     }
 }
