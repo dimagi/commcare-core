@@ -957,7 +957,7 @@ public class XPathEvalTest {
         }
     }
 
-    StatefulFunc read = new StatefulFunc() {
+    final StatefulFunc read = new StatefulFunc() {
         public String getName() {
             return "read";
         }
@@ -973,7 +973,7 @@ public class XPathEvalTest {
         }
     };
 
-    StatefulFunc write = new StatefulFunc() {
+    final StatefulFunc write = new StatefulFunc() {
         public String getName() {
             return "write";
         }

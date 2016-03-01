@@ -24,7 +24,7 @@ import java.io.InputStream;
  *
  */
 public abstract class ElementParser<T> {
-    protected KXmlParser parser;
+    protected final KXmlParser parser;
 
     int level = 0;
 

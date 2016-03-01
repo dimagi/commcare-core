@@ -95,7 +95,7 @@ public class MD5 {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
-    private MD5State state;
+    private final MD5State state;
     private MD5State finals;
 
     private static final byte padding[] = {(byte)0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

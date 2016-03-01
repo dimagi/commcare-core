@@ -67,7 +67,7 @@ public class QuestionDef implements IFormElement, Localizable {
 
     Vector<QuestionDataExtension> extensions;
 
-    Vector observers;
+    final Vector observers;
 
     private ActionController actionController;
 

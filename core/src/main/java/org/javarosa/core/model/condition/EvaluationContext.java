@@ -47,8 +47,8 @@ public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
     private TreeReference contextNode;
 
-    private Hashtable<String, IFunctionHandler> functionHandlers;
-    private Hashtable<String, Object> variables;
+    private final Hashtable<String, IFunctionHandler> functionHandlers;
+    private final Hashtable<String, Object> variables;
 
     // Do we want to evaluate constraints?
     public boolean isConstraint;

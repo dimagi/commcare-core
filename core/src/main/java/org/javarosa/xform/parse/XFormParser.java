@@ -102,7 +102,7 @@ public class XFormParser {
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
 
-    private Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
+    private final Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
 
     private Reader _reader;
     private Document _xmldoc;

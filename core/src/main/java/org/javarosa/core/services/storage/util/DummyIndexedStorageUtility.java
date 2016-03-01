@@ -29,15 +29,15 @@ import java.util.Vector;
  */
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
-    private Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
+    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
 
-    private Hashtable<Integer, T> data;
+    private final Hashtable<Integer, T> data;
 
     int curCount;
 
-    Class<T> prototype;
+    final Class<T> prototype;
     
-    PrototypeFactory mFactory;
+    final PrototypeFactory mFactory;
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
@@ -358,7 +358,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
 
-    Vector<String> dynamicIndices = new Vector<String>();
+    final Vector<String> dynamicIndices = new Vector<String>();
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);

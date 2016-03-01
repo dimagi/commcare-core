@@ -117,7 +117,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     private QuestionPreloader preloader = new QuestionPreloader();
 
     // XML ID's cannot start with numbers, so this should never conflict
-    private static String DEFAULT_SUBMISSION_PROFILE = "1";
+    private static final String DEFAULT_SUBMISSION_PROFILE = "1";
 
     private Hashtable<String, SubmissionProfile> submissionProfiles;
 

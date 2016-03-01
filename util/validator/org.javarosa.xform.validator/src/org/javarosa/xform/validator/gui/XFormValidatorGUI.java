@@ -126,7 +126,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
     private final static String SETTINGS_SCREEN = "SETTINGS_SCREEN";
     private final static String MAIN_SCREEN = "MAIN_SCREEN";
     private Button testBtn = null;
-    private Label status = new Label();
+    private final Label status = new Label();
     private Label formName = new Label();
 
     private Checkbox noOpenAtEnd = null;
@@ -140,15 +140,15 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 
     private Choice languages = null;
 
-    private BufferLogger bufferedlogger = new BufferLogger();
-    public static TextArea textarea = new TextArea("", 24, 80);
+    private final BufferLogger bufferedlogger = new BufferLogger();
+    public static final TextArea textarea = new TextArea("", 24, 80);
 
     public static XFormValidatorGUI instance = null;
     public static BufferedReader brErr = null;
     public static BufferedReader brOut = null;
     public static Process process = null;
 
-    static Interner<String> interns = new Interner<String>();
+    static final Interner<String> interns = new Interner<String>();
 
 
     public static void main(String argv[]) {

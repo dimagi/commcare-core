@@ -26,7 +26,7 @@ public class UploadExtensionTest {
     Vector<QuestionExtensionParser> extensionParsers;
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public final ExpectedException exception = ExpectedException.none();
 
     @Before
     public void init() {

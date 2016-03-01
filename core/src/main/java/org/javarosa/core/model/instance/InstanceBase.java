@@ -15,7 +15,7 @@ import java.util.Vector;
  */
 public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
-    String instanceName;
+    final String instanceName;
     AbstractTreeElement child;
 
     public InstanceBase(String instanceName) {

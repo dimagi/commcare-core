@@ -27,7 +27,7 @@ public class TextFormTests {
     FormEntryPrompt fep = null;
     FormParseInit fpi = null;
 
-    static PrototypeFactory pf;
+    static final PrototypeFactory pf;
 
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");

@@ -24,7 +24,7 @@ import java.util.Hashtable;
 
 public class ExtWrapTagged extends ExternalizableWrapper {
 
-    public static Hashtable WRAPPER_CODES;
+    public static final Hashtable WRAPPER_CODES;
 
     static {
         WRAPPER_CODES = new Hashtable();

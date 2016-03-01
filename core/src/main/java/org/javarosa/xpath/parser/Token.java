@@ -36,8 +36,8 @@ public class Token {
     public static final int VAR = 31;
     public static final int WILDCARD = 32;
 
-    public int type;
-    public Object val;
+    public final int type;
+    public final Object val;
 
     public Token(int type) {
         this(type, null);

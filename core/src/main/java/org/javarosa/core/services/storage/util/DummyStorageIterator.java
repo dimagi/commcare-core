@@ -14,9 +14,9 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
-    Hashtable<Integer, T> data;
+    final Hashtable<Integer, T> data;
     int count;
-    Integer[] keys;
+    final Integer[] keys;
 
 
     public DummyStorageIterator(Hashtable<Integer, T> data) {

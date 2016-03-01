@@ -24,12 +24,12 @@ public class PrefixTree {
     //due to wide availability of memory. It's easier in many cases
     //to simply keep using the framework, but just disable the actual
     //stemming/prefix ops
-    boolean disablePrefixing = false;
+    final boolean disablePrefixing = false;
 
     private PrefixTreeNode root;
 
-    int minimumPrefixLength;
-    int minimumHeuristicLength;
+    final int minimumPrefixLength;
+    final int minimumHeuristicLength;
 
     //Common delimeters which we'd prefer as prefix breaks rather than
     //maximum string space

@@ -32,7 +32,7 @@ import java.util.Vector;
  *
  */
 public class FormInstanceValidator {
-    FormDef theForm;
+    final FormDef theForm;
     FormInstance savedModel;
 
     FormEntryModel model;

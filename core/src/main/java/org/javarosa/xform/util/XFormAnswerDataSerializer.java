@@ -54,7 +54,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
 
     public final static String DELIMITER = " ";
 
-    Vector additionalSerializers = new Vector();
+    final Vector additionalSerializers = new Vector();
 
     public boolean canSerialize(IAnswerData data) {
         if (data instanceof StringData || data instanceof DateData || data instanceof TimeData ||

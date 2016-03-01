@@ -36,7 +36,7 @@ import java.util.Vector;
  */
 public class QuestionPreloader {
     /* String -> IPreloadHandler */
-    private Map preloadHandlers;
+    private final Map preloadHandlers;
 
     /**
      * Creates a new Preloader with default handlers

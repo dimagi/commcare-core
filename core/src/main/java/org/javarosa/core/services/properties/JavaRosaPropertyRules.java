@@ -15,9 +15,9 @@ import java.util.Vector;
  * @author ctsims
  */
 public class JavaRosaPropertyRules implements IPropertyRules {
-    Hashtable rules;
+    final Hashtable rules;
 
-    Vector readOnlyProperties;
+    final Vector readOnlyProperties;
 
     public final static String DEVICE_ID_PROPERTY = "DeviceID";
     public final static String CURRENT_LOCALE = "cur_locale";

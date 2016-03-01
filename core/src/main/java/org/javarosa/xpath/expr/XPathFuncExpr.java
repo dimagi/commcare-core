@@ -51,7 +51,7 @@ public class XPathFuncExpr extends XPathExpression {
     public XPathQName id;            //name of the function
     public XPathExpression[] args;    //argument list
 
-    private static CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
+    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
 
     public XPathFuncExpr() {
     } //for deserialization

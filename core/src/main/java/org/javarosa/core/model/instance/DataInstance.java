@@ -42,7 +42,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
 
     protected CacheHost mCacheHost;
 
-    private CacheTable<TreeReference, T> referenceCache;
+    private final CacheTable<TreeReference, T> referenceCache;
 
     public DataInstance() {
         referenceCache = new CacheTable<TreeReference, T>();
