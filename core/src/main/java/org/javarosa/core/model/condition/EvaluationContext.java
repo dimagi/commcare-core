@@ -220,11 +220,8 @@ public class EvaluationContext {
         }
         if (value instanceof Float) {
             variables.put(name, new Double(((Float)value).doubleValue()));
-            return;
-        }
-
-        //Otherwise we just hope for the best, I suppose? Should we log this?
-        else {
+        } else {
+            //Otherwise we just hope for the best, I suppose? Should we log this?
             variables.put(name, value);
         }
     }

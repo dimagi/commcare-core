@@ -50,12 +50,6 @@ public class ActionResponse {
 
                 throw new BadPlaybackException(message);
             }
-
-
-        } else {
-            return;
         }
     }
-
-
 }

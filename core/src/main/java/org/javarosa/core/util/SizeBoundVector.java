@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.util;
 
 import java.util.Vector;
@@ -23,13 +20,10 @@ public class SizeBoundVector<E> extends Vector<E> {
         this.limit = sizeLimit;
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Vector#addElement(java.lang.Object)
-     */
+    @Override
     public synchronized void addElement(E obj) {
         if (this.size() == limit) {
             additional++;
-            return;
         } else {
             super.addElement(obj);
         }
@@ -51,23 +45,17 @@ public class SizeBoundVector<E> extends Vector<E> {
         badVideoReferenceCount++;
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public int getBadImageReferenceCount() {
         return badImageReferenceCount;
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public int getBadAudioReferenceCount() {
         return badAudioReferenceCount;
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public int getBadVideoReferenceCount() {
         return badVideoReferenceCount;
     }
