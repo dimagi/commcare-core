@@ -227,7 +227,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
     public Ledger retrieveOrCreate(String entityId) {
         try {
-            return (Ledger)storage().getRecordForValue(Ledger.INDEX_ENTITY_ID, entityId);
+            return storage().getRecordForValue(Ledger.INDEX_ENTITY_ID, entityId);
         } catch (NoSuchElementException nsee) {
             return new Ledger(entityId);
         }
