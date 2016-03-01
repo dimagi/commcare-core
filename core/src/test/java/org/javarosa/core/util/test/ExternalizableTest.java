@@ -139,8 +139,8 @@ public class ExternalizableTest {
         testExternalizable(new Integer(1234567890), Integer.class);
         testExternalizable(new Integer(-1234567890), Integer.class);
         testExternalizable(new Long(0), Long.class);
-        testExternalizable(new Long(1234567890123456789l), Long.class);
-        testExternalizable(new Long(-1234567890123456789l), Long.class);
+        testExternalizable(new Long(1234567890123456789L), Long.class);
+        testExternalizable(new Long(-1234567890123456789L), Long.class);
         testExternalizable(Boolean.TRUE, Boolean.class);
         testExternalizable(Boolean.FALSE, Boolean.class);
         testExternalizable(new Character('e'), Character.class);
