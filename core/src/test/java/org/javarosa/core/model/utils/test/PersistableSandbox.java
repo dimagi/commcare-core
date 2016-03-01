@@ -1,6 +1,5 @@
 package org.javarosa.core.model.utils.test;
 
-import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;

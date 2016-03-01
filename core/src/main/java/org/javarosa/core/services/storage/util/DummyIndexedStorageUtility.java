@@ -3,7 +3,6 @@
  */
 package org.javarosa.core.services.storage.util;
 
-import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;

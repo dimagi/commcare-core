@@ -19,7 +19,6 @@ package org.javarosa.model.xform;
 
 
 import org.javarosa.core.data.IDataPointer;
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
