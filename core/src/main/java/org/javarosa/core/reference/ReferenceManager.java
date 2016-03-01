@@ -191,7 +191,7 @@ public class ReferenceManager {
     }
 
     private String getPrettyPrintException(String uri) {
-        if (uri == "") {
+        if ("".equals(uri)) {
             return "Attempt to derive a blank reference";
         }
         try {
