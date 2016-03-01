@@ -27,7 +27,7 @@ public interface Reference {
      * @throws IOException If there is a problem identifying
      *                     the status of the resource
      */
-    public boolean doesBinaryExist() throws IOException;
+    boolean doesBinaryExist() throws IOException;
 
     /**
      * @return A Stream of data which is the binary resource's
@@ -35,14 +35,14 @@ public interface Reference {
      * @throws IOException If there is a problem reading the
      *                     stream.
      */
-    public InputStream getStream() throws IOException;
+    InputStream getStream() throws IOException;
 
 
     /**
      * @return A URI which will evaluate to this same reference
      * in the future.
      */
-    public String getURI();
+    String getURI();
 
     /**
      * @return A URI which may or may not exist in the local context
@@ -50,14 +50,14 @@ public interface Reference {
      * used with caution: There is no guarantee that a local URI
      * can be constructed or used in a general way.
      */
-    public String getLocalURI();
+    String getLocalURI();
 
     /**
      * @return True if the remote data is only available to
      * be read from (using getStream), False if the remote
      * data can also be modified or written to.
      */
-    public boolean isReadOnly();
+    boolean isReadOnly();
 
     //Should possibly throw another type of exception here
     //for invalid reference operation (Read only)
@@ -68,7 +68,7 @@ public interface Reference {
      * @throws IOException If there is a problem writing or the
      *                     reference is read only
      */
-    public OutputStream getOutputStream() throws IOException;
+    OutputStream getOutputStream() throws IOException;
 
     /**
      * Removes the binary data located by this reference.
@@ -76,7 +76,7 @@ public interface Reference {
      * @throws IOException If there is a problem deleting or the
      *                     reference is read only
      */
-    public void remove() throws IOException;
+    void remove() throws IOException;
 
     /**
      * Determines any platform-specific and reference-type specific
@@ -88,5 +88,5 @@ public interface Reference {
      * NOTE: There is no guarantee that returned references will exist,
      * they should be tested.
      */
-    public Reference[] probeAlternativeReferences();
+    Reference[] probeAlternativeReferences();
 }

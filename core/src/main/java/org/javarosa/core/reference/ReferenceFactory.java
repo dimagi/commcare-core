@@ -15,9 +15,9 @@ package org.javarosa.core.reference;
  * @author ctsims
  */
 public interface ReferenceFactory {
-    public boolean derives(String URI);
+    boolean derives(String URI);
 
-    public Reference derive(String URI) throws InvalidReferenceException;
+    Reference derive(String URI) throws InvalidReferenceException;
 
-    public Reference derive(String URI, String context) throws InvalidReferenceException;
+    Reference derive(String URI, String context) throws InvalidReferenceException;
 }
