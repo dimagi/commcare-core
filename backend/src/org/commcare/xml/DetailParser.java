@@ -177,7 +177,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                         //version, so we'll be flexible for now.
 
                         String order = parser.getAttributeValue(null, "order");
-                        if (order != null && order != "") {
+                        if (order != null && !"".equals(order)) {
                             try {
                                 builder.setSortOrder(Integer.parseInt(order));
                             } catch (NumberFormatException nfe) {
