@@ -109,7 +109,7 @@ public class MD5 {
      * 8) | (((int) (buffer[shift + 2] & 0xff)) << 16) | (((int)
      * buffer[shift + 3]) << 24); }
      */
-    private final void decode(final byte buffer[], final int shift, final int[] out) {
+    private void decode(final byte buffer[], final int shift, final int[] out) {
         out[0] = (buffer[shift] & 0xff) | ((buffer[shift + 1] & 0xff) << 8)
                 | ((buffer[shift + 2] & 0xff) << 16)
                 | (buffer[shift + 3] << 24);
@@ -173,7 +173,7 @@ public class MD5 {
                 | (buffer[shift + 63] << 24);
     }
 
-    private final void transform(MD5State state, byte buffer[], int shift, int[] decode_buf) {
+    private void transform(MD5State state, byte buffer[], int shift, int[] decode_buf) {
         int a = state.state[0], b = state.state[1], c = state.state[2], d = state.state[3], x[] = decode_buf;
 
         decode(buffer, shift, decode_buf);
@@ -347,7 +347,7 @@ public class MD5 {
      * @param length Use at maximum `length' bytes (absolute maximum is
      *               buffer.length)
      */
-    private final void update(MD5State stat, byte buffer[], int offset, int length) {
+    private void update(MD5State stat, byte buffer[], int offset, int length) {
         int index, partlen, i, start;
         finals = null;
         /* Length can be told to be shorter, but not inter */
@@ -386,7 +386,7 @@ public class MD5 {
         }
     }
 
-    private static final byte[] encode(final int input[], final int len) {
+    private static byte[] encode(final int input[], final int len) {
         int i, j;
         byte out[];
         out = new byte[len];
