@@ -13,12 +13,10 @@ import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
     static Date currentTime;
-    static Date minusOneHour;
 
     @BeforeClass
     public static void setUp() {
         currentTime = new Date();
-        minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }
 
     /**

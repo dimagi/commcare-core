@@ -323,9 +323,7 @@ public class FormEntryCaption implements FormElementStateListener {
         public String delete_header;
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public RepeatOptions getRepeatOptions() {
         RepeatOptions ro = new RepeatOptions();
         boolean has_repetitions = (getNumRepetitions() > 0);
