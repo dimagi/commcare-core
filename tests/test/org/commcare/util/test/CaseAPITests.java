@@ -36,7 +36,7 @@ public class CaseAPITests {
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
-    private String databaseName = ("test.db");
+    private final String databaseName = ("test.db");
 
 
     @Before

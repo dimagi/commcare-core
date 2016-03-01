@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.data.xml.TransactionParser;
@@ -22,7 +19,7 @@ import java.util.Hashtable;
  */
 public abstract class BestEffortBlockParser extends TransactionParser<Hashtable<String, String>> {
 
-    String[] elements;
+    final String[] elements;
 
     public BestEffortBlockParser(KXmlParser parser, String name, String namespace, String[] elements) {
         super(parser);

@@ -28,10 +28,10 @@ import java.util.Vector;
  */
 public class TableBuilder {
 
-    private String name;
+    private final String name;
 
-    private Vector<String> cols;
-    private Vector<String> rawCols;
+    private final Vector<String> cols;
+    private final Vector<String> rawCols;
 
     public TableBuilder(Class c, String name) {
         this.name = name;
@@ -127,7 +127,7 @@ public class TableBuilder {
         rawCols.add(DatabaseHelper.FILE_COL);
     }
 
-    HashSet<String> unique = new HashSet<String>();
+    final HashSet<String> unique = new HashSet<String>();
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
     }

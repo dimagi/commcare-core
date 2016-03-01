@@ -33,9 +33,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
-    IStorageUtilityIndexed storage;
-    int[] tallies;
-    boolean acceptCreateOverwrites;
+    final IStorageUtilityIndexed storage;
+    final int[] tallies;
+    final boolean acceptCreateOverwrites;
 
 
     public CaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {

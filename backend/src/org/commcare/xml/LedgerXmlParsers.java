@@ -42,7 +42,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
     private static final String FINAL_NAME = "entry";
 
 
-    IStorageUtilityIndexed<Ledger> storage;
+    final IStorageUtilityIndexed<Ledger> storage;
 
     /**
      * Creates a Parser for case blocks in the XML stream provided.

@@ -51,13 +51,13 @@ import java.util.zip.ZipFile;
  * @author ctsims
  */
 public class CommCareConfigEngine {
-    private ResourceTable table;
-    private ResourceTable updateTable;
-    private ResourceTable recoveryTable;
-    private PrintStream print;
+    private final ResourceTable table;
+    private final ResourceTable updateTable;
+    private final ResourceTable recoveryTable;
+    private final PrintStream print;
     private final CommCarePlatform platform;
     private int fileuricount = 0;
-    private PrototypeFactory mLiveFactory;
+    private final PrototypeFactory mLiveFactory;
     
     private ArchiveFileRoot mArchiveRoot;
 

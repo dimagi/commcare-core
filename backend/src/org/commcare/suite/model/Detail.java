@@ -367,7 +367,7 @@ public class Detail implements Externalizable {
     }
 
     private abstract class Map<E> {
-        private E a;
+        private final E a;
 
         private Map(E a) {
             this.a = a;

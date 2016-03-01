@@ -7,9 +7,9 @@ package org.commcare.suite.model;
  */
 public class DisplayData {
 
-    String name;
-    String imageURI;
-    String audioURI;
+    final String name;
+    final String imageURI;
+    final String audioURI;
 
     public DisplayData(String name, String imageURI, String audioURI) {
         this.name = name;

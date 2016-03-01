@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
  */
 public class UserXmlParser extends TransactionParser<User> {
 
-    IStorageUtilityIndexed<User> storage;
+    final IStorageUtilityIndexed<User> storage;
 
     public UserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage) {
         super(parser);

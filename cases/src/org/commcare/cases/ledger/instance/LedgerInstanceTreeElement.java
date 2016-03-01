@@ -29,12 +29,12 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     private AbstractTreeElement instanceRoot;
 
-    IStorageUtilityIndexed<Ledger> storage;
+    final IStorageUtilityIndexed<Ledger> storage;
 
     //TODO: much of this is still shared w/the casedb and should be centralized there
     protected Vector<LedgerChildElement> ledgers;
 
-    protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
+    protected final Interner<TreeElement> treeCache = new Interner<TreeElement>();
 
     protected Interner<String> stringCache;
 

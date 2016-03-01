@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author ctsims
  */
 public class PersistableSandbox {
-    private PrototypeFactory factory;
+    private final PrototypeFactory factory;
     
     public PersistableSandbox() {
         factory = new PrototypeFactory(new ClassNameHasher());
