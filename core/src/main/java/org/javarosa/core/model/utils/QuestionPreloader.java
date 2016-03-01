@@ -230,8 +230,7 @@ public class QuestionPreloader {
                 throw new IllegalArgumentException("invalid preload params for preload mode 'date'");
             }
         }
-        DateData data = new DateData(d);
-        return data;
+        return new DateData(d);
     }
 
     /**
@@ -242,8 +241,7 @@ public class QuestionPreloader {
      * null otherwise
      */
     private IAnswerData preloadProperty(String preloadParams) {
-        String propname = preloadParams;
-        String propval = PropertyManager._().getSingularProperty(propname);
+        String propval = PropertyManager._().getSingularProperty(preloadParams);
         StringData data = null;
         if (propval != null && propval.length() > 0) {
             data = new StringData(propval);

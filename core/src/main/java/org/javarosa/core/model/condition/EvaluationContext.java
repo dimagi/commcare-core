@@ -515,8 +515,7 @@ public class EvaluationContext {
         if (instance == null) {
             return null;
         }
-        CacheHost host = instance.getCacheHost();
-        return host;
+        return instance.getCacheHost();
     }
 
     /**

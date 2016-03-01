@@ -653,10 +653,9 @@ public class Localizer implements Externalizable {
     }
 
     public static String processArguments(String text, String[] args, int currentArg) {
-        String working = text;
 
-        if (working.indexOf("${") != -1 && args.length > currentArg) {
-            int index = extractNextIndex(working, args);
+        if (text.indexOf("${") != -1 && args.length > currentArg) {
+            int index = extractNextIndex(text, args);
 
             if (index == -1) {
                 index = currentArg;
@@ -664,10 +663,10 @@ public class Localizer implements Externalizable {
             }
 
             String value = args[index];
-            String[] replaced = replaceFirstValue(working, value);
+            String[] replaced = replaceFirstValue(text, value);
             return replaced[0] + processArguments(replaced[1], args, currentArg);
         } else {
-            return working;
+            return text;
         }
     }
 

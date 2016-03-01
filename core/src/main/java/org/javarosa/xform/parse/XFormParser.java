@@ -1169,9 +1169,7 @@ public class XFormParser {
             }
         }
 
-        String s = sb.toString().trim();
-
-        return s;
+        return sb.toString().trim();
     }
 
     private void recurseForOutput(Element e) {
@@ -2003,15 +2001,13 @@ public class XFormParser {
             throw new XFormParseException(errorMessage);
         }
 
-        Condition c = new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
-        return c;
+        return new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
     }
 
     private static Recalculate buildCalculate(String xpath, XPathReference contextRef) throws XPathSyntaxException {
         XPathConditional calc = new XPathConditional(xpath);
 
-        Recalculate r = new Recalculate(calc, FormInstance.unpackReference(contextRef));
-        return r;
+        return new Recalculate(calc, FormInstance.unpackReference(contextRef));
     }
 
     private void addBinding(DataBinding binding) {

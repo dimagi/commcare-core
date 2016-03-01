@@ -145,9 +145,7 @@ public class PrefixTree {
                     newPrefix[i] = chars[currentIndex + i];
                 }
 
-                PrefixTreeNode interimNode = current.budChild(node, newPrefix, len);
-
-                node = interimNode;
+                node = current.budChild(node, newPrefix, len);
             }
 
             current = node;

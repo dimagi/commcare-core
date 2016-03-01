@@ -633,8 +633,7 @@ public class XPathEvalTest {
     public FormInstance createTestInstance() {
         TreeElement data = new TreeElement("data");
         data.addChild(new TreeElement("path"));
-        FormInstance instance = new FormInstance(data);
-        return instance;
+        return new FormInstance(data);
     }
 
     private EvaluationContext getFunctionHandlers() {

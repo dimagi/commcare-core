@@ -702,8 +702,7 @@ public class DateUtils {
         calendar.setTime(span);
         int spanYear = calendar.get(Calendar.YEAR);
         int spanMonth = calendar.get(Calendar.MONTH);
-        int months = (spanYear - firstYear) * 12 + (spanMonth - firstMonth);
-        return months;
+        return (spanYear - firstYear) * 12 + (spanMonth - firstMonth);
     }
 
     /**

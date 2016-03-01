@@ -164,9 +164,8 @@ public class TextFormTests {
             fail("Could not add individual select choice" + fep.getSelectChoices().toString());
         }
 
-        Object a = onetext;
         Object b = fep.getSelectChoiceText(one);
-        assertEquals("Invalid select choice text returned", a, b);
+        assertEquals("Invalid select choice text returned", onetext, b);
 
         assertEquals("Invalid select choice text returned", twotext, fep.getSelectChoiceText(two));
 

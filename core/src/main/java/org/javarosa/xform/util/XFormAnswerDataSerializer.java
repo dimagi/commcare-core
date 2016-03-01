@@ -189,8 +189,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
             }
         }
         //Defaults
-        Object result = serializeAnswerData(data);
-        return result;
+        return serializeAnswerData(data);
     }
 
     public Object serializeAnswerData(IAnswerData data) {
