@@ -29,15 +29,15 @@ import java.util.Vector;
  * @author Drew Roos/Clayton Sims
  */
 public class Localizer implements Externalizable {
-    private Vector locales; /* Vector<String> */
-    private OrderedHashtable<String, Vector<LocaleDataSource>> localeResources; /* String -> Vector<LocaleDataSource> */
-    private OrderedHashtable<String, PrefixTreeNode> currentLocaleData; /* Hashtable{ String -> String } */
-    private PrefixTree stringTree;
+    private Vector<String> locales;
+    private OrderedHashtable<String, Vector<LocaleDataSource>> localeResources;
+    private OrderedHashtable<String, PrefixTreeNode> currentLocaleData;
+    private final PrefixTree stringTree;
     private String defaultLocale;
     private String currentLocale;
     private boolean fallbackDefaultLocale;
     private boolean fallbackDefaultForm;
-    private Vector observers;
+    private final Vector<Localizable> observers;
 
     /**
      * Default constructor. Disables all fallback modes.
@@ -56,16 +56,17 @@ public class Localizer implements Externalizable {
      */
     public Localizer(boolean fallbackDefaultLocale, boolean fallbackDefaultForm) {
         stringTree = new PrefixTree(10);
-        localeResources = new OrderedHashtable();
-        currentLocaleData = new OrderedHashtable();
-        locales = new Vector();
+        localeResources = new OrderedHashtable<String, Vector<LocaleDataSource>>();
+        currentLocaleData = new OrderedHashtable<String, PrefixTreeNode>();
+        locales = new Vector<String>();
         defaultLocale = null;
         currentLocale = null;
-        observers = new Vector();
+        observers = new Vector<Localizable>();
         this.fallbackDefaultLocale = fallbackDefaultLocale;
         this.fallbackDefaultForm = fallbackDefaultForm;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Localizer) {
             Localizer l = (Localizer)o;
@@ -80,6 +81,21 @@ public class Localizer implements Externalizable {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = locales.hashCode() ^
+                localeResources.hashCode() ^
+                (fallbackDefaultLocale ? 0 : 31) ^
+                (fallbackDefaultForm ? 0 : 31);
+        if (defaultLocale != null) {
+            hash ^= defaultLocale.hashCode();
+        }
+        if (currentLocale != null) {
+            hash ^= currentLocale.hashCode();
+        }
+        return hash;
     }
 
     /**
@@ -114,7 +130,7 @@ public class Localizer implements Externalizable {
             return false;
         } else {
             locales.addElement(locale);
-            localeResources.put(locale, new Vector());
+            localeResources.put(locale, new Vector<LocaleDataSource>());
             return true;
         }
     }
@@ -137,7 +153,7 @@ public class Localizer implements Externalizable {
      * @return Whether the locale is defined. False if null
      */
     public boolean hasLocale(String locale) {
-        return (locale == null ? false : locales.contains(locale));
+        return locale != null && locales.contains(locale);
     }
 
     /**
@@ -147,8 +163,11 @@ public class Localizer implements Externalizable {
      * If the current locale is not set, return the default locale. If the default locale is not set, return null.
      */
     public String getNextLocale() {
-        return currentLocale == null ? defaultLocale
-                : (String)locales.elementAt((locales.indexOf(currentLocale) + 1) % locales.size());
+        if (currentLocale == null) {
+            return defaultLocale;
+        } else {
+            return locales.elementAt((locales.indexOf(currentLocale) + 1) % locales.size());
+        }
     }
     
     /* === MANAGING CURRENT AND DEFAULT LOCALES === */
@@ -184,11 +203,6 @@ public class Localizer implements Externalizable {
         }
     }
 
-    /**
-     * Get the default locale.
-     *
-     * @return Default locale.
-     */
     public String getDefaultLocale() {
         return defaultLocale;
     }
@@ -200,8 +214,9 @@ public class Localizer implements Externalizable {
      * @throws UnregisteredLocaleException If locale is not defined.
      */
     public void setDefaultLocale(String defaultLocale) {
-        if (defaultLocale != null && !hasLocale(defaultLocale))
+        if (defaultLocale != null && !hasLocale(defaultLocale)) {
             throw new UnregisteredLocaleException("Attempted to set default to a locale that is not defined");
+        }
 
         this.defaultLocale = defaultLocale;
     }
@@ -212,8 +227,9 @@ public class Localizer implements Externalizable {
      * @throws IllegalStateException If default locale is not set.
      */
     public void setToDefault() {
-        if (defaultLocale == null)
+        if (defaultLocale == null) {
             throw new IllegalStateException("Attempted to set to default locale when default locale not set");
+        }
 
         setLocale(defaultLocale);
     }
@@ -268,9 +284,9 @@ public class Localizer implements Externalizable {
         if (resource == null) {
             throw new NullPointerException("Attempt to register a null data source in the localizer");
         }
-        Vector resources = new Vector();
+        Vector<LocaleDataSource> resources = new Vector<LocaleDataSource>();
         if (localeResources.containsKey(locale)) {
-            resources = (Vector)localeResources.get(locale);
+            resources = localeResources.get(locale);
         }
         resources.addElement(resource);
         localeResources.put(locale, resources);
@@ -305,18 +321,18 @@ public class Localizer implements Externalizable {
         // If there's a default locale, we load all of its elements into memory first, then allow
         // the current locale to overwrite any differences between the two.    
         if (fallbackDefaultLocale && defaultLocale != null) {
-            Vector<LocaleDataSource> defaultResources = (Vector<LocaleDataSource>)localeResources.get(defaultLocale);
+            Vector<LocaleDataSource> defaultResources = localeResources.get(defaultLocale);
             for (int i = 0; i < defaultResources.size(); ++i) {
-                loadTable(data, ((LocaleDataSource)defaultResources.elementAt(i)).getLocalizedText());
+                loadTable(data, defaultResources.elementAt(i).getLocalizedText());
             }
             for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
                 defaultLocaleKeys.put((String)en.nextElement(), Boolean.TRUE);
             }
         }
 
-        Vector<LocaleDataSource> resources = (Vector<LocaleDataSource>)localeResources.get(locale);
+        Vector<LocaleDataSource> resources = localeResources.get(locale);
         for (int i = 0; i < resources.size(); ++i) {
-            loadTable(data, ((LocaleDataSource)resources.elementAt(i)).getLocalizedText());
+            loadTable(data, resources.elementAt(i).getLocalizedText());
         }
 
         //Strings are now immutable
@@ -357,8 +373,9 @@ public class Localizer implements Externalizable {
      */
     public OrderedHashtable<String, PrefixTreeNode> getLocaleMap(String locale) {
         OrderedHashtable<String, PrefixTreeNode> mapping = getLocaleData(locale);
-        if (mapping == null)
+        if (mapping == null) {
             throw new UnregisteredLocaleException("Attempted to access an undefined locale.");
+        }
         return mapping;
     }
 
@@ -571,10 +588,10 @@ public class Localizer implements Externalizable {
         for (Enumeration e = observers.elements(); e.hasMoreElements(); )
             ((Localizable)e.nextElement()).localeChanged(currentLocale, this);
     }
-    
+
     /* === Managing Arguments === */
     public static Vector getArgs(String text) {
-        Vector args = new Vector();
+        Vector<String> args = new Vector<String>();
         int i = text.indexOf("${");
         while (i != -1) {
             int j = text.indexOf("}", i);
@@ -692,9 +709,7 @@ public class Localizer implements Externalizable {
 
     /* === (DE)SERIALIZATION === */
 
-    /**
-     * Read the object from stream.
-     */
+    @Override
     public void readExternal(DataInputStream dis, PrototypeFactory pf) throws IOException, DeserializationException {
         fallbackDefaultLocale = ExtUtil.readBool(dis);
         fallbackDefaultForm = ExtUtil.readBool(dis);
@@ -707,9 +722,7 @@ public class Localizer implements Externalizable {
         }
     }
 
-    /**
-     * Write the object to stream.
-     */
+    @Override
     public void writeExternal(DataOutputStream dos) throws IOException {
         ExtUtil.writeBool(dos, fallbackDefaultLocale);
         ExtUtil.writeBool(dos, fallbackDefaultForm);
