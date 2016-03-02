@@ -55,7 +55,7 @@ public class GeoPointUtils {
      */
     private static double arcHav(double x) {
         //#if polish.cldc
-        //# return 2 * MathUtils.asin(Math.sqrt(x));
+        //# return 2 * org.javarosa.core.util.MathUtils.asin(Math.sqrt(x));
         //#else
         return 2 * Math.asin(Math.sqrt(x));
         //#endif
