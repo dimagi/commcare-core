@@ -191,15 +191,15 @@ public class XPathParseTest {
         });
     }
 
-    static PrototypeFactory pf;
+    static final PrototypeFactory pf;
 
     static {
         PrototypeManager.registerPrototypes(XPathParseTool.xpathClasses);
         pf = ExtUtil.defaultPrototypes();
     }
 
-    private String inputString;
-    private String expectedParseOutput;
+    private final String inputString;
+    private final String expectedParseOutput;
 
     public XPathParseTest(String inputString, String expectedParseOutput) {
         this.inputString = inputString;

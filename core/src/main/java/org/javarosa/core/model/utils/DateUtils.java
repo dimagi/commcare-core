@@ -702,8 +702,7 @@ public class DateUtils {
         calendar.setTime(span);
         int spanYear = calendar.get(Calendar.YEAR);
         int spanMonth = calendar.get(Calendar.MONTH);
-        int months = (spanYear - firstYear) * 12 + (spanMonth - firstMonth);
-        return months;
+        return (spanYear - firstYear) * 12 + (spanMonth - firstMonth);
     }
 
     /**
@@ -764,7 +763,7 @@ public class DateUtils {
         // remove all pieces that are empty string
         if (combineMultipleDelimiters) {
             for (int i = 0; i < pieces.size(); i++) {
-                if (((String)pieces.elementAt(i)).length() == 0) {
+                if (pieces.elementAt(i).length() == 0) {
                     pieces.removeElementAt(i);
                     i--;
                 }
@@ -824,10 +823,6 @@ public class DateUtils {
         if (string == null || substring == null) {
             return false;
         }
-        if (string.indexOf(substring) == -1) {
-            return false;
-        } else {
-            return true;
-        }
+        return string.indexOf(substring) != -1;
     }
 }

@@ -27,7 +27,7 @@ import java.util.Vector;
  */
 public class XFormEnvironment {
 
-    private FormDef form;
+    private final FormDef form;
 
     private FormEntryModel fem;
     private FormEntryController fec;
@@ -115,7 +115,7 @@ public class XFormEnvironment {
 
     private class TodayFunc implements IFunctionHandler {
 
-        String name;
+        final String name;
 
         public TodayFunc(String name) {
             this.name = name;

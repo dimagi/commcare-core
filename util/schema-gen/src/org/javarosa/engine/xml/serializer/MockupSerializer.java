@@ -20,9 +20,9 @@ import java.util.Hashtable;
  *
  */
 public class MockupSerializer {
-    String XMLNS = "http://javarosa.org/mockup";
+    final String XMLNS = "http://javarosa.org/mockup";
 
-    KXmlSerializer s;
+    final KXmlSerializer s;
     Mockup mockup;
 
     public MockupSerializer(OutputStream o, Mockup m) throws IOException {

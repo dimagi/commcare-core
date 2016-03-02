@@ -11,8 +11,8 @@ import java.util.Vector;
  */
 public class Session {
 
-    String uuid;
-    Vector<Step> steps;
+    final String uuid;
+    final Vector<Step> steps;
 
     public Session() {
         uuid = PropertyUtils.genUUID();

@@ -633,8 +633,7 @@ public class XPathEvalTest {
     public FormInstance createTestInstance() {
         TreeElement data = new TreeElement("data");
         data.addChild(new TreeElement("path"));
-        FormInstance instance = new FormInstance(data);
-        return instance;
+        return new FormInstance(data);
     }
 
     private EvaluationContext getFunctionHandlers() {
@@ -957,7 +956,7 @@ public class XPathEvalTest {
         }
     }
 
-    StatefulFunc read = new StatefulFunc() {
+    final StatefulFunc read = new StatefulFunc() {
         public String getName() {
             return "read";
         }
@@ -973,7 +972,7 @@ public class XPathEvalTest {
         }
     };
 
-    StatefulFunc write = new StatefulFunc() {
+    final StatefulFunc write = new StatefulFunc() {
         public String getName() {
             return "write";
         }

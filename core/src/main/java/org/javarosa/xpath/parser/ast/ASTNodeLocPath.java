@@ -11,7 +11,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Vector;
 
 public class ASTNodeLocPath extends ASTNode {
-    public Vector<ASTNode> clauses;
+    public final Vector<ASTNode> clauses;
     public Vector<Integer> separators;
 
     public ASTNodeLocPath() {

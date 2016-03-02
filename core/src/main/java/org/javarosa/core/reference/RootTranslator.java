@@ -45,29 +45,19 @@ public class RootTranslator implements ReferenceFactory, Externalizable {
         this.translatedPrefix = translatedPrefix;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.reference.Root#derive(java.lang.String)
-     */
+    @Override
     public Reference derive(String URI) throws InvalidReferenceException {
         return ReferenceManager._().DeriveReference(translatedPrefix + URI.substring(prefix.length()));
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.reference.Root#derive(java.lang.String, java.lang.String)
-     */
+    @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
         return ReferenceManager._().DeriveReference(URI, translatedPrefix + context.substring(prefix.length()));
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.reference.Root#derives(java.lang.String)
-     */
+    @Override
     public boolean derives(String URI) {
-        if (URI.startsWith(prefix)) {
-            return true;
-        } else {
-            return false;
-        }
+        return URI.startsWith(prefix);
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf)

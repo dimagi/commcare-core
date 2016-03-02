@@ -73,7 +73,7 @@ public class DecimalData implements IAnswerData {
     }
 
     public UncastData uncast() {
-        return new UncastData(((Double)getValue()).toString());
+        return new UncastData(getValue().toString());
     }
 
     public DecimalData cast(UncastData data) throws IllegalArgumentException {

@@ -26,9 +26,9 @@ public class CacheTable<T, K> {
 
     private Hashtable<T, WeakReference> currentTable;
 
-    private static Vector<WeakReference> caches = new Vector<WeakReference>();
+    private static final Vector<WeakReference> caches = new Vector<WeakReference>();
 
-    private static Thread cleaner = new Thread(new Runnable() {
+    private static final Thread cleaner = new Thread(new Runnable() {
         public void run() {
             Vector<Integer> toRemove = new Vector<Integer>();
             while (true) {
@@ -45,7 +45,7 @@ public class CacheTable<T, K> {
 
                                 synchronized (cache) {
                                     //See whether or not the cached reference has been cleared by the GC
-                                    if (((WeakReference)table.get(key)).get() == null) {
+                                    if (table.get(key).get() == null) {
                                         //If so, remove the entry, it's no longer useful.
                                         table.remove(key);
                                     }

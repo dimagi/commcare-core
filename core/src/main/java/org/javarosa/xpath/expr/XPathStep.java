@@ -215,7 +215,7 @@ public class XPathStep implements Externalizable {
      */
     protected boolean matches(XPathStep o) {
         if (o instanceof XPathStep) {
-            XPathStep x = (XPathStep)o;
+            XPathStep x = o;
 
             //shortcuts for faster evaluation
             if (axis != x.axis || (test != x.test && !((x.test == TEST_NAME && this.test == TEST_NAME_WILDCARD) || (this.test == TEST_NAME && x.test == TEST_NAME_WILDCARD))) || predicates.length != x.predicates.length) {

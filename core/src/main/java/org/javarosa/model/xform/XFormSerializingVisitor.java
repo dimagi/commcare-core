@@ -19,7 +19,6 @@ package org.javarosa.model.xform;
 
 
 import org.javarosa.core.data.IDataPointer;
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.IAnswerDataSerializer;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -92,7 +91,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
      */
     public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
-        rootRef = model.unpackReference(ref);
+        rootRef = FormInstance.unpackReference(ref);
         if (this.serializer == null) {
             this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
         }
@@ -111,7 +110,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref) throws IOException {
         init();
-        rootRef = model.unpackReference(ref);
+        rootRef = FormInstance.unpackReference(ref);
         if (this.serializer == null) {
             this.setAnswerDataSerializer(new XFormAnswerDataSerializer());
         }
@@ -186,7 +185,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
                 e = (Element)serializedAnswer;
             } else if (serializedAnswer instanceof String) {
                 e = new Element();
-                e.addChild(Node.TEXT, (String)serializedAnswer);
+                e.addChild(Node.TEXT, serializedAnswer);
             } else {
                 throw new RuntimeException("Can't handle serialized output for" + instanceNode.getValue().toString() + ", " + serializedAnswer);
             }

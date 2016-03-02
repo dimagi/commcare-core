@@ -23,7 +23,7 @@ public class MultiInputStream extends InputStream {
     /**
      * InputStream *
      */
-    Vector streams = new Vector();
+    final Vector streams = new Vector();
 
     int currentStream = -1;
 

@@ -34,7 +34,6 @@ import org.javarosa.core.model.data.TimeData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.utils.DateUtils;
-import org.kxml2.kdom.Element;
 
 import java.util.Date;
 import java.util.Enumeration;
@@ -55,17 +54,13 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
 
     public final static String DELIMITER = " ";
 
-    Vector additionalSerializers = new Vector();
+    final Vector additionalSerializers = new Vector();
 
     public boolean canSerialize(IAnswerData data) {
-        if (data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
+        return data instanceof StringData || data instanceof DateData || data instanceof TimeData ||
                 data instanceof SelectMultiData || data instanceof SelectOneData ||
                 data instanceof IntegerData || data instanceof DecimalData || data instanceof PointerAnswerData ||
-                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData) {
-            return true;
-        } else {
-            return false;
-        }
+                data instanceof GeoPointData || data instanceof LongData || data instanceof DateTimeData || data instanceof UncastData;
     }
 
     /**
@@ -82,7 +77,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
      * @return A String which contains the given answer
      */
     public Object serializeAnswerData(StringData data) {
-        return (String)data.getValue();
+        return data.getValue();
     }
 
     /**
@@ -156,15 +151,15 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
     }
 
     public Object serializeAnswerData(IntegerData data) {
-        return ((Integer)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(LongData data) {
-        return ((Long)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(DecimalData data) {
-        return ((Double)data.getValue()).toString();
+        return data.getValue().toString();
     }
 
     public Object serializeAnswerData(GeoPointData data) {
@@ -190,8 +185,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
             }
         }
         //Defaults
-        Object result = serializeAnswerData(data);
-        return result;
+        return serializeAnswerData(data);
     }
 
     public Object serializeAnswerData(IAnswerData data) {
@@ -258,7 +252,7 @@ public class XFormAnswerDataSerializer implements IAnswerDataSerializer {
         }
         if (data instanceof PointerAnswerData) {
             IDataPointer[] pointer = new IDataPointer[1];
-            pointer[0] = (IDataPointer)((PointerAnswerData)data).getValue();
+            pointer[0] = (IDataPointer)data.getValue();
             return pointer;
         }
         //This shouldn't have been called.

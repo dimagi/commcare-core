@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.engine.models;
 
 import org.javarosa.engine.playback.BadPlaybackException;
@@ -9,10 +6,9 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * @author ctsims
- *
  */
 public class ActionResponse {
-    int code;
+    final int code;
 
     private ActionResponse(int code) {
         this.code = code;
@@ -54,12 +50,6 @@ public class ActionResponse {
 
                 throw new BadPlaybackException(message);
             }
-
-
-        } else {
-            return;
         }
     }
-
-
 }

@@ -68,12 +68,12 @@ public class PropertyManager implements IPropertyManager {
     /**
      * The list of rules
      */
-    private Vector rulesList;
+    private final Vector rulesList;
 
     /**
      * The persistent storage utility
      */
-    private IStorageUtilityIndexed properties;
+    private final IStorageUtilityIndexed properties;
 
     /**
      * Constructor for this PropertyManager

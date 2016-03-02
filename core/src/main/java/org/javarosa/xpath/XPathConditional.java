@@ -28,10 +28,7 @@ public class XPathConditional implements IConditionExpr {
     public boolean hasNow; //indicates whether this XpathConditional contains the now() function (used for timestamping)
 
     public XPathConditional(String xpath) throws XPathSyntaxException {
-        hasNow = false;
-        if (xpath.indexOf("now()") > -1) {
-            hasNow = true;
-        }
+        hasNow = xpath.indexOf("now()") > -1;
         this.expr = XPathParseTool.parseXPath(xpath);
         this.xpath = xpath;
     }
@@ -84,8 +81,9 @@ public class XPathConditional implements IConditionExpr {
      * for retriggering the expression's evaluation if any of these references
      * value or relevancy calculations once.
      */
+    @Override
     public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
-        Vector triggers = new Vector();
+        Vector<TreeReference> triggers = new Vector<TreeReference>();
         getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
         return triggers;
     }
@@ -135,12 +133,6 @@ public class XPathConditional implements IConditionExpr {
                     getExprsTriggersAccumulator(predicate, triggers,
                             predicateContext, originalContextRef);
                 }
-            }
-
-            // TODO: It's possible we should just handle this the same way as
-            // "genericize". Not entirely clear.
-            if (contextualized.hasPredicates()) {
-                contextualized = contextualized.removePredicates();
             }
             if (!triggers.contains(contextualized)) {
                 triggers.addElement(contextualized);

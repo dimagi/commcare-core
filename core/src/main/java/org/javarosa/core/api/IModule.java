@@ -31,5 +31,5 @@ public interface IModule {
      * a module, and perform that configuration and registration
      * with the current application.
      */
-    public void registerModule();
+    void registerModule();
 }

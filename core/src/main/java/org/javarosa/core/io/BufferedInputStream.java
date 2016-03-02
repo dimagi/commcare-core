@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.io;
 
 import java.io.IOException;
@@ -19,7 +16,7 @@ public class BufferedInputStream extends InputStream {
     //TODO: Better close semantics
     //TODO: Threadsafety
 
-    private InputStream in;
+    private final InputStream in;
     private byte[] buffer;
 
     private int position;

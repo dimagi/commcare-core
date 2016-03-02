@@ -78,6 +78,16 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     private String instanceName = null;
 
+    // TODO: This is probably silly because this object is likely already
+    // not thread safe in any way. Also, we should be wrapping all of the
+    // setters.
+    final TreeReference[] refCache = new TreeReference[1];
+
+    /**
+     * An optional mapping of this element's children based on a path step result that can be used to quickly index child nodes *
+     */
+    Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
+
     /**
      * TreeElement with null name and 0 multiplicity? (a "hidden root" node?)
      */
@@ -146,18 +156,19 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     @Override
     public TreeElement getChild(String name, int multiplicity) {
-        if (this.children == null) {
+        if (children == null) {
             return null;
         }
 
-        if (name.equals(TreeReference.NAME_WILDCARD)) {
-            if (multiplicity == TreeReference.INDEX_TEMPLATE || this.children.size() < multiplicity + 1) {
+        if (TreeReference.NAME_WILDCARD.equals(name)) {
+            if (multiplicity == TreeReference.INDEX_TEMPLATE || children.size() < multiplicity + 1) {
                 return null;
             }
-            return (TreeElement)this.children.elementAt(multiplicity); //droos: i'm suspicious of this
+            return children.elementAt(multiplicity); //droos: i'm suspicious of this
         } else {
             for (TreeElement child : children) {
-                if (((name.hashCode() == child.getName().hashCode()) || name.equals(child.getName())) && child.getMult() == multiplicity) {
+                if ((name.hashCode() == child.getName().hashCode() || name.equals(child.getName())) &&
+                        child.getMult() == multiplicity) {
                     return child;
                 }
             }
@@ -177,8 +188,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             return v;
         }
 
-        for (int i = 0; i < this.children.size(); i++) {
-            TreeElement child = (TreeElement)this.children.elementAt(i);
+        for (int i = 0; i < children.size(); i++) {
+            TreeElement child = children.elementAt(i);
             if ((child.getName().equals(name) || name.equals(TreeReference.NAME_WILDCARD))
                     && (includeTemplate || child.multiplicity != TreeReference.INDEX_TEMPLATE))
                 v.addElement(child);
@@ -189,7 +200,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     @Override
     public int getNumChildren() {
-        return children == null ? 0 : this.children.size();
+        return children == null ? 0 : children.size();
     }
 
     public boolean hasChildren() {
@@ -326,7 +337,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (children != null) {
             newNode.children = new Vector<TreeElement>();
             for (int i = 0; i < children.size(); i++) {
-                TreeElement child = (TreeElement)children.elementAt(i);
+                TreeElement child = children.elementAt(i);
                 if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
                     newNode.addChild(child.deepCopy(includeTemplates));
                 }
@@ -446,8 +457,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (isEnabled() != oldEnabled) {
             if (children != null) {
                 for (int i = 0; i < children.size(); i++) {
-                    ((TreeElement)children.elementAt(i)).setEnabled(isEnabled(),
-                            true);
+                    children.elementAt(i).setEnabled(isEnabled(), true);
                 }
             }
             alertStateObservers(FormElementStateListener.CHANGE_ENABLED);
@@ -711,7 +721,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                         TreeElement newChild = child.deepCopy(true);
                         newChild.setMult(k);
                         if (children == null) {
-                            children = new Vector();
+                            children = new Vector<TreeElement>();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
                         newChild.populate((TreeElement)newChildren.elementAt(k));
@@ -773,17 +783,11 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
     }
 
-    //TODO: This is probably silly because this object is likely already
-    //not thread safe in any way. Also, we should be wrapping all of the
-    //setters.
-    final TreeReference[] refCache = new TreeReference[1];
-
     private void expireReferenceCache() {
         synchronized (refCache) {
             refCache[0] = null;
         }
     }
-
 
     //return the tree reference that corresponds to this tree element
     @Override
@@ -913,11 +917,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
-
-    /**
-     * An optional mapping of this element's children based on a path step result that can be used to quickly index child nodes *
-     */
-    Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
 
     /**
      * Adds a hint mapping which can be used to directly index this node's children. This is used

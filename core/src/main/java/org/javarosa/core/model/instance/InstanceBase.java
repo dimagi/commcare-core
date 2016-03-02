@@ -15,7 +15,7 @@ import java.util.Vector;
  */
 public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
 
-    String instanceName;
+    final String instanceName;
     AbstractTreeElement child;
 
     public InstanceBase(String instanceName) {
@@ -41,10 +41,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return getNumChildren() > 0;
     }
 
     public AbstractTreeElement getChild(String name, int multiplicity) {

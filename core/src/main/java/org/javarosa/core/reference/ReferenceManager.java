@@ -31,9 +31,9 @@ public class ReferenceManager {
 
     private static ReferenceManager instance;
 
-    private Vector<RootTranslator> translators;
-    private Vector<ReferenceFactory> factories;
-    private Vector<RootTranslator> sessionTranslators;
+    private final Vector<RootTranslator> translators;
+    private final Vector<ReferenceFactory> factories;
+    private final Vector<RootTranslator> sessionTranslators;
 
     private ReferenceManager() {
         translators = new Vector<RootTranslator>();
@@ -191,7 +191,7 @@ public class ReferenceManager {
     }
 
     private String getPrettyPrintException(String uri) {
-        if (uri == "") {
+        if ("".equals(uri)) {
             return "Attempt to derive a blank reference";
         }
         try {
@@ -249,9 +249,6 @@ public class ReferenceManager {
      * @return Whether the provided URI describe a relative reference.
      */
     public static boolean isRelative(String URI) {
-        if (URI.startsWith("./")) {
-            return true;
-        }
-        return false;
+        return URI.startsWith("./");
     }
 }

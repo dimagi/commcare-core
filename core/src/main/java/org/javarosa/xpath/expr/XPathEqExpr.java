@@ -4,7 +4,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -31,7 +30,7 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
         Object bval = XPathFuncExpr.unpack(b.eval(model, evalContext));
         boolean eq = testEquality(aval, bval);
 
-        return new Boolean(isEqOp ? eq : !eq);
+        return new Boolean(isEqOp == eq);
     }
 
     @Override

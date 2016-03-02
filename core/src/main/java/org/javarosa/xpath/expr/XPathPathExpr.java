@@ -300,7 +300,7 @@ public class XPathPathExpr extends XPathExpression {
                 return false;
             }
 
-            return ExtUtil.arrayEquals(steps, x.steps, false) && (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
+            return ExtUtil.arrayEquals(steps, x.steps, false) && (init_context != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
         } else {
             return false;
         }
@@ -359,7 +359,7 @@ public class XPathPathExpr extends XPathExpression {
 
             // If all steps match, we still need to make sure we're in the same "context" if this
             // is a normal expression.
-            return (init_context == INIT_CONTEXT_EXPR ? filtExpr.equals(x.filtExpr) : true);
+            return (init_context != INIT_CONTEXT_EXPR || filtExpr.equals(x.filtExpr));
         } else {
             return false;
         }

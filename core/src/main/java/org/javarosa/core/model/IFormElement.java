@@ -1,5 +1,6 @@
 package org.javarosa.core.model;
 
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.XPathReference;
@@ -77,12 +78,12 @@ public interface IFormElement extends Localizable, Externalizable {
     /**
      * Registers a state observer for this element.
      */
-    public void registerStateObserver(FormElementStateListener qsl);
+    void registerStateObserver(FormElementStateListener qsl);
 
     /**
      * Unregisters a state observer for this element.
      */
-    public void unregisterStateObserver(FormElementStateListener qsl);
+    void unregisterStateObserver(FormElementStateListener qsl);
 
     /**
      * This method returns the regular
@@ -90,9 +91,11 @@ public interface IFormElement extends Localizable, Externalizable {
      *
      * @return &ltlabel&gt innertext or null (if innertext is not present).
      */
-    public String getLabelInnerText();
+    String getLabelInnerText();
 
-    public String getAppearanceAttr();
+    String getAppearanceAttr();
 
-    public void setAppearanceAttr(String appearanceAttr);
+    void setAppearanceAttr(String appearanceAttr);
+
+    ActionController getActionController();
 }

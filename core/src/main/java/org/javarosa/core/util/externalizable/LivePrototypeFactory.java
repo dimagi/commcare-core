@@ -56,8 +56,8 @@ public class LivePrototypeFactory extends PrototypeFactory {
     }
 
     public class LiveHasher extends Hasher{
-        LivePrototypeFactory pf;
-        Hasher mHasher;
+        final LivePrototypeFactory pf;
+        final Hasher mHasher;
         public LiveHasher(LivePrototypeFactory pf, Hasher mHasher){
             this.pf = pf;
             this.mHasher = mHasher;

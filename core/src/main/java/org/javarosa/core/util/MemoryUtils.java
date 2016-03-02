@@ -58,7 +58,7 @@ public class MemoryUtils {
     //#if javarosa.memory.print
     //# private static boolean MEMORY_PRINT_ENABLED = true;
     //#else
-    private static boolean MEMORY_PRINT_ENABLED = false;
+    private static final boolean MEMORY_PRINT_ENABLED = false;
     //#endif
 
     /**
