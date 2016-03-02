@@ -9,6 +9,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -62,12 +63,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         String caseId = parser.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
-            throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The case_id attribute of a <case> wasn't set", parser);
         }
 
         String dateModified = parser.getAttributeValue(null, "date_modified");
         if (dateModified == null) {
-            throw new InvalidStructureException("<case> block with no date_modified attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The date_modified attribute of a <case> wasn't set", parser);
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
@@ -133,7 +134,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 while (this.nextTagInBlock("update")) {
                     String key = parser.getName();
@@ -161,7 +162,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 caseForBlock.setClosed(true);
                 commit(caseForBlock);
