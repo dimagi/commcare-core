@@ -42,7 +42,7 @@ public class FormEntryControllerTest {
             // get current question
             QuestionDef q = fpi.getCurrentQuestion();
 
-            if (q == null || q.getTextID() == null || q.getTextID() == "") {
+            if (q == null || q.getTextID() == null || "".equals(q.getTextID())) {
                 continue;
             }
 

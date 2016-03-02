@@ -27,7 +27,7 @@ import java.util.Date;
  * @author ctsims
  */
 public abstract class ElementParser<T> {
-    protected KXmlParser parser;
+    protected final KXmlParser parser;
 
     int level = 0;
 

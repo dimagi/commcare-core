@@ -1,19 +1,13 @@
 package org.javarosa.model.xform;
 
 import org.javarosa.core.api.IModule;
-import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.IConditionExpr;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.util.restorable.IXFormyFactory;
 import org.javarosa.core.model.util.restorable.RestoreUtils;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.transport.payload.IDataPayload;
-import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormAnswerDataSerializer;
 import org.javarosa.xpath.XPathConditional;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathPathExpr;

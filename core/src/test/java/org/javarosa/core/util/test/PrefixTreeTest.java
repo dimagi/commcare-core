@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.fail;
 
 public class PrefixTreeTest {
-    private int[] prefixLengths = new int[]{0, 1, 2, 10, 50};
+    private final int[] prefixLengths = new int[]{0, 1, 2, 10, 50};
 
     @Test
     public void testBasic() {

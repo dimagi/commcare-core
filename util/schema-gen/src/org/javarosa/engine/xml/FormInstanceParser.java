@@ -38,8 +38,7 @@ public class FormInstanceParser extends ElementParser<FormInstance> {
 
         //TODO: We need to overwrite any matching records here.
         TreeElement root = new TreeElementParser(parser, 0, null).parse();
-        FormInstance instance = new FormInstance(root, instanceId);
 
-        return instance;
+        return new FormInstance(root, instanceId);
     }
 }

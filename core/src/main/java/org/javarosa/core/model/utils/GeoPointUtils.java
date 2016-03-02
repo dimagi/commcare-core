@@ -1,8 +1,6 @@
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.util.MathUtils;
-import org.javarosa.xpath.XPathUnsupportedException;
 
 import java.lang.Math;
 
@@ -57,7 +55,7 @@ public class GeoPointUtils {
      */
     private static double arcHav(double x) {
         //#if polish.cldc
-        //# return 2 * MathUtils.asin(Math.sqrt(x));
+        //# return 2 * org.javarosa.core.util.MathUtils.asin(Math.sqrt(x));
         //#else
         return 2 * Math.asin(Math.sqrt(x));
         //#endif

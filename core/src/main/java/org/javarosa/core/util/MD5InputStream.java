@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class MD5InputStream {
-    InputStream in;
+    final InputStream in;
 
     public MD5InputStream(InputStream i) {
         in = i;

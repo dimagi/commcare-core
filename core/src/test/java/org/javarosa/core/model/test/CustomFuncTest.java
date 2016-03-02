@@ -22,7 +22,7 @@ import static org.junit.Assert.fail;
 public class CustomFuncTest {
     private FormParseInit fpi;
 
-    private double errorDelta = 0.001;
+    private final double errorDelta = 0.001;
 
     /**
      * Try to use a form that has a custom function defined without extending

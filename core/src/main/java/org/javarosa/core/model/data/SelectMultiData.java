@@ -37,7 +37,7 @@ public class SelectMultiData implements IAnswerData {
     public IAnswerData clone() {
         Vector v = new Vector();
         for (int i = 0; i < vs.size(); i++) {
-            v.addElement(((Selection)vs.elementAt(i)).clone());
+            v.addElement(vs.elementAt(i).clone());
         }
         return new SelectMultiData(v);
     }
@@ -88,7 +88,7 @@ public class SelectMultiData implements IAnswerData {
         String str = "";
 
         for (int i = 0; i < vs.size(); i++) {
-            Selection s = (Selection)vs.elementAt(i);
+            Selection s = vs.elementAt(i);
             str += s.getValue();
             if (i < vs.size() - 1)
                 str += ", ";

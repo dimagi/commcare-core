@@ -51,7 +51,7 @@ public class XPathFuncExpr extends XPathExpression {
     public XPathQName id;            //name of the function
     public XPathExpression[] args;    //argument list
 
-    private static CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
+    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
 
     public XPathFuncExpr() {
     } //for deserialization
@@ -400,7 +400,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return new Double(Math.floor(toDouble(argVals[0]).doubleValue()));
             } else if (name.equals("round")) {
                 checkArity(name, 1, args.length);
-                return new Double((double)(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5)));
+                return new Double(Math.floor(toDouble(argVals[0]).doubleValue() + 0.5));
             } else if (name.equals("log")) { //XPath 3.0
                 checkArity(name, 1, args.length);
                 return log(argVals[0]);
@@ -582,10 +582,8 @@ public class XPathFuncExpr extends XPathExpression {
             return true; //true 'null' values aren't allowed in the xpath engine, but whatever
         } else if (o instanceof String && ((String)o).length() == 0) {
             return true;
-        } else if (o instanceof Double && ((Double)o).isNaN()) {
-            return true;
         } else {
-            return false;
+            return o instanceof Double && ((Double)o).isNaN();
         }
     }
 
@@ -730,7 +728,7 @@ public class XPathFuncExpr extends XPathExpression {
         } else if (o instanceof Date) {
             val = DateUtils.formatDate((Date)o, DateUtils.FORMAT_ISO8601);
         } else if (o instanceof IExprDataType) {
-            val = ((IExprDataType)o).toString();
+            val = o.toString();
         }
 
         if (val != null) {
@@ -1120,7 +1118,7 @@ public class XPathFuncExpr extends XPathExpression {
         boolean result;
         try {
             result = regexp.match(str);
-        } 
+        }
         //#if polish.cldc
         //# catch (java.lang.OutOfMemoryError e) {
         //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
@@ -1422,6 +1420,7 @@ public class XPathFuncExpr extends XPathExpression {
         //#endif
     }
 
+    @SuppressWarnings("unused")
     private Double powerApprox(Object o1, Object o2) {
         double a = toDouble(o1).doubleValue();
         Double db = toDouble(o2);

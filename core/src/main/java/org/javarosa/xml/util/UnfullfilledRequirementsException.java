@@ -5,8 +5,8 @@ package org.javarosa.xml.util;
  */
 public class UnfullfilledRequirementsException extends Exception {
 
-    private int severity;
-    private int requirement;
+    private final int severity;
+    private final int requirement;
     /**
      * Indicates that this exception was thrown due to an attempt to install an app that was
      * already installed
@@ -16,7 +16,10 @@ public class UnfullfilledRequirementsException extends Exception {
     /**
      * Version Numbers if version is incompatible *
      */
-    private int maR, miR, maA, miA;
+    private final int maR;
+    private final int miR;
+    private final int maA;
+    private final int miA;
 
     public UnfullfilledRequirementsException(String message, int severity) {
         this(message, severity, -1, -1, -1, -1, -1);

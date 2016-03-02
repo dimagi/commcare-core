@@ -27,7 +27,7 @@ package org.javarosa.core.reference;
  */
 public abstract class PrefixedRootFactory implements ReferenceFactory {
 
-    String[] roots;
+    final String[] roots;
 
     /**
      * Construct a PrefixedRootFactory which handles the roots

@@ -126,7 +126,7 @@ public class ExternalizableTest {
         //base types (built-in + externalizable)
 
         PrototypeFactory pf = new PrototypeFactory();
-        pf.setStaticHasher(new ClassNameHasher());
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
 
         testExternalizable("string", String.class);
         testExternalizable(new Byte((byte)0), Byte.class);
@@ -139,8 +139,8 @@ public class ExternalizableTest {
         testExternalizable(new Integer(1234567890), Integer.class);
         testExternalizable(new Integer(-1234567890), Integer.class);
         testExternalizable(new Long(0), Long.class);
-        testExternalizable(new Long(1234567890123456789l), Long.class);
-        testExternalizable(new Long(-1234567890123456789l), Long.class);
+        testExternalizable(new Long(1234567890123456789L), Long.class);
+        testExternalizable(new Long(-1234567890123456789L), Long.class);
         testExternalizable(Boolean.TRUE, Boolean.class);
         testExternalizable(Boolean.FALSE, Boolean.class);
         testExternalizable(new Character('e'), Character.class);

@@ -16,25 +16,25 @@ public interface IDataPointer extends Externalizable {
      * Get a display string that represents this data.
      */
 
-    public String getDisplayText();
+    String getDisplayText();
 
     /**
      * Get the data from the underlying storage.  This should maybe be a stream instead of a byte[]
      */
-    public byte[] getData() throws IOException;
+    byte[] getData() throws IOException;
 
     /**
      * Get the data from the underlying storage.
      */
-    public InputStream getDataStream() throws IOException;
+    InputStream getDataStream() throws IOException;
 
     /**
      * Deletes the underlying data from storage.
      */
-    public boolean deleteData();
+    boolean deleteData();
 
     /**
      * @return Gets the length of the data payload
      */
-    public long getLength();
+    long getLength();
 }

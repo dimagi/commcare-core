@@ -6,14 +6,8 @@ import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathNodeset;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Vector;
 
 public class XPathCmpExpr extends XPathBinaryOpExpr {
