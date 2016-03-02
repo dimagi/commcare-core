@@ -10,7 +10,7 @@ import org.javarosa.core.reference.Reference;
  */
 public class JavaResourceRoot  extends PrefixedRootFactory {
 
-    Class mHost;
+    final Class mHost;
 
     public JavaResourceRoot(Class host) {
         super(new String[]{"resource"});

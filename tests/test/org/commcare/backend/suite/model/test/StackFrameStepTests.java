@@ -53,7 +53,7 @@ public class StackFrameStepTests {
                 commandIdStepV1.equals(commandIdStepV2));
 
         assertFalse("StackFrameStep was equal to null",
-                commandIdStepV1.equals(null));
+                commandIdStepV1 == null);
 
         assertFalse("StackFrameSteps with different command types were equal",
                 commandIdStepV1.equals(caseIdStepV2));

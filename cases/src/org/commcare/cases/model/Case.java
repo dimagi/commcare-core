@@ -28,12 +28,12 @@ import java.util.Vector;
  * @date Mar 19, 2009
  */
 public class Case implements Persistable, IMetaData, Secure {
-    public static String STORAGE_KEY = "CASE";
+    public static final String STORAGE_KEY = "CASE";
 
-    public static String INDEX_CASE_ID = "case-id";
-    public static String INDEX_CASE_TYPE = "case-type";
-    public static String INDEX_CASE_STATUS = "case-status";
-    public static String INDEX_CASE_INDEX_PRE = "case-in-";
+    public static final String INDEX_CASE_ID = "case-id";
+    public static final String INDEX_CASE_TYPE = "case-type";
+    public static final String INDEX_CASE_STATUS = "case-status";
+    public static final String INDEX_CASE_INDEX_PRE = "case-in-";
 
     protected String typeId;
     protected String id;

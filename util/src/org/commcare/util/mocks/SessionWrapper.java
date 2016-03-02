@@ -13,8 +13,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
  */
 public class SessionWrapper extends CommCareSession {
     
-    UserSandbox mSandbox;
-    CommCarePlatform mPlatform;
+    final UserSandbox mSandbox;
+    final CommCarePlatform mPlatform;
     CLIInstanceInitializer initializer;
     
     public SessionWrapper(CommCarePlatform platform, UserSandbox sandbox) {

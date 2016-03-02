@@ -36,7 +36,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
      * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
      */
     public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
-        instance.registerSuite((Suite)storage().read(cacheLocation));
+        instance.registerSuite(storage().read(cacheLocation));
         return true;
     }
 
@@ -107,7 +107,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
         //Check to see whether the formDef exists and reads correctly
         Suite mSuite;
         try {
-            mSuite = (Suite)storage().read(cacheLocation);
+            mSuite = storage().read(cacheLocation);
         } catch (Exception e) {
             e.printStackTrace();
             sizeBoundProblems.addElement(new MissingMediaException(r, "Suite did not properly save into persistent storage"));
@@ -136,9 +136,6 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
             System.out.println("fail: " + exc.getMessage());
             System.out.println("fail: " + exc.toString());
         }
-        if (problems.size() == 0) {
-            return false;
-        }
-        return true;
+        return problems.size() != 0;
     }
 }

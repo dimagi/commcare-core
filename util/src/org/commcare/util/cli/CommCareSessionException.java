@@ -10,12 +10,6 @@ public class CommCareSessionException extends Exception {
         super(message);
     }
 
-    //Wrap an exception with no message
-    public CommCareSessionException(Exception e) {
-        super(e.getMessage());
-        this.initCause(e);
-    }
-
     public CommCareSessionException(String message, Exception e) {
         super(message);
         this.initCause(e);

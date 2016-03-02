@@ -13,7 +13,7 @@ import org.javarosa.core.reference.Reference;
  */
 public class JavaFileRoot extends PrefixedRootFactory {
 
-    String localRoot;
+    final String localRoot;
     String authority;
 
     public JavaFileRoot(String localRoot) {

@@ -292,6 +292,7 @@ public class CommCareSession {
         return null;
     }
 
+    @SuppressWarnings("unused")
     public Suite getCurrentSuite() {
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
