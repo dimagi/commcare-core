@@ -1118,7 +1118,7 @@ public class XPathFuncExpr extends XPathExpression {
         boolean result;
         try {
             result = regexp.match(str);
-        } 
+        }
         //#if polish.cldc
         //# catch (java.lang.OutOfMemoryError e) {
         //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
@@ -1420,6 +1420,7 @@ public class XPathFuncExpr extends XPathExpression {
         //#endif
     }
 
+    @SuppressWarnings("unused")
     private Double powerApprox(Object o1, Object o2) {
         double a = toDouble(o1).doubleValue();
         Double db = toDouble(o2);
