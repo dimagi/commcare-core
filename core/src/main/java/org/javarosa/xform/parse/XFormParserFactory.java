@@ -1,7 +1,6 @@
 package org.javarosa.xform.parse;
 
 import org.javarosa.core.util.Interner;
-import org.kxml2.kdom.Document;
 
 import java.io.Reader;
 

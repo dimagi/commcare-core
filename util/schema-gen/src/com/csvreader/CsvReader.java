@@ -43,7 +43,7 @@ public class CsvReader {
     private String fileName = null;
 
     // this holds all the values for switches that the user is allowed to set
-    private UserSettings userSettings = new UserSettings();
+    private final UserSettings userSettings = new UserSettings();
 
     private Charset charset = null;
 
@@ -52,17 +52,17 @@ public class CsvReader {
     // this will be our working buffer to hold data chunks
     // read in from the data file
 
-    private DataBuffer dataBuffer = new DataBuffer();
+    private final DataBuffer dataBuffer = new DataBuffer();
 
-    private ColumnBuffer columnBuffer = new ColumnBuffer();
+    private final ColumnBuffer columnBuffer = new ColumnBuffer();
 
-    private RawRecordBuffer rawBuffer = new RawRecordBuffer();
+    private final RawRecordBuffer rawBuffer = new RawRecordBuffer();
 
     private boolean[] isQualified = null;
 
     private String rawRecord = "";
 
-    private HeadersHolder headersHolder = new HeadersHolder();
+    private final HeadersHolder headersHolder = new HeadersHolder();
 
     // these are all more or less global loop variables
     // to keep from needing to pass them all into various
@@ -1706,7 +1706,7 @@ public class CsvReader {
     private class UserSettings {
         // having these as publicly accessible members will prevent
         // the overhead of the method call that exists on properties
-        public boolean CaseSensitive;
+        public final boolean CaseSensitive;
 
         public char TextQualifier;
 

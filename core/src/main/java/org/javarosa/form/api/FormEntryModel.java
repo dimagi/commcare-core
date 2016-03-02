@@ -39,7 +39,7 @@ import java.util.Vector;
  * controller.
  */
 public class FormEntryModel {
-    private FormDef form;
+    private final FormDef form;
     private FormIndex currentFormIndex;
 
     /**

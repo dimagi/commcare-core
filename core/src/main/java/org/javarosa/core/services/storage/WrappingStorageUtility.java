@@ -25,8 +25,8 @@ import java.util.Vector;
  * @author Drew Roos
  */
 public class WrappingStorageUtility implements IStorageUtilityIndexed {
-    IStorageUtility storage;        /* underlying StorageUtility */
-    SerializationWrapper wrapper;   /* wrapper that defines the alternate serialization scheme; the wrapper is set once for
+    final IStorageUtility storage;        /* underlying StorageUtility */
+    final SerializationWrapper wrapper;   /* wrapper that defines the alternate serialization scheme; the wrapper is set once for
                                      * the life of the StorageUtility and is re-used all read and write calls
                                      */
 
@@ -98,7 +98,7 @@ public class WrappingStorageUtility implements IStorageUtilityIndexed {
 
     public IStorageIterator iterate() {
         return new IStorageIterator() {
-            IStorageIterator baseIterator = storage.iterate();
+            final IStorageIterator baseIterator = storage.iterate();
 
             public boolean hasMore() {
                 return baseIterator.hasMore();

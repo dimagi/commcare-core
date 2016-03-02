@@ -36,8 +36,8 @@ public class Token {
     public static final int VAR = 31;
     public static final int WILDCARD = 32;
 
-    public int type;
-    public Object val;
+    public final int type;
+    public final Object val;
 
     public Token(int type) {
         this(type, null);
@@ -110,10 +110,10 @@ public class Token {
                 s = "NEQ";
                 break;
             case NSWILDCARD:
-                s = "NSWILDCARD(" + (String)val + ")";
+                s = "NSWILDCARD(" + val + ")";
                 break;
             case NUM:
-                s = "NUM(" + ((Double)val).toString() + ")";
+                s = "NUM(" + val.toString() + ")";
                 break;
             case OR:
                 s = "OR";
@@ -122,7 +122,7 @@ public class Token {
                 s = "PLUS";
                 break;
             case QNAME:
-                s = "QNAME(" + ((XPathQName)val).toString() + ")";
+                s = "QNAME(" + val.toString() + ")";
                 break;
             case RBRACK:
                 s = "RBRACK";
@@ -134,7 +134,7 @@ public class Token {
                 s = "SLASH";
                 break;
             case STR:
-                s = "STR(" + (String)val + ")";
+                s = "STR(" + val + ")";
                 break;
             case UMINUS:
                 s = "UMINUS";
@@ -143,7 +143,7 @@ public class Token {
                 s = "UNION";
                 break;
             case VAR:
-                s = "VAR(" + ((XPathQName)val).toString() + ")";
+                s = "VAR(" + val.toString() + ")";
                 break;
             case WILDCARD:
                 s = "WILDCARD";

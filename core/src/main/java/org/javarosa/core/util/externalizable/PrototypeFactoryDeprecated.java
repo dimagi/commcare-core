@@ -17,7 +17,7 @@ import org.javarosa.core.util.Map;
  * @author Clayton Sims
  */
 public class PrototypeFactoryDeprecated {
-    public Map prototypes = new Map();
+    public final Map prototypes = new Map();
 
     /**
      * Adds a new class to be able to retrieve instances of

@@ -1,9 +1,7 @@
 package org.javarosa.core.model.test;
 
-import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.test.FormParseInit;
-import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;

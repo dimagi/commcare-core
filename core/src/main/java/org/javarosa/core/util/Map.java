@@ -261,7 +261,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
      */
     public synchronized boolean contains(Object value) {
         if (!sealed) {
-            return elements.contains((V)value);
+            return elements.contains(value);
         } else {
             for (int i = 0; i < elementsSealed.length; ++i) {
                 if (elementsSealed[i].equals(value)) {

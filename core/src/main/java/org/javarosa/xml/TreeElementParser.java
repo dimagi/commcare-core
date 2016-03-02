@@ -14,8 +14,8 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class TreeElementParser extends ElementParser<TreeElement> {
-    int multiplicity;
-    String instanceId;
+    final int multiplicity;
+    final String instanceId;
 
     public TreeElementParser(KXmlParser parser, int multiplicity, String instanceId) {
         super(parser);

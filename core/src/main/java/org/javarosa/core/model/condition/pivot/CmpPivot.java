@@ -7,8 +7,8 @@ package org.javarosa.core.model.condition.pivot;
  * @author ctsims
  */
 public class CmpPivot implements Pivot {
-    private double val;
-    private int op;
+    private final double val;
+    private final int op;
     private boolean outcome;
 
     public CmpPivot(double val, int op) {

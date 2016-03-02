@@ -36,7 +36,7 @@ public class QuestionDefTest {
         fep = new FormEntryPrompt(fpi.getFormDef(), fpi.getFormEntryModel().getFormIndex());
     }
 
-    static PrototypeFactory pf;
+    static final PrototypeFactory pf;
 
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.engine.xml;
 
 import org.kxml2.io.KXmlParser;
@@ -27,9 +24,7 @@ import java.io.InputStream;
  *
  */
 public abstract class ElementParser<T> {
-    protected KXmlParser parser;
-
-    T element;
+    protected final KXmlParser parser;
 
     int level = 0;
 

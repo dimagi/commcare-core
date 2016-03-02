@@ -14,9 +14,9 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class DummyStorageIterator<T extends Persistable> implements IStorageIterator<T> {
-    Hashtable<Integer, T> data;
+    final Hashtable<Integer, T> data;
     int count;
-    Integer[] keys;
+    final Integer[] keys;
 
 
     public DummyStorageIterator(Hashtable<Integer, T> data) {
@@ -42,7 +42,7 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
      */
     public int nextID() {
         count++;
-        return ((Integer)keys[count - 1]).intValue();
+        return keys[count - 1].intValue();
     }
 
     /* (non-Javadoc)
@@ -60,7 +60,7 @@ public class DummyStorageIterator<T extends Persistable> implements IStorageIter
     }
 
     public int peekID() {
-        return (Integer)keys[count];
+        return keys[count];
     }
 
 }

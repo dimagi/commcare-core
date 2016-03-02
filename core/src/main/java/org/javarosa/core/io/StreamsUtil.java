@@ -96,7 +96,7 @@ public class StreamsUtil {
     //Unify the functional aspects here
 
     private abstract class DirectionalIOException extends IOException {
-        IOException internal;
+        final IOException internal;
 
         public DirectionalIOException(IOException internal) {
             super(internal.getMessage());

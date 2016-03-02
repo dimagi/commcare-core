@@ -13,12 +13,10 @@ import static org.junit.Assert.fail;
 
 public class DateUtilsTests {
     static Date currentTime;
-    static Date minusOneHour;
 
     @BeforeClass
     public static void setUp() {
         currentTime = new Date();
-        minusOneHour = new Date(new Date().getTime() - (1000 * 60));
     }
 
     /**
@@ -140,19 +138,19 @@ public class DateUtilsTests {
 
     @Test
     public void testParity() {
-        testCycle(new Date(1300139579000l));
+        testCycle(new Date(1300139579000L));
         testCycle(new Date(0));
 
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-        testCycle(new Date(1300139579000l));
+        testCycle(new Date(1300139579000L));
         testCycle(new Date(0));
 
         TimeZone offsetTwoHours = TimeZone.getTimeZone("GMT+02");
 
         TimeZone.setDefault(offsetTwoHours);
 
-        testCycle(new Date(1300139579000l));
+        testCycle(new Date(1300139579000L));
         testCycle(new Date(0));
 
 
@@ -160,14 +158,14 @@ public class DateUtilsTests {
 
         TimeZone.setDefault(offTwoHalf);
 
-        testCycle(new Date(1300139579000l));
+        testCycle(new Date(1300139579000L));
         testCycle(new Date(0));
 
         TimeZone offMinTwoHalf = TimeZone.getTimeZone("GMT-0230");
 
         TimeZone.setDefault(offMinTwoHalf);
 
-        testCycle(new Date(1300139579000l));
+        testCycle(new Date(1300139579000L));
         testCycle(new Date(0));
     }
 

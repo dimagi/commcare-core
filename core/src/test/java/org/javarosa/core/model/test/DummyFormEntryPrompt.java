@@ -5,8 +5,8 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryPrompt;
 
 public class DummyFormEntryPrompt extends FormEntryPrompt {
-    String textId;
-    Localizer localizer;
+    final String textId;
+    final Localizer localizer;
 
     public DummyFormEntryPrompt(Localizer localizer, String textId, QuestionDef q) {
         this.localizer = localizer;

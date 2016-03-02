@@ -15,7 +15,7 @@ package org.javarosa.core.reference;
  * @author ctsims
  */
 public class InvalidReferenceException extends Exception {
-    private String reference;
+    private final String reference;
 
     /**
      * A new exception implying that a URI could not be resolved to

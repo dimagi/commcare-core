@@ -9,7 +9,7 @@ package org.javarosa.core.util;
  * @author ctsims
  */
 public class InvalidIndexException extends RuntimeException {
-    String index;
+    final String index;
 
     public InvalidIndexException(String message, String index) {
         super(message);

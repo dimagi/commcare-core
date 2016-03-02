@@ -142,14 +142,6 @@ public class ExtUtil {
             out.write(bytes);
     }
 
-    //functions like these are bad; they should use the built-in list serialization facilities
-    public static void writeInts(DataOutputStream out, int[] ints) throws IOException {
-        ExtUtil.writeNumeric(out, ints.length);
-        for (int i : ints) {
-            ExtUtil.writeNumeric(out, i);
-        }
-    }
-
     public static Object read(DataInputStream in, Class type) throws IOException, DeserializationException {
         return read(in, type, null);
     }
@@ -251,16 +243,6 @@ public class ExtUtil {
             toread -= read;
         }
         return bytes;
-    }
-
-    //bad
-    public static int[] readInts(DataInputStream in) throws IOException {
-        int size = (int)ExtUtil.readNumeric(in);
-        int[] ints = new int[size];
-        for (int i = 0; i < size; ++i) {
-            ints[i] = (int)ExtUtil.readNumeric(in);
-        }
-        return ints;
     }
 
     public static int toInt(long l) {
@@ -448,6 +430,7 @@ public class ExtUtil {
     }
     ////
 
+    @SuppressWarnings("unused")
     public static void attachCacheTable(Interner<String> stringCache) {
         ExtUtil.stringCache = stringCache;
     }

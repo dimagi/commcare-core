@@ -7,5 +7,5 @@ package org.javarosa.core.model.trace;
  * @author ctsims
  */
 public interface EvaluationTraceSerializer<T> {
-    public T serializeEvaluationLevels(EvaluationTrace input);
+    T serializeEvaluationLevels(EvaluationTrace input);
 }
