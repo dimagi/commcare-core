@@ -50,6 +50,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
      * Places the key/value pair in this map. Any existing
      * mapping keyed by the key parameter is removed.
      */
+    @Override
     public V put(K key, V value) {
         if (sealed) {
             throw new IllegalStateException("Trying to add element to sealed map");
@@ -62,6 +63,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
         return value;
     }
 
+    @Override
     public int size() {
         if (!sealed) {
             return keys.size();
@@ -74,6 +76,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
      * @return The object bound to the given key, if one exists.
      * null otherwise.
      */
+    @Override
     public V get(Object key) {
         int index = getIndex((K)key);
         if (index == -1) {
@@ -89,6 +92,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
     /**
      * Removes any mapping from the given key
      */
+    @Override
     public V remove(Object key) {
         if (sealed) {
             throw new IllegalStateException("Trying to remove element from sealed map");
@@ -129,6 +133,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
      * @return True if there is an object bound to the given
      * key in this map. False otherwise.
      */
+    @Override
     public boolean containsKey(Object key) {
         return getIndex((K)key) != -1;
     }
@@ -150,16 +155,12 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
         return -1;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#clear()
-     */
+    @Override
     public void clear() {
         this.reset();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#elementAt(int)
-     */
+    @Override
     public V elementAt(int index) {
         if (!sealed) {
             return elements.elementAt(index);
@@ -168,9 +169,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#elements()
-     */
+    @Override
     public Enumeration elements() {
         if (!sealed) {
             return elements.elements();
@@ -192,16 +191,12 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#indexOfKey(java.lang.Object)
-     */
+    @Override
     public int indexOfKey(K key) {
         return this.getIndex(key);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#keyAt(int)
-     */
+    @Override
     public Object keyAt(int index) {
         if (!sealed) {
             return keys.elementAt(index);
@@ -210,9 +205,7 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#keys()
-     */
+    @Override
     public Enumeration keys() {
         if (!sealed) {
             return keys.elements();
@@ -235,33 +228,25 @@ public class Map<K, V> extends OrderedHashtable<K, V> {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#removeAt(int)
-     */
+    @Override
     public void removeAt(int i) {
         remove(this.keyAt(i));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.OrderedHashtable#toString()
-     */
+    @Override
     public String toString() {
         return "MAP!";
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Hashtable#isEmpty()
-     */
+    @Override
     public synchronized boolean isEmpty() {
         return this.size() > 0;
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Hashtable#contains(java.lang.Object)
-     */
+    @Override
     public synchronized boolean contains(Object value) {
         if (!sealed) {
-            return elements.contains(value);
+            return elements.contains((V)value);
         } else {
             for (int i = 0; i < elementsSealed.length; ++i) {
                 if (elementsSealed[i].equals(value)) {
