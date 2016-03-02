@@ -41,8 +41,7 @@ public class TextParser extends ElementParser<Text> {
         if (texts.size() == 1) {
             return texts.elementAt(0);
         } else {
-            Text c = Text.CompositeText(texts);
-            return c;
+            return Text.CompositeText(texts);
         }
     }
 
@@ -89,8 +88,7 @@ public class TextParser extends ElementParser<Text> {
         if (texts.size() == 1) {
             return texts.elementAt(0);
         } else {
-            Text c = Text.CompositeText(texts);
-            return c;
+            return Text.CompositeText(texts);
         }
     }
 

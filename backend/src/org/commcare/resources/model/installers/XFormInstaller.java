@@ -89,7 +89,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //Basically some content as revert. Merge;
-        FormDef form = (FormDef)storage().read(cacheLocation);
+        FormDef form = storage().read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //Atomic. Don't re-do this if it was already done.
@@ -113,7 +113,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         }
 
         //Make sure that this form's
-        FormDef form = (FormDef)storage().read(cacheLocation);
+        FormDef form = storage().read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //This method should basically be atomic, so don't re-temp it if it's already
@@ -129,7 +129,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
     public boolean revert(Resource r, ResourceTable table) {
         //Basically some content as upgrade. Merge;
-        FormDef form = (FormDef)storage().read(cacheLocation);
+        FormDef form = storage().read(cacheLocation);
         String tempString = form.getInstance().schema;
 
         //TODO: Aggressively wipe out anything which might conflict with the uniqueness
@@ -148,7 +148,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
     public int rollback(Resource r) {
         int status = r.getStatus();
 
-        FormDef form = (FormDef)storage().read(cacheLocation);
+        FormDef form = storage().read(cacheLocation);
         String currentSchema = form.getInstance().schema;
 
         //Just figure out whether we finished and return that
@@ -181,7 +181,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {
-            formDef = (FormDef)storage().read(cacheLocation);
+            formDef = storage().read(cacheLocation);
         } catch (Exception e) {
             sizeBoundProblems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
             return true;
@@ -221,9 +221,6 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
                 }
             }
         }
-        if (sizeBoundProblems.size() == 0) {
-            return false;
-        }
-        return true;
+        return sizeBoundProblems.size() != 0;
     }
 }

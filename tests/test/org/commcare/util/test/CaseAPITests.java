@@ -2,11 +2,9 @@ package org.commcare.util.test;
 
 import org.commcare.api.persistence.SqlHelper;
 import org.commcare.api.persistence.SqlSandboxUtils;
-import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.javarosa.core.services.storage.util.DummyIndexedStorageUtility;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +36,7 @@ public class CaseAPITests {
     private Connection connection = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
-    private String databaseName = ("test.db");
+    private final String databaseName = ("test.db");
 
 
     @Before

@@ -1,7 +1,5 @@
 package org.commcare.util.test;
 
-import junit.framework.Assert;
-
 import org.commcare.api.persistence.SqlSandboxUtils;
 import org.commcare.api.persistence.SqliteIndexedStorageUtility;
 import org.commcare.api.persistence.JdbcSqlStorageIterator;
@@ -13,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Iterator;
 import java.util.Vector;
 
 import static junit.framework.Assert.fail;

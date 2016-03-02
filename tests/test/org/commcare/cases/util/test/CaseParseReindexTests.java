@@ -1,7 +1,6 @@
 package org.commcare.cases.util.test;
 
 import org.commcare.cases.model.Case;
-import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.core.sandbox.SandboxUtils;
@@ -15,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Vector;

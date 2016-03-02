@@ -84,9 +84,6 @@ public class MenuParser extends CommCareElementParser<Menu> {
         String[] expressions = new String[relevantExprs.size()];
         relevantExprs.copyInto(expressions);
 
-        Menu m = new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions, style);
-        return m;
-
+        return new Menu(id, root, relevant, relevantExpression, display, commandIds, expressions, style);
     }
-
 }

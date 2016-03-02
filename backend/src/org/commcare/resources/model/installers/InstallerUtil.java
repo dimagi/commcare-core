@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class InstallerUtil {
 
-    public static enum MediaType {
+    public enum MediaType {
         IMAGE, AUDIO, VIDEO
     }
 
