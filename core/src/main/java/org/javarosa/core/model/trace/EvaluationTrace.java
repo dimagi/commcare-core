@@ -13,11 +13,11 @@ import java.util.Vector;
  */
 public class EvaluationTrace {
 
-    private EvaluationTrace parent;
+    private final EvaluationTrace parent;
     private Object value;
-    private String expression;
+    private final String expression;
 
-    private Vector<EvaluationTrace> children = new Vector<EvaluationTrace>();
+    private final Vector<EvaluationTrace> children = new Vector<EvaluationTrace>();
 
     /**
      * Creates a trace record.

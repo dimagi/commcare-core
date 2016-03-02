@@ -10,5 +10,5 @@ public interface Localizable {
     /**
      * Updates the current object with the locate given.
      */
-    public void localeChanged(String locale, Localizer localizer);
+    void localeChanged(String locale, Localizer localizer);
 }

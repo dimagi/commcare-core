@@ -102,7 +102,7 @@ public class XFormParser {
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
 
-    private Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
+    private final Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
 
     private Reader _reader;
     private Document _xmldoc;
@@ -1007,7 +1007,7 @@ public class XFormParser {
                             "of a <trigger> isn't allowed to have predicates.", e);
                 }
             } catch (RuntimeException el) {
-                System.out.println(this.getVagueLocation(e));
+                System.out.println(getVagueLocation(e));
                 throw el;
             }
         } else {
@@ -1071,7 +1071,7 @@ public class XFormParser {
             } else if (isSelect && "item".equals(childName)) {
                 parseItem(question, child);
             } else if (isSelect && "itemset".equals(childName)) {
-                parseItemset(question, child, parent);
+                parseItemset(question, child);
             } else if (actionHandlers.containsKey(childName)) {
                 actionHandlers.get(childName).handle(this, child, question);
             }
@@ -1169,9 +1169,7 @@ public class XFormParser {
             }
         }
 
-        String s = sb.toString().trim();
-
-        return s;
+        return sb.toString().trim();
     }
 
     private void recurseForOutput(Element e) {
@@ -1349,7 +1347,7 @@ public class XFormParser {
         }
     }
 
-    private void parseItemset(QuestionDef q, Element e, IFormElement qparent) {
+    private void parseItemset(QuestionDef q, Element e) {
         ItemsetBinding itemset = new ItemsetBinding();
 
         ////////////////USED FOR PARSER WARNING OUTPUT ONLY
@@ -2003,15 +2001,13 @@ public class XFormParser {
             throw new XFormParseException(errorMessage);
         }
 
-        Condition c = new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
-        return c;
+        return new Condition(cond, trueAction, falseAction, FormInstance.unpackReference(contextRef));
     }
 
     private static Recalculate buildCalculate(String xpath, XPathReference contextRef) throws XPathSyntaxException {
         XPathConditional calc = new XPathConditional(xpath);
 
-        Recalculate r = new Recalculate(calc, FormInstance.unpackReference(contextRef));
-        return r;
+        return new Recalculate(calc, FormInstance.unpackReference(contextRef));
     }
 
     private void addBinding(DataBinding binding) {
@@ -2193,11 +2189,11 @@ public class XFormParser {
         Vector<TreeReference> refs = new Vector<TreeReference>();
 
         for (int i = 0; i < repeats.size(); i++) {
-            refs.addElement((TreeReference)repeats.elementAt(i));
+            refs.addElement(repeats.elementAt(i));
         }
 
         for (int i = 0; i < itemsets.size(); i++) {
-            ItemsetBinding itemset = (ItemsetBinding)itemsets.elementAt(i);
+            ItemsetBinding itemset = itemsets.elementAt(i);
             TreeReference srcRef = itemset.nodesetRef;
             if (!refs.contains(srcRef)) {
                 //CTS: Being an itemset root is not sufficient to mark
@@ -2345,7 +2341,7 @@ public class XFormParser {
     //helper function for removeInvalidTemplates
     private boolean removeInvalidTemplates(TreeElement instanceNode, TreeElement repeatTreeNode, boolean templateAllowed) {
         int mult = instanceNode.getMult();
-        boolean repeatable = (repeatTreeNode == null ? false : repeatTreeNode.isRepeatable());
+        boolean repeatable = (repeatTreeNode != null && repeatTreeNode.isRepeatable());
 
         if (mult == TreeReference.INDEX_TEMPLATE) {
             if (!templateAllowed) {
@@ -2520,10 +2516,10 @@ public class XFormParser {
             String type = null;
 
             if (child instanceof GroupDef) {
-                ref = ((GroupDef)child).getBind();
+                ref = child.getBind();
                 type = (((GroupDef)child).getRepeat() ? "Repeat" : "Group");
             } else if (child instanceof QuestionDef) {
-                ref = ((QuestionDef)child).getBind();
+                ref = child.getBind();
                 type = "Question";
             }
             TreeReference tref = FormInstance.unpackReference(ref);
@@ -2585,7 +2581,7 @@ public class XFormParser {
             //check that no nodes between the parent repeat and the target are repeatable
             for (int k = repeatBind.size(); k < childBind.size(); k++) {
                 TreeElement rChild = (k < repeatAncestry.size() ? repeatAncestry.elementAt(k) : null);
-                boolean repeatable = (rChild == null ? false : rChild.isRepeatable());
+                boolean repeatable = (rChild != null && rChild.isRepeatable());
                 if (repeatable && !(k == childBind.size() - 1 && isRepeat)) {
                     //catch <repeat nodeset="/a/b"><input ref="/a/b/c/d" /></repeat>...<repeat nodeset="/a/b/c">...</repeat>:
                     //  question's/group's/repeat's most immediate repeat parent in the instance is not its most immediate repeat parent in the form def
@@ -2828,9 +2824,9 @@ public class XFormParser {
             Vector<Triggerable> triggered = (Vector<Triggerable>)_f.conditionsTriggeredByRef(trigger);
             Vector targets = new Vector();
             for (int i = 0; i < triggered.size(); i++) {
-                Triggerable t = (Triggerable)triggered.elementAt(i);
+                Triggerable t = triggered.elementAt(i);
                 for (int j = 0; j < t.getTargets().size(); j++) {
-                    TreeReference target = (TreeReference)t.getTargets().elementAt(j);
+                    TreeReference target = t.getTargets().elementAt(j);
                     if (!targets.contains(target))
                         targets.addElement(target);
                 }
@@ -2943,7 +2939,7 @@ public class XFormParser {
             }
 
             if (typeMappings.containsKey(type)) {
-                dataType = ((Integer)typeMappings.get(type)).intValue();
+                dataType = typeMappings.get(type).intValue();
             } else {
                 dataType = Constants.DATATYPE_UNSUPPORTED;
                 reporter.warning(XFormParserReporter.TYPE_ERROR_PRONE, "unrecognized data type [" + type + "]", null);

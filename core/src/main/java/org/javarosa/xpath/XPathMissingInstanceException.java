@@ -1,7 +1,7 @@
 package org.javarosa.xpath;
 
 public class XPathMissingInstanceException extends XPathException {
-    String instanceName;
+    final String instanceName;
 
     public XPathMissingInstanceException(String instanceName, String message) {
         super(message);

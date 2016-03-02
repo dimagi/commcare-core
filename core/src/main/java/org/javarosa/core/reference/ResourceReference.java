@@ -16,7 +16,7 @@ import java.io.OutputStream;
  */
 public class ResourceReference implements Reference {
 
-    String URI;
+    final String URI;
 
     /**
      * Creates a new resource reference with URI in the format

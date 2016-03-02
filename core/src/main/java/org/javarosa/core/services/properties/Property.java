@@ -8,7 +8,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -75,7 +74,7 @@ public class Property implements Persistable, IMetaData {
         // deserialization is invalid
         Enumeration en = value.elements();
         while (en.hasMoreElements()) {
-            outputString += "," + (String)en.nextElement();
+            outputString += "," + en.nextElement();
         }
 
         for (int i = 0; i < outputString.length(); ++i) {

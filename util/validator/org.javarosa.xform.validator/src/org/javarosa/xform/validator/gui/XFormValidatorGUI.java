@@ -126,7 +126,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
     private final static String SETTINGS_SCREEN = "SETTINGS_SCREEN";
     private final static String MAIN_SCREEN = "MAIN_SCREEN";
     private Button testBtn = null;
-    private Label status = new Label();
+    private final Label status = new Label();
     private Label formName = new Label();
 
     private Checkbox noOpenAtEnd = null;
@@ -140,15 +140,15 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 
     private Choice languages = null;
 
-    private BufferLogger bufferedlogger = new BufferLogger();
-    public static TextArea textarea = new TextArea("", 24, 80);
+    private final BufferLogger bufferedlogger = new BufferLogger();
+    public static final TextArea textarea = new TextArea("", 24, 80);
 
     public static XFormValidatorGUI instance = null;
     public static BufferedReader brErr = null;
     public static BufferedReader brOut = null;
     public static Process process = null;
 
-    static Interner<String> interns = new Interner<String>();
+    static final Interner<String> interns = new Interner<String>();
 
 
     public static void main(String argv[]) {
@@ -284,23 +284,23 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
         String cmd = e.getActionCommand();
         if (cmd.equals("eval")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             // If user clicked "validate" button
             if(checkNewForm())
                 this.validateFile();
         }else if(cmd.equals("test")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             if(!checkParams()) {
-                this.addToTextArea("ERROR: Please fix parameters on the settings screen!");
+                addToTextArea("ERROR: Please fix parameters on the settings screen!");
                 return;
             }
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
+                addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
                 return;
             }
 
@@ -313,11 +313,11 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
             this.testBtn.setEnabled(true);
         } else if(cmd.equals("summary")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
+                addToTextArea("\n\nERROR: cannot launch emulator until file validates!");
                 return;
             }
 
@@ -325,16 +325,16 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 
         } else if(cmd.equals("deploy")) {
             // Clear the text area...
-            this.textarea.setText("");
+            textarea.setText("");
 
             if(!checkDeployJar() || !checkNewForm()) {
-                this.addToTextArea("ERROR: Please fix parameters on the settings screen!");
+                addToTextArea("ERROR: Please fix parameters on the settings screen!");
                 return;
             }
 
             // Run validation
             if(!validateFile()) {
-                this.addToTextArea("\n\nERROR: cannot deploy form to new jar unless it validates!");
+                addToTextArea("\n\nERROR: cannot deploy form to new jar unless it validates!");
                 return;
             }
 
@@ -528,8 +528,8 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
         System.setOut(origO);
 
         // and show the output
-        String prev = this.textarea.getText();
-        this.textarea.setText(prev + this.bufferedlogger.flush2());
+        String prev = textarea.getText();
+        textarea.setText(prev + this.bufferedlogger.flush2());
 
         return success;
     }

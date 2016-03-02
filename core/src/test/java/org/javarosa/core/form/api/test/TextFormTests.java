@@ -27,7 +27,7 @@ public class TextFormTests {
     FormEntryPrompt fep = null;
     FormParseInit fpi = null;
 
-    static PrototypeFactory pf;
+    static final PrototypeFactory pf;
 
     static {
         PrototypeManager.registerPrototype("org.javarosa.model.xform.XPathReference");
@@ -120,7 +120,7 @@ public class TextFormTests {
             if (t.equals("Non-Localized label inner text!")) testFlag = true;
 
 
-        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
         if (!testFlag) fail("Failed to fallback to labelInnerText in testNonLocalizedText()");
     }
@@ -164,9 +164,8 @@ public class TextFormTests {
             fail("Could not add individual select choice" + fep.getSelectChoices().toString());
         }
 
-        Object a = onetext;
         Object b = fep.getSelectChoiceText(one);
-        assertEquals("Invalid select choice text returned", a, b);
+        assertEquals("Invalid select choice text returned", onetext, b);
 
         assertEquals("Invalid select choice text returned", twotext, fep.getSelectChoiceText(two));
 

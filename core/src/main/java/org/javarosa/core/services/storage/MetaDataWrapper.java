@@ -13,7 +13,7 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class MetaDataWrapper implements IMetaData {
-    private Hashtable<String, Object> data;
+    private final Hashtable<String, Object> data;
 
     public MetaDataWrapper(Hashtable<String, Object> data) {
         this.data = data;

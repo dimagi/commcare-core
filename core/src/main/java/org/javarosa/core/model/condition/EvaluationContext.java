@@ -47,8 +47,8 @@ public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
     private TreeReference contextNode;
 
-    private Hashtable<String, IFunctionHandler> functionHandlers;
-    private Hashtable<String, Object> variables;
+    private final Hashtable<String, IFunctionHandler> functionHandlers;
+    private final Hashtable<String, Object> variables;
 
     // Do we want to evaluate constraints?
     public boolean isConstraint;
@@ -220,11 +220,8 @@ public class EvaluationContext {
         }
         if (value instanceof Float) {
             variables.put(name, new Double(((Float)value).doubleValue()));
-            return;
-        }
-
-        //Otherwise we just hope for the best, I suppose? Should we log this?
-        else {
+        } else {
+            //Otherwise we just hope for the best, I suppose? Should we log this?
             variables.put(name, value);
         }
     }
@@ -478,9 +475,8 @@ public class EvaluationContext {
      * Point the local progress tracking array to the address passed in. Used
      * to enable processes that call expandReference to keep track of
      * predicates evaluation over candidate reference results.
-     *
-     * Used by J2ME
      */
+    @SuppressWarnings("unused")
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;
@@ -516,8 +512,7 @@ public class EvaluationContext {
         if (instance == null) {
             return null;
         }
-        CacheHost host = instance.getCacheHost();
-        return host;
+        return instance.getCacheHost();
     }
 
     /**

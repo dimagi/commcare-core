@@ -88,7 +88,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             root.setInstanceName(this.getInstanceId());
         }
         if (topLevel != null) {
-            root.addChild(topLevel);
+           root.addChild(topLevel);
         }
     }
 

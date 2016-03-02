@@ -10,7 +10,7 @@ package org.javarosa.core.model.instance;
  * @author ctsims
  */
 public class InvalidReferenceException extends Exception {
-    TreeReference invalid;
+    final TreeReference invalid;
 
     public InvalidReferenceException(String message, TreeReference reference) {
         super(message);

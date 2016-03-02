@@ -29,7 +29,7 @@ import org.javarosa.core.model.utils.IInstanceVisitor;
  * @author Clayton Sims
  */
 public interface ITreeVisitor extends IInstanceVisitor {
-    public void visit(FormInstance tree);
+    void visit(FormInstance tree);
 
-    public void visit(AbstractTreeElement element);
+    void visit(AbstractTreeElement element);
 }

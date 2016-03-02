@@ -117,7 +117,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     private QuestionPreloader preloader = new QuestionPreloader();
 
     // XML ID's cannot start with numbers, so this should never conflict
-    private static String DEFAULT_SUBMISSION_PROFILE = "1";
+    private static final String DEFAULT_SUBMISSION_PROFILE = "1";
 
     private Hashtable<String, SubmissionProfile> submissionProfiles;
 
@@ -273,11 +273,11 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
         // fill in multiplicities for repeats along the way
         for (int i = 0; i < elements.size(); i++) {
-            IFormElement temp = (IFormElement)elements.elementAt(i);
+            IFormElement temp = elements.elementAt(i);
             if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
                 TreeReference repRef = FormInstance.unpackReference(temp.getBind());
                 if (repRef.isParentOf(ref, false)) {
-                    int repMult = ((Integer)multiplicities.elementAt(i)).intValue();
+                    int repMult = multiplicities.elementAt(i).intValue();
                     ref.setMultiplicity(repRef.size() - 1, repMult);
                 } else {
                     // question/repeat hierarchy is not consistent with
@@ -384,7 +384,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         preloadInstance(mainInstance.resolveReference(repeatContextRef));
 
         // Fire jr-insert events before "calculate"s
-        triggeredDuringInsert.clear();
+        triggeredDuringInsert.removeAllElements();
         actionController.triggerActionsFromEvent(Action.EVENT_JR_INSERT, this, repeatContextRef, this);
 
         // trigger conditions that depend on the creation of this new node
@@ -1008,7 +1008,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         TreeReference genericRef = ref.genericize();
 
         //get triggerables which are activated by the generic reference
-        Vector<Triggerable> triggered = (Vector<Triggerable>)triggerIndex.get(genericRef);
+        Vector<Triggerable> triggered = triggerIndex.get(genericRef);
         if (triggered == null) {
             return;
         }
@@ -1179,7 +1179,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                         String questionXpath = (String)args[1];
                         TreeReference ref = RestoreUtils.xfFact.ref(questionXpath);
 
-                        QuestionDef q = f.findQuestionByRef(ref, f);
+                        QuestionDef q = FormDef.findQuestionByRef(ref, f);
                         if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
                                 q.getControlType() != Constants.CONTROL_SELECT_MULTI)) {
                             return "";

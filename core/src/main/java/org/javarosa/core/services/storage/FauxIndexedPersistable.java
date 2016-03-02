@@ -13,9 +13,9 @@ import java.io.IOException;
  */
 public class FauxIndexedPersistable implements Persistable, IMetaData {
 
-    Persistable p;
-    SerializationWrapper w;
-    IMetaData m;
+    final Persistable p;
+    final SerializationWrapper w;
+    final IMetaData m;
 
     public FauxIndexedPersistable(Persistable p, SerializationWrapper w) {
         this.p = p;

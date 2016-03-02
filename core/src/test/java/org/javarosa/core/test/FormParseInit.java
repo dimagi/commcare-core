@@ -167,7 +167,7 @@ public class FormParseInit {
             } else {
                 stuff += "]\n";
             }
-        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
         return stuff;
     }

@@ -84,7 +84,7 @@ public class Parser {
         }
 
         ASTNodeAbstractExpr.Partition args = node.partitionBalanced(Token.COMMA, funcStart + 1, Token.LPAREN, Token.RPAREN);
-        if (args.pieces.size() == 1 && ((ASTNodeAbstractExpr)args.pieces.elementAt(0)).content.size() == 0) {
+        if (args.pieces.size() == 1 && args.pieces.elementAt(0).content.size() == 0) {
             //no arguments
         } else {
             //process arguments
@@ -210,7 +210,7 @@ public class Parser {
                     //empty absolute path
                 } else {
                     for (int i = 0; i < part.pieces.size(); i++) {
-                        ASTNodeAbstractExpr x = (ASTNodeAbstractExpr)part.pieces.elementAt(i);
+                        ASTNodeAbstractExpr x = part.pieces.elementAt(i);
                         if (isStep(x)) {
                             ASTNodePathStep step = parseStep(x);
                             path.clauses.addElement(step);
@@ -279,9 +279,9 @@ public class Parser {
                 step.axisType = ASTNodePathStep.AXIS_TYPE_ABBR;
                 i += 1;
             } else if (node.content.size() > 1 && node.getTokenType(0) == Token.QNAME && node.getTokenType(1) == Token.DBL_COLON) {
-                int axisVal = ASTNodePathStep.validateAxisName(((XPathQName)node.getToken(0).val).toString());
+                int axisVal = ASTNodePathStep.validateAxisName(node.getToken(0).val.toString());
                 if (axisVal == -1) {
-                    throw new XPathSyntaxException("Invalid Axis: " + ((XPathQName)node.getToken(0).val).toString());
+                    throw new XPathSyntaxException("Invalid Axis: " + node.getToken(0).val.toString());
                 }
                 step.axisType = ASTNodePathStep.AXIS_TYPE_EXPLICIT;
                 step.axisVal = axisVal;

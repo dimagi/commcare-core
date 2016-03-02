@@ -67,7 +67,7 @@ public class GroupDef implements IFormElement, Localizable {
     public String delHeader;
     public String mainHeader;
 
-    Vector observers;
+    final Vector observers;
 
     /**
      * When set the user can only create as many children as specified by the

@@ -220,7 +220,7 @@ public class TreeUtilities {
 
 
     //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest.
-    static CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
+    static final CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
 
     public static XPathPathExpr getXPathAttrExpression(String attribute) {
         //Cache tables can only take in integers due to some terrible 1.3 design issues

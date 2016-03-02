@@ -2,8 +2,8 @@ package org.javarosa.core.log;
 
 public class WrappedException extends RuntimeException {
 
-    String message;
-    Exception child;
+    final String message;
+    final Exception child;
 
     public WrappedException(String message) {
         this(message, null);

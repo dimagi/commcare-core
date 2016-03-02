@@ -86,7 +86,7 @@ public class ResourceFileDataSource implements LocaleDataSource {
                 int read = isr.read(cbuf, offset, chunk - offset);
                 if (read == -1) {
                     done = true;
-                    if (line != "") {
+                    if (!"".equals(line)) {
                         parseAndAdd(locale, line, curline);
                     }
                     break;

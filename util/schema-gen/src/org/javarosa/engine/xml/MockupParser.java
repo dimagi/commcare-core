@@ -44,7 +44,7 @@ public class MockupParser extends ElementParser<Mockup> {
                     String intag = this.parser.getName();
                     if(intag.equals("date")) {
                         String dateText = this.parser.nextText();
-                        if(dateText == null || dateText == "") {
+                        if(dateText == null || "".equals(dateText)) {
                             //nothing, use the current date
                         } else {
                             try {
