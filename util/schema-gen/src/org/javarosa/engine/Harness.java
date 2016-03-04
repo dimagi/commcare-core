@@ -6,9 +6,9 @@ package org.javarosa.engine;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Mockup.MockupEditor;
 import org.javarosa.engine.models.Session;
-import org.javarosa.engine.xml.InvalidStructureException;
 import org.javarosa.engine.xml.MockupParser;
 import org.javarosa.engine.xml.serializer.MockupSerializer;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
