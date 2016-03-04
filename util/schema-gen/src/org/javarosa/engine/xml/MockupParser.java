@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.engine.xml;
 
 import org.javarosa.core.model.instance.FormInstance;
@@ -8,6 +5,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.engine.models.Mockup;
 import org.javarosa.engine.models.Mockup.MockupEditor;
 import org.javarosa.engine.models.Session;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -16,7 +14,6 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public class MockupParser extends ElementParser<Mockup> {
 
@@ -24,10 +21,6 @@ public class MockupParser extends ElementParser<Mockup> {
         super(suiteStream);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.engine.xml.ElementParser#parse()
-     */
     @Override
     public Mockup parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("mockup");
