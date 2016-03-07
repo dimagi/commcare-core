@@ -32,10 +32,10 @@ public class XFormAnswerDataSerializerTest {
     static DateData dateData;
     static TimeData timeData;
 
-    static TreeElement stringElement = new TreeElement();
-    static TreeElement intElement = new TreeElement();
-    static TreeElement dateElement = new TreeElement();
-    static TreeElement timeElement = new TreeElement();
+    static final TreeElement stringElement = new TreeElement();
+    static final TreeElement intElement = new TreeElement();
+    static final TreeElement dateElement = new TreeElement();
+    static final TreeElement timeElement = new TreeElement();
 
     static XFormAnswerDataSerializer serializer;
 

@@ -4,7 +4,6 @@
 package org.javarosa.engine;
 
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -17,7 +16,7 @@ import java.util.Hashtable;
  *
  */
 public class MockupProviderFactory extends InstanceInitializationFactory {
-    Hashtable<String, FormInstance> instances;
+    final Hashtable<String, FormInstance> instances;
 
     public MockupProviderFactory(Hashtable<String, FormInstance> instances) {
         this.instances = instances;

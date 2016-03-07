@@ -5,6 +5,7 @@ package org.javarosa.engine.xml;
 
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -38,8 +39,7 @@ public class FormInstanceParser extends ElementParser<FormInstance> {
 
         //TODO: We need to overwrite any matching records here.
         TreeElement root = new TreeElementParser(parser, 0, null).parse();
-        FormInstance instance = new FormInstance(root, instanceId);
 
-        return instance;
+        return new FormInstance(root, instanceId);
     }
 }

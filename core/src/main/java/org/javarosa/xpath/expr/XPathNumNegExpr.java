@@ -39,16 +39,6 @@ public class XPathNumNegExpr extends XPathUnaryOpExpr {
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(in, pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
-    }
-
-    @Override
     public String toPrettyString() {
         return "-" + a.toPrettyString();
     }

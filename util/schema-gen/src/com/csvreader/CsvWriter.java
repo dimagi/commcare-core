@@ -43,7 +43,7 @@ public class CsvWriter {
     private Charset charset = null;
 
     // this holds all the values for switches that the user is allowed to set
-    private UserSettings userSettings = new UserSettings();
+    private final UserSettings userSettings = new UserSettings();
 
     private boolean initialized = false;
 

@@ -5,8 +5,8 @@ package org.javarosa.core.util;
  * @date May 27, 2009
  */
 public class NoLocalizedTextException extends RuntimeException {
-    private String keynames;
-    private String locale;
+    private final String keynames;
+    private final String locale;
 
     public NoLocalizedTextException(String message, String keynames, String locale) {
         super(message);

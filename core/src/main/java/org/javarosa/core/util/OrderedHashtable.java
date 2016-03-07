@@ -21,7 +21,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class OrderedHashtable<K, V> extends Hashtable<K, V> {
-    private Vector<K> orderedKeys;
+    private final Vector<K> orderedKeys;
 
     public OrderedHashtable() {
         super();

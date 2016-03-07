@@ -24,12 +24,12 @@ public class PrefixTree {
     //due to wide availability of memory. It's easier in many cases
     //to simply keep using the framework, but just disable the actual
     //stemming/prefix ops
-    boolean disablePrefixing = false;
+    final boolean disablePrefixing = false;
 
     private PrefixTreeNode root;
 
-    int minimumPrefixLength;
-    int minimumHeuristicLength;
+    final int minimumPrefixLength;
+    final int minimumHeuristicLength;
 
     //Common delimeters which we'd prefer as prefix breaks rather than
     //maximum string space
@@ -44,7 +44,7 @@ public class PrefixTree {
     public PrefixTree(int minimumPrefixLength) {
         root = new PrefixTreeNode(new char[0]);
         this.minimumPrefixLength = Math.max(minimumPrefixLength++, 0);
-        this.minimumHeuristicLength = Math.max((int)(minimumPrefixLength / 2), 3);
+        this.minimumHeuristicLength = Math.max(minimumPrefixLength / 2, 3);
     }
 
     public static int sharedPrefixLength(char[] a, int aStart, char[] b) {
@@ -145,9 +145,7 @@ public class PrefixTree {
                     newPrefix[i] = chars[currentIndex + i];
                 }
 
-                PrefixTreeNode interimNode = current.budChild(node, newPrefix, len);
-
-                node = interimNode;
+                node = current.budChild(node, newPrefix, len);
             }
 
             current = node;

@@ -1,10 +1,8 @@
-/**
- *
- */
 package org.javarosa.engine.xml;
 
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -16,8 +14,8 @@ import java.util.Hashtable;
  *
  */
 public class TreeElementParser extends ElementParser<TreeElement> {
-    int multiplicity;
-    String instanceId;
+    final int multiplicity;
+    final String instanceId;
 
     public TreeElementParser(KXmlParser parser, int  multiplicity, String instanceId) {
         super(parser);

@@ -399,7 +399,9 @@ public class FormEntryPrompt extends FormEntryCaption {
 
         //check for the null id case and return labelInnerText if it is so.
         String tid = sel.choice.getTextID();
-        if (tid == null || tid == "") return substituteStringArgs(sel.choice.getLabelInnerText());
+        if (tid == null || "".equals(tid)) {
+            return substituteStringArgs(sel.choice.getLabelInnerText());
+        }
 
         //otherwise check for 'long' form of the textID, then for the default form and return
         String returnText;
