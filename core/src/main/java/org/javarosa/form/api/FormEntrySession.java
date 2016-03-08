@@ -157,7 +157,8 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
             int entryCount = actionEntries.size();
 
             if (entryCount != 2 && entryCount != 3) {
-                throw new RuntimeException();
+                throw new RuntimeException("Form entry action '" + entryActionString +
+                        "' has an incorrect number of entries, expected 2 or 3, got " + entryCount);
             }
 
             String wrappedFormIndexString = actionEntries.get(0);
