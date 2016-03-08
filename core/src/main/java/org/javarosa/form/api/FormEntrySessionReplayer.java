@@ -50,7 +50,7 @@ public class FormEntrySessionReplayer {
         } else if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
             if (formEntrySession.peekAction().isNewRepeatAction()) {
                 formEntryController.newRepeat();
-                while (formEntrySession.peekAction().isNewRepeatAction()) {
+                if (formEntrySession.peekAction().isNewRepeatAction()) {
                     formEntrySession.popAction();
                 }
             }
@@ -62,22 +62,20 @@ public class FormEntrySessionReplayer {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
         FormEntrySession.FormEntryAction action = formEntrySession.peekAction();
 
-        if (!questionIndex.toString().equals(action.formIndexString)) {
+        if (questionIndex.toString().equals(action.formIndexString)) {
+            if (action.isSkipAction()) {
+                formEntrySession.popAction();
+            } else {
+                action = formEntrySession.popAction();
+                FormEntryPrompt entryPrompt =
+                        formEntryController.getModel().getQuestionPrompt(questionIndex);
+                IAnswerData answerData =
+                        AnswerDataFactory.template(entryPrompt.getControlType(),
+                                entryPrompt.getDataType()).cast(new UncastData(action.value));
+                formEntryController.answerQuestion(questionIndex, answerData);
+            }
+        } else {
             throw new ReplayError("Unable to replay form due to incorrect question index");
-        }
-
-        if (action.isSkipAction()) {
-            formEntrySession.popAction();
-            return;
-        }
-        while (questionIndex.toString().equals(formEntrySession.peekAction().formIndexString)) {
-            action = formEntrySession.popAction();
-            FormEntryPrompt entryPrompt =
-                    formEntryController.getModel().getQuestionPrompt(questionIndex);
-            IAnswerData answerData =
-                    AnswerDataFactory.template(entryPrompt.getControlType(),
-                            entryPrompt.getDataType()).cast(new UncastData(action.value));
-            formEntryController.answerQuestion(questionIndex, answerData);
         }
     }
 
