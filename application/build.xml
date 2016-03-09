@@ -181,8 +181,6 @@
                     <parameter name="keep              " value="class org.javarosa.core.model.SubmissionProfile"/>
                     <parameter name="keep                ,              allowShrinking" value="class * extends org.javarosa.core.model.SubmissionProfile"/>
                     <parameter name="keep                  ,                allowShrinking" value="!abstract class * extends org.javarosa.core.model.instance.DataInstance"/>
-                    <parameter name="keep                  ,                 allowShrinking" value="!abstract class * extends org.javarosa.core.model.Action"/>
-                    <parameter name="keep                  ,                  allowShrinking" value="class org.javarosa.core.model.Action"/>
                 </obfuscator>
 
                 <!-- log settings: only use debug setting when the test-property is true -->
