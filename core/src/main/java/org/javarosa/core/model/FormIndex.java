@@ -302,7 +302,8 @@ public class FormIndex {
                     .append(ref.getInstanceIndex() == -1 ? ", " : "_" + ref.getInstanceIndex() + ", ");
             ref = ref.nextLevel;
         }
-        return ret.toString();
+
+        return ret.toString().substring(0, ret.lastIndexOf(","));
     }
 
     /**
