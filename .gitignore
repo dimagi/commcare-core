@@ -33,3 +33,4 @@ build/
 *.db
 .gradle/
 .idea/
+clean_annotations.sh
