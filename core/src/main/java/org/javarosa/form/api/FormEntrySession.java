@@ -1,19 +1,32 @@
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 /**
  * Records form entry actions, associating form indexes with user (string)
  * answers.  For simplicity's sake each form index appears only once in the
- * action list. Updating an answer does not change its ordering in the action list. 
+ * action list. Updating an answer does not change its ordering in the action list.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FormEntrySession implements FormEntrySessionRecorder, Serializable {
-    private final Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
+public class FormEntrySession implements FormEntrySessionRecorder, Externalizable {
+    private Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
+
+    /**
+     * For Externalization
+     */
+    public FormEntrySession() {
+    }
 
     @Override
     public void addNewRepeat(FormIndex formIndex) {
@@ -24,7 +37,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
 
     private int removeDuplicateAction(String formIndexString) {
         for (int i = actions.size() - 1; i >= 0; i--) {
-            if (actions.elementAt(i).formIndexString.equals(formIndexString)) {
+            if (actions.elementAt(i).getFormIndexString().equals(formIndexString)) {
                 actions.removeElementAt(i);
                 return i;
             }
@@ -114,5 +127,16 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
         }
 
         return tokens;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        actions = (Vector<FormEntryAction>)ExtUtil.read(in, new ExtWrapList(FormEntryAction.class), pf);
+
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.write(out, new ExtWrapList(actions));
     }
 }

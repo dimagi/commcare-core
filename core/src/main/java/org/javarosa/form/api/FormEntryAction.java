@@ -1,18 +1,31 @@
 package org.javarosa.form.api;
 
-import java.io.Serializable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Vector;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FormEntryAction implements Serializable {
-    public final String formIndexString;
-    public final String value;
-    public final String action;
+public class FormEntryAction implements Externalizable {
+    private String formIndexString;
+    private String value;
+    private String action;
     private final static String NEW_REPEAT = "NEW_REPEAT";
     private final static String SKIP = "SKIP";
     private final static String VALUE = "VALUE";
+
+    /**
+     * For Externalization
+     */
+    public FormEntryAction() {
+    }
 
     private FormEntryAction(String formIndexString, String value, String action) {
         this.formIndexString = formIndexString;
@@ -101,6 +114,28 @@ public class FormEntryAction implements Serializable {
 
     public boolean isSkipAction() {
         return SKIP.equals(action);
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getFormIndexString() {
+        return formIndexString;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        formIndexString = ExtUtil.readString(in);
+        value = ExtUtil.readString(in);
+        action = ExtUtil.readString(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeString(out, formIndexString);
+        ExtUtil.writeString(out, value);
+        ExtUtil.writeString(out, action);
     }
 }
 
