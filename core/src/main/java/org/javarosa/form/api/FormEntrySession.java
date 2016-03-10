@@ -48,7 +48,9 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
 
     public FormEntryAction popAction() {
         if (actions.size() > 0) {
-            return actions.removeElementAt(0);
+            FormEntryAction firstAction = actions.firstElement();
+            actions.removeElementAt(0);
+            return firstAction;
         } else {
             return FormEntryAction.buildNullAction();
         }
