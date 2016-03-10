@@ -73,7 +73,7 @@ public class XFormEnvironment {
         }
 
         fem = new FormEntryModel(form);
-        fec = new FormEntryController(fem);
+        fec = FormEntryController.buildRecordingController(fem);
 
         return fec;
     }
