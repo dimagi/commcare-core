@@ -20,24 +20,28 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Created by wpride1 on 4/14/15.
- *
- * Object representation of application callouts described in suite.xml
+ * Application callout described in suite.xml
  * Used in callouts from EntitySelectActivity and EntityDetailActivity
+ *
+ * @author wpride1 on 4/14/15.
  */
 public class Callout implements Externalizable, DetailTemplate {
-
     String actionName;
     String image;
     String displayName;
-    Hashtable<String, String> extras = new Hashtable<String, String>();
-    Vector<String> responses = new Vector<String>();
+    Hashtable<String, String> extras;
+    Vector<String> responses;
     DetailField responseDetail;
 
-    public Callout(String actionName, String image, String displayName) {
+    public Callout(String actionName, String image, String displayName,
+                   Hashtable<String, String> extras, Vector<String> responses,
+                   DetailField responseDetail) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
+        this.extras = extras;
+        this.responses = responses;
+        this.responseDetail = responseDetail;
     }
 
     @Override
@@ -97,14 +101,6 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public void addExtra(String key, String value) {
-        extras.put(key, value);
-    }
-
-    public void addResponse(String key) {
-        responses.addElement(key);
     }
 
     public Hashtable<String, String> getExtras() {
