@@ -264,8 +264,7 @@ public class DetailField implements Externalizable {
         }
 
         /**
-         * Set the optional hint for whether rich media should be displayed
-         * based on the URI of the detail field's <text> value.
+         * @param headerForm the headerForm to set
          */
         public void setHeaderForm(String headerForm) {
             field.headerForm = headerForm;

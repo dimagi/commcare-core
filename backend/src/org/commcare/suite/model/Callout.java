@@ -32,7 +32,6 @@ public class Callout implements Externalizable, DetailTemplate {
     String displayName;
     Hashtable<String, String> extras = new Hashtable<String, String>();
     Vector<String> responses = new Vector<String>();
-    DetailField responseDetail;
 
     public Callout(String actionName, String image, String displayName) {
         this.actionName = actionName;
@@ -113,9 +112,5 @@ public class Callout implements Externalizable, DetailTemplate {
 
     public Vector<String> getResponses() {
         return responses;
-    }
-
-    public DetailField getResponseDetail() {
-        return responseDetail;
     }
 }
