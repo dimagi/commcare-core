@@ -24,8 +24,8 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
 
     private int removeDuplicateAction(String formIndexString) {
         for (int i = actions.size() - 1; i >= 0; i--) {
-            if (actions.get(i).formIndexString.equals(formIndexString)) {
-                actions.remove(i);
+            if (actions.elementAt(i).formIndexString.equals(formIndexString)) {
+                actions.removeElementAt(i);
                 return i;
             }
         }
@@ -48,7 +48,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
 
     public FormEntryAction popAction() {
         if (actions.size() > 0) {
-            return actions.remove(0);
+            return actions.removeElementAt(0);
         } else {
             return FormEntryAction.buildNullAction();
         }
@@ -56,7 +56,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
 
     public FormEntryAction peekAction() {
         if (actions.size() > 0) {
-            return actions.get(0);
+            return actions.elementAt(0);
         } else {
             return FormEntryAction.buildNullAction();
         }
@@ -160,16 +160,16 @@ public class FormEntrySession implements FormEntrySessionRecorder, Serializable 
                         "' has an incorrect number of entries, expected 2 or 3, got " + entryCount);
             }
 
-            String wrappedFormIndexString = actionEntries.get(0);
+            String wrappedFormIndexString = actionEntries.elementAt(0);
             String formIndexString = wrappedFormIndexString.substring(1, wrappedFormIndexString.length() - 1);
             if (entryCount == 2) {
-                if (("(" + NEW_REPEAT + ")").equals(actionEntries.get(1))) {
+                if (("(" + NEW_REPEAT + ")").equals(actionEntries.elementAt(1))) {
                     return buildNewRepeatAction(formIndexString);
                 } else {
                     return buildSkipAction(formIndexString);
                 }
             } else {
-                String wrappedValue = actionEntries.get(2);
+                String wrappedValue = actionEntries.elementAt(2);
                 String value = wrappedValue.substring(1, wrappedValue.length() - 1);
                 return buildValueSetAction(formIndexString, value);
             }
