@@ -110,8 +110,4 @@ public class Callout implements Externalizable, DetailTemplate {
     public Vector<String> getResponses() {
         return responses;
     }
-
-    public DetailField getResponseDetail() {
-        return responseDetail;
-    }
 }

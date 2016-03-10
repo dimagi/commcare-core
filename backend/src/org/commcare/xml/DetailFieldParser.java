@@ -13,7 +13,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * @author Phillip Mates (pmates@dimagi.com).
+ * Parser for <field> elements of a suite's detail definitions.
+ * Contains text templates, as well as layout and sorting options
  */
 public class DetailFieldParser extends CommCareElementParser<DetailField> {
     private final GraphParser graphParser;
