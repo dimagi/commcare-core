@@ -8,8 +8,7 @@ import java.util.Vector;
 /**
  * Records form entry actions, associating form indexes with user (string)
  * answers.  For simplicity's sake each form index appears only once in the
- * action list. If a question answer is updated, the original form index entry
- * is removed, and the updated entry is added to the end.
+ * action list. Updating an answer does not change its ordering in the action list. 
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
