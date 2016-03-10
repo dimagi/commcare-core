@@ -270,6 +270,14 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
         return new String[]{META_XMLNS, META_ID};
     }
 
+    public Hashtable getMetaData() {
+        Hashtable data = new Hashtable();
+        for (String key : getMetaDataFields()) {
+            data.put(key, getMetaData(key));
+        }
+        return data;
+    }
+
     @Override
     public Object getMetaData(String fieldName) {
         if (META_XMLNS.equals(fieldName)) {
