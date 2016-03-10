@@ -60,7 +60,7 @@ public class FormEntrySessionReplayer {
 
     private void replayQuestion() {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
-        FormEntrySession.FormEntryAction action = formEntrySession.peekAction();
+        FormEntryAction action = formEntrySession.peekAction();
 
         if (questionIndex.toString().equals(action.formIndexString)) {
             if (action.isSkipAction()) {
