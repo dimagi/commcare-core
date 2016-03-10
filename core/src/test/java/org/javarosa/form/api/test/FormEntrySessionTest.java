@@ -1,6 +1,7 @@
 package org.javarosa.form.api.test;
 
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.form.api.FormEntryAction;
 import org.javarosa.form.api.FormEntrySession;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class FormEntrySessionTest {
 
         FormIndex randomIndex = new FormIndex(FormIndex.createBeginningOfFormIndex(), 52, 2, null);
         formEntrySession.addValueSet(randomIndex, "bar");
-        FormEntrySession.FormEntryAction secondAction = formEntrySession.peekAction();
+        FormEntryAction secondAction = formEntrySession.peekAction();
 
         formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
 

@@ -60,9 +60,9 @@ public class FormEntrySessionReplayer {
 
     private void replayQuestion() {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
-        FormEntrySession.FormEntryAction action = formEntrySession.peekAction();
+        FormEntryAction action = formEntrySession.peekAction();
 
-        if (questionIndex.toString().equals(action.formIndexString)) {
+        if (questionIndex.toString().equals(action.getFormIndexString())) {
             if (action.isSkipAction()) {
                 formEntrySession.popAction();
             } else {
@@ -71,7 +71,7 @@ public class FormEntrySessionReplayer {
                         formEntryController.getModel().getQuestionPrompt(questionIndex);
                 IAnswerData answerData =
                         AnswerDataFactory.template(entryPrompt.getControlType(),
-                                entryPrompt.getDataType()).cast(new UncastData(action.value));
+                                entryPrompt.getDataType()).cast(new UncastData(action.getValue()));
                 formEntryController.answerQuestion(questionIndex, answerData);
             }
         } else {
