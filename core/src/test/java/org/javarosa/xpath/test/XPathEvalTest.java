@@ -636,7 +636,7 @@ public class XPathEvalTest {
         return new FormInstance(data);
     }
 
-    private EvaluationContext getFunctionHandlers() {
+    protected EvaluationContext getFunctionHandlers() {
         EvaluationContext ec = new EvaluationContext(null);
         final Class[][] allPrototypes = {
                 {Double.class, Double.class},
