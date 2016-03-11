@@ -19,17 +19,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * <p>An Entry definition describes a user
- * initiated form entry action, what information
- * needs to be collected before that action can
- * begin, and what the User Interface should
- * present to the user regarding these actions</p>
+ * Describes a user-initiated action, what information needs to be collected
+ * before that action can begin, and what the UI should present to the user
+ * regarding this action.
  *
- * @author ctsims
+ * @author Phillip Mates (pmates@dimagi.com).
  */
-public class Entry implements Externalizable, MenuDisplayable {
-
-    private String xFormNamespace;
+public abstract class Entry implements Externalizable, MenuDisplayable {
     Vector<SessionDatum> data;
     DisplayUnit display;
     private String commandId;
@@ -41,18 +37,23 @@ public class Entry implements Externalizable, MenuDisplayable {
      * Serialization only!
      */
     public Entry() {
-
     }
 
-    public Entry(String commandId, DisplayUnit display, Vector<SessionDatum> data, String formNamespace, Hashtable<String, DataInstance> instances,
-                 Vector<StackOperation> stackOperations, AssertionSet assertions) {
+    public Entry(String commandId, DisplayUnit display,
+                 Vector<SessionDatum> data,
+                 Hashtable<String, DataInstance> instances,
+                 Vector<StackOperation> stackOperations,
+                 AssertionSet assertions) {
         this.commandId = commandId == null ? "" : commandId;
         this.display = display;
         this.data = data;
-        xFormNamespace = formNamespace;
         this.instances = instances;
         this.stackOperations = stackOperations;
         this.assertions = assertions;
+    }
+
+    public boolean isView() {
+        return false;
     }
 
     /**
@@ -69,37 +70,6 @@ public class Entry implements Externalizable, MenuDisplayable {
      */
     public Text getText() {
         return display.getText();
-    }
-
-    /**
-     * @return The XForm Namespce of the form which should be filled out in
-     * the form entry session triggered by this action. null if no entry
-     * should occur [HACK].
-     */
-    public String getXFormNamespace() {
-        return xFormNamespace;
-    }
-
-
-    public String getImageURI() {
-        if (display.getImageURI() == null) {
-            return null;
-        }
-        return display.getImageURI().evaluate();
-    }
-
-    public String getAudioURI() {
-        if (display.getAudioURI() == null) {
-            return null;
-        }
-        return display.getAudioURI().evaluate();
-    }
-
-    public String getDisplayText() {
-        if (display.getText() == null) {
-            return null;
-        }
-        return display.getText().evaluate();
     }
 
     public Vector<SessionDatum> getSessionDataReqs() {
@@ -129,13 +99,43 @@ public class Entry implements Externalizable, MenuDisplayable {
         return assertions == null ? new AssertionSet(new Vector<String>(), new Vector<Text>()) : assertions;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
+    /**
+     * Retrieve the stack operations that should be processed after this entry
+     * session has successfully completed.
+     *
+     * @return a Vector of Stack Operation models.
      */
+    public Vector<StackOperation> getPostEntrySessionOperations() {
+        return stackOperations;
+    }
+
+    @Override
+    public String getImageURI() {
+        if (display.getImageURI() == null) {
+            return null;
+        }
+        return display.getImageURI().evaluate();
+    }
+
+    @Override
+    public String getAudioURI() {
+        if (display.getAudioURI() == null) {
+            return null;
+        }
+        return display.getAudioURI().evaluate();
+    }
+
+    @Override
+    public String getDisplayText() {
+        if (display.getText() == null) {
+            return null;
+        }
+        return display.getText().evaluate();
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        this.xFormNamespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.commandId = ExtUtil.readString(in);
         this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
 
@@ -145,27 +145,13 @@ public class Entry implements Externalizable, MenuDisplayable {
         assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(xFormNamespace));
         ExtUtil.writeString(out, commandId);
         ExtUtil.write(out, display);
         ExtUtil.write(out, new ExtWrapList(data));
         ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
         ExtUtil.write(out, new ExtWrapNullable(assertions));
-    }
-
-    /**
-     * Retrieve the stack operations that should be processed after this entry
-     * session has successfully completed.
-     *
-     * @return a Vector of Stack Operation models.
-     */
-    public Vector<StackOperation> getPostEntrySessionOperations() {
-        return stackOperations;
     }
 }

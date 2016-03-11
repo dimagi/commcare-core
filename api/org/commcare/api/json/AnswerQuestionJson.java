@@ -5,11 +5,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.data.*;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -28,12 +24,38 @@ import java.util.Vector;
  */
 public class AnswerQuestionJson {
 
+    public static JSONObject deleteRepeatToJson(FormEntryController controller,
+                                                 FormEntryModel model, String formIndexString){
+        JSONObject ret = new JSONObject();
+        FormIndex formIndex = indexFromString(formIndexString, model.getForm());
+        controller.deleteRepeat(formIndex);
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        return ret;
+    }
+
+    public static JSONObject descendRepeatToJson(FormEntryController controller,
+                                                 FormEntryModel model, String formIndexString){
+        JSONObject ret = new JSONObject();
+        FormIndex formIndex = indexFromString(formIndexString, model.getForm());
+        controller.jumpToIndex(formIndex);
+        controller.descendIntoNewRepeat();
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        return ret;
+    }
+
+    public static JSONObject getCurrentJson(FormEntryController controller,
+                                            FormEntryModel model){
+        JSONObject ret = new JSONObject();
+        ret.put("tree", WalkJson.walkToJSON(model, controller));
+        return ret;
+    }
+
     public static JSONObject questionAnswerToJson(FormEntryController controller,
                                                   FormEntryModel model, String answer, FormEntryPrompt prompt){
         JSONObject ret = new JSONObject();
         IAnswerData answerData = null;
 
-        if(answer.equals("None")){
+        if(answer == null || answer.equals("None")){
             answerData = null;
         } else {
             try {
@@ -56,27 +78,19 @@ public class AnswerQuestionJson {
             ret.put("reason", prompt.getConstraintText());
         }
         else if (result == FormEntryController.ANSWER_OK){
-            ret.put("status","success");
+            ret.put("tree", WalkJson.walkToJSON(model, controller));
+            ret.put("status","accepted");
             //controller.stepToNextEvent();
         }
         return ret;
     }
 
-    public static String questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer, String index){
-        try {
-            FormIndex formIndex = indexFromString(index, model.getForm());
-            FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
-            return questionAnswerToJson(controller, model, answer, prompt).toString();
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-        return "";
-    }
-
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer){
-        FormEntryPrompt prompt = model.getQuestionPrompt();
+                                                  FormEntryModel model, String answer, String index){
+
+        FormIndex formIndex = indexFromString(index, model.getForm());
+
+        FormEntryPrompt prompt = model.getQuestionPrompt(formIndex);
         return questionAnswerToJson(controller, model, answer, prompt);
     }
 
@@ -84,7 +98,9 @@ public class AnswerQuestionJson {
 
         if(fep.getDataType() == Constants.DATATYPE_CHOICE){
             int index = Integer.parseInt(data);
+
             SelectChoice ans = fep.getSelectChoices().get(index -1);
+
             return new SelectOneData(ans.selection());
         } else if(fep.getDataType() == Constants.DATATYPE_CHOICE_LIST){
             String[] split = parseMultiSelectString(data);
@@ -95,6 +111,9 @@ public class AnswerQuestionJson {
                 ret.add(ans);
             }
             return new SelectMultiData(ret);
+        } else if (fep.getDataType() == Constants.DATATYPE_GEOPOINT){
+            return AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(
+                    new UncastData(data.replace(",", " ").replace("[","").replace("]", "")));
         }
 
         return data.equals("") ? null : AnswerDataFactory.template(fep.getControlType(), fep.getDataType()).cast(new UncastData(data));
@@ -102,8 +121,9 @@ public class AnswerQuestionJson {
 
     public static Pair<Integer, Integer> stepFromString(String step){
 
+
         if(step.endsWith("J")){
-            return new Pair<>(Integer.getInteger("" + step.charAt(step.length())), -10);
+            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), -10);
         }
         String[] split = step.split("[._:]");
 
@@ -148,7 +168,10 @@ public class AnswerQuestionJson {
         } else if(stringIndex.equals(">")){
             return FormIndex.createEndOfFormIndex();
         }
-        FormIndex ret = reduceFormIndex(stepToList(stringIndex), null);
+
+        List<Pair<Integer, Integer>> list = stepToList(stringIndex);
+
+        FormIndex ret = reduceFormIndex(list, null);
         ret.assignRefs(form);
         return ret;
     }

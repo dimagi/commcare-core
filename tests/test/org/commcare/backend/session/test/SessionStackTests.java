@@ -8,8 +8,9 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.junit.Assert;
 
 import org.commcare.session.SessionFrame;
-import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Vector;
 
 /**
  * This is a super basic test just to make sure the test infrastructure is working correctly
@@ -36,11 +37,12 @@ public class SessionStackTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
         Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
-        Action dblManagement = session.getDetail(session.getNeededDatum().getShortDetail()).getCustomAction();
+        Vector<Action> actions = session.getDetail(session.getNeededDatum().getShortDetail()).getCustomActions();
 
-        if(dblManagement == null) {
+        if(actions == null || actions.isEmpty()) {
             Assert.fail("Detail screen stack action was missing from app!");
         }
+        Action dblManagement = actions.firstElement();
 
         session.executeStackOperations(dblManagement.getStackOperations(), session.getEvaluationContext());
 

@@ -1,6 +1,8 @@
 package org.commcare.util.cli;
 
+import org.commcare.api.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -34,7 +36,7 @@ public class MenuScreen extends Screen {
     //TODO: This is now ~entirely generic other than the wrapper, can likely be
     //moved and we can centralize its usage in the other platforms
     @Override
-    public void init(CLISessionWrapper session) throws CommCareSessionException{
+    public void init(SessionWrapper session) throws CommCareSessionException{
         
         String root = deriveMenuRoot(session);
         
@@ -82,7 +84,7 @@ public class MenuScreen extends Screen {
                             }
 
                             Entry e = map.get(command);
-                            if (e.getXFormNamespace() == null) {
+                            if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 
                                 //datums are not already present
@@ -126,7 +128,7 @@ public class MenuScreen extends Screen {
         return mTitle;
     }
 
-    private String deriveMenuRoot(CLISessionWrapper session) {
+    private String deriveMenuRoot(SessionWrapper session) {
         if (session.getCommand() == null) {
             return "root";
         } else {
@@ -143,12 +145,22 @@ public class MenuScreen extends Screen {
     }
 
     @Override
+    public String[] getOptions() {
+        String[] ret = new String[mChoices.length];
+        for (int i = 0; i < mChoices.length; ++i) {
+            MenuDisplayable d = mChoices[i];
+            ret[i] = d.getDisplayText();
+        }
+        return ret;
+    }
+
+    @Override
     public boolean handleInputAndUpdateSession(CommCareSession session, String input) {
         try {
             int i = Integer.parseInt(input);
             String commandId;
-            if (mChoices[i] instanceof Entry) {
-                commandId = ((Entry)mChoices[i]).getCommandId();
+            if (mChoices[i] instanceof FormEntry) {
+                commandId = ((FormEntry)mChoices[i]).getCommandId();
             } else {
                 commandId = ((Menu)mChoices[i]).getId();
             }
@@ -158,5 +170,9 @@ public class MenuScreen extends Screen {
             //This will result in things just executing again, which is fine.
         }
         return true;
+    }
+
+    public MenuDisplayable[] getChoices(){
+        return mChoices;
     }
 }

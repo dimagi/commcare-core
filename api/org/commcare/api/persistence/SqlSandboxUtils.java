@@ -1,8 +1,5 @@
 package org.commcare.api.persistence;
 
-import org.javarosa.core.api.ClassNameHasher;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
 import java.io.File;
 
 /**
@@ -32,6 +29,10 @@ public class SqlSandboxUtils {
         }
     }
 
+    public static boolean databaseFolderExists(String path){
+        File file = new File(path);
+        return file.exists();
+    }
     public static void deleteFolder(File folder) {
         File[] files = folder.listFiles();
         if(files!=null) { //some JVMs return null for empty dirs

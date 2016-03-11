@@ -1,5 +1,6 @@
 package org.commcare.util.cli;
 
+import org.commcare.api.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
@@ -24,7 +25,7 @@ public class EntityScreen extends CompoundScreenHost {
 
     private TreeReference mCurrentSelection;
 
-    private CLISessionWrapper mSession;
+    private SessionWrapper mSession;
     private CommCarePlatform mPlatform;
 
     private Detail mShortDetail;
@@ -35,8 +36,10 @@ public class EntityScreen extends CompoundScreenHost {
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
-    public void init(CLISessionWrapper session) throws CommCareSessionException {
+    public void init(SessionWrapper session) throws CommCareSessionException {
         mNeededDatum = session.getNeededDatum();
+
+        System.out.println("Needed Datum: " + mNeededDatum);
 
         this.mSession = session;
         this.mPlatform = mSession.getPlatform();

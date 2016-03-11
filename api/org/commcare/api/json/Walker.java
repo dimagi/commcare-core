@@ -52,44 +52,43 @@ public class Walker {
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
 
-            obj.put("relevant", relevant);
+            obj.put("relevant", relevant ? 1 : 0);
 
             if(obj.get("type").equals("sub-group")){
                 Walker walker;
                 if(obj.has("caption") && obj.get("caption") != JSONObject.NULL  ){
-                    compiler.put(obj);
                     JSONArray childObject = new JSONArray();
-                    obj.put("children", childObject);
                     walker = new Walker(childObject, currentIndex, fec, fem);
+                    obj.put("children", childObject);
                 } else{
-                    //compiler.put(obj);
                     walker = new Walker(compiler, currentIndex, fec, fem);
                 }
+                compiler.put(obj);
                 currentIndex = walker.walk();
             } else if(obj.get("type").equals("repeat-juncture")){
-                compiler.put(obj);
                 JSONArray children = new JSONArray();
-                obj.put("children", children);
-                JSONObject subEvent = new JSONObject();
                 for(int i = 0; i < fem.getForm().getNumRepetitions(currentIndex); i++){
+                    JSONObject subEvent = new JSONObject();
                     FormIndex ix = fem.getForm().descendIntoRepeat(currentIndex, i);
                     JSONArray subChildren = new JSONArray();
                     subEvent.put("type", "sub-group");
                     subEvent.put("ix", ix);
-                    subEvent.put("caption", "1"); //TODO
+                    JSONArray repetitionsArray = obj.getJSONArray("repetitions");
+                    subEvent.put("caption", repetitionsArray.get(i));
                     subEvent.put("repeatable", true);
-                    subEvent.put("children", subChildren);
                     subEvent.put("uuid", ix.getReference()).hashCode();
-                    children.put(subEvent);
                     Walker walker = new Walker(subChildren, ix, fec, fem);
                     walker.walk();
+                    subEvent.put("children", subChildren);
+                    children.put(subEvent);
                 }
+                obj.put("children", children);
+                compiler.put(obj);
                 currentIndex = step(currentIndex, true);
             } else{
                 compiler.put(obj);
                 currentIndex = step(currentIndex, true);
             }
-
         }
         return currentIndex;
     }

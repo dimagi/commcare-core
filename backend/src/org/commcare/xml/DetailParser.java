@@ -46,7 +46,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
         }
 
         Callout callout = null;
-        Action action = null;
+        Vector<Action> actions = new Vector<Action>();
 
         //Now get the headers and templates.
         Vector<Detail> subdetails = new Vector<Detail>();
@@ -81,13 +81,13 @@ public class DetailParser extends CommCareElementParser<Detail> {
                 continue;
             }
             if (ActionParser.NAME_ACTION.equalsIgnoreCase(parser.getName())) {
-                action = new ActionParser(parser).parse();
+                actions.addElement(new ActionParser(parser).parse());
                 continue;
             }
             DetailField.Builder builder = new DetailField.Builder();
 
             if (parser.getName().equals("detail")) {
-                subdetails.addElement((new DetailParser(parser)).parse());
+                subdetails.addElement(getDetailParser().parse());
             } else {
                 checkNode("field");
                 //Get the fields
@@ -148,7 +148,7 @@ public class DetailParser extends CommCareElementParser<Detail> {
                     parser.nextTag();
                     DetailTemplate template;
                     if (form.equals("graph")) {
-                        template = new GraphParser(parser).parse();
+                        template = getGraphParser().parse();
                     } else if (form.equals("callout")) {
                         template = new CalloutParser(parser).parse();
                     } else {
@@ -224,6 +224,14 @@ public class DetailParser extends CommCareElementParser<Detail> {
             }
         }
 
-        return new Detail(id, title, nodeset, subdetails, fields, variables, action, callout);
+        return new Detail(id, title, nodeset, subdetails, fields, variables, actions, callout);
+    }
+
+    protected DetailParser getDetailParser() {
+        return new DetailParser(parser);
+    }
+
+    protected GraphParser getGraphParser() {
+        return new DummyGraphParser(parser);
     }
 }

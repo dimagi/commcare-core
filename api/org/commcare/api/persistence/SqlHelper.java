@@ -220,7 +220,19 @@ public class SqlHelper {
      * @param id        sql record to update
      */
     public static void updateToTable(Connection connection, String tableName, Persistable persistable, int id) {
-        String query = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? " + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
+        String queryStart = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? ";
+        String queryEnd = " WHERE " + DatabaseHelper.ID_COL + " = ?;";
+
+        HashMap<String, Object> map = DatabaseHelper.getMetaFieldsAndValues(persistable);
+        String[] fieldNames = map.keySet().toArray(new String[map.keySet().size()]);
+        Object[] values = map.values().toArray(new Object[map.values().size()]);
+
+        StringBuilder stringBuilder = new StringBuilder(queryStart);
+        for(String fieldName: fieldNames){
+            stringBuilder.append( ", " + fieldName + " = ?");
+        }
+
+        String query = stringBuilder.append(queryEnd).toString();
 
         PreparedStatement preparedStatement = null;
         try {
@@ -229,7 +241,22 @@ public class SqlHelper {
             byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(persistable);
 
             preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
-            preparedStatement.setInt(2, id);
+            int i = 2;
+            for(Object obj: values){
+                if (obj instanceof String) {
+                    preparedStatement.setString(i, (String)obj);
+                } else if (obj instanceof Blob) {
+                    preparedStatement.setBlob(i, (Blob)obj);
+                } else if (obj instanceof Integer) {
+                    preparedStatement.setInt(i, (Integer)obj);
+                } else if (obj instanceof byte[]) {
+                    preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
+                } else if (obj == null) {
+                    preparedStatement.setNull(i, 0);
+                }
+                i++;
+            }
+            preparedStatement.setInt(i, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

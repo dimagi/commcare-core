@@ -1,14 +1,11 @@
 package org.commcare.api.json;
 
 import org.javarosa.core.model.Constants;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.DateTimeData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.SelectMultiData;
-import org.javarosa.core.model.data.SelectOneData;
-import org.javarosa.core.model.data.TimeData;
+import org.javarosa.core.model.data.*;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
@@ -17,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
 
@@ -24,23 +22,6 @@ import java.util.Vector;
  * Created by willpride on 11/3/15.
  */
 public class PromptToJson {
-
-    public static String parseEvent(FormEntryModel model){
-        JSONObject obj = new JSONObject();
-        parseQuestionType(model, obj);
-        parseQuestion(model, model.getQuestionPrompt(), obj);
-        return obj.toString();
-    }
-
-    public static String formEntryModelToJson(FormEntryModel model) throws JSONException {
-        return formEntryModelToJson(model, model.getQuestionPrompt());
-    }
-
-    public static String formEntryModelToJson(FormEntryModel model, FormEntryPrompt prompt) throws JSONException {
-        JSONObject obj = new JSONObject();
-        parseQuestion(model, prompt, obj);
-        return obj.toString();
-    }
 
     public static void parseCaption(FormEntryCaption prompt, JSONObject obj){
         obj.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
@@ -50,13 +31,13 @@ public class PromptToJson {
         obj.put("caption_markdown", jsonNullIfNull(prompt.getMarkdownText()));
     }
 
-    public static void parseQuestion(FormEntryModel model, FormEntryPrompt prompt, JSONObject obj){
+    public static void parseQuestion(FormEntryPrompt prompt, JSONObject obj){
         parseCaption(prompt, obj);
         obj.put("help", jsonNullIfNull(prompt.getHelpText()));
         obj.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
         obj.put("style", jsonNullIfNull(parseStyle(prompt)));
         obj.put("datatype", jsonNullIfNull(parseControlType(prompt)));
-        obj.put("required", jsonNullIfNull(prompt.isRequired()));
+        obj.put("required", prompt.isRequired() ? 1 : 0);
         try {
             parsePutAnswer(obj, prompt);
         } catch(Exception e){
@@ -75,7 +56,9 @@ public class PromptToJson {
 
     public static void parseQuestionType(FormEntryModel model, JSONObject obj) {
         int status = model.getEvent();
-        obj.put("ix", model.getFormIndex().toString());
+        FormIndex ix = model.getFormIndex();
+        obj.put("ix", ix.toString());
+
         switch(status) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 obj.put("type", "form-start");
@@ -85,12 +68,12 @@ public class PromptToJson {
                 return;
             case FormEntryController.EVENT_QUESTION:
                 obj.put("type", "question");
-                parseQuestion(model, model.getQuestionPrompt(), obj);
+                parseQuestion(model.getQuestionPrompt(), obj);
                 return;
             case FormEntryController.EVENT_REPEAT_JUNCTURE:
                 obj.put("type", "repeat-juncture");
+                parseRepeatJuncture(model, obj, ix);
                 return;
-                //parse repeat
             case FormEntryController.EVENT_GROUP:
                 // we're in a subgroup
                 parseCaption(model.getCaptionPrompt(), obj);
@@ -114,6 +97,18 @@ public class PromptToJson {
         }
     }
 
+    private static void parseRepeatJuncture(FormEntryModel model, JSONObject obj, FormIndex ix) {
+        FormEntryCaption formEntryCaption = model.getCaptionPrompt(ix);
+        FormEntryCaption.RepeatOptions repeatOptions = formEntryCaption.getRepeatOptions();
+        parseCaption(formEntryCaption, obj);
+        obj.put("header", repeatOptions.header);
+        obj.put("repetitions", formEntryCaption.getRepetitionsText());
+        obj.put("add-choice", repeatOptions.add);
+        obj.put("delete-choice", repeatOptions.delete);
+        obj.put("del-header", repeatOptions.delete_header);
+        obj.put("done-choice", repeatOptions.done);
+    }
+
     private static void parsePutAnswer(JSONObject obj, FormEntryPrompt prompt){
         IAnswerData answerValue = prompt.getAnswerValue();
         if (answerValue == null){
@@ -133,7 +128,7 @@ public class PromptToJson {
                 obj.put("answer", (double)answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
+                obj.put("answer", (DateUtils.formatDate((Date)answerValue.getValue(), DateUtils.FORMAT_ISO8601)));
                 return;
             case Constants.DATATYPE_TIME:
                 obj.put("answer", answerValue.getDisplayText());
@@ -142,21 +137,25 @@ public class PromptToJson {
                 obj.put("answer", ((Date)answerValue.getValue()).getTime()/1000);
                 return;
             case Constants.DATATYPE_CHOICE:
+                Selection singleSelection = ((Selection)answerValue.getValue());
+                singleSelection.attachChoice(prompt.getQuestion());
                 obj.put("answer", ((Selection)answerValue.getValue()).index + 1);
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
                 Vector<Selection> selections = ((SelectMultiData)answerValue).getValue();
                 JSONArray acc = new JSONArray();
                 for(Selection selection: selections){
+                    selection.attachChoice(prompt.getQuestion());
                     int ordinal = selection.index + 1;
                     acc.put(ordinal);
                 }
                 obj.put("answer", acc);
                 return;
-
-            /* as yet unimplemented
             case Constants.DATATYPE_GEOPOINT:
-                return "geo";
+                double[] coords = ((GeoPointData)prompt.getAnswerValue()).getValue();
+                obj.put("answer", Arrays.copyOfRange(coords, 0, 2));
+                return;
+            /*
             case Constants.DATATYPE_BARCODE:
                 return "barcode";
             case Constants.DATATYPE_BINARY:

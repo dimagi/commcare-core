@@ -1,17 +1,14 @@
 package org.commcare.util.cli;
 
-import org.commcare.api.session.SessionWrapper;
-import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.CLISessionWrapper;
 import org.commcare.util.mocks.MockUserDataSandbox;
 import org.javarosa.core.model.User;
@@ -64,7 +61,7 @@ public class ApplicationHost {
 
     private final PrototypeFactory mPrototypeFactory;
 
-    private BufferedReader reader;
+    private final BufferedReader reader;
 
     private String[] mLocalUserCredentials;
     private String mRestoreFile;
@@ -77,51 +74,46 @@ public class ApplicationHost {
         reader = new BufferedReader(new InputStreamReader(System.in));
         this.mPrototypeFactory = prototypeFactory;
     }
+
     public void setRestoreToRemoteUser(String username, String password) {
         this.mLocalUserCredentials = new String[]{username, password};
         mRestoreStrategySet = true;
     }
+
     public void setRestoreToLocalFile(String filename) {
         this.mRestoreFile = filename;
         mRestoreStrategySet = true;
     }
 
-    public void setReader(BufferedReader reader){
-        this.reader = reader;
-    }
 
-    public void init(){
-        if(!mRestoreStrategySet) {
+    public void run() {
+        if (!mRestoreStrategySet) {
             throw new RuntimeException("You must set up an application host by calling " +
                     "one of hte setRestore*() methods before running the app");
         }
         setupSandbox();
 
         mSession = new CLISessionWrapper(mPlatform, mSandbox);
-    }
-
-    public void run() {
-        init();
 
         try {
             loop();
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
     }
-    
+
     private void loop() throws IOException {
         boolean keepExecuting = true;
         while (keepExecuting) {
-            if(!mSessionHasNextFrameReady) {
+            if (!mSessionHasNextFrameReady) {
                 mSession.clearAllState();
             }
             mSessionHasNextFrameReady = false;
             keepExecuting = loopSession();
 
-            if(this.mUpdatePending) {
-               processAppUpdate();
+            if (this.mUpdatePending) {
+                processAppUpdate();
             }
         }
     }
@@ -139,7 +131,7 @@ public class ApplicationHost {
         boolean screenIsRedrawing = false;
 
         boolean sessionIsLive = true;
-        while(sessionIsLive) {
+        while (sessionIsLive) {
             while (s != null) {
                 try {
                     if (!screenIsRedrawing) {
@@ -169,31 +161,10 @@ public class ApplicationHost {
                             }
                             return true;
                         }
-                    if(input.equals(":home")) {
-                        return true;
-                    }
 
-                    if(input.equals(":cases")) {
-                        IStorageUtilityIndexed<Case> caseStorage = mSandbox.getCaseStorage();
-                        IStorageIterator<Case> iterate = caseStorage.iterate();
-                        while(iterate.hasMore()){
-                            Case mCase = iterate.nextRecord();
-                            System.out.println("Case: " + mCase.getName());
+                        if (input.equals(":home")) {
+                            return true;
                         }
-                    }
-
-                    if(input.contains(":eval")){
-                        System.out.println("Evaluating");
-                        int spaceIndex = input.indexOf(" ");
-                        if (input.length() == spaceIndex || spaceIndex == -1) {
-                            System.out.println("Entering eval mode, exit by entering a blank line");
-                        }
-                        String arg = input.substring(spaceIndex + 1);
-                        System.out.println("Arg: " + arg);
-                        String evaled = APIUtils.evalExpression(arg, mSession.getEvaluationContext());
-                        System.out.println("Eval: " + evaled);
-                    }
-
 
                         if (input.equals(":back")) {
                             mSession.stepBack();
@@ -209,7 +180,7 @@ public class ApplicationHost {
 
                         if (input.startsWith(":lang")) {
                             String[] langArgs = input.split(" ");
-                            if(langArgs.length != 2) {
+                            if (langArgs.length != 2) {
                                 System.out.println("Command format\n:lang [langcode]");
                                 continue;
                             }
@@ -241,59 +212,43 @@ public class ApplicationHost {
 
             System.out.println("Starting form entry with the following stack frame");
             printStack(mSession);
+            //Get our form object
+            String formXmlns = mSession.getForm();
 
-            boolean back = startFormEntry(mSession);
-            if(back){
-                continue;
+            if (formXmlns == null) {
+                finishSession();
+                return true;
+            } else {
+                XFormPlayer player = new XFormPlayer(System.in, System.out, null);
+                player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
+                player.setSessionIIF(mSession.getIIF());
+                player.start(mEngine.loadFormByXmlns(formXmlns));
+
+                //If the form saved properly, process the output
+                if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
+                    if (!processResultInstance(player.getResultStream())) {
+                        return true;
+                    }
+                    finishSession();
+                    return true;
+                } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
+                    mSession.stepBack();
+                    s = getNextScreen();
+                } else {
+                    //Handle this later
+                    return true;
+                }
             }
         }
         //After we finish, continue executing
         return true;
     }
 
-    private boolean startFormEntry(CLISessionWrapper mSession) {
-        //Get our form object
-        String formXmlns = mSession.getForm();
-        if (formXmlns == null) {
-            finishSession();
-            return true;
-        } else {
-            XFormPlayer player = new XFormPlayer(System.in, System.out, null);
-            player.setmPreferredLocale(Localization.getGlobalLocalizerAdvanced().getLocale());
-            player.setSessionIIF(mSession.getIIF());
-            player.start(mEngine.loadFormByXmlns(formXmlns));
-
-            //If the form saved properly, process the output
-            if (player.getExecutionResult() == XFormPlayer.FormResult.Completed) {
-                if (!processResultInstance(player.getResultStream())) {
-                    return true;
-                }
-                finishSession();
-                return true;
-            } else if(player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
-                mSession.stepBack();
-                return false;
-            } else {
-                //Handle this later
-                return true;
-            }
-        }
-    }
-
-    public String getInstanceXML(String path, String root){
-        return XmlUtils.getInstanceXML(mSession.getIIF(), path, root);
-    }
-
-    public String evaluateXPath(String xpath) throws Exception {
-        Text text = Text.XPathText(xpath, null);
-        return text.evaluate(mSession.getEvaluationContext());
-    }
-
-    private void printStack(SessionWrapper mSession) {
+    private void printStack(CLISessionWrapper mSession) {
         SessionFrame frame = mSession.getFrame();
         System.out.println("Live Frame" + (frame.getFrameId() == null ? "" : " [" + frame.getFrameId() + "]"));
         System.out.println("----------");
-        for(StackFrameStep step : frame.getSteps()) {
+        for (StackFrameStep step : frame.getSteps()) {
             if (step.getType().equals(SessionFrame.STATE_COMMAND_ID)) {
                 System.out.println("COMMAND: " + step.getId());
             } else {
@@ -304,7 +259,7 @@ public class ApplicationHost {
 
     private void finishSession() {
         mSession.clearVolitiles();
-        if(mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
+        if (mSession.finishExecuteAndPop(mSession.getEvaluationContext())) {
             mSessionHasNextFrameReady = true;
         }
     }
@@ -320,7 +275,9 @@ public class ApplicationHost {
         } finally {
             try {
                 resultStream.close();
-            } catch(IOException e) {}
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -388,10 +345,10 @@ public class ApplicationHost {
         //this gets configured earlier when we installed the app, should point it in the
         //right direction!
         sandbox.setAppFixtureStorageLocation((IStorageUtilityIndexed<FormInstance>)
-                                              StorageManager.getStorage(FormInstance.STORAGE_KEY));
+                StorageManager.getStorage(FormInstance.STORAGE_KEY));
 
         mSandbox = sandbox;
-        if(mLocalUserCredentials != null) {
+        if (mLocalUserCredentials != null) {
             restoreUserToSandbox(mSandbox, mLocalUserCredentials);
         } else {
             restoreFileToSandbox(mSandbox, mRestoreFile);
@@ -405,6 +362,7 @@ public class ApplicationHost {
             fios = new FileInputStream(restoreFile);
         } catch (FileNotFoundException e) {
             System.out.println("No restore file found at" + restoreFile);
+            System.exit(-1);
         }
         try {
             ParseUtils.parseIntoSandbox(new BufferedInputStream(fios), sandbox, false);
@@ -415,12 +373,9 @@ public class ApplicationHost {
         }
 
         //Initialize our User
-        for (IStorageIterator<User> iterator = mSandbox.getUserStorage().iterate(); iterator.hasMore(); ) {
-            User u = iterator.nextRecord();
-            mSandbox.setLoggedInUser(u);
-            System.out.println("Setting logged in user to: " + u.getUsername());
-            break;
-        }
+        User u = mSandbox.getUserStorage().read(0);
+        mSandbox.setLoggedInUser(u);
+        System.out.println("Setting logged in user to: " + u.getUsername());
     }
 
     private void restoreUserToSandbox(UserSandbox mSandbox, String[] userCredentials) {
@@ -443,18 +398,18 @@ public class ApplicationHost {
             URL url = new URL(otaRestoreURL);
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                System.out.println("\nInvalid username or password!");
+                System.exit(-1);
+            }
+
             System.out.println("Restoring user " + username + " to domain " + domain);
 
             ParseUtils.parseIntoSandbox(new BufferedInputStream(conn.getInputStream()), mSandbox);
-        } catch (IOException e) {
+        } catch (InvalidStructureException | IOException e) {
             e.printStackTrace();
             System.exit(-1);
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
+        } catch (XmlPullParserException | UnfullfilledRequirementsException e) {
             e.printStackTrace();
         }
 
@@ -467,14 +422,14 @@ public class ApplicationHost {
         }
     }
 
-    public void setLocale(String locale) {
+    private void setLocale(String locale) {
         Localizer localizer = Localization.getGlobalLocalizerAdvanced();
 
         String availableLocales = "";
 
-        for(String availabile : localizer.getAvailableLocales()) {
+        for (String availabile : localizer.getAvailableLocales()) {
             availableLocales += availabile + "\n";
-            if(locale.equals(availabile)) {
+            if (locale.equals(availabile)) {
                 localizer.setLocale(locale);
 
                 return;

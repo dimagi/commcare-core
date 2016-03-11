@@ -29,3 +29,5 @@ build/
 *.iml
 **.DS_STORE
 *.db
+.gradle/
+.idea/

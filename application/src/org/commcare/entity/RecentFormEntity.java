@@ -1,6 +1,7 @@
 package org.commcare.entity;
 
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.instance.FormInstance;
@@ -25,11 +26,8 @@ public class RecentFormEntity extends Entity<FormInstance> {
         for(Suite s : suites) {
             for(Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
                 Entry entry = (Entry)en.nextElement();
-                if(entry.getXFormNamespace() == null) {
-                    //This is a <view>, not an <entry>, so
-                    //it can't define a form
-                } else {
-                    names.put(entry.getXFormNamespace(),entry.getText());
+                if(!entry.isView()) {
+                    names.put(((FormEntry)entry).getXFormNamespace(),entry.getText());
                 }
             }
         }
