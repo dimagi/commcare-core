@@ -43,9 +43,6 @@ ArchiveFileReference implements Reference {
     }
 
     public InputStream getStream() throws IOException {
-
-        System.out.println("Get Steam: " + mZipFile + " archive: " + archiveURI);
-
         return mZipFile.getInputStream(mZipFile.getEntry(archiveURI));
     }
 
