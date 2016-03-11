@@ -155,13 +155,6 @@ public class PromptToJson {
                 double[] coords = ((GeoPointData)prompt.getAnswerValue()).getValue();
                 obj.put("answer", Arrays.copyOfRange(coords, 0, 2));
                 return;
-            /*
-            case Constants.DATATYPE_BARCODE:
-                return "barcode";
-            case Constants.DATATYPE_BINARY:
-                return "binary"
-            */
-
         }
     }
 
