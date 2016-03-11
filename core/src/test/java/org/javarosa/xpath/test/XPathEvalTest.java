@@ -577,19 +577,6 @@ public class XPathEvalTest {
             lastValidStep = step;
         }
     }
-    /*
-    private QuestionDef getSelectQuestion (boolean multi) {
-        QuestionDef q = new QuestionDef(1, "blah",
-                multi ? Constants.CONTROL_SELECT_MULTI : Constants.CONTROL_SELECT_ONE);
-
-        q.addSelectItem("choice 1", "val1");
-        q.addSelectItem("choice 2", "val2");
-        q.addSelectItem("choice 3", "val3");
-        q.addSelectItem("choice 4", "val4");
-
-        return q;
-    }
-    */
 
     public FormInstance createTestInstance() {
         TreeElement data = new TreeElement("data");
@@ -597,7 +584,7 @@ public class XPathEvalTest {
         return new FormInstance(data);
     }
 
-    private EvaluationContext getFunctionHandlers() {
+    protected EvaluationContext getFunctionHandlers() {
         EvaluationContext ec = new EvaluationContext(null);
         final Class[][] allPrototypes = {
                 {Double.class, Double.class},
