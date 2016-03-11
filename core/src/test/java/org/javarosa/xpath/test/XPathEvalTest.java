@@ -517,45 +517,6 @@ public class XPathEvalTest {
         testEval("count(/data/strtest[@val = 'a'])", instance, null, new Double(1));
         testEval("count(/data/strtest[@val = 2])", instance, null, new Double(0));
         testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
-
-
-        /* fetching from model */
-//        testEval("/", dm1, null, "");
-//        testEval("/non-existent", dm1, null, "");
-//
-//        addDataRef(dm1, "/data/test", null);
-//        addNodeRef(dm1, "/empty-group", false);
-//        testEval("/", dm1, null, "");
-//        testEval("/data", dm1, null, "");
-//        testEval("/empty-group", dm1, null, "");
-//        testEval("/empty-group/undefined", dm1, null, "");
-//        testEval("/data/test", dm1, null, "");
-//        testEval("/data/test/too-deep", dm1, null, "");
-//
-
-//        addDataRef(dm1, "/data/date", new DateData(DateUtils.getDate(2006, 6, 13)));
-//
-//        SelectOneData sod = new SelectOneData(new Selection(1, getSelectQuestion(false)));
-//        QuestionDef smq = getSelectQuestion(true);
-//        Vector sv = new Vector();
-//        sv.addElement(new Selection(0, smq));
-//        sv.addElement(new Selection(3, smq));
-//        addDataRef(dm1, "/data/select-one", sod);
-//        addDataRef(dm1, "/data/select-multi", new SelectMultiData(sv));
-//        addDataRef(dm1, "/data/custom", new CustomAnswerData());
-//
-//        testEval("/data/string", dm1, null, "string");
-//        testEval("/data/int", dm1, null, new Double(17.0));
-//        testEval("/data/date", dm1, null, DateUtils.getDate(2006, 6, 13));
-//        testEval("/data/select-one", dm1, null, "val2");
-//        testEval("/data/select-multi", dm1, null, "val1 val4");
-//        testEval("/data/custom", dm1, null, new CustomType());
-//        testEval("selected(/data/select-multi, 'val4')", dm1, null, Boolean.TRUE);
-//        testEval("selected(/data/select-multi, 'val3')", dm1, null, Boolean.FALSE);
-//        testEval("/data/child::int + /child::data/int", dm1, null, new Double(34.0));
-//        testEval("concat(/data/string, /data/date, add(/data/int, /data/int))", dm1, ec, "string2006-06-1334");
-//        //testEval("/.", null, null, new XPathUnsupportedException());
-//        //testEval("/..", null, null, new XPathUnsupportedException());
     }
 
     private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
@@ -616,19 +577,6 @@ public class XPathEvalTest {
             lastValidStep = step;
         }
     }
-    /*
-    private QuestionDef getSelectQuestion (boolean multi) {
-        QuestionDef q = new QuestionDef(1, "blah",
-                multi ? Constants.CONTROL_SELECT_MULTI : Constants.CONTROL_SELECT_ONE);
-
-        q.addSelectItem("choice 1", "val1");
-        q.addSelectItem("choice 2", "val2");
-        q.addSelectItem("choice 3", "val3");
-        q.addSelectItem("choice 4", "val4");
-
-        return q;
-    }
-    */
 
     public FormInstance createTestInstance() {
         TreeElement data = new TreeElement("data");
@@ -636,7 +584,7 @@ public class XPathEvalTest {
         return new FormInstance(data);
     }
 
-    private EvaluationContext getFunctionHandlers() {
+    protected EvaluationContext getFunctionHandlers() {
         EvaluationContext ec = new EvaluationContext(null);
         final Class[][] allPrototypes = {
                 {Double.class, Double.class},
