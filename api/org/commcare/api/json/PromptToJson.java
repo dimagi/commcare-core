@@ -11,7 +11,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
@@ -19,37 +18,48 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
- * Created by willpride on 11/3/15.
+ * Functions for generating the JSON repesentation of a FormEntryPrompt
+ *
+ * @author wspride
  */
 public class PromptToJson {
 
-    public static void parseCaption(FormEntryCaption prompt, JSONObject obj){
-        obj.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
-        obj.put("caption", jsonNullIfNull(prompt.getLongText()));
-        obj.put("caption_image", jsonNullIfNull(prompt.getImageText()));
-        obj.put("caption_video", jsonNullIfNull(prompt.getVideoText()));
-        obj.put("caption_markdown", jsonNullIfNull(prompt.getMarkdownText()));
-    }
-
-    public static void parseQuestion(FormEntryPrompt prompt, JSONObject obj){
-        parseCaption(prompt, obj);
-        obj.put("help", jsonNullIfNull(prompt.getHelpText()));
-        obj.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
-        obj.put("style", jsonNullIfNull(parseStyle(prompt)));
-        obj.put("datatype", jsonNullIfNull(parseControlType(prompt)));
-        obj.put("required", prompt.isRequired() ? 1 : 0);
+    /**
+     * @param prompt The FormEntryPrompt under consideration
+     * @param questionJson the JSON object question representation being generated
+     */
+    public static void parseQuestion(FormEntryPrompt prompt, JSONObject questionJson){
+        parseCaption(prompt, questionJson);
+        questionJson.put("help", jsonNullIfNull(prompt.getHelpText()));
+        questionJson.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
+        questionJson.put("style", jsonNullIfNull(parseStyle(prompt)));
+        questionJson.put("datatype", jsonNullIfNull(parseControlType(prompt)));
+        questionJson.put("required", prompt.isRequired() ? 1 : 0);
         try {
-            parsePutAnswer(obj, prompt);
+            parseQuestionAnswer(questionJson, prompt);
         } catch(Exception e){
             e.printStackTrace();
         }
-        obj.put("ix", jsonNullIfNull(prompt.getIndex()));
+        questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
 
         if(prompt.getDataType() == Constants.DATATYPE_CHOICE || prompt.getDataType() == Constants.DATATYPE_CHOICE_LIST){
-            obj.put("choices", parseSelect(prompt));
+            questionJson.put("choices", parseSelect(prompt));
         }
     }
 
+    /**
+     * @param prompt The FormEntryCaption to get the caption fields from
+     * @param questionJson The JSON question representation being built
+     */
+    public static void parseCaption(FormEntryCaption prompt, JSONObject questionJson){
+        questionJson.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
+        questionJson.put("caption", jsonNullIfNull(prompt.getLongText()));
+        questionJson.put("caption_image", jsonNullIfNull(prompt.getImageText()));
+        questionJson.put("caption_video", jsonNullIfNull(prompt.getVideoText()));
+        questionJson.put("caption_markdown", jsonNullIfNull(prompt.getMarkdownText()));
+    }
+
+    // We want to use the JSONObject null if the object is null, not the Java null
     public static Object jsonNullIfNull(Object obj){
         return obj == null ? JSONObject.NULL : obj;
     }
@@ -109,7 +119,7 @@ public class PromptToJson {
         obj.put("done-choice", repeatOptions.done);
     }
 
-    private static void parsePutAnswer(JSONObject obj, FormEntryPrompt prompt){
+    private static void parseQuestionAnswer(JSONObject obj, FormEntryPrompt prompt){
         IAnswerData answerValue = prompt.getAnswerValue();
         if (answerValue == null){
             obj.put("answer", JSONObject.NULL);
@@ -158,6 +168,9 @@ public class PromptToJson {
         }
     }
 
+    /**
+     * Given a prompt, generate a JSONArray of the possible select choices. return empty array if no choices.
+     */
     private static JSONArray parseSelect(FormEntryPrompt prompt) {
         JSONArray obj = new JSONArray();
         for(SelectChoice choice: prompt.getSelectChoices()){
@@ -167,6 +180,7 @@ public class PromptToJson {
     }
 
     //TODO WSP: What the fuck is drew doing XFormPlayer parse_style_info
+    // https://github.com/dimagi/touchforms/blob/master/touchforms/backend/xformplayer.py#L400
     private static JSONObject parseStyle(FormEntryPrompt prompt) {
         String hint = prompt.getAppearanceHint();
         if(hint == null){
@@ -175,7 +189,6 @@ public class PromptToJson {
         JSONObject ret = new JSONObject().put("raw", hint);
         return ret;
     }
-
 
 
     private static String parseControlType(FormEntryPrompt prompt){

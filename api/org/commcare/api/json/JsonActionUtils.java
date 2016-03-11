@@ -87,25 +87,25 @@ public class JsonActionUtils {
             try {
                 answerData = getAnswerData(prompt, answer);
             } catch (IllegalArgumentException e) {
-                ret.put("status", "error");
-                ret.put("type", "illegal-argument");
-                ret.put("reason", e.getMessage());
+                ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
+                ret.put(ApiConstants.ERROR_TYPE_KEY, "illegal-argument");
+                ret.put(ApiConstants.ERROR_REASON_KEY, e.getMessage());
                 return ret;
             }
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
         if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
-            ret.put("status","error");
-            ret.put("type", "required");
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY,"error");
+            ret.put(ApiConstants.ERROR_TYPE_KEY, "required");
         }
         else if(result == FormEntryController.ANSWER_CONSTRAINT_VIOLATED){
-            ret.put("status", "error");
-            ret.put("type", "restraint");
-            ret.put("reason", prompt.getConstraintText());
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
+            ret.put(ApiConstants.ERROR_TYPE_KEY, "restraint");
+            ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         }
         else if (result == FormEntryController.ANSWER_OK){
             ret.put(ApiConstants.QUESTION_TREE_KEY, WalkJson.walkToJSON(model, controller));
-            ret.put("status","accepted");
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY,"accepted");
         }
         return ret;
     }
