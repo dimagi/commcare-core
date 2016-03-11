@@ -18,7 +18,7 @@ import java.io.OutputStream;
  */
 public class DataModelSerializer {
 
-    KXmlSerializer serializer;
+    final KXmlSerializer serializer;
     InstanceInitializationFactory factory;
 
     /*

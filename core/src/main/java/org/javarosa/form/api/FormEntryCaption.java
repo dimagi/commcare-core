@@ -133,7 +133,9 @@ public class FormEntryCaption implements FormElementStateListener {
      */
     public String getQuestionText(String textID) {
         String tid = textID;
-        if (tid == "") tid = null; //to make things look clean
+        if ("".equals(tid)) {
+            tid = null; //to make things look clean
+        }
 
         //check for the null id case and return labelInnerText if it is so.
         if (tid == null) return substituteStringArgs(element.getLabelInnerText());
@@ -332,9 +334,7 @@ public class FormEntryCaption implements FormElementStateListener {
         public String delete_header;
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public RepeatOptions getRepeatOptions() {
         RepeatOptions ro = new RepeatOptions();
         boolean has_repetitions = (getNumRepetitions() > 0);
@@ -423,4 +423,5 @@ public class FormEntryCaption implements FormElementStateListener {
     protected String getTextID() {
         return this.textID;
     }
+
 }

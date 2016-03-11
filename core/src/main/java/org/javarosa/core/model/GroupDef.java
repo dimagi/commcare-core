@@ -16,6 +16,7 @@
 
 package org.javarosa.core.model;
 
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
@@ -66,7 +67,7 @@ public class GroupDef implements IFormElement, Localizable {
     public String delHeader;
     public String mainHeader;
 
-    Vector observers;
+    final Vector observers;
 
     /**
      * When set the user can only create as many children as specified by the
@@ -153,6 +154,11 @@ public class GroupDef implements IFormElement, Localizable {
 
     public void setAppearanceAttr(String appearanceAttr) {
         this.appearanceAttr = appearanceAttr;
+    }
+
+    @Override
+    public ActionController getActionController() {
+        return null;
     }
 
     public void localeChanged(String locale, Localizer localizer) {

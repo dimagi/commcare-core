@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class ASTNodeFilterExpr extends ASTNode {
     public ASTNodeAbstractExpr expr;
-    public Vector predicates;
+    public final Vector predicates;
 
     public ASTNodeFilterExpr() {
         predicates = new Vector();

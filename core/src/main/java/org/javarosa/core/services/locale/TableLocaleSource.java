@@ -57,7 +57,7 @@ public class TableLocaleSource implements LocaleDataSource {
      * @throws UnregisteredLocaleException If locale is not defined.
      */
     public boolean hasMapping(String textID) {
-        return (textID == null ? false : localeData.get(textID) != null);
+        return (textID != null && localeData.get(textID) != null);
     }
 
 

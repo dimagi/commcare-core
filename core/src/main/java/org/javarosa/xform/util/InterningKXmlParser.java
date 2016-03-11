@@ -11,7 +11,7 @@ import org.kxml2.io.KXmlParser;
  */
 public class InterningKXmlParser extends KXmlParser {
 
-    Interner<String> stringCache;
+    final Interner<String> stringCache;
 
     public InterningKXmlParser(Interner<String> stringCache) {
         super();

@@ -16,6 +16,7 @@
 
 package org.javarosa.core.model;
 
+import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
@@ -66,7 +67,9 @@ public class QuestionDef implements IFormElement, Localizable {
 
     Vector<QuestionDataExtension> extensions;
 
-    Vector observers;
+    final Vector observers;
+
+    private ActionController actionController;
 
     public QuestionDef() {
         this(Constants.NULL_ID, Constants.DATATYPE_TEXT);
@@ -83,6 +86,7 @@ public class QuestionDef implements IFormElement, Localizable {
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
         //work reliably
         mQuestionStrings.put(XFormParser.LABEL_ELEMENT, new QuestionString(XFormParser.LABEL_ELEMENT, null));
+        actionController = new ActionController();
     }
 
     public void putQuestionString(String key, QuestionString value){
@@ -129,6 +133,11 @@ public class QuestionDef implements IFormElement, Localizable {
         this.appearanceAttr = appearanceAttr;
     }
 
+    @Override
+    public ActionController getActionController() {
+        return this.actionController;
+    }
+
 
     public String getHelpTextID() {
         return mQuestionStrings.get(XFormParser.HELP_ELEMENT) == null ? null : mQuestionStrings.get(XFormParser.HELP_ELEMENT).getTextId();
@@ -150,12 +159,6 @@ public class QuestionDef implements IFormElement, Localizable {
 
         if (choices.contains(choice)) {
             choices.removeElement(choice);
-        }
-    }
-
-    public void removeAllSelectChoices() {
-        if (choices != null) {
-            choices.removeAllElements();
         }
     }
 
@@ -247,6 +250,7 @@ public class QuestionDef implements IFormElement, Localizable {
         setDynamicChoices((ItemsetBinding)ExtUtil.read(dis, new ExtWrapNullable(ItemsetBinding.class)));
         mQuestionStrings = (Hashtable<String, QuestionString>)ExtUtil.read(dis, new ExtWrapMap(String.class, QuestionString.class));
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
+        actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
     }
 
     /*
@@ -262,6 +266,7 @@ public class QuestionDef implements IFormElement, Localizable {
         ExtUtil.write(dos, new ExtWrapNullable(dynamicChoices));
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
+        ExtUtil.write(dos, new ExtWrapNullable(actionController));
     }
 
     /* === MANAGING OBSERVERS === */

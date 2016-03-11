@@ -18,7 +18,7 @@ public class XFormParserReporter {
     public static final String TYPE_TECHNICAL = "technical";
     protected static final String TYPE_ERROR = "error";
 
-    PrintStream errorStream;
+    final PrintStream errorStream;
 
     public XFormParserReporter() {
         this(System.err);

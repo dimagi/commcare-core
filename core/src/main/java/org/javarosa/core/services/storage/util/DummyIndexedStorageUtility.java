@@ -3,7 +3,6 @@
  */
 package org.javarosa.core.services.storage.util;
 
-import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -30,15 +29,15 @@ import java.util.Vector;
  */
 public class DummyIndexedStorageUtility<T extends Persistable> implements IStorageUtilityIndexed<T> {
 
-    private Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
+    private final Hashtable<String, Hashtable<Object, Vector<Integer>>> meta;
 
-    private Hashtable<Integer, T> data;
+    private final Hashtable<Integer, T> data;
 
     int curCount;
 
-    Class<T> prototype;
+    final Class<T> prototype;
     
-    PrototypeFactory mFactory;
+    final PrototypeFactory mFactory;
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
         meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
@@ -52,7 +51,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     private void initMeta() {
         Persistable p;
         try {
-            p = (Persistable)prototype.newInstance();
+            p = prototype.newInstance();
         } catch (java.lang.InstantiationException e) {
             throw new RuntimeException("Couldn't create a serializable class for storage!" + prototype.getName());
         } catch (java.lang.IllegalAccessException e) {
@@ -144,10 +143,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
      */
     public boolean exists(int id) {
-        if (data.containsKey(DataUtil.integer(id))) {
-            return true;
-        }
-        return false;
+        return data.containsKey(DataUtil.integer(id));
     }
 
     /* (non-Javadoc)
@@ -185,10 +181,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtility#isEmpty()
      */
     public boolean isEmpty() {
-        if (data.size() > 0) {
-            return true;
-        }
-        return false;
+        return data.size() > 0;
     }
 
     /* (non-Javadoc)
@@ -329,7 +322,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
         this.initMeta();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
-            Externalizable e = (Externalizable)data.get(i);
+            Externalizable e = data.get(i);
 
             if (e instanceof IMetaData) {
 
@@ -359,7 +352,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
 
-    Vector<String> dynamicIndices = new Vector<String>();
+    final Vector<String> dynamicIndices = new Vector<String>();
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);

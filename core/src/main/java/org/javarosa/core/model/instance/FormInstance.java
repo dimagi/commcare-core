@@ -88,7 +88,7 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
             root.setInstanceName(this.getInstanceId());
         }
         if (topLevel != null) {
-            root.addChild(topLevel);
+           root.addChild(topLevel);
         }
     }
 
@@ -269,8 +269,8 @@ public class FormInstance extends DataInstance<TreeElement> implements Persistab
     public String[] getMetaDataFields() {
         return new String[]{META_XMLNS, META_ID};
     }
-
-
+    
+    // used by TouchForms
     public Hashtable getMetaData() {
         Hashtable data = new Hashtable();
         for (String key : getMetaDataFields()) {

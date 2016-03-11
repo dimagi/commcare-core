@@ -1,5 +1,6 @@
 package org.javarosa.form.api;
 
+import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.IAnswerData;
@@ -24,12 +25,29 @@ public class FormEntryController {
     public static final int EVENT_REPEAT_JUNCTURE = 32;
 
     private final FormEntryModel model;
+    private final FormEntrySessionRecorder formEntrySession;
+
+    public static final boolean STEP_OVER_GROUP = true;
+    public static final boolean STEP_INTO_GROUP = false;
 
     /**
      * Creates a new form entry controller for the model provided
      */
     public FormEntryController(FormEntryModel model) {
+        this(model, new DummyFormEntrySession());
+    }
+
+    private FormEntryController(FormEntryModel model, FormEntrySessionRecorder formEntrySession) {
         this.model = model;
+        this.formEntrySession = formEntrySession;
+    }
+
+    /**
+     * Builds controller that records form entry actions to human readable
+     * format that allows for replaying
+     */
+    public static FormEntryController buildRecordingController(FormEntryModel model) {
+        return new FormEntryController(model, new FormEntrySession());
     }
 
     public FormEntryModel getModel() {
@@ -82,6 +100,7 @@ public class FormEntryController {
                     ire.printStackTrace();
                     throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
                 }
+                q.getActionController().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
                 return ANSWER_OK;
             }
         } else {
@@ -90,6 +109,7 @@ public class FormEntryController {
                 return ANSWER_CONSTRAINT_VIOLATED;
             }
             commitAnswer(element, index, data);
+            q.getActionController().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED, model.getForm());
             return ANSWER_OK;
         }
     }
@@ -148,10 +168,17 @@ public class FormEntryController {
      * @return true if saved successfully, false otherwise
      */
     private boolean commitAnswer(TreeElement element, FormIndex index, IAnswerData data) {
+        if (data != null) {
+            formEntrySession.addValueSet(index, data.uncast().getString());
+        } else {
+            formEntrySession.addQuestionSkip(index);
+        }
+
         if (data != null || element.getValue() != null) {
             // we should check if the data to be saved is already the same as
             // the data in the model, but we can't (no IAnswerData.equals())
             model.getForm().setValue(data, index.getReference(), element);
+
             return true;
         } else {
             return false;
@@ -217,6 +244,8 @@ public class FormEntryController {
 
     /**
      * Find a FormIndex next to the given one.
+     *
+     * NOTE: Leave public for Touchforms
      *
      * @param forward If true, get the next FormIndex, else get the previous one.
      */
@@ -294,6 +323,7 @@ public class FormEntryController {
     public void newRepeat(FormIndex questionIndex) {
         try {
             model.getForm().createNewRepeat(questionIndex);
+            formEntrySession.addNewRepeat(questionIndex);
         } catch (InvalidReferenceException ire) {
             throw new RuntimeException("Invalid reference while copying itemset answer: " + ire.getMessage());
         }
@@ -325,5 +355,9 @@ public class FormEntryController {
      */
     public void setLanguage(String language) {
         model.setLanguage(language);
+    }
+
+    public String getFormEntrySessionString() {
+        return formEntrySession.toString();
     }
 }

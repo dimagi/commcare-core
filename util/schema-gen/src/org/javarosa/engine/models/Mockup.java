@@ -14,9 +14,9 @@ import java.util.Vector;
  *
  */
 public class Mockup {
-    Hashtable<String, FormInstance> instances;
+    final Hashtable<String, FormInstance> instances;
     Date date;
-    Vector<Session> sessions;
+    final Vector<Session> sessions;
 
     public Mockup() {
         sessions = new Vector<Session>();
@@ -36,7 +36,7 @@ public class Mockup {
     }
 
     public class MockupEditor {
-        Mockup m;
+        final Mockup m;
         private MockupEditor(Mockup m) {
             this.m = m;
         }

@@ -47,8 +47,8 @@ public class EvaluationContext {
     // Unambiguous anchor reference for relative paths
     private TreeReference contextNode;
 
-    private Hashtable functionHandlers;
-    private Hashtable variables;
+    private final Hashtable<String, IFunctionHandler> functionHandlers;
+    private final Hashtable<String, Object> variables;
 
     // Do we want to evaluate constraints?
     public boolean isConstraint;
@@ -89,12 +89,12 @@ public class EvaluationContext {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = base.formInstances;
-        this.variables = new Hashtable();
+        this.variables = new Hashtable<String, Object>();
 
         //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
         //be threadsafe). We should evaluate the potential impact.
-        this.setVariables(base.variables);
+        this.shallowVariablesCopy(base.variables);
 
         this.contextNode = base.contextNode;
         this.instance = base.instance;
@@ -140,8 +140,8 @@ public class EvaluationContext {
         this.formInstances = formInstances;
         this.instance = instance;
         this.contextNode = TreeReference.rootRef();
-        functionHandlers = new Hashtable();
-        variables = new Hashtable();
+        functionHandlers = new Hashtable<String, IFunctionHandler>();
+        variables = new Hashtable<String, Object>();
     }
 
     public DataInstance getInstance(String id) {
@@ -180,10 +180,17 @@ public class EvaluationContext {
         return outputTextForm;
     }
 
+    private void shallowVariablesCopy(Hashtable<String, Object> variablesToCopy) {
+        for (Enumeration e = variablesToCopy.keys(); e.hasMoreElements(); ) {
+            String key = (String)e.nextElement();
+            variables.put(key, variablesToCopy.get(key));
+        }
+    }
+
     public void setVariables(Hashtable<String, ?> variables) {
         for (Enumeration e = variables.keys(); e.hasMoreElements(); ) {
-            String var = (String)e.nextElement();
-            setVariable(var, variables.get(var));
+            String key = (String)e.nextElement();
+            setVariable(key, variables.get(key));
         }
     }
 
@@ -213,11 +220,8 @@ public class EvaluationContext {
         }
         if (value instanceof Float) {
             variables.put(name, new Double(((Float)value).doubleValue()));
-            return;
-        }
-
-        //Otherwise we just hope for the best, I suppose? Should we log this?
-        else {
+        } else {
+            //Otherwise we just hope for the best, I suppose? Should we log this?
             variables.put(name, value);
         }
     }
@@ -471,9 +475,8 @@ public class EvaluationContext {
      * Point the local progress tracking array to the address passed in. Used
      * to enable processes that call expandReference to keep track of
      * predicates evaluation over candidate reference results.
-     *
-     * Used by J2ME
      */
+    @SuppressWarnings("unused")
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;
@@ -509,8 +512,7 @@ public class EvaluationContext {
         if (instance == null) {
             return null;
         }
-        CacheHost host = instance.getCacheHost();
-        return host;
+        return instance.getCacheHost();
     }
 
     /**

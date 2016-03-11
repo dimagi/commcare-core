@@ -29,23 +29,26 @@ import java.util.Vector;
  */
 
 public class FormParseInit {
-    private String formName;
     private FormDef xform;
     private FormEntryController fec;
     private FormEntryModel femodel;
 
     public FormParseInit(String formPath) {
-        this.formName = formPath;
-        this.init(null);
+        initFormDef(formPath, null);
+        initFormEntryObjects();
     }
 
     public FormParseInit(String formPath, Vector<QuestionExtensionParser> extensionParsers) {
-        this.formName = formPath;
-        this.init(extensionParsers);
+        initFormDef(formPath, extensionParsers);
+        initFormEntryObjects();
     }
 
+    public FormParseInit(FormDef fd) {
+        xform = fd;
+        initFormEntryObjects();
+    }
 
-    private void init(Vector<QuestionExtensionParser> extensionParsers) {
+    private void initFormDef(String formName, Vector<QuestionExtensionParser> extensionParsers) {
         InputStream is = this.getClass().getResourceAsStream(formName);
 
         if (is == null) {
@@ -53,21 +56,21 @@ public class FormParseInit {
             System.err.println(errorMessage);
             throw new RuntimeException(errorMessage);
         }
-        // Parse the form
         if (extensionParsers != null) {
             xform = XFormUtils.getFormFromInputStream(is, extensionParsers);
         } else {
             xform = XFormUtils.getFormFromInputStream(is);
         }
 
-        femodel = new FormEntryModel(xform);
-        fec = new FormEntryController(femodel);
-
         if (xform == null) {
             System.out.println("\n\n==================================\nERROR: XForm has failed validation!!");
         }
     }
 
+    private void initFormEntryObjects() {
+        femodel = new FormEntryModel(xform);
+        fec = new FormEntryController(femodel);
+    }
 
     /**
      * @return the first questionDef found in the form.
@@ -164,7 +167,7 @@ public class FormParseInit {
             } else {
                 stuff += "]\n";
             }
-        } while (fec.stepToNextEvent() != fec.EVENT_END_OF_FORM);
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
         return stuff;
     }

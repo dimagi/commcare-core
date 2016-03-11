@@ -163,10 +163,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return getNumChildren() > 0;
     }
 
     /* (non-Javadoc)
