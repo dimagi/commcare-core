@@ -299,7 +299,7 @@ public class FormIndex {
         FormIndex ref = this;
         while (ref != null) {
             ret.append(ref.getLocalIndex())
-                    .append(ref.getInstanceIndex() == -1 ? ", " : "_" + ref.getInstanceIndex() + ", ");
+                    .append(ref.getInstanceIndex() == -1 ? "," : "_" + ref.getInstanceIndex() + ",");
             ref = ref.nextLevel;
         }
 
