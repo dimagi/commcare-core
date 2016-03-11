@@ -38,8 +38,6 @@ public class EntityScreen extends CompoundScreenHost {
     public void init(SessionWrapper session) throws CommCareSessionException {
         mNeededDatum = session.getNeededDatum();
 
-        System.out.println("Needed Datum: " + mNeededDatum);
-
         this.mSession = session;
         this.mPlatform = mSession.getPlatform();
 

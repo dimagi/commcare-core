@@ -159,8 +159,4 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
         }
         return false;
     }
-
-    public String[] getRows(){
-        return rows;
-    }
 }

@@ -171,8 +171,4 @@ public class MenuScreen extends Screen {
         }
         return true;
     }
-
-    public MenuDisplayable[] getChoices(){
-        return mChoices;
-    }
 }

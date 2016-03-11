@@ -83,7 +83,6 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public String[] getOptions() {
-        System.out.println("Entity Detail get options: " + Arrays.toString(rows));
         return rows;
     }
 
@@ -103,7 +102,6 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
 
     @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
-        System.out.println("Entity Detail handle input: " + input);
         if (input.trim().equals("")) {
             return true;
         }
@@ -117,9 +115,5 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
             //This will result in things just executing again, which is fine.
         }
         return false;
-    }
-
-    public int getCurrentIndex(){
-        return mCurrentIndex;
     }
 }
