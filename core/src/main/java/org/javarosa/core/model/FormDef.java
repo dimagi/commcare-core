@@ -1626,11 +1626,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         //so painful
-
-        System.out.println("reference: " + index.getReference());
         TreeElement templNode = mainInstance.getTemplate(index.getReference());
-        System.out.println("parent: " + templNode.getParent());
-        System.out.println("parent ref: " + templNode.getParent().getRef());
         TreeReference parentPath = templNode.getParent().getRef().genericize();
         TreeElement parentNode = mainInstance.resolveReference(parentPath.contextualize(index.getReference()));
         return parentNode.getChildMultiplicity(templNode.getName());
