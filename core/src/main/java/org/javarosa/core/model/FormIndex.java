@@ -387,6 +387,7 @@ public class FormIndex {
     /**
      * Used by Touchforms
      */
+    @SuppressWarnings("unused")
     public void assignRefs(FormDef f) {
         FormIndex cur = this;
 
