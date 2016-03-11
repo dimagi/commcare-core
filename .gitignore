@@ -4,6 +4,8 @@ local.properties
 backend/bin/
 application/bin/
 application/build
+core/bin/
+core/build/
 util/bin
 application/dist
 application/lib
@@ -31,3 +33,4 @@ build/
 *.db
 .gradle/
 .idea/
+clean_annotations.sh

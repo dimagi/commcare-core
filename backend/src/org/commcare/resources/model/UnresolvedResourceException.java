@@ -7,8 +7,8 @@ package org.commcare.resources.model;
  * @author ctsims
  */
 public class UnresolvedResourceException extends Exception {
-    Resource r;
-    boolean userFacing;
+    final Resource r;
+    final boolean userFacing;
 
     public UnresolvedResourceException(Resource r, String message) {
         this(r, message, false);

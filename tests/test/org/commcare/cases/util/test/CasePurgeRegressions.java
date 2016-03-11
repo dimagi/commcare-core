@@ -267,7 +267,7 @@ public class CasePurgeRegressions {
 
     private static Set<String> getSimpleFormNodes(Enumeration e) {
         Set<String> simpleFormNodes = new HashSet<>();
-        for (Enumeration iterator = e; iterator.hasMoreElements(); ) {
+        for (; e.hasMoreElements(); ) {
             simpleFormNodes.add((String)e.nextElement());
         }
         return simpleFormNodes;

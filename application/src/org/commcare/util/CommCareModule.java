@@ -10,6 +10,7 @@ import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.Suite;
@@ -35,7 +36,8 @@ public class CommCareModule implements IModule {
                                             MediaInstaller.class.getName(),
                                             XFormInstaller.class.getName(),
                                             Text.class.getName(),
-                                            PropertySetter.class.getName()};
+                                            PropertySetter.class.getName(),
+                                            FormEntry.class.getName()};
         PrototypeManager.registerPrototypes(prototypes);
 
         StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);

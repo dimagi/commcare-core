@@ -23,7 +23,7 @@ public class UserSqlSandboxTest {
 
     private UserSqlSandbox sandbox;
     private Vector<String> owners;
-    String username = "sandbox-test-user";
+    final String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {

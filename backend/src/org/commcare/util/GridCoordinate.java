@@ -8,10 +8,10 @@ package org.commcare.util;
  */
 
 public class GridCoordinate {
-    private int gridX;
-    private int gridY;
-    private int gridWidth;
-    private int gridHeight;
+    private final int gridX;
+    private final int gridY;
+    private final int gridWidth;
+    private final int gridHeight;
 
     public GridCoordinate(int x, int y, int w, int h) {
         gridX = x;

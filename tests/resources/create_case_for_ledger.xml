@@ -17,6 +17,8 @@
         </groups>
     </fixture>
 
+    <fixture id="empty-fixture" user_id="test_example"/>
+
     <case case_id="market_basket"
           date_modified="2014-08-04T21:09:07.000000Z" user_id="test_example"
           xmlns="http://commcarehq.org/case/transaction/v2">

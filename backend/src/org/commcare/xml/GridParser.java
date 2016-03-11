@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class GridParser extends ElementParser<Integer> {
 
-    Builder builder;
+    final Builder builder;
 
     public GridParser(Builder builder, KXmlParser parser) {
         super(parser);

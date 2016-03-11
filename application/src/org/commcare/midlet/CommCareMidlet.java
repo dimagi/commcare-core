@@ -9,6 +9,7 @@ import org.commcare.util.CommCareUtil;
 import org.commcare.util.InitializationListener;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageManager;
+import org.javarosa.service.transport.securehttp.AuthenticatedHttpTransportMessage;
 import org.javarosa.services.transport.TransportService;
 
 import javax.microedition.midlet.MIDlet;
@@ -44,6 +45,7 @@ public class CommCareMidlet extends MIDlet {
      * @see javax.microedition.midlet.MIDlet#startApp()
      */
     protected void startApp() throws MIDletStateChangeException {
+        AuthenticatedHttpTransportMessage.CalloutResolver = this;
         CommCareStatic.init();
         CommCareContext.init(this, new InitializationListener() {
 

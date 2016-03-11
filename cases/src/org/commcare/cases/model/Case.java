@@ -28,12 +28,12 @@ import java.util.Vector;
  * @date Mar 19, 2009
  */
 public class Case implements Persistable, IMetaData, Secure {
-    public static String STORAGE_KEY = "CASE";
+    public static final String STORAGE_KEY = "CASE";
 
-    public static String INDEX_CASE_ID = "case-id";
-    public static String INDEX_CASE_TYPE = "case-type";
-    public static String INDEX_CASE_STATUS = "case-status";
-    public static String INDEX_CASE_INDEX_PRE = "case-in-";
+    public static final String INDEX_CASE_ID = "case-id";
+    public static final String INDEX_CASE_TYPE = "case-type";
+    public static final String INDEX_CASE_STATUS = "case-status";
+    public static final String INDEX_CASE_INDEX_PRE = "case-in-";
 
     protected String typeId;
     protected String id;
@@ -211,15 +211,24 @@ public class Case implements Persistable, IMetaData, Secure {
         setIndex(new CaseIndex(indexName, caseType, indexValue));
     }
 
-    public void setIndex(CaseIndex index) {
+    /**
+     * Sets the provided index in this case. If a case index already existed with
+     * the same name, it will be replaced.
+     *
+     * Returns true if an index was replaced, false if an index was not
+     */
+    public boolean setIndex(CaseIndex index) {
+        boolean indexReplaced = false;
         //remove existing indices at this name
         for (CaseIndex i : this.indices) {
             if (i.getName().equals(index.getName())) {
                 this.indices.removeElement(i);
+                indexReplaced = true;
                 break;
             }
         }
         this.indices.addElement(index);
+        return indexReplaced;
     }
 
     public Vector<CaseIndex> getIndices() {
@@ -278,7 +287,7 @@ public class Case implements Persistable, IMetaData, Secure {
      *
      * @param indexName The name of a case index that should be removed.
      */
-    public void removeIndex(String indexName) {
+    public boolean removeIndex(String indexName) {
         CaseIndex toRemove = null;
 
         for (CaseIndex index : indices) {
@@ -290,6 +299,8 @@ public class Case implements Persistable, IMetaData, Secure {
 
         if (toRemove != null) {
             indices.removeElement(toRemove);
+            return true;
         }
+        return false;
     }
 }

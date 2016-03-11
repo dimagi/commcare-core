@@ -26,7 +26,7 @@ public class SessionNavigator {
     public static final int LAUNCH_CONFIRM_DETAIL = 5;
     public static final int EXCEPTION_THROWN = 6;
 
-    private SessionNavigationResponder responder;
+    private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
     private EvaluationContext ec;
 

@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class StyleParser extends ElementParser<Integer> {
 
-    Builder builder;
+    final Builder builder;
 
     public StyleParser(Builder builder, KXmlParser parser) {
         super(parser);

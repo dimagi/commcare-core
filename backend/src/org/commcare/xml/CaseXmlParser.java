@@ -9,6 +9,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,9 +34,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
-    IStorageUtilityIndexed storage;
-    int[] tallies;
-    boolean acceptCreateOverwrites;
+    final IStorageUtilityIndexed storage;
+    final int[] tallies;
+    final boolean acceptCreateOverwrites;
 
 
     public CaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
@@ -62,12 +63,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         String caseId = parser.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
-            throw new InvalidStructureException("<case> block with no case_id attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The case_id attribute of a <case> wasn't set", parser);
         }
 
         String dateModified = parser.getAttributeValue(null, "date_modified");
         if (dateModified == null) {
-            throw new InvalidStructureException("<case> block with no date_modified attribute.", this.parser);
+            throw InvalidStructureException.readableInvalidStructureException("The date_modified attribute of a <case> wasn't set", parser);
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
@@ -99,9 +100,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 //Verify that we got all the pieces
                 if (data[0] == null || data[2] == null) {
                     throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
-                }
-                if ("".equals(data[2])) {
-                    throw new InvalidStructureException("<case_name> for case <create> with ID: '" + caseId + "' must not be empty" + caseId, parser);
                 }
                 boolean overriden = false;
                 //CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
@@ -136,7 +134,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 while (this.nextTagInBlock("update")) {
                     String key = parser.getName();
@@ -148,6 +146,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     } else if (key.equals("date_opened")) {
                         caseForBlock.setDateOpened(DateUtils.parseDate(value));
                     } else if (key.equals("owner_id")) {
+                        String oldUserId = caseForBlock.getUserId();
+
+                        if(!oldUserId.equals(value)) {
+                            onIndexDisrupted(caseId);
+                        }
                         caseForBlock.setUserId(value);
                     } else {
                         caseForBlock.setProperty(key, value);
@@ -159,10 +162,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = retrieve(caseId);
                 }
                 if (caseForBlock == null) {
-                    throw new InvalidStructureException("No case found for update. Skipping ID: " + caseId, parser);
+                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
                 }
                 caseForBlock.setClosed(true);
                 commit(caseForBlock);
+                this.onIndexDisrupted(caseId);
                 //Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
                 close = true;
             } else if (action.equals("index")) {
@@ -190,9 +194,14 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     }
                     //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
                     if (value == null) {
-                        caseForBlock.removeIndex(indexName);
+                        if(caseForBlock.removeIndex(indexName)) {
+                            onIndexDisrupted(caseId);
+                        }
                     } else {
-                        caseForBlock.setIndex(new CaseIndex(indexName, caseType, value, relationship));
+                        if(caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
+                                relationship))) {
+                            onIndexDisrupted(caseId);
+                        }
                     }
                 }
             } else if (action.equals("attachment")) {
@@ -269,6 +278,21 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     public IStorageUtilityIndexed storage() {
         return storage;
+    }
+
+    /**
+     * A signal that notes that processing a transaction has resulted in a
+     * potential change in what cases should be on the phone. This can be
+     * due to a case's owner changing, a case closing, an index moving, etc.
+     *
+     * Does not have to be consumed, but can be used to identify proactively
+     * when to reconcile what cases should be available.
+     *
+     * @param caseId The ID of a case which has changed in a potentially
+     *               disruptive way
+     */
+    public void onIndexDisrupted(String caseId) {
+
     }
 
 }

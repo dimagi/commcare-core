@@ -19,10 +19,10 @@ import java.util.Arrays;
 public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private final int SCREEN_WIDTH = 100;
 
-    private String[] rows;
-    private String[] mDetailListTitles;
+    private final String[] rows;
+    private final String[] mDetailListTitles;
 
-    private int mCurrentIndex;
+    private final int mCurrentIndex;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
         DetailField[] fields = detail.getFields();
