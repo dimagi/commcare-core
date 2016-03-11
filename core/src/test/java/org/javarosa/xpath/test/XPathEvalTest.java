@@ -519,7 +519,7 @@ public class XPathEvalTest {
         testEval("count(/data/strtest[@val = /data/string])", instance, null, new Double(1));
     }
 
-    private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
+    protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
         TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);
 
