@@ -11,6 +11,7 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -32,7 +33,7 @@ public class JsonActionUtils {
         JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.deleteRepeat(formIndex);
-        ret.put(ApiConstants.QUESTION_TREE_KEY, WalkJson.walkToJSON(model, controller));
+        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
         return ret;
     }
 
@@ -50,7 +51,7 @@ public class JsonActionUtils {
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.jumpToIndex(formIndex);
         controller.descendIntoNewRepeat();
-        ret.put(ApiConstants.QUESTION_TREE_KEY, WalkJson.walkToJSON(model, controller));
+        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
         return ret;
     }
 
@@ -63,7 +64,7 @@ public class JsonActionUtils {
     public static JSONObject getCurrentJson(FormEntryController controller,
                                             FormEntryModel model){
         JSONObject ret = new JSONObject();
-        ret.put(ApiConstants.QUESTION_TREE_KEY, WalkJson.walkToJSON(model, controller));
+        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
         return ret;
     }
 
@@ -104,7 +105,7 @@ public class JsonActionUtils {
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
         }
         else if (result == FormEntryController.ANSWER_OK){
-            ret.put(ApiConstants.QUESTION_TREE_KEY, WalkJson.walkToJSON(model, controller));
+            ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
             ret.put(ApiConstants.RESPONSE_STATUS_KEY,"accepted");
         }
         return ret;
@@ -244,5 +245,18 @@ public class JsonActionUtils {
             ret[i] = ret[i].replace(",","");
         }
         return ret;
+    }
+
+    public static JSONArray walkToJSON(FormEntryModel fem, FormEntryController fec){
+        try {
+            JSONArray ret = new JSONArray();
+            FormIndex formIndex = FormIndex.createBeginningOfFormIndex();
+            Walker walker = new Walker(ret, formIndex, fec, fem);
+            walker.walk();
+            return ret;
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 }
