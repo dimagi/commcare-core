@@ -52,8 +52,7 @@ public class MockApp {
 
 
     private static LivePrototypeFactory setupStaticStorage() {
-        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        return prototypeFactory;
+        return new LivePrototypeFactory();
     }
 
     public SessionWrapper getSession() {

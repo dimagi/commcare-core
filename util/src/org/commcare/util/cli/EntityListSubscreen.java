@@ -20,11 +20,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
 
     private final int SCREEN_WIDTH = 100;
 
-    private TreeReference[] mChoices;
-    private String[] rows;
-    private String mHeader;
+    private final TreeReference[] mChoices;
+    private final String[] rows;
+    private final String mHeader;
 
-    private Vector<Action> actions;
+    private final Vector<Action> actions;
 
     public EntityListSubscreen(Detail shortDetail, Vector<TreeReference> references, EvaluationContext context) throws CommCareSessionException {
         mHeader = this.createHeader(shortDetail, context);

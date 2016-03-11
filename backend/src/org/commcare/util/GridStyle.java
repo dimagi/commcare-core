@@ -8,10 +8,10 @@ package org.commcare.util;
  */
 
 public class GridStyle {
-    private String fontSize;
-    private String horzAlign;
-    private String vertAlign;
-    private String cssID;
+    private final String fontSize;
+    private final String horzAlign;
+    private final String vertAlign;
+    private final String cssID;
 
     public GridStyle(String fs, String ha, String va, String cssid) {
         fontSize = fs;

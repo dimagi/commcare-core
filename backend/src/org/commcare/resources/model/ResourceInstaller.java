@@ -30,7 +30,7 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      * runtime in order to work properly. False otherwise.
      * This method may be unnecessary.
      */
-    public boolean requiresRuntimeInitialization();
+    boolean requiresRuntimeInitialization();
 
     /**
      * initializes an installed resource for use at runtime.
@@ -39,7 +39,7 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      * a problem occurred.
      * @throws ResourceInitializationException If the resource could not be initialized
      */
-    public boolean initialize(T instance) throws ResourceInitializationException;
+    boolean initialize(T instance) throws ResourceInitializationException;
 
     /**
      * Proceeds with the next step of installing resource r, keeping records at
@@ -54,9 +54,9 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      * @throws UnfullfilledRequirementsException If the current platform does
      *                                           not fullfill the needs for this resource
      */
-    public boolean install(Resource r, ResourceLocation location,
-                           Reference ref, ResourceTable table,
-                           T instance, boolean upgrade) throws
+    boolean install(Resource r, ResourceLocation location,
+                    Reference ref, ResourceTable table,
+                    T instance, boolean upgrade) throws
             UnresolvedResourceException, UnfullfilledRequirementsException;
 
     /**
@@ -65,7 +65,7 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      *
      * This method _should only_ be called on a resource table that will never be made ready again.
      */
-    public boolean uninstall(Resource r) throws UnresolvedResourceException;
+    boolean uninstall(Resource r) throws UnresolvedResourceException;
 
     /**
      * Called on a resource which is fully installed in the current environment and will be replaced by an incoming
@@ -75,20 +75,20 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      *
      * After being unstaged, a resource's status will be set by the resource table.
      */
-    public boolean unstage(Resource r, int newStatus);
+    boolean unstage(Resource r, int newStatus);
 
     /**
      * Revert is called on a resource in the unstaged state. It re-registers an existing resource in the current environment
      * after an unsuccesful upgrade or other issue.
      */
-    public boolean revert(Resource r, ResourceTable table);
+    boolean revert(Resource r, ResourceTable table);
 
     /**
      * Rolls back an incomplete action.
      *
      * @return the new status of this resource
      */
-    public int rollback(Resource r);
+    int rollback(Resource r);
 
     /**
      * Upgrade is called when an incoming resource has had its conflicting peer unstaged.
@@ -102,12 +102,12 @@ public interface ResourceInstaller<T extends CommCareInstance> extends Externali
      * @return True if the upgrade step was completed successfully.
      * @throws UnresolvedResourceException If the local resource definition could not be found
      */
-    public boolean upgrade(Resource r) throws UnresolvedResourceException;
+    boolean upgrade(Resource r) throws UnresolvedResourceException;
 
     /**
      * Called to clean up or close any interstitial state that was created by managing this resource.
      */
-    public void cleanup();
+    void cleanup();
 
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
+    boolean verifyInstallation(Resource r, Vector<MissingMediaException> problemList);
 }

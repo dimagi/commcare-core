@@ -12,7 +12,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -183,11 +182,7 @@ public class Resource implements Persistable, IMetaData {
      * otherwise.
      */
     public boolean hasParent() {
-        if (parent == null || "".equals(parent)) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(parent == null || "".equals(parent));
     }
 
     /**

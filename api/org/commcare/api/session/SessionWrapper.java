@@ -16,7 +16,7 @@ import org.javarosa.core.services.storage.StorageManager;
  * @author ctsims
  */
 public class SessionWrapper extends CommCareSession {
-    
+
     protected UserSandbox mSandbox;
     protected CommCarePlatform mPlatform;
     protected CommCareInstanceInitializer initializer;

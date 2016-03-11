@@ -164,6 +164,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         return (rListener != null);
     }
 
+    @SuppressWarnings("unused")
     public void requireRootEnvelopeType(String string) {
         requiredRootEnvelope = string;
     }
