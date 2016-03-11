@@ -101,6 +101,15 @@ public class FormEntryCaption implements FormElementStateListener {
     public String getImageText() {
         return getSpecialFormQuestionText(getTextID(), TEXT_FORM_IMAGE);
     }
+    /**
+     * Convenience method
+     * Get video URI form of text for THIS element (if available)
+     *
+     * @return URI of video form stored in current locale of Text, returns null if not available
+     */
+    public String getVideoText() {
+        return this.getSpecialFormQuestionText(this.getTextID(), "video");
+    }
 
     /**
      * Convenience method

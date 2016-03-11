@@ -229,6 +229,11 @@ public class FormEntryModel {
         return form.getLocalizer().getLocale();
     }
 
+
+    public void setQuestionIndex(FormIndex index) {
+        this.setQuestionIndex(index, true);
+    }
+
     /**
      * Set the FormIndex for the current question.
      *
