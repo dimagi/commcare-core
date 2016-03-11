@@ -230,8 +230,8 @@ public class FormEntryModel {
     }
 
 
-    public void setQuestionIndex(FormIndex var1) {
-        this.setQuestionIndex(var1, true);
+    public void setQuestionIndex(FormIndex index) {
+        this.setQuestionIndex(index, true);
     }
 
     /**

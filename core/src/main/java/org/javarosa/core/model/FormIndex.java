@@ -402,7 +402,9 @@ public class FormIndex {
         while (cur != null) {
             curMults.addElement(multiplicities.elementAt(i));
             curElems.addElement(elements.elementAt(i));
+
             cur.reference = f.getChildInstanceRef(curElems, curMults);
+            
             cur = cur.getNextLevel();
             i++;
         }
