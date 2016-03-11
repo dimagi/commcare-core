@@ -313,7 +313,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             connection = this.getConnection();
             String sqlQuery = "SELECT " + org.commcare.modern.database.DatabaseHelper.ID_COL + " , " +
                     org.commcare.modern.database.DatabaseHelper.DATA_COL + " FROM " + this.tableName + ";";
-            System.out.println("Query: " + sqlQuery);
             preparedStatement = connection.prepareStatement(sqlQuery);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException | ClassNotFoundException e) {
