@@ -558,7 +558,7 @@ public class XPathEvalTest {
 //        //testEval("/..", null, null, new XPathUnsupportedException());
     }
 
-    private void addDataRef(FormInstance dm, String ref, IAnswerData data) {
+    protected void addDataRef(FormInstance dm, String ref, IAnswerData data) {
         TreeReference treeRef = XPathReference.getPathExpr(ref).getReference();
         treeRef = inlinePositionArgs(treeRef);
 
