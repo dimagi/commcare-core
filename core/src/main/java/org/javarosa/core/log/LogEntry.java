@@ -16,9 +16,9 @@ import java.util.Date;
 public class LogEntry implements Externalizable {
     public static final String STORAGE_KEY = "LOG";
 
-    private Date time;
-    private String type;
-    private String message;
+    protected Date time;
+    protected String type;
+    protected String message;
 
     public LogEntry() {
         // for externalization
