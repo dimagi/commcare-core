@@ -29,6 +29,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
@@ -68,15 +69,22 @@ public class CommCareSession {
      */
     private final Stack<SessionFrame> frameStack;
 
+    private Hashtable<String, String> customSessionData;
+
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
         collectedDatums = new OrderedHashtable<String, String>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
+        this.customSessionData = new Hashtable<>();
     }
 
     public Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
+    }
+
+    public void putSessionDatum(String key, String value){
+        customSessionData.put(key, value);
     }
 
     /**
@@ -454,9 +462,14 @@ public class CommCareSession {
             String key = (String)en.nextElement();
             addData(userData, key, userFields.get(key));
         }
-
         sessionRoot.addChild(user);
 
+        TreeElement customSessionData = new TreeElement("customSessionData", 0);
+        for (Enumeration en = this.customSessionData.keys(); en.hasMoreElements(); ) {
+            String key = (String) en.nextElement();
+            addData(customSessionData, key, this.customSessionData.get(key));
+        }
+        sessionRoot.addChild(customSessionData);
         return new FormInstance(sessionRoot, "session");
     }
 
