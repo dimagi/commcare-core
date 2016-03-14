@@ -1492,7 +1492,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         extensions = (Vector)ExtUtil.read(dis, new ExtWrapListPoly(), pf);
 
         setEvaluationContext(new EvaluationContext(null));
-        actionController = (ActionController)ExtUtil.read(dis, new ExtWrapNullable(ActionController.class), pf);
+        actionController = (ActionController)ExtUtil.read(dis, new ExtWrapTagged(), pf);
     }
 
     /**
@@ -1558,7 +1558,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
         ExtUtil.write(dos, new ExtWrapMap(formInstances, new ExtWrapTagged()));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
-        ExtUtil.write(dos, new ExtWrapNullable(actionController));
+        ExtUtil.write(dos, new ExtWrapTagged(actionController));
     }
 
     public void collapseIndex(FormIndex index,
