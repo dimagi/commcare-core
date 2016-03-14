@@ -31,7 +31,13 @@ public class Callout implements Externalizable, DetailTemplate {
     String displayName;
     Hashtable<String, String> extras;
     Vector<String> responses;
-    DetailField responseDetail;
+
+    /**
+     * Allows case list intent callouts to map result data to cases. 'header'
+     * is the column header text and 'template' is the key used for mapping a
+     * callout result data point to a case, should usually be the case id.
+     */
+    private DetailField responseDetail;
 
     public Callout(String actionName, String image, String displayName,
                    Hashtable<String, String> extras, Vector<String> responses,
@@ -80,6 +86,7 @@ public class Callout implements Externalizable, DetailTemplate {
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        responseDetail = (DetailField)ExtUtil.read(in, new ExtWrapNullable(DetailField.class), pf);
     }
 
     @Override
@@ -89,6 +96,7 @@ public class Callout implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapNullable(image));
         ExtUtil.write(out, new ExtWrapMap(extras));
         ExtUtil.write(out, new ExtWrapList(responses));
+        ExtUtil.write(out, new ExtWrapNullable(responseDetail));
     }
 
     public String getImage() {
