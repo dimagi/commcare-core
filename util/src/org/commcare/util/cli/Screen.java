@@ -1,10 +1,9 @@
 package org.commcare.util.cli;
 
-import org.commcare.api.session.SessionWrapper;
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.CLISessionWrapper;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 

@@ -1,6 +1,6 @@
 package org.commcare.backend.test;
 
-import org.commcare.api.session.SessionWrapper;
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.test.utilities.MockApp;
 import org.junit.Assert;
 

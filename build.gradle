@@ -81,7 +81,8 @@ dependencies {
 
       apiCompile sourceSets.main.output
       apiCompile sourceSets.cli.output
-      apiCompile project(path: ':javarosa')
+      apiCompile 'org.json:json:20140107'
+      apiCompile project(path: ':javarosa', configuration: 'harness')
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
 }
 

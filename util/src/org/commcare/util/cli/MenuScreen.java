@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.api.session.SessionWrapper;
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
@@ -9,7 +9,6 @@ import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.CLISessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;

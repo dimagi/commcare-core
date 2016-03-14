@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.api.session.SessionWrapper;
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;

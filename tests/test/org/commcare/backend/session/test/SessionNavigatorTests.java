@@ -1,6 +1,6 @@
 package org.commcare.backend.session.test;
 
-import org.commcare.api.session.SessionWrapper;
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.MockSessionNavigationResponder;
 import org.commcare.test.utilities.MockApp;
