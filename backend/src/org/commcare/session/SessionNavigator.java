@@ -27,7 +27,7 @@ public class SessionNavigator {
     public static final int EXCEPTION_THROWN = 6;
     public static final int START_REMOTE_QUERY = 7;
 
-    private SessionNavigationResponder responder;
+    private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
     private EvaluationContext ec;
 

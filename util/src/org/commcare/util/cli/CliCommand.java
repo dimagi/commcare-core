@@ -16,7 +16,7 @@ public abstract class CliCommand {
     public final String positionalArgsHelpText;
 
     protected String[] args;
-    protected Options options;
+    protected final Options options;
     protected CommandLine cmd;
 
     public CliCommand(String commandName, String helpTextDescription, String positionalArgsHelpText) {

@@ -50,11 +50,14 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
         String userId = parser.getAttributeValue(null, "user_id");
 
-        //Get to the data root
-        parser.nextTag();
-
+        TreeElement root;
+        if (!nextTagInBlock("fixture")) {
+            // fixture with no body; don't commit to storage
+            return null;
+        }
         //TODO: We need to overwrite any matching records here.
-        TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
+        root = new TreeElementParser(parser, 0, fixtureId).parse();
+
         FormInstance instance = new FormInstance(root, fixtureId);
 
         //This is a terrible hack and clayton should feeel terrible about it

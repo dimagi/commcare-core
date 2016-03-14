@@ -351,8 +351,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
     }
 
     public static LedgerChildElement TemplateElement(LedgerInstanceTreeElement parent) {
-        LedgerChildElement template = new LedgerChildElement(parent);
-        return template;
+        return new LedgerChildElement(parent);
     }
 
     Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> childAttributeHintMap = null;

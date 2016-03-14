@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class MarkupParser extends ElementParser<Integer> {
 
-    Builder builder;
+    final Builder builder;
 
     public MarkupParser(Builder builder, KXmlParser parser) {
         super(parser);

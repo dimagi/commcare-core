@@ -54,7 +54,6 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
         this.mult = TreeReference.INDEX_TEMPLATE;
         this.caseId = null;
 
-        empty = new TreeElement();
         empty = new TreeElement("case");
         empty.setMult(this.mult);
 

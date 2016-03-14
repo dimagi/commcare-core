@@ -17,7 +17,7 @@ import java.net.URL;
  */
 public class JavaHttpReference implements Reference {
 
-    private String uri;
+    private final String uri;
 
     public JavaHttpReference(String uri) {
         this.uri = uri;

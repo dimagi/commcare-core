@@ -42,7 +42,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
     private static final String FINAL_NAME = "entry";
 
 
-    IStorageUtilityIndexed<Ledger> storage;
+    final IStorageUtilityIndexed<Ledger> storage;
 
     /**
      * Creates a Parser for case blocks in the XML stream provided.
@@ -95,7 +95,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
                                 String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
                                 String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
-                                if (sectionId == null || sectionId == "") {
+                                if (sectionId == null || "".equals(sectionId)) {
                                     throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser);
                                 }
                                 int quantity = this.parseInt(quantityString);
@@ -114,7 +114,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                     this.checkNode(FINAL_NAME);
                     String id = parser.getAttributeValue(null, ENTRY_ID);
                     String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
-                    if (id == null || id == "") {
+                    if (id == null || id.equals("")) {
                         throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @id attribute", this.parser);
                     }
                     int quantity = this.parseInt(quantityString);
@@ -156,7 +156,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
                                 String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
                                 String sectionId = parser.getAttributeValue(null, SUBMODEL_ID);
-                                if (sectionId == null || sectionId == "") {
+                                if (sectionId == null || sectionId.equals("")) {
                                     throw new InvalidStructureException("<value> update requires a valid @" + SUBMODEL_ID + " attribute", this.parser);
                                 }
                                 int quantity = this.parseInt(quantityString);
@@ -179,7 +179,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
                     this.checkNode(FINAL_NAME);
                     String entryId = parser.getAttributeValue(null, ENTRY_ID);
                     String quantityString = parser.getAttributeValue(null, TAG_QUANTITY);
-                    if (entryId == null || entryId == "") {
+                    if (entryId == null || entryId.equals("")) {
                         throw new InvalidStructureException("<" + FINAL_NAME + "> update requires a valid @" + ENTRY_ID + " attribute", this.parser);
                     }
                     int quantity = this.parseInt(quantityString);
@@ -227,7 +227,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
     public Ledger retrieveOrCreate(String entityId) {
         try {
-            return (Ledger)storage().getRecordForValue(Ledger.INDEX_ENTITY_ID, entityId);
+            return storage().getRecordForValue(Ledger.INDEX_ENTITY_ID, entityId);
         } catch (NoSuchElementException nsee) {
             return new Ledger(entityId);
         }

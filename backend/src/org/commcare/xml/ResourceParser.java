@@ -12,7 +12,7 @@ import java.util.Vector;
 
 public class ResourceParser extends ElementParser<Resource> {
 
-    int maximumAuthority;
+    final int maximumAuthority;
 
     public ResourceParser(KXmlParser parser, int maximumAuthority) {
         super(parser);

@@ -30,8 +30,7 @@ public class CaseDBUtils {
         if (!casesExist) {
             return "";
         }
-        String ret = MD5.toHex(data);
-        return ret;
+        return MD5.toHex(data);
     }
 
     public static byte[] xordata(byte[] one, byte[] two) {
