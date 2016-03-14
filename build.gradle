@@ -50,6 +50,7 @@ sourceSets {
     api {
         java {
             srcDir 'api'
+            compileClasspath += cli.output
             compileClasspath += main.output
         }
     }
@@ -79,6 +80,7 @@ dependencies {
       testCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
 
       apiCompile sourceSets.main.output
+      apiCompile sourceSets.cli.output
       apiCompile project(path: ':javarosa')
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
 }
