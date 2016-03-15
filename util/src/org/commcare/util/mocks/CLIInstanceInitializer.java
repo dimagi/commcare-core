@@ -15,7 +15,7 @@ public class CLIInstanceInitializer extends CommCareInstanceInitializer {
         super(sandbox);
     }
 
-    public CLIInstanceInitializer(SessionWrapper sessionWrapper, UserSandbox mSandbox, CommCarePlatform mPlatform) {
+    public CLIInstanceInitializer(CLISessionWrapper sessionWrapper, UserSandbox mSandbox, CommCarePlatform mPlatform) {
         super(sessionWrapper, mSandbox, mPlatform);
     }
 

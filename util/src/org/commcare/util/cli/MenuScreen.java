@@ -1,5 +1,6 @@
 package org.commcare.util.cli;
 
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
@@ -8,7 +9,6 @@ import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
-import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -28,7 +28,6 @@ import java.util.Vector;
 public class MenuScreen extends Screen {
     private MenuDisplayable[] mChoices;
     CommCarePlatform mPlatform;
-    SessionWrapper mSession;
     UserSandbox mSandbox;
     
     String mTitle;
@@ -142,6 +141,16 @@ public class MenuScreen extends Screen {
             MenuDisplayable d = mChoices[i];
             out.println(i + ")" + d.getDisplayText());
         }
+    }
+
+    @Override
+    public String[] getOptions() {
+        String[] ret = new String[mChoices.length];
+        for (int i = 0; i < mChoices.length; ++i) {
+            MenuDisplayable d = mChoices[i];
+            ret[i] = d.getDisplayText();
+        }
+        return ret;
     }
 
     @Override

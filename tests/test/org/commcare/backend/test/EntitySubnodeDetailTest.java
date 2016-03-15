@@ -1,8 +1,8 @@
 package org.commcare.backend.test;
 
+import org.commcare.core.session.SessionWrapper;
 import org.commcare.suite.model.Detail;
 import org.commcare.test.utilities.MockApp;
-import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.instance.TreeReference;
 import org.junit.Assert;
 

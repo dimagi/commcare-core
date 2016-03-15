@@ -207,7 +207,6 @@ public class SqlHelper {
 
         StringBuilder stringBuilder = new StringBuilder(queryStart);
         for(String fieldName: fieldNames){
-            stringBuilder.append( ", " + fieldName + " = ?");
             stringBuilder.append(", ").append(fieldName).append(" = ?");
         }
 

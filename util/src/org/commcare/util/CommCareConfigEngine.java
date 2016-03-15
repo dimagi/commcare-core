@@ -1,5 +1,8 @@
 package org.commcare.util;
 
+import org.commcare.resources.ArchiveFileRoot;
+import org.commcare.resources.JavaFileRoot;
+import org.commcare.resources.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -16,7 +19,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
-import org.commcare.util.reference.JavaResourceRoot;
+import org.commcare.resources.reference.JavaResourceRoot;
 import org.javarosa.core.io.BufferedInputStream;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
