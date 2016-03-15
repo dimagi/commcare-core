@@ -13,11 +13,7 @@ import java.util.zip.ZipFile;
  *
  * @author ctsims
  */
-public class
-
-
-
-ArchiveFileReference implements Reference {
+public class ArchiveFileReference implements Reference {
 
     private final String GUID;
     private final String archiveURI;
