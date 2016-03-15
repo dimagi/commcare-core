@@ -6,6 +6,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.SyncEntry;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -32,6 +33,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class SuiteParser extends ElementParser<Suite> {
+    private final IStorageUtilityIndexed<FormInstance> fixtureStorage;
+
     private ResourceTable table;
     private String resourceGuid;
     private int maximumResourceAuthority = -1;
@@ -43,6 +46,18 @@ public class SuiteParser extends ElementParser<Suite> {
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
         this.resourceGuid = resourceGuid;
+        this.fixtureStorage = (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
+    }
+
+    public SuiteParser(InputStream suiteStream,
+                       ResourceTable table,
+                       String resourceGuid,
+                       IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+        super(ElementParser.instantiateParser(suiteStream));
+
+        this.table = table;
+        this.resourceGuid = resourceGuid;
+        this.fixtureStorage = fixtureStorage;
     }
 
     public Suite parse() throws InvalidStructureException, IOException,
@@ -53,6 +68,8 @@ public class SuiteParser extends ElementParser<Suite> {
         int version = Integer.parseInt(sVersion);
         Hashtable<String, Detail> details = new Hashtable<String, Detail>();
         Hashtable<String, Entry> entries = new Hashtable<String, Entry>();
+        Hashtable<String, SyncEntry> syncRequests = new Hashtable<String, SyncEntry>();
+
         Vector<Menu> menus = new Vector<Menu>();
 
         try {
@@ -64,11 +81,14 @@ public class SuiteParser extends ElementParser<Suite> {
             do {
                 if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("entry")) {
-                        Entry e = new EntryParser(parser).parse();
+                        Entry e = EntryParser.buildEntryParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("view")) {
-                        Entry e = new EntryParser(parser, false).parse();
+                        Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
+                    } else if (parser.getName().toLowerCase().equals("sync-request")) {
+                        SyncEntry syncEntry = (SyncEntry)EntryParser.buildRemoteSyncParser(parser).parse();
+                        syncRequests.put(syncEntry.getCommandId(), syncEntry);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
                         String localeKey = parser.getAttributeValue(null, "language");
                         //resource def
@@ -94,7 +114,7 @@ public class SuiteParser extends ElementParser<Suite> {
                             table.addResource(r, table.getInstallers().getXFormInstaller(), resourceGuid);
                         }
                     } else if (parser.getName().toLowerCase().equals("detail")) {
-                        Detail d = new DetailParser(parser).parse();
+                        Detail d = getDetailParser().parse();
                         details.put(d.getId(), d);
                     } else if (parser.getName().toLowerCase().equals("menu")) {
                         Menu m = new MenuParser(parser).parse();
@@ -102,7 +122,7 @@ public class SuiteParser extends ElementParser<Suite> {
                     } else if (parser.getName().toLowerCase().equals("fixture")) {
                         //this one automatically commits the fixture to the global memory
                         if (!inValidationMode()) {
-                            new FixtureXmlParser(parser, false, getFixtureStorage()).parse();
+                            new FixtureXmlParser(parser, false, fixtureStorage).parse();
                         }
                     } else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
@@ -127,10 +147,6 @@ public class SuiteParser extends ElementParser<Suite> {
         maximumResourceAuthority = authority;
     }
 
-    protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return (IStorageUtilityIndexed<FormInstance>)StorageManager.getStorage(FormInstance.STORAGE_KEY);
-    }
-
     protected boolean inValidationMode() {
         return false;
     }
@@ -141,5 +157,9 @@ public class SuiteParser extends ElementParser<Suite> {
      */
     public void setSkipResources(boolean skipResources) {
         this.skipResources = skipResources;
+    }
+
+    protected DetailParser getDetailParser() {
+        return new DetailParser(parser);
     }
 }

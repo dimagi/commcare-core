@@ -9,7 +9,6 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,10 +28,10 @@ import java.util.Vector;
  */
 public class TableBuilder {
 
-    private String name;
+    private final String name;
 
-    private Vector<String> cols;
-    private Vector<String> rawCols;
+    private final Vector<String> cols;
+    private final Vector<String> rawCols;
 
     public TableBuilder(Class c, String name) {
         this.name = name;
@@ -85,6 +84,13 @@ public class TableBuilder {
     }
 
     public void addData(Persistable p) {
+        addPersistableIdAndMeta(p);
+
+        cols.add(DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(DatabaseHelper.DATA_COL);
+    }
+
+    private void addPersistableIdAndMeta(Persistable p) {
         cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DatabaseHelper.ID_COL);
 
@@ -104,13 +110,24 @@ public class TableBuilder {
                 }
             }
         }
-
-        cols.add(DatabaseHelper.DATA_COL + " BLOB");
-        rawCols.add(DatabaseHelper.DATA_COL);
     }
 
+    /**
+     * Build a table to store provided persistable in the filesystem.  Creates
+     * filepath and encrypting key columns, along with normal metadata columns
+     * from the persistable
+     */
+    public void addFileBackedData(Persistable p) {
+        addData(p);
 
-    HashSet<String> unique = new HashSet<String>();
+        cols.add(DatabaseHelper.AES_COL + " BLOB");
+        rawCols.add(DatabaseHelper.AES_COL);
+
+        cols.add(DatabaseHelper.FILE_COL);
+        rawCols.add(DatabaseHelper.FILE_COL);
+    }
+
+    final HashSet<String> unique = new HashSet<String>();
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
     }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.data.xml.TransactionParser;
@@ -20,10 +17,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * The CaseXML Parser is responsible for processing and performing
- * case transactions from an incoming XML stream. It will perform
- * all of the actions specified by the transaction (Create/modify/close)
- * against the application's current storage.
+ * The Fixture XML Parser is responsible for parsing incoming fixture data and
+ * storing it as a file with a pointer in a db.
  *
  * @author ctsims
  */
@@ -36,13 +31,16 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         this(parser, true, null);
     }
 
-    public FixtureXmlParser(KXmlParser parser, boolean overwrite, IStorageUtilityIndexed<FormInstance> storage) {
+    public FixtureXmlParser(KXmlParser parser, boolean overwrite,
+                            IStorageUtilityIndexed<FormInstance> storage) {
         super(parser);
         this.overwrite = overwrite;
         this.storage = storage;
     }
 
-    public FormInstance parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    @Override
+    public FormInstance parse() throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("fixture");
 
         String fixtureId = parser.getAttributeValue(null, "id");
@@ -52,11 +50,14 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
 
         String userId = parser.getAttributeValue(null, "user_id");
 
-        //Get to the data root
-        parser.nextTag();
-
+        TreeElement root;
+        if (!nextTagInBlock("fixture")) {
+            // fixture with no body; don't commit to storage
+            return null;
+        }
         //TODO: We need to overwrite any matching records here.
-        TreeElement root = new TreeElementParser(parser, 0, fixtureId).parse();
+        root = new TreeElementParser(parser, 0, fixtureId).parse();
+
         FormInstance instance = new FormInstance(root, fixtureId);
 
         //This is a terrible hack and clayton should feeel terrible about it
@@ -92,6 +93,7 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
         return instance;
     }
 
+    @Override
     public void commit(FormInstance parsed) throws IOException {
         try {
             storage().write(parsed);
@@ -102,9 +104,6 @@ public class FixtureXmlParser extends TransactionParser<FormInstance> {
     }
 
     public IStorageUtilityIndexed<FormInstance> storage() {
-        //...ok... So. This is _not good_. It's badly written and redundant in a lot of ways.
-        //the issue is that there are about 4 ways to set/override how this gets here
-        //TODO: Fix this
         if (storage == null) {
             storage = (IStorageUtilityIndexed)StorageManager.getStorage(FormInstance.STORAGE_KEY);
         }

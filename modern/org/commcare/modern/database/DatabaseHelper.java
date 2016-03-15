@@ -7,9 +7,6 @@ import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,12 +18,13 @@ import java.util.Set;
  * statements, args, content values, etc.
  *
  * @author wspride
- *
  */
 public class DatabaseHelper {
 
     public static final String ID_COL = "commcare_sql_id";
     public static final String DATA_COL = "commcare_sql_record";
+    public static final String FILE_COL = "commcare_sql_file";
+    public static final String AES_COL = "commcare_sql_aes";
 
     public static Pair<String, String[]> createWhere(String[] fieldNames, Object[] values,  Persistable p)  throws IllegalArgumentException {
         return createWhere(fieldNames, values, null, p);
@@ -82,17 +80,28 @@ public class DatabaseHelper {
         }
 
         String[] retArray = new String[arguments.size()];
-        for(int i =0; i< arguments.size(); i++){
-            retArray[i] = arguments.get(i);
-        }
+        arguments.toArray(retArray);
 
         return new Pair<String, String[]>(stringBuilder.toString(), retArray);
     }
 
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
+        HashMap<String, Object> values = getNonDataMetaEntries(e);
 
+        addDataToValues(values, e);
+        return values;
+    }
+
+    private static void addDataToValues(HashMap<String, Object> values,
+                                        Externalizable e) throws RecordTooLargeException {
         byte[] blob = TableBuilder.toBlob(e);
+        if (blob.length > 1000000) {
+            throw new RecordTooLargeException(blob.length / 1000000);
+        }
+        values.put(DATA_COL, blob);
+    }
 
+    public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
         HashMap<String, Object> values = new HashMap<String, Object>();
 
         if(e instanceof IMetaData) {
@@ -104,11 +113,6 @@ public class DatabaseHelper {
                 values.put(TableBuilder.scrubName(key), value);
             }
         }
-        if(blob.length > 1000000){
-            throw new RecordTooLargeException(blob.length / 1000000);
-        }
-        values.put(DATA_COL, blob);
-
         return values;
     }
 

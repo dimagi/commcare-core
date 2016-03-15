@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.util;
 
 import org.commcare.cases.ledger.Ledger;
@@ -8,7 +5,6 @@ import org.commcare.cases.model.Case;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AttachableCaseXMLParser;
-import org.commcare.xml.FixtureXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.J2MEUserXmlParser;

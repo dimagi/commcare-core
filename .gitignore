@@ -4,6 +4,8 @@ local.properties
 backend/bin/
 application/bin/
 application/build
+core/bin/
+core/build/
 util/bin
 application/dist
 application/lib
@@ -29,3 +31,6 @@ build/
 *.iml
 **.DS_STORE
 *.db
+.gradle/
+.idea/
+clean_annotations.sh

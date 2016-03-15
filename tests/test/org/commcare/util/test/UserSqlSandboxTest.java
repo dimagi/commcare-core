@@ -1,21 +1,15 @@
 package org.commcare.util.test;
 
-import junit.framework.Assert;
-
 import org.commcare.api.persistence.UserSqlSandbox;
 import org.commcare.api.persistence.SqlSandboxUtils;
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.parse.ParseUtils;
 import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Vector;
@@ -29,7 +23,7 @@ public class UserSqlSandboxTest {
 
     private UserSqlSandbox sandbox;
     private Vector<String> owners;
-    String username = "sandbox-test-user";
+    final String username = "sandbox-test-user";
 
     @Before
     public void setUp() throws Exception {

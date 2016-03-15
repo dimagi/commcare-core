@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.cases.ledger.instance;
 
 import org.commcare.cases.ledger.Ledger;
@@ -21,27 +18,27 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * The root element for the <casedb> abstract type. All children are
- * nodes in the case database. Depending on instantiation, the <casedb>
- * may include only a subset of the full db.
- *
  * @author ctsims
  */
 public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChildElement> {
 
     public static final String MODEL_NAME = "ledgerdb";
 
+    private final static XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
+    private final static XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
+
     private AbstractTreeElement instanceRoot;
 
-    IStorageUtilityIndexed<Ledger> storage;
-    private String[] ledgerRecords;
+    final IStorageUtilityIndexed<Ledger> storage;
 
     //TODO: much of this is still shared w/the casedb and should be centralized there
     protected Vector<LedgerChildElement> ledgers;
 
-    protected Interner<TreeElement> treeCache = new Interner<TreeElement>();
+    protected final Interner<TreeElement> treeCache = new Interner<TreeElement>();
 
     protected Interner<String> stringCache;
+
+    int numRecords = -1;
 
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
         this.instanceRoot = instanceRoot;
@@ -61,36 +58,27 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         expireCachedRef();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isLeaf()
-     */
+    @Override
     public boolean isLeaf() {
-        // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isChildable()
-     */
+    @Override
     public boolean isChildable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getInstanceName()
-     */
+    @Override
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
     }
 
+    @SuppressWarnings("unused")
     public void attachStringCache(Interner<String> stringCache) {
         this.stringCache = stringCache;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChild(java.lang.String, int)
-     */
+    @Override
     public LedgerChildElement getChild(String name, int multiplicity) {
         if ((multiplicity == TreeReference.INDEX_TEMPLATE) &&
                 "ledger".equals(name)) {
@@ -110,45 +98,31 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildrenWithName(java.lang.String)
-     */
-    public Vector getChildrenWithName(String name) {
+    @Override
+    public Vector<LedgerChildElement> getChildrenWithName(String name) {
         if (name.equals(LedgerChildElement.NAME)) {
             getLedgers();
             return ledgers;
         } else {
-            return new Vector();
+            return new Vector<LedgerChildElement>();
         }
 
     }
 
-    int numRecords = -1;
-
+    @Override
     public boolean hasChildren() {
-        if (getNumChildren() > 0) {
-            return true;
-        }
-        return false;
+        return (getNumChildren() > 0);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getNumChildren()
-     */
+    @Override
     public int getNumChildren() {
-        if (ledgerRecords != null) {
-            return ledgerRecords.length;
-        } else {
-            if (numRecords == -1) {
-                numRecords = storage.getNumRecords();
-            }
-            return numRecords;
+        if (numRecords == -1) {
+            numRecords = storage.getNumRecords();
         }
+        return numRecords;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildAt(int)
-     */
+    @Override
     public LedgerChildElement getChildAt(int i) {
         getLedgers();
         return ledgers.elementAt(i);
@@ -160,43 +134,25 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         ledgers = new Vector<LedgerChildElement>();
-        if (ledgerRecords != null) {
-            int i = 0;
-            for (String id : ledgerRecords) {
-                ledgers.addElement(new LedgerChildElement(this, -1, id, i));
-                ++i;
-            }
-        } else {
-            int mult = 0;
-            for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
-                int id = i.nextID();
-                ledgers.addElement(new LedgerChildElement(this, id, null, mult));
-                objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-                mult++;
-            }
-
+        int mult = 0;
+        for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
+            int id = i.nextID();
+            ledgers.addElement(new LedgerChildElement(this, id, null, mult));
+            objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
+            mult++;
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRepeatable()
-     */
     public boolean isRepeatable() {
-        // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isAttribute()
-     */
+    @Override
     public boolean isAttribute() {
-        // TODO Auto-generated method stub
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getChildMultiplicity(java.lang.String)
-     */
+    @Override
     public int getChildMultiplicity(String name) {
         //All children have the same name;
         if (name.equals(LedgerChildElement.NAME)) {
@@ -206,69 +162,51 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#isRelevant()
-     */
+    @Override
     public boolean isRelevant() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#accept(org.javarosa.core.model.instance.utils.ITreeVisitor)
-     */
+    @Override
     public void accept(ITreeVisitor visitor) {
         visitor.visit(this);
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeCount()
-     */
+    @Override
     public int getAttributeCount() {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeNamespace(int)
-     */
+    @Override
     public String getAttributeNamespace(int index) {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeName(int)
-     */
+    @Override
     public String getAttributeName(int index) {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(int)
-     */
+    @Override
     public String getAttributeValue(int index) {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttribute(java.lang.String, java.lang.String)
-     */
+    @Override
     public LedgerChildElement getAttribute(String namespace, String name) {
         //Oooooof, this is super janky;
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getAttributeValue(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getAttributeValue(String namespace, String name) {
         return null;
     }
 
     TreeReference cachedRef = null;
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getRef()
-     */
+    @Override
     public TreeReference getRef() {
         if (cachedRef == null) {
             cachedRef = TreeElement.buildRef(this);
@@ -280,40 +218,28 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         cachedRef = null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()
-     */
+    @Override
     public String getName() {
         return MODEL_NAME;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getMult()
-     */
+    @Override
     public int getMult() {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getParent()
-     */
+    @Override
     public AbstractTreeElement getParent() {
         return instanceRoot;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getValue()
-     */
+    @Override
     public IAnswerData getValue() {
-        // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.model.instance.AbstractTreeElement#getDataType()
-     */
+    @Override
     public int getDataType() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -329,14 +255,12 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         }
     }
 
+    @Override
     protected String getChildHintName() {
         return "ledger";
     }
 
-    final static private XPathPathExpr ENTITY_ID_EXPR = XPathReference.getPathExpr("@entity-id");
-    final static private XPathPathExpr ENTITY_ID_EXPR_TWO = XPathReference.getPathExpr("./@entity-id");
-
-
+    @Override
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
         Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
 
@@ -347,10 +271,12 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         return indices;
     }
 
+    @Override
     protected IStorageUtilityIndexed<?> getStorage() {
         return storage;
     }
 
+    @Override
     protected void initStorageCache() {
         getLedgers();
     }

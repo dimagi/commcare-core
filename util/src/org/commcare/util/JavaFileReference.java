@@ -18,9 +18,9 @@ import java.io.OutputStream;
  */
 public class JavaFileReference implements Reference {
 
-    String localPart;
-    String uri;
-    String authority;
+    final String localPart;
+    final String uri;
+    final String authority;
 
     public JavaFileReference(String localPart, String uri) {
         this(localPart, uri, "file");

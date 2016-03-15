@@ -7,8 +7,8 @@ package org.commcare.resources.model;
  * @author ctsims
  */
 public class MissingMediaException extends Exception {
-    Resource r;
-    boolean userFacing;
+    final Resource r;
+    final boolean userFacing;
     String URI;
 
     public MissingMediaException(Resource r, String message) {
