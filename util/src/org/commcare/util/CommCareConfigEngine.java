@@ -1,8 +1,8 @@
 package org.commcare.util;
 
-import org.commcare.resources.ArchiveFileRoot;
-import org.commcare.resources.JavaFileRoot;
-import org.commcare.resources.JavaHttpRoot;
+import org.commcare.modern.reference.ArchiveFileRoot;
+import org.commcare.modern.reference.JavaFileRoot;
+import org.commcare.modern.reference.JavaHttpRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -10,7 +10,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.resources.reference.JavaResourceRoot;
+import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
@@ -56,7 +56,6 @@ public class CommCareConfigEngine {
     private final ResourceTable recoveryTable;
     private final PrintStream print;
     private final CommCarePlatform platform;
-    private int fileuricount = 0;
     private final PrototypeFactory mLiveFactory;
     
     private ArchiveFileRoot mArchiveRoot;
@@ -97,7 +96,6 @@ public class CommCareConfigEngine {
         StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
         StorageManager.registerStorage(FormDef.STORAGE_KEY,FormDef.class);
         StorageManager.registerStorage(FormInstance.STORAGE_KEY, FormInstance.class);
-        //StorageManager.registerStorage(Suite.STORAGE_KEY, Suite.class);
     }
 
     private void setRoots() {
