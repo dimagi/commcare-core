@@ -1,6 +1,6 @@
 package org.commcare.test.utilities;
 
-import org.commcare.core.session.SessionWrapper;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.util.CommCareConfigEngine;
 import org.commcare.util.mocks.MockUserDataSandbox;

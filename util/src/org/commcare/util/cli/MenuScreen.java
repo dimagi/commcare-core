@@ -1,6 +1,6 @@
 package org.commcare.util.cli;
 
-import org.commcare.core.session.SessionWrapper;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;

@@ -1,4 +1,4 @@
-package org.commcare.core.session;
+package org.commcare.modern.session;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;

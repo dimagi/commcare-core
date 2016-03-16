@@ -1,6 +1,6 @@
 package org.commcare.util.mocks;
 
-import org.commcare.core.session.SessionWrapper;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.util.CommCarePlatform;

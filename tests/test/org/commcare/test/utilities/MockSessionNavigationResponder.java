@@ -1,6 +1,6 @@
 package org.commcare.test.utilities;
 
-import org.commcare.core.session.SessionWrapper;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigationResponder;
 import org.javarosa.core.model.condition.EvaluationContext;
