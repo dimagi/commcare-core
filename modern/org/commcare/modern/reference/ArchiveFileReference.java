@@ -1,4 +1,4 @@
-package org.commcare.resources;
+package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.Reference;
 
@@ -13,11 +13,7 @@ import java.util.zip.ZipFile;
  *
  * @author ctsims
  */
-public class
-
-
-
-ArchiveFileReference implements Reference {
+public class ArchiveFileReference implements Reference {
 
     private final String GUID;
     private final String archiveURI;
