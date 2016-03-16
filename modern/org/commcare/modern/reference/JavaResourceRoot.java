@@ -1,4 +1,4 @@
-package org.commcare.resources.reference;
+package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.PrefixedRootFactory;
 import org.javarosa.core.reference.Reference;
