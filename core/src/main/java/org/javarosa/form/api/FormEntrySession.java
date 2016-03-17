@@ -71,7 +71,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
      * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
      * one in this session
      */
-    public FormEntryAction getActionForRef(TreeReference questionRef) {
+    public FormEntryAction getAndRemoveActionForRef(TreeReference questionRef) {
         for (int i = 0; i < actions.size(); i++) {
             FormEntryAction action = actions.get(i);
             if (action.getQuestionRefString().equals(questionRef.toString())) {

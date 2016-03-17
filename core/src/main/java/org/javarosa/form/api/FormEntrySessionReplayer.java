@@ -64,7 +64,7 @@ public class FormEntrySessionReplayer {
     private void replayQuestion() {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
         TreeReference questionRef = questionIndex.getReference();
-        FormEntryAction action = formEntrySession.getActionForRef(questionRef);
+        FormEntryAction action = formEntrySession.getAndRemoveActionForRef(questionRef);
         if (action != null) {
             if (!action.isSkipAction()) {
                 FormEntryPrompt entryPrompt =
