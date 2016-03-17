@@ -49,13 +49,15 @@ public class FormEntrySessionReplayer {
         if (event == FormEntryController.EVENT_QUESTION) {
             replayQuestion();
         } else if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
-            if (formEntrySession.peekAction().isNewRepeatAction()) {
-                formEntryController.newRepeat();
-                if (formEntrySession.peekAction().isNewRepeatAction()) {
-                    formEntrySession.popAction();
-                }
-            }
+            checkForRepeatCreation();
             // TODO PLM: can't handle proceeding to end of form after "Don't add" action
+        }
+    }
+
+    private void checkForRepeatCreation() {
+        TreeReference questionRef = formEntryController.getModel().getFormIndex().getReference();
+        if (formEntrySession.getAndRemoveRepeatActionForRef(questionRef)) {
+            formEntryController.newRepeat();
         }
     }
 

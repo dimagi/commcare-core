@@ -81,14 +81,27 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
      * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
      * one in this session
      */
-    public FormEntryAction getActionForRef(TreeReference questionIndexRef) {
+    public FormEntryAction getActionForRef(TreeReference questionRef) {
         for (int i = 0; i < actions.size(); i++) {
             FormEntryAction action = actions.get(i);
-            if (action.getQuestionRefString().equals(questionIndexRef.toString())) {
+            if (action.getQuestionRefString().equals(questionRef.toString())) {
                 return actions.remove(i);
             }
         }
         return null;
+    }
+
+    /**
+     * Returns whether a NEW_REPEAT action exists for this questionRef, and removes it if it does
+     */
+    public boolean getAndRemoveRepeatActionForRef(TreeReference questionRef) {
+        for (FormEntryAction action : actions) {
+            if (action.isNewRepeatAction() &&
+                    action.getQuestionRefString().equals(questionRef.toString())) {
+                return actions.remove(action);
+            }
+        }
+        return false;
     }
 
     public int size() {
