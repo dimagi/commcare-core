@@ -28,7 +28,7 @@ public class FormEntrySessionTest {
         Assert.assertEquals(expectedOutput, FormEntrySession.splitTopParens(input));
     }
 
-    @Test
+    /*@Test
     public void testFormEntrySessionStringSerialization() {
         FormEntrySession formEntrySession = new FormEntrySession();
         formEntrySession.addValueSet(FormIndex.createBeginningOfFormIndex(), "foo");
@@ -53,5 +53,5 @@ public class FormEntrySessionTest {
 
         Assert.assertEquals(2, formEntrySession.size());
         Assert.assertEquals(secondAction, formEntrySession.peekAction());
-    }
+    }*/
 }
