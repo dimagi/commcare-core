@@ -77,6 +77,20 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         }
     }
 
+    /**
+     * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
+     * one in this session
+     */
+    public FormEntryAction getActionForIndex(FormIndex questionIndex) {
+        for (int i = 0; i < actions.size(); i++) {
+            FormEntryAction action = actions.get(i);
+            if (action.getFormIndexString().equals(questionIndex.toString())) {
+                return actions.remove(i);
+            }
+        }
+        return null;
+    }
+
     public int size() {
         return actions.size();
     }

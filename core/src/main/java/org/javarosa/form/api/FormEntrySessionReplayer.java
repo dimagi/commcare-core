@@ -60,13 +60,9 @@ public class FormEntrySessionReplayer {
 
     private void replayQuestion() {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
-        FormEntryAction action = formEntrySession.peekAction();
-
-        if (questionIndex.toString().equals(action.getFormIndexString())) {
-            if (action.isSkipAction()) {
-                formEntrySession.popAction();
-            } else {
-                action = formEntrySession.popAction();
+        FormEntryAction action = formEntrySession.getActionForIndex(questionIndex);
+        if (action != null) {
+            if (!action.isSkipAction()) {
                 FormEntryPrompt entryPrompt =
                         formEntryController.getModel().getQuestionPrompt(questionIndex);
                 IAnswerData answerData =
@@ -74,8 +70,6 @@ public class FormEntrySessionReplayer {
                                 entryPrompt.getDataType()).cast(new UncastData(action.getValue()));
                 formEntryController.answerQuestion(questionIndex, answerData);
             }
-        } else {
-            throw new ReplayError("Unable to replay form due to incorrect question index");
         }
     }
 
