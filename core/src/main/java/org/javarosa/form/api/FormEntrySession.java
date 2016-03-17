@@ -20,7 +20,9 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormEntrySession implements FormEntrySessionRecorder, Externalizable {
+
     private Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
+    private String sessionStopRef;
 
     /**
      * For Externalization
@@ -65,6 +67,18 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         } else {
             return FormEntryAction.buildNullAction();
         }
+    }
+
+    /**
+     * @return the ref path for the last action in this form entry session (e.g. where the user
+     * stopped form entry)
+     */
+    public String getStopRef() {
+        return this.sessionStopRef;
+    }
+
+    private static String computeStopRef(Vector<FormEntryAction> actions) {
+        return actions.get(actions.size()-1).getQuestionRefString();
     }
 
     /**
@@ -115,6 +129,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
             formEntrySession.actions.addElement(FormEntryAction.fromString(actionString));
         }
 
+        formEntrySession.sessionStopRef = computeStopRef(formEntrySession.actions);
         return formEntrySession;
     }
 
@@ -149,7 +164,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         actions = (Vector<FormEntryAction>)ExtUtil.read(in, new ExtWrapList(FormEntryAction.class), pf);
-
+        sessionStopRef = computeStopRef(actions);
     }
 
     @Override
