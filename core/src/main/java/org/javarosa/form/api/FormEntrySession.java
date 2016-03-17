@@ -59,16 +59,6 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         actions.insertElementAt(FormEntryAction.buildSkipAction(questionRefString), insertIndex);
     }
 
-    public FormEntryAction popAction() {
-        if (actions.size() > 0) {
-            FormEntryAction firstAction = actions.firstElement();
-            actions.removeElementAt(0);
-            return firstAction;
-        } else {
-            return FormEntryAction.buildNullAction();
-        }
-    }
-
     public FormEntryAction peekAction() {
         if (actions.size() > 0) {
             return actions.elementAt(0);
