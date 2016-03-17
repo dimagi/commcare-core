@@ -1,6 +1,7 @@
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -13,9 +14,8 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * Records form entry actions, associating form indexes with user (string)
- * answers.  For simplicity's sake each form index appears only once in the
- * action list. Updating an answer does not change its ordering in the action list.
+ * Records form entry actions, associating question references with user (string)
+ * answers. Updating an answer does not change its ordering in the action list.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -30,14 +30,14 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
 
     @Override
     public void addNewRepeat(FormIndex formIndex) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(formIndexString), insertIndex);
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(questionRefString), insertIndex);
     }
 
-    private int removeDuplicateAction(String formIndexString) {
+    private int removeDuplicateAction(String questionRefString) {
         for (int i = actions.size() - 1; i >= 0; i--) {
-            if (actions.elementAt(i).getFormIndexString().equals(formIndexString)) {
+            if (actions.elementAt(i).getQuestionRefString().equals(questionRefString)) {
                 actions.removeElementAt(i);
                 return i;
             }
@@ -47,16 +47,16 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
 
     @Override
     public void addValueSet(FormIndex formIndex, String value) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildValueSetAction(formIndexString, value), insertIndex);
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildValueSetAction(questionRefString, value), insertIndex);
     }
 
     @Override
     public void addQuestionSkip(FormIndex formIndex) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildSkipAction(formIndexString), insertIndex);
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildSkipAction(questionRefString), insertIndex);
     }
 
     public FormEntryAction popAction() {
@@ -81,10 +81,10 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
      * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
      * one in this session
      */
-    public FormEntryAction getActionForIndex(FormIndex questionIndex) {
+    public FormEntryAction getActionForRef(TreeReference questionIndexRef) {
         for (int i = 0; i < actions.size(); i++) {
             FormEntryAction action = actions.get(i);
-            if (action.getFormIndexString().equals(questionIndex.toString())) {
+            if (action.getQuestionRefString().equals(questionIndexRef.toString())) {
                 return actions.remove(i);
             }
         }

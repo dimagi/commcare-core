@@ -14,7 +14,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormEntryAction implements Externalizable {
-    private String formIndexString;
+    private String questionRefString;
     private String value;
     private String action;
     private final static String NEW_REPEAT = "NEW_REPEAT";
@@ -27,22 +27,22 @@ public class FormEntryAction implements Externalizable {
     public FormEntryAction() {
     }
 
-    private FormEntryAction(String formIndexString, String value, String action) {
-        this.formIndexString = formIndexString;
+    private FormEntryAction(String questionRefString, String value, String action) {
+        this.questionRefString = questionRefString;
         this.value = value;
         this.action = action;
     }
 
-    public static FormEntryAction buildNewRepeatAction(String formIndexString) {
-        return new FormEntryAction(formIndexString, "", NEW_REPEAT);
+    public static FormEntryAction buildNewRepeatAction(String questionRefString) {
+        return new FormEntryAction(questionRefString, "", NEW_REPEAT);
     }
 
-    public static FormEntryAction buildValueSetAction(String formIndexString, String value) {
-        return new FormEntryAction(formIndexString, value, VALUE);
+    public static FormEntryAction buildValueSetAction(String questionRefString, String value) {
+        return new FormEntryAction(questionRefString, value, VALUE);
     }
 
-    public static FormEntryAction buildSkipAction(String formIndexString) {
-        return new FormEntryAction(formIndexString, "", SKIP);
+    public static FormEntryAction buildSkipAction(String questionRefString) {
+        return new FormEntryAction(questionRefString, "", SKIP);
     }
 
     public static FormEntryAction buildNullAction() {
@@ -52,12 +52,12 @@ public class FormEntryAction implements Externalizable {
     @Override
     public String toString() {
         if (NEW_REPEAT.equals(action)) {
-            return "((" + formIndexString + ") (NEW_REPEAT))";
+            return "((" + questionRefString + ") (NEW_REPEAT))";
         } else if (VALUE.equals(action)) {
             // TODO PLM: escape 'value' field
-            return "((" + formIndexString + ") (VALUE) (" + value + "))";
+            return "((" + questionRefString + ") (VALUE) (" + value + "))";
         } else if (SKIP.equals(action)) {
-            return "((" + formIndexString + ") (SKIP))";
+            return "((" + questionRefString + ") (SKIP))";
         } else {
             return "";
         }
@@ -65,7 +65,7 @@ public class FormEntryAction implements Externalizable {
 
     @Override
     public int hashCode() {
-        return formIndexString.hashCode() ^ value.hashCode() ^ action.hashCode();
+        return questionRefString.hashCode() ^ value.hashCode() ^ action.hashCode();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class FormEntryAction implements Externalizable {
         }
         if (other instanceof FormEntryAction) {
             FormEntryAction otherAction = (FormEntryAction)other;
-            return formIndexString.equals(otherAction.formIndexString) &&
+            return questionRefString.equals(otherAction.questionRefString) &&
                     value.equals(otherAction.value) &&
                     action.equals(otherAction.action);
         }
@@ -93,18 +93,18 @@ public class FormEntryAction implements Externalizable {
                     "' has an incorrect number of entries, expected 2 or 3, got " + entryCount);
         }
 
-        String wrappedFormIndexString = actionEntries.elementAt(0);
-        String formIndexString = wrappedFormIndexString.substring(1, wrappedFormIndexString.length() - 1);
+        String wrappedQuestionRefString = actionEntries.elementAt(0);
+        String questionRefString = wrappedQuestionRefString.substring(1, wrappedQuestionRefString.length() - 1);
         if (entryCount == 2) {
             if (("(" + NEW_REPEAT + ")").equals(actionEntries.elementAt(1))) {
-                return buildNewRepeatAction(formIndexString);
+                return buildNewRepeatAction(questionRefString);
             } else {
-                return buildSkipAction(formIndexString);
+                return buildSkipAction(questionRefString);
             }
         } else {
             String wrappedValue = actionEntries.elementAt(2);
             String value = wrappedValue.substring(1, wrappedValue.length() - 1);
-            return buildValueSetAction(formIndexString, value);
+            return buildValueSetAction(questionRefString, value);
         }
     }
 
@@ -120,20 +120,20 @@ public class FormEntryAction implements Externalizable {
         return value;
     }
 
-    public String getFormIndexString() {
-        return formIndexString;
+    public String getQuestionRefString() {
+        return questionRefString;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        formIndexString = ExtUtil.readString(in);
+        questionRefString = ExtUtil.readString(in);
         value = ExtUtil.readString(in);
         action = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, formIndexString);
+        ExtUtil.writeString(out, questionRefString);
         ExtUtil.writeString(out, value);
         ExtUtil.writeString(out, action);
     }

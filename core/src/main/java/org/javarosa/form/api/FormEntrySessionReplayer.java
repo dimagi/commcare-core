@@ -4,6 +4,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * Replay form entry session. Steps through form, applying answers from the
@@ -60,7 +61,8 @@ public class FormEntrySessionReplayer {
 
     private void replayQuestion() {
         FormIndex questionIndex = formEntryController.getModel().getFormIndex();
-        FormEntryAction action = formEntrySession.getActionForIndex(questionIndex);
+        TreeReference questionRef = questionIndex.getReference();
+        FormEntryAction action = formEntrySession.getActionForRef(questionRef);
         if (action != null) {
             if (!action.isSkipAction()) {
                 FormEntryPrompt entryPrompt =
