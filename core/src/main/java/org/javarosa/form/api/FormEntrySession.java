@@ -87,7 +87,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
      */
     public FormEntryAction getAndRemoveActionForRef(TreeReference questionRef) {
         for (int i = 0; i < actions.size(); i++) {
-            FormEntryAction action = actions.get(i);
+            FormEntryAction action = actions.elementAt(i);
             if (action.getQuestionRefString().equals(questionRef.toString())) {
                 actions.removeElementAt(i);
                 return action;
