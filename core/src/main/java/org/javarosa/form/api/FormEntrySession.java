@@ -78,7 +78,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
     }
 
     private static String computeStopRef(Vector<FormEntryAction> actions) {
-        return actions.get(actions.size()-1).getQuestionRefString();
+        return actions.elementAt(actions.size() - 1).getQuestionRefString();
     }
 
     /**
@@ -89,7 +89,8 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         for (int i = 0; i < actions.size(); i++) {
             FormEntryAction action = actions.get(i);
             if (action.getQuestionRefString().equals(questionRef.toString())) {
-                return actions.remove(i);
+                actions.removeElementAt(i);
+                return action;
             }
         }
         return null;
@@ -102,7 +103,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         for (FormEntryAction action : actions) {
             if (action.isNewRepeatAction() &&
                     action.getQuestionRefString().equals(questionRef.toString())) {
-                return actions.remove(action);
+                return actions.removeElement(action);
             }
         }
         return false;
