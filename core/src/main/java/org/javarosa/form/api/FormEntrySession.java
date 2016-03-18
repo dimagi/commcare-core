@@ -1,6 +1,7 @@
 package org.javarosa.form.api;
 
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -13,14 +14,15 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * Records form entry actions, associating form indexes with user (string)
- * answers.  For simplicity's sake each form index appears only once in the
- * action list. Updating an answer does not change its ordering in the action list.
+ * Records form entry actions, associating question references with user (string)
+ * answers. Updating an answer does not change its ordering in the action list.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormEntrySession implements FormEntrySessionRecorder, Externalizable {
+
     private Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
+    private String sessionStopRef;
 
     /**
      * For Externalization
@@ -30,14 +32,14 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
 
     @Override
     public void addNewRepeat(FormIndex formIndex) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(formIndexString), insertIndex);
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildNewRepeatAction(questionRefString), insertIndex);
     }
 
-    private int removeDuplicateAction(String formIndexString) {
+    private int removeDuplicateAction(String questionRefString) {
         for (int i = actions.size() - 1; i >= 0; i--) {
-            if (actions.elementAt(i).getFormIndexString().equals(formIndexString)) {
+            if (actions.elementAt(i).getQuestionRefString().equals(questionRefString)) {
                 actions.removeElementAt(i);
                 return i;
             }
@@ -47,26 +49,16 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
 
     @Override
     public void addValueSet(FormIndex formIndex, String value) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildValueSetAction(formIndexString, value), insertIndex);
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildValueSetAction(questionRefString, value), insertIndex);
     }
 
     @Override
     public void addQuestionSkip(FormIndex formIndex) {
-        final String formIndexString = formIndex.toString();
-        int insertIndex = removeDuplicateAction(formIndexString);
-        actions.insertElementAt(FormEntryAction.buildSkipAction(formIndexString), insertIndex);
-    }
-
-    public FormEntryAction popAction() {
-        if (actions.size() > 0) {
-            FormEntryAction firstAction = actions.firstElement();
-            actions.removeElementAt(0);
-            return firstAction;
-        } else {
-            return FormEntryAction.buildNullAction();
-        }
+        final String questionRefString = formIndex.getReference().toString();
+        int insertIndex = removeDuplicateAction(questionRefString);
+        actions.insertElementAt(FormEntryAction.buildSkipAction(questionRefString), insertIndex);
     }
 
     public FormEntryAction peekAction() {
@@ -75,6 +67,46 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         } else {
             return FormEntryAction.buildNullAction();
         }
+    }
+
+    /**
+     * @return the ref path for the last action in this form entry session (e.g. where the user
+     * stopped form entry)
+     */
+    public String getStopRef() {
+        return this.sessionStopRef;
+    }
+
+    private static String computeStopRef(Vector<FormEntryAction> actions) {
+        return actions.elementAt(actions.size() - 1).getQuestionRefString();
+    }
+
+    /**
+     * Remove and return the FormEntryAction corresponding to the given FormIndex, if there is
+     * one in this session
+     */
+    public FormEntryAction getAndRemoveActionForRef(TreeReference questionRef) {
+        for (int i = 0; i < actions.size(); i++) {
+            FormEntryAction action = actions.get(i);
+            if (action.getQuestionRefString().equals(questionRef.toString())) {
+                actions.removeElementAt(i);
+                return action;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns whether a NEW_REPEAT action exists for this questionRef, and removes it if it does
+     */
+    public boolean getAndRemoveRepeatActionForRef(TreeReference questionRef) {
+        for (FormEntryAction action : actions) {
+            if (action.isNewRepeatAction() &&
+                    action.getQuestionRefString().equals(questionRef.toString())) {
+                return actions.removeElement(action);
+            }
+        }
+        return false;
     }
 
     public int size() {
@@ -98,6 +130,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
             formEntrySession.actions.addElement(FormEntryAction.fromString(actionString));
         }
 
+        formEntrySession.sessionStopRef = computeStopRef(formEntrySession.actions);
         return formEntrySession;
     }
 
@@ -132,7 +165,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         actions = (Vector<FormEntryAction>)ExtUtil.read(in, new ExtWrapList(FormEntryAction.class), pf);
-
+        sessionStopRef = computeStopRef(actions);
     }
 
     @Override
