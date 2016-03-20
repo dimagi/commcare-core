@@ -27,6 +27,7 @@ public class CalloutParser extends ElementParser<Callout> {
         String actionName = parser.getAttributeValue(null, "action");
         String image = parser.getAttributeValue(null, "image");
         String displayName = parser.getAttributeValue(null, "name");
+        String type = parser.getAttributeValue(null, "type");
 
         Hashtable<String, String> extras = new Hashtable<String, String>();
         Vector<String> responses = new Vector<String>();
@@ -42,6 +43,6 @@ public class CalloutParser extends ElementParser<Callout> {
                 responseDetailField = new DetailFieldParser(parser, null, "'lookup callout detail field'").parse();
             }
         }
-        return new Callout(actionName, image, displayName, extras, responses, responseDetailField);
+        return new Callout(actionName, image, displayName, extras, responses, responseDetailField, type);
     }
 }
