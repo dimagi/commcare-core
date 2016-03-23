@@ -184,8 +184,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
                     String value = parser.nextText().trim();
 
-                    if(value.equals(caseId)) {
-                        throw new InvalidStructureException("Invalid index operation! Case " + caseId + " cannot index itself!", parser);
+                    if (value.equals(caseId)) {
+                        throw InvalidStructureException.localizableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself", parser);
                     }
 
                     //Remove any ambiguity associated with empty values
