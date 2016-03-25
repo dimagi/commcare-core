@@ -1,6 +1,7 @@
 package org.javarosa.xml.util;
 
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 /**
  * Invalid structure error that can _potentially_ be recovered from via
@@ -24,7 +25,11 @@ public class ActionableInvalidStructureException extends InvalidStructureExcepti
     @Override
     public String getLocalizedMessage() {
         if (localizationKey != null) {
-            return Localization.get(localizationKey, localizationParameters);
+            try {
+                return Localization.get(localizationKey, localizationParameters);
+            } catch (NoLocalizedTextException e) {
+                return getMessage();
+            }
         } else {
             return getMessage();
         }
