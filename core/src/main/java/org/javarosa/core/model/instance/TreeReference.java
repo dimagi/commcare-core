@@ -128,13 +128,13 @@ public class TreeReference implements Externalizable {
             TreeReference step;
 
             if (elem.getName() != null) {
-                step = TreeReference.selfRef();
+                step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE);
                 step.add(elem.getName(), elem.getMult());
-                step.setInstanceName(elem.getInstanceName());
+                step.setupContextTypeFromInstanceName();
             } else {
-                step = TreeReference.rootRef();
                 //All TreeElements are part of a consistent tree, so the root should be in the same instance
-                step.setInstanceName(elem.getInstanceName());
+                step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE);
+                step.setupContextTypeFromInstanceName();
             }
 
             ref = ref.parent(step);
@@ -145,14 +145,6 @@ public class TreeReference implements Externalizable {
 
     public String getInstanceName() {
         return instanceName;
-    }
-
-    //TODO: This should be constructed I think
-    public void setInstanceName(String newInstanceName) {
-        hashCode = -1;
-        this.instanceName = newInstanceName;
-
-        setupContextTypeFromInstanceName();
     }
 
     public int getMultiplicity(int index) {
