@@ -46,7 +46,7 @@ public class FormDefTest {
                 continue;
             }
             // get the reference of question
-            TreeReference qRef = (TreeReference)(q.getBind()).getReference();
+            TreeReference qRef = q.getBind().getReference();
 
             // are we changing the value of /data/show?
             if (qRef.toString().equals("/data/show")) {
