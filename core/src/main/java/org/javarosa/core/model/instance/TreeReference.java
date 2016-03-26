@@ -80,7 +80,13 @@ public class TreeReference implements Externalizable {
 
     public TreeReference(String instanceName, int refLevel) {
         this(instanceName, refLevel, -1);
+    }
 
+    private TreeReference(String instanceName, int refLevel, int contextType) {
+        this.instanceName = instanceName;
+        this.refLevel = refLevel;
+        this.contextType = contextType;
+        this.data = new Vector<TreeReferenceLevel>();
         setupContextTypeFromInstanceName();
     }
 
@@ -94,13 +100,6 @@ public class TreeReference implements Externalizable {
         } else {
             this.contextType = CONTEXT_INSTANCE;
         }
-    }
-
-    public TreeReference(String instanceName, int refLevel, int contextType) {
-        this.instanceName = instanceName;
-        this.refLevel = refLevel;
-        this.contextType = contextType;
-        this.data = new Vector<TreeReferenceLevel>();
     }
 
     /**
@@ -128,13 +127,11 @@ public class TreeReference implements Externalizable {
             TreeReference step;
 
             if (elem.getName() != null) {
-                step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE);
+                step = new TreeReference(elem.getInstanceName(), 0, CONTEXT_INHERITED);
                 step.add(elem.getName(), elem.getMult());
-                step.setupContextTypeFromInstanceName();
             } else {
                 //All TreeElements are part of a consistent tree, so the root should be in the same instance
                 step = new TreeReference(elem.getInstanceName(), REF_ABSOLUTE, CONTEXT_ABSOLUTE);
-                step.setupContextTypeFromInstanceName();
             }
 
             ref = ref.parent(step);
