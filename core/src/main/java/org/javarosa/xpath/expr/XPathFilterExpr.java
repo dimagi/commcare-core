@@ -85,9 +85,9 @@ public class XPathFilterExpr extends XPathExpression {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        Vector v = new Vector();
-        for (int i = 0; i < predicates.length; i++) {
-            v.addElement(predicates[i]);
+        Vector<XPathExpression> v = new Vector<XPathExpression>();
+        for (XPathExpression predicate : predicates) {
+            v.addElement(predicate);
         }
 
         ExtUtil.write(out, new ExtWrapTagged(x));
