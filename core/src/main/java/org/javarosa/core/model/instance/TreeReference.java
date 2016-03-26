@@ -120,6 +120,18 @@ public class TreeReference implements Externalizable {
         return new TreeReference(null, 0, CONTEXT_INHERITED);
     }
 
+    /**
+     * Build a 'current()' reference
+     *
+     * @return a reference that represents a base 'current()' path
+     */
+    public static TreeReference baseCurrentRef() {
+        TreeReference currentRef = new TreeReference(null, 0, CONTEXT_ORIGINAL);
+        // TODO PLM, make this unneeded
+        currentRef.contextType = CONTEXT_ORIGINAL;
+        return currentRef;
+    }
+
     public static TreeReference buildRefFromTreeElement(AbstractTreeElement elem) {
         TreeReference ref = TreeReference.selfRef();
 
@@ -290,7 +302,7 @@ public class TreeReference implements Externalizable {
      * parent of the original ref. Return true if we successfully got the
      * parent, false if there were no higher levels
      */
-    public boolean removeLastLevel() {
+    private boolean removeLastLevel() {
         int oldSize = size();
         hashCode = -1;
         this.size = -1;
@@ -424,7 +436,8 @@ public class TreeReference implements Externalizable {
         }
 
         TreeReference newRef = anchor(contextRef);
-        newRef.setContext(contextRef.getContext());
+        newRef.hashCode = -1;
+        newRef.contextType = contextRef.getContext();
 
         // apply multiplicites and fill in wildcards as necessary, based on the
         // context ref
@@ -547,6 +560,7 @@ public class TreeReference implements Externalizable {
      * @return Is object o a TreeReference with equal reference level entries
      * to this object?
      */
+    @Override
     public boolean equals(Object o) {
         //csims@dimagi.com - Replaced this function performing itself fully written out
         //rather than allowing the tree reference levels to denote equality. The only edge
@@ -741,12 +755,6 @@ public class TreeReference implements Externalizable {
 
         //The only way to get here is if a's size is -1
         throw new RuntimeException("Impossible state");
-    }
-
-    //TODO: This should be in construction
-    public void setContext(int context) {
-        hashCode = -1;
-        this.contextType = context;
     }
 
     public int getContext() {
