@@ -214,27 +214,25 @@ public class XPathStep implements Externalizable {
      * Matching is reflexive, consistent, and symmetric, but _not_ transitive.
      */
     protected boolean matches(XPathStep o) {
-        if (o instanceof XPathStep) {
-            XPathStep x = o;
-
+        if (o != null) {
             //shortcuts for faster evaluation
-            if (axis != x.axis || (test != x.test && !((x.test == TEST_NAME && this.test == TEST_NAME_WILDCARD) || (this.test == TEST_NAME && x.test == TEST_NAME_WILDCARD))) || predicates.length != x.predicates.length) {
+            if (axis != o.axis || (test != o.test && !((o.test == TEST_NAME && this.test == TEST_NAME_WILDCARD) || (this.test == TEST_NAME && o.test == TEST_NAME_WILDCARD))) || predicates.length != o.predicates.length) {
                 return false;
             }
 
             switch (test) {
                 case TEST_NAME:
-                    if (x.test != TEST_NAME_WILDCARD && !name.equals(x.name)) {
+                    if (o.test != TEST_NAME_WILDCARD && !name.equals(o.name)) {
                         return false;
                     }
                     break;
                 case TEST_NAMESPACE_WILDCARD:
-                    if (!namespace.equals(x.namespace)) {
+                    if (!namespace.equals(o.namespace)) {
                         return false;
                     }
                     break;
                 case TEST_TYPE_PROCESSING_INSTRUCTION:
-                    if (!ExtUtil.equals(literal, x.literal, false)) {
+                    if (!ExtUtil.equals(literal, o.literal, false)) {
                         return false;
                     }
                     break;
@@ -242,7 +240,7 @@ public class XPathStep implements Externalizable {
                     break;
             }
 
-            return ExtUtil.arrayEquals(predicates, x.predicates, false);
+            return ExtUtil.arrayEquals(predicates, o.predicates, false);
         } else {
             return false;
         }
