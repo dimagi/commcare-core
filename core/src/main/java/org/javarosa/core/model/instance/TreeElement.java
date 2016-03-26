@@ -795,32 +795,10 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         //TODO: Expire cache somehow;
         synchronized (refCache) {
             if (refCache[0] == null) {
-                refCache[0] = TreeElement.buildRef(this);
+                refCache[0] = TreeReference.buildRefFromTreeElement(this);
             }
             return refCache[0];
         }
-    }
-
-    public static TreeReference buildRef(AbstractTreeElement elem) {
-        TreeReference ref = TreeReference.selfRef();
-
-        while (elem != null) {
-            TreeReference step;
-
-            if (elem.getName() != null) {
-                step = TreeReference.selfRef();
-                step.add(elem.getName(), elem.getMult());
-                step.setInstanceName(elem.getInstanceName());
-            } else {
-                step = TreeReference.rootRef();
-                //All TreeElements are part of a consistent tree, so the root should be in the same instance
-                step.setInstanceName(elem.getInstanceName());
-            }
-
-            ref = ref.parent(step);
-            elem = elem.getParent();
-        }
-        return ref;
     }
 
     public String getPreloadHandler() {

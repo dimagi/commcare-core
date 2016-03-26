@@ -387,32 +387,11 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     public TreeReference getRef() {
         //TODO: Expire cache somehow;
         if (refCache == null) {
-            refCache = ConcreteTreeElement.buildRef(this);
+            refCache = TreeReference.buildRefFromTreeElement(this);
         }
         return refCache;
     }
 
-    public static TreeReference buildRef(AbstractTreeElement elem) {
-        TreeReference ref = TreeReference.selfRef();
-
-        while (elem != null) {
-            TreeReference step;
-
-            if (elem.getName() != null) {
-                step = TreeReference.selfRef();
-                step.add(elem.getName(), elem.getMult());
-                step.setInstanceName(elem.getInstanceName());
-            } else {
-                step = TreeReference.rootRef();
-                //All TreeElements are part of a consistent tree, so the root should be in the same instance
-                step.setInstanceName(elem.getInstanceName());
-            }
-
-            ref = ref.parent(step);
-            elem = elem.getParent();
-        }
-        return ref;
-    }
 
     /* (non-Javadoc)
      * @see org.javarosa.core.model.instance.AbstractTreeElement#getName()

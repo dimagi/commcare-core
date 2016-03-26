@@ -121,6 +121,28 @@ public class TreeReference implements Externalizable {
         return new TreeReference(null, 0, CONTEXT_INHERITED);
     }
 
+    public static TreeReference buildRefFromTreeElement(AbstractTreeElement elem) {
+        TreeReference ref = TreeReference.selfRef();
+
+        while (elem != null) {
+            TreeReference step;
+
+            if (elem.getName() != null) {
+                step = TreeReference.selfRef();
+                step.add(elem.getName(), elem.getMult());
+                step.setInstanceName(elem.getInstanceName());
+            } else {
+                step = TreeReference.rootRef();
+                //All TreeElements are part of a consistent tree, so the root should be in the same instance
+                step.setInstanceName(elem.getInstanceName());
+            }
+
+            ref = ref.parent(step);
+            elem = elem.getParent();
+        }
+        return ref;
+    }
+
     public String getInstanceName() {
         return instanceName;
     }
