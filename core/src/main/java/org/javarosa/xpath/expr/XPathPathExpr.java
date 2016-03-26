@@ -347,13 +347,9 @@ public class XPathPathExpr extends XPathExpression {
                 return false;
             }
 
-            if (steps.length != x.steps.length) {
-                return false;
-            } else {
-                for (int i = 0; i < steps.length; i++) {
-                    if (!steps[i].matches(x.steps[i])) {
-                        return false;
-                    }
+            for (int i = 0; i < steps.length; i++) {
+                if (!steps[i].matches(x.steps[i])) {
+                    return false;
                 }
             }
 
