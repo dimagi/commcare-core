@@ -43,6 +43,7 @@ public class XPathPathExpr extends XPathExpression {
 
     public int init_context;
     public XPathStep[] steps;
+    private TreeReference cachedReference;
 
     //for INIT_CONTEXT_EXPR only
     public XPathFilterExpr filtExpr;
@@ -69,6 +70,9 @@ public class XPathPathExpr extends XPathExpression {
      * @return a reference built from this path expression
      */
     public TreeReference getReference() throws XPathUnsupportedException {
+        if (cachedReference != null) {
+            return cachedReference;
+        }
         TreeReference ref = new TreeReference();
         boolean parentsAllowed;
         // process the beginning of the reference
@@ -160,6 +164,7 @@ public class XPathPathExpr extends XPathExpression {
                 ref.addPredicate(ref.size() - 1, v);
             }
         }
+        cachedReference = ref;
         return ref;
     }
 
