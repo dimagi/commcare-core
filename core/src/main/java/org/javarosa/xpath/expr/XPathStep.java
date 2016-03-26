@@ -38,25 +38,6 @@ public class XPathStep implements Externalizable {
 
     private static Interner<XPathStep> refs;
 
-    /**
-     * Used by J2ME
-     */
-    public static void attachInterner(Interner<XPathStep> refs) {
-        XPathStep.refs = refs;
-    }
-
-    public static XPathStep ABBR_SELF() {
-        return new XPathStep(AXIS_SELF, TEST_TYPE_NODE);
-    }
-
-    public static XPathStep ABBR_PARENT() {
-        return new XPathStep(AXIS_PARENT, TEST_TYPE_NODE);
-    }
-
-    public static XPathStep ABBR_DESCENDANTS() {
-        return new XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE);
-    }
-
     public int axis;
     public int test;
     public XPathExpression[] predicates;
@@ -83,6 +64,25 @@ public class XPathStep implements Externalizable {
     public XPathStep(int axis, String namespace) {
         this(axis, TEST_NAMESPACE_WILDCARD);
         this.namespace = namespace;
+    }
+
+    public static XPathStep ABBR_SELF() {
+        return new XPathStep(AXIS_SELF, TEST_TYPE_NODE);
+    }
+
+    public static XPathStep ABBR_PARENT() {
+        return new XPathStep(AXIS_PARENT, TEST_TYPE_NODE);
+    }
+
+    public static XPathStep ABBR_DESCENDANTS() {
+        return new XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE);
+    }
+
+    /**
+     * Used by J2ME
+     */
+    public static void attachInterner(Interner<XPathStep> refs) {
+        XPathStep.refs = refs;
     }
 
     @Override
