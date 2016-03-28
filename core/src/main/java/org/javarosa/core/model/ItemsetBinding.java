@@ -125,5 +125,4 @@ public class ItemsetBinding implements Externalizable, Localizable {
         ExtUtil.writeBool(out, labelIsItext);
         ExtUtil.writeBool(out, copyMode);
     }
-
 }

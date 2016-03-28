@@ -57,6 +57,7 @@ public class RestoreUtils {
         return dataType;
     }
 
+    @SuppressWarnings("unused")
     public static Object getValue(String xpath, FormInstance tree) {
         TreeReference context = topRef(tree);
         TreeElement node = tree.resolveReference(ref(xpath).contextualize(context));
@@ -73,10 +74,7 @@ public class RestoreUtils {
     }
 
     public static void applyDataType(FormInstance dm, String path, TreeReference parent, Class type) {
-        applyDataType(dm, path, parent, getDataType(type));
-    }
-
-    private static void applyDataType(FormInstance dm, String path, TreeReference parent, int dataType) {
+        int dataType = getDataType(type);
         TreeReference ref = childRef(path, parent);
 
         Vector v = new EvaluationContext(dm).expandReference(ref);
