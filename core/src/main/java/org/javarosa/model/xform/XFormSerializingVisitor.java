@@ -46,7 +46,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
      */
     TreeReference rootRef;
 
-    Vector dataPointers;
+    Vector<IDataPointer> dataPointers;
 
     boolean respectRelevance = true;
 
@@ -60,7 +60,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     private void init() {
         theXmlDoc = null;
-        dataPointers = new Vector();
+        dataPointers = new Vector<IDataPointer>();
     }
 
     @Override
@@ -119,7 +119,6 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
     @Override
     public void visit(FormInstance tree) {
         theXmlDoc = new Document();
-        //TreeElement root = tree.getRoot();
 
         TreeElement root = tree.resolveReference(rootRef);
 
@@ -129,10 +128,6 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
             root = tree.getRoot();
         }
 
-        for (int i = 0; i < root.getNumChildren(); i++) {
-            TreeElement childAt = root.getChildAt(i);
-        }
-
         if (root != null) {
             theXmlDoc.addChild(Node.ELEMENT, serializeNode(root));
         }
@@ -140,8 +135,8 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         Element top = theXmlDoc.getElement(0);
 
         String[] prefixes = tree.getNamespacePrefixes();
-        for (int i = 0; i < prefixes.length; ++i) {
-            top.setPrefix(prefixes[i], tree.getNamespaceURI(prefixes[i]));
+        for (String prefix : prefixes) {
+            top.setPrefix(prefix, tree.getNamespaceURI(prefix));
         }
         if (tree.schema != null) {
             top.setNamespace(tree.schema);
@@ -170,14 +165,14 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
             }
 
             if (serializer.containsExternalData(instanceNode.getValue()).booleanValue()) {
-                IDataPointer[] pointer = serializer.retrieveExternalDataPointer(instanceNode.getValue());
-                for (int i = 0; i < pointer.length; ++i) {
-                    dataPointers.addElement(pointer[i]);
+                IDataPointer[] pointers = serializer.retrieveExternalDataPointer(instanceNode.getValue());
+                for (IDataPointer pointer : pointers) {
+                    dataPointers.addElement(pointer);
                 }
             }
         } else {
             //make sure all children of the same tag name are written en bloc
-            Vector childNames = new Vector();
+            Vector<String> childNames = new Vector<String>();
             for (int i = 0; i < instanceNode.getNumChildren(); i++) {
                 String childName = instanceNode.getChildAt(i).getName();
                 if (!childNames.contains(childName))
@@ -185,7 +180,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
             }
 
             for (int i = 0; i < childNames.size(); i++) {
-                String childName = (String)childNames.elementAt(i);
+                String childName = childNames.elementAt(i);
                 int mult = instanceNode.getChildMultiplicity(childName);
                 for (int j = 0; j < mult; j++) {
                     Element child = serializeNode(instanceNode.getChild(childName, j));

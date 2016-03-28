@@ -268,6 +268,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         mTreeElement.registerStateObserver(this);
     }
 
+    @Override
     public void unregister() {
         mTreeElement.unregisterStateObserver(this);
         super.unregister();
