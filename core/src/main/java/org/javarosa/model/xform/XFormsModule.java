@@ -6,6 +6,7 @@ import org.javarosa.xpath.XPathParseTool;
 
 public class XFormsModule implements IModule {
 
+    @Override
     public void registerModule() {
         String[] classes = {
                 "org.javarosa.model.xform.XPathReference",

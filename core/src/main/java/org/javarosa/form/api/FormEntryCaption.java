@@ -396,11 +396,13 @@ public class FormEntryCaption implements FormElementStateListener {
 
     // ==== observer pattern ====//
 
+    @SuppressWarnings("unused")
     public void register(IQuestionWidget viewWidget) {
         this.viewWidget = viewWidget;
         element.registerStateObserver(this);
     }
 
+    @SuppressWarnings("unused")
     public void unregister() {
         this.viewWidget = null;
         element.unregisterStateObserver(this);

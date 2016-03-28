@@ -1859,8 +1859,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
     }
 
-
-
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
         for (XFormExtension ex : extensions) {
             if (ex.getClass().isAssignableFrom(extension)) {

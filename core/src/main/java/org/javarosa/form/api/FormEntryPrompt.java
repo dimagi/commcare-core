@@ -262,6 +262,7 @@ public class FormEntryPrompt extends FormEntryCaption {
 
     //==== observer pattern ====//
 
+    @Override
     public void register(IQuestionWidget viewWidget) {
         super.register(viewWidget);
         mTreeElement.registerStateObserver(this);

@@ -42,18 +42,16 @@ import java.util.Vector;
  *
  * @author Clayton Sims
  */
-
 public class TreeElement implements Externalizable, AbstractTreeElement<TreeElement> {
     protected String name; // can be null only for hidden root node
     protected int multiplicity = -1; // see TreeReference for special values
     protected AbstractTreeElement parent;
 
-
     protected IAnswerData value;
 
     //I made all of these null again because there are so many treeelements that they
     //take up a huuuge amount of space together.
-    private Vector observers = null;
+    private Vector<FormElementStateListener> observers = null;
     protected Vector<TreeElement> attributes = null;
     protected Vector<TreeElement> children = null;
 
@@ -84,7 +82,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     final TreeReference[] refCache = new TreeReference[1];
 
     /**
-     * An optional mapping of this element's children based on a path step result that can be used to quickly index child nodes *
+     * An optional mapping of this element's children based on a path step
+     * result that can be used to quickly index child nodes
      */
     Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> mChildStepMapping = null;
 
@@ -467,8 +466,9 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     /* ==== OBSERVER PATTERN ==== */
 
     public void registerStateObserver(FormElementStateListener qsl) {
-        if (observers == null)
-            observers = new Vector();
+        if (observers == null) {
+            observers = new Vector<FormElementStateListener>();
+        }
 
         if (!observers.contains(qsl)) {
             observers.addElement(qsl);
@@ -478,16 +478,18 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     public void unregisterStateObserver(FormElementStateListener qsl) {
         if (observers != null) {
             observers.removeElement(qsl);
-            if (observers.isEmpty())
+            if (observers.isEmpty()) {
                 observers = null;
+            }
         }
     }
 
     public void alertStateObservers(int changeFlags) {
         if (observers != null) {
-            for (Enumeration e = observers.elements(); e.hasMoreElements(); )
+            for (Enumeration e = observers.elements(); e.hasMoreElements(); ) {
                 ((FormElementStateListener)e.nextElement())
                         .formElementStateChanged(this, changeFlags);
+            }
         }
     }
 
@@ -686,7 +688,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             }
         }
     }
-
 
     /**
      * Rebuilding this node from an imported instance
