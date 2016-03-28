@@ -1177,7 +1177,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                     try {
                         String value = (String)args[0];
                         String questionXpath = (String)args[1];
-                        TreeReference ref = RestoreUtils.xfFact.ref(questionXpath);
+                        TreeReference ref = RestoreUtils.ref(questionXpath);
 
                         QuestionDef q = FormDef.findQuestionByRef(ref, f);
                         if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
