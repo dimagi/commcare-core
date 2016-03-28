@@ -8,8 +8,6 @@ import org.javarosa.core.services.transport.payload.IDataPayload;
 public interface IXFormyFactory {
     TreeReference ref(String refStr);
 
-    IDataPayload serializeInstance(FormInstance dm);
-
     //kinda ghetto
     IConditionExpr refToPathExpr(TreeReference ref);
 }

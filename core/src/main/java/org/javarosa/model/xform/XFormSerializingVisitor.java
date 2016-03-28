@@ -1,23 +1,5 @@
 package org.javarosa.model.xform;
 
-
-    /*
-     * Copyright (C) 2009 JavaRosa
-     *
-     * Licensed under the Apache License, Version 2.0 (the "License"); you may not
-     * use this file except in compliance with the License. You may obtain a copy of
-     * the License at
-     *
-     * http://www.apache.org/licenses/LICENSE-2.0
-     *
-     * Unless required by applicable law or agreed to in writing, software
-     * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-     * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-     * License for the specific language governing permissions and limitations under
-     * the License.
-     */
-
-
 import org.javarosa.core.data.IDataPointer;
 import org.javarosa.core.model.IAnswerDataSerializer;
 import org.javarosa.core.model.instance.FormInstance;
@@ -81,14 +63,12 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         dataPointers = new Vector();
     }
 
+    @Override
     public byte[] serializeInstance(FormInstance model) throws IOException {
         return serializeInstance(model, new XPathReference("/"));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#serializeDataModel(org.javarosa.core.model.IFormDataModel)
-     */
+    @Override
     public byte[] serializeInstance(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = FormInstance.unpackReference(ref);
@@ -104,10 +84,12 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         }
     }
 
+    @Override
     public IDataPayload createSerializedPayload(FormInstance model) throws IOException {
         return createSerializedPayload(model, new XPathReference("/"));
     }
 
+    @Override
     public IDataPayload createSerializedPayload(FormInstance model, XPathReference ref) throws IOException {
         init();
         rootRef = FormInstance.unpackReference(ref);
@@ -134,10 +116,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.utils.ITreeVisitor#visit(org.javarosa.core.model.DataModelTree)
-     */
+    @Override
     public void visit(FormInstance tree) {
         theXmlDoc = new Document();
         //TreeElement root = tree.getRoot();
@@ -170,7 +149,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         }
     }
 
-    public Element serializeNode(TreeElement instanceNode) {
+    private Element serializeNode(TreeElement instanceNode) {
         Element e = new Element(); //don't set anything on this element yet, as it might get overwritten
 
         //don't serialize template nodes or non-relevant nodes
@@ -237,14 +216,12 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         return e;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.utils.IInstanceSerializingVisitor#setAnswerDataSerializer(org.javarosa.core.model.IAnswerDataSerializer)
-     */
+    @Override
     public void setAnswerDataSerializer(IAnswerDataSerializer ads) {
         this.serializer = ads;
     }
 
+    @Override
     public IInstanceSerializingVisitor newInstance() {
         XFormSerializingVisitor modelSerializer = new XFormSerializingVisitor();
         modelSerializer.setAnswerDataSerializer(this.serializer);

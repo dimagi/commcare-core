@@ -70,7 +70,7 @@ public class RestoreUtils {
         applyDataType(dm, path, parent, getDataType(type));
     }
 
-    public static void applyDataType(FormInstance dm, String path, TreeReference parent, int dataType) {
+    private static void applyDataType(FormInstance dm, String path, TreeReference parent, int dataType) {
         TreeReference ref = childRef(path, parent);
 
         Vector v = new EvaluationContext(dm).expandReference(ref);

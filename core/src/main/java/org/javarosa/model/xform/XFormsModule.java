@@ -29,14 +29,6 @@ public class XFormsModule implements IModule {
                 return FormInstance.unpackReference(new XPathReference(refStr));
             }
 
-            public IDataPayload serializeInstance(FormInstance dm) {
-                try {
-                    return (new XFormSerializingVisitor()).createSerializedPayload(dm);
-                } catch (IOException e) {
-                    return null;
-                }
-            }
-
             public IConditionExpr refToPathExpr(TreeReference ref) {
                 return new XPathConditional(XPathPathExpr.fromRef(ref));
             }
