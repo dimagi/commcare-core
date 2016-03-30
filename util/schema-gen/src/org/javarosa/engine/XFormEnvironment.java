@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.engine;
 
 import org.javarosa.core.model.FormDef;
@@ -23,14 +20,10 @@ import java.util.Vector;
  * Run an XForm programatically for fun and profit.
  *
  * @author ctsims
- *
  */
 public class XFormEnvironment {
 
     private final FormDef form;
-
-    private FormEntryModel fem;
-    private FormEntryController fec;
 
 
     private Step currentStep;
@@ -72,8 +65,8 @@ public class XFormEnvironment {
             currentStep = session.getSteps().elementAt(0);
         }
 
-        fem = new FormEntryModel(form);
-        fec = FormEntryController.buildRecordingController(fem);
+        FormEntryModel fem = new FormEntryModel(form);
+        FormEntryController fec = FormEntryController.buildRecordingController(fem);
 
         return fec;
     }
