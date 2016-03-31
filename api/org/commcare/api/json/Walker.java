@@ -11,10 +11,10 @@ import org.json.JSONObject;
  */
 public class Walker {
 
-    JSONArray compiler;
-    FormIndex parentIndex;
-    FormEntryController fec;
-    FormEntryModel fem;
+    private final JSONArray compiler;
+    private final FormIndex parentIndex;
+    private final FormEntryController fec;
+    private final FormEntryModel fem;
 
     public Walker(JSONArray compiler, FormIndex parentIndex, FormEntryController fec, FormEntryModel fem){
         this.compiler = compiler;
@@ -52,7 +52,7 @@ public class Walker {
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
 
-            obj.put("relevant", relevant ? 1 : 0);
+            obj.put("relevant", 1);
 
             if(obj.get("type").equals("sub-group")){
                 Walker walker;
