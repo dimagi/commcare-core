@@ -72,6 +72,7 @@ public class ProfileInstaller extends CacheInstaller {
         return Profile.STORAGE_KEY;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
                            CommCareInstance instance, boolean upgrade)
@@ -104,7 +105,8 @@ public class ProfileInstaller extends CacheInstaller {
                 Profile p;
                 try {
                     incoming = ref.getStream();
-                    ProfileParser parser = new ProfileParser(incoming, instance, table, r.getRecordGuid(),
+                    ProfileParser parser = ProfileParser.getMultipleAppsBlindProfileParser(
+                            incoming, instance, table, r.getRecordGuid(),
                             Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
                     if (Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
                         parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);

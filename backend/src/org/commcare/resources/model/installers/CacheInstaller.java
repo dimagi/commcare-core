@@ -67,7 +67,10 @@ public abstract class CacheInstaller<T extends Persistable> implements ResourceI
         return false;
     }
 
-    public abstract boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException;
+    @Override
+    public abstract boolean install(Resource r, ResourceLocation location, Reference ref,
+                                    ResourceTable table, CommCareInstance instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException;
 
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //Don't need to do anything, since the resource is in the RMS already.
