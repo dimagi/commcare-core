@@ -8,6 +8,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.*;
 import org.javarosa.core.model.data.helper.Selection;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -211,17 +212,15 @@ public class JsonActionUtils {
     private static Pair<Integer, Integer> stepFromString(String step){
         // honestly not sure. thanks obama/drew
         if(step.endsWith("J")){
-            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), -10);
+            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), TreeReference.INDEX_REPEAT_JUNCTURE);
         }
         // we want to deal with both '.' and '_' as separators for the time being for TF legacy reasons
         String[] split = step.split("[._:]");
         // the form index is the first part, the multiplicity is the second
         int i = Integer.parseInt(split[0].trim());
         int mult = -1;
-        try{
+        if (split.length > 1 && split[1] != null) {
             mult = Integer.parseInt(split[1].trim());
-        } catch(IndexOutOfBoundsException | NullPointerException e){
-            // do nothing, leave mult as -1
         }
         return new Pair<>(i, mult);
     }
