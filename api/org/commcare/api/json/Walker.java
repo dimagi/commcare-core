@@ -7,7 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Created by willpride on 12/8/15.
+ * The Walker class is kind of a beast. At the highest level, a Walker is responsible for transforming
+ * a given state and index during form entry (as represented by a FormEntryController, FormEntryModel, and Form Index)
+ * into a JSON representation. For each question at the Walker's starting depth, the Walker will generate a JSON
+ * representation of this question and add it to the compiler array, expanding repeats where necessary.
+ * For each subgroup, the Walker will recursively instantiate another Walker for this group and add its output as a child.
+ * Each Walker might itself be a subgroup of another Walker.
+ *
+ * @author wpride
  */
 public class Walker {
 
@@ -23,13 +30,13 @@ public class Walker {
         this.fem = fem;
     }
 
-    public FormIndex step(FormIndex formIndex, boolean descend){
+    private FormIndex step(FormIndex formIndex, boolean descend){
         FormIndex nextIndex = fec.getAdjacentIndex(formIndex, true, descend);
         fem.setQuestionIndex(nextIndex);
         return nextIndex;
     }
 
-    public boolean indexInScope(FormIndex formIndex){
+    private boolean indexInScope(FormIndex formIndex){
         if(formIndex.isEndOfFormIndex()){
             return false;
         }
@@ -51,8 +58,6 @@ public class Walker {
 
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
-
-            obj.put("relevant", 1);
 
             if(obj.get("type").equals("sub-group")){
                 Walker walker;
