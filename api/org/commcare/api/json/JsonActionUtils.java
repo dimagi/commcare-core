@@ -155,10 +155,15 @@ public class JsonActionUtils {
             return new SelectMultiData(ret);
         } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_GEOPOINT){
             return AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(
-                    new UncastData(data.replace(",", " ").replace("[","").replace("]", "")));
+                    new UncastData(convertTouchFormsGeoPointString(data)));
         }
 
         return data.equals("") ? null : AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(new UncastData(data));
+    }
+
+    // we need to remove the brackets Touchforms includes and replace the commas with spaces
+    private static String convertTouchFormsGeoPointString(String touchformsString){
+        return touchformsString.replace(",", " ").replace("[","").replace("]", "");
     }
 
     /**

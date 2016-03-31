@@ -149,21 +149,22 @@ public class PromptToJson {
             case Constants.DATATYPE_CHOICE:
                 Selection singleSelection = ((Selection)answerValue.getValue());
                 singleSelection.attachChoice(prompt.getQuestion());
-                obj.put("answer", ((Selection)answerValue.getValue()).index + 1);
+                obj.put("answer", ((Selection)answerValue.getValue()).getTouchformsIndex());
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
                 Vector<Selection> selections = ((SelectMultiData)answerValue).getValue();
                 JSONArray acc = new JSONArray();
                 for(Selection selection: selections){
                     selection.attachChoice(prompt.getQuestion());
-                    int ordinal = selection.index + 1;
+                    int ordinal = selection.getTouchformsIndex();
                     acc.put(ordinal);
                 }
                 obj.put("answer", acc);
                 return;
             case Constants.DATATYPE_GEOPOINT:
-                double[] coords = ((GeoPointData)prompt.getAnswerValue()).getValue();
-                obj.put("answer", Arrays.copyOfRange(coords, 0, 2));
+                GeoPointData geoPointData = ((GeoPointData)prompt.getAnswerValue());
+                double[] coords = new double[] {geoPointData.getLatitude(), geoPointData.getLongitude()};
+                obj.put("answer", coords);
                 return;
         }
     }
