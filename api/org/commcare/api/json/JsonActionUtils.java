@@ -171,7 +171,8 @@ public class JsonActionUtils {
      * OK, this function is kind of a monster. Given a FormDef and a String representation of the form index,
      * return a full fledged FormIndex object.
      */
-    private static FormIndex indexFromString(String stringIndex, FormDef form) {
+    public static FormIndex indexFromString(String stringIndex, FormDef form) {
+        System.out.println("Converting stringIndex: " + stringIndex);
         if (stringIndex == null || stringIndex.equals("None")) {
             return null;
         } else if (stringIndex.equals("<")) {
@@ -184,6 +185,8 @@ public class JsonActionUtils {
 
         FormIndex ret = reduceFormIndex(list, null);
         ret.assignRefs(form);
+        System.out.println("Returning : " + ret);
+        System.out.println("Ret get depth: " + ret.getDepth() +  " mult: " + ret.getElementMultiplicity() + " index: " + ret.getInstanceIndex());
         return ret;
     }
 
