@@ -24,13 +24,14 @@ public class JsonActionUtils {
 
     /**
      * Delete a repeat at the specified index, return the JSON response
-     * @param controller the FormEntryController under consideration
-     * @param model the FormEntryModel under consideration
+     *
+     * @param controller      the FormEntryController under consideration
+     * @param model           the FormEntryModel under consideration
      * @param formIndexString the form index of the repeat group to be deleted
      * @return The JSON representation of the updated form tree
      */
     public static JSONObject deleteRepeatToJson(FormEntryController controller,
-                                                 FormEntryModel model, String formIndexString){
+                                                FormEntryModel model, String formIndexString) {
         JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.deleteRepeat(formIndex);
@@ -41,13 +42,13 @@ public class JsonActionUtils {
     /**
      * Expand (IE create) the repeat at the specified form index
      *
-     * @param controller the FormEntryController under consideration
-     * @param model the FormEntryModel under consideration
+     * @param controller      the FormEntryController under consideration
+     * @param model           the FormEntryModel under consideration
      * @param formIndexString the form index of the repeat group to be expanded
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject descendRepeatToJson(FormEntryController controller,
-                                                 FormEntryModel model, String formIndexString){
+                                                 FormEntryModel model, String formIndexString) {
         JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.jumpToIndex(formIndex);
@@ -58,12 +59,13 @@ public class JsonActionUtils {
 
     /**
      * Get the JSON representation of the question tree of this controller/model pair
+     *
      * @param controller the FormEntryController under consideration
-     * @param model the FormEntryModel under consideration
+     * @param model      the FormEntryModel under consideration
      * @return The JSON representation of the question tree
      */
     public static JSONObject getCurrentJson(FormEntryController controller,
-                                            FormEntryModel model){
+                                            FormEntryModel model) {
         JSONObject ret = new JSONObject();
         ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
         return ret;
@@ -73,17 +75,17 @@ public class JsonActionUtils {
      * Answer the question, return the updated JSON representation of the question tree
      *
      * @param controller the FormEntryController under consideration
-     * @param model the FormEntryModel under consideration
-     * @param answer the answer to enter
-     * @param prompt the question to be answered
+     * @param model      the FormEntryModel under consideration
+     * @param answer     the answer to enter
+     * @param prompt     the question to be answered
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer, FormEntryPrompt prompt){
+                                                  FormEntryModel model, String answer, FormEntryPrompt prompt) {
         JSONObject ret = new JSONObject();
         IAnswerData answerData;
 
-        if(answer == null || answer.equals("None")){
+        if (answer == null || answer.equals("None")) {
             answerData = null;
         } else {
             try {
@@ -96,18 +98,16 @@ public class JsonActionUtils {
             }
         }
         int result = controller.answerQuestion(prompt.getIndex(), answerData);
-        if(result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
-            ret.put(ApiConstants.RESPONSE_STATUS_KEY,"error");
+        if (result == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY) {
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
             ret.put(ApiConstants.ERROR_TYPE_KEY, "required");
-        }
-        else if(result == FormEntryController.ANSWER_CONSTRAINT_VIOLATED){
+        } else if (result == FormEntryController.ANSWER_CONSTRAINT_VIOLATED) {
             ret.put(ApiConstants.RESPONSE_STATUS_KEY, "error");
             ret.put(ApiConstants.ERROR_TYPE_KEY, "restraint");
             ret.put(ApiConstants.ERROR_REASON_KEY, prompt.getConstraintText());
-        }
-        else if (result == FormEntryController.ANSWER_OK){
+        } else if (result == FormEntryController.ANSWER_OK) {
             ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
-            ret.put(ApiConstants.RESPONSE_STATUS_KEY,"accepted");
+            ret.put(ApiConstants.RESPONSE_STATUS_KEY, "accepted");
         }
         return ret;
     }
@@ -116,13 +116,13 @@ public class JsonActionUtils {
      * Answer the question, return the updated JSON representation of the question tree
      *
      * @param controller the FormEntryController under consideration
-     * @param model the FormEntryModel under consideration
-     * @param answer the answer to enter
-     * @param index the form index of the question to be answered
+     * @param model      the FormEntryModel under consideration
+     * @param answer     the answer to enter
+     * @param index      the form index of the question to be answered
      * @return The JSON representation of the updated question tree
      */
     public static JSONObject questionAnswerToJson(FormEntryController controller,
-                                                  FormEntryModel model, String answer, String index){
+                                                  FormEntryModel model, String answer, String index) {
 
         FormIndex formIndex = indexFromString(index, model.getForm());
 
@@ -134,27 +134,27 @@ public class JsonActionUtils {
      * Return the IAnswerData version of the string data input
      *
      * @param formEntryPrompt the FormEntryPrompt for this question
-     * @param data the String answer
+     * @param data            the String answer
      * @return the IAnswerData version of @data above
      */
-    public static IAnswerData getAnswerData(FormEntryPrompt formEntryPrompt, String data){
+    public static IAnswerData getAnswerData(FormEntryPrompt formEntryPrompt, String data) {
 
-        if(formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE){
+        if (formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE) {
             int index = Integer.parseInt(data);
 
-            SelectChoice ans = formEntryPrompt.getSelectChoices().get(index -1);
+            SelectChoice ans = formEntryPrompt.getSelectChoices().get(index - 1);
 
             return new SelectOneData(ans.selection());
-        } else if(formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE_LIST){
+        } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
             String[] split = parseMultiSelectString(data);
             Vector<Selection> ret = new Vector<>();
-            for (String s: split){
+            for (String s : split) {
                 int index = Integer.parseInt(s);
-                Selection ans = formEntryPrompt.getSelectChoices().get(index -1).selection();
+                Selection ans = formEntryPrompt.getSelectChoices().get(index - 1).selection();
                 ret.add(ans);
             }
             return new SelectMultiData(ret);
-        } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_GEOPOINT){
+        } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_GEOPOINT) {
             return AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(
                     new UncastData(convertTouchFormsGeoPointString(data)));
         }
@@ -163,20 +163,20 @@ public class JsonActionUtils {
     }
 
     // we need to remove the brackets Touchforms includes and replace the commas with spaces
-    private static String convertTouchFormsGeoPointString(String touchformsString){
-        return touchformsString.replace(",", " ").replace("[","").replace("]", "");
+    private static String convertTouchFormsGeoPointString(String touchformsString) {
+        return touchformsString.replace(",", " ").replace("[", "").replace("]", "");
     }
 
     /**
      * OK, this function is kind of a monster. Given a FormDef and a String representation of the form index,
      * return a full fledged FormIndex object.
      */
-    private static FormIndex indexFromString(String stringIndex, FormDef form){
-        if(stringIndex == null || stringIndex.equals("None")){
+    private static FormIndex indexFromString(String stringIndex, FormDef form) {
+        if (stringIndex == null || stringIndex.equals("None")) {
             return null;
-        } else if(stringIndex.equals("<")){
+        } else if (stringIndex.equals("<")) {
             return FormIndex.createBeginningOfFormIndex();
-        } else if(stringIndex.equals(">")){
+        } else if (stringIndex.equals(">")) {
             return FormIndex.createEndOfFormIndex();
         }
 
@@ -189,16 +189,17 @@ public class JsonActionUtils {
 
     /**
      * Given a String represnetation of a form index, decompose it into a list of <index, multiplicity> pairs
+     *
      * @param index the comma separated String representation of the form index
      * @return @index represented as a list of index,multiplicity integer pairs
      */
-    private static List<Pair<Integer, Integer>> stepToList(String index){
+    private static List<Pair<Integer, Integer>> stepToList(String index) {
         ArrayList<Pair<Integer, Integer>> ret = new ArrayList<>();
         String[] split = index.split(",");
         List<String> list = Arrays.asList(split);
         Collections.reverse(list);
-        for(String step: list){
-            if(!step.trim().equals("")) {
+        for (String step : list) {
+            if (!step.trim().equals("")) {
                 Pair<Integer, Integer> pair = stepFromString(step);
                 ret.add(pair);
             }
@@ -209,10 +210,10 @@ public class JsonActionUtils {
     /**
      * Given the string representation of one "Step" in a form index, return an Integer pair of <index, multiplicity>
      */
-    private static Pair<Integer, Integer> stepFromString(String step){
+    private static Pair<Integer, Integer> stepFromString(String step) {
         // honestly not sure. thanks obama/drew
-        if(step.endsWith("J")){
-            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length()-1)), TreeReference.INDEX_REPEAT_JUNCTURE);
+        if (step.endsWith("J")) {
+            return new Pair<>(Integer.parseInt("" + step.substring(0, step.length() - 1)), TreeReference.INDEX_REPEAT_JUNCTURE);
         }
         // we want to deal with both '.' and '_' as separators for the time being for TF legacy reasons
         String[] split = step.split("[._:]");
@@ -230,8 +231,8 @@ public class JsonActionUtils {
      * pop the top step and create a new FormIndex from this step with the current as its parent, then recursively
      * call this function with the remaining steps and the new FormIndex
      */
-    private static FormIndex reduceFormIndex(List<Pair<Integer, Integer>> steps, FormIndex current){
-        if(steps.size() == 0){
+    private static FormIndex reduceFormIndex(List<Pair<Integer, Integer>> steps, FormIndex current) {
+        if (steps.size() == 0) {
             return current;
         }
         Pair<Integer, Integer> currentStep = steps.remove(0);
@@ -239,26 +240,26 @@ public class JsonActionUtils {
         return reduceFormIndex(steps, nextLevel);
     }
 
-    private static String[] parseMultiSelectString(String answer){
+    private static String[] parseMultiSelectString(String answer) {
         answer = answer.trim();
-        if(answer.startsWith("[") && answer.endsWith("]")){
-            answer = answer.substring(1, answer.length()-1);
+        if (answer.startsWith("[") && answer.endsWith("]")) {
+            answer = answer.substring(1, answer.length() - 1);
         }
         String[] ret = answer.split(" ");
-        for(int i=0; i< ret.length; i++){
-            ret[i] = ret[i].replace(",","");
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = ret[i].replace(",", "");
         }
         return ret;
     }
 
-    public static JSONArray walkToJSON(FormEntryModel fem, FormEntryController fec){
+    public static JSONArray walkToJSON(FormEntryModel fem, FormEntryController fec) {
         try {
             JSONArray ret = new JSONArray();
             FormIndex formIndex = FormIndex.createBeginningOfFormIndex();
             Walker walker = new Walker(ret, formIndex, fec, fem);
             walker.walk();
             return ret;
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

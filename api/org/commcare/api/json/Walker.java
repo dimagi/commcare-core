@@ -23,35 +23,35 @@ public class Walker {
     private final FormEntryController fec;
     private final FormEntryModel fem;
 
-    public Walker(JSONArray compiler, FormIndex parentIndex, FormEntryController fec, FormEntryModel fem){
+    public Walker(JSONArray compiler, FormIndex parentIndex, FormEntryController fec, FormEntryModel fem) {
         this.compiler = compiler;
         this.parentIndex = parentIndex;
         this.fec = fec;
         this.fem = fem;
     }
 
-    private FormIndex step(FormIndex formIndex, boolean descend){
+    private FormIndex step(FormIndex formIndex, boolean descend) {
         FormIndex nextIndex = fec.getAdjacentIndex(formIndex, true, descend);
         fem.setQuestionIndex(nextIndex);
         return nextIndex;
     }
 
-    private boolean indexInScope(FormIndex formIndex){
-        if(formIndex.isEndOfFormIndex()){
+    private boolean indexInScope(FormIndex formIndex) {
+        if (formIndex.isEndOfFormIndex()) {
             return false;
         }
-        if(parentIndex.isBeginningOfFormIndex()){
+        if (parentIndex.isBeginningOfFormIndex()) {
             return true;
         }
         return FormIndex.isSubElement(parentIndex, formIndex);
     }
 
-    public FormIndex walk(){
+    public FormIndex walk() {
         FormIndex currentIndex = step(parentIndex, true);
-        while(indexInScope(currentIndex)){
+        while (indexInScope(currentIndex)) {
             boolean relevant = fem.isIndexRelevant(currentIndex);
 
-            if(!relevant){
+            if (!relevant) {
                 currentIndex = step(currentIndex, false);
                 break;
             }
@@ -59,20 +59,20 @@ public class Walker {
             JSONObject obj = new JSONObject();
             PromptToJson.parseQuestionType(fem, obj);
 
-            if(obj.get("type").equals("sub-group")){
+            if (obj.get("type").equals("sub-group")) {
                 Walker walker;
-                if(obj.has("caption") && obj.get("caption") != JSONObject.NULL  ){
+                if (obj.has("caption") && obj.get("caption") != JSONObject.NULL) {
                     JSONArray childObject = new JSONArray();
                     walker = new Walker(childObject, currentIndex, fec, fem);
                     obj.put("children", childObject);
-                } else{
+                } else {
                     walker = new Walker(compiler, currentIndex, fec, fem);
                 }
                 compiler.put(obj);
                 currentIndex = walker.walk();
-            } else if(obj.get("type").equals("repeat-juncture")){
+            } else if (obj.get("type").equals("repeat-juncture")) {
                 JSONArray children = new JSONArray();
-                for(int i = 0; i < fem.getForm().getNumRepetitions(currentIndex); i++){
+                for (int i = 0; i < fem.getForm().getNumRepetitions(currentIndex); i++) {
                     JSONObject subEvent = new JSONObject();
                     FormIndex ix = fem.getForm().descendIntoRepeat(currentIndex, i);
                     JSONArray subChildren = new JSONArray();
@@ -90,7 +90,7 @@ public class Walker {
                 obj.put("children", children);
                 compiler.put(obj);
                 currentIndex = step(currentIndex, true);
-            } else{
+            } else {
                 compiler.put(obj);
                 currentIndex = step(currentIndex, true);
             }

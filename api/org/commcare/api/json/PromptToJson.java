@@ -25,10 +25,10 @@ import java.util.Vector;
 public class PromptToJson {
 
     /**
-     * @param prompt The FormEntryPrompt under consideration
+     * @param prompt       The FormEntryPrompt under consideration
      * @param questionJson the JSON object question representation being generated
      */
-    public static void parseQuestion(FormEntryPrompt prompt, JSONObject questionJson){
+    public static void parseQuestion(FormEntryPrompt prompt, JSONObject questionJson) {
         parseCaption(prompt, questionJson);
         questionJson.put("help", jsonNullIfNull(prompt.getHelpText()));
         questionJson.put("binding", jsonNullIfNull(prompt.getQuestion().getBind().getReference().toString()));
@@ -37,21 +37,21 @@ public class PromptToJson {
         questionJson.put("required", prompt.isRequired() ? 1 : 0);
         try {
             parseQuestionAnswer(questionJson, prompt);
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
 
-        if(prompt.getDataType() == Constants.DATATYPE_CHOICE || prompt.getDataType() == Constants.DATATYPE_CHOICE_LIST){
+        if (prompt.getDataType() == Constants.DATATYPE_CHOICE || prompt.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
             questionJson.put("choices", parseSelect(prompt));
         }
     }
 
     /**
-     * @param prompt The FormEntryCaption to get the caption fields from
+     * @param prompt       The FormEntryCaption to get the caption fields from
      * @param questionJson The JSON question representation being built
      */
-    public static void parseCaption(FormEntryCaption prompt, JSONObject questionJson){
+    public static void parseCaption(FormEntryCaption prompt, JSONObject questionJson) {
         questionJson.put("caption_audio", jsonNullIfNull(prompt.getAudioText()));
         questionJson.put("caption", jsonNullIfNull(prompt.getLongText()));
         questionJson.put("caption_image", jsonNullIfNull(prompt.getImageText()));
@@ -60,7 +60,7 @@ public class PromptToJson {
     }
 
     // We want to use the JSONObject null if the object is null, not the Java null
-    public static Object jsonNullIfNull(Object obj){
+    public static Object jsonNullIfNull(Object obj) {
         return obj == null ? JSONObject.NULL : obj;
     }
 
@@ -69,7 +69,7 @@ public class PromptToJson {
         FormIndex ix = model.getFormIndex();
         obj.put("ix", ix.toString());
 
-        switch(status) {
+        switch (status) {
             case FormEntryController.EVENT_BEGINNING_OF_FORM:
                 obj.put("type", "form-start");
                 return;
@@ -119,42 +119,42 @@ public class PromptToJson {
         obj.put("done-choice", repeatOptions.done);
     }
 
-    private static void parseQuestionAnswer(JSONObject obj, FormEntryPrompt prompt){
+    private static void parseQuestionAnswer(JSONObject obj, FormEntryPrompt prompt) {
         IAnswerData answerValue = prompt.getAnswerValue();
-        if (answerValue == null){
+        if (answerValue == null) {
             obj.put("answer", JSONObject.NULL);
             return;
         }
-        switch(prompt.getDataType()) {
+        switch (prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
             case Constants.DATATYPE_TEXT:
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_INTEGER:
-                obj.put("answer", (int)answerValue.getValue());
+                obj.put("answer", (int) answerValue.getValue());
                 return;
             case Constants.DATATYPE_LONG:
             case Constants.DATATYPE_DECIMAL:
-                obj.put("answer", (double)answerValue.getValue());
+                obj.put("answer", (double) answerValue.getValue());
                 return;
             case Constants.DATATYPE_DATE:
-                obj.put("answer", (DateUtils.formatDate((Date)answerValue.getValue(), DateUtils.FORMAT_ISO8601)));
+                obj.put("answer", (DateUtils.formatDate((Date) answerValue.getValue(), DateUtils.FORMAT_ISO8601)));
                 return;
             case Constants.DATATYPE_TIME:
                 obj.put("answer", answerValue.getDisplayText());
                 return;
             case Constants.DATATYPE_DATE_TIME:
-                obj.put("answer", ((Date)answerValue.getValue()).getTime());
+                obj.put("answer", ((Date) answerValue.getValue()).getTime());
                 return;
             case Constants.DATATYPE_CHOICE:
-                Selection singleSelection = ((Selection)answerValue.getValue());
+                Selection singleSelection = ((Selection) answerValue.getValue());
                 singleSelection.attachChoice(prompt.getQuestion());
-                obj.put("answer", ((Selection)answerValue.getValue()).getTouchformsIndex());
+                obj.put("answer", ((Selection) answerValue.getValue()).getTouchformsIndex());
                 return;
             case Constants.DATATYPE_CHOICE_LIST:
-                Vector<Selection> selections = ((SelectMultiData)answerValue).getValue();
+                Vector<Selection> selections = ((SelectMultiData) answerValue).getValue();
                 JSONArray acc = new JSONArray();
-                for(Selection selection: selections){
+                for (Selection selection : selections) {
                     selection.attachChoice(prompt.getQuestion());
                     int ordinal = selection.getTouchformsIndex();
                     acc.put(ordinal);
@@ -162,8 +162,8 @@ public class PromptToJson {
                 obj.put("answer", acc);
                 return;
             case Constants.DATATYPE_GEOPOINT:
-                GeoPointData geoPointData = ((GeoPointData)prompt.getAnswerValue());
-                double[] coords = new double[] {geoPointData.getLatitude(), geoPointData.getLongitude()};
+                GeoPointData geoPointData = ((GeoPointData) prompt.getAnswerValue());
+                double[] coords = new double[]{geoPointData.getLatitude(), geoPointData.getLongitude()};
                 obj.put("answer", coords);
                 return;
         }
@@ -174,7 +174,7 @@ public class PromptToJson {
      */
     private static JSONArray parseSelect(FormEntryPrompt prompt) {
         JSONArray obj = new JSONArray();
-        for(SelectChoice choice: prompt.getSelectChoices()){
+        for (SelectChoice choice : prompt.getSelectChoices()) {
             obj.put(prompt.getSelectChoiceText(choice));
         }
         return obj;
@@ -184,7 +184,7 @@ public class PromptToJson {
     // https://github.com/dimagi/touchforms/blob/master/touchforms/backend/xformplayer.py#L400
     private static JSONObject parseStyle(FormEntryPrompt prompt) {
         String hint = prompt.getAppearanceHint();
-        if(hint == null){
+        if (hint == null) {
             return null;
         }
         JSONObject ret = new JSONObject().put("raw", hint);
@@ -192,11 +192,11 @@ public class PromptToJson {
     }
 
 
-    private static String parseControlType(FormEntryPrompt prompt){
-        if(prompt.getControlType() == Constants.CONTROL_TRIGGER){
+    private static String parseControlType(FormEntryPrompt prompt) {
+        if (prompt.getControlType() == Constants.CONTROL_TRIGGER) {
             return "info";
         }
-        switch(prompt.getDataType()){
+        switch (prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
             case Constants.DATATYPE_TEXT:
                 return "str";

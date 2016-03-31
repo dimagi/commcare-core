@@ -21,7 +21,7 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
     public JdbcSqlStorageIterator(PreparedStatement preparedStatement,
                                   ResultSet resultSet,
                                   int count,
-                                  SqliteIndexedStorageUtility<E> storage){
+                                  SqliteIndexedStorageUtility<E> storage) {
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
         this.count = count;
@@ -53,7 +53,7 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
         int nextID = peekID();
         try {
             boolean hasMore = resultSet.next();
-            if(!hasMore){
+            if (!hasMore) {
                 resultSet.close();
                 preparedStatement.close();
             }

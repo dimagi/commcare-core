@@ -59,12 +59,12 @@ public class UserSqlSandbox extends UserSandbox {
 
     @Override
     public User getLoggedInUser() {
-        if(user == null){
+        if (user == null) {
             SqliteIndexedStorageUtility<User> userStorage = getUserStorage();
             JdbcSqlStorageIterator<User> iterator = userStorage.iterate();
-            if(iterator.hasMore()){
+            if (iterator.hasMore()) {
                 // should be only one user here
-                user =  iterator.next();
+                user = iterator.next();
             } else {
                 return null;
             }
