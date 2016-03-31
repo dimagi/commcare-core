@@ -30,26 +30,8 @@ public class ProfileParser extends ElementParser<Profile> {
     CommCareInstance instance;
     boolean forceVersion = false;
 
-    // Is installation of a new app (that is NOT marked as "ignore", since these can always be
-    // installed no matter what) allowed?
-    boolean newInstallPermitted;
-
-    // If install is allowed, does this new app itself need to be multiple-apps compatible in order
-    // to be installed
-    boolean multipleAppCompatibilityRequired;
-
-    public static ProfileParser getMultipleAppsBlindProfileParser(
-            InputStream suiteStream, CommCareInstance instance, ResourceTable table,
-            String resourceId, int initialResourceStatus, boolean forceVersion)
-            throws IOException {
-
-        return new ProfileParser(suiteStream, instance, table, resourceId, initialResourceStatus,
-                forceVersion, true, false);
-    }
-
     public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
-            String resourceId, int initialResourceStatus, boolean forceVersion,
-                         boolean newInstallPermitted, boolean multipleAppCompatibilityRequired)
+            String resourceId, int initialResourceStatus, boolean forceVersion)
             throws IOException {
 
         super(ElementParser.instantiateParser(suiteStream));
@@ -58,8 +40,6 @@ public class ProfileParser extends ElementParser<Profile> {
         this.initialResourceStatus = initialResourceStatus;
         this.instance = instance;
         this.forceVersion = forceVersion;
-        this.newInstallPermitted = newInstallPermitted;
-        this.multipleAppCompatibilityRequired = multipleAppCompatibilityRequired;
     }
 
     public Profile parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
@@ -228,8 +208,6 @@ public class ProfileParser extends ElementParser<Profile> {
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
 
-            verifyMultipleAppsCompliance(profile);
-
             return profile;
 
         } catch (XmlPullParserException e) {
@@ -250,30 +228,6 @@ public class ProfileParser extends ElementParser<Profile> {
         maximumResourceAuthority = authority;
     }
 
-    private void verifyMultipleAppsCompliance(Profile profile)
-            throws UnfullfilledRequirementsException {
 
-        String compatibilityValue = profile.getMultipleAppsCompatibility();
-        if (Profile.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
-            // If the new app is set to "ignore", we can install no matter what
-            return;
-        } else if (!newInstallPermitted) {
-            throw new UnfullfilledRequirementsException("One or more of your currently installed" +
-                    "apps are not compatible with multiple apps. In order to install additional" +
-                    "apps, you must uninstall or upgrade that app first",
-                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_EXISTING);
-        } else if (multipleAppCompatibilityRequired &&
-                !compatibilityValue.equals(Profile.MULT_APPS_ENABLED_VALUE)) {
-            throw new UnfullfilledRequirementsException("The app you are trying to install is not" +
-                    "compatible with multiple apps, and you already have 1 or more apps installed " +
-                    "on your device. In order to install this app, you must uninstall all apps " +
-                    "currently on your device, or upgrade the project space for this app.",
-                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
-                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_NEW);
-        } else {
-            return;
-        }
-    }
 
 }

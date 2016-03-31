@@ -100,9 +100,8 @@ public class ProfileTests {
                 throw new RuntimeException("Test resource missing: " + path);
             }
             
-            ProfileParser parser = ProfileParser.getMultipleAppsBlindProfileParser(is,
-                    mAppPlatform.getPlatform(), mFreshResourceTable, "profile",
-                    Resource.RESOURCE_VERSION_UNKNOWN, false);
+            ProfileParser parser = new ProfileParser(is, mAppPlatform.getPlatform(),
+                    mFreshResourceTable, "profile", Resource.RESOURCE_VERSION_UNKNOWN, false);
             
             return parser.parse();
         } catch(Exception e) {
