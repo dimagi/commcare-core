@@ -63,10 +63,4 @@ public class SessionWrapper extends CommCareSession {
     public void setComputedDatum() {
         setComputedDatum(getEvaluationContext());
     }
-
-    public FormDef loadFormByXmlns(String xmlns) {
-        IStorageUtilityIndexed<FormDef> formStorage =
-                (IStorageUtilityIndexed) StorageManager.getStorage(FormDef.STORAGE_KEY);
-        return formStorage.getRecordForValue("XMLNS", xmlns);
-    }
 }
