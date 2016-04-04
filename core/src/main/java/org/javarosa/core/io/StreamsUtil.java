@@ -1,28 +1,15 @@
 package org.javarosa.core.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 public class StreamsUtil {
-
-    public static byte[] getStreamAsBytes(InputStream is) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        try {
-            StreamsUtil.writeFromInputToOutput(is, baos);
-            return baos.toByteArray();
-        } finally {
-            baos.close();
-        }
-    }
-
-
     /**
      * Write everything from input stream to output stream, byte by byte then
      * close the streams
      */
+    @SuppressWarnings("unused")
     public static void writeFromInputToOutput(InputStream in, OutputStream out, long[] tally) throws InputIOException, OutputIOException {
         //TODO: God this is naive
         int val;
@@ -80,9 +67,7 @@ public class StreamsUtil {
         }
     }
 
-    /**
-     * Used by J2ME
-     */
+    @SuppressWarnings("unused")
     public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
         writeToOutput(bytes, out, null);
     }
