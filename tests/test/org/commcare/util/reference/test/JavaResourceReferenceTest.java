@@ -3,8 +3,8 @@ package org.commcare.util.reference.test;
 import org.commcare.test.utilities.TestHelpers;
 import org.junit.Assert;
 
-import org.commcare.util.reference.JavaResourceReference;
-import org.commcare.util.reference.JavaResourceRoot;
+import org.commcare.modern.reference.JavaResourceReference;
+import org.commcare.modern.reference.JavaResourceRoot;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.commcare.util;
+package org.commcare.modern.reference;
 
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -17,7 +17,7 @@ import java.util.zip.ZipFile;
  */
 public class ArchiveFileRoot implements ReferenceFactory {
 
-    private final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
+    private static final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
 
     private final int GUID_LENGTH = 10;
 
