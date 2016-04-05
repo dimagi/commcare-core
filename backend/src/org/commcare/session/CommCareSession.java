@@ -180,54 +180,56 @@ public class CommCareSession {
      * the session does not need anything else to proceed
      */
     public String getNeededData() {
-        // If we don't have a command yet, then need to get that first
-        if (this.getCommand() == null) {
+        if (currentCmd == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
+        Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
+        String needDatum = getDataNeededByAllEntries(entries);
 
-        //Get data. Checking first to see if the relevant key is needed by all entries
+        if (needDatum != null) {
+            return needDatum;
+        } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
+            //the only other thing we can need is a form command. If there's
+            //still more than one applicable entry, we need to keep going
+            return SessionFrame.STATE_COMMAND_ID;
+        } else {
+            return null;
+        }
+    }
 
+    /**
+     * Checks that all entries have the same id for their first required data,
+     * and if so, returns the data's associated session state. Otherwise,
+     * returns null.
+     */
+    private String getDataNeededByAllEntries(Vector<Entry> entries) {
         String needDatum = null;
-        String nextKey = null;
-        for (Entry e : possibleEntries) {
-            SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
+        String neededDatumId = null;
+        for (Entry e : entries) {
+            SessionDatum datumNeededForThisEntry =
+                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
-                String needed = datumNeededForThisEntry.getDataId();
-                if (nextKey == null) {
-                    nextKey = needed;
+                if (neededDatumId == null) {
+                    neededDatumId = datumNeededForThisEntry.getDataId();
                     if (datumNeededForThisEntry.getNodeset() != null) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
                     } else {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
                     }
-                    continue;
-                } else {
-                    //TODO: Detail screen matchup seems relevant? Maybe?
-                    if (nextKey.equals(needed)) {
-                        continue;
-                    }
+                } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
+                    // data needed from the first entry isn't consistent with
+                    // the current entry
+                    return null;
                 }
+            } else {
+                // we don't need any data, or the first data needed isn't
+                // consistent across entries
+                return null;
             }
-
-            // If we made it here, we either don't need more data or don't need
-            // consistent data for the remaining options
-            needDatum = null;
-            break;
         }
 
-        if (needDatum != null) {
-            return needDatum;
-        }
-
-        //the only other thing we can need is a form command. If there's still
-        //more than one applicable entry, we need to keep going
-        if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
-            return SessionFrame.STATE_COMMAND_ID;
-        } else {
-            return null;
-        }
+        return needDatum;
     }
 
     public String[] getHeaderTitles() {
