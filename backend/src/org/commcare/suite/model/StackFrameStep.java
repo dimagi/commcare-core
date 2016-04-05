@@ -15,6 +15,7 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -33,6 +34,20 @@ public class StackFrameStep implements Externalizable {
      */
     public StackFrameStep() {
 
+    }
+
+    /**
+     * Copy constructor
+     */
+    public StackFrameStep(StackFrameStep oldStackFrameStep) {
+        this.elementType = oldStackFrameStep.elementType;
+        this.id = oldStackFrameStep.id;
+        this.value = oldStackFrameStep.value;
+        this.valueIsXpath = oldStackFrameStep.valueIsXpath;
+        for (Enumeration e = oldStackFrameStep.extras.keys(); e.hasMoreElements(); ) {
+            String key = (String)e.nextElement();
+            extras.put(key, oldStackFrameStep.extras.get(key));
+        }
     }
 
     public StackFrameStep(String type, String id, String value) {
