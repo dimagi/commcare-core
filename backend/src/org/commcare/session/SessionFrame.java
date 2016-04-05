@@ -71,6 +71,20 @@ public class SessionFrame implements Externalizable {
         this.frameId = frameId;
     }
 
+    /**
+     * Copy constructor
+     */
+    public SessionFrame(SessionFrame oldSessionFrame) {
+        this.frameId = oldSessionFrame.frameId;
+        for (StackFrameStep step : oldSessionFrame.steps) {
+            steps.addElement(new StackFrameStep(step));
+        }
+        for (StackFrameStep snapshotStep : oldSessionFrame.snapshot) {
+            snapshot.addElement(new StackFrameStep(snapshotStep));
+        }
+        this.dead = oldSessionFrame.dead;
+    }
+
 
     public Vector<StackFrameStep> getSteps() {
         return steps;

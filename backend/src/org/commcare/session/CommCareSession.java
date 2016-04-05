@@ -75,6 +75,29 @@ public class CommCareSession {
         this.frameStack = new Stack<SessionFrame>();
     }
 
+    /**
+     *  Copy constructor
+     */
+    public CommCareSession(CommCareSession oldCommCareSession) {
+        this.platform = oldCommCareSession.platform;
+        this.popped = new StackFrameStep(oldCommCareSession.popped);
+        this.currentCmd = oldCommCareSession.currentCmd;
+        this.currentXmlns = oldCommCareSession.currentXmlns;
+        this.frame = new SessionFrame(oldCommCareSession.frame);
+
+        collectedDatums = new OrderedHashtable<String, String>();
+        for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
+            String key = (String)e.nextElement();
+            collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
+        }
+
+        this.frameStack = new Stack<SessionFrame>();
+        // NOTE: can't use for/each due to J2ME build issues w/ Stack
+        for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
+            frameStack.addElement(oldCommCareSession.frameStack.get(i));
+        }
+    }
+
     public Vector<Entry> getEntriesForCommand(String commandId) {
         return getEntriesForCommand(commandId, new OrderedHashtable<String, String>());
     }
