@@ -25,7 +25,7 @@ public class SessionNavigator {
     public static final int START_ENTITY_SELECTION = 4;
     public static final int LAUNCH_CONFIRM_DETAIL = 5;
     public static final int EXCEPTION_THROWN = 6;
-    public static final int START_REMOTE_QUERY = 7;
+    public static final int START_SYNC_REQUEST = 7;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -65,7 +65,7 @@ public class SessionNavigator {
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             sendResponse(GET_COMMAND);
         } else if (needed.equals(SessionFrame.STATE_SYNC_REQUEST)) {
-            sendResponse(START_REMOTE_QUERY);
+            sendResponse(START_SYNC_REQUEST);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum();
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
