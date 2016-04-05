@@ -157,20 +157,26 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
+            //the only other thing we can need is a form command. If there's
+            //still more than one applicable entry, we need to keep going
+            return SessionFrame.STATE_COMMAND_ID;
         } else {
-            return needCommand(entries);
+            return null;
         }
     }
 
     /**
-     * Checks that all entries need the same first data type and, if so, returns that data type.
-     * Otherwise, returns null.
+     * Checks that all entries have the same id for their first required data,
+     * and if so, returns the data's associated session state. Otherwise,
+     * returns null.
      */
     private String getDataNeededByAllEntries(Vector<Entry> entries) {
         String needDatum = null;
         String neededDatumId = null;
         for (Entry e : entries) {
-            SessionDatum datumNeededForThisEntry = getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
+            SessionDatum datumNeededForThisEntry =
+                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
@@ -180,26 +186,18 @@ public class CommCareSession {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
-                    // data needed from the first entry isn't consistent with the current entry
+                    // data needed from the first entry isn't consistent with
+                    // the current entry
                     return null;
                 }
             } else {
-                // we don't need any data, or the first data needed isn't consistent accross entries
+                // we don't need any data, or the first data needed isn't
+                // consistent across entries
                 return null;
             }
         }
 
         return needDatum;
-    }
-
-    private String needCommand(Vector<Entry> possibleEntries) {
-        //the only other thing we can need is a form command. If there's still
-        //more than one applicable entry, we need to keep going
-        if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(currentCmd)) {
-            return SessionFrame.STATE_COMMAND_ID;
-        } else {
-            return null;
-        }
     }
 
     public String[] getHeaderTitles() {
