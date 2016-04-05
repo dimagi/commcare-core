@@ -400,8 +400,14 @@ public class FormDefTest {
                 100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
     }
 
+    /**
+     * Testing that two identical bind conditions, modulo the operator (=, <),
+     * are treated as distict entities.  Regression test for an issue where
+     * `equals` method for binary conditions wasn't taking condition type
+     * (arith, bool, equality) into account.
+     */
     @Test
-    public void testDisplayConditionsRegression() throws Exception {
+    public void testSimilarBindConditionsAreDistinguished() throws Exception {
         FormParseInit fpi =
                 new FormParseInit("/xform_tests/test_display_conditions_regression.xml");
         FormEntryController fec =  initFormEntry(fpi);
