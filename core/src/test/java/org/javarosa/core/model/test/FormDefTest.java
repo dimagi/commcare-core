@@ -416,7 +416,7 @@ public class FormDefTest {
                 visibleLabelWasPresent = true;
             }
             if (q.getTextID().equals("invisible-label")) {
-                //fail("Label whose display condition should be false was showing");
+                fail("Label whose display condition should be false was showing");
             }
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
 
