@@ -64,7 +64,7 @@ public class SessionNavigator {
             readyToProceed();
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             sendResponse(GET_COMMAND);
-        } else if (needed.equals(SessionFrame.STATE_REMOTE_QUERY)) {
+        } else if (needed.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             sendResponse(START_REMOTE_QUERY);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum();
