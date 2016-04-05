@@ -103,18 +103,18 @@ public class CommCareSession {
     }
 
     /**
-     * @param commandId the current command id
-     * @param data all of the datums already on the stack
+     * @param commandId          the current command id
+     * @param currentSessionData all of the datums already on the stack
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
-                                               OrderedHashtable<String, String> data) {
+                                               OrderedHashtable<String, String> currentSessionData) {
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
-                    return getEntriesFromMenu(m, data);
+                    return getEntriesFromMenu(m, currentSessionData);
                 }
             }
 
@@ -128,8 +128,12 @@ public class CommCareSession {
         return new Vector<Entry>();
     }
 
+    /**
+     * Get all entries that correspond to commands listed in the menu provided.
+     * Excludes entries whose data requirements aren't met by the 'currentSessionData'
+     */
     private Vector<Entry> getEntriesFromMenu(Menu menu,
-                                             OrderedHashtable<String, String> data) {
+                                             OrderedHashtable<String, String> currentSessionData) {
         Vector<Entry> entries = new Vector<Entry>();
         Hashtable<String, Entry> map = platform.getMenuMap();
         //We're in a menu we have a set of requirements which
@@ -139,20 +143,24 @@ public class CommCareSession {
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            boolean valid = true;
-            Vector<SessionDatum> requirements = e.getSessionDataReqs();
-            if (requirements.size() >= data.size()) {
-                for (int i = 0; i < data.size(); ++i) {
-                    if (!requirements.elementAt(i).getDataId().equals(data.keyAt(i))) {
-                        valid = false;
-                    }
-                }
-            }
-            if (valid) {
+            if (entryRequirementsSatsified(e, currentSessionData)) {
                 entries.addElement(e);
             }
         }
         return entries;
+    }
+
+    private static boolean entryRequirementsSatsified(Entry entry,
+                                                      OrderedHashtable<String, String> currentSessionData) {
+        Vector<SessionDatum> requirements = entry.getSessionDataReqs();
+        if (requirements.size() >= currentSessionData.size()) {
+            for (int i = 0; i < currentSessionData.size(); ++i) {
+                if (!requirements.elementAt(i).getDataId().equals(currentSessionData.keyAt(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private OrderedHashtable<String, String> getData() {
@@ -183,7 +191,6 @@ public class CommCareSession {
         String needDatum = null;
         String nextKey = null;
         for (Entry e : possibleEntries) {
-
             SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 String needed = datumNeededForThisEntry.getDataId();
