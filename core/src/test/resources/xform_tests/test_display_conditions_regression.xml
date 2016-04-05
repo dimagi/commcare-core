@@ -19,10 +19,10 @@
 
             <!--
              Below are two binds with identical conditions modulo the operator
-             (=, <). They are mutually ex There was a bug where the operator
-             wasn't being taken into account in `equals` method.  This form
-             tests for that these mutually exclusive conditions are treated
-             distinctly ensuring that only one label appears.
+             (=, <). There was a bug where the operator wasn't being taken into
+             account in `equals` method.  This form tests for that these
+             mutually exclusive conditions are treated distinctly ensuring that
+             only one label appears.
             -->
             <bind nodeset="/data/labels/label_should_show" relevant="/data/threshold = 0" />
             <bind nodeset="/data/labels/label_should_not_show" relevant="/data/threshold &lt; 0" />
