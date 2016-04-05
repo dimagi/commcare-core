@@ -315,7 +315,7 @@ public class FormDefTest {
         double expectedAge = (double) (diff / MILLISECONDS_IN_A_YEAR);
 
         ExprEvalUtils.assertEqualsXpathEval("Check that a default value for the age question was " +
-                "set correctly based upon provided answer to birthday question",
+                        "set correctly based upon provided answer to birthday question",
                 expectedAge, "/data/age", evalCtx);
     }
 
@@ -398,6 +398,31 @@ public class FormDefTest {
                 "20", "/data/myiterator/iterator[1]/target_value", evalCtx);
         ExprEvalUtils.assertEqualsXpathEval("",
                 100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
+    }
+
+    @Test
+    public void testDisplayConditionsRegression() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_display_conditions_regression.xml");
+        FormEntryController fec =  initFormEntry(fpi);
+
+        boolean visibleLabelWasPresent = false;
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null || q.getTextID() == null || "".equals(q.getTextID())) {
+                continue;
+            }
+            if (q.getTextID().equals("visible-label")) {
+                visibleLabelWasPresent = true;
+            }
+            if (q.getTextID().equals("invisible-label")) {
+                //fail("Label whose display condition should be false was showing");
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        if (!visibleLabelWasPresent) {
+            fail("Label whose display condition should be true was not showing");
+        }
     }
 
     private static void stepThroughEntireForm(FormEntryController fec) {

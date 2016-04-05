@@ -1,0 +1,46 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Label Display Conditions Test</h:title>
+        <model>
+            <instance>
+                <data
+                    name="display conditions"
+                    xmlns="http://openrosa.org/test/actions"
+                    uiVersion="1"
+                    version="1">
+                    <threshold>0</threshold>
+                    <labels>
+                        <label_should_show />
+                        <label_should_not_show />
+                    </labels>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/labels/label_should_show" relevant="/data/threshold = 0" />
+            <bind nodeset="/data/labels/label_should_not_show" relevant="/data/threshold &lt; 0" />
+
+            <itext>
+                <translation lang="English" default="">
+                    <text id="visible-label">
+                        <value>This label should be visible</value>
+                    </text>
+                    <text id="invisible-label">
+                        <value>This label should NOT be visible</value>
+                    </text>
+                </translation>
+            </itext>
+
+        </model>
+    </h:head>
+    <h:body>
+        <group ref="/data/labels" appearance="field-list">
+            <trigger ref="/data/labels/label_should_show" appearance="minimal">
+                <label ref="jr:itext('visible-label')" />
+            </trigger>
+            <trigger ref="/data/labels/label_should_not_show" appearance="minimal">
+                <label ref="jr:itext('invisible-label')" />
+            </trigger>
+        </group>
+    </h:body>
+</h:html>
