@@ -37,14 +37,22 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_DATUM_VAL = "CASE_ID";
 
     /**
-     * CommCare needs a computed xpath value to proceed *
+     * CommCare needs a computed xpath value to proceed
      */
     public static final String STATE_DATUM_COMPUTED = "COMPUTED_DATUM";
 
+    /**
+     * CommCare needs to gather string input from user
+     */
+    public static final String STATE_DATUM_USER_INPUT = "GET_USER_INPUT";
+
+    /**
+     * CommCare needs to make a synchronous server request
+     */
     public static final String STATE_SYNC_REQUEST = "SYNC_REQUEST";
 
     /**
-     * CommCare needs the XMLNS of the form to be entered to proceed *
+     * CommCare needs the XMLNS of the form to be entered to proceed
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";
 

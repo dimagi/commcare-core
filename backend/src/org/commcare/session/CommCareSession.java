@@ -8,6 +8,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.SyncEntry;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.UncastData;
@@ -175,7 +176,7 @@ public class CommCareSession {
      * Based on the current state of the session, determine what information is needed next to
      * proceed
      *
-     * @return 1 of the 4 STATE strings declared at the top of SessionFrame.java, or null if
+     * @return 1 of the 4 STATE strings declared at the top of SessionFrame, or null if
      * the session does not need anything else to proceed
      */
     public String getNeededData() {
