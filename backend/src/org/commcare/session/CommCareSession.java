@@ -160,7 +160,6 @@ public class CommCareSession {
         String needDatum = null;
         String nextKey = null;
         for (Entry e : possibleEntries) {
-
             SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
                 String needed = datumNeededForThisEntry.getDataId();
@@ -182,14 +181,17 @@ public class CommCareSession {
 
             // If we made it here, we either don't need more data or don't need
             // consistent data for the remaining options
-            needDatum = null;
-            break;
+            return needCommand(possibleEntries);
         }
 
         if (needDatum != null) {
             return needDatum;
+        } else {
+            return needCommand(possibleEntries);
         }
+    }
 
+    private String needCommand(Vector<Entry> possibleEntries) {
         //the only other thing we can need is a form command. If there's still
         //more than one applicable entry, we need to keep going
         if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
