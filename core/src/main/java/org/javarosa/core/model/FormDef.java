@@ -750,7 +750,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 // when we grabbed all triggerables that target children of the
                 // repeat entry (via initTriggerablesRootedBy). Hence skip them
                 if (!isRepeatEntryInit && t.isCascadingToChildren()) {
-                    //updatedNodes = findCascadeReferences(target, updatedNodes);
+                    updatedNodes = findCascadeReferences(target, updatedNodes);
                 }
 
                 addTriggerablesTargetingNodes(updatedNodes, destination);
@@ -779,14 +779,14 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             if (target.getMultLast() == TreeReference.INDEX_ATTRIBUTE) {
                 // attributes don't have children that might change under
                 // contextualization
-                //cachedCascadingChildren.register(target, updatedNodes);
+                cachedCascadingChildren.register(target, updatedNodes);
             } else {
                 Vector<TreeReference> expandedRefs = exprEvalContext.expandReference(target);
                 if (expandedRefs.size() > 0) {
                     AbstractTreeElement template = mainInstance.getTemplatePath(target);
                     if (template != null) {
                         addChildrenOfElement(template, updatedNodes);
-                        //cachedCascadingChildren.register(target, updatedNodes);
+                        cachedCascadingChildren.register(target, updatedNodes);
                     } else {
                         // NOTE PLM: entirely possible this can be removed if
                         // the getTemplatePath code is updated to handle
