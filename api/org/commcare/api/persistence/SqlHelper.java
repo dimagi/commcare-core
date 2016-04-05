@@ -173,28 +173,7 @@ public class SqlHelper {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = c.prepareStatement(query);
-
-            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(p);
-
-            preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), (blob).length);
-            /*
-             * We have to do this weird number stuff because 1) our first arg has already been set
-             * (DATA_COL above) and 2) preparedStatement arguments are 1-indexed
-             */
-            for (int i = 2; i < where.second.length + 2; i++) {
-                Object obj = where.second[i - 2];
-                if (obj instanceof String) {
-                    preparedStatement.setString(i, (String)obj);
-                } else if (obj instanceof Blob) {
-                    preparedStatement.setBlob(i, (Blob)obj);
-                } else if (obj instanceof Integer) {
-                    preparedStatement.setInt(i, (Integer)obj);
-                } else if (obj instanceof byte[]) {
-                    preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
-                } else if (obj == null) {
-                    preparedStatement.setNull(i, 0);
-                }
-            }
+            setPreparedStatementArgs(preparedStatement, p, where.second);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -219,16 +198,25 @@ public class SqlHelper {
      * @param id        sql record to update
      */
     public static void updateToTable(Connection connection, String tableName, Persistable persistable, int id) {
-        String query = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? " + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
+        String queryStart = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? ";
+        String queryEnd = " WHERE " + DatabaseHelper.ID_COL + " = ?;";
+
+        HashMap<String, Object> map = DatabaseHelper.getMetaFieldsAndValues(persistable);
+        String[] fieldNames = map.keySet().toArray(new String[map.keySet().size()]);
+        Object[] values = map.values().toArray(new Object[map.values().size()]);
+
+        StringBuilder stringBuilder = new StringBuilder(queryStart);
+        for(String fieldName: fieldNames){
+            stringBuilder.append(", ").append(fieldName).append(" = ?");
+        }
+
+        String query = stringBuilder.append(queryEnd).toString();
 
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(query);
-
-            byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(persistable);
-
-            preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
-            preparedStatement.setInt(2, id);
+            int lastArgIndex = setPreparedStatementArgs(preparedStatement, persistable, values);
+            preparedStatement.setInt(lastArgIndex, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -241,6 +229,38 @@ public class SqlHelper {
                 }
             }
         }
+    }
+
+    /**
+     * @param preparedStatement the PreparedStatement to populate with arguments
+     * @param persistable the Persistable object being stored
+     * @param values the ordered values to use in the PreparedStatement (corresponding to the
+     *               '?' in the query string)
+     * @return the index of the next '?' NOT populated by this helper
+     * @throws SQLException
+     */
+    public static int setPreparedStatementArgs(PreparedStatement preparedStatement,
+                                         Persistable persistable,
+                                         Object[] values) throws SQLException {
+        byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(persistable);
+        preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
+        // offset to 2 since 1) SQLite is 1 indexed and 2) we set the first arg above
+        int i = 2;
+        for(Object obj: values){
+            if (obj instanceof String) {
+                preparedStatement.setString(i, (String)obj);
+            } else if (obj instanceof Blob) {
+                preparedStatement.setBlob(i, (Blob)obj);
+            } else if (obj instanceof Integer) {
+                preparedStatement.setInt(i, (Integer)obj);
+            } else if (obj instanceof byte[]) {
+                preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
+            } else if (obj == null) {
+                preparedStatement.setNull(i, 0);
+            }
+            i++;
+        }
+        return i;
     }
 
     /**

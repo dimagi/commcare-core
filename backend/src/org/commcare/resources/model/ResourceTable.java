@@ -1008,6 +1008,9 @@ public class ResourceTable {
             if (stateListener != null) {
                 stateListener.incrementProgress(count, total);
             }
+            if (cancellationChecker != null && cancellationChecker.wasInstallCancelled()) {
+                break;
+            }
         }
     }
 
