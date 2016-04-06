@@ -106,4 +106,10 @@ public class XPathEqExpr extends XPathBinaryOpExpr {
             return prettyA + " != " + prettyB;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) ||
+                ((o instanceof XPathEqExpr) && binOpEquals((XPathBinaryOpExpr)o));
+    }
 }
