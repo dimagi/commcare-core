@@ -1,6 +1,7 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
@@ -735,7 +736,7 @@ public class CommCareSession {
      * @return An Entry object which contains a selector for that datum
      * which is in this session history
      */
-    public SessionDatum findDatumDefinition(String datumId) {
+    public EntityDatum findDatumDefinition(String datumId) {
         //We're performing a walk down the entities in this session here,
         //we should likely generalize this to make it easier to do it for other
         //operations
@@ -765,8 +766,8 @@ public class CommCareSession {
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
                 for (Entry entry : entries) {
                     for (SessionDatum datum : entry.getSessionDataReqs()) {
-                        if (datum.getDataId().equals(datumId)) {
-                            return datum;
+                        if (datum.getDataId().equals(datumId) && datum instanceof EntityDatum) {
+                            return (EntityDatum)datum;
                         }
                     }
                 }
