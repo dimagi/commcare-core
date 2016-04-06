@@ -256,15 +256,10 @@ public class JsonActionUtils {
     }
 
     public static JSONArray walkToJSON(FormEntryModel fem, FormEntryController fec) {
-        try {
-            JSONArray ret = new JSONArray();
-            FormIndex formIndex = FormIndex.createBeginningOfFormIndex();
-            Walker walker = new Walker(ret, formIndex, fec, fem);
-            walker.walk();
-            return ret;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        JSONArray ret = new JSONArray();
+        FormIndex formIndex = FormIndex.createBeginningOfFormIndex();
+        Walker walker = new Walker(ret, formIndex, fec, fem);
+        walker.walk();
+        return ret;
     }
 }
