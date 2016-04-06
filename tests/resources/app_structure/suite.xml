@@ -64,8 +64,8 @@
 
   <sync-request>
     <post url="fake.com/claim_patient/">
-      <data key="selected_name" ref="instance('patients')/case[@case_type='test_case'][@status='open'][0]/name"/>
-      <data key="selected_case_id" ref="instance('patients')/case[@case_type='test_case'][@status='open'][0]/@case_id"/>
+      <data key="selected_name" ref="instance('patients')/case/name"/>
+      <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
     </post>
     <instance id="casedb" src="jr://instance/casedb"/>
     <command id="patient-search">
