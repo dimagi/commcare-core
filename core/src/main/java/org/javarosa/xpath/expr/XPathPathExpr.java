@@ -43,6 +43,7 @@ public class XPathPathExpr extends XPathExpression {
 
     public int init_context;
     public XPathStep[] steps;
+    private TreeReference cachedReference;
 
     //for INIT_CONTEXT_EXPR only
     public XPathFilterExpr filtExpr;
@@ -69,6 +70,9 @@ public class XPathPathExpr extends XPathExpression {
      * @return a reference built from this path expression
      */
     public TreeReference getReference() throws XPathUnsupportedException {
+        if (cachedReference != null) {
+            return cachedReference;
+        }
         TreeReference ref = new TreeReference();
         boolean parentsAllowed;
         // process the beginning of the reference
@@ -151,22 +155,21 @@ public class XPathPathExpr extends XPathExpression {
             }
 
             if (step.predicates.length > 0) {
-                int refLevel = ref.getRefLevel();
                 Vector<XPathExpression> v = new Vector<XPathExpression>();
-                for (int j = 0; j < step.predicates.length; j++) {
-                    v.addElement(step.predicates[j]);
+                for (XPathExpression predicate : step.predicates) {
+                    v.addElement(predicate);
                 }
                 // add the predicate vector to the last step in the ref
                 ref.addPredicate(ref.size() - 1, v);
             }
         }
+        cachedReference = ref;
         return ref;
     }
 
     @Override
     public XPathNodeset evalRaw(DataInstance m, EvaluationContext ec) {
         TreeReference genericRef = getReference();
-
         TreeReference ref;
 
         if (genericRef.getContext() == TreeReference.CONTEXT_ORIGINAL) {
@@ -197,7 +200,7 @@ public class XPathPathExpr extends XPathExpression {
             m = ec.getMainInstance();
 
             if (m == null) {
-                String refStr = ref == null ? "" : ref.toString(true);
+                String refStr = ref.toString(true);
                 throw new XPathException("Cannot evaluate the reference [" + refStr + "] in the current evaluation context. No default instance has been declared!");
             }
         }
@@ -347,13 +350,9 @@ public class XPathPathExpr extends XPathExpression {
                 return false;
             }
 
-            if (steps.length != x.steps.length) {
-                return false;
-            } else {
-                for (int i = 0; i < steps.length; i++) {
-                    if (!steps[i].matches(x.steps[i])) {
-                        return false;
-                    }
+            for (int i = 0; i < steps.length; i++) {
+                if (!steps[i].matches(x.steps[i])) {
+                    return false;
                 }
             }
 
@@ -385,9 +384,9 @@ public class XPathPathExpr extends XPathExpression {
             ExtUtil.write(out, filtExpr);
         }
 
-        Vector v = new Vector();
-        for (int i = 0; i < steps.length; i++) {
-            v.addElement(steps[i]);
+        Vector<XPathStep> v = new Vector<XPathStep>();
+        for (XPathStep step : steps) {
+            v.addElement(step);
         }
         ExtUtil.write(out, new ExtWrapList(v));
     }

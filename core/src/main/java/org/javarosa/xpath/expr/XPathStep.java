@@ -37,25 +37,7 @@ public class XPathStep implements Externalizable {
     public static final int TEST_TYPE_PROCESSING_INSTRUCTION = 6;
 
     private static Interner<XPathStep> refs;
-
-    /**
-     * Used by J2ME
-     */
-    public static void attachInterner(Interner<XPathStep> refs) {
-        XPathStep.refs = refs;
-    }
-
-    public static XPathStep ABBR_SELF() {
-        return new XPathStep(AXIS_SELF, TEST_TYPE_NODE);
-    }
-
-    public static XPathStep ABBR_PARENT() {
-        return new XPathStep(AXIS_PARENT, TEST_TYPE_NODE);
-    }
-
-    public static XPathStep ABBR_DESCENDANTS() {
-        return new XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE);
-    }
+    public static boolean XPathStepInterningEnabled = true;
 
     public int axis;
     public int test;
@@ -83,6 +65,25 @@ public class XPathStep implements Externalizable {
     public XPathStep(int axis, String namespace) {
         this(axis, TEST_NAMESPACE_WILDCARD);
         this.namespace = namespace;
+    }
+
+    public static XPathStep ABBR_SELF() {
+        return new XPathStep(AXIS_SELF, TEST_TYPE_NODE);
+    }
+
+    public static XPathStep ABBR_PARENT() {
+        return new XPathStep(AXIS_PARENT, TEST_TYPE_NODE);
+    }
+
+    public static XPathStep ABBR_DESCENDANTS() {
+        return new XPathStep(AXIS_DESCENDANT_OR_SELF, TEST_TYPE_NODE);
+    }
+
+    /**
+     * Used by J2ME
+     */
+    public static void attachInterner(Interner<XPathStep> refs) {
+        XPathStep.refs = refs;
     }
 
     @Override
@@ -214,27 +215,28 @@ public class XPathStep implements Externalizable {
      * Matching is reflexive, consistent, and symmetric, but _not_ transitive.
      */
     protected boolean matches(XPathStep o) {
-        if (o instanceof XPathStep) {
-            XPathStep x = o;
-
+        if (o != null) {
             //shortcuts for faster evaluation
-            if (axis != x.axis || (test != x.test && !((x.test == TEST_NAME && this.test == TEST_NAME_WILDCARD) || (this.test == TEST_NAME && x.test == TEST_NAME_WILDCARD))) || predicates.length != x.predicates.length) {
+            if (axis != o.axis
+                    || (test != o.test && !((o.test == TEST_NAME && this.test == TEST_NAME_WILDCARD)
+                    || (this.test == TEST_NAME && o.test == TEST_NAME_WILDCARD)))
+                    || predicates.length != o.predicates.length) {
                 return false;
             }
 
             switch (test) {
                 case TEST_NAME:
-                    if (x.test != TEST_NAME_WILDCARD && !name.equals(x.name)) {
+                    if (o.test != TEST_NAME_WILDCARD && !name.equals(o.name)) {
                         return false;
                     }
                     break;
                 case TEST_NAMESPACE_WILDCARD:
-                    if (!namespace.equals(x.namespace)) {
+                    if (!namespace.equals(o.namespace)) {
                         return false;
                     }
                     break;
                 case TEST_TYPE_PROCESSING_INSTRUCTION:
-                    if (!ExtUtil.equals(literal, x.literal, false)) {
+                    if (!ExtUtil.equals(literal, o.literal, false)) {
                         return false;
                     }
                     break;
@@ -242,7 +244,7 @@ public class XPathStep implements Externalizable {
                     break;
             }
 
-            return ExtUtil.arrayEquals(predicates, x.predicates, false);
+            return ExtUtil.arrayEquals(predicates, o.predicates, false);
         } else {
             return false;
         }
@@ -250,7 +252,11 @@ public class XPathStep implements Externalizable {
 
     @Override
     public int hashCode() {
-        int code = this.axis ^ this.test ^ (this.name == null ? 0 : this.name.hashCode()) ^ (this.literal == null ? 0 : this.literal.hashCode()) ^ (this.namespace == null ? 0 : this.namespace.hashCode());
+        int code = this.axis
+                ^ this.test
+                ^ (this.name == null ? 0 : this.name.hashCode())
+                ^ (this.literal == null ? 0 : this.literal.hashCode())
+                ^ (this.namespace == null ? 0 : this.namespace.hashCode());
         for (XPathExpression xpe : predicates) {
             code ^= xpe.hashCode();
         }
@@ -276,8 +282,9 @@ public class XPathStep implements Externalizable {
 
         Vector v = (Vector)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         predicates = new XPathExpression[v.size()];
-        for (int i = 0; i < predicates.length; i++)
+        for (int i = 0; i < predicates.length; i++) {
             predicates[i] = (XPathExpression)v.elementAt(i);
+        }
     }
 
     @Override
@@ -297,13 +304,12 @@ public class XPathStep implements Externalizable {
                 break;
         }
 
-        Vector v = new Vector();
-        for (int i = 0; i < predicates.length; i++)
-            v.addElement(predicates[i]);
+        Vector<XPathExpression> v = new Vector<XPathExpression>();
+        for (XPathExpression predicate : predicates) {
+            v.addElement(predicate);
+        }
         ExtUtil.write(out, new ExtWrapListPoly(v));
     }
-
-    public static boolean XPathStepInterningEnabled = true;
 
     public XPathStep intern() {
         if (!XPathStepInterningEnabled || refs == null) {
