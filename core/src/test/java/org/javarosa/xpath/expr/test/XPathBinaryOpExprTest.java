@@ -27,9 +27,11 @@ public class XPathBinaryOpExprTest {
         // Setup expressions to test equality over.
         // Note: these binary expressions make semantic sense
         XPathArithExpr additionExpr = new XPathArithExpr(XPathArithExpr.ADD, leftStringExpr, zero);
+        XPathArithExpr additionExprClone = new XPathArithExpr(XPathArithExpr.ADD, leftStringExpr, zero);
         XPathArithExpr subtractExpr = new XPathArithExpr(XPathArithExpr.SUBTRACT, leftStringExpr, zero);
 
         XPathBoolExpr andExpr = new XPathBoolExpr(XPathBoolExpr.AND, leftStringExpr, zero);
+        XPathBoolExpr andExprClone = new XPathBoolExpr(XPathBoolExpr.AND, leftStringExpr, zero);
         XPathBoolExpr orExpr = new XPathBoolExpr(XPathBoolExpr.OR, leftStringExpr, zero);
 
         XPathCmpExpr lessThanExpr = new XPathCmpExpr(XPathCmpExpr.LT, leftStringExpr, zero);
@@ -42,9 +44,11 @@ public class XPathBinaryOpExprTest {
         XPathUnionExpr differentUnion = new XPathUnionExpr(zero, zero);
 
         // basic equality tests over same subclass
-        Assert.assertEquals("Same + expression is equal", additionExpr, additionExpr);
+        Assert.assertEquals("Same + expression reference is equal", additionExpr, additionExpr);
+        Assert.assertEquals("Same + expression is equal", additionExpr, additionExprClone);
         Assert.assertNotEquals("+ not equal to  -", additionExpr, subtractExpr);
-        Assert.assertEquals("Same && expression is equal", andExpr, andExpr);
+        Assert.assertEquals("Same && expression reference is equal", andExpr, andExpr);
+        Assert.assertEquals("Same && expression is equal", andExpr, andExprClone);
         Assert.assertNotEquals("&& not equal to ||", andExpr, orExpr);
         Assert.assertEquals("Same < expression is equal", lessThanExpr, lessThanExpr);
         Assert.assertNotEquals("< not equal to  >", lessThanExpr, greaterThanExpr);

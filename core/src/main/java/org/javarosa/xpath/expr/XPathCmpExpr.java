@@ -165,6 +165,7 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof XPathCmpExpr) && binOpEquals((XPathBinaryOpExpr)o);
+        return (this == o) ||
+                ((o instanceof XPathCmpExpr) && binOpEquals((XPathBinaryOpExpr)o));
     }
 }

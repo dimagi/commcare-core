@@ -98,6 +98,7 @@ public class XPathArithExpr extends XPathBinaryOpExpr {
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof XPathArithExpr) && binOpEquals((XPathBinaryOpExpr)o);
+        return (this == o) ||
+                ((o instanceof XPathArithExpr) && binOpEquals((XPathBinaryOpExpr)o));
     }
 }
