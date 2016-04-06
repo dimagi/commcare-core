@@ -11,6 +11,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -80,6 +81,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         //Now look for actions
         while (this.nextTagInBlock("case")) {
+
             String action = parser.getName().toLowerCase();
 
             if (action.equals("create")) {
@@ -184,8 +186,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
                     String value = parser.nextText().trim();
 
-                    if(value.equals(caseId)) {
-                        throw new InvalidStructureException("Invalid index operation! Case " + caseId + " cannot index itself!", parser);
+                    if (value.equals(caseId)) {
+                        throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
                     }
 
                     //Remove any ambiguity associated with empty values
