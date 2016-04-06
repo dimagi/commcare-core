@@ -1,17 +1,12 @@
 package org.commcare.suite.model;
 
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.util.externalizable.Externalizable;
 
 /**
  * @author ctsims
  */
-public abstract class SessionDatum {
-
-    private String id;
-    private TreeReference nodeset;
-    private String shortDetail;
-    private String longDetail;
-    private String value;
+public abstract class SessionDatum implements Externalizable{
 
     public String getDataId() {
         return id;

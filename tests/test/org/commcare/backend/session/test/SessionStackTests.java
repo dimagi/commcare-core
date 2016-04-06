@@ -1,6 +1,8 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
@@ -35,9 +37,10 @@ public class SessionStackTests {
         session.setComputedDatum();
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        SessionDatum datum = session.getNeededDatum();
+        Assert.assertEquals("case_id", ((EntityDatum)datum).getDataId());
 
-        Vector<Action> actions = session.getDetail(session.getNeededDatum().getShortDetail()).getCustomActions();
+        Vector<Action> actions = session.getDetail(((EntityDatum)datum).getShortDetail()).getCustomActions();
 
         if(actions == null || actions.isEmpty()) {
             Assert.fail("Detail screen stack action was missing from app!");
@@ -70,7 +73,7 @@ public class SessionStackTests {
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals("case_id_to_send", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id_to_send", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         Assert.assertFalse("Session incorrectly determined a view command", session.isViewCommand(session.getCommand()));
 
@@ -100,7 +103,7 @@ public class SessionStackTests {
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
-        Assert.assertEquals("case_id_to_view", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id_to_view", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         Assert.assertTrue("Session incorrectly tagged a view command", session.isViewCommand(session.getCommand()));
     }
@@ -126,7 +129,7 @@ public class SessionStackTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         // The key of the needed datum should be "case_id_new_visit_0"
-        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id_new_visit_0", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id_new_visit_0", "visit_id_value");
@@ -155,7 +158,7 @@ public class SessionStackTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
 
         // The key of the needed datum should be "case_id"
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id", "case_id_value");
@@ -187,15 +190,15 @@ public class SessionStackTests {
         // order
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         session.setDatum("case_id", "case_id_value");
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
+        Assert.assertEquals("case_id_new_visit_0", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         session.setDatum("case_id_new_visit_0", "visit_id_value");
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
+        Assert.assertEquals("usercase_id", ((EntityDatum)session.getNeededDatum()).getDataId());
 
         session.setDatum("usercase_id", "usercase_id_value");
         Assert.assertEquals(null, session.getNeededData());
