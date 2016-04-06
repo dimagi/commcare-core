@@ -68,7 +68,6 @@ public class SuiteParser extends ElementParser<Suite> {
         int version = Integer.parseInt(sVersion);
         Hashtable<String, Detail> details = new Hashtable<String, Detail>();
         Hashtable<String, Entry> entries = new Hashtable<String, Entry>();
-        Hashtable<String, SyncEntry> syncRequests = new Hashtable<String, SyncEntry>();
 
         Vector<Menu> menus = new Vector<Menu>();
 
@@ -87,8 +86,8 @@ public class SuiteParser extends ElementParser<Suite> {
                         Entry e = EntryParser.buildViewParser(parser).parse();
                         entries.put(e.getCommandId(), e);
                     } else if (parser.getName().toLowerCase().equals("sync-request")) {
-                        SyncEntry syncEntry = (SyncEntry)EntryParser.buildRemoteSyncParser(parser).parse();
-                        syncRequests.put(syncEntry.getCommandId(), syncEntry);
+                        Entry syncEntry = EntryParser.buildRemoteSyncParser(parser).parse();
+                        entries.put(syncEntry.getCommandId(), syncEntry);
                     } else if (parser.getName().toLowerCase().equals("locale")) {
                         String localeKey = parser.getAttributeValue(null, "language");
                         //resource def

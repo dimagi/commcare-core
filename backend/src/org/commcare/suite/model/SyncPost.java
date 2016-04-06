@@ -34,14 +34,13 @@ public class SyncPost implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
+        postKeys = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class));
         postUrl = ExtUtil.readString(in);
-        postKeys = (Hashtable<String, TreeReference>)ExtUtil.read(in,
-                new ExtWrapMap(String.class, TreeReference.class));
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, postUrl);
         ExtUtil.write(out, new ExtWrapMap(postKeys));
+        ExtUtil.writeString(out, postUrl);
     }
 }

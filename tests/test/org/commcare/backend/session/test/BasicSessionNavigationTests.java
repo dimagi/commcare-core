@@ -150,11 +150,13 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         session.setDatum("patient_id", "000001");
 
+        // case_id
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        session.setDatum("case_id", "123");
 
-        /*
-        session.setComputedDatum();
-        Assert.assertEquals(session.getNeededData(), null);
-        */
+        // time to make sync request
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 
     @Test

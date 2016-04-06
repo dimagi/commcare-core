@@ -189,6 +189,9 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry) {
+            // one sync entry, with no needed data, matches the command; fire that request
+            return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going

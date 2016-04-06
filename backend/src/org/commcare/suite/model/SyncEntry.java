@@ -3,7 +3,7 @@ package org.commcare.suite.model;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapListPoly;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
@@ -46,7 +46,7 @@ public class SyncEntry extends Entry {
         super.readExternal(in, pf);
 
         post = (SyncPost)ExtUtil.read(in, SyncPost.class, pf);
-        queries = (Vector<RemoteQuery>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
+        queries = (Vector<RemoteQuery>)ExtUtil.read(in, new ExtWrapList(RemoteQuery.class), pf);
     }
 
     @Override
@@ -54,6 +54,6 @@ public class SyncEntry extends Entry {
         super.writeExternal(out);
 
         ExtUtil.write(out, post);
-        ExtUtil.write(out, new ExtWrapListPoly(queries));
+        ExtUtil.write(out, new ExtWrapList(queries));
     }
 }
