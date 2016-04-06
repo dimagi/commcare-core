@@ -31,13 +31,10 @@ public abstract class XPathBinaryOpExpr extends XPathOpExpr {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o instanceof XPathBinaryOpExpr) {
-            XPathBinaryOpExpr x = (XPathBinaryOpExpr)o;
-            return op == x.op && a.equals(x.a) && b.equals(x.b);
-        } else {
-            return false;
-        }
+    public abstract boolean equals(Object o);
+
+    protected boolean binOpEquals(XPathBinaryOpExpr binaryOpExpr) {
+        return op == binaryOpExpr.op && a.equals(binaryOpExpr.a) && b.equals(binaryOpExpr.b);
     }
 
     @Override

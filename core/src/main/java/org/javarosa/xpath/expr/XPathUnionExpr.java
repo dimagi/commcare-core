@@ -43,4 +43,10 @@ public class XPathUnionExpr extends XPathBinaryOpExpr {
     public String toPrettyString() {
         return "unsupported union operation";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) ||
+                ((o instanceof XPathUnionExpr) && binOpEquals((XPathBinaryOpExpr)o));
+    }
 }
