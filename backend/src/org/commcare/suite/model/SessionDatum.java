@@ -35,6 +35,8 @@ public class SessionDatum implements Externalizable {
 
     public static final int DATUM_TYPE_NORMAL = 0;
     public static final int DATUM_TYPE_FORM = 1;
+    public static final int DATUM_TYPE_USER_INPUT = 2;
+    public static final int DATUM_TYPE_REMOTE_REQUEST = 3;
 
     public SessionDatum() {
 

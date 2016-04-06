@@ -129,4 +129,39 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
     }
 
+    @Test
+    public void testStepToSyncRequest() {
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("patient-search");
+        // device_id
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        session.setComputedDatum();
+
+        // device_case_count
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
+        session.setComputedDatum();
+
+        // name
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        session.setDatum("name", "Zeno");
+
+        // patient_id
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        session.setDatum("patient_id", "000001");
+
+
+        /*
+        session.setComputedDatum();
+        Assert.assertEquals(session.getNeededData(), null);
+        */
+    }
+
+    @Test
+    public void testInvokeEmptySyncRequest() {
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("empty-sync-request");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+    }
 }

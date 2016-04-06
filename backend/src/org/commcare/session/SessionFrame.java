@@ -42,11 +42,6 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_DATUM_COMPUTED = "COMPUTED_DATUM";
 
     /**
-     * CommCare needs to gather string input from user
-     */
-    public static final String STATE_DATUM_USER_INPUT = "GET_USER_INPUT";
-
-    /**
      * CommCare needs to make a synchronous server request
      */
     public static final String STATE_SYNC_REQUEST = "SYNC_REQUEST";
