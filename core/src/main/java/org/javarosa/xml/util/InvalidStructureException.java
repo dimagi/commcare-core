@@ -10,7 +10,6 @@ import org.kxml2.io.KXmlParser;
  * @author ctsims
  */
 public class InvalidStructureException extends Exception {
-
     /**
      * @param message A Message associated with the error.
      * @param parser  The parser in the position at which the error was detected.
@@ -31,6 +30,7 @@ public class InvalidStructureException extends Exception {
     public InvalidStructureException(String message) {
         super(message);
     }
+
 
     public static InvalidStructureException readableInvalidStructureException(String message, KXmlParser parser) {
         String humanReadableMessage =
