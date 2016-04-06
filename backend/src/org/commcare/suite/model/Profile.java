@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.commcare.util.SignatureVerifier;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.Persistable;
@@ -31,21 +32,16 @@ public class Profile implements Persistable {
     public static final String FEATURE_REVIEW = "checkoff";
     public static final String FEATURE_USERS = "users";
 
-    public static final String KEY_MULTIPLE_APPS_COMPATIBILITY = "multiple-apps-compatible";
-    public static final String MULT_APPS_ENABLED_VALUE = "enabled";
-    public static final String MULT_APPS_DISABLED_VALUE = "disabled";
-    public static final String MULT_APPS_IGNORE_VALUE = "ignore";
-
     private int recordId = -1;
     private int version;
     private String authRef;
     private Vector<PropertySetter> properties;
     private Vector<RootTranslator> roots;
     private Hashtable<String, Boolean> featureStatus;
+    private Hashtable<String, SignedPermission> signedPermissions;
 
     private String uniqueId;
     private String displayName;
-    private String multipleAppsCompatibility;
 
     /**
      * Indicates if this was generated from an old version of the profile file, before fields
@@ -159,19 +155,12 @@ public class Profile implements Persistable {
         this.roots.addElement(r);
     }
 
-    public void addPropertySetter(String key, String value, String signature) {
-        this.addPropertySetter(key, value, false, signature);
+    public void addPropertySetter(String key, String value) {
+        this.addPropertySetter(key, value, false);
     }
 
     public void addPropertySetter(String key, String value, boolean force) {
-        addPropertySetter(key, value, force, "");
-    }
-
-    public void addPropertySetter(String key, String value, boolean force, String signature) {
-        properties.addElement(new PropertySetter(key, value, force, signature));
-        if (KEY_MULTIPLE_APPS_COMPATIBILITY.equals(key)) {
-            setMultipleAppsCompatibility(value);
-        }
+        properties.addElement(new PropertySetter(key, value, force));
     }
 
     public PropertySetter[] getPropertySetters() {
@@ -182,26 +171,26 @@ public class Profile implements Persistable {
         return setters;
     }
 
-    public void setFeatureActive(String feature, boolean active) {
-        this.featureStatus.put(feature, new Boolean(active));
+    public void addSignedPermission(String key, String value, String signature) {
+        signedPermissions.put(key, new SignedPermission(key, value, signature));
     }
 
-    private void setMultipleAppsCompatibility(String value) {
-        this.multipleAppsCompatibility = value;
+    public void verifySignedPermissions(SignatureVerifier verifier) {
+        for (SignedPermission perm : signedPermissions.values()) {
+            perm.verifyValue(verifier);
+        }
+    }
+
+    private String getSignedPermissionValue(String key) {
+        return signedPermissions.get(key).getVerifiedValue();
     }
 
     public String getMultipleAppsCompatibility() {
-        if (multipleAppsCompatibility == null) {
-            return Profile.MULT_APPS_DISABLED_VALUE;
-        }
-        return multipleAppsCompatibility;
+        return getSignedPermissionValue(SignedPermission.KEY_MULTIPLE_APPS_COMPATIBILITY);
     }
 
-    public static String getPropertyDefaultValue(String property) {
-        if (KEY_MULTIPLE_APPS_COMPATIBILITY.equals(property)) {
-            return MULT_APPS_DISABLED_VALUE;
-        }
-        return "";
+    public void setFeatureActive(String feature, boolean active) {
+        this.featureStatus.put(feature, new Boolean(active));
     }
 
     /**
@@ -233,7 +222,6 @@ public class Profile implements Persistable {
         uniqueId = ExtUtil.readString(in);
         displayName = ExtUtil.readString(in);
         fromOld = ExtUtil.readBool(in);
-        multipleAppsCompatibility = ExtUtil.readString(in);
 
         properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
@@ -248,7 +236,6 @@ public class Profile implements Persistable {
         ExtUtil.writeString(out, uniqueId);
         ExtUtil.writeString(out, displayName);
         ExtUtil.writeBool(out, fromOld);
-        ExtUtil.writeString(out, getMultipleAppsCompatibility());
 
         ExtUtil.write(out, new ExtWrapList(properties));
         ExtUtil.write(out, new ExtWrapList(roots));
