@@ -48,9 +48,7 @@ public class ProfileInstaller extends CacheInstaller {
         return localTable;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-     */
+    @Override
     public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
@@ -61,9 +59,7 @@ public class ProfileInstaller extends CacheInstaller {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }

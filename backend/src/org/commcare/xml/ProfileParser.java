@@ -132,15 +132,16 @@ public class ProfileParser extends ElementParser<Profile> {
                         String key = parser.getAttributeValue(null, "key");
                         String value = parser.getAttributeValue(null, "value");
                         String force = parser.getAttributeValue(null, "force");
+                        String signature = parser.getAttributeValue(null, "signature");
 
                         if (force != null) {
                             if ("true".equals(force.toLowerCase())) {
-                                profile.addPropertySetter(key, value, true);
+                                profile.addPropertySetter(key, value, true, signature);
                             } else {
-                                profile.addPropertySetter(key, value, false);
+                                profile.addPropertySetter(key, value, false, signature);
                             }
                         } else {
-                            profile.addPropertySetter(key, value);
+                            profile.addPropertySetter(key, value, signature);
                         }
                     } else if (parser.getName().toLowerCase().equals("root")) {
                         RootTranslator root = new RootParser(this.parser).parse();

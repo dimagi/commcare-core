@@ -1,6 +1,5 @@
 package org.commcare.suite.model;
 
-import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.Persistable;
@@ -9,12 +8,10 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -162,12 +159,16 @@ public class Profile implements Persistable {
         this.roots.addElement(r);
     }
 
-    public void addPropertySetter(String key, String value) {
-        this.addPropertySetter(key, value, false);
+    public void addPropertySetter(String key, String value, String signature) {
+        this.addPropertySetter(key, value, false, signature);
     }
 
     public void addPropertySetter(String key, String value, boolean force) {
-        properties.addElement(new PropertySetter(key, value, force));
+        addPropertySetter(key, value, force, "");
+    }
+
+    public void addPropertySetter(String key, String value, boolean force, String signature) {
+        properties.addElement(new PropertySetter(key, value, force, signature));
         if (KEY_MULTIPLE_APPS_COMPATIBILITY.equals(key)) {
             setMultipleAppsCompatibility(value);
         }
@@ -194,6 +195,13 @@ public class Profile implements Persistable {
             return Profile.MULT_APPS_DISABLED_VALUE;
         }
         return multipleAppsCompatibility;
+    }
+
+    public static String getPropertyDefaultValue(String property) {
+        if (KEY_MULTIPLE_APPS_COMPATIBILITY.equals(property)) {
+            return MULT_APPS_DISABLED_VALUE;
+        }
+        return "";
     }
 
     /**
