@@ -133,6 +133,8 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     private final Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
 
     private ActionController actionController;
+    //If this instance is just being edited, don't fire end of form events
+    private boolean isCompletedInstance;
 
     /**
      * Cache children that trigger target will cascade to. For speeding up
@@ -1418,7 +1420,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     }
 
     public boolean postProcessInstance() {
-        actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
+        if(!isCompletedInstance) {
+            actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_REVALIDATE, this);
+        }
         return postProcessInstance(mainInstance.getRoot());
     }
 
@@ -1500,8 +1504,11 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      *
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
+     * @param isCompletedInstance true if this is an already completed instance we are editing
+     *                            (presumably in HQ) - so don't fire end of form event.
      */
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+    public void initialize(boolean newInstance, boolean isCompletedInstance,
+                           InstanceInitializationFactory factory) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1522,8 +1529,12 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             // useful for recording form start dates.
             actionController.triggerActionsFromEvent(Action.EVENT_XFORMS_READY, this);
         }
-
+        this.isCompletedInstance = isCompletedInstance;
         initAllTriggerables();
+    }
+
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory){
+        this.initialize(newInstance, false, factory);
     }
 
     /**
