@@ -159,7 +159,7 @@ public class ProfileParser extends ElementParser<Profile> {
         String signature = parser.getAttributeValue(null, "signature");
 
         if (signature != null) {
-            addSignedPermission(profile, key, value, signature);
+            profile.addSignedPermission(key, value, signature);
         } else {
             addPropertySetter(profile, key, value, force);
         }
@@ -175,10 +175,6 @@ public class ProfileParser extends ElementParser<Profile> {
         } else {
             profile.addPropertySetter(key, value);
         }
-    }
-
-    private void addSignedPermission(Profile profile, String key, String value, String signature) {
-        profile.addSignedPermission(key, value, signature);
     }
 
     private void parseLogin() throws InvalidStructureException, IOException, XmlPullParserException{
@@ -217,7 +213,6 @@ public class ProfileParser extends ElementParser<Profile> {
                     }
                 }
             } else if (tag.equals("sense")) {
-
             }
 
             profile.setFeatureActive(tag, isActive);
@@ -236,7 +231,5 @@ public class ProfileParser extends ElementParser<Profile> {
     public void setMaximumAuthority(int authority) {
         maximumResourceAuthority = authority;
     }
-
-
 
 }

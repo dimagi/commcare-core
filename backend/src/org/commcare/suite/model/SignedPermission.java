@@ -1,6 +1,7 @@
 package org.commcare.suite.model;
 
 import org.commcare.util.SignatureVerifier;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -52,8 +53,9 @@ public class SignedPermission implements Externalizable {
 
     public String getVerifiedValue() {
         if (!verificationOccurred) {
-            System.out.print("WARNING: Attempting to get the verified value for a signed " +
-                    "permission before verification has occurred; using default value");
+            Logger.log("error-workflow",
+                    "Attempting to get the verified value for a signed permission before " +
+                            "verification has occurred; using default value");
             return getDefaultValue();
         }
         return verifiedValue;
