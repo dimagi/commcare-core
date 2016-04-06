@@ -4,6 +4,7 @@ import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.core.parse.ParseUtils;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareConfigEngine;
@@ -322,7 +323,7 @@ public class ApplicationHost {
             throw new RuntimeException(e.getMessage());
         }
         EvaluationContext ec = mSession.getEvaluationContext();
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+        if (datum instanceof FormIdDatum) {
             mSession.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             mSession.setDatum("", "awful");
         } else {

@@ -14,6 +14,7 @@ import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
@@ -313,7 +314,7 @@ public class CommCareConfigEngine {
             print.println(head + "Entry: " + e.getText().evaluate());
         }
         for(SessionDatum datum : e.getSessionDataReqs()) {
-            if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+            if(datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
             } else {
                 if(datum.getShortDetail() != null) {

@@ -3,6 +3,7 @@ package org.commcare.session;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -343,7 +344,7 @@ public class CommCareSession {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+        if (datum instanceof FormIdDatum) {
             setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             setDatum("", "awful");
         } else {

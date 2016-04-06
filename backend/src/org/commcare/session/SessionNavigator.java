@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -98,7 +99,7 @@ public class SessionNavigator {
         if (selectDatum.getLongDetail() == null) {
             // No confirm detail defined for this entity select, so just set the case id right away
             // and proceed
-            String autoSelectedCaseId = SessionDatum.getCaseIdFromReference(
+            String autoSelectedCaseId = EntityDatum.getCaseIdFromReference(
                     currentAutoSelectedCase, selectDatum, ec);
             currentSession.setDatum(selectDatum.getDataId(), autoSelectedCaseId);
             startNextSessionStep();
@@ -108,23 +109,22 @@ public class SessionNavigator {
     }
 
     /**
-     *
      * Returns the auto-selected case for the next needed datum, if there should be one.
      * Returns null if auto selection is not enabled, or if there are multiple available cases
      * for the datum (and therefore auto-selection should not be used).
      */
     private TreeReference getAutoSelectedCase() {
         SessionDatum selectDatum = currentSession.getNeededDatum();
-        if (selectDatum.isAutoSelectEnabled()) {
-            Vector<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
-            if (entityListElements.size() == 1) {
-                return entityListElements.elementAt(0);
-            } else {
-                return null;
+        if (selectDatum instanceof EntityDatum) {
+            EntityDatum entityDatum = (EntityDatum)selectDatum;
+            if (entityDatum.isAutoSelectEnabled()) {
+                Vector<TreeReference> entityListElements = ec.expandReference(entityDatum.getNodeset());
+                if (entityListElements.size() == 1) {
+                    return entityListElements.elementAt(0);
+                }
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
     private void handleCompute() {

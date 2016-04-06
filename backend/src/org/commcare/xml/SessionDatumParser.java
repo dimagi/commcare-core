@@ -1,8 +1,8 @@
-/**
- *
- */
 package org.commcare.xml;
 
+import org.commcare.suite.model.CalculateDatum;
+import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -43,13 +43,13 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
                 throw new InvalidStructureException("Expected @nodeset in " + id + " <datum> definition", this.parser);
             }
 
-            datum = new SessionDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
+            datum = new EntityDatum(id, nodeset, shortDetail, longDetail, inlineDetail,
                     persistentDetail, value, autoselect);
         } else {
             if ("form".equals(this.parser.getName())) {
-                datum = SessionDatum.FormIdDatum(calculate);
+                datum = new FormIdDatum(calculate);
             } else {
-                datum = new SessionDatum(id, calculate);
+                datum = new CalculateDatum(id, calculate);
             }
         }
 
