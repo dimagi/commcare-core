@@ -47,6 +47,11 @@ public class SessionFrame implements Externalizable {
     public static final String STATE_SYNC_REQUEST = "SYNC_REQUEST";
 
     /**
+     * CommCare needs to make a query request to server
+     */
+    public static final String STATE_QUERY_REQUEST = "QUERY_REQUEST";
+
+    /**
      * CommCare needs the XMLNS of the form to be entered to proceed
      */
     public static final String STATE_FORM_XMLNS = "FORM_XMLNS";

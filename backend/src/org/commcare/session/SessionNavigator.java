@@ -26,6 +26,7 @@ public class SessionNavigator {
     public static final int LAUNCH_CONFIRM_DETAIL = 5;
     public static final int EXCEPTION_THROWN = 6;
     public static final int START_SYNC_REQUEST = 7;
+    public static final int PROCESS_QUERY_REQUEST = 8;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -66,6 +67,8 @@ public class SessionNavigator {
             sendResponse(GET_COMMAND);
         } else if (needed.equals(SessionFrame.STATE_SYNC_REQUEST)) {
             sendResponse(START_SYNC_REQUEST);
+        } else if (needed.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            sendResponse(PROCESS_QUERY_REQUEST);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum();
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
