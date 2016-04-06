@@ -35,11 +35,7 @@ public class PromptToJson {
         questionJson.put("style", jsonNullIfNull(parseStyle(prompt)));
         questionJson.put("datatype", jsonNullIfNull(parseControlType(prompt)));
         questionJson.put("required", prompt.isRequired() ? 1 : 0);
-        try {
-            parseQuestionAnswer(questionJson, prompt);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        parseQuestionAnswer(questionJson, prompt);
         questionJson.put("ix", jsonNullIfNull(prompt.getIndex()));
 
         if (prompt.getDataType() == Constants.DATATYPE_CHOICE || prompt.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
