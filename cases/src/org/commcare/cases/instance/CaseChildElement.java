@@ -328,7 +328,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             } else {
                 scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
             }
-            cacheBuilder.addChild(scratch);
+            cacheBuilder.addChild(scratch, true);
         }
     }
 
