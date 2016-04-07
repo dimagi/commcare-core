@@ -1,6 +1,6 @@
 package org.commcare.xml;
 
-import org.commcare.suite.model.CalculateDatum;
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.SessionDatum;
@@ -49,7 +49,7 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
             if ("form".equals(this.parser.getName())) {
                 datum = new FormIdDatum(calculate);
             } else {
-                datum = new CalculateDatum(id, calculate);
+                datum = new ComputedDatum(id, calculate);
             }
         }
 

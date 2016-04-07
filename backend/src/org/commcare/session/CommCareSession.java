@@ -1,6 +1,6 @@
 package org.commcare.session;
 
-import org.commcare.suite.model.CalculateDatum;
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
@@ -188,12 +188,12 @@ public class CommCareSession {
         for (Entry e : possibleEntries) {
             SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
-                String needed = getNeededId(datumNeededForThisEntry);
+                String needed = datumNeededForThisEntry.getDataId();
                 if (nextKey == null) {
                     nextKey = needed;
                     if (datumNeededForThisEntry instanceof EntityDatum) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
-                    } else if (datumNeededForThisEntry instanceof CalculateDatum) {
+                    } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
                     }
                     continue;
@@ -219,16 +219,6 @@ public class CommCareSession {
         //more than one applicable entry, we need to keep going
         if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
             return SessionFrame.STATE_COMMAND_ID;
-        } else {
-            return null;
-        }
-    }
-
-    private static String getNeededId(SessionDatum datum) {
-        if (datum instanceof EntityDatum) {
-            return ((EntityDatum) datum).getDataId();
-        } else if (datum instanceof CalculateDatum) {
-            return ((CalculateDatum) datum).getDataId();
         } else {
             return null;
         }
@@ -381,7 +371,7 @@ public class CommCareSession {
         if (datum instanceof FormIdDatum) {
             setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             setDatum("", "awful");
-        } else if (datum instanceof CalculateDatum) {
+        } else if (datum instanceof ComputedDatum) {
             setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
         }
     }

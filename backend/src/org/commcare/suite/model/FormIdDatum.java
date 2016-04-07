@@ -1,7 +1,7 @@
 package org.commcare.suite.model;
 
 /**
- * @author Phillip Mates (pmates@dimagi.com)
+ * Represents ?? data requirement in the current session.
  */
 public class FormIdDatum extends SessionDatum {
     public FormIdDatum() {

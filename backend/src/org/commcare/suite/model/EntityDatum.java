@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.util.Vector;
 
 /**
- * @author Phillip Mates (pmates@dimagi.com)
+ * Represents entity selection requirement in the current session. The nodeset
+ * defines entities up for selection and detail fields are keys to display
+ * formatting definitions
  */
 public class EntityDatum extends SessionDatum {
     private TreeReference nodeset;
