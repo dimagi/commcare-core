@@ -7,6 +7,7 @@ import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
@@ -224,6 +225,8 @@ public class CommCareSession {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
                     } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
+                    } else if (datumNeededForThisEntry instanceof RemoteQueryDatum) {
+                        needDatum = SessionFrame.STATE_QUERY_REQUEST;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
                     // data needed from the first entry isn't consistent with

@@ -4,7 +4,7 @@ import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.RemoteQuery;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.SyncEntry;
@@ -62,7 +62,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
         Vector<StackOperation> stackOps = new Vector<StackOperation>();
         AssertionSet assertions = null;
         SyncPost post = null;
-        Vector<RemoteQuery> queries = new Vector<RemoteQuery>();
 
         while (nextTagInBlock(parserBlockTag)) {
             String tagName = parser.getName();
@@ -77,7 +76,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(tagName.toLowerCase())) {
                 parseInstance(instances);
             } else if ("session".equals(tagName)) {
-                parseSessionData(data, queries);
+                parseSessionData(data);
             } else if ("entity".equals(tagName) || "details".equals(tagName)) {
                 throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + parserBlockTag + ">. " +
                         tagName + " is not a valid construct in 2.0 CaseXML", parser);
@@ -99,7 +98,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
         } else if (VIEW_ENTRY_TAG.equals(parserBlockTag)) {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
         } else if (SYNC_REQUEST_TAG.equals(parserBlockTag)) {
-            return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post, queries);
+            return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post);
         }
 
         throw new RuntimeException("Misconfigured entry parser with unsupported '" + parserBlockTag + "' tag.");
@@ -121,14 +120,10 @@ public class EntryParser extends CommCareElementParser<Entry> {
         return display;
     }
 
-    private void parseSessionData(Vector<SessionDatum> data, Vector<RemoteQuery> queries) throws InvalidStructureException, IOException, XmlPullParserException {
+    private void parseSessionData(Vector<SessionDatum> data) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("session")) {
-            if ("query".equals(parser.getName())) {
-                queries.addElement(new SessionQueryParser(parser).parse());
-            } else {
-                SessionDatumParser parser = new SessionDatumParser(this.parser);
-                data.addElement(parser.parse());
-            }
+            SessionDatumParser datumParser = new SessionDatumParser(this.parser);
+            data.addElement(datumParser.parse());
         }
     }
 

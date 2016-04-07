@@ -1,26 +1,34 @@
 package org.commcare.xml;
 
 import org.commcare.suite.model.ComputedDatum;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormIdDatum;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.xml.ElementParser;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
  */
-public class SessionDatumParser extends ElementParser<SessionDatum> {
+public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
 
     public SessionDatumParser(KXmlParser parser) {
         super(parser);
     }
 
     public SessionDatum parse() throws InvalidStructureException, IOException, XmlPullParserException {
+        if ("query".equals(parser.getName())) {
+            return parseRemoteQueryDatum();
+        }
+
         if ((!"datum".equals(this.parser.getName())) && !("form".equals(this.parser.getName()))) {
             throw new InvalidStructureException("Expected <datum> or <form> data in <session> block, instead found " + this.parser.getName() + ">", this.parser);
         }
@@ -58,4 +66,34 @@ public class SessionDatumParser extends ElementParser<SessionDatum> {
         return datum;
     }
 
+    private RemoteQueryDatum parseRemoteQueryDatum() throws InvalidStructureException, IOException, XmlPullParserException {
+        Hashtable<String, TreeReference> hiddenQueryValues =
+                new Hashtable<String, TreeReference>();
+        Hashtable<String, DisplayUnit> userQueryPrompts =
+                new Hashtable<String, DisplayUnit>();
+        this.checkNode("query");
+
+        String queryUrl = parser.getAttributeValue(null, "url");
+        String queryResultStorageInstance = parser.getAttributeValue(null, "storage-instance");
+        if (queryUrl == null || queryResultStorageInstance == null) {
+            String errorMsg = "<query> element missing 'url' or 'storage-instance' attribute";
+            throw new InvalidStructureException(errorMsg, parser);
+        }
+
+        while (nextTagInBlock("query")) {
+            String tagName = parser.getName();
+            if ("data".equals(tagName)) {
+                String key = parser.getAttributeValue(null, "key");
+                String ref = parser.getAttributeValue(null, "ref");
+                hiddenQueryValues.put(key, XPathReference.getPathExpr(ref).getReference());
+            } else if ("prompt".equals(tagName)) {
+                String key = parser.getAttributeValue(null, "key");
+                DisplayUnit display = parseDisplayBlock();
+                userQueryPrompts.put(key, display);
+            }
+        }
+
+        return new RemoteQueryDatum(queryUrl, queryResultStorageInstance,
+                                    hiddenQueryValues, userQueryPrompts);
+    }
 }

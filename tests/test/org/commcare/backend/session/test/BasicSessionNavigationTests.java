@@ -134,8 +134,8 @@ public class BasicSessionNavigationTests {
         SessionWrapper session = mApp.getSession();
 
         session.setCommand("patient-search");
-        // device_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+        // device_id
         session.setComputedDatum();
 
         // device_case_count
