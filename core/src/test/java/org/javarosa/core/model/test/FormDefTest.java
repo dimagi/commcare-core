@@ -18,6 +18,7 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -315,7 +316,7 @@ public class FormDefTest {
         double expectedAge = (double) (diff / MILLISECONDS_IN_A_YEAR);
 
         ExprEvalUtils.assertEqualsXpathEval("Check that a default value for the age question was " +
-                "set correctly based upon provided answer to birthday question",
+                        "set correctly based upon provided answer to birthday question",
                 expectedAge, "/data/age", evalCtx);
     }
 
@@ -398,6 +399,51 @@ public class FormDefTest {
                 "20", "/data/myiterator/iterator[1]/target_value", evalCtx);
         ExprEvalUtils.assertEqualsXpathEval("",
                 100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
+    }
+
+
+
+    /**
+     * Regression: IText function in xpath was not properly using the current locale instead of the
+     * backup
+     */
+    @Test
+    public void testITextXPathFunction() throws XPathSyntaxException {
+        FormParseInit fpi = new FormParseInit("/xform_tests/itext_function.xml");
+        FormEntryController fec =  initFormEntry(fpi);
+
+        fec.setLanguage("new");
+
+        boolean inlinePassed = false;
+        boolean nestedPassed = false;
+
+        do {
+            TreeReference currentRef = fec.getModel().getFormIndex().getReference();
+            if(currentRef == null) { continue; }
+            if(currentRef.genericize().toString().equals("/data/inline")) {
+                Assert.assertEquals("Inline IText Method Callout", "right",
+                        fec.getModel().getCaptionPrompt().getQuestionText());
+                inlinePassed = true;
+            }
+
+            if(currentRef.genericize().toString().equals("/data/nested")) {
+                Assert.assertEquals("Nexted IText Method Callout", "right",
+                        fec.getModel().getCaptionPrompt().getQuestionText());
+                nestedPassed = true;
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        if(!inlinePassed) {
+            Assert.fail("Inline itext callout did not occur");
+        }
+        if(!nestedPassed) {
+            Assert.fail("Nested itext callout did not occur");
+        }
+
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("IText calculation contained the wrong value",
+                "right", "/data/calculation", evalCtx);
     }
 
     private static void stepThroughEntireForm(FormEntryController fec) {
