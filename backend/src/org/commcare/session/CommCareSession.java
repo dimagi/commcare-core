@@ -22,7 +22,6 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.engine.models.Session;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -359,7 +358,7 @@ public class CommCareSession {
         if (datum instanceof FormIdDatum) {
             setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             setDatum("", "awful");
-        } else {
+        } else if (datum instanceof CalculateDatum) {
             setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
         }
     }

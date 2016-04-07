@@ -129,7 +129,7 @@ public class SessionStackTests {
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
 
         // The key of the needed datum should be "case_id_new_visit_0"
-        Assert.assertEquals("case_id_new_visit_0", ((EntityDatum)session.getNeededDatum()).getDataId());
+        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
         // Add the needed datum to the stack and confirm that the session is now ready to proceed
         session.setDatum("case_id_new_visit_0", "visit_id_value");
@@ -190,15 +190,15 @@ public class SessionStackTests {
         // order
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", ((EntityDatum)session.getNeededDatum()).getDataId());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
 
         session.setDatum("case_id", "case_id_value");
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("case_id_new_visit_0", ((EntityDatum)session.getNeededDatum()).getDataId());
+        Assert.assertEquals("case_id_new_visit_0", session.getNeededDatum().getDataId());
 
         session.setDatum("case_id_new_visit_0", "visit_id_value");
         Assert.assertEquals(SessionFrame.STATE_DATUM_COMPUTED, session.getNeededData());
-        Assert.assertEquals("usercase_id", ((EntityDatum)session.getNeededDatum()).getDataId());
+        Assert.assertEquals("usercase_id", session.getNeededDatum().getDataId());
 
         session.setDatum("usercase_id", "usercase_id_value");
         Assert.assertEquals(null, session.getNeededData());

@@ -112,8 +112,8 @@ public class SessionNavigatorTests {
         session.setCommand("m1-f1");
 
         // Confirm that the next datum has auto-select enabled and has a confirm detail defined
-        SessionDatum nextNeededDatum = session.getNeededDatum();
-        Assert.assertTrue(((EntityDatum)nextNeededDatum).isAutoSelectEnabled());
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
         Assert.assertNotNull(nextNeededDatum.getLongDetail());
 
         // Since there is one case in the case list (user_restore.xml contains one case of type
@@ -135,8 +135,8 @@ public class SessionNavigatorTests {
 
         // Confirm that the next datum has auto-select enabled, but does NOT have a confirm detail
         // defined
-        SessionDatum nextNeededDatum = session.getNeededDatum();
-        Assert.assertTrue(((EntityDatum)nextNeededDatum).isAutoSelectEnabled());
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
         Assert.assertNull(nextNeededDatum.getLongDetail());
 
         // Since there is one case in the case list and auto-select is enabled, but there is no

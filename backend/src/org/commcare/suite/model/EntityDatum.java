@@ -27,6 +27,10 @@ public class EntityDatum extends SessionDatum {
     private String persistentDetail;
     private boolean autoSelectEnabled;
 
+    public EntityDatum() {
+
+    }
+
     public EntityDatum(String id, String nodeset, String shortDetail, String longDetail,
                         String inlineDetail, String persistentDetail, String value, String autoselect) {
         super(id, value);

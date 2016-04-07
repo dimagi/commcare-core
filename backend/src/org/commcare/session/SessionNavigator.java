@@ -96,15 +96,18 @@ public class SessionNavigator {
 
     private void handleAutoSelect() {
         SessionDatum selectDatum = currentSession.getNeededDatum();
-        if (selectDatum.getLongDetail() == null) {
-            // No confirm detail defined for this entity select, so just set the case id right away
-            // and proceed
-            String autoSelectedCaseId = EntityDatum.getCaseIdFromReference(
-                    currentAutoSelectedCase, selectDatum, ec);
-            currentSession.setDatum(selectDatum.getDataId(), autoSelectedCaseId);
-            startNextSessionStep();
-        } else {
-            sendResponse(LAUNCH_CONFIRM_DETAIL);
+        if (selectDatum instanceof EntityDatum) {
+            EntityDatum entityDatum = (EntityDatum)selectDatum;
+            if (entityDatum.getLongDetail() == null) {
+                // No confirm detail defined for this entity select, so just set the case id right away
+                // and proceed
+                String autoSelectedCaseId = EntityDatum.getCaseIdFromReference(
+                        currentAutoSelectedCase, entityDatum, ec);
+                currentSession.setDatum(entityDatum.getDataId(), autoSelectedCaseId);
+                startNextSessionStep();
+            } else {
+                sendResponse(LAUNCH_CONFIRM_DETAIL);
+            }
         }
     }
 

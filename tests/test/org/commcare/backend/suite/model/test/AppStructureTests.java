@@ -15,14 +15,10 @@ import org.junit.Test;
 public class AppStructureTests {
 
     private MockApp mApp;
-    private MockSessionNavigationResponder mSessionNavigationResponder;
-    private SessionNavigator sessionNavigator;
 
     @Before
     public void setUp() throws Exception {
         mApp = new MockApp("/app_structure/");
-        mSessionNavigationResponder = new MockSessionNavigationResponder(mApp.getSession());
-        sessionNavigator = new SessionNavigator(mSessionNavigationResponder);
     }
 
     @Test

@@ -12,9 +12,13 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public abstract class SessionDatum implements Externalizable {
+public class SessionDatum implements Externalizable {
     private String value;
     private String id;
+
+    public SessionDatum() {
+
+    }
 
     protected SessionDatum(String id, String value) {
         this.id = id;

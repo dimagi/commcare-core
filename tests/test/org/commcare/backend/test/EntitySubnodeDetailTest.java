@@ -34,13 +34,14 @@ public class EntitySubnodeDetailTest {
         session.setCommand("m0");
 
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        Assert.assertEquals(session.getNeededDatum().getDataId(), "report_id_my_report");
-        Assert.assertEquals(session.getNeededDatum().getLongDetail(), "reports.my_report.data");
+        EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertEquals(entityDatum.getDataId(), "report_id_my_report");
+        Assert.assertEquals(entityDatum.getLongDetail(), "reports.my_report.data");
 
-        Detail confirmDetail = session.getDetail(session.getNeededDatum().getLongDetail());
+        Detail confirmDetail = session.getDetail(entityDatum.getLongDetail());
         Assert.assertNotNull(confirmDetail.getNodeset());
 
-        TreeReference detailReference = ((EntityDatum)session.getNeededDatum()).getNodeset();
+        TreeReference detailReference = entityDatum.getNodeset();
         detailReference = confirmDetail.getNodeset().contextualize(detailReference);
         List<TreeReference> references = session.getEvaluationContext().expandReference(detailReference);
         Assert.assertEquals(4, references.size());
