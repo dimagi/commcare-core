@@ -9,8 +9,11 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-public class InstanceSessionBuilder {
-    public static FormInstance getSessionInstance(SessionFrame frame, String deviceId, String appversion, String username, String userId, Hashtable<String, String> userFields) {
+public class SessionInstanceBuilder {
+    public static FormInstance getSessionInstance(SessionFrame frame, String deviceId,
+                                                  String appversion, String username,
+                                                  String userId,
+                                                  Hashtable<String, String> userFields) {
         TreeElement sessionRoot = new TreeElement("session", 0);
         TreeElement sessionData = new TreeElement("data", 0);
 
@@ -18,9 +21,10 @@ public class InstanceSessionBuilder {
 
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                Vector<TreeElement> matchingElements = sessionData.getChildrenWithName(step.getId());
+                Vector<TreeElement> matchingElements =
+                        sessionData.getChildrenWithName(step.getId());
 
-                if(matchingElements.size() > 0) {
+                if (matchingElements.size() > 0) {
                     matchingElements.elementAt(0).setValue(new UncastData(step.getValue()));
                 } else {
                     TreeElement datum = new TreeElement(step.getId());
@@ -43,7 +47,7 @@ public class InstanceSessionBuilder {
         TreeElement userData = new TreeElement("data", 0);
         user.addChild(userData);
         for (Enumeration en = userFields.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
+            String key = (String) en.nextElement();
             addData(userData, key, userFields.get(key));
         }
 
@@ -57,5 +61,4 @@ public class InstanceSessionBuilder {
         datum.setValue(new UncastData(data));
         root.addChild(datum);
     }
-
 }
