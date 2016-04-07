@@ -1,8 +1,11 @@
 package org.commcare.session;
 
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -81,7 +84,9 @@ public class CommCareSession {
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
         this.platform = oldCommCareSession.platform;
-        this.popped = new StackFrameStep(oldCommCareSession.popped);
+        if (oldCommCareSession.popped != null) {
+            this.popped = new StackFrameStep(oldCommCareSession.popped);
+        }
         this.currentCmd = oldCommCareSession.currentCmd;
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
@@ -215,9 +220,9 @@ public class CommCareSession {
             if (datumNeededForThisEntry != null) {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
-                    if (datumNeededForThisEntry.getNodeset() != null) {
+                    if (datumNeededForThisEntry instanceof EntityDatum) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
-                    } else {
+                    } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
@@ -379,10 +384,10 @@ public class CommCareSession {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+        if (datum instanceof FormIdDatum) {
             setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             setDatum("", "awful");
-        } else {
+        } else if (datum instanceof ComputedDatum) {
             setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
         }
     }
@@ -770,7 +775,7 @@ public class CommCareSession {
      * @return An Entry object which contains a selector for that datum
      * which is in this session history
      */
-    public SessionDatum findDatumDefinition(String datumId) {
+    public EntityDatum findDatumDefinition(String datumId) {
         //We're performing a walk down the entities in this session here,
         //we should likely generalize this to make it easier to do it for other
         //operations
@@ -800,8 +805,8 @@ public class CommCareSession {
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
                 for (Entry entry : entries) {
                     for (SessionDatum datum : entry.getSessionDataReqs()) {
-                        if (datum.getDataId().equals(datumId)) {
-                            return datum;
+                        if (datum.getDataId().equals(datumId) && datum instanceof EntityDatum) {
+                            return (EntityDatum)datum;
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.suite.model.Action;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
@@ -35,9 +36,10 @@ public class SessionStackTests {
         session.setComputedDatum();
 
         Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
-        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        EntityDatum entityDatum = (EntityDatum)session.getNeededDatum();
+        Assert.assertEquals("case_id", entityDatum.getDataId());
 
-        Vector<Action> actions = session.getDetail(session.getNeededDatum().getShortDetail()).getCustomActions();
+        Vector<Action> actions = session.getDetail(entityDatum.getShortDetail()).getCustomActions();
 
         if(actions == null || actions.isEmpty()) {
             Assert.fail("Detail screen stack action was missing from app!");
