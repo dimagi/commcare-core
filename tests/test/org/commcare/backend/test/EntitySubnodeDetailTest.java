@@ -1,6 +1,7 @@
 package org.commcare.backend.test;
 
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.instance.TreeReference;
@@ -39,7 +40,7 @@ public class EntitySubnodeDetailTest {
         Detail confirmDetail = session.getDetail(session.getNeededDatum().getLongDetail());
         Assert.assertNotNull(confirmDetail.getNodeset());
 
-        TreeReference detailReference = session.getNeededDatum().getNodeset();
+        TreeReference detailReference = ((EntityDatum)session.getNeededDatum()).getNodeset();
         detailReference = confirmDetail.getNodeset().contextualize(detailReference);
         List<TreeReference> references = session.getEvaluationContext().expandReference(detailReference);
         Assert.assertEquals(4, references.size());

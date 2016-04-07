@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.suite.model.CalculateDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
@@ -21,6 +22,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.engine.models.Session;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -162,15 +164,14 @@ public class CommCareSession {
         String needDatum = null;
         String nextKey = null;
         for (Entry e : possibleEntries) {
-
             SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
             if (datumNeededForThisEntry != null) {
-                String needed = datumNeededForThisEntry.getDataId();
+                String needed = getNeededId(datumNeededForThisEntry);
                 if (nextKey == null) {
                     nextKey = needed;
-                    if (datumNeededForThisEntry.getNodeset() != null) {
+                    if (datumNeededForThisEntry instanceof EntityDatum) {
                         needDatum = SessionFrame.STATE_DATUM_VAL;
-                    } else {
+                    } else if (datumNeededForThisEntry instanceof CalculateDatum) {
                         needDatum = SessionFrame.STATE_DATUM_COMPUTED;
                     }
                     continue;
@@ -196,6 +197,16 @@ public class CommCareSession {
         //more than one applicable entry, we need to keep going
         if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
             return SessionFrame.STATE_COMMAND_ID;
+        } else {
+            return null;
+        }
+    }
+
+    private static String getNeededId(SessionDatum datum) {
+        if (datum instanceof EntityDatum) {
+            return ((EntityDatum) datum).getDataId();
+        } else if (datum instanceof CalculateDatum) {
+            return ((CalculateDatum) datum).getDataId();
         } else {
             return null;
         }
