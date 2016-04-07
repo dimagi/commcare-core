@@ -24,6 +24,18 @@ public class PropertySetter implements Externalizable {
     String value;
     boolean force;
 
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public boolean isForce() {
+        return force;
+    }
+
     /**
      * Serialization Only!!!
      */
@@ -35,18 +47,6 @@ public class PropertySetter implements Externalizable {
         this.key = key;
         this.value = value;
         this.force = force;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public boolean isForce() {
-        return force;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf)
@@ -68,8 +68,8 @@ public class PropertySetter implements Externalizable {
         }
         
         PropertySetter p = (PropertySetter)o;
-        return this.key.equals(p.key) &&
-                this.value.equals(p.value) &&
-                force == p.force;
+        return this.key.equals(p.getKey()) && 
+               this.value.equals(p.getValue()) && 
+               force == p.force;
     }
 }
