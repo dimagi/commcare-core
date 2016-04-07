@@ -183,7 +183,12 @@ public class Profile implements Persistable {
     }
 
     private String getSignedPermissionValue(String key) {
-        return signedPermissions.get(key).getVerifiedValue();
+        SignedPermission perm = signedPermissions.get(key);
+        if (perm != null) {
+            return perm.getVerifiedValue();
+        } else {
+            return SignedPermission.getDefaultValue(key);
+        }
     }
 
     public String getMultipleAppsCompatibility() {

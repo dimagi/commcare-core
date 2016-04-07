@@ -37,12 +37,12 @@ public class SignedPermission implements Externalizable {
         if (verifier.verify(value, signature)) {
             verifiedValue = value;
         } else {
-            verifiedValue = getDefaultValue();
+            verifiedValue = getDefaultValue(this.key);
         }
         verificationOccurred = true;
     }
 
-    private String getDefaultValue() {
+    public static String getDefaultValue(String key) {
         switch(key) {
             case KEY_MULTIPLE_APPS_COMPATIBILITY:
                 return MULT_APPS_DISABLED_VALUE;
@@ -56,7 +56,7 @@ public class SignedPermission implements Externalizable {
             Logger.log("error-workflow",
                     "Attempting to get the verified value for a signed permission before " +
                             "verification has occurred; using default value");
-            return getDefaultValue();
+            return getDefaultValue(this.key);
         }
         return verifiedValue;
     }
