@@ -20,29 +20,22 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class EntityDatum extends SessionDatum {
-    private String id;
     private TreeReference nodeset;
     private String shortDetail;
     private String longDetail;
     private String inlineDetail;
     private String persistentDetail;
-    private String value;
     private boolean autoSelectEnabled;
 
     public EntityDatum(String id, String nodeset, String shortDetail, String longDetail,
                         String inlineDetail, String persistentDetail, String value, String autoselect) {
-        this.id = id;
+        super(id, value);
         this.nodeset = XPathReference.getPathExpr(nodeset).getReference();
         this.shortDetail = shortDetail;
         this.longDetail = longDetail;
         this.inlineDetail = inlineDetail;
         this.persistentDetail = persistentDetail;
-        this.value = value;
         this.autoSelectEnabled = "true".equals(autoselect);
-    }
-
-    public String getDataId() {
-        return id;
     }
 
     public TreeReference getNodeset() {
@@ -72,17 +65,13 @@ public class EntityDatum extends SessionDatum {
         return persistentDetail;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public boolean isAutoSelectEnabled() {
         return autoSelectEnabled;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        id = ExtUtil.readString(in);
+        super.readExternal(in, pf);
 
         if (ExtUtil.readBool(in)) {
             nodeset = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
@@ -93,13 +82,12 @@ public class EntityDatum extends SessionDatum {
         longDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         inlineDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         persistentDetail = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         autoSelectEnabled = ExtUtil.readBool(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, id);
+        super.writeExternal(out);
 
         ExtUtil.writeBool(out, nodeset != null);
         if (nodeset != null) {
@@ -109,7 +97,6 @@ public class EntityDatum extends SessionDatum {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(longDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(inlineDetail));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(persistentDetail));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, autoSelectEnabled);
     }
 
@@ -140,7 +127,7 @@ public class EntityDatum extends SessionDatum {
     }
 
     public static String getCaseIdFromReference(TreeReference contextRef,
-                                                SessionDatum selectDatum,
+                                                EntityDatum selectDatum,
                                                 EvaluationContext ec) {
         // Grab the session's (form) element reference, and load it.
         TreeReference elementRef =
