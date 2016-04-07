@@ -298,7 +298,7 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
+        return getFirstMissingDatum(collectedDatums, entry.getSessionDataReqs());
     }
 
     /**
@@ -378,6 +378,19 @@ public class CommCareSession {
         syncState();
     }
 
+    public void setQueryDatum() {
+        SessionDatum datum = getNeededDatum();
+        if (datum instanceof RemoteQueryDatum) {
+            StackFrameStep step =
+                    new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
+                            datum.getDataId(), datum.getValue());
+            frame.pushStep(step);
+            syncState();
+        } else {
+            throw new RuntimeException("Trying to set query successful when one isn't needed.");
+        }
+    }
+
     public void setComputedDatum(EvaluationContext ec) throws XPathException {
         SessionDatum datum = getNeededDatum();
         XPathExpression form;
@@ -418,6 +431,9 @@ public class CommCareSession {
                 if (key != null && value != null) {
                     collectedDatums.put(key, value);
                 }
+            } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
+                // TODO PLM: install the returned instance
+                collectedDatums.put(step.getId(), step.getValue());
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
             } else if (SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {

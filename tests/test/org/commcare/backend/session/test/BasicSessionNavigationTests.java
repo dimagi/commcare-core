@@ -135,6 +135,9 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+        session.setQueryDatum();
+
+        /*
         // device_id
         session.setComputedDatum();
 
@@ -149,6 +152,7 @@ public class BasicSessionNavigationTests {
         // patient_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
         session.setDatum("patient_id", "000001");
+        */
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
