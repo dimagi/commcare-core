@@ -80,7 +80,9 @@ public class CommCareSession {
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
         this.platform = oldCommCareSession.platform;
-        this.popped = new StackFrameStep(oldCommCareSession.popped);
+        if (oldCommCareSession.popped != null) {
+            this.popped = new StackFrameStep(oldCommCareSession.popped);
+        }
         this.currentCmd = oldCommCareSession.currentCmd;
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
