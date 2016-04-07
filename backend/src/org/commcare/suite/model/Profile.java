@@ -76,6 +76,7 @@ public class Profile implements Persistable {
         properties = new Vector<PropertySetter>();
         roots = new Vector<RootTranslator>();
         featureStatus = new Hashtable<String, Boolean>();
+        signedPermissions = new Hashtable<String, SignedPermission>();
 
         //turn on default features
         featureStatus.put("users", new Boolean(true));
