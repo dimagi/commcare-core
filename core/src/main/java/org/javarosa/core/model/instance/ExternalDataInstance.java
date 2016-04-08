@@ -12,10 +12,10 @@ import java.io.IOException;
  * @author ctsims
  */
 public class ExternalDataInstance extends DataInstance {
-    String reference;
+    private String reference;
 
-    AbstractTreeElement root;
-    InstanceBase base;
+    private AbstractTreeElement root;
+    private InstanceBase base;
 
     public ExternalDataInstance() {
     }
@@ -37,20 +37,31 @@ public class ExternalDataInstance extends DataInstance {
         this.mCacheHost = instance.getCacheHost();
     }
 
+    private ExternalDataInstance(String reference, String instanceId,
+                                 AbstractTreeElement root) {
+        this(reference, instanceId);
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.instance.DataInstance#isRuntimeEvaluated()
-     */
+        base = new InstanceBase(instanceId);
+        this.root = root;
+        base.setChild(root);
+    }
+
+    public static ExternalDataInstance buildFromRemote(String instanceId,
+                                               AbstractTreeElement root) {
+        return new ExternalDataInstance("jr://instance/remote", instanceId, root);
+    }
+
+    @Override
     public boolean isRuntimeEvaluated() {
         return true;
     }
 
-
+    @Override
     public InstanceBase getBase() {
         return base;
     }
 
+    @Override
     public AbstractTreeElement getRoot() {
         return root;
     }
@@ -59,22 +70,25 @@ public class ExternalDataInstance extends DataInstance {
         return reference;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, reference);
     }
 
+    @Override
     public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
-
     }
+
 }

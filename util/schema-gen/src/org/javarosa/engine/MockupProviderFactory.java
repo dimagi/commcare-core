@@ -22,10 +22,12 @@ public class MockupProviderFactory extends InstanceInitializationFactory {
         this.instances = instances;
     }
 
+    @Override
     public ExternalDataInstance getSpecializedExternalDataInstance(ExternalDataInstance instance) {
         return instance;
     }
 
+    @Override
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
 
