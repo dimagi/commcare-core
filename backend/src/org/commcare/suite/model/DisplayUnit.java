@@ -1,6 +1,5 @@
 package org.commcare.suite.model;
 
-import org.commcare.suite.model.DisplayData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -42,6 +41,7 @@ public class DisplayUnit implements Externalizable, DetailTemplate {
         return evaluate(null);
     }
 
+    @Override
     public DisplayData evaluate(EvaluationContext ec) {
         String imageRef = imageReference == null ? null : imageReference.evaluate(ec);
         String audioRef = audioReference == null ? null : audioReference.evaluate(ec);
