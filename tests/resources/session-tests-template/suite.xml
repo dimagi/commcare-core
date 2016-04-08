@@ -87,6 +87,7 @@
       <text>Module 2 Form 0</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
     <session>
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
@@ -108,6 +109,7 @@
       <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
     </post>
     <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
     <command id="patient-search">
       <display>
         <text>Global search for person</text>
@@ -131,10 +133,10 @@
       <datum id="case_id" nodeset="instance('patients')/case[@case_type='geriatric'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
     <stack>
-      <push>
-        <command value="'m1-f0'"/>
-        <datum id="calculated_data" value="'claimed'"/>
-      </push>
+      <create>
+        <command value="'m2-f0'"/>
+        <datum id="case_id" value="instance('patients')/patient/bolivar"/>
+      </create>
     </stack>
   </sync-request>
 

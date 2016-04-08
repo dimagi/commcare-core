@@ -61,6 +61,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
     }
 
+    @Override
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
         if (ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {

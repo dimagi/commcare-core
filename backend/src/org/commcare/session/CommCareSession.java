@@ -16,6 +16,7 @@ import org.commcare.suite.model.SyncEntry;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
@@ -59,6 +60,7 @@ public class CommCareSession {
      */
     private final OrderedHashtable<String, String> collectedDatums;
     private String currentXmlns;
+    private final Hashtable<String, ExternalDataInstance> instances;
 
     /**
      * The current session frame data
@@ -73,6 +75,7 @@ public class CommCareSession {
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
         collectedDatums = new OrderedHashtable<String, String>();
+        instances = new Hashtable<String, ExternalDataInstance>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -93,6 +96,12 @@ public class CommCareSession {
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
             collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
+        }
+
+        instances = new Hashtable<String, ExternalDataInstance>();
+        for (Enumeration e = oldCommCareSession.instances.keys(); e.hasMoreElements(); ) {
+            String key = (String)e.nextElement();
+            instances.put(key, new ExternalDataInstance(oldCommCareSession.instances.get(key)));
         }
 
         this.frameStack = new Stack<SessionFrame>();
@@ -165,10 +174,6 @@ public class CommCareSession {
             }
         }
         return true;
-    }
-
-    private OrderedHashtable<String, String> getData() {
-        return collectedDatums;
     }
 
     public CommCarePlatform getPlatform() {
@@ -375,13 +380,16 @@ public class CommCareSession {
         syncState();
     }
 
-    public void setQueryDatum() {
+    public void setQueryDatum(ExternalDataInstance queryResultInstance) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step =
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
                             datum.getDataId(), datum.getValue());
             frame.pushStep(step);
+            if (queryResultInstance != null) {
+                instances.put(datum.getDataId(), queryResultInstance);
+            }
             syncState();
         } else {
             throw new RuntimeException("Trying to set query successful when one isn't needed.");
@@ -421,6 +429,7 @@ public class CommCareSession {
         this.currentXmlns = null;
         this.popped = null;
 
+        Vector<String> staleInstanceKeys = getKeySet(instances);
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
@@ -429,7 +438,7 @@ public class CommCareSession {
                     collectedDatums.put(key, value);
                 }
             } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
-                // TODO PLM: install the returned instance
+                staleInstanceKeys.remove(step.getId());
                 collectedDatums.put(step.getId(), step.getValue());
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
@@ -437,6 +446,20 @@ public class CommCareSession {
                 this.currentXmlns = step.getId();
             }
         }
+
+        for (String staleInstanceKey : staleInstanceKeys) {
+            instances.remove(staleInstanceKey);
+        }
+    }
+
+    private static Vector<String> getKeySet(Hashtable<String, ?> table) {
+        // <3 <3 <3  J2ME  <3 <3 <3
+        Vector<String> keys = new Vector<String>();
+        for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
+            String key = (String) en.nextElement();
+            keys.addElement(key);
+        }
+        return keys;
     }
 
     public StackFrameStep getPoppedStep() {
@@ -499,14 +522,22 @@ public class CommCareSession {
         }
         Entry entry = getEntriesForCommand(command).elementAt(0);
 
-        Hashtable<String, DataInstance> instances = entry.getInstances();
+        Hashtable<String, DataInstance> instancesInScope = entry.getInstances();
 
+        for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
+        }
+        addInstancesFromFrame(instancesInScope);
+
+        return new EvaluationContext(null, instancesInScope);
+    }
+
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instancesInScope) {
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instances.put(key, instances.get(key).initialize(iif, key));
+            instancesInScope.put(key, instances.get(key));
         }
-
-        return new EvaluationContext(null, instances);
     }
 
     public SessionFrame getFrame() {

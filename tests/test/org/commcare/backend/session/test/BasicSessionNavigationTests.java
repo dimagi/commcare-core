@@ -135,7 +135,7 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
-        session.setQueryDatum();
+        session.setQueryDatum(null);
 
         /*
         // device_id
