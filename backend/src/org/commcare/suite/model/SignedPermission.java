@@ -66,6 +66,8 @@ public class SignedPermission implements Externalizable {
         key = ExtUtil.readString(in);
         value = ExtUtil.readString(in);
         signature = ExtUtil.readString(in);
+        verificationOccurred = ExtUtil.readBool(in);
+        verifiedValue = ExtUtil.readString(in);
     }
 
     @Override
@@ -73,5 +75,7 @@ public class SignedPermission implements Externalizable {
         ExtUtil.writeString(out, key);
         ExtUtil.writeString(out, value);
         ExtUtil.writeString(out, signature);
+        ExtUtil.writeBool(out, verificationOccurred);
+        ExtUtil.writeString(out, verifiedValue);
     }
 }

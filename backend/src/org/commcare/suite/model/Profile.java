@@ -232,6 +232,7 @@ public class Profile implements Persistable {
         properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
+        signedPermissions = (Hashtable<String, SignedPermission>)ExtUtil.read(in, new ExtWrapMap(String.class, SignedPermission.class));
     }
 
     @Override
@@ -246,5 +247,6 @@ public class Profile implements Persistable {
         ExtUtil.write(out, new ExtWrapList(properties));
         ExtUtil.write(out, new ExtWrapList(roots));
         ExtUtil.write(out, new ExtWrapMap(featureStatus));
+        ExtUtil.write(out, new ExtWrapMap(signedPermissions));
     }
 }
