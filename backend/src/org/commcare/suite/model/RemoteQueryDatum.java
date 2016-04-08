@@ -19,7 +19,7 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class RemoteQueryDatum extends SessionDatum {
-    private Hashtable hiddenQueryValues;
+    private Hashtable<String, XPathExpression> hiddenQueryValues;
     private Hashtable<String, DisplayUnit> userQueryPrompts;
 
     @SuppressWarnings("unused")
@@ -48,10 +48,10 @@ public class RemoteQueryDatum extends SessionDatum {
         super.readExternal(in, pf);
 
         hiddenQueryValues =
-                (Hashtable) ExtUtil.read(in, new ExtWrapMapPoly(String.class));
+                (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
                 (Hashtable<String, DisplayUnit>) ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class));
+                        new ExtWrapMap(String.class, DisplayUnit.class), pf);
     }
 
     @Override
