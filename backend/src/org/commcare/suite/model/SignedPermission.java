@@ -38,6 +38,9 @@ public class SignedPermission implements Externalizable {
             verifiedValue = value;
         } else {
             verifiedValue = getDefaultValue(this.key);
+            Logger.log("user", "Verification of a signed permission with key " + this.key +
+                    " failed. The value that the user tried to verify was " + this.value +
+                    "; defaulting to " + getDefaultValue(key) + " instead");
         }
         verificationOccurred = true;
     }
