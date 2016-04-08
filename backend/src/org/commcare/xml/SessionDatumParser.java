@@ -9,6 +9,9 @@ import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -66,9 +69,10 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
         return datum;
     }
 
-    private RemoteQueryDatum parseRemoteQueryDatum() throws InvalidStructureException, IOException, XmlPullParserException {
-        Hashtable<String, TreeReference> hiddenQueryValues =
-                new Hashtable<String, TreeReference>();
+    private RemoteQueryDatum parseRemoteQueryDatum()
+            throws InvalidStructureException, IOException, XmlPullParserException {
+        Hashtable<String, XPathExpression> hiddenQueryValues =
+                new Hashtable<String, XPathExpression>();
         Hashtable<String, DisplayUnit> userQueryPrompts =
                 new Hashtable<String, DisplayUnit>();
         this.checkNode("query");
@@ -85,7 +89,12 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
             if ("data".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 String ref = parser.getAttributeValue(null, "ref");
-                hiddenQueryValues.put(key, XPathReference.getPathExpr(ref).getReference());
+                try {
+                    hiddenQueryValues.put(key, XPathParseTool.parseXPath(ref));
+                } catch (XPathSyntaxException e) {
+                    String errorMessage = "'ref' value is not a valid xpath expression: " + ref;
+                    throw new InvalidStructureException(errorMessage, this.parser);
+                }
             } else if ("prompt".equals(tagName)) {
                 String key = parser.getAttributeValue(null, "key");
                 DisplayUnit display = parseDisplayBlock();
