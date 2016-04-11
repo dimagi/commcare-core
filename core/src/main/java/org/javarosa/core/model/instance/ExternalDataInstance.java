@@ -38,16 +38,18 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     private ExternalDataInstance(String reference, String instanceId,
-                                 AbstractTreeElement root) {
+                                 TreeElement topLevel) {
         this(reference, instanceId);
 
         base = new InstanceBase(instanceId);
-        this.root = root;
+        topLevel.setInstanceName(instanceId);
+        topLevel.setParent(base);
+        this.root = topLevel;
         base.setChild(root);
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                               AbstractTreeElement root) {
+                                               TreeElement root) {
         return new ExternalDataInstance("jr://instance/remote", instanceId, root);
     }
 
