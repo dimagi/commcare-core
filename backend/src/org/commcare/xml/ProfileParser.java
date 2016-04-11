@@ -32,8 +32,7 @@ public class ProfileParser extends ElementParser<Profile> {
     int maximumResourceAuthority = -1;
 
     public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
-            String resourceId, int initialResourceStatus, boolean forceVersion)
-            throws IOException {
+            String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
 
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
