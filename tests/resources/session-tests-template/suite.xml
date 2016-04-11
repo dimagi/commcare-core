@@ -135,7 +135,7 @@
     <stack>
       <create>
         <command value="'m2-f0'"/>
-        <datum id="case_id" value="instance('patients')/patient/bolivar"/>
+        <datum id="case_id" value="instance('patients')/patients/patient/bolivar"/>
       </create>
     </stack>
   </sync-request>

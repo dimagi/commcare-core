@@ -227,7 +227,7 @@ public class SessionStackTests {
         TreeElement data = buildExampleInstanceRoot(bolivarsId);
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
 
-        ExprEvalUtils.testEval("instance('patients')/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
@@ -236,32 +236,34 @@ public class SessionStackTests {
         session.setDatum("case_id", "case_id_value");
 
         session.stepBack();
-        ExprEvalUtils.testEval("instance('patients')/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.stepBack();
-        assertInstanceMissing(session, "instance('patients')/patient/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
 
         session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
-        ExprEvalUtils.testEval("instance('patients')/patient/bolivar",
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
                 session.getEvaluationContext(),
                 bolivarsId);
 
         session.finishExecuteAndPop(session.getEvaluationContext());
-        assertInstanceMissing(session, "instance('patients')/patient/bolivar");
+        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
         ExprEvalUtils.testEval("instance('session')/session/data/case_id",
                 session.getEvaluationContext(),
                 bolivarsId);
     }
 
     private static TreeElement buildExampleInstanceRoot(String bolivarsId) {
+        TreeElement root = new TreeElement("patients");
         TreeElement data = new TreeElement("patient");
+        root.addChild(data);
         TreeElement bolivar = new TreeElement("bolivar");
         bolivar.setValue(new StringData(bolivarsId));
         data.addChild(bolivar);
         data.addChild(new TreeElement("sanjay"));
-        return data;
+        return root;
     }
 
     private static void assertInstanceMissing(SessionWrapper session, String xpath)
