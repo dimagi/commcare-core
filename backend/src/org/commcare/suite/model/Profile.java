@@ -171,8 +171,12 @@ public class Profile implements Persistable {
         return setters;
     }
 
+    public void addSignedPermission(SignedPermission perm) {
+        signedPermissions.put(perm.getKey(), perm);
+    }
+
     public void addSignedPermission(String key, String value, String signature) {
-        signedPermissions.put(key, new SignedPermission(key, value, signature));
+        addSignedPermission(new SignedPermission(key, value, signature));
     }
 
     public void verifySignedPermissions(SignatureVerifier verifier) {

@@ -33,16 +33,18 @@ public class SignedPermission implements Externalizable {
         this.signature = signature;
     }
 
-    public void verifyValue(SignatureVerifier verifier) {
+    public boolean verifyValue(SignatureVerifier verifier) {
+        verificationOccurred = true;
         if (verifier.verify(value, signature)) {
             verifiedValue = value;
+            return true;
         } else {
             verifiedValue = getDefaultValue(this.key);
             Logger.log("user", "Verification of a signed permission with key " + this.key +
                     " failed. The value that the user tried to verify was " + this.value +
                     "; defaulting to " + getDefaultValue(key) + " instead");
+            return false;
         }
-        verificationOccurred = true;
     }
 
     public static String getDefaultValue(String key) {
@@ -62,6 +64,10 @@ public class SignedPermission implements Externalizable {
             return getDefaultValue(this.key);
         }
         return verifiedValue;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     @Override
