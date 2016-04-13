@@ -215,7 +215,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     @Override
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeReference.buildRefFromTreeElement(this);
+            ref = TreeReference.buildRefFromTreeElement((AbstractTreeElement)this);
         }
         return ref;
     }
