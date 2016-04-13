@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.xform.validator.gui;
 
 import org.javarosa.core.model.FormDef;
@@ -129,7 +113,6 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
     private final Label status = new Label();
     private Label formName = new Label();
 
-    private Checkbox noOpenAtEnd = null;
     private Checkbox yesOpenAtEnd = null;
 
     private TextField wtkTF = null;
@@ -670,7 +653,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
         CheckboxGroup cbg = new CheckboxGroup();
         yesOpenAtEnd = new Checkbox("Yes", cbg, openAtEnd.booleanValue());
         yesOpenAtEnd.addItemListener(this);
-        noOpenAtEnd = new Checkbox("No", cbg, !openAtEnd.booleanValue());
+        Checkbox noOpenAtEnd = new Checkbox("No", cbg, !openAtEnd.booleanValue());
         noOpenAtEnd.addItemListener(this);
         settings.add(yesOpenAtEnd,gbc);
         settings.add(noOpenAtEnd,gbc);
