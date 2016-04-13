@@ -89,7 +89,7 @@ public class CommCareSession {
         collectedDatums = new OrderedHashtable<String, String>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            collectedDatums.put(key, oldCommCareSession.collectedDatums.elementAt(key));
+            collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
         }
 
         this.frameStack = new Stack<SessionFrame>();
