@@ -224,11 +224,11 @@ public class CommCareSession {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
                     if (datumNeededForThisEntry instanceof EntityDatum) {
-                        needDatum = SessionFrame.STATE_DATUM_VAL;
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
                     } else if (datumNeededForThisEntry instanceof ComputedDatum) {
-                        needDatum = SessionFrame.STATE_DATUM_COMPUTED;
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
                     } else if (datumNeededForThisEntry instanceof RemoteQueryDatum) {
-                        needDatum = SessionFrame.STATE_QUERY_REQUEST;
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_QUERY_REQUEST;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
                     // data needed from the first entry isn't consistent with
