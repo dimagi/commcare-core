@@ -79,7 +79,9 @@ public class CommCareSession {
      *  Copy constructor
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
+        // NOTE: 'platform' is being copied in a shallow manner
         this.platform = oldCommCareSession.platform;
+
         if (oldCommCareSession.popped != null) {
             this.popped = new StackFrameStep(oldCommCareSession.popped);
         }

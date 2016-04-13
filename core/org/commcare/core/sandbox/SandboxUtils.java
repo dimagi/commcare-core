@@ -58,9 +58,10 @@ public class SandboxUtils {
 
     /**
      * A quick way to request an evaluation context with an abstract instance available.
-     * Used in Touchforms
      *
+     * Used in Touchforms
      */
+    @SuppressWarnings("unused")
     public static EvaluationContext getInstanceContexts(UserSandbox sandbox, String instanceId, String instanceRef){
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
