@@ -995,7 +995,7 @@ public class XFormParser {
         } else if (ref != null) {
             try {
                 dataRef = new XPathReference(ref);
-                TreeReference controlRefTarget = (TreeReference)dataRef.getReference();
+                TreeReference controlRefTarget = dataRef.getReference();
                 if (controlRefTarget.getInstanceName() != null) {
                     reporter.error("<" + e.getName() +
                             "> points to an non-main instance (" +
@@ -1026,9 +1026,9 @@ public class XFormParser {
             question.setBind(dataRef);
 
             if (controlType == Constants.CONTROL_SELECT_ONE) {
-                selectOnes.addElement((TreeReference)dataRef.getReference());
+                selectOnes.addElement(dataRef.getReference());
             } else if (controlType == Constants.CONTROL_SELECT_MULTI) {
-                selectMultis.addElement((TreeReference)dataRef.getReference());
+                selectMultis.addElement(dataRef.getReference());
             }
         }
 
@@ -1512,7 +1512,7 @@ public class XFormParser {
         group.setBind(dataRef);
 
         if (group.getRepeat()) {
-            repeats.addElement((TreeReference)dataRef.getReference());
+            repeats.addElement(dataRef.getReference());
 
             String countRef = e.getAttributeValue(NAMESPACE_JAVAROSA, "count");
             if (countRef != null) {
@@ -1576,7 +1576,7 @@ public class XFormParser {
             ref.add(mainInstanceNode.getName(), 0);
             return ref;
         } else {
-            return (TreeReference)fe.getBind().getReference();
+            return fe.getBind().getReference();
         }
     }
 
@@ -1599,7 +1599,7 @@ public class XFormParser {
         }
 
         if (ref != null) {
-            tref = (TreeReference)ref.getReference();
+            tref = ref.getReference();
         } else {
             tref = TreeReference.selfRef(); //only happens for <group>s with no binding
         }
@@ -1993,11 +1993,8 @@ public class XFormParser {
         try {
             cond = new XPathConditional(xpath);
         } catch (XPathSyntaxException xse) {
-
             String errorMessage = "Encountered a problem with " + prettyType + " for node [" + contextRef.getReference().toString() + "] at line: " + xpath + ", " + xse.getMessage();
-
             reporter.error(errorMessage);
-
             throw new XFormParseException(errorMessage);
         }
 

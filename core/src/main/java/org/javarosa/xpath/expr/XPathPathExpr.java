@@ -103,7 +103,7 @@ public class XPathPathExpr extends XPathExpression {
                         ref = new TreeReference(strLit.s, TreeReference.REF_ABSOLUTE);
                     } else if (func.id.toString().equals("current")) {
                         parentsAllowed = true;
-                        ref.setContext(TreeReference.CONTEXT_ORIGINAL);
+                        ref = TreeReference.baseCurrentRef();
                     } else {
                         // We only support expression root contexts for
                         // instance refs, everything else is an illegal filter

@@ -142,7 +142,7 @@ public class InstanceSchema {
         if (fe instanceof QuestionDef) {
             QuestionDef q = (QuestionDef)fe;
             int controlType = q.getControlType();
-            TreeReference ref = (TreeReference)q.getBind().getReference();
+            TreeReference ref = q.getBind().getReference();
 
             if (controlType == Constants.CONTROL_SELECT_ONE || controlType == Constants.CONTROL_SELECT_MULTI) {
                 String choiceTypeName = getChoiceTypeName(ref);

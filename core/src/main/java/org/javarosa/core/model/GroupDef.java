@@ -92,14 +92,17 @@ public class GroupDef implements IFormElement, Localizable {
         observers = new Vector();
     }
 
+    @Override
     public int getID() {
         return id;
     }
 
+    @Override
     public void setID(int id) {
         this.id = id;
     }
 
+    @Override
     public XPathReference getBind() {
         return binding;
     }
@@ -108,6 +111,7 @@ public class GroupDef implements IFormElement, Localizable {
         this.binding = binding;
     }
 
+    @Override
     public Vector getChildren() {
         return children;
     }

@@ -61,7 +61,7 @@ public class XPathReference implements Externalizable {
         this.ref = ref;
     }
 
-    public Object getReference() {
+    public TreeReference getReference() {
         return ref;
     }
 

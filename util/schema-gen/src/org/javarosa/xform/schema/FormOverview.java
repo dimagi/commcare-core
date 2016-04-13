@@ -331,7 +331,7 @@ public class FormOverview {
     }
 
     private static TreeElement getInstanceNode (FormInstance d, XPathReference ref) {
-        return d.getTemplatePath((TreeReference)ref.getReference());
+        return d.getTemplatePath(ref.getReference());
     }
 
     private static void println (StringBuffer sb, int indent, String line) {

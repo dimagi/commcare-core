@@ -54,7 +54,7 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     }
 
     public static TreeReference unpackReference(XPathReference ref) {
-        return (TreeReference)ref.getReference();
+        return ref.getReference();
     }
 
     public abstract AbstractTreeElement<T> getBase();
