@@ -84,7 +84,9 @@ public class CommCareSession {
      *  Copy constructor
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
+        // NOTE: 'platform' is being copied in a shallow manner
         this.platform = oldCommCareSession.platform;
+
         if (oldCommCareSession.popped != null) {
             this.popped = new StackFrameStep(oldCommCareSession.popped);
         }
@@ -107,7 +109,7 @@ public class CommCareSession {
         this.frameStack = new Stack<SessionFrame>();
         // NOTE: can't use for/each due to J2ME build issues w/ Stack
         for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
-            frameStack.addElement(oldCommCareSession.frameStack.get(i));
+            frameStack.addElement(oldCommCareSession.frameStack.elementAt(i));
         }
     }
 
