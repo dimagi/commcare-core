@@ -6,8 +6,9 @@ package org.commcare.suite.model;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ComputedDatum extends SessionDatum {
+    @SuppressWarnings("unused")
     public ComputedDatum() {
-
+        // used in serialization
     }
 
     /**
