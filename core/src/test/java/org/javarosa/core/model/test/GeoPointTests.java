@@ -9,12 +9,11 @@ import org.junit.Test;
 
 public class GeoPointTests {
 
-    private FormParseInit geopointFpi;
     private EvaluationContext geopointEvalCtx;
 
     @Before
     public void setUp() {
-        geopointFpi = new FormParseInit("/geopoint_tests.xml");
+        FormParseInit geopointFpi = new FormParseInit("/geopoint_tests.xml");
         geopointEvalCtx = geopointFpi.getFormDef().getEvaluationContext();
     }
 

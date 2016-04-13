@@ -45,10 +45,7 @@ public class TreeReferenceTest {
     private TreeReference acPredRef;
     private TreeReference acPredMatchRef;
     private TreeReference acPredNotRef;
-    private TreeReference acPredRefClone;
     private Vector<XPathExpression> apreds;
-    private Vector<XPathExpression> amatchpreds;
-    private Vector<XPathExpression> anotpreds;
 
 
     @Before
@@ -104,8 +101,8 @@ public class TreeReferenceTest {
         }
 
         apreds = new Vector<XPathExpression>();
-        amatchpreds = new Vector<XPathExpression>();
-        anotpreds = new Vector<XPathExpression>();
+        Vector<XPathExpression> amatchpreds = new Vector<XPathExpression>();
+        Vector<XPathExpression> anotpreds = new Vector<XPathExpression>();
 
         apreds.add(testPred);
         amatchpreds.add(testPred);
@@ -118,7 +115,7 @@ public class TreeReferenceTest {
 
         //For mutation testing.
 
-        acPredRefClone = acPredRef.clone();
+        TreeReference acPredRefClone = acPredRef.clone();
 
         //We know we have a predicate at the 0 position
         Vector<XPathExpression> acPredRefClonePredicates = acPredRefClone.getPredicate(0);
