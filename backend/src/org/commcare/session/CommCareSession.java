@@ -215,7 +215,7 @@ public class CommCareSession {
      * returns null.
      */
     private String getDataNeededByAllEntries(Vector<Entry> entries) {
-        String needDatum = null;
+        String datumNeededByAllEntriesSoFar = null;
         String neededDatumId = null;
         for (Entry e : entries) {
             SessionDatum datumNeededForThisEntry =
@@ -242,7 +242,7 @@ public class CommCareSession {
             }
         }
 
-        return needDatum;
+        return datumNeededByAllEntriesSoFar;
     }
 
     public String[] getHeaderTitles() {
