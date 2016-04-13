@@ -30,14 +30,13 @@ import static org.junit.Assert.assertEquals;
 public class CaseParseReindexTests {
 
     private MockUserDataSandbox sandbox;
-    private Vector<String> owners;
 
     @Before
     public void setUp() throws Exception {
         sandbox = MockDataUtils.getStaticStorage();
 
         ParseUtils.parseIntoSandbox(this.getClass().getClassLoader().getResourceAsStream("index_disruption/base_transactions.xml"), sandbox);
-        owners = SandboxUtils.extractEntityOwners(sandbox);
+        SandboxUtils.extractEntityOwners(sandbox);
     }
 
     @Test
