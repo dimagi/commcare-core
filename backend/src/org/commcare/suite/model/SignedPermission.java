@@ -21,6 +21,8 @@ public class SignedPermission implements Externalizable {
     public static final String MULT_APPS_DISABLED_VALUE = "disabled";
     public static final String MULT_APPS_IGNORE_VALUE = "ignore";
 
+    public static final String KEY_SUPERUSER_AUTHENTICATION = "superuser-auth";
+
     private String key;
     private String value;
     private String signature;
