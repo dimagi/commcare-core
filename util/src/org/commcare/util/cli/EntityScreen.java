@@ -57,7 +57,7 @@ public class EntityScreen extends CompoundScreenHost {
     }
 
     @Override
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         try {
             return mShortDetail.getTitle().evaluate(mSession.getEvaluationContext()).getName();
         }catch (NoLocalizedTextException nlte) {
@@ -154,5 +154,11 @@ public class EntityScreen extends CompoundScreenHost {
 
     public void setPendingAction(Action pendingAction) {
         this.mPendingAction = pendingAction;
+    }
+    public Detail getShortDetail(){
+        return mShortDetail;
+    }
+    public SessionWrapper getSession(){
+        return mSession;
     }
 }

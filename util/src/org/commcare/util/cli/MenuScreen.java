@@ -123,7 +123,7 @@ public class MenuScreen extends Screen {
         choices.copyInto(mChoices);
     }
 
-    protected String getScreenTitle() {
+    public String getScreenTitle() {
         return mTitle;
     }
 
@@ -169,5 +169,9 @@ public class MenuScreen extends Screen {
             //This will result in things just executing again, which is fine.
         }
         return true;
+    }
+
+    public MenuDisplayable[] getMenuDisplayables(){
+        return mChoices;
     }
 }
