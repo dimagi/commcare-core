@@ -46,7 +46,7 @@ public class StackFrameStep implements Externalizable {
         this.valueIsXpath = oldStackFrameStep.valueIsXpath;
         for (Enumeration e = oldStackFrameStep.extras.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            extras.put(key, oldStackFrameStep.extras.get(key));
+            extras.put(key, oldStackFrameStep.extras.elementAt(key));
         }
     }
 

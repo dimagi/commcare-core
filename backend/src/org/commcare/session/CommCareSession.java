@@ -89,13 +89,13 @@ public class CommCareSession {
         collectedDatums = new OrderedHashtable<String, String>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
+            collectedDatums.put(key, oldCommCareSession.collectedDatums.elementAt(key));
         }
 
         this.frameStack = new Stack<SessionFrame>();
         // NOTE: can't use for/each due to J2ME build issues w/ Stack
         for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
-            frameStack.addElement(oldCommCareSession.frameStack.get(i));
+            frameStack.addElement(oldCommCareSession.frameStack.elementAt(i));
         }
     }
 
