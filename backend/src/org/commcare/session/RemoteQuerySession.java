@@ -33,23 +33,6 @@ public class RemoteQuerySession {
         userAnswers.put(key, answer);
     }
 
-    public String buildQueryUrl() {
-        StringBuilder urlBuilder = new StringBuilder(queryDatum.getValue() + "?");
-        Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
-        for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            // TODO PLM: url escaping
-            String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key));
-            urlBuilder.append(key).append("=").append(evaluatedExpr).append("&");
-        }
-        for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            // TODO PLM: url escaping
-            urlBuilder.append(key).append("=").append(userAnswers.get(key)).append("&");
-        }
-        return urlBuilder.toString();
-    }
-
     private String calculateHidden(XPathExpression expr) {
         return XPathFuncExpr.toString(expr.eval(evaluationContext));
     }

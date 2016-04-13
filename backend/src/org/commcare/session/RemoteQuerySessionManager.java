@@ -1,6 +1,5 @@
 package org.commcare.session;
 
-import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -43,17 +42,21 @@ public class RemoteQuerySessionManager {
         return queryDatum.getValue();
     }
 
-    public Vector<Pair<String, String>> getRawQueryParams() {
-        Vector<Pair<String, String>> params = new Vector<Pair<String, String>>();
+    /**
+     * @return List with two-element String array entries that contain the
+     * query key and value pairs
+     */
+    public Vector<String[]> getRawQueryParams() {
+        Vector<String[]> params = new Vector<String[]>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
+            String key = (String) e.nextElement();
             String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key));
-            params.addElement(new Pair<String, String>(key, evaluatedExpr));
+            params.addElement(new String[]{key, evaluatedExpr});
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            params.addElement(new Pair<String, String>(key, userAnswers.get(key)));
+            String key = (String) e.nextElement();
+            params.addElement(new String[]{key, userAnswers.get(key)});
         }
         return params;
     }
@@ -64,7 +67,7 @@ public class RemoteQuerySessionManager {
 
     public boolean areAllUserPromptsAnswered() {
         for (Enumeration e = queryDatum.getUserQueryPrompts().keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
+            String key = (String) e.nextElement();
             if (!userAnswers.containsKey(key)) {
                 return false;
             }
