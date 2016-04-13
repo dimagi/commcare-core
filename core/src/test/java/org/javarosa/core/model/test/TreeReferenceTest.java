@@ -85,8 +85,8 @@ public class TreeReferenceTest {
         parentRef.incrementRefLevel();
 
         a2Ref = root.extendRef("a", 2);
-        a2extRef = root.extendRef("a", TreeReference.INDEX_UNBOUND);
-        a2extRef.setInstanceName("external");
+        a2extRef = new TreeReference("external", TreeReference.REF_ABSOLUTE);
+        a2extRef.add("a", TreeReference.INDEX_UNBOUND);
 
         acPredRef = acRef.clone();
         acPredMatchRef = acRef.clone();
