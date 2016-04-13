@@ -229,7 +229,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         addChild(child, false);
     }
 
-    private void addChild(TreeElement child, boolean checkDuplicate) {
+    public void addChild(TreeElement child, boolean assumeUniqueChildNames) {
         if (!isChildable()) {
             throw new RuntimeException("Can't add children to node that has data value!");
         }
@@ -238,12 +238,6 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             throw new RuntimeException("Cannot add child with an unbound index!");
         }
 
-        if (checkDuplicate) {
-            TreeElement existingChild = getChild(child.name, child.multiplicity);
-            if (existingChild != null) {
-                throw new RuntimeException("Attempted to add duplicate child!");
-            }
-        }
         if (children == null) {
             children = new Vector<TreeElement>();
         }
@@ -255,7 +249,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
             if (anchor != null) {
                 i = referenceIndexOf(children, anchor);
             }
-        } else {
+        } else if (!assumeUniqueChildNames) {
             TreeElement anchor = getChild(child.getName(),
                     (child.getMult() == 0 ? TreeReference.INDEX_TEMPLATE : child.getMult() - 1));
             if (anchor != null) {
