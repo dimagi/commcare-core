@@ -1,5 +1,6 @@
 package org.commcare.session;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -8,6 +9,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -37,21 +39,23 @@ public class RemoteQuerySessionManager {
         userAnswers.put(key, answer);
     }
 
-    public String buildQueryUrl() {
-        StringBuilder urlBuilder = new StringBuilder(queryDatum.getValue() + "?");
+    public String getBaseUrl() {
+        return queryDatum.getValue();
+    }
+
+    public Vector<Pair<String, String>> getRawQueryParams() {
+        Vector<Pair<String, String>> params = new Vector<Pair<String, String>>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            // TODO PLM: url escaping
             String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key));
-            urlBuilder.append(key).append("=").append(evaluatedExpr).append("&");
+            params.addElement(new Pair<String, String>(key, evaluatedExpr));
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            // TODO PLM: url escaping
-            urlBuilder.append(key).append("=").append(userAnswers.get(key)).append("&");
+            params.addElement(new Pair<String, String>(key, userAnswers.get(key)));
         }
-        return urlBuilder.toString();
+        return params;
     }
 
     private String calculateHidden(XPathExpression expr) {
