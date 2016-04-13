@@ -172,7 +172,7 @@ public class CommCareSession {
      * returns null.
      */
     private String getDataNeededByAllEntries(Vector<Entry> entries) {
-        String needDatum = null;
+        String datumNeededByAllEntriesSoFar = null;
         String neededDatumId = null;
         for (Entry e : entries) {
             SessionDatum datumNeededForThisEntry =
@@ -181,9 +181,9 @@ public class CommCareSession {
                 if (neededDatumId == null) {
                     neededDatumId = datumNeededForThisEntry.getDataId();
                     if (datumNeededForThisEntry.getNodeset() != null) {
-                        needDatum = SessionFrame.STATE_DATUM_VAL;
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
                     } else {
-                        needDatum = SessionFrame.STATE_DATUM_COMPUTED;
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
                     // data needed from the first entry isn't consistent with
@@ -197,7 +197,7 @@ public class CommCareSession {
             }
         }
 
-        return needDatum;
+        return datumNeededByAllEntriesSoFar;
     }
 
     public String[] getHeaderTitles() {
