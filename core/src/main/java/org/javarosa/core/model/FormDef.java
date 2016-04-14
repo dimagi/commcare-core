@@ -1538,13 +1538,13 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     }
 
     private void initLocale(String locale) {
-        if (getLocalizer() != null) {
-            if (locale == null || !getLocalizer().hasLocale(locale)) {
-                if (getLocalizer().getLocale() == null) {
-                    getLocalizer().setToDefault();
+        if (localizer != null) {
+            if (locale == null || !localizer.hasLocale(locale)) {
+                if (localizer.getLocale() == null) {
+                    localizer.setToDefault();
                 }
             } else {
-                getLocalizer().setLocale(locale);
+                localizer.setLocale(locale);
             }
         }
     }
