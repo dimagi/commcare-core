@@ -8,7 +8,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  * Manager for remote query datums; get/answer user prompts and build
@@ -46,12 +45,12 @@ public class RemoteQuerySessionManager {
         Hashtable<String, String> params = new Hashtable<String, String>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+            String key = (String)e.nextElement();
             String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key), evaluationContext);
             params.put(key, evaluatedExpr);
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+            String key = (String)e.nextElement();
             params.put(key, userAnswers.get(key));
         }
         return params;
@@ -64,7 +63,7 @@ public class RemoteQuerySessionManager {
 
     public boolean areAllUserPromptsAnswered() {
         for (Enumeration e = queryDatum.getUserQueryPrompts().keys(); e.hasMoreElements(); ) {
-            String key = (String) e.nextElement();
+            String key = (String)e.nextElement();
             if (!userAnswers.containsKey(key)) {
                 return false;
             }
