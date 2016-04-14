@@ -4,7 +4,7 @@ import org.commcare.session.RemoteQuerySessionManager;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -51,13 +51,13 @@ public class SyncPost implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        params = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMap(String.class, XPathExpression.class));
+        params = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         url = ExtUtil.readString(in);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out, new ExtWrapMap(params));
+        ExtUtil.write(out, new ExtWrapMapPoly(params));
         ExtUtil.writeString(out, url);
     }
 }
