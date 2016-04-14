@@ -1501,7 +1501,20 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * @param newInstance true if the form is to be used for a new entry interaction,
      *                    false if it is using an existing IDataModel
      */
+
     public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, factory, null);
+    }
+
+    /**
+     * meant to be called after deserialization and initialization of handlers
+     *
+     * @param newInstance true if the form is to be used for a new entry interaction,
+     *                    false if it is using an existing IDataModel
+     * @param locale The default locale in the current environment, if provided. Can be null
+     *               to rely on the form's internal default.
+     */
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1512,9 +1525,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             preloadInstance(mainInstance.getRoot());
         }
 
-        if (getLocalizer() != null && getLocalizer().getLocale() == null) {
-            getLocalizer().setToDefault();
-        }
+        initLocale(locale);
 
         if (newInstance) {
             // only dispatch on a form's first opening, not subsequent loadings
@@ -1524,6 +1535,18 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         initAllTriggerables();
+    }
+
+    private void initLocale(String locale) {
+        if (localizer != null) {
+            if (locale == null || !localizer.hasLocale(locale)) {
+                if (localizer.getLocale() == null) {
+                    localizer.setToDefault();
+                }
+            } else {
+                localizer.setLocale(locale);
+            }
+        }
     }
 
     /**
