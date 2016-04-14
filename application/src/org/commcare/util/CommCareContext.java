@@ -271,7 +271,7 @@ public class CommCareContext {
                 } catch (UnfullfilledRequirementsException e) {
                     if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
                         String message = e.getMessage();
-                        if(e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION) {
+                        if(e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION) {
                             message = CommCareStartupInteraction.failSafeText("commcare.badversion",
                                     "The application requires a newer version of CommCare than is installed. It may not work correctly. Should installation be attempted anyway?");
                         }

@@ -13,6 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -30,6 +31,7 @@ public class Profile implements Persistable {
 
     public static final String STORAGE_KEY = "PROFILE";
     public static final String FEATURE_REVIEW = "checkoff";
+    public static final String FEATURE_USERS = "users";
 
     private int recordId = -1;
     private int version;
@@ -180,8 +182,9 @@ public class Profile implements Persistable {
     }
 
     public void verifySignedPermissions(SignatureVerifier verifier) {
-        for (SignedPermission perm : signedPermissions.values()) {
-            perm.verifyValue(verifier);
+        Enumeration<SignedPermission> perms = signedPermissions.elements();
+        while (perms.hasMoreElements()) {
+            perms.nextElement().verifyValue(verifier);
         }
     }
 
