@@ -50,12 +50,10 @@ public class SignedPermission implements Externalizable {
     }
 
     public static String getDefaultValue(String key) {
-        switch(key) {
-            case KEY_MULTIPLE_APPS_COMPATIBILITY:
-                return MULT_APPS_DISABLED_VALUE;
-            default:
-                return "";
+        if (KEY_MULTIPLE_APPS_COMPATIBILITY.equals(key)) {
+            return MULT_APPS_DISABLED_VALUE;
         }
+        return "";
     }
 
     public String getVerifiedValue() {
