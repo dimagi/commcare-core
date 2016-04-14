@@ -401,6 +401,37 @@ public class FormDefTest {
                 100.0, "/data/myiterator/iterator[1]/relevancy_depending_on_future", evalCtx);
     }
 
+    /**
+     * Testing that two identical bind conditions, modulo the operator (=, <),
+     * are treated as distict entities.  Regression test for an issue where
+     * `equals` method for binary conditions wasn't taking condition type
+     * (arith, bool, equality) into account.
+     */
+    @Test
+    public void testSimilarBindConditionsAreDistinguished() throws Exception {
+        FormParseInit fpi =
+                new FormParseInit("/xform_tests/test_display_conditions_regression.xml");
+        FormEntryController fec =  initFormEntry(fpi);
+
+        boolean visibleLabelWasPresent = false;
+        do {
+            QuestionDef q = fpi.getCurrentQuestion();
+            if (q == null || q.getTextID() == null || "".equals(q.getTextID())) {
+                continue;
+            }
+            if (q.getTextID().equals("visible-label")) {
+                visibleLabelWasPresent = true;
+            }
+            if (q.getTextID().equals("invisible-label")) {
+                fail("Label whose display condition should be false was showing");
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        if (!visibleLabelWasPresent) {
+            fail("Label whose display condition should be true was not showing");
+        }
+    }
+
 
 
     /**

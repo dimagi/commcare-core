@@ -162,4 +162,10 @@ public class XPathCmpExpr extends XPathBinaryOpExpr {
 
         return prettyA + opString + prettyB;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return (this == o) ||
+                ((o instanceof XPathCmpExpr) && binOpEquals((XPathBinaryOpExpr)o));
+    }
 }
