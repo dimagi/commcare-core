@@ -269,7 +269,7 @@ public class CommCareContext {
                     Logger.log("upgrade", "User cancellation unsupported on J2ME: " + e.getMessage());
                     throw new RuntimeException("User cancellation unsupported on J2ME: " + e.getMessage());
                 } catch (UnfullfilledRequirementsException e) {
-                    if(e.getSeverity() == CommCareElementParser.SEVERITY_PROMPT) {
+                    if(e.getSeverity() == UnfullfilledRequirementsException.SEVERITY_PROMPT) {
                         String message = e.getMessage();
                         if(e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION || e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION) {
                             message = CommCareStartupInteraction.failSafeText("commcare.badversion",
