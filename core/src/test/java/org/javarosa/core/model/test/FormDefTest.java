@@ -435,12 +435,13 @@ public class FormDefTest {
 
 
     /**
-     * Regression: IText function in xpath was not properly using the current locale instead of the
-     * backup
+     * Regression: IText function in xpath was not properly using the current
+     * locale instead of the default
      */
     @Test
     public void testITextXPathFunction() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/itext_function.xml");
+        // init form with the 'new' locale instead of the default 'old' locale
         FormEntryController fec =  initFormEntry(fpi, "new");
 
         boolean inlinePassed = false;

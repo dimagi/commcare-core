@@ -1,8 +1,8 @@
 <h:html xmlns:h="http://www.w3.org/1999/xhtml"
-        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.w3.org/2002/xforms"
         xmlns:jr="http://openrosa.org/javarosa">
     <h:head>
-        <h:title>Constraints for simple and select answers</h:title>
+        <h:title>Form for use in checking form init with non-default locale works</h:title>
         <model>
             <instance>
                 <data

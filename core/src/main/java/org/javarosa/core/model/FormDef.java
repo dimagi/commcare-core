@@ -1525,15 +1525,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             preloadInstance(mainInstance.getRoot());
         }
 
-        if (getLocalizer() != null) {
-            if(locale == null || !getLocalizer().hasLocale(locale)) {
-                if(getLocalizer().getLocale() == null) {
-                    getLocalizer().setToDefault();
-                }
-            } else {
-                getLocalizer().setLocale(locale);
-            }
-        }
+        initLocale(locale);
 
         if (newInstance) {
             // only dispatch on a form's first opening, not subsequent loadings
@@ -1543,6 +1535,18 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         initAllTriggerables();
+    }
+
+    private void initLocale(String locale) {
+        if (getLocalizer() != null) {
+            if (locale == null || !getLocalizer().hasLocale(locale)) {
+                if (getLocalizer().getLocale() == null) {
+                    getLocalizer().setToDefault();
+                }
+            } else {
+                getLocalizer().setLocale(locale);
+            }
+        }
     }
 
     /**
