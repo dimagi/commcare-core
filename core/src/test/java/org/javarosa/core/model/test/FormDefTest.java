@@ -410,9 +410,7 @@ public class FormDefTest {
     @Test
     public void testITextXPathFunction() throws XPathSyntaxException {
         FormParseInit fpi = new FormParseInit("/xform_tests/itext_function.xml");
-        FormEntryController fec =  initFormEntry(fpi);
-
-        fec.setLanguage("new");
+        FormEntryController fec =  initFormEntry(fpi, "new");
 
         boolean inlinePassed = false;
         boolean nestedPassed = false;
@@ -451,9 +449,14 @@ public class FormDefTest {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
 
+
     private static FormEntryController initFormEntry(FormParseInit fpi) {
+        return initFormEntry(fpi, null);
+    }
+
+    private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
+        fpi.getFormDef().initialize(true, null, locale);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
