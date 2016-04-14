@@ -42,26 +42,23 @@ public class RemoteQuerySessionManager {
         return queryDatum.getValue();
     }
 
-    /**
-     * @return List with two-element String array entries that contain the
-     * query key and value pairs
-     */
-    public Vector<String[]> getRawQueryParams() {
-        Vector<String[]> params = new Vector<String[]>();
+    public Hashtable<String, String> getRawQueryParams() {
+        Hashtable<String, String> params = new Hashtable<String, String>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
-            String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key));
-            params.addElement(new String[]{key, evaluatedExpr});
+            String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key), evaluationContext);
+            params.put(key, evaluatedExpr);
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
             String key = (String) e.nextElement();
-            params.addElement(new String[]{key, userAnswers.get(key)});
+            params.put(key, userAnswers.get(key));
         }
         return params;
     }
 
-    private String calculateHidden(XPathExpression expr) {
+    public static String calculateHidden(XPathExpression expr,
+                                         EvaluationContext evaluationContext) {
         return XPathFuncExpr.toString(expr.eval(evaluationContext));
     }
 

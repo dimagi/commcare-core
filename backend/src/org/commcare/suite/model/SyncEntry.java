@@ -37,6 +37,10 @@ public class SyncEntry extends Entry {
         this.post = post;
     }
 
+    public SyncPost getSyncPost() {
+        return post;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {

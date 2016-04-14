@@ -15,6 +15,9 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -142,12 +145,18 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
     private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
         String url = parser.getAttributeValue(null, "url");
-        Hashtable<String, TreeReference> postData = new Hashtable<String, TreeReference>();
+        Hashtable<String, XPathExpression> postData = new Hashtable<String, XPathExpression>();
         while (nextTagInBlock("post")) {
             if ("data".equals(parser.getName())) {
-                TreeReference ref = XPathReference.getPathExpr(parser.getAttributeValue(null, "ref")).getReference();
-                postData.put(parser.getAttributeValue(null, "key"), ref);
-            } else{
+                String refString = parser.getAttributeValue(null, "ref");
+                try {
+                    XPathExpression expr = XPathParseTool.parseXPath(refString);
+                    postData.put(parser.getAttributeValue(null, "key"), expr);
+                } catch (XPathSyntaxException e) {
+                    String errorMessage = "'ref' value is not a valid xpath expression: " + refString;
+                    throw new InvalidStructureException(errorMessage, this.parser);
+                }
+            } else {
                 throw new InvalidStructureException("Expected <data> element in a <post> structure.",
                         parser);
             }
