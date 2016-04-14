@@ -306,7 +306,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return new JdbcSqlStorageIterator<>(preparedStatement, resultSet, this.getNumRecords(), this, connection);
+        return new JdbcSqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this, connection);
     }
 
     @Override
