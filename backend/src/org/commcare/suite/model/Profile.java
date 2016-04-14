@@ -182,9 +182,9 @@ public class Profile implements Persistable {
     }
 
     public void verifySignedPermissions(SignatureVerifier verifier) {
-        Enumeration<SignedPermission> perms = signedPermissions.elements();
+        Enumeration perms = signedPermissions.elements();
         while (perms.hasMoreElements()) {
-            perms.nextElement().verifyValue(verifier);
+            ((SignedPermission)perms.nextElement()).verifyValue(verifier);
         }
     }
 
