@@ -49,6 +49,9 @@ public class MenuScreen extends Screen {
         
         Hashtable<String, Entry> map = mPlatform.getMenuMap();
         EvaluationContext ec = null;
+
+        mTitle = this.getBestTitle();
+
         for(Suite s : mPlatform.getInstalledSuites()) {
             for(Menu m : s.getMenus()) {
                 try {
@@ -61,8 +64,6 @@ public class MenuScreen extends Screen {
                     }
 
                     if (m.getId().equals(root)) {
-
-                        mTitle = this.getBestTitle();
 
                         for (String command : m.getCommandIds()) {
                             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
