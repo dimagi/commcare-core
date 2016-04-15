@@ -194,6 +194,7 @@ public class PromptToJson {
         }
         switch (prompt.getDataType()) {
             case Constants.DATATYPE_NULL:
+                // Default to treating nodes with null data type as strings
             case Constants.DATATYPE_TEXT:
                 return "str";
             case Constants.DATATYPE_INTEGER:

@@ -32,11 +32,9 @@ public class JsonActionUtils {
      */
     public static JSONObject deleteRepeatToJson(FormEntryController controller,
                                                 FormEntryModel model, String formIndexString) {
-        JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.deleteRepeat(formIndex);
-        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
-        return ret;
+        return getCurrentJson(controller, model);
     }
 
     /**
@@ -49,12 +47,10 @@ public class JsonActionUtils {
      */
     public static JSONObject descendRepeatToJson(FormEntryController controller,
                                                  FormEntryModel model, String formIndexString) {
-        JSONObject ret = new JSONObject();
         FormIndex formIndex = indexFromString(formIndexString, model.getForm());
         controller.jumpToIndex(formIndex);
         controller.descendIntoNewRepeat();
-        ret.put(ApiConstants.QUESTION_TREE_KEY, walkToJSON(model, controller));
-        return ret;
+        return getCurrentJson(controller, model);
     }
 
     /**
@@ -138,27 +134,25 @@ public class JsonActionUtils {
      * @return the IAnswerData version of @data above
      */
     public static IAnswerData getAnswerData(FormEntryPrompt formEntryPrompt, String data) {
-
-        if (formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE) {
-            int index = Integer.parseInt(data);
-
-            SelectChoice ans = formEntryPrompt.getSelectChoices().get(index - 1);
-
-            return new SelectOneData(ans.selection());
-        } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_CHOICE_LIST) {
-            String[] split = parseMultiSelectString(data);
-            Vector<Selection> ret = new Vector<>();
-            for (String s : split) {
-                int index = Integer.parseInt(s);
-                Selection ans = formEntryPrompt.getSelectChoices().get(index - 1).selection();
-                ret.add(ans);
-            }
-            return new SelectMultiData(ret);
-        } else if (formEntryPrompt.getDataType() == Constants.DATATYPE_GEOPOINT) {
-            return AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(
-                    new UncastData(convertTouchFormsGeoPointString(data)));
+        int index;
+        switch(formEntryPrompt.getDataType()){
+            case Constants.DATATYPE_CHOICE:
+                index = Integer.parseInt(data);
+                SelectChoice selectChoiceAnswer = formEntryPrompt.getSelectChoices().get(index - 1);
+                return new SelectOneData(selectChoiceAnswer.selection());
+            case Constants.DATATYPE_CHOICE_LIST:
+                String[] split = parseMultiSelectString(data);
+                Vector<Selection> ret = new Vector<>();
+                for (String s : split) {
+                    index = Integer.parseInt(s);
+                    Selection selection = formEntryPrompt.getSelectChoices().get(index - 1).selection();
+                    ret.add(selection);
+                }
+                return new SelectMultiData(ret);
+            case Constants.DATATYPE_GEOPOINT:
+                return AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(
+                        new UncastData(convertTouchFormsGeoPointString(data)));
         }
-
         return data.equals("") ? null : AnswerDataFactory.template(formEntryPrompt.getControlType(), formEntryPrompt.getDataType()).cast(new UncastData(data));
     }
 
