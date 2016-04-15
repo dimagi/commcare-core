@@ -177,6 +177,6 @@ public class SessionNavigatorTests {
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         session.setCommand("m0");
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
-        Assert.assertEquals("", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
+        Assert.assertEquals(null, session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
     }
 }
