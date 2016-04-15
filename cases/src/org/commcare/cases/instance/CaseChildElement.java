@@ -215,7 +215,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
     @Override
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeElement.buildRef(this);
+            ref = TreeReference.buildRefFromTreeElement(this);
         }
         return ref;
     }
@@ -328,7 +328,7 @@ public class CaseChildElement implements AbstractTreeElement<TreeElement> {
             } else {
                 scratch.setValue(PreloadUtils.wrapIndeterminedObject(temp));
             }
-            cacheBuilder.addChild(scratch);
+            cacheBuilder.addChild(scratch, true);
         }
     }
 

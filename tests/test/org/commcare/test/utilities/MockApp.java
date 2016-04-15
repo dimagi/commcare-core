@@ -18,9 +18,6 @@ import org.javarosa.core.util.externalizable.LivePrototypeFactory;
  * Created by ctsims on 8/14/2015.
  */
 public class MockApp {
-    private final MockUserDataSandbox mSandbox;
-    private final LivePrototypeFactory mPrototypeFactory;
-    private final CommCareConfigEngine mEngine;
     private final SessionWrapper mSessionWrapper;
 
     /**
@@ -33,9 +30,9 @@ public class MockApp {
         if(!(resourcePath.startsWith("/") && resourcePath.endsWith("/"))) {
             throw new IllegalArgumentException("Invalid resource path for a mock app " + resourcePath);
         }
-        mPrototypeFactory = setupStaticStorage();
-        mSandbox =  new MockUserDataSandbox(mPrototypeFactory);
-        mEngine = new CommCareConfigEngine(mPrototypeFactory);
+        LivePrototypeFactory mPrototypeFactory = setupStaticStorage();
+        MockUserDataSandbox mSandbox = new MockUserDataSandbox(mPrototypeFactory);
+        CommCareConfigEngine mEngine = new CommCareConfigEngine(mPrototypeFactory);
 
         mEngine.installAppFromReference("jr://resource" + resourcePath + "profile.ccpr");
         mEngine.initEnvironment();
