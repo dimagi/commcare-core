@@ -40,6 +40,13 @@ public class Callout implements Externalizable, DetailTemplate {
      */
     private DetailField responseDetail;
 
+    /**
+     * For externalization
+     */
+    public Callout() {
+
+    }
+
     public Callout(String actionName, String image, String displayName,
                    Hashtable<String, String> extras, Vector<String> responses,
                    DetailField responseDetail, String type) {
