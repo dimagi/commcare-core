@@ -1516,6 +1516,10 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         initialize(newInstance, false, factory, null);
     }
 
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
+        initialize(newInstance, false, factory, locale);
+    }
+
     /**
      * meant to be called after deserialization and initialization of handlers
      *
