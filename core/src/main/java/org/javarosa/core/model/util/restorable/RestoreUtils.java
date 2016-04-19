@@ -2,11 +2,15 @@ package org.javarosa.core.model.util.restorable;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IConditionExpr;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathConditional;
+import org.javarosa.xpath.expr.XPathPathExpr;
 
 import java.util.Date;
 import java.util.Vector;
@@ -14,10 +18,12 @@ import java.util.Vector;
 public class RestoreUtils {
     public static final String RECORD_ID_TAG = "rec-id";
 
-    public static IXFormyFactory xfFact;
+    public static TreeReference ref(String refStr) {
+        return FormInstance.unpackReference(new XPathReference(refStr));
+    }
 
-    private static TreeReference ref(String refStr) {
-        return xfFact.ref(refStr);
+    public static IConditionExpr refToPathExpr(TreeReference ref) {
+        return new XPathConditional(XPathPathExpr.fromRef(ref));
     }
 
     private static TreeReference topRef(FormInstance dm) {
@@ -51,6 +57,7 @@ public class RestoreUtils {
         return dataType;
     }
 
+    @SuppressWarnings("unused")
     public static Object getValue(String xpath, FormInstance tree) {
         TreeReference context = topRef(tree);
         TreeElement node = tree.resolveReference(ref(xpath).contextualize(context));
@@ -67,10 +74,7 @@ public class RestoreUtils {
     }
 
     public static void applyDataType(FormInstance dm, String path, TreeReference parent, Class type) {
-        applyDataType(dm, path, parent, getDataType(type));
-    }
-
-    public static void applyDataType(FormInstance dm, String path, TreeReference parent, int dataType) {
+        int dataType = getDataType(type);
         TreeReference ref = childRef(path, parent);
 
         Vector v = new EvaluationContext(dm).expandReference(ref);

@@ -97,7 +97,7 @@ public class ItemsetBinding implements Externalizable, Localizable {
             relRef = valueRef.relativize(copyRef);
         }
 
-        return relRef != null ? RestoreUtils.xfFact.refToPathExpr(relRef) : null;
+        return relRef != null ? RestoreUtils.refToPathExpr(relRef) : null;
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
@@ -125,5 +125,4 @@ public class ItemsetBinding implements Externalizable, Localizable {
         ExtUtil.writeBool(out, labelIsItext);
         ExtUtil.writeBool(out, copyMode);
     }
-
 }

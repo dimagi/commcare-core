@@ -37,20 +37,17 @@ public class ExternalDataInstance extends DataInstance {
         this.mCacheHost = instance.getCacheHost();
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.model.instance.DataInstance#isRuntimeEvaluated()
-     */
+    @Override
     public boolean isRuntimeEvaluated() {
         return true;
     }
 
-
+    @Override
     public InstanceBase getBase() {
         return base;
     }
 
+    @Override
     public AbstractTreeElement getRoot() {
         return root;
     }
@@ -59,22 +56,24 @@ public class ExternalDataInstance extends DataInstance {
         return reference;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
         reference = ExtUtil.readString(in);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, reference);
     }
 
+    @Override
     public DataInstance initialize(InstanceInitializationFactory initializer, String instanceId) {
         base = new InstanceBase(instanceId);
         root = initializer.generateRoot(this);
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
-
     }
 }
