@@ -1,6 +1,7 @@
 package org.commcare.backend.session.test;
 
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.test.utilities.MockSessionNavigationResponder;
@@ -90,7 +91,7 @@ public class SessionNavigatorTests {
 
         // Confirm that the next datum has auto-select enabled
         SessionDatum nextNeededDatum = session.getNeededDatum();
-        Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
+        Assert.assertTrue(((EntityDatum)nextNeededDatum).isAutoSelectEnabled());
 
         // Since there are 2 cases in the case list (user_restore.xml contains 2 cases of type
         // 'pregnancy', which is the case type that m0-f2's nodeset filters for), the
@@ -111,7 +112,7 @@ public class SessionNavigatorTests {
         session.setCommand("m1-f1");
 
         // Confirm that the next datum has auto-select enabled and has a confirm detail defined
-        SessionDatum nextNeededDatum = session.getNeededDatum();
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
         Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
         Assert.assertNotNull(nextNeededDatum.getLongDetail());
 
@@ -134,7 +135,7 @@ public class SessionNavigatorTests {
 
         // Confirm that the next datum has auto-select enabled, but does NOT have a confirm detail
         // defined
-        SessionDatum nextNeededDatum = session.getNeededDatum();
+        EntityDatum nextNeededDatum = (EntityDatum)session.getNeededDatum();
         Assert.assertTrue(nextNeededDatum.isAutoSelectEnabled());
         Assert.assertNull(nextNeededDatum.getLongDetail());
 
