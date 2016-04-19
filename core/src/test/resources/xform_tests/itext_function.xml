@@ -1,0 +1,48 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Form for use in checking form init with non-default locale works</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/tests/itextfunction"
+                    uiVersion="1" version="279" name="Itext Function">
+                    <calculation/>
+                    <inline/>
+                    <nested/>
+                </data>
+            </instance>
+
+            <bind nodeset="/data/calculation" calculate="jr:itext('text_val')"/>
+
+            <itext>
+                <translation lang="old" default="">
+                    <text id="text_val">
+                        <value>wrong</value>
+                    </text>
+                    <text id="question_text">
+                        <value><output value="jr:itext('text_val')"/></value>
+                    </text>
+                </translation>
+                <translation lang="new">
+                    <text id="text_val">
+                        <value>right</value>
+                    </text>
+                    <text id="question_text">
+                        <value><output value="jr:itext('text_val')"/></value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+
+    <h:body>
+        <trigger ref="inline">
+            <label><output value="jr:itext('text_val')"/></label>
+        </trigger>
+        <trigger ref="nested">
+            <label ref="jr:itext('question_text')"/>
+        </trigger>
+    </h:body>
+</h:html>

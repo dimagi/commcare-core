@@ -18,6 +18,7 @@ import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -431,14 +432,63 @@ public class FormDefTest {
         }
     }
 
+
+
+    /**
+     * Regression: IText function in xpath was not properly using the current
+     * locale instead of the default
+     */
+    @Test
+    public void testITextXPathFunction() throws XPathSyntaxException {
+        FormParseInit fpi = new FormParseInit("/xform_tests/itext_function.xml");
+        // init form with the 'new' locale instead of the default 'old' locale
+        FormEntryController fec =  initFormEntry(fpi, "new");
+
+        boolean inlinePassed = false;
+        boolean nestedPassed = false;
+
+        do {
+            TreeReference currentRef = fec.getModel().getFormIndex().getReference();
+            if(currentRef == null) { continue; }
+            if(currentRef.genericize().toString().equals("/data/inline")) {
+                Assert.assertEquals("Inline IText Method Callout", "right",
+                        fec.getModel().getCaptionPrompt().getQuestionText());
+                inlinePassed = true;
+            }
+
+            if(currentRef.genericize().toString().equals("/data/nested")) {
+                Assert.assertEquals("Nexted IText Method Callout", "right",
+                        fec.getModel().getCaptionPrompt().getQuestionText());
+                nestedPassed = true;
+            }
+        } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
+
+        if(!inlinePassed) {
+            Assert.fail("Inline itext callout did not occur");
+        }
+        if(!nestedPassed) {
+            Assert.fail("Nested itext callout did not occur");
+        }
+
+
+        EvaluationContext evalCtx = fpi.getFormDef().getEvaluationContext();
+        ExprEvalUtils.assertEqualsXpathEval("IText calculation contained the wrong value",
+                "right", "/data/calculation", evalCtx);
+    }
+
     private static void stepThroughEntireForm(FormEntryController fec) {
         do {
         } while (fec.stepToNextEvent() != FormEntryController.EVENT_END_OF_FORM);
     }
 
+
     private static FormEntryController initFormEntry(FormParseInit fpi) {
+        return initFormEntry(fpi, null);
+    }
+
+    private static FormEntryController initFormEntry(FormParseInit fpi, String locale) {
         FormEntryController fec = fpi.getFormEntryController();
-        fpi.getFormDef().initialize(true, null);
+        fpi.getFormDef().initialize(true, null, locale);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
     }
