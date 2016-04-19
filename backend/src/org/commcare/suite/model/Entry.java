@@ -5,6 +5,7 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
+import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
@@ -139,7 +140,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         this.commandId = ExtUtil.readString(in);
         this.display = (DisplayUnit)ExtUtil.read(in, DisplayUnit.class, pf);
 
-        data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapList(SessionDatum.class), pf);
+        data = (Vector<SessionDatum>)ExtUtil.read(in, new ExtWrapListPoly(), pf);
         instances = (Hashtable<String, DataInstance>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapTagged()), pf);
         stackOperations = (Vector<StackOperation>)ExtUtil.read(in, new ExtWrapList(StackOperation.class), pf);
         assertions = (AssertionSet)ExtUtil.read(in, new ExtWrapNullable(AssertionSet.class));
@@ -149,7 +150,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, commandId);
         ExtUtil.write(out, display);
-        ExtUtil.write(out, new ExtWrapList(data));
+        ExtUtil.write(out, new ExtWrapListPoly(data));
         ExtUtil.write(out, new ExtWrapMap(instances, new ExtWrapTagged()));
         ExtUtil.write(out, new ExtWrapList(stackOperations));
         ExtUtil.write(out, new ExtWrapNullable(assertions));
