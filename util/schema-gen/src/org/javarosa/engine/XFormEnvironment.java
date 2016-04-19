@@ -25,6 +25,7 @@ public class XFormEnvironment {
 
     private final FormDef form;
 
+    private String preferredLocale;
 
     private Step currentStep;
     private int stepCount = 0;
@@ -56,7 +57,7 @@ public class XFormEnvironment {
     public FormEntryController setup(InstanceInitializationFactory factory) {
         form.setEvaluationContext(getEC());
 
-        form.initialize(true, factory);
+        form.initialize(true, factory, preferredLocale);
 
         if(recording) {
             session = new Session();
@@ -100,7 +101,7 @@ public class XFormEnvironment {
     public void setLocale(String locale) {
         for(String existingLocale : this.form.getLocalizer().getAvailableLocales()) {
             if(existingLocale.equals(locale)) {
-                this.form.getLocalizer().setLocale(locale);
+                preferredLocale = locale;
                 return;
             }
         }
