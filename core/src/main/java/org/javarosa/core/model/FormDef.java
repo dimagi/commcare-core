@@ -1179,7 +1179,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                     try {
                         String value = (String)args[0];
                         String questionXpath = (String)args[1];
-                        TreeReference ref = RestoreUtils.xfFact.ref(questionXpath);
+                        TreeReference ref = RestoreUtils.ref(questionXpath);
 
                         QuestionDef q = FormDef.findQuestionByRef(ref, f);
                         if (q == null || (q.getControlType() != Constants.CONTROL_SELECT_ONE &&
@@ -1509,6 +1509,27 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      */
     public void initialize(boolean newInstance, boolean isCompletedInstance,
                            InstanceInitializationFactory factory) {
+        initialize(newInstance, isCompletedInstance, factory, null);
+    }
+
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory) {
+        initialize(newInstance, false, factory, null);
+    }
+
+    public void initialize(boolean newInstance, InstanceInitializationFactory factory, String locale) {
+        initialize(newInstance, false, factory, locale);
+    }
+
+    /**
+     * meant to be called after deserialization and initialization of handlers
+     *
+     * @param newInstance true if the form is to be used for a new entry interaction,
+     *                    false if it is using an existing IDataModel
+     * @param locale The default locale in the current environment, if provided. Can be null
+     *               to rely on the form's internal default.
+     */
+    public void initialize(boolean newInstance, boolean isCompletedInstance,
+                           InstanceInitializationFactory factory, String locale) {
         for (Enumeration en = formInstances.keys(); en.hasMoreElements(); ) {
             String instanceId = (String)en.nextElement();
             DataInstance instance = formInstances.get(instanceId);
@@ -1519,9 +1540,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             preloadInstance(mainInstance.getRoot());
         }
 
-        if (getLocalizer() != null && getLocalizer().getLocale() == null) {
-            getLocalizer().setToDefault();
-        }
+        initLocale(locale);
 
         if (newInstance) {
             // only dispatch on a form's first opening, not subsequent loadings
@@ -1533,8 +1552,16 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         initAllTriggerables();
     }
 
-    public void initialize(boolean newInstance, InstanceInitializationFactory factory){
-        this.initialize(newInstance, false, factory);
+    private void initLocale(String locale) {
+        if (localizer != null) {
+            if (locale == null || !localizer.hasLocale(locale)) {
+                if (localizer.getLocale() == null) {
+                    localizer.setToDefault();
+                }
+            } else {
+                localizer.setLocale(locale);
+            }
+        }
     }
 
     /**
@@ -1869,8 +1896,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
         return submissionProfiles.get(DEFAULT_SUBMISSION_PROFILE);
     }
-
-
 
     public <X extends XFormExtension> X getExtension(Class<X> extension) {
         for (XFormExtension ex : extensions) {

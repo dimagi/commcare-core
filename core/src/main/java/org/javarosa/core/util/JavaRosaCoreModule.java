@@ -11,9 +11,7 @@ import org.javarosa.core.services.PrototypeManager;
  */
 public class JavaRosaCoreModule implements IModule {
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.api.IModule#registerModule(org.javarosa.core.Context)
-     */
+    @Override
     public void registerModule() {
         String[] classes = {
                 "org.javarosa.core.services.locale.ResourceFileDataSource",

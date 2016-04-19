@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.model.instance;
 
 import org.javarosa.core.model.condition.EvaluationContext;
