@@ -49,7 +49,6 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             SqlHelper.createTable(c, tableName, prototype.newInstance());
             c.close();
         } catch (SQLException e) {
-            System.out.println("Couldn't create table: " + tableName + " due to exception: " + e);
             e.printStackTrace();
         } catch(InstantiationException | IllegalAccessException | ClassNotFoundException e){
             throw new RuntimeException(e);
@@ -318,7 +317,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return new JdbcSqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this);
+        return new JdbcSqlStorageIterator<T>(preparedStatement, resultSet, this.getNumRecords(), this, connection);
     }
 
     @Override

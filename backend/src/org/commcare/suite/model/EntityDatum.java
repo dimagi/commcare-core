@@ -29,8 +29,9 @@ public class EntityDatum extends SessionDatum {
     private String persistentDetail;
     private boolean autoSelectEnabled;
 
+    @SuppressWarnings("unused")
     public EntityDatum() {
-
+        // used in serialization
     }
 
     public EntityDatum(String id, String nodeset, String shortDetail, String longDetail,

@@ -16,8 +16,9 @@ public class SessionDatum implements Externalizable {
     private String value;
     private String id;
 
+    @SuppressWarnings("unused")
     public SessionDatum() {
-
+        // used in serialization
     }
 
     protected SessionDatum(String id, String value) {
