@@ -13,7 +13,9 @@ import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
@@ -313,11 +315,12 @@ public class CommCareConfigEngine {
             print.println(head + "Entry: " + e.getText().evaluate());
         }
         for(SessionDatum datum : e.getSessionDataReqs()) {
-            if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+            if(datum instanceof FormIdDatum) {
                 print.println(emptyhead + "Form: " + datum.getValue());
-            } else {
-                if(datum.getShortDetail() != null) {
-                    Detail d = s.getDetail(datum.getShortDetail());
+            } else if (datum instanceof EntityDatum) {
+                String shortDetailId = ((EntityDatum)datum).getShortDetail();
+                if(shortDetailId != null) {
+                    Detail d = s.getDetail(shortDetailId);
                     try {
                         print.println(emptyhead + "|Select: " + d.getTitle().getText().evaluate(new EvaluationContext(null)));
                     } catch(XPathMissingInstanceException ex) {

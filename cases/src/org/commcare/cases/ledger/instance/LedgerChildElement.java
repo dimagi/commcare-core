@@ -246,7 +246,7 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
      */
     public TreeReference getRef() {
         if (ref == null) {
-            ref = TreeReference.buildRefFromTreeElement((AbstractTreeElement)this);
+            ref = TreeReference.buildRefFromTreeElement(this);
         }
         return ref;
     }
