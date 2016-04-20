@@ -15,6 +15,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.commcare.xml.DummyGraphParser.DummyGraphDetailTemplate;
 import org.javarosa.core.api.IModule;
 import org.javarosa.core.services.PrototypeManager;
 import org.javarosa.core.services.storage.StorageManager;
@@ -37,7 +38,8 @@ public class CommCareModule implements IModule {
                                             XFormInstaller.class.getName(),
                                             Text.class.getName(),
                                             PropertySetter.class.getName(),
-                                            FormEntry.class.getName()};
+                                            FormEntry.class.getName(),
+                                            DummyGraphDetailTemplate.class.getName()};
         PrototypeManager.registerPrototypes(prototypes);
 
         StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
