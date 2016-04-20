@@ -66,8 +66,9 @@ public class UserSqlSandbox extends UserSandbox {
                 // should be only one user here
                 user = iterator.next();
             } else {
-                return null;
+                user = null;
             }
+            iterator.closeConnection();
         }
         return user;
     }

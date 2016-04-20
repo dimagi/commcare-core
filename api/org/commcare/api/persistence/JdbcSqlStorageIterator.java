@@ -3,6 +3,7 @@ package org.commcare.api.persistence;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,15 +18,18 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
     private final ResultSet resultSet;
     private int count = -1;
     private final SqliteIndexedStorageUtility<E> storage;
+    private Connection connection;
 
     public JdbcSqlStorageIterator(PreparedStatement preparedStatement,
                                   ResultSet resultSet,
                                   int count,
-                                  SqliteIndexedStorageUtility<E> storage) {
+                                  SqliteIndexedStorageUtility<E> storage,
+                                  Connection conn) {
         this.preparedStatement = preparedStatement;
         this.resultSet = resultSet;
         this.count = count;
         this.storage = storage;
+        this.connection = conn;
         try {
             resultSet.next();
         } catch (SQLException e) {
@@ -98,6 +102,16 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
     @Override
     public void remove() {
         //unsupported
+    }
+
+    public void closeConnection(){
+        try {
+            if(connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 

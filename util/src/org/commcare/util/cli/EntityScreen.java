@@ -3,6 +3,7 @@ package org.commcare.util.cli;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.session.CommCareSession;
@@ -30,13 +31,17 @@ public class EntityScreen extends CompoundScreenHost {
     private Detail mShortDetail;
     private Detail[] mLongDetailList;
 
-    private SessionDatum mNeededDatum;
+    private EntityDatum mNeededDatum;
     private Action mPendingAction;
 
     private Subscreen<EntityScreen> mCurrentScreen;
 
     public void init(SessionWrapper session) throws CommCareSessionException {
-        mNeededDatum = session.getNeededDatum();
+        SessionDatum datum = session.getNeededDatum();
+        if (!(datum instanceof EntityDatum)) {
+            throw new CommCareSessionException("Didn't find an entity select action where one is expected.");
+        }
+        mNeededDatum = (EntityDatum)datum;
 
         this.mSession = session;
         this.mPlatform = mSession.getPlatform();
@@ -70,7 +75,7 @@ public class EntityScreen extends CompoundScreenHost {
         return mCurrentScreen;
     }
 
-    private String getReturnValueFromSelection(TreeReference contextRef, SessionDatum needed, EvaluationContext context) {
+    private String getReturnValueFromSelection(TreeReference contextRef, EntityDatum needed, EvaluationContext context) {
         // grab the session's (form) element reference, and load it.
         TreeReference elementRef =
                 XPathReference.getPathExpr(needed.getValue()).getReference();

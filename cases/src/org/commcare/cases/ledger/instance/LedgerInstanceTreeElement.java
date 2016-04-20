@@ -209,7 +209,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     @Override
     public TreeReference getRef() {
         if (cachedRef == null) {
-            cachedRef = TreeReference.buildRefFromTreeElement((AbstractTreeElement)this);
+            cachedRef = TreeReference.buildRefFromTreeElement(this);
         }
         return cachedRef;
     }
