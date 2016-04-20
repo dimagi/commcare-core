@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- *  * Convenience methods, mostly for touchforms so we don't have to deal with Java IO
+ *  * Convenience methods, mostly for Touchforms so we don't have to deal with Java IO
  * in Jython which is terrible
  *
  * Created by wpride1 on 8/20/15.
@@ -22,11 +22,19 @@ import java.nio.charset.StandardCharsets;
 public class FormRecordProcessorHelper extends XmlFormRecordProcessor {
     public static void processXML(UserSandbox sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
         InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
-        process(sandbox, stream);
+        FormRecordProcessorThread thread = new FormRecordProcessorThread(sandbox, stream);
+        thread.start();
     }
 
     public static void processFile(UserSandbox sandbox, File record) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
         InputStream stream = new FileInputStream(record);
-        process(sandbox, stream);
+        FormRecordProcessorThread thread = new FormRecordProcessorThread(sandbox, stream);
+        thread.start();
+    }
+
+    static class FormRecordProcessorThread extends Thread{
+        public FormRecordProcessorThread(UserSandbox sandbox, InputStream stream) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
+            process(sandbox, stream);
+        }
     }
 }
