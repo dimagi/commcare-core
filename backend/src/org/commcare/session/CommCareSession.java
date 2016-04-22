@@ -1,8 +1,8 @@
 package org.commcare.session;
 
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -784,7 +784,10 @@ public class CommCareSession {
      */
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        return entries.elementAt(0).isView();
+        Entry entry = entries.elementAt(0);
+        return entries.size() == 1
+                && entry.isView()
+                && entry.getPostEntrySessionOperations().size() == 0;
     }
 
     public void addExtraToCurrentFrameStep(String key, String value) {
