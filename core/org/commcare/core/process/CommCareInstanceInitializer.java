@@ -5,6 +5,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.sandbox.SandboxUtils;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.User;
 import org.commcare.session.CommCareSession;
@@ -129,7 +130,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
         User u = mSandbox.getLoggedInUser();
         TreeElement root =
-                session.getSessionInstance(getDeviceId(),
+                SessionInstanceBuilder.getSessionInstance(session.getFrame(), getDeviceId(),
                         getVersionString(), u.getUsername(), u.getUniqueId(),
                         u.getProperties()).getRoot();
         root.setParent(instance.getBase());

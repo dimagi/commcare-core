@@ -19,7 +19,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
 
     private static final HashMap<String, ZipFile> guidToFolderMap = new HashMap<>();
 
-    private final int GUID_LENGTH = 10;
+    private static final int GUID_LENGTH = 10;
 
     public ArchiveFileRoot() {
     }

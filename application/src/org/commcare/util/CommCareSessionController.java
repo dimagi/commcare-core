@@ -16,6 +16,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
@@ -269,7 +270,7 @@ public class CommCareSessionController {
         //TODO: Stuff can be in more than one suite!!!
         Suite suite = session.getCurrentSuite();
 
-        SessionDatum datum = session.getNeededDatum();
+        EntityDatum datum = (EntityDatum)session.getNeededDatum();
         EvaluationContext context = session.getEvaluationContext(getIif());
 
         //TODO: This should be part of the next/back protocol in the session, not here.

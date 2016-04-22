@@ -10,6 +10,7 @@ import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.core.properties.CommCareProperties;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionInstanceBuilder;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ConcreteTreeElement;
@@ -159,7 +160,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             return root;
         }
         if(instance.getReference().indexOf("session") != -1) {
-            FormInstance sessionInstance = session.getSessionInstance(PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY),
+            FormInstance sessionInstance = SessionInstanceBuilder.getSessionInstance(session.getFrame(), PropertyManager._().getSingularProperty(JavaRosaPropertyRules.DEVICE_ID_PROPERTY),
                     PropertyManager._().getSingularProperty(CommCareProperties.COMMCARE_VERSION),
                     CommCareContext._().getUser().getUsername(),
                     CommCareContext._().getUser().getUniqueId(),

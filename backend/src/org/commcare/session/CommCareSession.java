@@ -1,8 +1,11 @@
 package org.commcare.session;
 
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -10,11 +13,8 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
-import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -73,6 +73,33 @@ public class CommCareSession {
         collectedDatums = new OrderedHashtable<String, String>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
+    }
+
+    /**
+     *  Copy constructor
+     */
+    public CommCareSession(CommCareSession oldCommCareSession) {
+        // NOTE: 'platform' is being copied in a shallow manner
+        this.platform = oldCommCareSession.platform;
+
+        if (oldCommCareSession.popped != null) {
+            this.popped = new StackFrameStep(oldCommCareSession.popped);
+        }
+        this.currentCmd = oldCommCareSession.currentCmd;
+        this.currentXmlns = oldCommCareSession.currentXmlns;
+        this.frame = new SessionFrame(oldCommCareSession.frame);
+
+        collectedDatums = new OrderedHashtable<String, String>();
+        for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
+            String key = (String)e.nextElement();
+            collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
+        }
+
+        this.frameStack = new Stack<SessionFrame>();
+        // NOTE: can't use for/each due to J2ME build issues w/ Stack
+        for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
+            frameStack.addElement(oldCommCareSession.frameStack.elementAt(i));
+        }
     }
 
     public Vector<Entry> getEntriesForCommand(String commandId) {
@@ -144,59 +171,60 @@ public class CommCareSession {
      * Based on the current state of the session, determine what information is needed next to
      * proceed
      *
-     * @return 1 of the 4 STATE strings declared at the top of SessionFrame.java, or null if
+     * @return 1 of the 4 STATE strings declared at the top of SessionFrame, or null if
      * the session does not need anything else to proceed
      */
     public String getNeededData() {
-        // If we don't have a command yet, then need to get that first
-        if (this.getCommand() == null) {
+        if (currentCmd == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
 
-        Vector<Entry> possibleEntries = getEntriesForCommand(this.getCommand(), this.getData());
-
-        //Get data. Checking first to see if the relevant key is needed by all entries
-
-        String needDatum = null;
-        String nextKey = null;
-        for (Entry e : possibleEntries) {
-
-            SessionDatum datumNeededForThisEntry = getFirstMissingDatum(this.getData(), e.getSessionDataReqs());
-            if (datumNeededForThisEntry != null) {
-                String needed = datumNeededForThisEntry.getDataId();
-                if (nextKey == null) {
-                    nextKey = needed;
-                    if (datumNeededForThisEntry.getNodeset() != null) {
-                        needDatum = SessionFrame.STATE_DATUM_VAL;
-                    } else {
-                        needDatum = SessionFrame.STATE_DATUM_COMPUTED;
-                    }
-                    continue;
-                } else {
-                    //TODO: Detail screen matchup seems relevant? Maybe?
-                    if (nextKey.equals(needed)) {
-                        continue;
-                    }
-                }
-            }
-
-            // If we made it here, we either don't need more data or don't need
-            // consistent data for the remaining options
-            needDatum = null;
-            break;
-        }
+        Vector<Entry> entries = getEntriesForCommand(currentCmd, collectedDatums);
+        String needDatum = getDataNeededByAllEntries(entries);
 
         if (needDatum != null) {
             return needDatum;
-        }
-
-        //the only other thing we can need is a form command. If there's still
-        //more than one applicable entry, we need to keep going
-        if (possibleEntries.size() > 1 || !possibleEntries.elementAt(0).getCommandId().equals(this.getCommand())) {
+        } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
+            //the only other thing we can need is a form command. If there's
+            //still more than one applicable entry, we need to keep going
             return SessionFrame.STATE_COMMAND_ID;
         } else {
             return null;
         }
+    }
+
+    /**
+     * Checks that all entries have the same id for their first required data,
+     * and if so, returns the data's associated session state. Otherwise,
+     * returns null.
+     */
+    private String getDataNeededByAllEntries(Vector<Entry> entries) {
+        String datumNeededByAllEntriesSoFar = null;
+        String neededDatumId = null;
+        for (Entry e : entries) {
+            SessionDatum datumNeededForThisEntry =
+                getFirstMissingDatum(collectedDatums, e.getSessionDataReqs());
+            if (datumNeededForThisEntry != null) {
+                if (neededDatumId == null) {
+                    neededDatumId = datumNeededForThisEntry.getDataId();
+                    if (datumNeededForThisEntry instanceof EntityDatum) {
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
+                    } else if (datumNeededForThisEntry instanceof ComputedDatum) {
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
+                    }
+                } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
+                    // data needed from the first entry isn't consistent with
+                    // the current entry
+                    return null;
+                }
+            } else {
+                // we don't need any data, or the first data needed isn't
+                // consistent across entries
+                return null;
+            }
+        }
+
+        return datumNeededByAllEntriesSoFar;
     }
 
     public String[] getHeaderTitles() {
@@ -343,10 +371,10 @@ public class CommCareSession {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+        if (datum instanceof FormIdDatum) {
             setXmlns(XPathFuncExpr.toString(form.eval(ec)));
             setDatum("", "awful");
-        } else {
+        } else if (datum instanceof ComputedDatum) {
             setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
         }
     }
@@ -416,56 +444,6 @@ public class CommCareSession {
         frameStack.removeAllElements();
         syncState();
     }
-
-    public FormInstance getSessionInstance(String deviceId, String appversion, String username, String userId, Hashtable<String, String> userFields) {
-        TreeElement sessionRoot = new TreeElement("session", 0);
-
-        TreeElement sessionData = new TreeElement("data", 0);
-
-        sessionRoot.addChild(sessionData);
-
-        for (StackFrameStep step : frame.getSteps()) {
-            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                Vector<TreeElement> matchingElements = sessionData.getChildrenWithName(step.getId());
-
-                if(matchingElements.size() > 0) {
-                    matchingElements.elementAt(0).setValue(new UncastData(step.getValue()));
-                } else {
-                    TreeElement datum = new TreeElement(step.getId());
-                    datum.setValue(new UncastData(step.getValue()));
-                    sessionData.addChild(datum);
-                }
-            }
-        }
-
-        TreeElement sessionMeta = new TreeElement("context", 0);
-
-        addData(sessionMeta, "deviceid", deviceId);
-        addData(sessionMeta, "appversion", appversion);
-        addData(sessionMeta, "username", username);
-        addData(sessionMeta, "userid", userId);
-
-        sessionRoot.addChild(sessionMeta);
-
-        TreeElement user = new TreeElement("user", 0);
-        TreeElement userData = new TreeElement("data", 0);
-        user.addChild(userData);
-        for (Enumeration en = userFields.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
-            addData(userData, key, userFields.get(key));
-        }
-
-        sessionRoot.addChild(user);
-
-        return new FormInstance(sessionRoot, "session");
-    }
-
-    private static void addData(TreeElement root, String name, String data) {
-        TreeElement datum = new TreeElement(name);
-        datum.setValue(new UncastData(data));
-        root.addChild(datum);
-    }
-
 
     /**
      * Retrieve an evaluation context in which to evaluate expressions in the
@@ -734,7 +712,7 @@ public class CommCareSession {
      * @return An Entry object which contains a selector for that datum
      * which is in this session history
      */
-    public SessionDatum findDatumDefinition(String datumId) {
+    public EntityDatum findDatumDefinition(String datumId) {
         //We're performing a walk down the entities in this session here,
         //we should likely generalize this to make it easier to do it for other
         //operations
@@ -764,8 +742,8 @@ public class CommCareSession {
                 //TODO: Don't we know the right entry? What if our last command is an actual entry?
                 for (Entry entry : entries) {
                     for (SessionDatum datum : entry.getSessionDataReqs()) {
-                        if (datum.getDataId().equals(datumId)) {
-                            return datum;
+                        if (datum.getDataId().equals(datumId) && datum instanceof EntityDatum) {
+                            return (EntityDatum)datum;
                         }
                     }
                 }
