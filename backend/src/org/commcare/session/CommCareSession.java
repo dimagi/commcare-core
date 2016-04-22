@@ -784,7 +784,7 @@ public class CommCareSession {
      */
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        return entries.elementAt(0).isView();
+        return entries.size() == 1 && entries.elementAt(0).isView();
     }
 
     public void addExtraToCurrentFrameStep(String key, String value) {
