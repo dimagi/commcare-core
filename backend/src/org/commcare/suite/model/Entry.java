@@ -53,6 +53,12 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public boolean isView() {
+        if (this instanceof FormEntry) {
+            FormEntry formEntry = ((FormEntry)this);
+            // _Looks like_ HQ often sends down <entry> blocks with empty
+            // xform namespaces to represent views.
+            return formEntry.getXFormNamespace() == null;
+        }
         return false;
     }
 
