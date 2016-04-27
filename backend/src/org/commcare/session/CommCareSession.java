@@ -3,8 +3,8 @@ package org.commcare.session;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.RemoteQueryDatum;
@@ -60,6 +60,11 @@ public class CommCareSession {
      */
     private final OrderedHashtable<String, String> collectedDatums;
     private String currentXmlns;
+
+    /**
+     * Provides access to data instances in the evaluation context built from the session.
+     * Maps frame step IDs to data instances; only containing entries in the current frame.
+     */
     private final Hashtable<String, ExternalDataInstance> instances;
 
     /**
@@ -81,7 +86,7 @@ public class CommCareSession {
     }
 
     /**
-     *  Copy constructor
+     * Copy constructor
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
         // NOTE: 'platform' is being copied in a shallow manner
@@ -382,6 +387,10 @@ public class CommCareSession {
         syncState();
     }
 
+    /**
+     * Set a (xml) data instance as the result to a session query datum.
+     * The instance is available in session's evaluation context until the corresponding query frame is removed
+     */
     public void setQueryDatum(ExternalDataInstance queryResultInstance) {
         SessionDatum datum = getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
@@ -431,7 +440,7 @@ public class CommCareSession {
         this.currentXmlns = null;
         this.popped = null;
 
-        Vector<String> staleInstanceKeys = getKeySet(instances);
+        Vector<String> staleInstanceKeys = getKeys(instances);
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
@@ -454,7 +463,7 @@ public class CommCareSession {
         }
     }
 
-    private static Vector<String> getKeySet(Hashtable<String, ?> table) {
+    private static Vector<String> getKeys(Hashtable<String, ?> table) {
         // <3 <3 <3  J2ME  <3 <3 <3
         Vector<String> keys = new Vector<String>();
         for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
@@ -535,10 +544,10 @@ public class CommCareSession {
         return new EvaluationContext(null, instancesInScope);
     }
 
-    private void addInstancesFromFrame(Hashtable<String, DataInstance> instancesInScope) {
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instancesInScope.put(key, instances.get(key));
+            instanceMap.put(key, instances.get(key));
         }
     }
 
