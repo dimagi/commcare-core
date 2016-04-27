@@ -41,6 +41,10 @@ public class RemoteQuerySessionManager {
         return queryDatum.getValue();
     }
 
+    public String getStorageInstanceName() {
+        return queryDatum.getDataId();
+    }
+
     public Hashtable<String, String> getRawQueryParams() {
         Hashtable<String, String> params = new Hashtable<String, String>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
