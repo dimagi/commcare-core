@@ -22,23 +22,28 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
     private final String[] rows;
     private final String[] mDetailListTitles;
     private final Object[] data ;
+    private final String[] headers;
     private final int mCurrentIndex;
 
     public EntityDetailSubscreen(int currentIndex, Detail detail, EvaluationContext subContext, String[] detailListTitles) {
         DetailField[] fields = detail.getFields();
         rows = new String[fields.length];
+        headers = new String[fields.length];
         data = new Object[fields.length];
 
         detail.populateEvaluationContextVariables(subContext);
 
         for (int i = 0; i < fields.length; ++i) {
             data[i] = createData(fields[i], subContext);
+            headers[i] = createHeader(fields[i], subContext);
             rows[i] = createRow(fields[i], subContext, data[i]);
         }
         mDetailListTitles = detailListTitles;
 
         mCurrentIndex = currentIndex;
     }
+
+    private String createHeader(DetailField field, EvaluationContext ec){return field.getHeader().evaluate(ec);}
 
     private Object createData(DetailField field, EvaluationContext ec){
         return field.getTemplate().evaluate(ec);
@@ -126,7 +131,7 @@ public class EntityDetailSubscreen extends Subscreen<EntityScreen> {
         return data;
     }
 
-    public String[] getDetailHeaders(){
-        return mDetailListTitles;
+    public String[] getHeaders(){
+        return headers;
     }
 }
