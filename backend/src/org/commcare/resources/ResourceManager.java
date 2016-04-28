@@ -136,8 +136,17 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
+        loadProfileIntoTable(table, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
+    }
+
+    protected void loadProfileIntoTable(ResourceTable table,
+                                        String profileRef,
+                                        int authority)
+            throws UnfullfilledRequirementsException,
+            UnresolvedResourceException,
+            InstallCancelledException {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-        locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
+        locations.addElement(new ResourceLocation(authority, profileRef));
 
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations,
