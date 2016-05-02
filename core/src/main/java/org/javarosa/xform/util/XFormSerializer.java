@@ -6,6 +6,7 @@ import org.kxml2.kdom.Element;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -34,18 +35,39 @@ public class XFormSerializer {
         return null;
     }
 
+    /**
+     * Formats an XML document into a UTF-8 (no BOM) compatible format.
+     *
+     * UNSAFE - This method should not be used in favor of getUtfBytesFromDocument(),
+     * because it doesn't throw exceptions.
+     *
+     * @return The raw bytes of the utf-8 encoded docm or null if any error occurs
+     */
     public static byte[] getUtfBytes(Document doc) {
-        KXmlSerializer serializer = new KXmlSerializer();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            Writer osw = new OutputStreamWriter(bos, "UTF-8");
-            serializer.setOutput(osw);
-            doc.write(serializer);
-            serializer.flush();
-            return bos.toByteArray();
+            return getUtfBytesFromDocument(doc);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
+    /**
+     * Formats an XML document into a UTF-8 (no BOM) compatible format
+     *
+     * @return The raw bytes of the utf-8 encoded doc
+     * @throws IOException If there is an issue transferring the bytes to a byte stream.
+     * @throws UnsupportedEncodingException If the document contains values that are not UTF-8
+     * encoded.
+     */
+    public static byte[] getUtfBytesFromDocument(Document doc) throws IOException {
+        KXmlSerializer serializer = new KXmlSerializer();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Writer osw = new OutputStreamWriter(bos, "UTF-8");
+        serializer.setOutput(osw);
+        doc.write(serializer);
+        serializer.flush();
+        return bos.toByteArray();
+    }
+
 }
