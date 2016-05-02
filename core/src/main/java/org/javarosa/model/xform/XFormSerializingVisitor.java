@@ -78,7 +78,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
         model.accept(this);
         if (theXmlDoc != null) {
-            return XFormSerializer.getUtfBytes(theXmlDoc);
+            return XFormSerializer.getUtfBytesFromDocument(theXmlDoc);
         } else {
             return null;
         }
@@ -99,7 +99,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
         model.accept(this);
         if (theXmlDoc != null) {
             //TODO: Did this strip necessary data?
-            byte[] form = XFormSerializer.getUtfBytes(theXmlDoc);
+            byte[] form = XFormSerializer.getUtfBytesFromDocument(theXmlDoc);
             if (dataPointers.size() == 0) {
                 return new ByteArrayPayload(form, null, IDataPayload.PAYLOAD_TYPE_XML);
             }
