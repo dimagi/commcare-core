@@ -25,7 +25,7 @@ public class SessionNavigator {
     public static final int GET_COMMAND = 3;
     public static final int START_ENTITY_SELECTION = 4;
     public static final int LAUNCH_CONFIRM_DETAIL = 5;
-    public static final int EXCEPTION_THROWN = 6;
+    public static final int XPATH_EXCEPTION_THROWN = 6;
     public static final int START_SYNC_REQUEST = 7;
     public static final int PROCESS_QUERY_REQUEST = 8;
 
@@ -34,7 +34,7 @@ public class SessionNavigator {
     private EvaluationContext ec;
 
     private TreeReference currentAutoSelectedCase;
-    private Exception thrownException;
+    private XPathException thrownException;
 
 
     public SessionNavigator(SessionNavigationResponder r) {
@@ -49,7 +49,7 @@ public class SessionNavigator {
         return this.currentAutoSelectedCase;
     }
 
-    public Exception getCurrentException() {
+    public XPathException getCurrentException() {
         return this.thrownException;
     }
 
@@ -141,7 +141,8 @@ public class SessionNavigator {
             currentSession.setComputedDatum(ec);
         } catch (XPathException e) {
             this.thrownException = e;
-            sendResponse(EXCEPTION_THROWN);
+            sendResponse(XPATH_EXCEPTION_THROWN);
+            return;
         }
         startNextSessionStep();
     }
