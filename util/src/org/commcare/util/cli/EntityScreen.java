@@ -131,16 +131,6 @@ public class EntityScreen extends CompoundScreenHost {
         }
     }
 
-    public boolean setCurrentScreenToDetail() throws CommCareSessionException {
-
-        if(mLongDetailList == null) {
-            return false;
-        }
-
-        setCurrentScreenToDetail(0);
-        return true;
-    }
-
     public void setCurrentScreenToDetail(int index) throws CommCareSessionException {
         EvaluationContext subContext = new EvaluationContext(mSession.getEvaluationContext(), this.mCurrentSelection);
 
