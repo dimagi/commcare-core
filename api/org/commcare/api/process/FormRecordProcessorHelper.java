@@ -1,4 +1,4 @@
-package org.commcare.modern.process;
+package org.commcare.api.process;
 
 import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.core.process.XmlFormRecordProcessor;
@@ -6,8 +6,11 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *  * Convenience methods, mostly for Touchforms so we don't have to deal with Java IO
@@ -17,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class FormRecordProcessorHelper extends XmlFormRecordProcessor {
     public static void processXML(UserSandbox sandbox, String fileText) throws IOException, XmlPullParserException, UnfullfilledRequirementsException, InvalidStructureException {
-        InputStream stream = new ByteArrayInputStream(fileText.getBytes(StandardCharsets.UTF_8));
+        InputStream stream = new ByteArrayInputStream(fileText.getBytes("UTF-8"));
         FormRecordProcessorThread thread = new FormRecordProcessorThread(sandbox, stream);
         thread.start();
     }
