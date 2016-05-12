@@ -94,10 +94,17 @@ public class EntryParser extends CommCareElementParser<Entry> {
             throw new InvalidStructureException("<entry> block must define display text details", parser);
         }
 
-        if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
-            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
-        } else if (VIEW_ENTRY_TAG.equals(parserBlockTag)) {
+        //The server side wasn't generating <view> blocks correctly for a long time, so if we have
+        //an entry with no xmlns and no operations, we'll consider that a view.
+        boolean isViewEntry = VIEW_ENTRY_TAG.equals(parserBlockTag) ||
+                (FORM_ENTRY_TAG.equals(parserBlockTag) &&
+                        xFormNamespace == null &&
+                        stackOps.size() == 0);
+
+        if (isViewEntry) {
             return new ViewEntry(commandId, display, data, instances, stackOps, assertions);
+        } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
+            return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
         } else if (SYNC_REQUEST_TAG.equals(parserBlockTag)) {
             return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post, queries);
         }
