@@ -264,7 +264,6 @@ public class CommCareSession {
         Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
 
-
         Hashtable<String, Entry> entries = platform.getMenuMap();
         int i = 0;
         for (StackFrameStep step : steps) {
@@ -834,6 +833,11 @@ public class CommCareSession {
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
         return entries.size() == 1 && entries.elementAt(0).isView();
+    }
+
+    public boolean isSyncCommand(String command) {
+        Vector<Entry> entries = this.getEntriesForCommand(command);
+        return entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry;
     }
 
     public void addExtraToCurrentFrameStep(String key, String value) {
