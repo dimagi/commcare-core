@@ -33,6 +33,10 @@ public class RemoteQuerySessionManager {
         return userAnswers;
     }
 
+    public void clearAnswers() {
+        userAnswers.clear();
+    }
+
     public void answerUserPrompt(String key, String answer) {
         userAnswers.put(key, answer);
     }
