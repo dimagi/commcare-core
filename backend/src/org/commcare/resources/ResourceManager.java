@@ -117,7 +117,7 @@ public class ResourceManager {
                 upgradeTable.clear();
             }
 
-            loadProfileIntoTable(upgradeTable, profileRef);
+            loadRemoteAuthorityProfileIntoTable(upgradeTable, profileRef);
         }
     }
 
@@ -131,8 +131,8 @@ public class ResourceManager {
         }
     }
 
-    protected void loadProfileIntoTable(ResourceTable table,
-                                        String profileRef)
+    protected void loadRemoteAuthorityProfileIntoTable(ResourceTable table,
+                                                       String profileRef)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
