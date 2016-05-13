@@ -57,7 +57,7 @@ public class AppStructureTests {
         // If the detail block represents an entity list, then the 'lookup' can
         // have a detail field describing the UI for displaying callout result
         // data in the case list.
-        DetailField lookupCalloutDetailField = callout.getResponseDetail();
+        DetailField lookupCalloutDetailField = callout.getResponseDetailField();
 
         // The header is the data's title
         Assert.assertTrue(lookupCalloutDetailField.getHeader() != null);

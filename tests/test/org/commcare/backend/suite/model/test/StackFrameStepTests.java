@@ -57,7 +57,7 @@ public class StackFrameStepTests {
         stepWithExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
         stepWithExtras.addExtra("key", 123);
 
-        // Demonstrate how frame steps can't non-externalizable data
+        // Demonstrate how frame steps can't store non-externalizable data in extras
         stepWithBadExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
         stepWithBadExtras.addExtra("key", new ByteArrayInputStream(new byte[]{1,2,3}));
     }

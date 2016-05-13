@@ -129,7 +129,7 @@ public class Callout implements Externalizable, DetailTemplate {
         return responses;
     }
 
-    public DetailField getResponseDetail() {
+    public DetailField getResponseDetailField() {
         return responseDetail;
     }
 }
