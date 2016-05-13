@@ -42,7 +42,17 @@ public class DetailField implements Externalizable {
     private XPathExpression parsedRelevancy;
     private String headerWidthHint = null;  // Something like "500" or "10%"
     private String templateWidthHint = null;
+
+    /**
+     * Optional hint which provides a hint for whether rich media should be
+     * displayed based on <text> returning a URI.  May be either 'image' or
+     * 'audio'
+     */
     private String headerForm;
+
+    /**
+     * Same as 'headerForm' except can also be set to 'graph'
+     */
     private String templateForm;
     private int sortOrder = -1;
     private int sortDirection = DIRECTION_ASCENDING;
