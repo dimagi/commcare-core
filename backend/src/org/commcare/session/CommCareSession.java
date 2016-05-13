@@ -68,6 +68,13 @@ public class CommCareSession {
      */
     private final Stack<SessionFrame> frameStack;
 
+    public CommCareSession() {
+        platform = null;
+        collectedDatums = new OrderedHashtable<String, String>();
+        this.frame = new SessionFrame();
+        this.frameStack = new Stack<SessionFrame>();
+    }
+
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
         collectedDatums = new OrderedHashtable<String, String>();
