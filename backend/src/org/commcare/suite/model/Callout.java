@@ -20,28 +20,47 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Created by wpride1 on 4/14/15.
- *
- * Object representation of application callouts described in suite.xml
+ * Application callout described in suite.xml
  * Used in callouts from EntitySelectActivity and EntityDetailActivity
+ *
+ * @author wpride1 on 4/14/15.
  */
 public class Callout implements Externalizable, DetailTemplate {
+    private String actionName;
+    private String image;
+    private String displayName;
+    private String type;
+    private Hashtable<String, String> extras;
+    private Vector<String> responses;
 
-    String actionName;
-    String image;
-    String displayName;
-    Hashtable<String, String> extras = new Hashtable<String, String>();
-    Vector<String> responses = new Vector<String>();
+    /**
+     * Allows case list intent callouts to map result data to cases. 'header'
+     * is the column header text and 'template' is the key used for mapping a
+     * callout result data point to a case, should usually be the case id.
+     */
+    private DetailField responseDetail;
 
-    public Callout(String actionName, String image, String displayName) {
+    /**
+     * For externalization
+     */
+    public Callout() {
+
+    }
+
+    public Callout(String actionName, String image, String displayName,
+                   Hashtable<String, String> extras, Vector<String> responses,
+                   DetailField responseDetail, String type) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
+        this.extras = extras;
+        this.responses = responses;
+        this.responseDetail = responseDetail;
+        this.type = type;
     }
 
     @Override
     public CalloutData evaluate(EvaluationContext context) {
-
         Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
 
         Enumeration keys = extras.keys();
@@ -57,7 +76,7 @@ public class Callout implements Externalizable, DetailTemplate {
         }
 
         // emit a CalloutData with the extras evaluated. used for the detail screen.
-        return new CalloutData(actionName, image, displayName, evaluatedExtras, responses);
+        return new CalloutData(actionName, image, displayName, evaluatedExtras, responses, type);
     }
 
     /**
@@ -65,7 +84,7 @@ public class Callout implements Externalizable, DetailTemplate {
      * the case list button.
      */
     public CalloutData getRawCalloutData() {
-        return new CalloutData(actionName, image, displayName, extras, responses);
+        return new CalloutData(actionName, image, displayName, extras, responses, type);
     }
 
     @Override
@@ -75,6 +94,8 @@ public class Callout implements Externalizable, DetailTemplate {
         image = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
         responses = (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
+        responseDetail = (DetailField)ExtUtil.read(in, new ExtWrapNullable(DetailField.class), pf);
+        type = ExtUtil.readString(in);
     }
 
     @Override
@@ -84,6 +105,8 @@ public class Callout implements Externalizable, DetailTemplate {
         ExtUtil.write(out, new ExtWrapNullable(image));
         ExtUtil.write(out, new ExtWrapMap(extras));
         ExtUtil.write(out, new ExtWrapList(responses));
+        ExtUtil.write(out, new ExtWrapNullable(responseDetail));
+        ExtUtil.writeString(out, type);
     }
 
     public String getImage() {
@@ -98,19 +121,15 @@ public class Callout implements Externalizable, DetailTemplate {
         return displayName;
     }
 
-    public void addExtra(String key, String value) {
-        extras.put(key, value);
-    }
-
-    public void addResponse(String key) {
-        responses.addElement(key);
-    }
-
     public Hashtable<String, String> getExtras() {
         return extras;
     }
 
     public Vector<String> getResponses() {
         return responses;
+    }
+
+    public DetailField getResponseDetailField() {
+        return responseDetail;
     }
 }

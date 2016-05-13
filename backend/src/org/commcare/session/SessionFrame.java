@@ -166,19 +166,19 @@ public class SessionFrame implements Externalizable {
         dead = true;
     }
 
-    public synchronized void addExtraTopStep(String key, String value) {
+    public synchronized void addExtraTopStep(String key, Object value) {
         if (!steps.isEmpty()) {
             StackFrameStep topStep = steps.elementAt(steps.size() - 1);
             topStep.addExtra(key, value);
         }
     }
 
-    public synchronized String getTopStepExtra(String key) {
+    public synchronized Object getTopStepExtra(String key) {
         if (!steps.isEmpty()) {
             StackFrameStep topStep = steps.elementAt(steps.size() - 1);
             return topStep.getExtra(key);
         }
-        return "";
+        return null;
     }
 
     @Override

@@ -12,16 +12,17 @@ public class CalloutData {
     final String actionName;
     final String image;
     final String displayName;
-    Hashtable<String, String> extras = new Hashtable<String, String>();
-    Vector<String> responses = new Vector<String>();
+    final String type;
+    final Hashtable<String, String> extras;
+    final Vector<String> responses;
 
-
-    public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses) {
+    public CalloutData(String actionName, String image, String displayName, Hashtable<String, String> extras, Vector<String> responses, String type) {
         this.actionName = actionName;
         this.image = image;
         this.displayName = displayName;
         this.extras = extras;
         this.responses = responses;
+        this.type = type;
     }
 
     public String getImage() {
@@ -42,5 +43,9 @@ public class CalloutData {
 
     public Vector<String> getResponses() {
         return responses;
+    }
+
+    public String getType() {
+        return type;
     }
 }

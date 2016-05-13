@@ -19,6 +19,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -67,6 +68,13 @@ public class CommCareSession {
      * The stack of pending Frames
      */
     private final Stack<SessionFrame> frameStack;
+
+    public CommCareSession() {
+        platform = null;
+        collectedDatums = new OrderedHashtable<String, String>();
+        this.frame = new SessionFrame();
+        this.frameStack = new Stack<SessionFrame>();
+    }
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
@@ -765,11 +773,11 @@ public class CommCareSession {
         return entries.size() == 1 && entries.elementAt(0).isView();
     }
 
-    public void addExtraToCurrentFrameStep(String key, String value) {
+    public void addExtraToCurrentFrameStep(String key, Object value) {
         frame.addExtraTopStep(key, value);
     }
 
-    public String getCurrentFrameStepExtra(String key) {
+    public Object getCurrentFrameStepExtra(String key) {
         return frame.getTopStepExtra(key);
     }
 

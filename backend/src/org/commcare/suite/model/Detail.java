@@ -45,6 +45,11 @@ public class Detail implements Externalizable {
     private TreeReference nodeset;
 
     private DisplayUnit title;
+
+    /**
+     * Optional and only relevant if this detail has child details. In that
+     * case, form may be 'image' or omitted.
+     */
     private String titleForm;
 
     Detail[] details;
@@ -201,6 +206,7 @@ public class Detail implements Externalizable {
         ArrayUtilities.copyIntoArray(theFields, fields);
         variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
+        callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
     }
 
     @Override
@@ -213,6 +219,7 @@ public class Detail implements Externalizable {
         ExtUtil.write(out, new ExtWrapList(ArrayUtilities.toVector(fields)));
         ExtUtil.write(out, new ExtWrapMap(variables));
         ExtUtil.write(out, new ExtWrapList(actions));
+        ExtUtil.write(out, new ExtWrapNullable(callout));
     }
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
