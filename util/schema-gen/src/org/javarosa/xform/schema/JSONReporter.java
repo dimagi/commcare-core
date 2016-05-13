@@ -41,9 +41,6 @@ public class JSONReporter extends XFormParserReporter {
         this.failureReason = e.getMessage();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xform.parse.XFormParserReporter#warning(java.lang.String, java.lang.String, java.lang.String)
-     */
     @Override
     public void warning(String type, String message, String xmlLocation) {
         JSONObject problem = new JSONObject();
@@ -56,9 +53,6 @@ public class JSONReporter extends XFormParserReporter {
         problems.add(problem);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.xform.parse.XFormParserReporter#error(java.lang.String)
-     */
     @Override
     public void error(String message) {
         JSONObject problem = new JSONObject();
