@@ -4,7 +4,7 @@ import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapMap;
+import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
@@ -27,7 +27,7 @@ public class StackFrameStep implements Externalizable {
     private String id;
     private String value;
     private boolean valueIsXpath;
-    private Hashtable<String, String> extras = new Hashtable<String, String>();
+    private Hashtable<String, Object> extras = new Hashtable<String, Object>();
 
     /**
      * Serialization Only
@@ -46,6 +46,7 @@ public class StackFrameStep implements Externalizable {
         this.valueIsXpath = oldStackFrameStep.valueIsXpath;
         for (Enumeration e = oldStackFrameStep.extras.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
+            // shallow copy of extra value
             extras.put(key, oldStackFrameStep.extras.get(key));
         }
     }
@@ -86,19 +87,17 @@ public class StackFrameStep implements Externalizable {
         return valueIsXpath;
     }
 
-    public void addExtra(String key, String value) {
+    /**
+     * @param value Must extend Externalizable or be a basic data type (String, Vector, etc)
+     */
+    public void addExtra(String key, Object value) {
         if (value != null) {
             extras.put(key, value);
         }
     }
 
-    public String getExtra(String key) {
-        String value = extras.get(key);
-        if (value == null) {
-            return "";
-        } else {
-            return value;
-        }
+    public Object getExtra(String key) {
+        return extras.get(key);
     }
 
     /**
@@ -139,7 +138,7 @@ public class StackFrameStep implements Externalizable {
         this.id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
-        this.extras = (Hashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class));
+        this.extras = (Hashtable<String, Object>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
     }
 
     @Override
@@ -148,7 +147,7 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
-        ExtUtil.write(out, new ExtWrapMap(extras));
+        ExtUtil.write(out, new ExtWrapMapPoly(extras));
     }
 
     @Override

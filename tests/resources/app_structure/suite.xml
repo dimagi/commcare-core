@@ -10,6 +10,25 @@
     <title>
       <text>Case List</text>
     </title>
+    <lookup name="Scan fingerprint"
+            action="com.simprints.id.IDENTIFY"
+            image="jr://file/commcare/image/module1_case_list_lookup.png"
+            type="text/plain">
+      <extra key="deviceId" value="123"/>
+      <response key="fake"/>
+      <field>
+        <header>
+          <text>
+            <locale id="m1.case_short.callout.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="@case_id"/>
+          </text>
+        </template>
+      </field>
+    </lookup>
     <field>
       <header>
         <text>Name</text>
@@ -51,6 +70,7 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
     </session>
   </entry>
+
   <entry>
     <form>http://commcarehq.org/test/placeholder</form>
     <command id="m0-f1">
