@@ -1040,7 +1040,13 @@ public class XPathFuncExpr extends XPathExpression {
      */
     private String replace(Object o1, Object o2, Object o3) {
         String source = toString(o1);
-        RE pattern = new RE(toString(o2));
+        String regexString = toString(o2);
+        RE pattern;
+        try {
+            pattern = new RE(regexString);
+        } catch (RESyntaxException e) {
+            throw new XPathException("The regular expression '" + regexString + "' is invalid.");
+        }
         String replacement = toString(o3);
         return pattern.subst(source, replacement);
     }
