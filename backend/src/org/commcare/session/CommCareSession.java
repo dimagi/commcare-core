@@ -22,7 +22,6 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -78,11 +77,12 @@ public class CommCareSession {
      */
     private final Stack<SessionFrame> frameStack;
 
+    /**
+     * Used by touchforms
+     */
+    @SuppressWarnings("unused")
     public CommCareSession() {
-        platform = null;
-        collectedDatums = new OrderedHashtable<String, String>();
-        this.frame = new SessionFrame();
-        this.frameStack = new Stack<SessionFrame>();
+        this((CommCarePlatform)null);
     }
 
     public CommCareSession(CommCarePlatform platform) {
