@@ -86,21 +86,6 @@ public class ResourceManager {
     }
 
     /**
-     * Loads the app's authoritative profile into the upgrade table.
-     *
-     * @param clearProgress Clear the 'incoming' table of any partial update
-     *                      info.
-     */
-    public void stageUpgradeTable(boolean clearProgress)
-            throws UnfullfilledRequirementsException,
-            StorageFullException,
-            UnresolvedResourceException, InstallCancelledException {
-        Profile current = platform.getCurrentProfile();
-        String profileRef = current.getAuthReference();
-        stageUpgradeTable(profileRef, clearProgress);
-    }
-
-    /**
      * Loads the profile at the provided reference into the upgrade table.
      *
      * @param clearProgress Clear the 'incoming' table of any partial update
@@ -117,7 +102,7 @@ public class ResourceManager {
                 upgradeTable.clear();
             }
 
-            loadRemoteAuthorityProfileIntoTable(upgradeTable, profileRef);
+            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
         }
     }
 
@@ -129,14 +114,6 @@ public class ResourceManager {
                 throw new IllegalArgumentException("Global resource table was not ready for upgrading");
             }
         }
-    }
-
-    protected void loadRemoteAuthorityProfileIntoTable(ResourceTable table,
-                                                       String profileRef)
-            throws UnfullfilledRequirementsException,
-            UnresolvedResourceException,
-            InstallCancelledException {
-        loadProfileIntoTable(table, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
     }
 
     protected void loadProfileIntoTable(ResourceTable table,
