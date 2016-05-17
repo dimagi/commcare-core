@@ -1,11 +1,15 @@
 package org.commcare.backend.suite.model.test;
 
+import junit.framework.Assert;
+
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.session.SessionFrame;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +33,8 @@ public class StackFrameStepTests {
     private StackFrameStep datumComputedStepV1;
     private StackFrameStep datumComputedStepV2;
 
+    private StackFrameStep stepWithExtras;
+    private StackFrameStep stepWithBadExtras;
 
     @Before
     public void setUp() {
@@ -45,6 +51,15 @@ public class StackFrameStepTests {
 
         datumComputedStepV1 = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val1");
         datumComputedStepV2 = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
+
+        // frame steps can store externalizable data, such as ints, Strings,
+        // or anything that implements Externalizable
+        stepWithExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
+        stepWithExtras.addExtra("key", 123);
+
+        // Demonstrate how frame steps can't store non-externalizable data in extras
+        stepWithBadExtras = new StackFrameStep(SessionFrame.STATE_DATUM_COMPUTED, "datum_val_id", "datum_val2");
+        stepWithBadExtras.addExtra("key", new ByteArrayInputStream(new byte[]{1,2,3}));
     }
 
     @Test
@@ -76,5 +91,18 @@ public class StackFrameStepTests {
         StackFrameStep deserialized = mSandbox.deserialize(serializedStep, StackFrameStep.class);
         assertTrue("Serialization resulted in altered StackFrameStep",
                 commandIdStepV1.equals(deserialized));
+
+        serializedStep = mSandbox.serialize(stepWithExtras);
+        deserialized = mSandbox.deserialize(serializedStep, StackFrameStep.class);
+        assertTrue("",
+                stepWithExtras.equals(deserialized));
+
+        boolean failed = false;
+        try {
+            mSandbox.serialize(stepWithBadExtras);
+        } catch (Exception e) {
+            failed = true;
+        }
+        assertTrue(failed);
     }
 }

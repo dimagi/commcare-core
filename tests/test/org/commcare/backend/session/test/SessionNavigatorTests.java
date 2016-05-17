@@ -156,7 +156,8 @@ public class SessionNavigatorTests {
         // step forward and assign some extras to the current top of session stack
         session.setCommand("m0");
         session.addExtraToCurrentFrameStep(LAST_QUERY_KEY, "the lorax");
-        session.addExtraToCurrentFrameStep(COLOR_KEY, "orange");
+        // you can store any externalizable object in the extras of a frame step
+        session.addExtraToCurrentFrameStep(COLOR_KEY, 253);
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
 
         // set forward again, set more extras
@@ -170,7 +171,7 @@ public class SessionNavigatorTests {
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         Assert.assertEquals("m0", session.getCommand());
         Assert.assertEquals("the lorax", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
-        Assert.assertEquals("orange", session.getCurrentFrameStepExtra(COLOR_KEY));
+        Assert.assertEquals(253, session.getCurrentFrameStepExtra(COLOR_KEY));
 
         // step back and then forward into frame w/ same command and
         // assert that extras are no longer present
@@ -178,6 +179,6 @@ public class SessionNavigatorTests {
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
         session.setCommand("m0");
         triggerSessionStepAndCheckResultCode(SessionNavigator.GET_COMMAND);
-        Assert.assertEquals("", session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
+        Assert.assertEquals(null, session.getCurrentFrameStepExtra(LAST_QUERY_KEY));
     }
 }

@@ -92,8 +92,7 @@ public class ResourceManager {
      *                      info.
      */
     public void stageUpgradeTable(boolean clearProgress)
-            throws UnfullfilledRequirementsException,
-            StorageFullException,
+            throws UnfullfilledRequirementsException, StorageFullException,
             UnresolvedResourceException, InstallCancelledException {
         Profile current = platform.getCurrentProfile();
         String profileRef = current.getAuthReference();
@@ -117,7 +116,7 @@ public class ResourceManager {
                 upgradeTable.clear();
             }
 
-            loadProfileIntoTable(upgradeTable, profileRef);
+            loadProfileIntoTable(upgradeTable, profileRef, Resource.RESOURCE_AUTHORITY_REMOTE);
         }
     }
 
@@ -132,12 +131,13 @@ public class ResourceManager {
     }
 
     protected void loadProfileIntoTable(ResourceTable table,
-                                        String profileRef)
+                                        String profileRef,
+                                        int authority)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
-        locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_REMOTE, profileRef));
+        locations.addElement(new ResourceLocation(authority, profileRef));
 
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
                 CommCarePlatform.APP_PROFILE_RESOURCE_ID, locations,
