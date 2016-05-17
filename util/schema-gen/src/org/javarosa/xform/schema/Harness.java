@@ -77,7 +77,7 @@ public class Harness {
             try {
                 xfp.start(leftOverArgs[1]);
             } catch (FileNotFoundException e) {
-                System.out.println("File not found at " + args[0]+ "!!!!");
+                System.out.println("File not found at " + args[0] + "!!!!");
             }
 
         } else {
@@ -208,10 +208,16 @@ public class Harness {
                 System.exit(1);
             }
         }
-        PrintStream responseStream = System.out;
+        PrintStream defaultOutStream = System.out;
+        PrintStream responseStream;
         // Redirect output to syserr because sysout is being used for the
         // response, and must be kept clean.
-        System.setOut(System.err);
+        try {
+            responseStream = new PrintStream(System.err, false, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            responseStream = System.err;
+        }
+        System.setOut(responseStream);
 
         InputStreamReader isr;
         try {
@@ -250,7 +256,7 @@ public class Harness {
             try {
                 isr.close();
                 // reset output stream on exit
-                System.setOut(responseStream);
+                System.setOut(defaultOutStream);
             } catch (IOException e) {
                 System.err.println("IO Exception while closing stream.");
                 e.printStackTrace();
@@ -376,8 +382,14 @@ public class Harness {
     private static FormDef loadFormDef(String[] args) {
         // Redirect output to syserr because sysout is being used for the
         // response, and must be kept clean.
-        PrintStream responseStream = System.out;
-        System.setOut(System.err);
+        PrintStream defaultOutStream = System.out;
+        PrintStream responseStream;
+        try {
+            responseStream = new PrintStream(System.err, false, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            responseStream = System.err;
+        }
+        System.setOut(responseStream);
 
         InputStream inputStream = System.in;
 
@@ -396,7 +408,7 @@ public class Harness {
         FormDef form = XFormUtils.getFormFromInputStream(inputStream);
 
         // reset the system output on exit.
-        System.setOut(responseStream);
+        System.setOut(defaultOutStream);
 
         return form;
     }
