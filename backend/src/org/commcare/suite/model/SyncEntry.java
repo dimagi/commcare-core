@@ -42,6 +42,11 @@ public class SyncEntry extends Entry {
     }
 
     @Override
+    public boolean isSync() {
+        return true;
+    }
+
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);

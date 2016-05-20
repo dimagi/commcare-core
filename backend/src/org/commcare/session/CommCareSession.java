@@ -845,7 +845,7 @@ public class CommCareSession {
 
     public boolean isSyncCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
-        return entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry;
+        return entries.size() == 1 && entries.elementAt(0).isSync();
     }
 
     public void addExtraToCurrentFrameStep(String key, Object value) {
