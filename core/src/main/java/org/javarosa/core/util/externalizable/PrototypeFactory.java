@@ -73,7 +73,8 @@ public class PrototypeFactory {
     }
 
     /**
-     * Override to provide migration logic; needed if classes are renamed
+     * Override to provide migration logic; needed if classes are renamed,
+     * since classes in prototype factory are indexed by classname
      */
     protected void addMigratedClasses() {
     }
