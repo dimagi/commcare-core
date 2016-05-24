@@ -76,6 +76,7 @@ public class PrototypeFactory {
         hashes = new Vector();
 
         addDefaultClasses();
+        addMigratedClasses();
 
         if (classNames != null) {
             Vector vClasses = classNames.getStrings();
@@ -90,6 +91,12 @@ public class PrototypeFactory {
             }
             classNames = null;
         }
+    }
+
+    /**
+     * Override to provide migration logic; needed if classes are renamed
+     */
+    protected void addMigratedClasses() {
     }
 
     private void addDefaultClasses() {
