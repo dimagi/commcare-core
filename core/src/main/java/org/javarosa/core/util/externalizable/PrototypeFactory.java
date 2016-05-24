@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util.externalizable;
 
 import org.javarosa.core.api.ClassNameHasher;
@@ -28,13 +12,12 @@ import java.util.Vector;
  * their hash codes. To use a non-default hasher, use one of the overriding constructors
  * or call setStaticHasher().
  */
-
 public class PrototypeFactory {
 
     private static Hasher mStaticHasher;
 
-    private Vector classes;
-    private Vector hashes;
+    private Vector<Class> classes;
+    private Vector<byte[]> hashes;
 
     //lazy evaluation
     private PrefixTree classNames;
@@ -47,11 +30,10 @@ public class PrototypeFactory {
     public PrototypeFactory(PrefixTree classNames) {
         this.classNames = classNames;
         initialized = false;
-        if(mStaticHasher == null){
+        if (mStaticHasher == null) {
             mStaticHasher = new ClassNameHasher();
         }
     }
-
 
     public PrototypeFactory(Hasher hasher) {
         this(hasher, null);
@@ -60,10 +42,10 @@ public class PrototypeFactory {
     public PrototypeFactory(Hasher hasher, PrefixTree classNames) {
         this.classNames = classNames;
         initialized = false;
-        if(mStaticHasher == null){
-            if(hasher == null) {
+        if (mStaticHasher == null) {
+            if (hasher == null) {
                 mStaticHasher = new ClassNameHasher();
-            } else{
+            } else {
                 PrototypeFactory.setStaticHasher(hasher);
             }
         }
@@ -72,17 +54,14 @@ public class PrototypeFactory {
     protected void lazyInit() {
         initialized = true;
 
-        classes = new Vector();
-        hashes = new Vector();
+        classes = new Vector<Class>();
+        hashes = new Vector<byte[]>();
 
         addDefaultClasses();
         addMigratedClasses();
 
         if (classNames != null) {
-            Vector vClasses = classNames.getStrings();
-
-            for (int i = 0; i < vClasses.size(); i++) {
-                String name = (String)vClasses.elementAt(i);
+            for (String name : classNames.getStrings()) {
                 try {
                     addClass(Class.forName(name));
                 } catch (ClassNotFoundException cnfe) {
@@ -115,8 +94,8 @@ public class PrototypeFactory {
                 UncastData.class
         };
 
-        for (int i = 0; i < baseTypes.length; i++) {
-            addClass(baseTypes[i]);
+        for (Class baseType : baseTypes) {
+            addClass(baseType);
         }
     }
 
@@ -144,8 +123,8 @@ public class PrototypeFactory {
         }
 
         for (int i = 0; i < classes.size(); i++) {
-            if (compareHash(hash, (byte[])hashes.elementAt(i))) {
-                return (Class)classes.elementAt(i);
+            if (compareHash(hash, hashes.elementAt(i))) {
+                return classes.elementAt(i);
             }
         }
 
@@ -171,14 +150,14 @@ public class PrototypeFactory {
     }
 
     public static boolean compareHash(byte[] a, byte[] b) {
-
         if (a.length != b.length) {
             return false;
         }
 
         for (int i = 0; i < a.length; i++) {
-            if (a[i] != b[i])
+            if (a[i] != b[i]) {
                 return false;
+            }
         }
 
         return true;
@@ -192,7 +171,7 @@ public class PrototypeFactory {
         return mStaticHasher.getHashSize();
     }
 
-    public void storeHash(Class c, byte[] hash){
+    protected void storeHash(Class c, byte[] hash){
         classes.addElement(c);
         hashes.addElement(hash);
     }
