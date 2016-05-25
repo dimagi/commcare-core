@@ -355,7 +355,14 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void attemptAppUpdate(boolean forceNew) {
+    /**
+     * @param updateTarget Null to request the default latest build. Otherwise a string identifying
+     *                     the target of the update:
+     *                     'release' - Latest released (or starred) build
+     *                     'build' - Latest completed build (released or not)
+     *                     'save' - Latest functional saved version of the app
+     */
+    public void attemptAppUpdate(String updateTarget) {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.
@@ -379,16 +386,16 @@ public class CommCareConfigEngine {
             // If we want to be using/updating to the latest build of the
             // app (instead of latest release), add it to the query tags of
             // the profile reference
-            if (forceNew &&
+            if (updateTarget!= null &&
                     ("https".equals(authUrl.getProtocol()) ||
                             "http".equals(authUrl.getProtocol()))) {
                 if (authUrl.getQuery() != null) {
                     // If the profileRef url already have query strings
                     // just add a new one to the end
-                    authRef = authRef + "&target=build";
+                    authRef = authRef + "&target=" + updateTarget;
                 } else {
                     // otherwise, start off the query string with a ?
-                    authRef = authRef + "?target=build";
+                    authRef = authRef + "?target" + updateTarget;
                 }
             }
         } catch (MalformedURLException e) {
