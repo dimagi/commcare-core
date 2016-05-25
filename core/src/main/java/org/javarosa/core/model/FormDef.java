@@ -1318,7 +1318,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
         Vector<SelectChoice> choices = new Vector<SelectChoice>();
 
-        DataInstance fi = null;
+        DataInstance fi;
         if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
         {
             fi = getNonMainInstance(itemset.nodesetRef.getInstanceName());
@@ -1333,13 +1333,14 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 
         if (matches == null) {
-            throw new XPathException("Could not find references depended on by " + itemset.nodesetRef.getInstanceName());
+            throw new XPathException("No items found at '" + itemset.nodesetRef +
+                    "'. Make sure the '" + itemset.nodesetRef.getInstanceName() +
+                    "' lookup table is available.");
         }
 
         for (int i = 0; i < matches.size(); i++) {
             TreeReference item = matches.elementAt(i);
 
-            //String label = itemset.labelExpr.evalReadable(this.getMainInstance(), new EvaluationContext(exprEvalContext, item));
             String label = itemset.labelExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
             String value = null;
             TreeElement copyNode = null;
@@ -1348,26 +1349,14 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 copyNode = this.getMainInstance().resolveReference(itemset.copyRef.contextualize(item));
             }
             if (itemset.valueRef != null) {
-                //value = itemset.valueExpr.evalReadable(this.getMainInstance(), new EvaluationContext(exprEvalContext, item));
                 value = itemset.valueExpr.evalReadable(fi, new EvaluationContext(exprEvalContext, item));
             }
-//            SelectChoice choice = new SelectChoice(labelID,labelInnerText,value,isLocalizable);
             SelectChoice choice = new SelectChoice(label, value != null ? value : "dynamic:" + i, itemset.labelIsItext);
             choice.setIndex(i);
             if (itemset.copyMode)
                 choice.copyNode = copyNode;
 
             choices.addElement(choice);
-        }
-
-        if (choices.size() == 0) {
-            //throw new RuntimeException("dynamic select question has no choices! [" + itemset.nodesetRef + "]");
-            //When you exit a survey mid way through and want to save it, it seems that Collect wants to
-            //go through all the questions. Well of course not all the questions are going to have answers
-            //to chose from if the user hasn't filled them out. So I'm just going to make a note of this
-            //and not throw an exception.
-            System.out.println("dynamic multiple choice question has no choices! [" + itemset.nodesetRef + "]. If this didn't occure durring saving an incomplete form, you've got a problem.");
-
         }
 
         itemset.setChoices(choices, this.getLocalizer());
