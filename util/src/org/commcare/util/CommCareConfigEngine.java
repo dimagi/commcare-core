@@ -413,6 +413,8 @@ public class CommCareConfigEngine {
             }
 
             System.out.println("Update found. New Version: " + newProfile.getVersion());
+            System.out.println("Downloading / Preparing Update");
+            resourceManager.prepareUpgradeResources();
             System.out.print("Installing update");
 
             // Replaces global table with temporary, or w/ recovery if
