@@ -10,16 +10,18 @@ package org.javarosa.core.util.externalizable;
  */
 public abstract class Hasher {
 
-    public byte[] getClassHashValue(Class type){
-        byte[] returnHash = new byte[this.getHashSize()];
+    public byte[] getClassHashValue(Class type) {
+        byte[] returnHash = new byte[getHashSize()];
         byte[] computedHash = getHash(type); //add support for a salt, in case of collision?
 
-        for(int i=0; i< returnHash.length && i<computedHash.length; i++){
+        for (int i = 0; i < returnHash.length && i < computedHash.length; i++) {
             returnHash[i] = computedHash[i];
         }
 
         return returnHash;
     }
+
     public abstract int getHashSize();
+
     public abstract byte[] getHash(Class c);
 }
