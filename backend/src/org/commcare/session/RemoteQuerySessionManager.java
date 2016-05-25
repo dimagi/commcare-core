@@ -17,10 +17,12 @@ import java.util.Hashtable;
  */
 public class RemoteQuerySessionManager {
     private final RemoteQueryDatum queryDatum;
-    private final Hashtable<String, String> userAnswers = new Hashtable<String, String>();
     private final EvaluationContext evaluationContext;
+    private final Hashtable<String, String> userAnswers =
+            new Hashtable<String, String>();
 
-    public RemoteQuerySessionManager(RemoteQueryDatum queryDatum, EvaluationContext evaluationContext) {
+    public RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
+                                     EvaluationContext evaluationContext) {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
     }
@@ -67,15 +69,5 @@ public class RemoteQuerySessionManager {
     public static String calculateHidden(XPathExpression expr,
                                          EvaluationContext evaluationContext) {
         return XPathFuncExpr.toString(expr.eval(evaluationContext));
-    }
-
-    public boolean areAllUserPromptsAnswered() {
-        for (Enumeration e = queryDatum.getUserQueryPrompts().keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            if (!userAnswers.containsKey(key)) {
-                return false;
-            }
-        }
-        return true;
     }
 }
