@@ -213,11 +213,11 @@ public class Harness {
         // Redirect output to syserr because sysout is being used for the
         // response, and must be kept clean.
         try {
-            responseStream = new PrintStream(System.err, false, "UTF-8");
+            responseStream = new PrintStream(System.out, false, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            responseStream = System.err;
+            responseStream = System.out;
         }
-        System.setOut(responseStream);
+        System.setOut(System.err);
 
         InputStreamReader isr;
         try {
@@ -382,14 +382,8 @@ public class Harness {
     private static FormDef loadFormDef(String[] args) {
         // Redirect output to syserr because sysout is being used for the
         // response, and must be kept clean.
-        PrintStream defaultOutStream = System.out;
-        PrintStream responseStream;
-        try {
-            responseStream = new PrintStream(System.err, false, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            responseStream = System.err;
-        }
-        System.setOut(responseStream);
+        PrintStream responseStream = System.out;
+        System.setOut(System.err);
 
         InputStream inputStream = System.in;
 
@@ -408,7 +402,7 @@ public class Harness {
         FormDef form = XFormUtils.getFormFromInputStream(inputStream);
 
         // reset the system output on exit.
-        System.setOut(defaultOutStream);
+        System.setOut(responseStream);
 
         return form;
     }
