@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.javarosa.core.services.locale;
 
 import org.javarosa.core.util.Map;
@@ -17,7 +14,6 @@ public class LocalizationUtils {
     /**
      * @param is A path to a resource file provided in the current environment
      * @return a dictionary of key/value locale pairs from a file in the resource directory
-     * @throws IOException
      */
     public static Map<String, String> parseLocaleInput(InputStream is) throws IOException {
         // TODO: This might very well fail. Best way to handle?
@@ -25,16 +21,14 @@ public class LocalizationUtils {
         int chunk = 100;
         InputStreamReader isr;
         isr = new InputStreamReader(is, "UTF-8");
-        boolean done = false;
         char[] cbuf = new char[chunk];
         int offset = 0;
         int curline = 0;
 
         String line = "";
-        while (!done) {
+        while (true) {
             int read = isr.read(cbuf, offset, chunk - offset);
             if (read == -1) {
-                done = true;
                 if (!"".equals(line)) {
                     parseAndAdd(locale, line, curline);
                 }
@@ -68,8 +62,6 @@ public class LocalizationUtils {
     }
 
     public static void parseAndAdd(OrderedHashtable locale, String line, int curline) {
-
-        //trim whitespace.
         line = line.trim();
 
         int i = 0;
@@ -77,7 +69,6 @@ public class LocalizationUtils {
 
         //clear comments except if they have backslash before them (markdown '#'s)
         while ((i = LocalizationUtils.lastIndexOf(line.substring(0, dec), "#")) != -1) {
-
             if ((i == 0) || !(line.charAt(i - 1) == '\\')) {
                 line = line.substring(0, i);
                 dec = line.length();
@@ -86,37 +77,31 @@ public class LocalizationUtils {
             }
         }
 
-        if (line.indexOf('=') == -1) {
-            // TODO: Invalid line. Empty lines are fine, especially with comments,
-            // but it might be hard to get all of those.
-            if (line.trim().equals("")) {
-                //Empty Line
-            } else {
+        int equalIndex = line.indexOf('=');
+        if (equalIndex == -1) {
+            if (!line.trim().equals("")) {
                 System.out.println("Invalid line (#" + curline + ") read: " + line);
             }
         } else {
             //Check to see if there's anything after the '=' first. Otherwise there
             //might be some big problems.
-            if (line.indexOf('=') != line.length() - 1) {
-                String value = line.substring(line.indexOf('=') + 1, line.length());
-                locale.put(line.substring(0, line.indexOf('=')), parseValue(value));
-            } else {
-                System.out.println("Invalid line (#" + curline + ") read: '" + line + "'. No value follows the '='.");
+            if (equalIndex != line.length() - 1) {
+                String value = line.substring(equalIndex + 1, line.length());
+                locale.put(line.substring(0, equalIndex), parseValue(value));
             }
         }
     }
 
-        /*
-         * Helper to replace our markdown encodings with what we want
-         */
-
+    /**
+     * Replace markdown encodings
+     */
     public static String parseValue(String value) {
         String ret = LocalizationUtils.replace(value, "\\#", "#");
         ret = LocalizationUtils.replace(ret, "\\n", "\n");
         return ret;
     }
 
-    /*
+    /**
      * http://stackoverflow.com/questions/10626606/replace-string-with-string-in-j2me
      */
     private static String replace(String str, String pattern, String replace) {
@@ -133,10 +118,9 @@ public class LocalizationUtils {
         return result.toString();
     }
 
-    /*
+    /**
      * http://www.experts-exchange.com/Programming/Languages/Java/Q_27604323.html
      */
-
     private static int lastIndexOf(String str, String search) {
         int i = 0;
         int offset = 0;
