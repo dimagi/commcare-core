@@ -2,6 +2,7 @@ package org.commcare.session;
 
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
@@ -21,10 +22,26 @@ public class RemoteQuerySessionManager {
     private final Hashtable<String, String> userAnswers =
             new Hashtable<String, String>();
 
-    public RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
+    private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
                                      EvaluationContext evaluationContext) {
         this.queryDatum = queryDatum;
         this.evaluationContext = evaluationContext;
+    }
+
+    public static RemoteQuerySessionManager buildQuerySessionManager(CommCareSession session,
+                                                                     EvaluationContext sessionContext) {
+        SessionDatum datum;
+        try {
+            datum = session.getNeededDatum();
+        } catch (NullPointerException e) {
+            // tried loading session info when it wasn't there
+            return null;
+        }
+        if (datum instanceof RemoteQueryDatum) {
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionContext);
+        } else {
+            return null;
+        }
     }
 
     public Hashtable<String, DisplayUnit> getNeededUserInputDisplays() {
