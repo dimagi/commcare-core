@@ -199,7 +199,7 @@ public class CommCareSession {
      * Based on the current state of the session, determine what information is needed next to
      * proceed
      *
-     * @return 1 of the 4 STATE strings declared at the top of SessionFrame, or null if
+     * @return One of the session SessionFrame.STATE_* strings, or null if
      * the session does not need anything else to proceed
      */
     public String getNeededData() {
@@ -213,7 +213,6 @@ public class CommCareSession {
         if (needDatum != null) {
             return needDatum;
         } else if (entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry) {
-            // one sync entry, with no needed data, matches the command; fire that request
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
