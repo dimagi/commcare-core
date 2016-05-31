@@ -1333,9 +1333,15 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 new EvaluationContext(exprEvalContext, itemset.contextRef.contextualize(curQRef)));
 
         if (matches == null) {
-            throw new XPathException("No items found at '" + itemset.nodesetRef +
-                    "'. Make sure the '" + itemset.nodesetRef.getInstanceName() +
-                    "' lookup table is available.");
+            String instanceName = itemset.nodesetRef.getInstanceName();
+            if (instanceName == null) {
+                // itemset references a path rooted in the main instance
+                throw new XPathException("No items found at '" + itemset.nodesetRef + "'");
+            } else {
+                // itemset references a path rooted in a lookup table
+                throw new XPathException("Make sure the '" + instanceName +
+                        "' lookup table is available, and that its contents are accessible to the current user.");
+            }
         }
 
         for (int i = 0; i < matches.size(); i++) {
