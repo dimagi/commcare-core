@@ -73,7 +73,7 @@ public class RemoteQuerySessionManager {
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
-            String evaluatedExpr = calculateHidden(hiddenQueryValues.get(key), evaluationContext);
+            String evaluatedExpr = evalXpathExpression(hiddenQueryValues.get(key), evaluationContext);
             params.put(key, evaluatedExpr);
         }
         for (Enumeration e = userAnswers.keys(); e.hasMoreElements(); ) {
@@ -83,8 +83,8 @@ public class RemoteQuerySessionManager {
         return params;
     }
 
-    public static String calculateHidden(XPathExpression expr,
-                                         EvaluationContext evaluationContext) {
+    public static String evalXpathExpression(XPathExpression expr,
+                                             EvaluationContext evaluationContext) {
         return XPathFuncExpr.toString(expr.eval(evaluationContext));
     }
 }

@@ -3,6 +3,8 @@ package org.commcare.backend.session.test;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.SessionWrapper;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,24 +137,9 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
-        session.setQueryDatum(null);
 
-        /*
-        // device_id
-        session.setComputedDatum();
-
-        // device_case_count
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_COMPUTED);
-        session.setComputedDatum();
-
-        // name
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        session.setDatum("name", "Zeno");
-
-        // patient_id
-        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
-        session.setDatum("patient_id", "000001");
-        */
+        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
 
         // case_id
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);

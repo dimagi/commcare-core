@@ -255,7 +255,7 @@ public class SessionStackTests {
                 bolivarsId);
     }
 
-    private static TreeElement buildExampleInstanceRoot(String bolivarsId) {
+    protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
         TreeElement root = new TreeElement("patients");
         TreeElement data = new TreeElement("patient");
         root.addChild(data);

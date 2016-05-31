@@ -43,7 +43,7 @@ public class SyncPost implements Externalizable {
         for(Enumeration en = params.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             evaluatedParams.put(key,
-                    RemoteQuerySessionManager.calculateHidden(params.get(key), evaluationContext));
+                    RemoteQuerySessionManager.evalXpathExpression(params.get(key), evaluationContext));
         }
         return evaluatedParams;
     }

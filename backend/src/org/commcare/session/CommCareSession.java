@@ -404,9 +404,7 @@ public class CommCareSession {
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
                             datum.getDataId(), datum.getValue());
             frame.pushStep(step);
-            if (queryResultInstance != null) {
-                instances.put(datum.getDataId(), queryResultInstance);
-            }
+            instances.put(datum.getDataId(), queryResultInstance);
             syncState();
         } else {
             throw new RuntimeException("Trying to set query successful when one isn't needed.");
