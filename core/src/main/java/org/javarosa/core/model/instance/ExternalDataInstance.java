@@ -49,7 +49,7 @@ public class ExternalDataInstance extends DataInstance {
     }
 
     public static ExternalDataInstance buildFromRemote(String instanceId,
-                                               TreeElement root) {
+                                                       TreeElement root) {
         return new ExternalDataInstance("jr://instance/remote", instanceId, root);
     }
 
