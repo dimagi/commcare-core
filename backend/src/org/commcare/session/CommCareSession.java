@@ -62,12 +62,6 @@ public class CommCareSession {
     private String currentXmlns;
 
     /**
-     * Provides access to data instances in the evaluation context built from the session.
-     * Maps frame step IDs to data instances; only containing entries in the current frame.
-     */
-    private final Hashtable<String, ExternalDataInstance> instances;
-
-    /**
      * The current session frame data
      */
     private SessionFrame frame;
@@ -88,7 +82,6 @@ public class CommCareSession {
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
         collectedDatums = new OrderedHashtable<String, String>();
-        instances = new Hashtable<String, ExternalDataInstance>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -111,12 +104,6 @@ public class CommCareSession {
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
             collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
-        }
-
-        instances = new Hashtable<String, ExternalDataInstance>();
-        for (Enumeration e = oldCommCareSession.instances.keys(); e.hasMoreElements(); ) {
-            String key = (String)e.nextElement();
-            instances.put(key, new ExternalDataInstance(oldCommCareSession.instances.get(key)));
         }
 
         this.frameStack = new Stack<SessionFrame>();
@@ -402,9 +389,8 @@ public class CommCareSession {
         if (datum instanceof RemoteQueryDatum) {
             StackFrameStep step =
                     new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
-                            datum.getDataId(), datum.getValue());
+                            datum.getDataId(), datum.getValue(), queryResultInstance);
             frame.pushStep(step);
-            instances.put(datum.getDataId(), queryResultInstance);
             syncState();
         } else {
             throw new RuntimeException("Trying to set query successful when one isn't needed.");
@@ -444,7 +430,6 @@ public class CommCareSession {
         this.currentXmlns = null;
         this.popped = null;
 
-        Vector<String> staleInstanceKeys = getKeys(instances);
         for (StackFrameStep step : frame.getSteps()) {
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 String key = step.getId();
@@ -453,7 +438,6 @@ public class CommCareSession {
                     collectedDatums.put(key, value);
                 }
             } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
-                staleInstanceKeys.remove(step.getId());
                 collectedDatums.put(step.getId(), step.getValue());
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
@@ -461,20 +445,6 @@ public class CommCareSession {
                 this.currentXmlns = step.getId();
             }
         }
-
-        for (String staleInstanceKey : staleInstanceKeys) {
-            instances.remove(staleInstanceKey);
-        }
-    }
-
-    private static Vector<String> getKeys(Hashtable<String, ?> table) {
-        // <3 <3 <3  J2ME  <3 <3 <3
-        Vector<String> keys = new Vector<String>();
-        for (Enumeration en = table.keys(); en.hasMoreElements(); ) {
-            String key = (String) en.nextElement();
-            keys.addElement(key);
-        }
-        return keys;
     }
 
     public StackFrameStep getPoppedStep() {
@@ -531,7 +501,6 @@ public class CommCareSession {
      * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
-
         if (command == null) {
             return new EvaluationContext(null);
         }
@@ -549,9 +518,10 @@ public class CommCareSession {
     }
 
     private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
-        for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
-            String key = (String)en.nextElement();
-            instanceMap.put(key, instances.get(key));
+        for (StackFrameStep step : frame.getSteps()) {
+            if (step.hasXmlInstance()) {
+                instanceMap.put(step.getId(), step.getXmlInstance());
+            }
         }
     }
 
