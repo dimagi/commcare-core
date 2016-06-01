@@ -463,7 +463,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        if (e.isView()) {
+        if (e.isView() || e.isSync()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();
