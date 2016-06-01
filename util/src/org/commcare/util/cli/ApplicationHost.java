@@ -168,7 +168,7 @@ public class ApplicationHost {
                         }
 
                         if (input.equals(":back")) {
-                            mSession.stepBack();
+                            mSession.stepBack(mSession.getEvaluationContext());
                             s = getNextScreen();
                             continue;
                         }
@@ -233,7 +233,7 @@ public class ApplicationHost {
                     finishSession();
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
-                    mSession.stepBack();
+                    mSession.stepBack(mSession.getEvaluationContext());
                     s = getNextScreen();
                 } else {
                     //Handle this later
@@ -295,7 +295,7 @@ public class ApplicationHost {
     }
 
     private Screen getNextScreen() {
-        String next = mSession.getNeededData();
+        String next = mSession.getNeededData(mSession.getEvaluationContext());
 
         if (next == null) {
             //XFORM TIME!
@@ -308,7 +308,7 @@ public class ApplicationHost {
             computeDatum();
             return getNextScreen();
         }
-        throw new RuntimeException("Unexpected Frame Request: " + mSession.getNeededData());
+        throw new RuntimeException("Unexpected Frame Request: " + next);
     }
 
     private void computeDatum() {

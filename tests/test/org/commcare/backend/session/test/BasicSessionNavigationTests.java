@@ -19,16 +19,16 @@ import org.junit.Test;
 public class BasicSessionNavigationTests {
 
     MockApp mApp;
+    SessionWrapper session;
 
     @Before
     public void setUp() throws Exception {
         mApp = new MockApp("/session-tests-template/");
+        session = mApp.getSession();
     }
 
     @Test
     public void testNeedsCommandFirst() {
-        SessionWrapper session = mApp.getSession();
-
         // Before anything is done in the session, should need a command
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
 
@@ -57,8 +57,6 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testNeedsCaseFirst() {
-        SessionWrapper session = mApp.getSession();
-
         // Before anything is done in the session, should need a command
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
 
@@ -78,7 +76,6 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepBackBasic() {
-        SessionWrapper session = mApp.getSession();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
         session.setCommand("m1");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
@@ -96,7 +93,6 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepBackWithExtraValue() {
-        SessionWrapper session = mApp.getSession();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
         session.setCommand("m1");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
@@ -116,7 +112,6 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepBackWithComputedDatum() {
-        SessionWrapper session = mApp.getSession();
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
         session.setCommand("m0");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
@@ -133,8 +128,6 @@ public class BasicSessionNavigationTests {
 
     @Test
     public void testStepToSyncRequest() {
-        SessionWrapper session = mApp.getSession();
-
         session.setCommand("patient-search");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
 
@@ -156,5 +149,14 @@ public class BasicSessionNavigationTests {
 
         session.setCommand("empty-sync-request");
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+    }
+
+    @Test
+    public void testStepToSyncRequestRelevancy() {
+        session.setCommand("irrelevant-sync-request");
+        Assert.assertEquals(session.getNeededData(session.getEvaluationContext()), null);
+
+        session.setCommand("relevant-sync-request");
+        Assert.assertEquals(session.getNeededData(session.getEvaluationContext()), SessionFrame.STATE_SYNC_REQUEST);
     }
 }

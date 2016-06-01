@@ -61,7 +61,7 @@ public class SessionNavigator {
     public void startNextSessionStep() {
         currentSession = responder.getSessionForNavigator();
         ec = responder.getEvalContextForNavigator();
-        String needed = currentSession.getNeededData();
+        String needed = currentSession.getNeededData(ec);
         if (needed == null) {
             readyToProceed();
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
@@ -148,6 +148,6 @@ public class SessionNavigator {
     }
 
     public void stepBack() {
-        currentSession.stepBack();
+        currentSession.stepBack(ec);
     }
 }

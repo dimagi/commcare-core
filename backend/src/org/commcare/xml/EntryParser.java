@@ -149,6 +149,18 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
     private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
         String url = parser.getAttributeValue(null, "url");
+
+        XPathExpression relevantExpr = null;
+        String relevantExprString = parser.getAttributeValue(null, "relevant");
+        if (relevantExprString != null) {
+            try {
+                relevantExpr = XPathParseTool.parseXPath(relevantExprString);
+            } catch (XPathSyntaxException e) {
+                String messageBase = "'relevant' doesn't contain a valid xpath expression: ";
+                throw new InvalidStructureException(messageBase + relevantExprString, parser);
+            }
+        }
+
         Hashtable<String, XPathExpression> postData = new Hashtable<String, XPathExpression>();
         while (nextTagInBlock("post")) {
             if ("data".equals(parser.getName())) {
@@ -158,13 +170,13 @@ public class EntryParser extends CommCareElementParser<Entry> {
                     postData.put(parser.getAttributeValue(null, "key"), expr);
                 } catch (XPathSyntaxException e) {
                     String errorMessage = "'ref' value is not a valid xpath expression: " + refString;
-                    throw new InvalidStructureException(errorMessage, this.parser);
+                    throw new InvalidStructureException(errorMessage, parser);
                 }
             } else {
                 throw new InvalidStructureException("Expected <data> element in a <post> structure.",
                         parser);
             }
         }
-        return new SyncPost(url, postData);
+        return new SyncPost(url, relevantExpr, postData);
     }
 }
