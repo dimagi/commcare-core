@@ -2,10 +2,17 @@ package org.commcare.backend.session.test;
 
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.test_utils.ExprEvalUtils;
+import org.javarosa.xpath.XPathMissingInstanceException;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 
 import org.commcare.session.SessionFrame;
@@ -203,4 +210,68 @@ public class SessionStackTests {
         Assert.assertEquals(null, session.getNeededData());
     }
 
+    /**
+     * Test that instances stored on the session stack (from remote query
+     * results) are correctly popped off with the associated frame step
+     */
+    @Test
+    public void testInstancesOnStack() throws Exception {
+        mApp = new MockApp("/session-tests-template/");
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("patient-search");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+
+        SessionDatum datum = session.getNeededDatum();
+        String bolivarsId = "123";
+        TreeElement data = buildExampleInstanceRoot(bolivarsId);
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
+
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+                session.getEvaluationContext(),
+                bolivarsId);
+
+        Assert.assertEquals(SessionFrame.STATE_DATUM_VAL, session.getNeededData());
+        Assert.assertEquals("case_id", session.getNeededDatum().getDataId());
+        session.setDatum("case_id", "case_id_value");
+
+        session.stepBack();
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+                session.getEvaluationContext(),
+                bolivarsId);
+
+        session.stepBack();
+        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
+
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote(datum.getDataId(), data));
+        ExprEvalUtils.testEval("instance('patients')/patients/patient/bolivar",
+                session.getEvaluationContext(),
+                bolivarsId);
+
+        session.finishExecuteAndPop(session.getEvaluationContext());
+        assertInstanceMissing(session, "instance('patients')/patients/patient/bolivar");
+        ExprEvalUtils.testEval("instance('session')/session/data/case_id",
+                session.getEvaluationContext(),
+                bolivarsId);
+    }
+
+    protected static TreeElement buildExampleInstanceRoot(String bolivarsId) {
+        TreeElement root = new TreeElement("patients");
+        TreeElement data = new TreeElement("patient");
+        root.addChild(data);
+        TreeElement bolivar = new TreeElement("bolivar");
+        bolivar.setValue(new StringData(bolivarsId));
+        data.addChild(bolivar);
+        data.addChild(new TreeElement("sanjay"));
+        return root;
+    }
+
+    private static void assertInstanceMissing(SessionWrapper session, String xpath)
+            throws XPathSyntaxException {
+        try {
+            ExprEvalUtils.xpathEval(session.getEvaluationContext(), xpath);
+            Assert.fail("instance('patients') should not be available");
+        } catch (XPathMissingInstanceException e) {
+        }
+    }
 }

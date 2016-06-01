@@ -4,7 +4,6 @@ import org.commcare.suite.model.AssertionSet;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.RemoteQuery;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.SyncEntry;
@@ -12,9 +11,10 @@ import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.ViewEntry;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -62,7 +62,6 @@ public class EntryParser extends CommCareElementParser<Entry> {
         Vector<StackOperation> stackOps = new Vector<StackOperation>();
         AssertionSet assertions = null;
         SyncPost post = null;
-        Vector<RemoteQuery> queries = new Vector<RemoteQuery>();
 
         while (nextTagInBlock(parserBlockTag)) {
             String tagName = parser.getName();
@@ -77,7 +76,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             } else if ("instance".equals(tagName.toLowerCase())) {
                 parseInstance(instances);
             } else if ("session".equals(tagName)) {
-                parseSessionData(data, queries);
+                parseSessionData(data);
             } else if ("entity".equals(tagName) || "details".equals(tagName)) {
                 throw new InvalidStructureException("Incompatible CaseXML 1.0 elements detected in <" + parserBlockTag + ">. " +
                         tagName + " is not a valid construct in 2.0 CaseXML", parser);
@@ -106,10 +105,10 @@ public class EntryParser extends CommCareElementParser<Entry> {
         } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
             return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
         } else if (SYNC_REQUEST_TAG.equals(parserBlockTag)) {
-            return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post, queries);
+            return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post);
         }
 
-        throw new RuntimeException("Misconfigured entry parser");
+        throw new RuntimeException("Misconfigured entry parser with unsupported '" + parserBlockTag + "' tag.");
     }
 
     private DisplayUnit parseCommandDisplay() throws InvalidStructureException, IOException, XmlPullParserException {
@@ -128,14 +127,10 @@ public class EntryParser extends CommCareElementParser<Entry> {
         return display;
     }
 
-    private void parseSessionData(Vector<SessionDatum> data, Vector<RemoteQuery> queries) throws InvalidStructureException, IOException, XmlPullParserException {
+    private void parseSessionData(Vector<SessionDatum> data) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("session")) {
-            if ("query".equals(parser.getName())) {
-                queries.addElement(new SessionQueryParser(parser).parse());
-            } else {
-                SessionDatumParser parser = new SessionDatumParser(this.parser);
-                data.addElement(parser.parse());
-            }
+            SessionDatumParser datumParser = new SessionDatumParser(this.parser);
+            data.addElement(datumParser.parse());
         }
     }
 
@@ -154,12 +149,18 @@ public class EntryParser extends CommCareElementParser<Entry> {
 
     private SyncPost parsePost() throws InvalidStructureException, IOException, XmlPullParserException {
         String url = parser.getAttributeValue(null, "url");
-        Hashtable<String, TreeReference> postData = new Hashtable<String, TreeReference>();
+        Hashtable<String, XPathExpression> postData = new Hashtable<String, XPathExpression>();
         while (nextTagInBlock("post")) {
             if ("data".equals(parser.getName())) {
-                TreeReference ref = XPathReference.getPathExpr(parser.getAttributeValue(null, "ref")).getReference();
-                postData.put(parser.getAttributeValue(null, "key"), ref);
-            } else{
+                String refString = parser.getAttributeValue(null, "ref");
+                try {
+                    XPathExpression expr = XPathParseTool.parseXPath(refString);
+                    postData.put(parser.getAttributeValue(null, "key"), expr);
+                } catch (XPathSyntaxException e) {
+                    String errorMessage = "'ref' value is not a valid xpath expression: " + refString;
+                    throw new InvalidStructureException(errorMessage, this.parser);
+                }
+            } else {
                 throw new InvalidStructureException("Expected <data> element in a <post> structure.",
                         parser);
             }

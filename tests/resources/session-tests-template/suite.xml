@@ -87,6 +87,7 @@
       <text>Module 2 Form 0</text>
     </command>
     <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
     <session>
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
@@ -101,6 +102,53 @@
       <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='test_case'][@status='open']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" />
     </session>
   </entry>
+
+  <sync-request>
+    <post url="fake.com/claim_patient/">
+      <data key="selected_name" ref="instance('patients')/case/name"/>
+      <data key="selected_case_id" ref="instance('patients')/case/@case_id"/>
+    </post>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="session" src="jr://instance/session"/>
+    <command id="patient-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session>
+      <query url="fake.com/patient_search/" storage-instance="patients">
+        <data key="device_id" ref="instance('session')/session/data/uuid"/>
+        <data key="device_case_count" ref="instance('session')/session/data/case_count"/>
+        <prompt key="name">
+          <display>
+            <text>Input patient name</text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>Input patient id</text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/case[@case_type='geriatric'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2-f0'"/>
+        <datum id="case_id" value="instance('patients')/patients/patient/bolivar"/>
+      </create>
+    </stack>
+  </sync-request>
+
+  <sync-request>
+    <post url="fake.com/claim_patient/"/>
+    <command id="empty-sync-request">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <session/>
+  </sync-request>
 
   <menu id="m0">
     <text>

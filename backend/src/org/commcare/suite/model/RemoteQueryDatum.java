@@ -1,11 +1,11 @@
 package org.commcare.suite.model;
 
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
-import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,43 +18,47 @@ import java.util.Hashtable;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class RemoteQuery implements Externalizable {
-    private Hashtable<String, TreeReference> hiddenQueryValues;
+public class RemoteQueryDatum extends SessionDatum {
+    private Hashtable<String, XPathExpression> hiddenQueryValues;
     private Hashtable<String, DisplayUnit> userQueryPrompts;
-    private String storageInstance;
-    private String url;
 
     @SuppressWarnings("unused")
-    public RemoteQuery() {
+    public RemoteQueryDatum() {
     }
 
-    public RemoteQuery(String url, String storageInstance,
-                       Hashtable<String, TreeReference> hiddenQueryValues,
-                       Hashtable<String, DisplayUnit> userQueryPrompts) {
-        this.url = url;
-        this.storageInstance = storageInstance;
+    public RemoteQueryDatum(String url, String storageInstance,
+                            Hashtable<String, XPathExpression> hiddenQueryValues,
+                            Hashtable<String, DisplayUnit> userQueryPrompts) {
+        super(storageInstance, url);
         this.hiddenQueryValues = hiddenQueryValues;
         this.userQueryPrompts = userQueryPrompts;
+    }
+
+    public Hashtable<String, DisplayUnit> getUserQueryPrompts() {
+        return userQueryPrompts;
+    }
+
+    public Hashtable<String, XPathExpression> getHiddenQueryValues() {
+        return hiddenQueryValues;
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        url = ExtUtil.readString(in);
-        storageInstance = ExtUtil.readString(in);
+        super.readExternal(in, pf);
+
         hiddenQueryValues =
-                (Hashtable<String, TreeReference>)ExtUtil.read(in,
-                        new ExtWrapMap(String.class, TreeReference.class));
+                (Hashtable<String, XPathExpression>) ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
         userQueryPrompts =
-                (Hashtable<String, DisplayUnit>)ExtUtil.read(in,
-                        new ExtWrapMap(String.class, DisplayUnit.class));
+                (Hashtable<String, DisplayUnit>) ExtUtil.read(in,
+                        new ExtWrapMap(String.class, DisplayUnit.class), pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeString(out, url);
-        ExtUtil.writeString(out, storageInstance);
-        ExtUtil.write(out, new ExtWrapMap(hiddenQueryValues));
+        super.writeExternal(out);
+
+        ExtUtil.write(out, new ExtWrapMapPoly(hiddenQueryValues));
         ExtUtil.write(out, new ExtWrapMap(userQueryPrompts));
     }
 }

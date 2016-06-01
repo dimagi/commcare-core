@@ -3,6 +3,8 @@ package org.commcare.backend.session.test;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.SessionWrapper;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,4 +131,30 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_COMMAND_ID);
     }
 
+    @Test
+    public void testStepToSyncRequest() {
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("patient-search");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+
+        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+
+        // case_id
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        session.setDatum("case_id", "123");
+
+        // time to make sync request
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+    }
+
+    @Test
+    public void testInvokeEmptySyncRequest() {
+        SessionWrapper session = mApp.getSession();
+
+        session.setCommand("empty-sync-request");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
+    }
 }

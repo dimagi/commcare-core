@@ -78,6 +78,16 @@ public class CommCarePlatform implements CommCareInstance {
         return null;
     }
 
+    public Entry getEntry(String entryId) {
+        for(Suite s : getInstalledSuites()) {
+            Entry e = s.getEntry(entryId);
+            if(e != null) {
+                return e;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void setProfile(Profile p) {
         this.profile = p.getID();
