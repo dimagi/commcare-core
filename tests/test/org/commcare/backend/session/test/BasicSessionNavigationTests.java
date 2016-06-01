@@ -1,10 +1,12 @@
 package org.commcare.backend.session.test;
 
+import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -143,6 +145,27 @@ public class BasicSessionNavigationTests {
         Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 
+    /**
+     * Try selecting case already in local case db
+     */
+    @Test
+    public void testStepToIrrelevantSyncRequest() {
+        session.setCommand("patient-search");
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_QUERY_REQUEST);
+
+        TreeElement data = SessionStackTests.buildExampleInstanceRoot("some_patient_id");
+        session.setQueryDatum(ExternalDataInstance.buildFromRemote("patients", data));
+
+        // case_id
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_DATUM_VAL);
+        Assert.assertEquals(session.getNeededDatum().getDataId(), "case_id");
+        // select case present in user_restore
+        session.setDatum("case_id", "case_one");
+
+        // assert that relevancy condition of post request is false
+        Assert.assertEquals(session.getNeededData(), null);
+    }
+
     @Test
     public void testInvokeEmptySyncRequest() {
         SessionWrapper session = mApp.getSession();
@@ -154,9 +177,9 @@ public class BasicSessionNavigationTests {
     @Test
     public void testStepToSyncRequestRelevancy() {
         session.setCommand("irrelevant-sync-request");
-        Assert.assertEquals(session.getNeededData(session.getEvaluationContext()), null);
+        Assert.assertEquals(session.getNeededData(), null);
 
         session.setCommand("relevant-sync-request");
-        Assert.assertEquals(session.getNeededData(session.getEvaluationContext()), SessionFrame.STATE_SYNC_REQUEST);
+        Assert.assertEquals(session.getNeededData(), SessionFrame.STATE_SYNC_REQUEST);
     }
 }
