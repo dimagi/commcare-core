@@ -81,7 +81,7 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        collectedDatums = new OrderedHashtable<String, String>();
+        this.collectedDatums = new OrderedHashtable<String, String>();
         this.frame = new SessionFrame();
         this.frameStack = new Stack<SessionFrame>();
     }
@@ -189,7 +189,7 @@ public class CommCareSession {
      * @return One of the session SessionFrame.STATE_* strings, or null if
      * the session does not need anything else to proceed
      */
-    public String getNeededData() {
+    public String getNeededData(EvaluationContext evalContext) {
         if (currentCmd == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
@@ -199,7 +199,9 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
-        } else if (entries.size() == 1 && entries.elementAt(0) instanceof SyncEntry) {
+        } else if (entries.size() == 1
+                && entries.elementAt(0) instanceof SyncEntry
+                && ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext)) {
             return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
@@ -356,14 +358,14 @@ public class CommCareSession {
         return null;
     }
 
-    public void stepBack() {
+    public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
         popSessionFrameStack();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (this.getNeededData() == null ||
-                this.getNeededData().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+        while (this.getNeededData(evalContext) == null ||
+                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             popSessionFrameStack();
         }
     }
@@ -461,7 +463,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        if (e.isView()) {
+        if (e.isView() || e.isSync()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();

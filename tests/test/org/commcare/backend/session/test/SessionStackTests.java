@@ -272,6 +272,7 @@ public class SessionStackTests {
             ExprEvalUtils.xpathEval(session.getEvaluationContext(), xpath);
             Assert.fail("instance('patients') should not be available");
         } catch (XPathMissingInstanceException e) {
+            // expected
         }
     }
 }
