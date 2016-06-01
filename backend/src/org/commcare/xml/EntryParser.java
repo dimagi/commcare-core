@@ -105,7 +105,11 @@ public class EntryParser extends CommCareElementParser<Entry> {
         } else if (FORM_ENTRY_TAG.equals(parserBlockTag)) {
             return new FormEntry(commandId, display, data, xFormNamespace, instances, stackOps, assertions);
         } else if (SYNC_REQUEST_TAG.equals(parserBlockTag)) {
-            return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post);
+            if (post == null) {
+                throw new RuntimeException(SYNC_REQUEST_TAG + " must contain a <post> element");
+            } else {
+                return new SyncEntry(commandId, display, data, instances, stackOps, assertions, post);
+            }
         }
 
         throw new RuntimeException("Misconfigured entry parser with unsupported '" + parserBlockTag + "' tag.");
