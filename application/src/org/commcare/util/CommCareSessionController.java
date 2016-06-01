@@ -186,7 +186,7 @@ public class CommCareSessionController {
     }
 
     public void next() {
-        String next = session.getNeededData();
+        String next = session.getNeededData(session.getEvaluationContext(getIif()));
         if (next == null) {
             String xmlns = session.getForm();
 
@@ -389,7 +389,7 @@ public class CommCareSessionController {
     }
 
     protected void back() {
-        session.stepBack();
+        session.stepBack(session.getEvaluationContext(getIif()));
         next();
     }
 }
