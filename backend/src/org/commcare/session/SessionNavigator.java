@@ -28,6 +28,7 @@ public class SessionNavigator {
     public static final int XPATH_EXCEPTION_THROWN = 6;
     public static final int START_SYNC_REQUEST = 7;
     public static final int PROCESS_QUERY_REQUEST = 8;
+    public static final int REPORT_CASE_AUTOSELECT = 9;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -95,6 +96,7 @@ public class SessionNavigator {
         if (autoSelection == null) {
             sendResponse(START_ENTITY_SELECTION);
         } else {
+            sendResponse(REPORT_CASE_AUTOSELECT);
             this.currentAutoSelectedCase = autoSelection;
             handleAutoSelect();
         }
