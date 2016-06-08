@@ -608,7 +608,9 @@ public class ResourceTable {
         // Upgrade elements should result in their counterpart in this table
         // being unstaged (which can be reverted).
 
-        for (Resource r : incoming.getResources()) {
+
+        for (IStorageIterator it = incoming.storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             Resource peer = getResourceWithId(r.getResourceId());
             if (peer == null) {
                 // no corresponding resource in this table; use incoming
@@ -667,7 +669,8 @@ public class ResourceTable {
      */
     public void uninstall(ResourceTable replacement) {
         cleanup();
-        for (Resource r : getResources()) {
+        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             if (replacement.getResourceWithId(r.getResourceId()) == null ||
                     r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
                 // No entry in 'replacement' so it's no longer relevant
@@ -740,7 +743,8 @@ public class ResourceTable {
         }
 
         // Copy over all of our resources to the new table
-        for (Resource r : this.getResources()) {
+        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             r.setID(-1);
             newTable.commit(r);
         }
@@ -753,7 +757,8 @@ public class ResourceTable {
     public String toString() {
         StringBuffer resourceDetails = new StringBuffer();
         int maxLength = 0;
-        for (Resource r : getResources()) {
+        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             String line = "| " + r.getResourceId() + " | " + r.getVersion() +
                     " | " + getStatusString(r.getStatus()) + " |\n";
             resourceDetails.append(line);
@@ -838,7 +843,8 @@ public class ResourceTable {
 
     protected void cleanup() {
         parentCache.clear();
-        for (Resource r : getResources()) {
+        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             r.getInstaller().cleanup();
         }
     }
@@ -856,7 +862,8 @@ public class ResourceTable {
         // TODO: Replace this with some sort of sorted priority queue.
         Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
 
-        for (Resource r : this.getResources()) {
+        for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
             ResourceInstaller i = r.getInstaller();
             if (i.requiresRuntimeInitialization()) {
                 if (i instanceof ProfileInstaller) {
