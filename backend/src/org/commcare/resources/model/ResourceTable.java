@@ -650,27 +650,46 @@ public class ResourceTable {
     }
 
     /**
+     * Complete the uninstallation of a table that has been overwritten.
+     *
+     * This method is the final step in an update, after this table has
+     * already been moved to a placeholder table and been evaluated for
+     * what resources are no longer necessary.
+     *
+     * If this table encounters any problems it will not intentionally
+     * throw errors, assuming that it's preferable to leave data unremoved
+     * rather than breaking the app.
+     * ---
      * Flag unstaged resources and those not present in replacement table for
      * deletion.
      *
      * @param replacement Resources not in this table, flag for deletion
      */
-    public void flagForDeletions(ResourceTable replacement) {
-        Stack<Resource> s = this.getResourceStack();
-        while (!s.isEmpty()) {
-            Resource r = s.pop();
-
-            if (replacement.getResourceWithId(r.getResourceId()) == null) {
-                // no entry in 'replacement' so it's no longer relevant
-                this.commit(r, Resource.RESOURCE_STATUS_DELETE);
-                continue;
-            }
-
-            if (r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
-                // resource has been replaced, so flag for deletion
-                this.commit(r, Resource.RESOURCE_STATUS_DELETE);
+    public void uninstall(ResourceTable replacement) {
+        cleanup();
+        for (Resource r : getResources()) {
+            if (replacement.getResourceWithId(r.getResourceId()) == null ||
+                    r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
+                // No entry in 'replacement' so it's no longer relevant
+                // OR resource has been replaced, so flag for deletion
+                try {
+                    r.getInstaller().uninstall(r);
+                } catch (Exception e) {
+                    Logger.log("Resource", "Error uninstalling resource " +
+                            r.getRecordGuid() + ". " + e.getMessage());
+                }
+            } else if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
+                // NOTE: Shouldn't be a way for this condition to occur, but check anyways...
+                try {
+                    r.getInstaller().uninstall(r);
+                } catch (Exception e) {
+                    Logger.log("Resource", "Error uninstalling resource " +
+                            r.getRecordGuid() + ". " + e.getMessage());
+                }
             }
         }
+
+        storage.removeAll();
     }
 
 
@@ -709,36 +728,6 @@ public class ResourceTable {
             }
         }
     }
-
-    /**
-     * Complete the uninstallation of a table that has been overwritten.
-     *
-     * This method is the final step in an update, after this table has
-     * already been moved to a placeholder table and been evaluated for
-     * what resources are no longer necessary.
-     *
-     * If this table encounters any problems it will not intentionally
-     * throw errors, assuming that it's preferable to leave data unremoved
-     * rather than breaking the app.
-     */
-    public void completeUninstall() {
-        cleanup();
-        Stack<Resource> s = this.getResourceStack();
-        while (!s.isEmpty()) {
-            Resource r = s.pop();
-            if (r.getStatus() == Resource.RESOURCE_STATUS_DELETE) {
-                try {
-                    r.getInstaller().uninstall(r);
-                } catch (Exception e) {
-                    Logger.log("Resource", "Error uninstalling resource " +
-                            r.getRecordGuid() + ". " + e.getMessage());
-                }
-            }
-        }
-
-        storage.removeAll();
-    }
-
 
     /**
      * Copy all of this table's resource records to the (empty) table provided.
