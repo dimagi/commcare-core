@@ -608,19 +608,15 @@ public class ResourceTable {
         // Upgrade elements should result in their counterpart in this table
         // being unstaged (which can be reverted).
 
-        Stack<Resource> resources = incoming.getResourceStack();
-        while (!resources.isEmpty()) {
-            Resource r = resources.pop();
-            Resource peer = this.getResourceWithId(r.getResourceId());
+        for (Resource r : incoming.getResources()) {
+            Resource peer = getResourceWithId(r.getResourceId());
             if (peer == null) {
                 // no corresponding resource in this table; use incoming
-                // XXX PLM: Why is this needed? Only ever called on global
-                // table, which is thrown away and replaced by incoming table
-                this.addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
+                addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
             } else {
                 if (r.isNewer(peer)) {
                     // Mark as being ready to transition
-                    this.commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
+                    commit(peer, Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE);
 
                     if (!peer.getInstaller().unstage(peer, Resource.RESOURCE_STATUS_UNSTAGED)) {
                         // TODO: revert this resource table!
