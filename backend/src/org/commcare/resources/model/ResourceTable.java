@@ -50,10 +50,13 @@ public class ResourceTable {
 
     private int numberOfLossyRetries = 3;
 
-    /**
-     * For Serialization Only!
-     */
     public ResourceTable() {
+    }
+
+    protected ResourceTable(IStorageUtilityIndexed storage,
+                            InstallerFactory factory) {
+        this.storage = storage;
+        this.factory = factory;
     }
 
     public boolean isEmpty() {
@@ -66,10 +69,7 @@ public class ResourceTable {
 
     public static ResourceTable RetrieveTable(IStorageUtilityIndexed storage,
                                               InstallerFactory factory) {
-        ResourceTable table = new ResourceTable();
-        table.storage = storage;
-        table.factory = factory;
-        return table;
+        return new ResourceTable(storage, factory);
     }
 
     public int getTableReadiness() {
