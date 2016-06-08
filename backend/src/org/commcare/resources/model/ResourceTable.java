@@ -12,6 +12,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 import java.util.Vector;
@@ -50,6 +51,7 @@ public class ResourceTable {
 
     private int numberOfLossyRetries = 3;
     private boolean recalcResourceProgress = false;
+    private Hashtable<String, Resource> parentCache = new Hashtable<String, Resource>();
 
     public ResourceTable() {
     }
@@ -127,6 +129,7 @@ public class ResourceTable {
     }
 
     public void removeResource(Resource resource) {
+        parentCache.remove(resource.getResourceId());
         storage.remove(resource);
     }
 
@@ -201,10 +204,16 @@ public class ResourceTable {
     protected Resource getParentResource(Resource resource) {
         String parentId = resource.getParentId();
         if (parentId != null && !"".equals(parentId)) {
-            try {
-                return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, parentId);
-            } catch (NoSuchElementException nsee) {
-                return null;
+            if (parentCache.containsKey(parentId)) {
+                return parentCache.get(parentId);
+            } else {
+                try {
+                    Resource parent = (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, parentId);
+                    parentCache.put(parentId, parent);
+                    return parent;
+                } catch (NoSuchElementException nsee) {
+                    return null;
+                }
             }
         }
         return null;
@@ -306,6 +315,7 @@ public class ResourceTable {
     }
 
     public void commitCompoundResource(Resource r, int status) {
+        parentCache.put(r.getResourceId(), r);
         recalcResourceProgress = true;
         commit(r, status);
     }
@@ -842,6 +852,7 @@ public class ResourceTable {
     }
 
     protected void cleanup() {
+        parentCache.clear();
         for (Resource r : getResources()) {
             r.getInstaller().cleanup();
         }
