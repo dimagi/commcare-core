@@ -49,6 +49,7 @@ public class ResourceTable {
     private InstallStatsLogger installStatsLogger = null;
 
     private int numberOfLossyRetries = 3;
+    private boolean recalcResourceProgress = false;
 
     public ResourceTable() {
     }
@@ -293,7 +294,7 @@ public class ResourceTable {
         return getUnreadyResources().size() == 0;
     }
 
-    public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
+    public void commitProfileResource(Resource r, int status, int version) throws UnresolvedResourceException {
         if (r.getVersion() == Resource.RESOURCE_VERSION_UNKNOWN) {
             // Try to update the version.
             r.setVersion(version);
@@ -301,6 +302,11 @@ public class ResourceTable {
             // Otherwise, someone screwed up
             Logger.log("Resource", "committing a resource with a known version.");
         }
+        commitCompoundResource(r, status);
+    }
+
+    public void commitCompoundResource(Resource r, int status) {
+        recalcResourceProgress = true;
         commit(r, status);
     }
 
@@ -476,13 +482,16 @@ public class ResourceTable {
             // in the master table
             Resource peer = master.getResourceWithId(r.getResourceId());
             if (peer != null) {
-                // TODO: For now we're assuming that Versions greater
-                // than the current are always acceptable
                 if (!r.isNewer(peer)) {
                     // This resource doesn't need to be updated, copy
                     // the existing resource into this table
                     peer.mimick(r);
                     commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
+
+                    if (stateListener != null) {
+                        // incremental update
+                        stateListener.resourceStateIncremented();
+                    }
                     return;
                 }
 
@@ -496,7 +505,12 @@ public class ResourceTable {
         findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
 
         if (stateListener != null) {
-            stateListener.resourceStateUpdated(this);
+            if (recalcResourceProgress) {
+                recalcResourceProgress = false;
+                stateListener.resourceStateUpdated(this);
+            } else {
+                stateListener.resourceStateIncremented();
+            }
         }
     }
 
