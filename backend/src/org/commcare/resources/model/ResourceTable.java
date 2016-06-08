@@ -197,6 +197,18 @@ public class ResourceTable {
         }
     }
 
+    protected Resource getParentResource(Resource resource) {
+        String parentId = resource.getParentId();
+        if (parentId != null && !"".equals(parentId)) {
+            try {
+                return (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, parentId);
+            } catch (NoSuchElementException nsee) {
+                return null;
+            }
+        }
+        return null;
+    }
+
     /**
      * Get the all the resources in this table's storage.
      */
@@ -865,7 +877,7 @@ public class ResourceTable {
         for (ResourceLocation location : r.getLocations()) {
             if (location.isRelative()) {
                 if (r.hasParent()) {
-                    Resource parent = t.getResourceWithGuid(r.getParentId());
+                    Resource parent = t.getParentResource(r);
                     if (parent != null) {
                         // Get local references for the parent resource's
                         // locations
@@ -902,11 +914,11 @@ public class ResourceTable {
         Vector<Reference> ret = new Vector<Reference>();
 
         if (r.hasParent()) {
-            Resource parent = t.getResourceWithGuid(r.getParentId());
+            Resource parent = t.getParentResource(r);
 
             // If the local table doesn't have the parent ref, try the master
             if (parent == null && m != null) {
-                parent = m.getResourceWithGuid(r.getParentId());
+                parent = m.getParentResource(r);
             }
 
             if (parent != null) {
@@ -944,12 +956,12 @@ public class ResourceTable {
             if (location.getAuthority() == type) {
                 if (location.isRelative()) {
                     if (r.hasParent()) {
-                        Resource parent = t.getResourceWithGuid(r.getParentId());
+                        Resource parent = t.getParentResource(r);
 
                         // If the local table doesn't have the parent ref, try
                         // the master
                         if (parent == null) {
-                            parent = m.getResourceWithGuid(r.getParentId());
+                            parent = m.getParentResource(r);
                         }
                         if (parent != null) {
                             // Get all local references for the parent
