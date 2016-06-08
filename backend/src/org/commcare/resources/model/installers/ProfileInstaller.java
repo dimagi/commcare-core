@@ -48,9 +48,7 @@ public class ProfileInstaller extends CacheInstaller {
         return localTable;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-     */
+    @Override
     public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
         //Certain properties may not have been able to set during install, so we'll make sure they're
         //set here.
@@ -61,9 +59,7 @@ public class ProfileInstaller extends CacheInstaller {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
@@ -72,6 +68,7 @@ public class ProfileInstaller extends CacheInstaller {
         return Profile.STORAGE_KEY;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location,
                            Reference ref, ResourceTable table,
                            CommCareInstance instance, boolean upgrade)
@@ -104,8 +101,8 @@ public class ProfileInstaller extends CacheInstaller {
                 Profile p;
                 try {
                     incoming = ref.getStream();
-                    ProfileParser parser = new ProfileParser(incoming, instance, table, r.getRecordGuid(),
-                            Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
+                    ProfileParser parser = new ProfileParser(incoming, instance, table,
+                            r.getRecordGuid(), Resource.RESOURCE_STATUS_UNINITIALIZED, forceVersion);
                     if (Resource.RESOURCE_AUTHORITY_REMOTE == location.getAuthority()) {
                         parser.setMaximumAuthority(Resource.RESOURCE_AUTHORITY_REMOTE);
                     }

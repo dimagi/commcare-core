@@ -1,5 +1,6 @@
 package org.commcare.suite.model;
 
+import org.commcare.util.SignatureVerifier;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.storage.Persistable;
@@ -12,6 +13,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -37,6 +39,7 @@ public class Profile implements Persistable {
     private Vector<PropertySetter> properties;
     private Vector<RootTranslator> roots;
     private Hashtable<String, Boolean> featureStatus;
+    private Hashtable<String, SignedPermission> signedPermissions;
 
     private String uniqueId;
     private String displayName;
@@ -74,6 +77,7 @@ public class Profile implements Persistable {
         properties = new Vector<PropertySetter>();
         roots = new Vector<RootTranslator>();
         featureStatus = new Hashtable<String, Boolean>();
+        signedPermissions = new Hashtable<String, SignedPermission>();
 
         //turn on default features
         featureStatus.put("users", new Boolean(true));
@@ -169,6 +173,34 @@ public class Profile implements Persistable {
         return setters;
     }
 
+    public void addSignedPermission(SignedPermission perm) {
+        signedPermissions.put(perm.getKey(), perm);
+    }
+
+    public void addSignedPermission(String key, String value, String signature) {
+        addSignedPermission(new SignedPermission(key, value, signature));
+    }
+
+    public void verifySignedPermissions(SignatureVerifier verifier) {
+        Enumeration perms = signedPermissions.elements();
+        while (perms.hasMoreElements()) {
+            ((SignedPermission)perms.nextElement()).verifyValue(verifier);
+        }
+    }
+
+    private String getSignedPermissionValue(String key) {
+        SignedPermission perm = signedPermissions.get(key);
+        if (perm != null) {
+            return perm.getVerifiedValue();
+        } else {
+            return SignedPermission.getDefaultValue(key);
+        }
+    }
+
+    public String getMultipleAppsCompatibility() {
+        return getSignedPermissionValue(SignedPermission.KEY_MULTIPLE_APPS_COMPATIBILITY);
+    }
+
     public void setFeatureActive(String feature, boolean active) {
         this.featureStatus.put(feature, new Boolean(active));
     }
@@ -206,6 +238,7 @@ public class Profile implements Persistable {
         properties = (Vector<PropertySetter>)ExtUtil.read(in, new ExtWrapList(PropertySetter.class), pf);
         roots = (Vector<RootTranslator>)ExtUtil.read(in, new ExtWrapList(RootTranslator.class), pf);
         featureStatus = (Hashtable<String, Boolean>)ExtUtil.read(in, new ExtWrapMap(String.class, Boolean.class), pf);
+        signedPermissions = (Hashtable<String, SignedPermission>)ExtUtil.read(in, new ExtWrapMap(String.class, SignedPermission.class));
     }
 
     @Override
@@ -220,5 +253,6 @@ public class Profile implements Persistable {
         ExtUtil.write(out, new ExtWrapList(properties));
         ExtUtil.write(out, new ExtWrapList(roots));
         ExtUtil.write(out, new ExtWrapMap(featureStatus));
+        ExtUtil.write(out, new ExtWrapMap(signedPermissions));
     }
 }

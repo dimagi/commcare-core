@@ -74,7 +74,7 @@ public class OpenRosaApiResponseProcessor {
             }
         }
         //throw some exception
-        throw new UnfullfilledRequirementsException("Unrecognized response type", CommCareElementParser.SEVERITY_ENVIRONMENT);
+        throw new UnfullfilledRequirementsException("Unrecognized response type", UnfullfilledRequirementsException.SEVERITY_ENVIRONMENT);
     }
 
     public String[] getCompiledResponses() {

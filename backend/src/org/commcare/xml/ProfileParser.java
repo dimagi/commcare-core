@@ -32,8 +32,7 @@ public class ProfileParser extends ElementParser<Profile> {
     int maximumResourceAuthority = -1;
 
     public ProfileParser(InputStream suiteStream, CommCareInstance instance, ResourceTable table,
-                         String resourceId, int initialResourceStatus, boolean forceVersion)
-            throws IOException {
+            String resourceId, int initialResourceStatus, boolean forceVersion) throws IOException {
 
         super(ElementParser.instantiateParser(suiteStream));
         this.table = table;
@@ -115,8 +114,8 @@ public class ProfileParser extends ElementParser<Profile> {
                 throw new UnfullfilledRequirementsException(
                         "Major Version Mismatch (Required: " + major + " | Available: " +
                                 this.instance.getMajorVersion() + ")",
-                        CommCareElementParser.SEVERITY_PROMPT,
-                        CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION, major,
+                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                        UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION, major,
                         minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
 
@@ -126,8 +125,8 @@ public class ProfileParser extends ElementParser<Profile> {
                 throw new UnfullfilledRequirementsException(
                         "Minor Version Mismatch (Required: " + minor + " | Available: " +
                                 this.instance.getMinorVersion() + ")",
-                        CommCareElementParser.SEVERITY_PROMPT,
-                        CommCareElementParser.REQUIREMENT_MINOR_APP_VERSION, major,
+                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                        UnfullfilledRequirementsException.REQUIREMENT_MINOR_APP_VERSION, major,
                         minor, this.instance.getMajorVersion(), this.instance.getMinorVersion());
             }
         }
@@ -156,7 +155,13 @@ public class ProfileParser extends ElementParser<Profile> {
         String key = parser.getAttributeValue(null, "key");
         String value = parser.getAttributeValue(null, "value");
         String force = parser.getAttributeValue(null, "force");
-        addPropertySetter(profile, key, value, force);
+        String signature = parser.getAttributeValue(null, "signature");
+
+        if (signature != null) {
+            profile.addSignedPermission(key, value, signature);
+        } else {
+            addPropertySetter(profile, key, value, force);
+        }
     }
 
     private void addPropertySetter(Profile profile, String key, String value, String force) {
