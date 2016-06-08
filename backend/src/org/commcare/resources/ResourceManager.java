@@ -233,8 +233,7 @@ public class ResourceManager {
                 upgradeTable.destroy();
 
                 Logger.log("Resource", "Clearing out old resources");
-                tempTable.flagForDeletions(masterTable);
-                tempTable.completeUninstall();
+                tempTable.uninstall(masterTable);
             } finally {
                 if (!upgradeSuccess) {
                     repair();
