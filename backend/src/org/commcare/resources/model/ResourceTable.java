@@ -436,17 +436,30 @@ public class ResourceTable {
     public void prepareResources(ResourceTable master, CommCareInstance instance)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
 
+        Hashtable<String, Resource> masterResourceMap = null;
+        if (master != null) {
+            masterResourceMap = getResourceMap(master);
+        }
         Vector<Resource> unreadyResources = getUnreadyResources();
 
         // install all unready resources.
         while (!unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, instance, r);
+                prepareResource(master, instance, r, masterResourceMap);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
             unreadyResources = getUnreadyResources();
         }
+    }
+
+    private static Hashtable<String, Resource> getResourceMap(ResourceTable table) {
+        Hashtable<String, Resource> resourceMap = new Hashtable<String, Resource>();
+        for (IStorageIterator it = table.storage.iterate(); it.hasMore(); ) {
+            Resource r = (Resource)it.nextRecord();
+            resourceMap.put(r.getResourceId(), r);
+        }
+        return resourceMap;
     }
 
     /**
@@ -472,7 +485,7 @@ public class ResourceTable {
         // install unready resources, until toInitialize has been installed.
         while (isResourceUninitialized(toInitialize) && !unreadyResources.isEmpty()) {
             for (Resource r : unreadyResources) {
-                prepareResource(master, instance, r);
+                prepareResource(master, instance, r, null);
             }
             // Installing resources may have exposed more unready resources
             // that need installing.
@@ -481,16 +494,21 @@ public class ResourceTable {
     }
 
     private void prepareResource(ResourceTable master, CommCareInstance instance,
-                                 Resource r)
+                                 Resource r, Hashtable<String, Resource> masterResourceMap)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
         Vector<Reference> invalid = new Vector<Reference>();
 
         if (master != null) {
+            Resource peer;
             // obtain resource peer by looking up the current resource
             // in the master table
-            Resource peer = master.getResourceWithId(r.getResourceId());
+            if (masterResourceMap == null) {
+                peer = master.getResourceWithId(r.getResourceId());
+            } else {
+                peer = masterResourceMap.get(r.getResourceId());
+            }
             if (peer != null) {
                 if (!r.isNewer(peer)) {
                     // This resource doesn't need to be updated, copy
@@ -607,11 +625,10 @@ public class ResourceTable {
         // Everything incoming should be marked either ready or upgrade.
         // Upgrade elements should result in their counterpart in this table
         // being unstaged (which can be reverted).
-
-
+        Hashtable<String, Resource> resourceMap = getResourceMap(this);
         for (IStorageIterator it = incoming.storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
-            Resource peer = getResourceWithId(r.getResourceId());
+            Resource peer = resourceMap.get(r.getResourceId());
             if (peer == null) {
                 // no corresponding resource in this table; use incoming
                 addResource(r, Resource.RESOURCE_STATUS_INSTALLED);
@@ -669,9 +686,10 @@ public class ResourceTable {
      */
     public void uninstall(ResourceTable replacement) {
         cleanup();
+        Hashtable<String, Resource> replacementMap = getResourceMap(replacement);
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
-            if (replacement.getResourceWithId(r.getResourceId()) == null ||
+            if (replacementMap.get(r.getResourceId()) == null ||
                     r.getStatus() == Resource.RESOURCE_STATUS_UNSTAGED) {
                 // No entry in 'replacement' so it's no longer relevant
                 // OR resource has been replaced, so flag for deletion
