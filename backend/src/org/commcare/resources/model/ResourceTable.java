@@ -146,7 +146,8 @@ public class ResourceTable {
             addResourceInner(resource, status);
         } 
     }
-    private boolean resourceDoesntExist(Resource resource) {
+
+    protected boolean resourceDoesntExist(Resource resource) {
         return storage.getIDsForValue(Resource.META_INDEX_RESOURCE_ID, resource.getResourceId()).size() == 0;
     }
 
@@ -165,7 +166,7 @@ public class ResourceTable {
         }
 
         try {
-            storage.write(resource);
+            commit(resource);
         } catch (StorageFullException e) {
             e.printStackTrace();
         }
@@ -814,7 +815,7 @@ public class ResourceTable {
         storage.removeAll();
     }
 
-    private void cleanup() {
+    protected void cleanup() {
         for (Resource r : getResources()) {
             r.getInstaller().cleanup();
         }
