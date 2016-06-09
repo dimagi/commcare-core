@@ -50,8 +50,15 @@ public class ResourceTable {
     private InstallStatsLogger installStatsLogger = null;
 
     private int numberOfLossyRetries = 3;
-    private boolean recalcResourceProgress = false;
-    private Hashtable<String, Resource> parentCache = new Hashtable<String, Resource>();
+    // Tracks whether a compound resource has been added, requiring
+    // recalculation of how many uninstalled resources there are.  Where
+    // 'compound resources' are those that contain references to more
+    // resources, such as profile and suite resources.
+    private boolean isResourceProgressStale = false;
+    // Cache for profile and suite 'parent' resources which are used in
+    // references resolution
+    private Hashtable<String, Resource> compoundResourceCache =
+            new Hashtable<String, Resource>();
 
     public ResourceTable() {
     }
@@ -129,7 +136,7 @@ public class ResourceTable {
     }
 
     public void removeResource(Resource resource) {
-        parentCache.remove(resource.getResourceId());
+        compoundResourceCache.remove(resource.getResourceId());
         storage.remove(resource);
     }
 
@@ -201,15 +208,16 @@ public class ResourceTable {
         }
     }
 
-    protected Resource getParentResource(Resource resource) {
+    private Resource getParentResource(Resource resource) {
         String parentId = resource.getParentId();
         if (parentId != null && !"".equals(parentId)) {
-            if (parentCache.containsKey(parentId)) {
-                return parentCache.get(parentId);
+            if (compoundResourceCache.containsKey(parentId)) {
+                return compoundResourceCache.get(parentId);
             } else {
                 try {
-                    Resource parent = (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, parentId);
-                    parentCache.put(parentId, parent);
+                    Resource parent =
+                            (Resource)storage.getRecordForValue(Resource.META_INDEX_RESOURCE_GUID, parentId);
+                    compoundResourceCache.put(parentId, parent);
                     return parent;
                 } catch (NoSuchElementException nsee) {
                     return null;
@@ -303,7 +311,8 @@ public class ResourceTable {
         return getUnreadyResources().size() == 0;
     }
 
-    public void commitProfileResource(Resource r, int status, int version) throws UnresolvedResourceException {
+    public void commitCompoundResource(Resource r, int status, int version)
+            throws UnresolvedResourceException {
         if (r.getVersion() == Resource.RESOURCE_VERSION_UNKNOWN) {
             // Try to update the version.
             r.setVersion(version);
@@ -314,9 +323,14 @@ public class ResourceTable {
         commitCompoundResource(r, status);
     }
 
+    /**
+     * Add a 'compound' resource, which has references to other resources.
+     *
+     * @param r profile, suite, media suite, or other 'compound' resource
+     */
     public void commitCompoundResource(Resource r, int status) {
-        parentCache.put(r.getResourceId(), r);
-        recalcResourceProgress = true;
+        compoundResourceCache.put(r.getResourceId(), r);
+        isResourceProgressStale = true;
         commit(r, status);
     }
 
@@ -438,6 +452,8 @@ public class ResourceTable {
 
         Hashtable<String, Resource> masterResourceMap = null;
         if (master != null) {
+            // avoid hitting storage in loops by front-loading resource
+            // acquisition from master table
             masterResourceMap = getResourceMap(master);
         }
         Vector<Resource> unreadyResources = getUnreadyResources();
@@ -493,6 +509,14 @@ public class ResourceTable {
         }
     }
 
+    /**
+     * @param master            The global resource to prepare against. Used to
+     *                          establish whether resources need to be fetched
+     *                          remotely
+     * @param masterResourceMap Map from resource id to resources for master
+     *                          table. Null when 'master' is, or when
+     *                          pre-loading the resource map isn't worth it.
+     */
     private void prepareResource(ResourceTable master, CommCareInstance instance,
                                  Resource r, Hashtable<String, Resource> masterResourceMap)
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
@@ -517,8 +541,9 @@ public class ResourceTable {
                     commit(peer, Resource.RESOURCE_STATUS_INSTALLED);
 
                     if (stateListener != null) {
-                        // incremental update
-                        stateListener.resourceStateIncremented();
+                        // copying a resource over shouldn't add anymore
+                        // resources to be processed
+                        stateListener.simpleResourceAdded();
                     }
                     return;
                 }
@@ -533,11 +558,12 @@ public class ResourceTable {
         findResourceLocationAndInstall(r, invalid, upgrade, instance, master);
 
         if (stateListener != null) {
-            if (recalcResourceProgress) {
-                recalcResourceProgress = false;
-                stateListener.resourceStateUpdated(this);
+            if (isResourceProgressStale) {
+                // a compound resource was added, recalculate total resource count
+                isResourceProgressStale = false;
+                stateListener.compoundResourceAdded(this);
             } else {
-                stateListener.resourceStateIncremented();
+                stateListener.simpleResourceAdded();
             }
         }
     }
@@ -669,7 +695,8 @@ public class ResourceTable {
     }
 
     /**
-     * Complete the uninstallation of a table that has been overwritten.
+     * Uninstall table by removing unstaged resources and those not present in
+     * replacement table
      *
      * This method is the final step in an update, after this table has
      * already been moved to a placeholder table and been evaluated for
@@ -678,11 +705,9 @@ public class ResourceTable {
      * If this table encounters any problems it will not intentionally
      * throw errors, assuming that it's preferable to leave data unremoved
      * rather than breaking the app.
-     * ---
-     * Flag unstaged resources and those not present in replacement table for
-     * deletion.
      *
-     * @param replacement Resources not in this table, flag for deletion
+     * @param replacement Reference table; uninstall resources not also present
+     *                    in this table
      */
     public void uninstall(ResourceTable replacement) {
         cleanup();
@@ -860,7 +885,7 @@ public class ResourceTable {
     }
 
     protected void cleanup() {
-        parentCache.clear();
+        compoundResourceCache.clear();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             r.getInstaller().cleanup();

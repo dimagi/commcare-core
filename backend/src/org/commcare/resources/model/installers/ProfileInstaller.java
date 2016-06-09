@@ -120,12 +120,12 @@ public class ProfileInstaller extends CacheInstaller {
                 //If we're upgrading we need to come back and see if the statuses need to change
                 if (upgrade) {
                     getlocal().put(r.getRecordGuid(), p);
-                    table.commitProfileResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
+                    table.commitCompoundResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
                 } else {
                     p.initializeProperties(true);
                     installInternal(p);
                     //TODO: What if this fails? Maybe we should be throwing exceptions...
-                    table.commitProfileResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+                    table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
                 }
 
                 return true;
