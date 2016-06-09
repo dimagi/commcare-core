@@ -341,12 +341,12 @@ public class CommCareConfigEngine {
         int lastComplete = 0;
 
         @Override
-        public void resourceStateIncremented() {
+        public void simpleResourceAdded() {
 
         }
 
         @Override
-        public void resourceStateUpdated(ResourceTable table) {
+        public void compoundResourceAdded(ResourceTable table) {
 
         }
 
