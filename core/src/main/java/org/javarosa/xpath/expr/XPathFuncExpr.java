@@ -10,6 +10,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -879,7 +880,7 @@ public class XPathFuncExpr extends XPathExpression {
         String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
-        String[] entries = selection.split("[ ]+");
+        String[] entries = DataUtil.splitOnSpaces(selection);
 
         if (entries.length <= index) {
             throw new XPathException("Attempting to select element " + index +

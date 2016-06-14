@@ -1,5 +1,7 @@
 package org.javarosa.core.util;
 
+import org.javarosa.core.model.utils.DateUtils;
+
 import java.util.Vector;
 
 /**
@@ -12,6 +14,7 @@ public class DataUtil {
     static Integer[] iarray;
 
     static UnionLambda unionLambda = new UnionLambda();
+    static StringSplitter stringSplitter = new StringSplitter();
 
     /**
      * Get Integer object that corresponds to int argument from a
@@ -55,4 +58,20 @@ public class DataUtil {
             return u;
         }
     }
+
+    public static String[] splitOnSpaces(String s) {
+        return stringSplitter.splitOnSpaces(s);
+    }
+
+    public static void setStringSplitter(StringSplitter newStringSplitter) {
+        stringSplitter = newStringSplitter;
+    }
+
+    public static class StringSplitter {
+        public String[] splitOnSpaces(String s) {
+            Vector<String> vectorSplit = DateUtils.split(s, " ", true);
+            return vectorSplit.toArray(new String[vectorSplit.size()]);
+        }
+    }
+
 }
