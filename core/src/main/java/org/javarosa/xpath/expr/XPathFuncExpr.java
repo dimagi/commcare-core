@@ -867,7 +867,7 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         String s = (String)evalResult;
-        return new Double(DateUtils.split(s, " ", true).size());
+        return new Double(DataUtil.splitOnSpaces(s).length);
     }
 
     /**

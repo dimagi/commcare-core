@@ -63,13 +63,41 @@ public class DataUtil {
         return stringSplitter.splitOnSpaces(s);
     }
 
+    public static String[] splitOnDash(String s) {
+        return stringSplitter.splitOnDash(s);
+    }
+
+    public static String[] splitOnColon(String s) {
+        return stringSplitter.splitOnColon(s);
+    }
+
+    public static String[] splitOnPlus(String s) {
+        return stringSplitter.splitOnPlus(s);
+    }
+
     public static void setStringSplitter(StringSplitter newStringSplitter) {
         stringSplitter = newStringSplitter;
     }
 
     public static class StringSplitter {
+
         public String[] splitOnSpaces(String s) {
             Vector<String> vectorSplit = DateUtils.split(s, " ", true);
+            return vectorSplit.toArray(new String[vectorSplit.size()]);
+        }
+
+        public String[] splitOnDash(String s) {
+            Vector<String> vectorSplit = DateUtils.split(s, "-", false);
+            return vectorSplit.toArray(new String[vectorSplit.size()]);
+        }
+
+        public String[] splitOnColon(String s) {
+            Vector<String> vectorSplit = DateUtils.split(s, ":", false);
+            return vectorSplit.toArray(new String[vectorSplit.size()]);
+        }
+
+        public String[] splitOnPlus(String s) {
+            Vector<String> vectorSplit = DateUtils.split(s, "+", false);
             return vectorSplit.toArray(new String[vectorSplit.size()]);
         }
     }
