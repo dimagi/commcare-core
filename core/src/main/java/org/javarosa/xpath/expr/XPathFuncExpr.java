@@ -879,13 +879,13 @@ public class XPathFuncExpr extends XPathExpression {
         String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
-        Vector<String> entries = DateUtils.split(selection, " ", true);
+        String[] entries = selection.split("[ ]+");
 
-        if (entries.size() <= index) {
+        if (entries.length <= index) {
             throw new XPathException("Attempting to select element " + index +
-                    " of a list with only " + entries.size() + " elements.");
+                    " of a list with only " + entries.length + " elements.");
         } else {
-            return entries.elementAt(index);
+            return entries[index];
         }
     }
 
