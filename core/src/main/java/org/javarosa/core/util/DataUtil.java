@@ -81,24 +81,34 @@ public class DataUtil {
 
         public String[] splitOnSpaces(String s) {
             Vector<String> vectorSplit = split(s, " ", true);
-            return vectorSplit.toArray(new String[vectorSplit.size()]);
+            return stringVectorToArray(vectorSplit);
         }
 
         public String[] splitOnDash(String s) {
             Vector<String> vectorSplit = split(s, "-", false);
-            return vectorSplit.toArray(new String[vectorSplit.size()]);
+            return stringVectorToArray(vectorSplit);
         }
 
         public String[] splitOnColon(String s) {
             Vector<String> vectorSplit = split(s, ":", false);
-            return vectorSplit.toArray(new String[vectorSplit.size()]);
+            return stringVectorToArray(vectorSplit);
         }
 
         public String[] splitOnPlus(String s) {
             Vector<String> vectorSplit = split(s, "+", false);
-            return vectorSplit.toArray(new String[vectorSplit.size()]);
+            return stringVectorToArray(vectorSplit);
+        }
+
+        private static String[] stringVectorToArray(Vector<String> v) {
+            String [] arr = new String[v.size()];
+            for (int i = 0; i < v.size(); i++) {
+                arr[i] = v.get(i);
+            }
+            return arr;
         }
     }
+
+
 
     /**
      * Custom implementation of tokenizing a string based on a delimiter, for use in j2me
