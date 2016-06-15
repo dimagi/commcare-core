@@ -1,7 +1,5 @@
 package org.javarosa.core.util;
 
-import org.javarosa.core.model.utils.DateUtils;
-
 import java.util.Vector;
 
 /**

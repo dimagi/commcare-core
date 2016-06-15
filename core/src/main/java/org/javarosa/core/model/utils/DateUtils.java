@@ -7,7 +7,6 @@ import org.javarosa.core.util.MathUtils;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Vector;
 
 /**
  * Static utility methods for Dates in j2me
