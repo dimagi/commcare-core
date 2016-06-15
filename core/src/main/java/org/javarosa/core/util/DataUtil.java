@@ -103,7 +103,8 @@ public class DataUtil {
     }
 
     /**
-     * Tokenizes a string based on the given delimiter string
+     * Custom implementation of tokenizing a string based on a delimiter, for use in j2me
+     * (Java's String.split() method was not available until Java 1.4)
      *
      * @param str                       The string to be split
      * @param delimiter                 The delimeter to be used
