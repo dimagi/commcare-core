@@ -102,7 +102,7 @@ public class DataUtil {
         private static String[] stringVectorToArray(Vector<String> v) {
             String [] arr = new String[v.size()];
             for (int i = 0; i < v.size(); i++) {
-                arr[i] = v.get(i);
+                arr[i] = v.elementAt(i);
             }
             return arr;
         }
