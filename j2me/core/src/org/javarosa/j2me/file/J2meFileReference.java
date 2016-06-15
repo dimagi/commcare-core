@@ -3,7 +3,7 @@
  */
 package org.javarosa.j2me.file;
 
-import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.reference.Reference;
 
 import java.io.IOException;
