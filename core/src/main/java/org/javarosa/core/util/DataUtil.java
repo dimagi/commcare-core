@@ -112,7 +112,7 @@ public class DataUtil {
      *                                  remove the empty strings created by their split
      * @return A vector of strings contained in original which were separated by the delimiter
      */
-    private static Vector<String> split(String str, String delimiter, boolean combineMultipleDelimiters) {
+    public static Vector<String> split(String str, String delimiter, boolean combineMultipleDelimiters) {
         Vector<String> pieces = new Vector<String>();
 
         int index = str.indexOf(delimiter);
