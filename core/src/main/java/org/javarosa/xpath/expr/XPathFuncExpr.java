@@ -10,6 +10,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.model.utils.GeoPointUtils;
 import org.javarosa.core.util.CacheTable;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -866,7 +867,7 @@ public class XPathFuncExpr extends XPathExpression {
         }
 
         String s = (String)evalResult;
-        return new Double(DateUtils.split(s, " ", true).size());
+        return new Double(DataUtil.splitOnSpaces(s).length);
     }
 
     /**
@@ -879,13 +880,13 @@ public class XPathFuncExpr extends XPathExpression {
         String selection = (String)unpack(o1);
         int index = toInt(o2).intValue();
 
-        Vector<String> entries = DateUtils.split(selection, " ", true);
+        String[] entries = DataUtil.splitOnSpaces(selection);
 
-        if (entries.size() <= index) {
+        if (entries.length <= index) {
             throw new XPathException("Attempting to select element " + index +
-                    " of a list with only " + entries.size() + " elements.");
+                    " of a list with only " + entries.length + " elements.");
         } else {
-            return entries.elementAt(index);
+            return entries[index];
         }
     }
 

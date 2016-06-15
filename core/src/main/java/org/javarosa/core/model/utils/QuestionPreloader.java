@@ -22,6 +22,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Map;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -195,10 +196,7 @@ public class QuestionPreloader {
         if (preloadParams.equals("today")) {
             d = new Date();
         } else if (preloadParams.substring(0, 11).equals("prevperiod-")) {
-            Vector v = DateUtils.split(preloadParams.substring(11), "-", false);
-            String[] params = new String[v.size()];
-            for (int i = 0; i < params.length; i++)
-                params[i] = (String)v.elementAt(i);
+            String[] params = DataUtil.splitOnDash(preloadParams.substring(11));
 
             try {
                 String type = params[0];
