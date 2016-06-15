@@ -174,7 +174,7 @@ public class J2meFileReference implements Reference
 
             //Don't let anything try to touch this connector while we're manipulating it, since the URI won't be correct.
             synchronized (connections) {
-                Vector<String> pieces = DateUtils.split(connector.getPath(), "/", true);
+                Vector<String> pieces = DataUtil.split(connector.getPath(), "/", true);
                 FileConnection walker = null;
 
                 String fileName = "file:///" + pieces.elementAt(0) + "/";
