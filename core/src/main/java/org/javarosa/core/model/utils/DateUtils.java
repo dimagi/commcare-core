@@ -740,40 +740,6 @@ public class DateUtils {
     /* ==== UTILITY ==== */
 
     /**
-     * Tokenizes a string based on the given delimiter string
-     *
-     * @param str                       The string to be split
-     * @param delimiter                 The delimeter to be used
-     * @param combineMultipleDelimiters If two delimiters occur in a row,
-     *                                  remove the empty strings created by their split
-     * @return A vector of strings contained in original which were separated by the delimiter
-     */
-    public static Vector<String> split(String str, String delimiter, boolean combineMultipleDelimiters) {
-        Vector<String> pieces = new Vector<String>();
-
-        int index = str.indexOf(delimiter);
-        // add all substrings, split by delimiter, to pieces.
-        while (index >= 0) {
-            pieces.addElement(str.substring(0, index));
-            str = str.substring(index + delimiter.length());
-            index = str.indexOf(delimiter);
-        }
-        pieces.addElement(str);
-
-        // remove all pieces that are empty string
-        if (combineMultipleDelimiters) {
-            for (int i = 0; i < pieces.size(); i++) {
-                if (pieces.elementAt(i).length() == 0) {
-                    pieces.removeElementAt(i);
-                    i--;
-                }
-            }
-        }
-
-        return pieces;
-    }
-
-    /**
      * Converts an integer to a string, ensuring that the string
      * contains a certain number of digits
      *
