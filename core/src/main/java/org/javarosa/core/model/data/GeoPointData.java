@@ -1,6 +1,7 @@
 package org.javarosa.core.model.data;
 
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -115,8 +116,8 @@ public class GeoPointData implements IAnswerData {
     public GeoPointData cast(UncastData data) throws IllegalArgumentException {
         double[] ret = new double[4];
 
-        Vector<String> choices = DateUtils.split(data.value, " ", true);
-        if (choices.size() < 2) {
+        String[] choices = DataUtil.splitOnSpaces(data.value);
+        if (choices.length < 2) {
             throw new IllegalArgumentException("Fewer than two coordinates provided");
         }
 

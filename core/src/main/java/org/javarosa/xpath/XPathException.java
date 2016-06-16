@@ -22,9 +22,7 @@ public class XPathException extends RuntimeException {
         return sourceRef;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Throwable#getMessage()
-     */
+    @Override
     public String getMessage() {
         if (sourceRef == null) {
             return super.getMessage();

@@ -2,6 +2,7 @@ package org.javarosa.core.model.data;
 
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -128,8 +129,7 @@ public class SelectMultiData implements IAnswerData {
 
     public SelectMultiData cast(UncastData data) throws IllegalArgumentException {
         Vector v = new Vector();
-
-        Vector<String> choices = DateUtils.split(data.value, " ", true);
+        String[] choices = DataUtil.splitOnSpaces(data.value);
         for (String s : choices) {
             v.addElement(new Selection(s));
         }

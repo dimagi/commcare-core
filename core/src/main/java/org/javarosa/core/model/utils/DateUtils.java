@@ -1,12 +1,12 @@
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.MathUtils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Vector;
 
 /**
  * Static utility methods for Dates in j2me
@@ -374,15 +374,15 @@ public class DateUtils {
      * @return Was the string successfully parsed into a valid date
      */
     private static boolean parseDateAndStore(String dateStr, DateFields df) {
-        Vector pieces = split(dateStr, "-", false);
-        if (pieces.size() != 3) {
+        String[] pieces = DataUtil.splitOnDash(dateStr);
+        if (pieces.length != 3) {
             return false;
         }
 
         try {
-            df.year = Integer.parseInt((String)pieces.elementAt(0));
-            df.month = Integer.parseInt((String)pieces.elementAt(1));
-            df.day = Integer.parseInt((String)pieces.elementAt(2));
+            df.year = Integer.parseInt(pieces[0]);
+            df.month = Integer.parseInt(pieces[1]);
+            df.day = Integer.parseInt(pieces[2]);
         } catch (NumberFormatException nfe) {
             return false;
         }
@@ -412,27 +412,27 @@ public class DateUtils {
         } else if (timeStr.indexOf("+") != -1 || timeStr.indexOf("-") != -1) {
             timeOffset = new DateFields();
 
-            Vector<String> pieces = split(timeStr, "+", false);
+            String[] pieces = DataUtil.splitOnPlus(timeStr);
 
             // We're going to add the Offset straight up to get UTC
             // so we need to invert the sign on the offset string
             int offsetSign = -1;
 
-            if (pieces.size() > 1) {
+            if (pieces.length > 1) {
                 // offsetSign is already correct
             } else {
-                pieces = split(timeStr, "-", false);
+                pieces = DataUtil.splitOnDash(timeStr);
                 offsetSign = 1;
             }
 
-            timeStr = pieces.elementAt(0);
+            timeStr = pieces[0];
 
-            String offset = pieces.elementAt(1);
+            String offset = pieces[1];
             String hours = offset;
             if (offset.indexOf(":") != -1) {
-                Vector<String> tzPieces = split(offset, ":", false);
-                hours = tzPieces.elementAt(0);
-                int mins = Integer.parseInt(tzPieces.elementAt(1));
+                String[] tzPieces = DataUtil.splitOnColon(offset);
+                hours = tzPieces[0];
+                int mins = Integer.parseInt(tzPieces[1]);
                 timeOffset.minute = mins * offsetSign;
             }
             timeOffset.hour = Integer.parseInt(hours) * offsetSign;
@@ -481,19 +481,19 @@ public class DateUtils {
      * @return Was the string successfully interpreted as valid time?
      */
     private static boolean parseRawTime(String timeStr, DateFields df) {
-        Vector pieces = split(timeStr, ":", false);
+        String[] pieces = DataUtil.splitOnColon(timeStr);
 
-        if (pieces.size() != 2 && pieces.size() != 3) {
+        if (pieces.length != 2 && pieces.length != 3) {
             return false;
         }
 
         try {
-            df.hour = Integer.parseInt((String)pieces.elementAt(0));
-            df.minute = Integer.parseInt((String)pieces.elementAt(1));
+            df.hour = Integer.parseInt(pieces[0]);
+            df.minute = Integer.parseInt(pieces[1]);
 
             // if seconds part present, parse it
-            if (pieces.size() == 3) {
-                String secStr = (String)pieces.elementAt(2);
+            if (pieces.length == 3) {
+                String secStr = pieces[2];
                 int i;
                 // only grab prefix of seconds piece that includes digits and decimal(s)
                 for (i = 0; i < secStr.length(); i++) {
@@ -737,41 +737,6 @@ public class DateUtils {
     }
 
     /* ==== UTILITY ==== */
-
-    /**
-     * Tokenizes a string based on the given delimiter string
-     *
-     * @param str                       The string to be split
-     * @param delimiter                 The delimeter to be used
-     * @param combineMultipleDelimiters If two delimiters occur in a row,
-     *                                  remove the empty strings created by their split
-     * @return An array of strings contained in original which were
-     * seperated by the delimeter
-     */
-    public static Vector<String> split(String str, String delimiter, boolean combineMultipleDelimiters) {
-        Vector<String> pieces = new Vector<String>();
-
-        int index = str.indexOf(delimiter);
-        // add all substrings, split by delimiter, to pieces.
-        while (index >= 0) {
-            pieces.addElement(str.substring(0, index));
-            str = str.substring(index + delimiter.length());
-            index = str.indexOf(delimiter);
-        }
-        pieces.addElement(str);
-
-        // remove all pieces that are empty string
-        if (combineMultipleDelimiters) {
-            for (int i = 0; i < pieces.size(); i++) {
-                if (pieces.elementAt(i).length() == 0) {
-                    pieces.removeElementAt(i);
-                    i--;
-                }
-            }
-        }
-
-        return pieces;
-    }
 
     /**
      * Converts an integer to a string, ensuring that the string

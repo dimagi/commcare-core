@@ -110,12 +110,17 @@ public class ExprEvalUtils {
     }
 
     public static Object xpathEval(EvaluationContext evalContext,
-                                              String input)
+                                   String input)
             throws XPathSyntaxException {
         XPathExpression expr;
         expr = XPathParseTool.parseXPath(input);
         return XPathFuncExpr.unpack(expr.eval(evalContext));
     }
+
+    public static void testEval(String expr, EvaluationContext ec, Object expected) {
+        testEval(expr, null, ec, expected, 1.0e-12);
+    }
+
     public static void testEval(String expr, FormInstance model, EvaluationContext ec, Object expected) {
         testEval(expr, model, ec, expected, 1.0e-12);
     }

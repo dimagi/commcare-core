@@ -12,10 +12,10 @@ import java.io.IOException;
  * @author ctsims
  */
 public class ExternalDataInstance extends DataInstance {
-    String reference;
+    private String reference;
 
-    AbstractTreeElement root;
-    InstanceBase base;
+    private AbstractTreeElement root;
+    private InstanceBase base;
 
     public ExternalDataInstance() {
     }
@@ -35,6 +35,22 @@ public class ExternalDataInstance extends DataInstance {
         this.base = instance.getBase();
         this.root = instance.getRoot();
         this.mCacheHost = instance.getCacheHost();
+    }
+
+    private ExternalDataInstance(String reference, String instanceId,
+                                 TreeElement topLevel) {
+        this(reference, instanceId);
+
+        base = new InstanceBase(instanceId);
+        topLevel.setInstanceName(instanceId);
+        topLevel.setParent(base);
+        this.root = topLevel;
+        base.setChild(root);
+    }
+
+    public static ExternalDataInstance buildFromRemote(String instanceId,
+                                                       TreeElement root) {
+        return new ExternalDataInstance("jr://instance/remote", instanceId, root);
     }
 
     @Override
@@ -76,4 +92,5 @@ public class ExternalDataInstance extends DataInstance {
         base.setChild(root);
         return initializer.getSpecializedExternalDataInstance(this);
     }
+
 }
