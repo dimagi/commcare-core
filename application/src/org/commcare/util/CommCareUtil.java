@@ -16,7 +16,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
@@ -115,9 +115,9 @@ public class CommCareUtil {
         vBuildJR = PropertyUtils.trim(vBuildJR, hashLength);
         vBuildCC = PropertyUtils.trim(vBuildCC, hashLength);
         vContent = PropertyUtils.trim(vContent, hashLength);
-        vPolish = (String)DateUtils.split(vPolish, " ", true).elementAt(0);
-        buildDate = (String)DateUtils.split(buildDate, " ", true).elementAt(0);
-        releaseDate = (String)DateUtils.split(releaseDate, " ", true).elementAt(0);
+        vPolish = (String)DataUtil.split(vPolish, " ", true).elementAt(0);
+        buildDate = (String)DataUtil.split(buildDate, " ", true).elementAt(0);
+        releaseDate = (String)DataUtil.split(releaseDate, " ", true).elementAt(0);
 
         switch (type) {
         case VERSION_LONG:
@@ -215,7 +215,7 @@ public class CommCareUtil {
                 return null;
             }
 
-            Vector<String> split = DateUtils.split(vApp, ".", false);
+            Vector<String> split = DataUtil.split(vApp, ".", false);
             if (split.size() < 2) {
                 return null;
             }

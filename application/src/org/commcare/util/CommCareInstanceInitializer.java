@@ -18,6 +18,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.properties.JavaRosaPropertyRules;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -82,7 +83,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         }
         //TODO: Clayton should feel bad about all of this. Man is it terrible
         else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
-            Vector<String> data = DateUtils.split(ref, "/", true);
+            Vector<String> data = DataUtil.split(ref, "/", true);
             if(ref.indexOf("report") != -1) {
                 ConcreteTreeElement base = new ConcreteTreeElement("device_report");
                 base.setNamespace("http://code.javarosa.org/devicereport");
