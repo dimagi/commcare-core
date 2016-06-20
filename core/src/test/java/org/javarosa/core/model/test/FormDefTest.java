@@ -448,37 +448,45 @@ public class FormDefTest {
         fec.stepToNextEvent();
         fec.newRepeat();
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 1/1"));
+        fec.answerQuestion(new StringData("First repeat, first iteration: question2"));
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 1/2"));
-        fec.stepToNextEvent();
-        fec.newRepeat();
-        fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 2/1"));
-        fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 2/2"));
-        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("First repeat, first iteration: question3"));
         fec.stepToNextEvent();
         fec.newRepeat();
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 3/1"));
+        fec.answerQuestion(new StringData("First repeat, second iteration: question2"));
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 3/2"));
+        fec.answerQuestion(new StringData("First repeat, second iteration: question3"));
+        fec.stepToNextEvent();
+        fec.stepToNextEvent();
+        // moving from first repeat (question1) to second (question4)
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, first iteration: question5"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, first iteration: question6"));
         fec.stepToNextEvent();
         fec.newRepeat();
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 4/1"));
+        fec.answerQuestion(new StringData("Second repeat, second iteration: question5"));
         fec.stepToNextEvent();
-        fec.answerQuestion(new StringData("Repeat 4/2"));
+        fec.answerQuestion(new StringData("Second repeat, second iteration: question6"));
         fec.stepToPreviousEvent();
         fec.stepToPreviousEvent();
 
-        fec.deleteRepeat(0);
         TreeElement root = fpi.getFormDef().getInstance().getRoot();
+
+        // confirm both groups have two iterations and second iteration is set
+        assert root.getChildMultiplicity("question4") == 2;
+        assert root.getChild("question4", 1) != null;
+        assert root.getChildMultiplicity("question1") == 2;
+        assert root.getChild("question1", 1) != null;
+
+        fec.deleteRepeat(0);
 
         // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
         assert root.getChildMultiplicity("question4") == 1;
-        assert root.getChild("question1", 4) == null;
+        assert root.getChild("question4", 1) == null;
         // Confirm that the other repeat is unchanged
         assert root.getChildMultiplicity("question1") == 2;
         assert root.getChild("question1", 1) != null;
