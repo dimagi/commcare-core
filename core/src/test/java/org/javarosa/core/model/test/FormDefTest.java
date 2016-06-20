@@ -438,6 +438,7 @@ public class FormDefTest {
         }
     }
 
+    // regression test for when we weren't decrementing multiplicities correctly when repeats were deleted
     @Test
     public void testDeleteRepeatMultiplicities() throws IOException {
         FormParseInit fpi = new FormParseInit("/multiple_repeats.xml");
