@@ -920,6 +920,25 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         return TreeUtilities.tryBatchChildFetch(this, mChildStepMapping, name, mult, predicates, evalContext);
     }
 
+    // Return true if these elements are the same EXCEPT for their multiplicity (IE are members of the same repeat)
+    public boolean doFieldsMatch(TreeElement otherTreeElement){
+        return (name.equals(otherTreeElement.name) &&
+                flags == otherTreeElement.flags &&
+                dataType == otherTreeElement.dataType &&
+                ((instanceName != null && instanceName.equals(otherTreeElement.instanceName)) ||
+                        (instanceName == null && otherTreeElement.instanceName == null)) &&
+                ((constraint != null && constraint.equals(otherTreeElement.constraint)) ||
+                        (constraint == null && otherTreeElement.constraint == null)) &&
+                ((preloadHandler != null && preloadHandler.equals(otherTreeElement.preloadHandler)) ||
+                        (preloadHandler == null && otherTreeElement.preloadHandler == null)) &&
+                ((preloadParams != null && preloadParams.equals(otherTreeElement.preloadParams)) ||
+                        (preloadParams == null && otherTreeElement.preloadParams == null)) &&
+                ((namespace != null && namespace.equals(otherTreeElement.namespace)) ||
+                        (namespace == null && otherTreeElement.namespace == null)) &&
+                ((value != null && value.uncast().getString().equals(otherTreeElement.value.uncast().getString())) ||
+                        value == null && otherTreeElement.value == null));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -930,22 +949,8 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         // trickery to avoid looping indefinitely
         if (o instanceof TreeElement) {
             TreeElement otherTreeElement = (TreeElement)o;
-            final boolean doFieldsMatch = (name.equals(otherTreeElement.name) &&
-                    multiplicity == otherTreeElement.multiplicity &&
-                    flags == otherTreeElement.flags &&
-                    dataType == otherTreeElement.dataType &&
-                    ((instanceName != null && instanceName.equals(otherTreeElement.instanceName)) ||
-                            (instanceName == null && otherTreeElement.instanceName == null)) &&
-                    ((constraint != null && constraint.equals(otherTreeElement.constraint)) ||
-                            (constraint == null && otherTreeElement.constraint == null)) &&
-                    ((preloadHandler != null && preloadHandler.equals(otherTreeElement.preloadHandler)) ||
-                            (preloadHandler == null && otherTreeElement.preloadHandler == null)) &&
-                    ((preloadParams != null && preloadParams.equals(otherTreeElement.preloadParams)) ||
-                            (preloadParams == null && otherTreeElement.preloadParams == null)) &&
-                    ((namespace != null && namespace.equals(otherTreeElement.namespace)) ||
-                            (namespace == null && otherTreeElement.namespace == null)) &&
-                    ((value != null && value.uncast().getString().equals(otherTreeElement.value.uncast().getString())) ||
-                            value == null && otherTreeElement.value == null));
+            final boolean doFieldsMatch = doFieldsMatch(otherTreeElement) &&
+                    multiplicity == otherTreeElement.multiplicity;
             if (doFieldsMatch) {
                 if (children != null) {
                     if (otherTreeElement.children == null) {

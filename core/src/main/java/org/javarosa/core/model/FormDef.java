@@ -360,21 +360,33 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         TreeReference parentRef = deleteRef.getParentRef();
         TreeElement parentElement = mainInstance.resolveReference(parentRef);
 
-        int childMult = deleteElement.getMult();
         parentElement.removeChild(deleteElement);
 
-        // update multiplicities of other child nodes
-        for (int i = 0; i < parentElement.getNumChildren(); i++) {
-            TreeElement child = parentElement.getChildAt(i);
-            if (child.getMult() > childMult) {
-                child.setMult(child.getMult() - 1);
-            }
-        }
+        reduceTreeSiblingMultiplicities(parentElement, deleteElement);
 
         this.getMainInstance().cleanCache();
 
         triggerTriggerables(deleteRef);
         return newIndex;
+    }
+
+    /**
+     * When a repeat is deleted, we need to reduce the multiplicities of its siblings that were higher than it
+     * by one.
+     * @param parentElement the parent of the deleted element
+     * @param deleteElement the deleted element
+     */
+    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement){
+        int childMult = deleteElement.getMult();
+        // update multiplicities of other child nodes
+        for (int i = 0; i < parentElement.getNumChildren(); i++) {
+            TreeElement child = parentElement.getChildAt(i);
+            // We also need to check that this element matches the deleted element (besides multiplicity)
+            // in the case where the deleted repeat's parent isn't a subgroup
+            if (child.doFieldsMatch(deleteElement) && child.getMult() > childMult) {
+                child.setMult(child.getMult() - 1);
+            }
+        }
     }
 
     public void createNewRepeat(FormIndex index) throws InvalidReferenceException {

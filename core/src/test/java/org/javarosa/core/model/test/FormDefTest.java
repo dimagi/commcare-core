@@ -11,21 +11,29 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.javarosa.xform.parse.XFormParser;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -432,7 +440,57 @@ public class FormDefTest {
         }
     }
 
+    // regression test for when we weren't decrementing multiplicities correctly when repeats were deleted
+    @Test
+    public void testDeleteRepeatMultiplicities() throws IOException {
+        FormParseInit fpi = new FormParseInit("/multiple_repeats.xml");
+        FormEntryController fec = initFormEntry(fpi, "en");
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("First repeat, first iteration: question2"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("First repeat, first iteration: question3"));
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("First repeat, second iteration: question2"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("First repeat, second iteration: question3"));
+        fec.stepToNextEvent();
+        fec.stepToNextEvent();
+        // moving from first repeat (question1) to second (question4)
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, first iteration: question5"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, first iteration: question6"));
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, second iteration: question5"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Second repeat, second iteration: question6"));
+        fec.stepToPreviousEvent();
+        fec.stepToPreviousEvent();
 
+        TreeElement root = fpi.getFormDef().getInstance().getRoot();
+
+        // confirm both groups have two iterations and second iteration is set
+        assertEquals(root.getChildMultiplicity("question4"), 2);
+        assertNotEquals(root.getChild("question4", 1), null);
+        assertEquals(root.getChildMultiplicity("question1"), 2);
+        assertNotEquals(root.getChild("question1", 1), null);
+
+        fec.deleteRepeat(0);
+
+        // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
+        assertEquals(root.getChildMultiplicity("question4"), 1);
+        assertEquals(root.getChild("question4", 1), null);
+        // Confirm that the other repeat is unchanged
+        assertEquals(root.getChildMultiplicity("question1"), 2);
+        assertNotEquals(root.getChild("question1", 1), null);
+    }
 
     /**
      * Regression: IText function in xpath was not properly using the current
@@ -451,13 +509,13 @@ public class FormDefTest {
             TreeReference currentRef = fec.getModel().getFormIndex().getReference();
             if(currentRef == null) { continue; }
             if(currentRef.genericize().toString().equals("/data/inline")) {
-                Assert.assertEquals("Inline IText Method Callout", "right",
+                assertEquals("Inline IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 inlinePassed = true;
             }
 
             if(currentRef.genericize().toString().equals("/data/nested")) {
-                Assert.assertEquals("Nexted IText Method Callout", "right",
+                assertEquals("Nexted IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 nestedPassed = true;
             }
