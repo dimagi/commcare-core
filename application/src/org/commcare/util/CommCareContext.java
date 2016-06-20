@@ -215,12 +215,18 @@ public class CommCareContext {
 
 
                     global.setStateListener(new TableStateListener() {
+                        private int score = 0;
+                        private int max = 0;
 
                         static final int INSTALL_SCORE = 5;
-                        public void resourceStateUpdated(ResourceTable table) {
+                        public void simpleResourceAdded() {
+                            updateProgress(10 + (int)Math.ceil(50 * (++score * 1.0 / max)));
+                        }
+
+                        public void compoundResourceAdded(final ResourceTable table) {
                             setCurrentOOMMessage(CommCareStartupInteraction.failSafeText("commcare.install.oom","CommCare needs to restart in order to continue installing your application. Please press 'OK' and start CommCare again."));
-                            int score = 0;
-                            int max = 0;
+                            score = 0;
+                            max = 0;
                             Vector<Resource> resources = ResourceManager.getResourceListFromProfile(table);
                             max = resources.size() * INSTALL_SCORE;
 
