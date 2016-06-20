@@ -11,6 +11,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.model.utils.test.PersistableSandbox;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -470,8 +472,16 @@ public class FormDefTest {
         fec.answerQuestion(new StringData("Repeat 4/2"));
         fec.stepToPreviousEvent();
         fec.stepToPreviousEvent();
+
         fec.deleteRepeat(0);
-        new XFormSerializingVisitor().serializeInstance(fpi.getFormDef().getInstance());
+        TreeElement root = fpi.getFormDef().getInstance().getRoot();
+
+        // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
+        assert root.getChildMultiplicity("question4") == 1;
+        assert root.getChild("question1", 4) == null;
+        // Confirm that the other repeat is unchanged
+        assert root.getChildMultiplicity("question1") == 2;
+        assert root.getChild("question1", 1) != null;
     }
 
     /**
