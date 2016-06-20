@@ -31,9 +31,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.javarosa.xform.parse.XFormParser;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -477,19 +477,19 @@ public class FormDefTest {
         TreeElement root = fpi.getFormDef().getInstance().getRoot();
 
         // confirm both groups have two iterations and second iteration is set
-        assertTrue(root.getChildMultiplicity("question4") == 2);
-        assertTrue(root.getChild("question4", 1) != null);
-        assertTrue(root.getChildMultiplicity("question1") == 20;
-        assertTrue(root.getChild("question1", 1) != null);
+        assertEquals(root.getChildMultiplicity("question4"), 2);
+        assertNotEquals(root.getChild("question4", 1), null);
+        assertEquals(root.getChildMultiplicity("question1"), 2);
+        assertNotEquals(root.getChild("question1", 1), null);
 
         fec.deleteRepeat(0);
 
         // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
-        assertTrue(root.getChildMultiplicity("question4") == 1);
-        assertTrue(root.getChild("question4", 1) == null);
+        assertEquals(root.getChildMultiplicity("question4"), 1);
+        assertEquals(root.getChild("question4", 1), null);
         // Confirm that the other repeat is unchanged
-        assertTrue(root.getChildMultiplicity("question1") == 2);
-        assertTrue(root.getChild("question1", 1) != null);
+        assertEquals(root.getChildMultiplicity("question1"), 2);
+        assertNotEquals(root.getChild("question1", 1), null);
     }
 
     /**
@@ -509,13 +509,13 @@ public class FormDefTest {
             TreeReference currentRef = fec.getModel().getFormIndex().getReference();
             if(currentRef == null) { continue; }
             if(currentRef.genericize().toString().equals("/data/inline")) {
-                Assert.assertEquals("Inline IText Method Callout", "right",
+                assertEquals("Inline IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 inlinePassed = true;
             }
 
             if(currentRef.genericize().toString().equals("/data/nested")) {
-                Assert.assertEquals("Nexted IText Method Callout", "right",
+                assertEquals("Nexted IText Method Callout", "right",
                         fec.getModel().getCaptionPrompt().getQuestionText());
                 nestedPassed = true;
             }
