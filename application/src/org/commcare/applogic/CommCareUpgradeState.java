@@ -172,8 +172,10 @@ public abstract class CommCareUpgradeState implements State, TrivialTransitions 
 
                 TableStateListener globalListener = new TableStateListener() {
 
-                    public void resourceStateUpdated(ResourceTable table) {
+                    public void simpleResourceAdded() {
+                    }
 
+                    public void compoundResourceAdded(final ResourceTable table) {
                     }
 
                     public void incrementProgress(int complete, int total) {
