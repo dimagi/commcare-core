@@ -360,9 +360,24 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         TreeReference parentRef = deleteRef.getParentRef();
         TreeElement parentElement = mainInstance.resolveReference(parentRef);
 
-        int childMult = deleteElement.getMult();
         parentElement.removeChild(deleteElement);
 
+        reduceTreeSiblingMultiplicities(parentElement, deleteElement);
+
+        this.getMainInstance().cleanCache();
+
+        triggerTriggerables(deleteRef);
+        return newIndex;
+    }
+
+    /**
+     * When a repeat is deleted, we need to reduce the multiplicities of its siblings that were higher than it
+     * by one.
+     * @param parentElement the parent of the deleted element
+     * @param deleteElement the deleted element
+     */
+    private void reduceTreeSiblingMultiplicities(TreeElement parentElement, TreeElement deleteElement){
+        int childMult = deleteElement.getMult();
         // update multiplicities of other child nodes
         for (int i = 0; i < parentElement.getNumChildren(); i++) {
             TreeElement child = parentElement.getChildAt(i);
@@ -372,11 +387,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 child.setMult(child.getMult() - 1);
             }
         }
-
-        this.getMainInstance().cleanCache();
-
-        triggerTriggerables(deleteRef);
-        return newIndex;
     }
 
     public void createNewRepeat(FormIndex index) throws InvalidReferenceException {
