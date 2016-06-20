@@ -16,16 +16,22 @@ import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.javarosa.xform.parse.XFormParser;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -432,7 +438,40 @@ public class FormDefTest {
         }
     }
 
-
+    @Test
+    public void testDeleteRepeatMultiplicities() throws IOException {
+        FormParseInit fpi = new FormParseInit("/multiple_repeats.xml");
+        FormEntryController fec = initFormEntry(fpi, "en");
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 1/1"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 1/2"));
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 2/1"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 2/2"));
+        fec.stepToNextEvent();
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 3/1"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 3/2"));
+        fec.stepToNextEvent();
+        fec.newRepeat();
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 4/1"));
+        fec.stepToNextEvent();
+        fec.answerQuestion(new StringData("Repeat 4/2"));
+        fec.stepToPreviousEvent();
+        fec.stepToPreviousEvent();
+        fec.deleteRepeat(0);
+        new XFormSerializingVisitor().serializeInstance(fpi.getFormDef().getInstance());
+    }
 
     /**
      * Regression: IText function in xpath was not properly using the current
@@ -491,5 +530,22 @@ public class FormDefTest {
         fpi.getFormDef().initialize(true, null, locale);
         fec.jumpToIndex(FormIndex.createBeginningOfFormIndex());
         return fec;
+    }
+
+    String readFile(String fileName) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = br.readLine();
+            }
+            return sb.toString();
+        } finally {
+            br.close();
+        }
     }
 }
