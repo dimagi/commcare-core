@@ -477,19 +477,19 @@ public class FormDefTest {
         TreeElement root = fpi.getFormDef().getInstance().getRoot();
 
         // confirm both groups have two iterations and second iteration is set
-        assert root.getChildMultiplicity("question4") == 2;
-        assert root.getChild("question4", 1) != null;
-        assert root.getChildMultiplicity("question1") == 2;
-        assert root.getChild("question1", 1) != null;
+        assertTrue(root.getChildMultiplicity("question4") == 2);
+        assertTrue(root.getChild("question4", 1) != null);
+        assertTrue(root.getChildMultiplicity("question1") == 20;
+        assertTrue(root.getChild("question1", 1) != null);
 
         fec.deleteRepeat(0);
 
         // Confirm that the deleted repeat is gone and its sibling's multiplicity reduced
-        assert root.getChildMultiplicity("question4") == 1;
-        assert root.getChild("question4", 1) == null;
+        assertTrue(root.getChildMultiplicity("question4") == 1);
+        assertTrue(root.getChild("question4", 1) == null);
         // Confirm that the other repeat is unchanged
-        assert root.getChildMultiplicity("question1") == 2;
-        assert root.getChild("question1", 1) != null;
+        assertTrue(root.getChildMultiplicity("question1") == 2);
+        assertTrue(root.getChild("question1", 1) != null);
     }
 
     /**
