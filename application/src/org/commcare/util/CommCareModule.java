@@ -10,11 +10,18 @@ import org.commcare.resources.model.installers.MediaInstaller;
 import org.commcare.resources.model.installers.ProfileInstaller;
 import org.commcare.resources.model.installers.SuiteInstaller;
 import org.commcare.resources.model.installers.XFormInstaller;
+import org.commcare.suite.model.ComputedDatum;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.FormEntry;
+import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.suite.model.RemoteQueryDatum;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.SyncEntry;
 import org.commcare.suite.model.Text;
+import org.commcare.suite.model.ViewEntry;
 import org.commcare.xml.DummyGraphParser.DummyGraphDetailTemplate;
 import org.javarosa.core.api.IModule;
 import org.javarosa.core.services.PrototypeManager;
@@ -31,15 +38,23 @@ public class CommCareModule implements IModule {
      */
     public void registerModule() {
         String[] prototypes = new String[] {BasicInstaller.class.getName(),
-                                            LocaleFileInstaller.class.getName(),
-                                            SuiteInstaller.class.getName(),
-                                            ProfileInstaller.class.getName(),
-                                            MediaInstaller.class.getName(),
-                                            XFormInstaller.class.getName(),
-                                            Text.class.getName(),
-                                            PropertySetter.class.getName(),
-                                            FormEntry.class.getName(),
-                                            DummyGraphDetailTemplate.class.getName()};
+                LocaleFileInstaller.class.getName(),
+                SuiteInstaller.class.getName(),
+                ProfileInstaller.class.getName(),
+                MediaInstaller.class.getName(),
+                XFormInstaller.class.getName(),
+                Text.class.getName(),
+                PropertySetter.class.getName(),
+                FormEntry.class.getName(),
+                DummyGraphDetailTemplate.class.getName(),
+                ViewEntry.class.getName(),
+                FormEntry.class.getName(),
+                SyncEntry.class.getName(),
+                EntityDatum.class.getName(),
+                SessionDatum.class.getName(),
+                ComputedDatum.class.getName(),
+                FormIdDatum.class.getName(),
+                RemoteQueryDatum.class.getName()};
         PrototypeManager.registerPrototypes(prototypes);
 
         StorageManager.registerStorage(CommCareContext.STORAGE_TABLE_GLOBAL, Resource.class);
