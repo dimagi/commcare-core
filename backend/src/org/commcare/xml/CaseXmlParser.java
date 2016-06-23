@@ -236,6 +236,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
             //Now that we've gotten any relevant transactions, commit this case
             commit(caseForBlock);
+            if (create) {
+                onCaseCreated(caseForBlock.getCaseId());
+            }
         }
 
         if (create) {
@@ -294,6 +297,10 @@ public class CaseXmlParser extends TransactionParser<Case> {
      *               disruptive way
      */
     public void onIndexDisrupted(String caseId) {
+
+    }
+
+    public void onCaseCreated(String caseId) {
 
     }
 
