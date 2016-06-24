@@ -32,16 +32,16 @@ sourceSets {
     // javarosa configs
     javarosa {
           java {
-              srcDir 'javarosa/core/src/main/java'
+              srcDir 'javarosa/src/main/java'
           }
     }
     harness {
         java {
             srcDir 'javarosa/util/schema-gen/src'
-            compileClasspath += javarosa.output
+            srcDir 'javarosa/src/main/java'
         }
         resources{
-            srcDir 'javarosa/core/src/test/resources'
+            srcDir 'javarosa/src/test/resources'
         }
     }
 
@@ -49,18 +49,18 @@ sourceSets {
         java {
             srcDir 'javarosa/util/schema-gen/src'
             srcDir 'javarosa/util/validator/org.javarosa.xform.validator/src'
-            compileClasspath += javarosa.output
+            srcDir 'javarosa/src/main/java'
         }
     }
 
     // commcare configs
   main {
         java {
+            srcDir 'javarosa/src/main/java'
             srcDir 'cases/src'
             srcDir 'backend/src'
             srcDir 'core'
             srcDir 'modern'
-            compileClasspath += javarosa.output
         }
         resources {
             srcDir 'cases/resources'
@@ -83,12 +83,12 @@ sourceSets {
     test {
         java {
             srcDir 'tests/test'
-            srcDir 'javarosa/core/src/test/java'
+            srcDir 'javarosa/src/test/java'
             compileClasspath += api.output
         }
         resources{
             srcDir 'tests/resources'
-            srcDir 'javarosa/core/src/test/resources'
+            srcDir 'javarosa/src/test/resources'
         }
     }
 
@@ -99,6 +99,7 @@ dependencies {
       compile files('javarosa/lib/regexp-me.jar')
 
       cliCompile 'commons-cli:commons-cli:1.3.1'
+      cliCompile 'xpp3:xpp3:1.1.4c'
 
       testCompile sourceSets.main.output
       testCompile sourceSets.api.output
