@@ -171,7 +171,6 @@ task apiJar(type: Jar, dependsOn: apiClasses) {
 task harnessJar(type: Jar, dependsOn: harnessClasses) {
     baseName = "javarosa-cli"
     from sourceSets.harness.output
-    from sourceSets.javarosa.output
     from {
         configurations.compile.collect {
             it.isDirectory() ? it : zipTree(it)
@@ -188,7 +187,6 @@ task harnessJar(type: Jar, dependsOn: harnessClasses) {
 task formTranslateJar(type: Jar, dependsOn: translateClasses) {
     baseName = "form_translate"
     from sourceSets.translate.output
-    from sourceSets.javarosa.output
     from {
         configurations.translateCompile.collect {
             it.isDirectory() ? it : zipTree(it)
