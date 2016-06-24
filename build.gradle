@@ -134,6 +134,7 @@ configurations {
   cliOutput.extendsFrom (cliCompile)
   harness
   translate
+  testsAsJar
 }
 
 task cliJar(type: Jar, dependsOn: cliClasses) {
@@ -184,6 +185,14 @@ task harnessJar(type: Jar, dependsOn: harnessClasses) {
     }
 }
 
+// used to provide the test source files to external projects, such as odk,
+// which might want to import classes
+task testsrcJar(type: Jar, dependsOn: testClasses) {
+    classifier = 'tests'
+    from files(sourceSets.test.output.classesDir)
+}
+
+
 task formTranslateJar(type: Jar, dependsOn: translateClasses) {
     baseName = "form_translate"
     from sourceSets.translate.output
@@ -204,6 +213,7 @@ artifacts {
   cliOutput cliJar
   harness harnessJar
   translate formTranslateJar
+  testsAsJar testsrcJar
 }
 
 task copyTestResources(type: Copy) {
