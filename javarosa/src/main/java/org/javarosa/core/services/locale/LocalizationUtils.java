@@ -6,6 +6,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -15,7 +16,7 @@ public class LocalizationUtils {
      * @param is A path to a resource file provided in the current environment
      * @return a dictionary of key/value locale pairs from a file in the resource directory
      */
-    public static Map<String, String> parseLocaleInput(InputStream is) throws IOException {
+    public static Hashtable<String, String> parseLocaleInput(InputStream is) throws IOException {
         // TODO: This might very well fail. Best way to handle?
         Map<String, String> locale = new Map<>();
         int chunk = 100;
@@ -61,7 +62,7 @@ public class LocalizationUtils {
         return locale;
     }
 
-    public static void parseAndAdd(OrderedHashtable locale, String line, int curline) {
+    public static void parseAndAdd(Hashtable<String, String> locale, String line, int curline) {
         line = line.trim();
 
         int i = 0;

@@ -3,8 +3,6 @@ package org.javarosa.core.model.utils.test;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
@@ -56,7 +54,7 @@ public class LocalizerTest {
         if (!l.hasLocale(TEST_LOCALE)) {
             fail("Localizer reports it does not contain newly added locale");
         }
-        OrderedHashtable localeData = l.getLocaleData(TEST_LOCALE);
+        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
         if (localeData == null || localeData.size() != 0) {
             fail("Newly created locale not empty (or undefined)");
         }
@@ -95,7 +93,7 @@ public class LocalizerTest {
         table.setLocaleMapping("textID", "text");
         l.registerLocaleResource(TEST_LOCALE, table);
 
-        OrderedHashtable localeData = l.getLocaleData(TEST_LOCALE);
+        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
 
         boolean result = l.addAvailableLocale(TEST_LOCALE);
         if (result) {
@@ -287,7 +285,7 @@ public class LocalizerTest {
         if (!l.hasMapping(TEST_LOCALE, "textID")) {
             fail("Localizer does not contain newly added text mapping");
         }
-        if (!"text".equals(l.getLocaleData(TEST_LOCALE).get("textID").render())) {
+        if (!"text".equals(l.getLocaleData(TEST_LOCALE).get("textID"))) {
             fail("Newly added text mapping does not match source");
         }
     }
@@ -310,7 +308,7 @@ public class LocalizerTest {
         if (!l.hasMapping(TEST_LOCALE, "textID")) {
             fail("Localizer does not contain overwritten text mapping");
         }
-        if (!"newText".equals(l.getLocaleData(TEST_LOCALE).get("textID").render())) {
+        if (!"newText".equals(l.getLocaleData(TEST_LOCALE).get("textID"))) {
             fail("Newly overwritten text mapping does not match source");
         }
     }

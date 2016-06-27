@@ -1820,9 +1820,7 @@ public class XFormParser {
             }
         }
         //Otherwise this sucks and we have to test the keys
-        OrderedHashtable table = _f.getLocalizer().getLocaleData(locale);
-        for (Enumeration keys = table.keys(); keys.hasMoreElements(); ) {
-            String key = (String)keys.nextElement();
+        for (String key : _f.getLocalizer().getLocaleData(locale).keySet()) {
             if (key.startsWith(textID + ";")) {
                 //A key is found, pull it out, add it to the list of guesses, and return positive
                 String textForm = key.substring(key.indexOf(";") + 1, key.length());

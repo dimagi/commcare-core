@@ -31,6 +31,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -38,10 +39,12 @@ import java.util.Vector;
  */
 public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> {
 
-    String locale;
-    String localReference;
+    private String locale;
+    private String localReference;
 
-    OrderedHashtable<String, String> cache;
+    private Hashtable<String, String> cache;
+
+    private static final String valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     /**
      * Serialization only!
@@ -55,9 +58,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         this.localReference = "";
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#initializeResource(org.commcare.resources.model.Resource)
-     */
+    @Override
     public boolean initialize(CommCareInstance instance) throws ResourceInitializationException {
         if (cache == null) {
             Localization.registerLanguageReference(locale, localReference);
@@ -68,22 +69,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInitializer#resourceReady(org.commcare.resources.model.Resource)
-     */
-    public boolean resourceReady(Resource r) {
-        return false;
-    }
-
-    private static final String valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, CommCareInstance instance, boolean upgrade) throws UnresolvedResourceException {
         //If we have local resource authority, and the file exists, things are golden. We can just use that file.
         if (location.getAuthority() == Resource.RESOURCE_AUTHORITY_LOCAL) {
@@ -218,26 +209,29 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         }
     }
 
+    @Override
     public boolean upgrade(Resource r) throws UnresolvedResourceException {
         //TODO: Rename file to take off ".N"?
         return true;
     }
 
+    @Override
     public boolean unstage(Resource r, int newStatus) {
         return true;
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         return true;
     }
 
-
+    @Override
     public int rollback(Resource r) {
         //This does nothing
         return Resource.getCleanFlag(r.getStatus());
     }
 
-
+    @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         //If we're not using files, just deal with the cache (this is even likely unnecessary).
         if (cache != null) {
@@ -263,10 +257,12 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         }
     }
 
+    @Override
     public void cleanup() {
 
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         locale = ExtUtil.readString(in);
@@ -274,12 +270,14 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
         cache = (OrderedHashtable)ExtUtil.nullIfEmpty((OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY), pf));
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, locale);
         ExtUtil.writeString(out, localReference);
         ExtUtil.write(out, new ExtWrapMap(ExtUtil.emptyIfNull(cache)));
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             if (locale == null) {

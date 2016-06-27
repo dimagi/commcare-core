@@ -2,7 +2,6 @@ package org.javarosa.core.reference;
 
 import org.javarosa.core.services.locale.LocaleDataSource;
 import org.javarosa.core.services.locale.LocalizationUtils;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -10,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Hashtable;
 
 /**
  * The ReferenceDataSource is a source of locale data which
@@ -42,7 +42,7 @@ public class ReferenceDataSource implements LocaleDataSource {
     }
 
     @Override
-    public OrderedHashtable getLocalizedText() {
+    public Hashtable<String, String> getLocalizedText() {
         InputStream is = null;
         try {
             is = ReferenceManager._().DeriveReference(referenceURI).getStream();
