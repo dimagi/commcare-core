@@ -38,9 +38,7 @@ public class ResourceFileDataSource implements LocaleDataSource {
         this.resourceURI = resourceURI;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.locale.LocaleDataSource#getLocalizedText()
-     */
+    @Override
     public OrderedHashtable getLocalizedText() {
         return loadLocaleResource(resourceURI);
     }

@@ -16,7 +16,6 @@ import java.io.InputStream;
  * is located at a location which is defined by a ReferenceURI.
  *
  * @author Clayton Sims
- * @date Jun 1, 2009
  */
 public class ReferenceDataSource implements LocaleDataSource {
 
@@ -42,9 +41,7 @@ public class ReferenceDataSource implements LocaleDataSource {
         this.referenceURI = referenceURI;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.locale.LocaleDataSource#getLocalizedText()
-     */
+    @Override
     public OrderedHashtable getLocalizedText() {
         InputStream is = null;
         try {
@@ -69,17 +66,13 @@ public class ReferenceDataSource implements LocaleDataSource {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         referenceURI = in.readUTF();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         out.writeUTF(referenceURI);
     }
