@@ -70,7 +70,7 @@ public class FormEntryPrompt extends FormEntryCaption {
         if (itemset != null) {
             if (itemset.valueRef != null) {
                 Vector<SelectChoice> choices = getSelectChoices();
-                Vector<String> preselectedValues = new Vector<String>();
+                Vector<String> preselectedValues = new Vector<>();
 
                 //determine which selections are already present in the answer
                 if (itemset.copyMode) {
@@ -82,12 +82,12 @@ public class FormEntryPrompt extends FormEntryCaption {
                         preselectedValues.addElement(value);
                     }
                 } else {
-                    Vector<Selection> sels = new Vector<Selection>();
+                    Vector<Selection> sels = new Vector<>();
                     IAnswerData data = mTreeElement.getValue();
                     if (data instanceof SelectMultiData) {
                         sels = (Vector<Selection>)data.getValue();
                     } else if (data instanceof SelectOneData) {
-                        sels = new Vector<Selection>();
+                        sels = new Vector<>();
                         sels.addElement((Selection)data.getValue());
                     }
                     for (int i = 0; i < sels.size(); i++) {
@@ -96,7 +96,7 @@ public class FormEntryPrompt extends FormEntryCaption {
                 }
 
                 //populate 'selection' with the corresponding choices (matching 'value') from the dynamic choiceset
-                Vector<Selection> selection = new Vector<Selection>();
+                Vector<Selection> selection = new Vector<>();
                 for (int i = 0; i < preselectedValues.size(); i++) {
                     String value = preselectedValues.elementAt(i);
                     SelectChoice choice = null;
@@ -305,7 +305,7 @@ public class FormEntryPrompt extends FormEntryCaption {
             return true;
         }
 
-        Vector<String> forms = new Vector<String>();
+        Vector<String> forms = new Vector<>();
         forms.addElement(TEXT_FORM_AUDIO);
         forms.addElement(TEXT_FORM_IMAGE);
         forms.addElement(TEXT_FORM_VIDEO);

@@ -155,7 +155,7 @@ public class XPathPathExpr extends XPathExpression {
             }
 
             if (step.predicates.length > 0) {
-                Vector<XPathExpression> v = new Vector<XPathExpression>();
+                Vector<XPathExpression> v = new Vector<>();
                 for (XPathExpression predicate : step.predicates) {
                     v.addElement(predicate);
                 }
@@ -384,7 +384,7 @@ public class XPathPathExpr extends XPathExpression {
             ExtUtil.write(out, filtExpr);
         }
 
-        Vector<XPathStep> v = new Vector<XPathStep>();
+        Vector<XPathStep> v = new Vector<>();
         for (XPathStep step : steps) {
             v.addElement(step);
         }

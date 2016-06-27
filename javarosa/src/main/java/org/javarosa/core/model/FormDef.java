@@ -130,7 +130,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     boolean mDebugModeEnabled = false;
 
-    private final Vector<Triggerable> triggeredDuringInsert = new Vector<Triggerable>();
+    private final Vector<Triggerable> triggeredDuringInsert = new Vector<>();
 
     private ActionController actionController;
     //If this instance is just being edited, don't fire end of form events
@@ -142,20 +142,20 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * changes.
      */
     private final CacheTable<TreeReference, Vector<TreeReference>> cachedCascadingChildren =
-            new CacheTable<TreeReference, Vector<TreeReference>>();
+            new CacheTable<>();
 
     public FormDef() {
         setID(-1);
         setChildren(null);
-        triggerables = new Vector<Triggerable>();
+        triggerables = new Vector<>();
         triggerablesInOrder = true;
-        triggerIndex = new Hashtable<TreeReference, Vector<Triggerable>>();
+        triggerIndex = new Hashtable<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
         outputFragments = new Vector();
-        submissionProfiles = new Hashtable<String, SubmissionProfile>();
-        formInstances = new Hashtable<String, DataInstance>();
-        extensions = new Vector<XFormExtension>();
+        submissionProfiles = new Hashtable<>();
+        formInstances = new Hashtable<>();
+        extensions = new Vector<>();
         actionController = new ActionController();
     }
 
@@ -234,9 +234,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * yet-to-be-created repeat node (similar to repeats that already exist)
      */
     public Vector explodeIndex(FormIndex index) {
-        Vector<Integer> indexes = new Vector<Integer>();
-        Vector<Integer> multiplicities = new Vector<Integer>();
-        Vector<IFormElement> elements = new Vector<IFormElement>();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
 
         collapseIndex(index, indexes, multiplicities, elements);
         return elements;
@@ -246,9 +246,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     // multiplicities)
 
     public TreeReference getChildInstanceRef(FormIndex index) {
-        Vector<Integer> indexes = new Vector<Integer>();
-        Vector<Integer> multiplicities = new Vector<Integer>();
-        Vector<IFormElement> elements = new Vector<IFormElement>();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
 
         collapseIndex(index, indexes, multiplicities, elements);
         return getChildInstanceRef(elements, multiplicities);
@@ -504,11 +504,11 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         TreeReference destRef = itemset.getDestRef().contextualize(targetRef);
 
         Vector<Selection> selections = null;
-        Vector<String> selectedValues = new Vector<String>();
+        Vector<String> selectedValues = new Vector<>();
         if (data instanceof SelectMultiData) {
             selections = (Vector<Selection>)data.getValue();
         } else if (data instanceof SelectOneData) {
-            selections = new Vector<Selection>();
+            selections = new Vector<>();
             selections.addElement((Selection)data.getValue());
         }
         if (itemset.valueRef != null) {
@@ -518,7 +518,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         //delete existing dest nodes that are not in the answer selection
-        Hashtable<String, TreeElement> existingValues = new Hashtable<String, TreeElement>();
+        Hashtable<String, TreeElement> existingValues = new Hashtable<>();
         Vector<TreeReference> existingNodes = exprEvalContext.expandReference(destRef);
         for (int i = 0; i < existingNodes.size(); i++) {
             TreeElement node = getMainInstance().resolveReference(existingNodes.elementAt(i));
@@ -651,10 +651,10 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      *                               triggers can't be laid out appropriately
      */
     public void finalizeTriggerables() throws IllegalStateException {
-        Vector<Triggerable[]> partialOrdering = new Vector<Triggerable[]>();
+        Vector<Triggerable[]> partialOrdering = new Vector<>();
         buildPartialOrdering(partialOrdering);
 
-        Vector<Triggerable> vertices = new Vector<Triggerable>();
+        Vector<Triggerable> vertices = new Vector<>();
         for (Triggerable triggerable : triggerables) {
             vertices.addElement(triggerable);
         }
@@ -678,7 +678,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     private void buildPartialOrdering(Vector<Triggerable[]> partialOrdering) {
         for (Triggerable t : triggerables) {
-            Vector<Triggerable> deps = new Vector<Triggerable>();
+            Vector<Triggerable> deps = new Vector<>();
             fillTriggeredElements(t, deps, false);
 
             for (Triggerable u : deps) {
@@ -690,7 +690,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     private static Vector<Triggerable> buildRootNodes(Vector<Triggerable> vertices,
                                                       Vector<Triggerable[]> partialOrdering) {
-        Vector<Triggerable> roots = new Vector<Triggerable>();
+        Vector<Triggerable> roots = new Vector<>();
         for (Triggerable vertex : vertices) {
             roots.addElement(vertex);
         }
@@ -730,7 +730,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     }
 
     private void buildConditionRepeatTargetIndex() {
-        conditionRepeatTargetIndex = new Hashtable<TreeReference, Condition>();
+        conditionRepeatTargetIndex = new Hashtable<>();
         for (Triggerable t : triggerables) {
             if (t instanceof Condition) {
                 for (TreeReference target : t.getTargets()) {
@@ -757,7 +757,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                                        boolean isRepeatEntryInit) {
         if (t.canCascade()) {
             for (TreeReference target : t.getTargets()) {
-                Vector<TreeReference> updatedNodes = new Vector<TreeReference>();
+                Vector<TreeReference> updatedNodes = new Vector<>();
                 updatedNodes.addElement(target);
 
                 // Repeat sub-elements have already been added to 'destination'
@@ -946,7 +946,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         // TODO: sure would be nice to be able to cache this at some point, but
         // will have to have a way to invalidate by trigger or something
         Hashtable<TreeReference, Hashtable<String, EvaluationTrace>> debugInfo =
-                new Hashtable<TreeReference, Hashtable<String, EvaluationTrace>>();
+                new Hashtable<>();
 
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = triggerables.elementAt(i);
@@ -958,7 +958,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 String label = t.getDebugLabel();
                 Hashtable<String, EvaluationTrace> traces = debugInfo.get(elementRef);
                 if (traces == null) {
-                    traces = new Hashtable<String, EvaluationTrace>();
+                    traces = new Hashtable<>();
                 }
                 traces.put(label, triggerOutputs.get(elementRef));
                 debugInfo.put(elementRef, traces);
@@ -972,7 +972,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         // Use all triggerables because we can assume they are rooted by rootRef
         TreeReference rootRef = TreeReference.rootRef();
 
-        Vector<Triggerable> applicable = new Vector<Triggerable>();
+        Vector<Triggerable> applicable = new Vector<>();
         for (Triggerable triggerable : triggerables) {
             applicable.addElement(triggerable);
         }
@@ -993,7 +993,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                                           Vector<Triggerable> triggeredDuringInsert) {
         TreeReference genericRoot = rootRef.genericize();
 
-        Vector<Triggerable> applicable = new Vector<Triggerable>();
+        Vector<Triggerable> applicable = new Vector<>();
         for (Triggerable triggerable : triggerables) {
             for (TreeReference target : triggerable.getTargets()) {
                 if (genericRoot.isParentOf(target, false)) {
@@ -1028,7 +1028,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
 
         //Our vector doesn't have a shallow copy op, so make one
-        Vector<Triggerable> triggeredCopy = new Vector<Triggerable>();
+        Vector<Triggerable> triggeredCopy = new Vector<>();
         for (int i = 0; i < triggered.size(); i++) {
             triggeredCopy.addElement(triggered.elementAt(i));
         }
@@ -1154,7 +1154,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 @Override
                 public Vector getPrototypes() {
                     Class[] proto = {String.class};
-                    Vector<Class[]> v = new Vector<Class[]>();
+                    Vector<Class[]> v = new Vector<>();
                     v.addElement(proto);
                     return v;
                 }
@@ -1227,7 +1227,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                 @Override
                 public Vector getPrototypes() {
                     Class[] proto = {String.class, String.class};
-                    Vector<Class[]> v = new Vector<Class[]>();
+                    Vector<Class[]> v = new Vector<>();
                     v.addElement(proto);
                     return v;
                 }
@@ -1256,7 +1256,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      */
     public String fillTemplateString(String template, TreeReference contextRef, Hashtable<String, ?> variables) {
         // argument to value mapping
-        Hashtable<String, String> args = new Hashtable<String, String>();
+        Hashtable<String, String> args = new Hashtable<>();
 
         int depth = 0;
         // grab all template arguments that need to have substitutions performed
@@ -1328,7 +1328,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      *                used to determine the values to be chosen from.
      */
     public void populateDynamicChoices(ItemsetBinding itemset, TreeReference curQRef) {
-        Vector<SelectChoice> choices = new Vector<SelectChoice>();
+        Vector<SelectChoice> choices = new Vector<>();
 
         DataInstance fi;
         if (itemset.nodesetRef.getInstanceName() != null) //We're not dealing with the default instance
@@ -1583,8 +1583,8 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         ExtUtil.write(dos, getMainInstance());
         ExtUtil.write(dos, new ExtWrapNullable(localizer));
 
-        Vector<Condition> conditions = new Vector<Condition>();
-        Vector<Recalculate> recalcs = new Vector<Recalculate>();
+        Vector<Condition> conditions = new Vector<>();
+        Vector<Recalculate> recalcs = new Vector<>();
         for (int i = 0; i < triggerables.size(); i++) {
             Triggerable t = triggerables.elementAt(i);
             if (t instanceof Condition) {

@@ -59,8 +59,8 @@ public class SessionFrame implements Externalizable {
     // endregion - states
 
     private String frameId;
-    private Vector<StackFrameStep> steps = new Vector<StackFrameStep>();
-    private Vector<StackFrameStep> snapshot = new Vector<StackFrameStep>();
+    private Vector<StackFrameStep> steps = new Vector<>();
+    private Vector<StackFrameStep> snapshot = new Vector<>();
 
     /**
      * A Frame is dead if it's execution path has finished and it shouldn't

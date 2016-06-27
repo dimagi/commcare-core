@@ -36,9 +36,9 @@ public class ReferenceManager {
     private final Vector<RootTranslator> sessionTranslators;
 
     private ReferenceManager() {
-        translators = new Vector<RootTranslator>();
-        factories = new Vector<ReferenceFactory>();
-        sessionTranslators = new Vector<RootTranslator>();
+        translators = new Vector<>();
+        factories = new Vector<>();
+        sessionTranslators = new Vector<>();
     }
 
     /**
@@ -197,7 +197,7 @@ public class ReferenceManager {
         try {
             String uriRoot = uri;
             String jrRefMessagePortion = "reference type";
-            if (uri.indexOf("jr://") != -1) {
+            if (uri.contains("jr://")) {
                 uriRoot = uri.substring("jr://".length());
                 jrRefMessagePortion = "javarosa jr:// reference root";
             }

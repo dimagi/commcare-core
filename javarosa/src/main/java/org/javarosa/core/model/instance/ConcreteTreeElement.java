@@ -140,7 +140,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
     }
 
     private Vector<T> getChildrenWithName(String name, boolean includeTemplate) {
-        Vector<T> v = new Vector<T>();
+        Vector<T> v = new Vector<>();
         if (children == null) {
             return v;
         }
@@ -350,7 +350,7 @@ public class ConcreteTreeElement<T extends AbstractTreeElement> implements Abstr
      */
     public void setAttribute(String namespace, String name, String value) {
         if (attributes == null) {
-            this.attributes = new Vector<T>();
+            this.attributes = new Vector<>();
         }
         for (int i = attributes.size() - 1; i >= 0; i--) {
             T attribut = attributes.elementAt(i);

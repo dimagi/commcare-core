@@ -1,7 +1,5 @@
 package org.javarosa.xpath.parser;
 
-import org.javarosa.xpath.expr.XPathQName;
-
 public class Token {
     public static final int AND = 1;
     public static final int AT = 2;

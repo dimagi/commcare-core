@@ -70,9 +70,9 @@ public class SessionDatumParser extends CommCareElementParser<SessionDatum> {
     private RemoteQueryDatum parseRemoteQueryDatum()
             throws InvalidStructureException, IOException, XmlPullParserException {
         Hashtable<String, XPathExpression> hiddenQueryValues =
-                new Hashtable<String, XPathExpression>();
+                new Hashtable<>();
         Hashtable<String, DisplayUnit> userQueryPrompts =
-                new Hashtable<String, DisplayUnit>();
+                new Hashtable<>();
         this.checkNode("query");
 
         String queryUrl = parser.getAttributeValue(null, "url");

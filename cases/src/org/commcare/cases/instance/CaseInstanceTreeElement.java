@@ -45,7 +45,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     protected Vector<CaseChildElement> cases;
 
-    protected final Interner<TreeElement> treeCache = new Interner<TreeElement>();
+    protected final Interner<TreeElement> treeCache = new Interner<>();
 
     private Interner<String> stringCache;
 
@@ -163,8 +163,8 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
         if (cases != null) {
             return;
         }
-        objectIdMapping = new Hashtable<Integer, Integer>();
-        cases = new Vector<CaseChildElement>();
+        objectIdMapping = new Hashtable<>();
+        cases = new Vector<>();
         if (caseRecords != null) {
             int i = 0;
             for (String id : caseRecords) {
@@ -344,7 +344,7 @@ public class CaseInstanceTreeElement extends StorageBackedTreeRoot<CaseChildElem
 
     @Override
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
-        Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
+        Hashtable<XPathPathExpr, String> indices = new Hashtable<>();
 
         //TODO: Much better matching
         indices.put(CASE_ID_EXPR, Case.INDEX_CASE_ID);

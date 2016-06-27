@@ -81,9 +81,9 @@ public class CommCareSession {
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        this.collectedDatums = new OrderedHashtable<String, String>();
+        this.collectedDatums = new OrderedHashtable<>();
         this.frame = new SessionFrame();
-        this.frameStack = new Stack<SessionFrame>();
+        this.frameStack = new Stack<>();
     }
 
     /**
@@ -100,13 +100,13 @@ public class CommCareSession {
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
 
-        collectedDatums = new OrderedHashtable<String, String>();
+        collectedDatums = new OrderedHashtable<>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
             collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
         }
 
-        this.frameStack = new Stack<SessionFrame>();
+        this.frameStack = new Stack<>();
         // NOTE: can't use for/each due to J2ME build issues w/ Stack
         for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
             frameStack.addElement(oldCommCareSession.frameStack.elementAt(i));
@@ -134,13 +134,13 @@ public class CommCareSession {
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                Vector<Entry> entries = new Vector<Entry>();
+                Vector<Entry> entries = new Vector<>();
                 entries.addElement(s.getEntries().get(commandId));
                 return entries;
             }
         }
 
-        return new Vector<Entry>();
+        return new Vector<>();
     }
 
     /**
@@ -149,7 +149,7 @@ public class CommCareSession {
      */
     private Vector<Entry> getEntriesFromMenu(Menu menu,
                                              OrderedHashtable<String, String> currentSessionData) {
-        Vector<Entry> entries = new Vector<Entry>();
+        Vector<Entry> entries = new Vector<>();
         Hashtable<String, Entry> map = platform.getMenuMap();
         //We're in a menu we have a set of requirements which
         //need to be fulfilled
@@ -249,7 +249,7 @@ public class CommCareSession {
     }
 
     public String[] getHeaderTitles() {
-        Hashtable<String, String> menus = new Hashtable<String, String>();
+        Hashtable<String, String> menus = new Hashtable<>();
 
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {

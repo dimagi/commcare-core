@@ -40,8 +40,8 @@ public class FormTranslationFormatter {
     public static StringBuffer dumpTranslationsIntoCSV(FormDef f, StringBuffer messages) {
         f.getLocalizer().setToDefault();
 
-        Hashtable<String,OrderedHashtable> localeData = new Hashtable<String,OrderedHashtable>();
-        Hashtable<Integer, String[]> techStrings = new Hashtable<Integer, String[]>();
+        Hashtable<String,OrderedHashtable> localeData = new Hashtable<>();
+        Hashtable<Integer, String[]> techStrings = new Hashtable<>();
 
         StringWriter writer = new StringWriter();
 
@@ -125,9 +125,9 @@ public class FormTranslationFormatter {
 
         //Lots of Dictionaries!
         //Treemap is important here to keep ordering constraints.
-        TreeMap<String,Element> itexts = new TreeMap<String,Element>();
-        Hashtable<String,Hashtable<String,Element>> textValues = new Hashtable<String,Hashtable<String,Element>>();
-        Hashtable<String, Hashtable<String,String>> args = new Hashtable<String, Hashtable<String,String>>();
+        TreeMap<String,Element> itexts = new TreeMap<>();
+        Hashtable<String,Hashtable<String,Element>> textValues = new Hashtable<>();
+        Hashtable<String, Hashtable<String,String>> args = new Hashtable<>();
 
         CsvReader csv;
 

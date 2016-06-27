@@ -44,7 +44,7 @@ public class SyncPost implements Externalizable {
     }
 
     public Hashtable<String, String> getEvaluatedParams(EvaluationContext evalContext) {
-        Hashtable<String, String> evaluatedParams = new Hashtable<String, String>();
+        Hashtable<String, String> evaluatedParams = new Hashtable<>();
         for(Enumeration en = params.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             evaluatedParams.put(key,

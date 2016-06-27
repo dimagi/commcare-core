@@ -56,12 +56,12 @@ public class Localizer implements Externalizable {
      */
     public Localizer(boolean fallbackDefaultLocale, boolean fallbackDefaultForm) {
         stringTree = new PrefixTree(10);
-        localeResources = new OrderedHashtable<String, Vector<LocaleDataSource>>();
-        currentLocaleData = new OrderedHashtable<String, PrefixTreeNode>();
-        locales = new Vector<String>();
+        localeResources = new OrderedHashtable<>();
+        currentLocaleData = new OrderedHashtable<>();
+        locales = new Vector<>();
         defaultLocale = null;
         currentLocale = null;
-        observers = new Vector<Localizable>();
+        observers = new Vector<>();
         this.fallbackDefaultLocale = fallbackDefaultLocale;
         this.fallbackDefaultForm = fallbackDefaultForm;
     }
@@ -284,7 +284,7 @@ public class Localizer implements Externalizable {
         if (resource == null) {
             throw new NullPointerException("Attempt to register a null data source in the localizer");
         }
-        Vector<LocaleDataSource> resources = new Vector<LocaleDataSource>();
+        Vector<LocaleDataSource> resources = new Vector<>();
         if (localeResources.containsKey(locale)) {
             resources = localeResources.get(locale);
         }
@@ -312,11 +312,11 @@ public class Localizer implements Externalizable {
         //for any possible language. As such, we'll keep around a table with only the default locale keys to
         //ensure that there are no localizations which are only present in another locale, which causes ugly
         //and difficult to trace errors.
-        OrderedHashtable<String, Boolean> defaultLocaleKeys = new OrderedHashtable<String, Boolean>();
+        OrderedHashtable<String, Boolean> defaultLocaleKeys = new OrderedHashtable<>();
 
         //This table will be loaded with the default values first (when applicable), and then with any
         //language specific translations overwriting the existing values.
-        OrderedHashtable<String, PrefixTreeNode> data = new OrderedHashtable<String, PrefixTreeNode>();
+        OrderedHashtable<String, PrefixTreeNode> data = new OrderedHashtable<>();
 
         // If there's a default locale, we load all of its elements into memory first, then allow
         // the current locale to overwrite any differences between the two.    
@@ -519,7 +519,7 @@ public class Localizer implements Externalizable {
      */
     public String getText(String textID, String locale) {
         String text = getRawText(locale, textID);
-        if (text == null && fallbackDefaultForm && textID.indexOf(";") != -1)
+        if (text == null && fallbackDefaultForm && textID.contains(";"))
             text = getRawText(locale, textID.substring(0, textID.indexOf(";")));
         //Update: We handle default text without forms without needing to do this. We still need it for default text with default forms, though  
         if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm)
@@ -591,7 +591,7 @@ public class Localizer implements Externalizable {
 
     /* === Managing Arguments === */
     public static Vector getArgs(String text) {
-        Vector<String> args = new Vector<String>();
+        Vector<String> args = new Vector<>();
         int i = text.indexOf("${");
         while (i != -1) {
             int j = text.indexOf("}", i);
@@ -654,7 +654,7 @@ public class Localizer implements Externalizable {
 
     public static String processArguments(String text, String[] args, int currentArg) {
 
-        if (text.indexOf("${") != -1 && args.length > currentArg) {
+        if (text.contains("${") && args.length > currentArg) {
             int index = extractNextIndex(text, args);
 
             if (index == -1) {

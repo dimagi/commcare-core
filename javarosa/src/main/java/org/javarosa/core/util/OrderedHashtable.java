@@ -25,12 +25,12 @@ public class OrderedHashtable<K, V> extends Hashtable<K, V> {
 
     public OrderedHashtable() {
         super();
-        orderedKeys = new Vector<K>();
+        orderedKeys = new Vector<>();
     }
 
     public OrderedHashtable(int initialCapacity) {
         super(initialCapacity);
-        orderedKeys = new Vector<K>(initialCapacity);
+        orderedKeys = new Vector<>(initialCapacity);
     }
 
     public void clear() {

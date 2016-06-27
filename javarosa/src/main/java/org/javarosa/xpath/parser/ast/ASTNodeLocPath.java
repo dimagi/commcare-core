@@ -15,8 +15,8 @@ public class ASTNodeLocPath extends ASTNode {
     public Vector<Integer> separators;
 
     public ASTNodeLocPath() {
-        clauses = new Vector<ASTNode>();
-        separators = new Vector<Integer>();
+        clauses = new Vector<>();
+        separators = new Vector<>();
     }
 
     public Vector getChildren() {
@@ -28,7 +28,7 @@ public class ASTNodeLocPath extends ASTNode {
     }
 
     public XPathExpression build() throws XPathSyntaxException {
-        Vector<XPathStep> steps = new Vector<XPathStep>();
+        Vector<XPathStep> steps = new Vector<>();
         XPathExpression filtExpr = null;
         int offset = isAbsolute() ? 1 : 0;
         for (int i = 0; i < clauses.size() + offset; i++) {

@@ -409,7 +409,7 @@ public class DateUtils {
             // Clean up string for later processing
             timeStr = timeStr.substring(0, timeStr.length() - 1);
             timeOffset = new DateFields();
-        } else if (timeStr.indexOf("+") != -1 || timeStr.indexOf("-") != -1) {
+        } else if (timeStr.contains("+") || timeStr.contains("-")) {
             timeOffset = new DateFields();
 
             String[] pieces = DataUtil.splitOnPlus(timeStr);
@@ -429,7 +429,7 @@ public class DateUtils {
 
             String offset = pieces[1];
             String hours = offset;
-            if (offset.indexOf(":") != -1) {
+            if (offset.contains(":")) {
                 String[] tzPieces = DataUtil.splitOnColon(offset);
                 hours = tzPieces[0];
                 int mins = Integer.parseInt(tzPieces[1]);
@@ -788,6 +788,6 @@ public class DateUtils {
         if (string == null || substring == null) {
             return false;
         }
-        return string.indexOf(substring) != -1;
+        return string.contains(substring);
     }
 }

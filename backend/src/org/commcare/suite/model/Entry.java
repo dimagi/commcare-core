@@ -82,7 +82,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances() {
-        Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> copy = new Hashtable<>();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 

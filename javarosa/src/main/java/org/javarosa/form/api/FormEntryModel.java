@@ -261,7 +261,7 @@ public class FormEntryModel {
      * @return list of FormEntryCaptions in hierarchical order
      */
     public FormEntryCaption[] getCaptionHierarchy(FormIndex index) {
-        Vector<FormEntryCaption> captions = new Vector<FormEntryCaption>();
+        Vector<FormEntryCaption> captions = new Vector<>();
         FormIndex remaining = index;
         while (remaining != null) {
             remaining = remaining.getNextLevel();
@@ -432,7 +432,7 @@ public class FormEntryModel {
 
     public FormIndex[] getCompoundIndices(FormIndex container) {
         //ArrayLists are a no-go for J2ME
-        Vector<FormIndex> indices = new Vector<FormIndex>();
+        Vector<FormIndex> indices = new Vector<>();
         FormIndex walker = incrementIndex(container);
         while (FormIndex.isSubElement(container, walker)) {
             if (isIndexRelevant(walker)) {

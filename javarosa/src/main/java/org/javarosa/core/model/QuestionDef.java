@@ -79,8 +79,8 @@ public class QuestionDef implements IFormElement, Localizable {
         setID(id);
         setControlType(controlType);
         observers = new Vector();
-        mQuestionStrings = new Hashtable<String, QuestionString>();
-        extensions = new Vector<QuestionDataExtension>();
+        mQuestionStrings = new Hashtable<>();
+        extensions = new Vector<>();
         
         //ctsims 7/8/2015 - Some of Will's code seems to assume that there's ~always a label 
         //defined, which is causing problems with blank questions. Adding this for now to ensure things
@@ -145,7 +145,7 @@ public class QuestionDef implements IFormElement, Localizable {
 
     public void addSelectChoice(SelectChoice choice) {
         if (choices == null) {
-            choices = new Vector<SelectChoice>();
+            choices = new Vector<>();
         }
         choice.setIndex(choices.size());
         choices.addElement(choice);

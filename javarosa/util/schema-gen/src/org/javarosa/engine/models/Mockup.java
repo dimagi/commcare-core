@@ -19,8 +19,8 @@ public class Mockup {
     final Vector<Session> sessions;
 
     public Mockup() {
-        sessions = new Vector<Session>();
-        instances = new Hashtable<String, FormInstance>();
+        sessions = new Vector<>();
+        instances = new Hashtable<>();
     }
 
     public Hashtable<String, FormInstance> getInstances() {

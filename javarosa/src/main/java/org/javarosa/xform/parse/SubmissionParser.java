@@ -19,7 +19,7 @@ public class SubmissionParser {
 
     public SubmissionProfile parseSubmission(String method, String action, XPathReference ref, Element element) {
         String mediatype = element.getAttributeValue(null, "mediatype");
-        Hashtable<String, String> attributeMap = new Hashtable<String, String>();
+        Hashtable<String, String> attributeMap = new Hashtable<>();
         int nAttr = element.getAttributeCount();
         for (int i = 0; i < nAttr; ++i) {
             String name = element.getAttributeName(i);

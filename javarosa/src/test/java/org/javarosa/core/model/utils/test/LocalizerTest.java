@@ -531,7 +531,7 @@ public class LocalizerTest {
         boolean[] searchOrder = new boolean[4];
         boolean fallbackLocale = l.getFallbackLocale();
         boolean fallbackForm = l.getFallbackForm();
-        boolean hasForm = (textID.indexOf(";") != -1);
+        boolean hasForm = (textID.contains(";"));
         boolean hasDefault = (l.getDefaultLocale() != null && !l.getDefaultLocale().equals(l.getLocale()));
         String baseTextID = (hasForm ? textID.substring(0, textID.indexOf(";")) : textID);
 

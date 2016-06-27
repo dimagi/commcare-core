@@ -31,13 +31,13 @@ public class Harness {
     // Track specification extension keywords so we know what to do during
     // parsing when they are encountered.
     private static final Hashtable<String, Vector<String>> specExtensionKeywords =
-            new Hashtable<String, Vector<String>>();
+            new Hashtable<>();
     // Namespace for which inner elements should be parsed.
     private static final Vector<String> parseSpecExtensionsInnerElements =
-            new Vector<String>();
+            new Vector<>();
     // Namespace for which we supress "unrecognized element" warnings
     private static final Vector<String> suppressSpecExtensionWarnings =
-            new Vector<String>();
+            new Vector<>();
 
     public static void main(String[] args) {
         Options options = new Options();
@@ -142,7 +142,7 @@ public class Harness {
                 String namespace = (String)properties.nextElement();
                 String tagString = extensions.getProperty(namespace);
                 String[] tagsArr = tagString.split(",");
-                Vector<String> tags = new Vector<String>();
+                Vector<String> tags = new Vector<>();
                 for (int i = 0; i < tagsArr.length; i++) {
                     tags.add(tagsArr[i]);
                 }

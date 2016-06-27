@@ -160,7 +160,7 @@ public class PrefixTree {
         if (finalized) {
             throw new RuntimeException("Can't get the strings from a finalized Prefix Tree");
         }
-        Vector<String> v = new Vector<String>();
+        Vector<String> v = new Vector<>();
         root.decompose(v, "");
         return v;
     }

@@ -52,7 +52,7 @@ public class XPathFuncExpr extends XPathExpression {
     public XPathQName id;            //name of the function
     public XPathExpression[] args;    //argument list
 
-    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
+    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
 
     public XPathFuncExpr() {
     } //for deserialization
@@ -328,7 +328,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return normalizeCase(argVals[0], false);
             } else if (name.equals("contains")) {
                 checkArity(name, 2, args.length);
-                return toString(argVals[0]).indexOf(toString(argVals[1])) != -1;
+                return toString(argVals[0]).contains(toString(argVals[1]));
             } else if (name.equals("starts-with")) {
                 checkArity(name, 2, args.length);
                 return toString(argVals[0]).startsWith(toString(argVals[1]));
@@ -847,7 +847,7 @@ public class XPathFuncExpr extends XPathExpression {
         String s1 = (String)unpack(o1);
         String s2 = ((String)o2).trim();
 
-        return new Boolean((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
+        return new Boolean((" " + s1 + " ").contains(" " + s2 + " "));
     }
 
     public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {
@@ -1008,7 +1008,7 @@ public class XPathFuncExpr extends XPathExpression {
         String from = toString(o2);
         String to = toString(o3);
 
-        Hashtable<Character, Character> map = new Hashtable<Character, Character>();
+        Hashtable<Character, Character> map = new Hashtable<>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
             if (!map.containsKey(new Character(from.charAt(i)))) {
                 map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));

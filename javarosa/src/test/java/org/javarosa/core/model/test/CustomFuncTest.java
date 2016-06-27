@@ -73,7 +73,7 @@ public class CustomFuncTest {
 
             public Vector getPrototypes() {
                 Class[] proto = {Double.class};
-                Vector<Class[]> v = new Vector<Class[]>();
+                Vector<Class[]> v = new Vector<>();
                 v.addElement(proto);
                 return v;
             }
@@ -123,7 +123,7 @@ public class CustomFuncTest {
 
             public Vector getPrototypes() {
                 Class[] proto = {Double.class};
-                Vector<Class[]> v = new Vector<Class[]>();
+                Vector<Class[]> v = new Vector<>();
                 v.addElement(proto);
                 return v;
             }

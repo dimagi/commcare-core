@@ -49,7 +49,7 @@ public class InstanceBase implements AbstractTreeElement<AbstractTreeElement> {
     }
 
     public Vector<AbstractTreeElement> getChildrenWithName(String name) {
-        Vector<AbstractTreeElement> children = new Vector<AbstractTreeElement>();
+        Vector<AbstractTreeElement> children = new Vector<>();
         if (name.equals(child.getName())) {
             children.addElement(child);
         }
