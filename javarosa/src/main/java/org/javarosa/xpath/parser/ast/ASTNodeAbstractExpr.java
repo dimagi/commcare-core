@@ -19,11 +19,11 @@ public class ASTNodeAbstractExpr extends ASTNode {
     public final Vector<Object> content;
 
     public ASTNodeAbstractExpr() {
-        content = new Vector<Object>();
+        content = new Vector<>();
     }
 
     public Vector getChildren() {
-        Vector<Object> children = new Vector<Object>();
+        Vector<Object> children = new Vector<>();
         for (int i = 0; i < content.size(); i++) {
             if (getType(i) == CHILD) {
                 children.addElement(content.elementAt(i));
@@ -140,15 +140,15 @@ public class ASTNodeAbstractExpr extends ASTNode {
         public final Vector<Integer> separators;
 
         public Partition() {
-            pieces = new Vector<ASTNodeAbstractExpr>();
-            separators = new Vector<Integer>();
+            pieces = new Vector<>();
+            separators = new Vector<>();
         }
     }
 
     //paritition the range [start,end), separating by any occurrence of separator
     public Partition partition(int[] separators, int start, int end) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<Integer>();
+        Vector<Integer> sepIdxs = new Vector<>();
 
         for (int i = start; i < end; i++) {
             for (int j = 0; j < separators.length; j++) {
@@ -173,7 +173,7 @@ public class ASTNodeAbstractExpr extends ASTNode {
     //start is the opening token of the current stack level
     public Partition partitionBalanced(int sep, int start, int leftPush, int rightPop) {
         Partition part = new Partition();
-        Vector<Integer> sepIdxs = new Vector<Integer>();
+        Vector<Integer> sepIdxs = new Vector<>();
         int end = indexOfBalanced(start, rightPop, leftPush, rightPop);
         if (end == -1)
             return null;

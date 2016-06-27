@@ -265,7 +265,7 @@ public class FormEntryCaption implements FormElementStateListener {
             }
         }
 
-        Hashtable<String, Object> vars = new Hashtable<String, Object>();
+        Hashtable<String, Object> vars = new Hashtable<>();
         vars.put("name", title);
         vars.put("n", new Integer(count));
         return form.fillTemplateString(caption, index.getReference(), vars);
@@ -301,7 +301,7 @@ public class FormEntryCaption implements FormElementStateListener {
                 return title + " " + ix + "/" + count;
             }
 
-            Hashtable<String, Object> vars = new Hashtable<String, Object>();
+            Hashtable<String, Object> vars = new Hashtable<>();
             vars.put("name", title);
             vars.put("i", new Integer(ix));
             vars.put("n", new Integer(count));
@@ -319,7 +319,7 @@ public class FormEntryCaption implements FormElementStateListener {
         }
 
         int numRepetitions = getNumRepetitions();
-        Vector<String> reps = new Vector<String>();
+        Vector<String> reps = new Vector<>();
         for (int i = 0; i < numRepetitions; i++) {
             reps.addElement(getRepetitionText("choose", form.descendIntoRepeat(index, i), false));
         }

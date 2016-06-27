@@ -96,7 +96,7 @@ public class PrefixTreeNode {
 
     public void addChild(PrefixTreeNode node) {
         if (children == null) {
-            children = new Vector<PrefixTreeNode>();
+            children = new Vector<>();
         }
         children.addElement(node);
         node.parent = this;

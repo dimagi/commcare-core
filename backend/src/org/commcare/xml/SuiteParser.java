@@ -65,10 +65,10 @@ public class SuiteParser extends ElementParser<Suite> {
 
         String sVersion = parser.getAttributeValue(null, "version");
         int version = Integer.parseInt(sVersion);
-        Hashtable<String, Detail> details = new Hashtable<String, Detail>();
-        Hashtable<String, Entry> entries = new Hashtable<String, Entry>();
+        Hashtable<String, Detail> details = new Hashtable<>();
+        Hashtable<String, Entry> entries = new Hashtable<>();
 
-        Vector<Menu> menus = new Vector<Menu>();
+        Vector<Menu> menus = new Vector<>();
 
         try {
             //Now that we've covered being inside of a suite,

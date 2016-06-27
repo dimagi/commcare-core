@@ -50,7 +50,7 @@ public class User implements Persistable, Restorable, IMetaData {
 
     public byte[] wrappedKey;
 
-    public Hashtable<String, String> properties = new Hashtable<String, String>();
+    public Hashtable<String, String> properties = new Hashtable<>();
 
     public User() {
         setUserType(STANDARD);

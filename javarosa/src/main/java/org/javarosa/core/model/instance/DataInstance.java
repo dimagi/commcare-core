@@ -45,12 +45,12 @@ public abstract class DataInstance<T extends AbstractTreeElement<T>> implements 
     private final CacheTable<TreeReference, T> referenceCache;
 
     public DataInstance() {
-        referenceCache = new CacheTable<TreeReference, T>();
+        referenceCache = new CacheTable<>();
     }
 
     public DataInstance(String instanceid) {
         this.instanceid = instanceid;
-        referenceCache = new CacheTable<TreeReference, T>();
+        referenceCache = new CacheTable<>();
     }
 
     public static TreeReference unpackReference(XPathReference ref) {

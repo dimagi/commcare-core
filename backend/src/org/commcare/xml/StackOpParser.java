@@ -56,7 +56,7 @@ public class StackOpParser extends ElementParser<StackOperation> {
     }
 
     private Vector<StackFrameStep> getChildren(String operation) throws InvalidStructureException, IOException, XmlPullParserException {
-        Vector<StackFrameStep> elements = new Vector<StackFrameStep>();
+        Vector<StackFrameStep> elements = new Vector<>();
         StackFrameStepParser sfep = new StackFrameStepParser(parser);
         while (nextTagInBlock(operation)) {
             elements.addElement(sfep.parse());

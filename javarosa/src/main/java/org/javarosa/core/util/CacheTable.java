@@ -26,11 +26,11 @@ public class CacheTable<T, K> {
 
     private Hashtable<T, WeakReference> currentTable;
 
-    private static final Vector<WeakReference> caches = new Vector<WeakReference>();
+    private static final Vector<WeakReference> caches = new Vector<>();
 
     private static final Thread cleaner = new Thread(new Runnable() {
         public void run() {
-            Vector<Integer> toRemove = new Vector<Integer>();
+            Vector<Integer> toRemove = new Vector<>();
             while (true) {
                 try {
                     toRemove.removeAllElements();
@@ -99,7 +99,7 @@ public class CacheTable<T, K> {
 
     public CacheTable() {
         super();
-        currentTable = new Hashtable<T, WeakReference>();
+        currentTable = new Hashtable<>();
         registerCache(this);
     }
 

@@ -29,8 +29,8 @@ public class CalloutParser extends ElementParser<Callout> {
         String displayName = parser.getAttributeValue(null, "name");
         String type = parser.getAttributeValue(null, "type");
 
-        Hashtable<String, String> extras = new Hashtable<String, String>();
-        Vector<String> responses = new Vector<String>();
+        Hashtable<String, String> extras = new Hashtable<>();
+        Vector<String> responses = new Vector<>();
         DetailField responseDetailField = null;
 
         while (nextTagInBlock("lookup")) {

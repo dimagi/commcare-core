@@ -68,7 +68,7 @@ public class ResourceManager {
 
                 if (profile == null) {
                     // grab the local profile and parse it
-                    Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+                    Vector<ResourceLocation> locations = new Vector<>();
                     locations.addElement(new ResourceLocation(Resource.RESOURCE_AUTHORITY_LOCAL, profileReference));
 
                     // We need a way to identify this version...
@@ -136,7 +136,7 @@ public class ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
-        Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+        Vector<ResourceLocation> locations = new Vector<>();
         locations.addElement(new ResourceLocation(authority, profileRef));
 
         Resource r = new Resource(Resource.RESOURCE_VERSION_UNKNOWN,
@@ -361,8 +361,8 @@ public class ResourceManager {
     }
 
     public static Vector<Resource> getResourceListFromProfile(ResourceTable master) {
-        Vector<Resource> unresolved = new Vector<Resource>();
-        Vector<Resource> resolved = new Vector<Resource>();
+        Vector<Resource> unresolved = new Vector<>();
+        Vector<Resource> resolved = new Vector<>();
         Resource r = master.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (r == null) {
             return resolved;

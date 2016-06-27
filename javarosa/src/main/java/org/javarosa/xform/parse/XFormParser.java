@@ -102,7 +102,7 @@ public class XFormParser {
     private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
 
-    private final Vector<QuestionExtensionParser> extensionParsers = new Vector<QuestionExtensionParser>();
+    private final Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
 
     private Reader _reader;
     private Document _xmldoc;
@@ -139,13 +139,13 @@ public class XFormParser {
     // Track specification extension keywords so we know what to do during
     // parsing when they are encountered.
     private static Hashtable<String, Vector<String>> specExtensionKeywords =
-            new Hashtable<String, Vector<String>>();
+            new Hashtable<>();
     // Namespace for which inner elements should be parsed.
     private static Vector<String> parseSpecExtensionsInnerElements =
-            new Vector<String>();
+            new Vector<>();
     // Namespace for which we supress "unrecognized element" warnings
     private static Vector<String> suppressSpecExtensionWarnings =
-            new Vector<String>();
+            new Vector<>();
 
     //incremented to provide unique question ID for each question
     private int serialQuestionID = 1;
@@ -162,7 +162,7 @@ public class XFormParser {
         initProcessingRules();
         initTypeMappings();
         modelPrototypes = new PrototypeFactoryDeprecated();
-        submissionParsers = new Vector<SubmissionParser>();
+        submissionParsers = new Vector<>();
     }
 
     private static void initProcessingRules() {
@@ -218,7 +218,7 @@ public class XFormParser {
             }
         };
 
-        groupLevelHandlers = new Hashtable<String, IElementHandler>();
+        groupLevelHandlers = new Hashtable<>();
         groupLevelHandlers.put("input", input);
         groupLevelHandlers.put("secret", secret);
         groupLevelHandlers.put(SELECT, select);
@@ -247,7 +247,7 @@ public class XFormParser {
             }
         };
 
-        topLevelHandlers = new Hashtable<String, IElementHandler>();
+        topLevelHandlers = new Hashtable<>();
         for (Enumeration en = groupLevelHandlers.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             topLevelHandlers.put(key, groupLevelHandlers.get(key));
@@ -258,7 +258,7 @@ public class XFormParser {
     }
 
     private static void setupActionHandlers() {
-        actionHandlers = new Hashtable<String, IElementHandler>();
+        actionHandlers = new Hashtable<>();
         registerActionHandler(SetValueAction.ELEMENT_NAME, SetValueAction.getHandler());
     }
 
@@ -266,7 +266,7 @@ public class XFormParser {
      * Setup mapping from a tag's type attribute to its datatype id.
      */
     private static void initTypeMappings() {
-        typeMappings = new Hashtable<String, Integer>();
+        typeMappings = new Hashtable<>();
         typeMappings.put("string", DataUtil.integer(Constants.DATATYPE_TEXT));               //xsd:
         typeMappings.put("integer", DataUtil.integer(Constants.DATATYPE_INTEGER));           //xsd:
         typeMappings.put("long", DataUtil.integer(Constants.DATATYPE_LONG));                 //xsd:
@@ -297,20 +297,20 @@ public class XFormParser {
 
     private void initState() {
         modelFound = false;
-        bindingsByID = new Hashtable<String, DataBinding>();
-        bindings = new Vector<DataBinding>();
-        actionTargets = new Vector<TreeReference>();
-        repeats = new Vector<TreeReference>();
-        itemsets = new Vector<ItemsetBinding>();
-        selectOnes = new Vector<TreeReference>();
-        selectMultis = new Vector<TreeReference>();
+        bindingsByID = new Hashtable<>();
+        bindings = new Vector<>();
+        actionTargets = new Vector<>();
+        repeats = new Vector<>();
+        itemsets = new Vector<>();
+        selectOnes = new Vector<>();
+        selectMultis = new Vector<>();
         mainInstanceNode = null;
-        instanceNodes = new Vector<Element>();
-        instanceNodeIdStrs = new Vector<String>();
+        instanceNodes = new Vector<>();
+        instanceNodeIdStrs = new Vector<>();
         repeatTree = null;
         defaultNamespace = null;
 
-        itextKnownForms = new Vector<String>();
+        itextKnownForms = new Vector<>();
         itextKnownForms.addElement("long");
         itextKnownForms.addElement("short");
         itextKnownForms.addElement("image");
@@ -505,7 +505,7 @@ public class XFormParser {
         //so we really want to go through and convert the kxml parsed
         //text (which have lots of characters each as their own string)
         //into one single string
-        Stack<Element> q = new Stack<Element>();
+        Stack<Element> q = new Stack<>();
 
         q.push(doc.getRootElement());
         while (!q.isEmpty()) {
@@ -636,7 +636,7 @@ public class XFormParser {
                 "entryHeader",
                 "delHeader"
         };
-        Vector<String> suppressWarning = new Vector<String>();
+        Vector<String> suppressWarning = new Vector<>();
         for (int i = 0; i < suppressWarningArr.length; i++) {
             suppressWarning.addElement(suppressWarningArr[i]);
         }
@@ -665,7 +665,7 @@ public class XFormParser {
     }
 
     private void parseTitle(Element e) {
-        Vector<String> usedAtts = new Vector<String>(); //no attributes parsed in title.
+        Vector<String> usedAtts = new Vector<>(); //no attributes parsed in title.
         String title = getXMLText(e, true);
         System.out.println("Title: \"" + title + "\"");
         _f.setTitle(title);
@@ -684,7 +684,7 @@ public class XFormParser {
     }
 
     private void parseMeta(Element e) {
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         int attributes = e.getAttributeCount();
         for (int i = 0; i < attributes; ++i) {
             String name = e.getAttributeName(i);
@@ -703,8 +703,8 @@ public class XFormParser {
 
     //for ease of parsing, we assume a model comes before the controls, which isn't necessarily mandated by the xforms spec
     private void parseModel(Element e) {
-        Vector<String> usedAtts = new Vector<String>(); //no attributes parsed in title.
-        Vector<Element> delayedParseElements = new Vector<Element>();
+        Vector<String> usedAtts = new Vector<>(); //no attributes parsed in title.
+        Vector<Element> delayedParseElements = new Vector<>();
 
         if (modelFound) {
             reporter.warning(XFormParserReporter.TYPE_INVALID_STRUCTURE,
@@ -924,7 +924,7 @@ public class XFormParser {
     }
 
     protected QuestionDef parseUpload(IFormElement parent, Element e, int controlUpload) {
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement("mediatype");
 
         QuestionDef question = parseControl(parent, e, controlUpload, usedAtts);
@@ -1085,7 +1085,7 @@ public class XFormParser {
      * @param e The Element to parse
      */
     private void parseHelperText(QuestionDef q, Element e) {
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
         String XMLText = getXMLText(e, true);
         String innerText = getLabel(e);
@@ -1118,7 +1118,7 @@ public class XFormParser {
         if (g.getRepeat())
             return; //ignore child <label>s for <repeat>; the appropriate <label> must be in the wrapping <group>
 
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
 
 
@@ -1248,7 +1248,7 @@ public class XFormParser {
         }
 
         // create a vector with the attributes we expect to see
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
         usedAtts.addElement(VALUE);
         // warn if those attributes aren't present in the element
@@ -1263,9 +1263,9 @@ public class XFormParser {
         final int MAX_VALUE_LEN = 32;
 
         //catalogue of used attributes in this method/element
-        Vector<String> usedAtts = new Vector<String>();
-        Vector<String> labelUA = new Vector<String>();
-        Vector<String> valueUA = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
+        Vector<String> labelUA = new Vector<>();
+        Vector<String> valueUA = new Vector<>();
         labelUA.addElement(REF_ATTR);
         valueUA.addElement(FORM_ATTR);
 
@@ -1352,10 +1352,10 @@ public class XFormParser {
 
         ////////////////USED FOR PARSER WARNING OUTPUT ONLY
         //catalogue of used attributes in this method/element
-        Vector<String> usedAtts = new Vector<String>();
-        Vector<String> labelUA = new Vector<String>(); //for child with name 'label'
-        Vector<String> valueUA = new Vector<String>(); //for child with name 'value'
-        Vector<String> copyUA = new Vector<String>(); //for child with name 'copy'
+        Vector<String> usedAtts = new Vector<>();
+        Vector<String> labelUA = new Vector<>(); //for child with name 'label'
+        Vector<String> valueUA = new Vector<>(); //for child with name 'value'
+        Vector<String> copyUA = new Vector<>(); //for child with name 'copy'
         usedAtts.addElement(NODESET_ATTR);
         labelUA.addElement(REF_ATTR);
         valueUA.addElement(REF_ATTR);
@@ -1468,7 +1468,7 @@ public class XFormParser {
         XPathReference dataRef = null;
         boolean refFromBind = false;
 
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement(REF_ATTR);
         usedAtts.addElement(NODESET_ATTR);
         usedAtts.addElement(BIND_ATTR);
@@ -1660,7 +1660,7 @@ public class XFormParser {
         _f.setLocalizer(l);
         l.registerLocalizable(_f);
 
-        Vector<String> usedAtts = new Vector<String>(); //used for warning message
+        Vector<String> usedAtts = new Vector<>(); //used for warning message
 
         for (int i = 0; i < itext.getChildCount(); i++) {
             Element trans = itext.getElement(i);
@@ -1684,7 +1684,7 @@ public class XFormParser {
 
     private void parseTranslation(Localizer l, Element trans) {
         /////for warning message
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement("lang");
         usedAtts.addElement("default");
         /////////////////////////
@@ -1738,8 +1738,8 @@ public class XFormParser {
         String id = text.getAttributeValue("", ID_ATTR);
 
         //used for parser warnings...
-        Vector<String> usedAtts = new Vector<String>();
-        Vector<String> childUsedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
+        Vector<String> childUsedAtts = new Vector<>();
         usedAtts.addElement(ID_ATTR);
         usedAtts.addElement(FORM_ATTR);
         childUsedAtts.addElement(FORM_ATTR);
@@ -1956,7 +1956,7 @@ public class XFormParser {
     }
 
     private void parseBind(Element e) {
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
 
         DataBinding binding = processStandardBindAttributes(usedAtts, e);
 
@@ -2049,7 +2049,7 @@ public class XFormParser {
             instanceModel.setName(name);
         }
 
-        Vector<String> usedAtts = new Vector<String>();
+        Vector<String> usedAtts = new Vector<>();
         usedAtts.addElement("version");
         usedAtts.addElement("uiVersion");
         usedAtts.addElement("name");
@@ -2079,7 +2079,7 @@ public class XFormParser {
 
 
     private static Hashtable<String, String> loadNamespaces(Element e, FormInstance tree) {
-        Hashtable<String, String> prefixes = new Hashtable<String, String>();
+        Hashtable<String, String> prefixes = new Hashtable<>();
         for (int i = 0; i < e.getNamespaceCount(); ++i) {
             String uri = e.getNamespaceUri(i);
             String prefix = e.getNamespacePrefix(i);
@@ -2183,7 +2183,7 @@ public class XFormParser {
     }
 
     private Vector<TreeReference> getRepeatableRefs() {
-        Vector<TreeReference> refs = new Vector<TreeReference>();
+        Vector<TreeReference> refs = new Vector<>();
 
         for (int i = 0; i < repeats.size(); i++) {
             refs.addElement(repeats.elementAt(i));
@@ -2259,7 +2259,7 @@ public class XFormParser {
     private void processTemplates(FormInstance instance) {
         repeatTree = buildRepeatTree(getRepeatableRefs(), instance.getRoot().getName());
 
-        Vector<TreeReference> missingTemplates = new Vector<TreeReference>();
+        Vector<TreeReference> missingTemplates = new Vector<>();
         checkRepeatsForTemplate(instance, repeatTree, missingTemplates);
 
         removeInvalidTemplates(instance, repeatTree);
@@ -2473,7 +2473,7 @@ public class XFormParser {
         }
 
         //check control/group/repeat bindings (bound nodes exist, question can't bind to '/')
-        Vector<String> bindErrors = new Vector<String>();
+        Vector<String> bindErrors = new Vector<>();
         verifyControlBindings(_f, instance, bindErrors);
         if (bindErrors.size() > 0) {
             String errorMsg = "";
@@ -2562,7 +2562,7 @@ public class XFormParser {
 
             //check that, in the instance, current node is not within the scope of any closer repeat binding
             //build a list of all the node's instance ancestors
-            Vector<TreeElement> repeatAncestry = new Vector<TreeElement>();
+            Vector<TreeElement> repeatAncestry = new Vector<>();
             TreeElement repeatNode = (repeatTree == null ? null : repeatTree.getRoot());
             if (repeatNode != null) {
                 repeatAncestry.addElement(repeatNode);
@@ -2776,7 +2776,7 @@ public class XFormParser {
         if (hasElements) {
             // recur on child nodes
             // stores max multiplicity seen for a given node name thus far
-            Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
+            Hashtable<String, Integer> multiplicities = new Hashtable<>();
             for (int i = 0; i < numChildren; i++) {
                 if (node.getType(i) == Node.ELEMENT) {
                     Element child = node.getElement(i);

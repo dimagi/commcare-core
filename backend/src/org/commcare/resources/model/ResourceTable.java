@@ -58,7 +58,7 @@ public class ResourceTable {
     // Cache for profile and suite 'parent' resources which are used in
     // references resolution
     private Hashtable<String, Resource> compoundResourceCache =
-            new Hashtable<String, Resource>();
+            new Hashtable<>();
 
     public ResourceTable() {
     }
@@ -184,7 +184,7 @@ public class ResourceTable {
     }
 
     public Vector<Resource> getResourcesForParent(String parent) {
-        Vector<Resource> v = new Vector<Resource>();
+        Vector<Resource> v = new Vector<>();
         for (Enumeration en = storage.getIDsForValue(Resource.META_INDEX_PARENT_GUID, parent).elements(); en.hasMoreElements(); ) {
             Resource r = (Resource)storage.read(((Integer)en.nextElement()).intValue());
             v.addElement(r);
@@ -231,7 +231,7 @@ public class ResourceTable {
      * Get the all the resources in this table's storage.
      */
     private Vector<Resource> getResources() {
-        Vector<Resource> v = new Vector<Resource>();
+        Vector<Resource> v = new Vector<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             v.addElement(r);
@@ -243,7 +243,7 @@ public class ResourceTable {
      * Get the resources in this table's storage that have a given status.
      */
     private Vector<Resource> getResourcesWithStatus(int status) {
-        Vector<Resource> v = new Vector<Resource>();
+        Vector<Resource> v = new Vector<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             if (r.getStatus() == status) {
@@ -257,7 +257,7 @@ public class ResourceTable {
      * Get the all the resources in this table's storage.
      */
     private Stack<Resource> getResourceStack() {
-        Stack<Resource> v = new Stack<Resource>();
+        Stack<Resource> v = new Stack<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             v.push(r);
@@ -269,7 +269,7 @@ public class ResourceTable {
      * Get the resources in this table's storage that have a given status.
      */
     private Stack<Resource> getResourceStackWithStatus(int status) {
-        Stack<Resource> v = new Stack<Resource>();
+        Stack<Resource> v = new Stack<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             if (r.getStatus() == status) {
@@ -292,7 +292,7 @@ public class ResourceTable {
      * @return Stack of resource records that aren't ready for installation
      */
     private Stack<Resource> getUnreadyResources() {
-        Stack<Resource> v = new Stack<Resource>();
+        Stack<Resource> v = new Stack<>();
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             if (r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED &&
@@ -470,7 +470,7 @@ public class ResourceTable {
     }
 
     private static Hashtable<String, Resource> getResourceMap(ResourceTable table) {
-        Hashtable<String, Resource> resourceMap = new Hashtable<String, Resource>();
+        Hashtable<String, Resource> resourceMap = new Hashtable<>();
         for (IStorageIterator it = table.storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
             resourceMap.put(r.getResourceId(), r);
@@ -522,7 +522,7 @@ public class ResourceTable {
             throws UnresolvedResourceException, UnfullfilledRequirementsException, InstallCancelledException {
         boolean upgrade = false;
 
-        Vector<Reference> invalid = new Vector<Reference>();
+        Vector<Reference> invalid = new Vector<>();
 
         if (master != null) {
             Resource peer;
@@ -903,7 +903,7 @@ public class ResourceTable {
             throws ResourceInitializationException {
         // HHaaaacckkk. (Some properties cannot be handled until after others
         // TODO: Replace this with some sort of sorted priority queue.
-        Vector<ResourceInstaller> lateInit = new Vector<ResourceInstaller>();
+        Vector<ResourceInstaller> lateInit = new Vector<>();
 
         for (IStorageIterator it = storage.iterate(); it.hasMore(); ) {
             Resource r = (Resource)it.nextRecord();
@@ -932,7 +932,7 @@ public class ResourceTable {
      */
     private static Vector<Reference> gatherResourcesLocalRefs(Resource r,
                                                               ResourceTable t) {
-        Vector<Reference> ret = new Vector<Reference>();
+        Vector<Reference> ret = new Vector<>();
 
         for (ResourceLocation location : r.getLocations()) {
             if (location.isRelative()) {
@@ -971,7 +971,7 @@ public class ResourceTable {
                                                          Resource r,
                                                          ResourceTable t,
                                                          ResourceTable m) {
-        Vector<Reference> ret = new Vector<Reference>();
+        Vector<Reference> ret = new Vector<>();
 
         if (r.hasParent()) {
             Resource parent = t.getParentResource(r);
@@ -1010,7 +1010,7 @@ public class ResourceTable {
                                                           Resource r,
                                                           ResourceTable t,
                                                           ResourceTable m) {
-        Vector<Reference> ret = new Vector<Reference>();
+        Vector<Reference> ret = new Vector<>();
 
         for (ResourceLocation location : r.getLocations()) {
             if (location.getAuthority() == type) {

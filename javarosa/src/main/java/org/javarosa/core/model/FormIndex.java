@@ -391,13 +391,13 @@ public class FormIndex {
     public void assignRefs(FormDef f) {
         FormIndex cur = this;
 
-        Vector<Integer> indexes = new Vector<Integer>();
-        Vector<Integer> multiplicities = new Vector<Integer>();
-        Vector<IFormElement> elements = new Vector<IFormElement>();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
         f.collapseIndex(this, indexes, multiplicities, elements);
 
-        Vector<Integer> curMults = new Vector<Integer>();
-        Vector<IFormElement> curElems = new Vector<IFormElement>();
+        Vector<Integer> curMults = new Vector<>();
+        Vector<IFormElement> curElems = new Vector<>();
 
         int i = 0;
         while (cur != null) {

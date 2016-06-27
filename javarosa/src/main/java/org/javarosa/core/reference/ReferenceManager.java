@@ -36,9 +36,9 @@ public class ReferenceManager {
     private final Vector<RootTranslator> sessionTranslators;
 
     private ReferenceManager() {
-        translators = new Vector<RootTranslator>();
-        factories = new Vector<ReferenceFactory>();
-        sessionTranslators = new Vector<RootTranslator>();
+        translators = new Vector<>();
+        factories = new Vector<>();
+        sessionTranslators = new Vector<>();
     }
 
     /**

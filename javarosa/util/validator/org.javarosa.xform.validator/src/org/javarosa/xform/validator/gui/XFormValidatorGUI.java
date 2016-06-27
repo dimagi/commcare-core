@@ -131,7 +131,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
     public static BufferedReader brOut = null;
     public static Process process = null;
 
-    static final Interner<String> interns = new Interner<String>();
+    static final Interner<String> interns = new Interner<>();
 
 
     public static void main(String argv[]) {

@@ -83,7 +83,7 @@ public class XPathConditional implements IConditionExpr {
      */
     @Override
     public Vector<TreeReference> getExprsTriggers(TreeReference originalContextRef) {
-        Vector<TreeReference> triggers = new Vector<TreeReference>();
+        Vector<TreeReference> triggers = new Vector<>();
         getExprsTriggersAccumulator(expr, triggers, null, originalContextRef);
         return triggers;
     }

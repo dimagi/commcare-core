@@ -40,8 +40,8 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     final PrototypeFactory mFactory;
 
     public DummyIndexedStorageUtility(Class<T> prototype, PrototypeFactory factory) {
-        meta = new Hashtable<String, Hashtable<Object, Vector<Integer>>>();
-        data = new Hashtable<Integer, T>();
+        meta = new Hashtable<>();
+        data = new Hashtable<>();
         curCount = 0;
         this.prototype = prototype;
         this.mFactory = factory;
@@ -84,7 +84,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
             throw new IllegalArgumentException("Unsupported index: "+ fieldName + " for storage of " + prototype.getName());
         }
         if (meta.get(fieldName).get(value) == null) {
-            return new Vector<Integer>();
+            return new Vector<>();
         }
         return meta.get(fieldName).get(value);
     }
@@ -189,7 +189,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      */
     public IStorageIterator<T> iterate() {
         //We should really find a way to invalidate old iterators first here
-        return new DummyStorageIterator<T>(data);
+        return new DummyStorageIterator<>(data);
     }
 
     /* (non-Javadoc)
@@ -259,7 +259,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
     public Vector<Integer> removeAll(EntityFilter ef) {
-        Vector<Integer> removed = new Vector<Integer>();
+        Vector<Integer> removed = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             Integer i = (Integer)en.nextElement();
             switch (ef.preFilter(i.intValue(), null)) {
@@ -352,7 +352,7 @@ public class DummyIndexedStorageUtility<T extends Persistable> implements IStora
     }
 
 
-    final Vector<String> dynamicIndices = new Vector<String>();
+    final Vector<String> dynamicIndices = new Vector<>();
 
     public void registerIndex(String filterIndex) {
         dynamicIndices.addElement(filterIndex);

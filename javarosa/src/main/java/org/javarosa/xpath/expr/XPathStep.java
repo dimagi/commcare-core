@@ -304,7 +304,7 @@ public class XPathStep implements Externalizable {
                 break;
         }
 
-        Vector<XPathExpression> v = new Vector<XPathExpression>();
+        Vector<XPathExpression> v = new Vector<>();
         for (XPathExpression predicate : predicates) {
             v.addElement(predicate);
         }

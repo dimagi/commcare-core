@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  */
 public class JSONReporter extends XFormParserReporter {
-    ArrayList<JSONObject> problems = new ArrayList<JSONObject>();
+    ArrayList<JSONObject> problems = new ArrayList<>();
 
     boolean passedValidation = false;
     private String failureReason;

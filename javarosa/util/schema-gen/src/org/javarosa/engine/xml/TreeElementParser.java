@@ -32,7 +32,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
             element.setAttribute(parser.getAttributeNamespace(i), parser.getAttributeName(i), parser.getAttributeValue(i));
         }
 
-        Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
+        Hashtable<String, Integer> multiplicities = new Hashtable<>();
         //NOTE: We never expect this to be the exit condition
         while(parser.getDepth() >= depth) {
         switch(this.nextNonWhitespace()) {

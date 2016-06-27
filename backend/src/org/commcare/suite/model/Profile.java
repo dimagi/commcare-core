@@ -71,9 +71,9 @@ public class Profile implements Persistable {
         this.uniqueId = uniqueId;
         this.displayName = displayName;
         this.fromOld = fromOld;
-        properties = new Vector<PropertySetter>();
-        roots = new Vector<RootTranslator>();
-        featureStatus = new Hashtable<String, Boolean>();
+        properties = new Vector<>();
+        roots = new Vector<>();
+        featureStatus = new Hashtable<>();
 
         //turn on default features
         featureStatus.put("users", new Boolean(true));

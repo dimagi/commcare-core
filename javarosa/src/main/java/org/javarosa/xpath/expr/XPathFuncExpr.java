@@ -52,7 +52,7 @@ public class XPathFuncExpr extends XPathExpression {
     public XPathQName id;            //name of the function
     public XPathExpression[] args;    //argument list
 
-    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<String, Double>();
+    private static final CacheTable<String, Double> mDoubleParseCache = new CacheTable<>();
 
     public XPathFuncExpr() {
     } //for deserialization
@@ -1008,7 +1008,7 @@ public class XPathFuncExpr extends XPathExpression {
         String from = toString(o2);
         String to = toString(o3);
 
-        Hashtable<Character, Character> map = new Hashtable<Character, Character>();
+        Hashtable<Character, Character> map = new Hashtable<>();
         for (int i = 0; i < Math.min(from.length(), to.length()); i++) {
             if (!map.containsKey(new Character(from.charAt(i)))) {
                 map.put(new Character(from.charAt(i)), new Character(to.charAt(i)));

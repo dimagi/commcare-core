@@ -16,7 +16,7 @@ import java.util.Hashtable;
  */
 public class StorageManager {
 
-    private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<String, IStorageUtility>();
+    private static final Hashtable<String, IStorageUtility> storageRegistry = new Hashtable<>();
     private static IStorageFactory storageFactory;
 
     /**

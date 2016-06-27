@@ -29,7 +29,7 @@ public abstract class RangeHint<T extends IAnswerData> implements ConstraintHint
 
         Vector<Object> pivots = conditional.pivot(instance, c);
 
-        Vector<CmpPivot> internalPivots = new Vector<CmpPivot>();
+        Vector<CmpPivot> internalPivots = new Vector<>();
         for (Object p : pivots) {
             if (!(p instanceof CmpPivot)) {
                 throw new UnpivotableExpressionException();

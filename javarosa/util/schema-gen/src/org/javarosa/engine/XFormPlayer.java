@@ -433,7 +433,7 @@ public class XFormPlayer {
                     if (choices != null) {
                         if (input.equals("") &&
                                 fep.getQuestion().getControlType() == Constants.CONTROL_SELECT_MULTI) {
-                            Vector<Selection> answers = new Vector<Selection>();
+                            Vector<Selection> answers = new Vector<>();
                             for (int i = 0; i < mCurrentSelectList.length; ++i) {
                                 if (mCurrentSelectList[i]) {
                                     answers.addElement(choices.elementAt(i).selection());

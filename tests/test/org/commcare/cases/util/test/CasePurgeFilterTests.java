@@ -42,16 +42,16 @@ public class CasePurgeFilterTests {
     @Before
     public void setUp() throws Exception {
 
-        storage =  new DummyIndexedStorageUtility<Case>(Case.class, new LivePrototypeFactory());
+        storage = new DummyIndexedStorageUtility<>(Case.class, new LivePrototypeFactory());
 
         owner ="owner";
         otherOwner = "otherowner";
         groupOwner = "groupowned";
 
-        userOwned = new Vector<String>();
+        userOwned = new Vector<>();
         userOwned.addElement(owner);
 
-        groupOwned = new Vector<String>();
+        groupOwned = new Vector<>();
         groupOwned.addElement(owner);
         groupOwned.addElement(groupOwner);
 
@@ -159,7 +159,7 @@ public class CasePurgeFilterTests {
     }
 
     private Vector<Integer> atv(int[] a) {
-        Vector<Integer> ret = new Vector<Integer>(a.length);
+        Vector<Integer> ret = new Vector<>(a.length);
         for(int i = 0; i < a.length ; ++i) {
             ret.addElement(DataUtil.integer(a[i]));
         }

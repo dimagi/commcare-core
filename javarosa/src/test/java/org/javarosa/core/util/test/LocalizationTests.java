@@ -21,7 +21,7 @@ public class LocalizationTests {
 
     @Test
     public void testParseAndAdd() {
-        OrderedHashtable<String, String> testTable = new OrderedHashtable<String, String>();
+        OrderedHashtable<String, String> testTable = new OrderedHashtable<>();
 
         LocalizationUtils.parseAndAdd(testTable, "string.1=this line should be cutoff here# this is bad if present", 0);
         LocalizationUtils.parseAndAdd(testTable, "string.2=this line should be cutoff here after the space # this is bad is present", 0);
