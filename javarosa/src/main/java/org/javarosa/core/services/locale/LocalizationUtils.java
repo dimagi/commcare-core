@@ -1,8 +1,5 @@
 package org.javarosa.core.services.locale;
 
-import org.javarosa.core.util.Map;
-import org.javarosa.core.util.OrderedHashtable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,7 +15,7 @@ public class LocalizationUtils {
      */
     public static Hashtable<String, String> parseLocaleInput(InputStream is) throws IOException {
         // TODO: This might very well fail. Best way to handle?
-        Map<String, String> locale = new Map<>();
+        Hashtable<String, String> locale = new Hashtable<>();
         int chunk = 100;
         InputStreamReader isr;
         isr = new InputStreamReader(is, "UTF-8");
