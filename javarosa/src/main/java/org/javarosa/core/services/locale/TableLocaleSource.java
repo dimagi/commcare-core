@@ -14,10 +14,9 @@ import java.io.IOException;
 
 /**
  * @author Clayton Sims
- * @date May 26, 2009
  */
 public class TableLocaleSource implements LocaleDataSource {
-    private OrderedHashtable<String, String> localeData; /*{ String -> String } */
+    private OrderedHashtable<String, String> localeData;
 
     public TableLocaleSource() {
         localeData = new Map<String, String>();
@@ -26,7 +25,6 @@ public class TableLocaleSource implements LocaleDataSource {
     public TableLocaleSource(OrderedHashtable<String, String> localeData) {
         this.localeData = localeData;
     }
-
 
     /**
      * Set a text mapping for a single text handle for a given locale.
@@ -60,7 +58,7 @@ public class TableLocaleSource implements LocaleDataSource {
         return (textID != null && localeData.get(textID) != null);
     }
 
-
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof TableLocaleSource)) {
             return false;
@@ -69,18 +67,24 @@ public class TableLocaleSource implements LocaleDataSource {
         return ExtUtil.equals(localeData, l.localeData, true);
     }
 
+    @Override
+    public int hashCode() {
+        return localeData.hashCode();
+    }
+
+    @Override
     public OrderedHashtable getLocalizedText() {
         return localeData;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         localeData = (OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY), pf);
-        //localeData.readExternal(in, pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapMap(localeData));
-        //localeData.writeExternal(out);
     }
 }
