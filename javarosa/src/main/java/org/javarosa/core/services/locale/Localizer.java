@@ -284,12 +284,13 @@ public class Localizer implements Externalizable {
         if (resource == null) {
             throw new NullPointerException("Attempt to register a null data source in the localizer");
         }
-        Vector<LocaleDataSource> resources = new Vector<LocaleDataSource>();
         if (localeResources.containsKey(locale)) {
-            resources = localeResources.get(locale);
+            Vector<LocaleDataSource> resources = localeResources.get(locale);
+            resources.addElement(resource);
+        } else {
+            Vector<LocaleDataSource> resources = new Vector<LocaleDataSource>();
+            localeResources.put(locale, resources);
         }
-        resources.addElement(resource);
-        localeResources.put(locale, resources);
 
         if (locale.equals(currentLocale) || locale.equals(defaultLocale)) {
             loadCurrentLocaleResources();
