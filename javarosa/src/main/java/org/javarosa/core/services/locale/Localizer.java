@@ -662,27 +662,4 @@ public class Localizer implements Externalizable {
     public boolean getFallbackForm() {
         return fallbackDefaultForm;
     }
-
-    /**
-     * For Testing: Undefine a locale and remove all its data. Cannot be called on the current locale. If called on the default
-     * locale, no default locale will be set afterward.
-     *
-     * @param locale Locale to remove. Must not be null. Need not be defined. Must not be the current locale.
-     * @return Whether the locale existed in the first place.
-     * @throws IllegalArgumentException If locale is the current locale.
-     * @throws NullPointerException     if locale is null
-     */
-    public boolean destroyLocale(String locale) {
-        if (locale.equals(currentLocale))
-            throw new IllegalArgumentException("Attempted to destroy the current locale");
-
-        boolean removed = hasLocale(locale);
-        locales.removeElement(locale);
-        localeResources.remove(locale);
-
-        if (locale.equals(defaultLocale))
-            defaultLocale = null;
-
-        return removed;
-    }
 }

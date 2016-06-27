@@ -223,58 +223,6 @@ public class LocalizerTest {
     }
 
     @Test
-    public void testDestroyLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-
-        boolean result = l.destroyLocale(TEST_LOCALE);
-        if (!result || l.hasLocale(TEST_LOCALE)) {
-            fail("Locale not destroyed");
-        }
-    }
-
-    @Test
-    public void testDestroyLocaleNotExist() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-
-        boolean result = l.destroyLocale(TEST_LOCALE);
-        if (result) {
-            fail("Destroyed non-existent locale");
-        }
-    }
-
-    @Test
-    public void testDestroyCurrentLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-        l.setLocale(TEST_LOCALE);
-
-        try {
-            l.destroyLocale(TEST_LOCALE);
-
-            fail("Destroyed current locale");
-        } catch (IllegalArgumentException iae) {
-            //expected
-        }
-    }
-
-    @Test
-    public void testDestroyDefaultLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-        l.setDefaultLocale(TEST_LOCALE);
-
-        l.destroyLocale(TEST_LOCALE);
-        if (l.getDefaultLocale() != null) {
-            fail("Default locale still set to destroyed locale");
-        }
-    }
-
-    @Test
     public void testAvailableLocales() {
         Localizer l = new Localizer();
         String[] locales;
@@ -294,24 +242,6 @@ public class LocalizerTest {
         l.addAvailableLocale("test3");
         locales = l.getAvailableLocales();
         if (locales.length != 3 || !locales[0].equals("test1") || !locales[1].equals("test2") || !locales[2].equals("test3")) {
-            fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test2");
-        locales = l.getAvailableLocales();
-        if (locales.length != 2 || !locales[0].equals("test1") || !locales[1].equals("test3")) {
-            fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test1");
-        locales = l.getAvailableLocales();
-        if (locales.length != 1 || !locales[0].equals("test3")) {
-            fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test3");
-        locales = l.getAvailableLocales();
-        if (locales == null || locales.length != 0) {
             fail("Available locales not as expected");
         }
     }
@@ -447,19 +377,12 @@ public class LocalizerTest {
             fail("Did not retrieve expected text from localizer [" + localeCase + "," + formCase + "," + i + "," + j + "," + k + "]");
         }
 
-        try {
+        text2 = l.getText(textID);
 
-            text2 = l.getText(textID);
-
-            if (expected == null) {
-                fail("Should have gotten exception");
-            } else if (!expected.equals(text2)) {
-                fail("Did not retrieve expected text");
-            }
-        } catch (NoLocalizedTextException nsee) {
-            if (expected != null) {
-                fail("Got unexpected exception");
-            }
+        if (expected == null && text2 != null) {
+            fail("Localization shouldn't have returned a result");
+        } else if (expected != null && !expected.equals(text2)) {
+            fail("Did not retrieve expected text");
         }
     }
 
@@ -691,14 +614,6 @@ public class LocalizerTest {
         }
 
         try {
-            l.destroyLocale(null);
-
-            fail("destroyLocale: Did not get expected null pointer exception");
-        } catch (NullPointerException npe) {
-            //expected
-        }
-
-        try {
             l.getText("textID", (String)null);
 
             fail("getText: Did not get expected exception");
@@ -765,7 +680,6 @@ public class LocalizerTest {
         l.registerLocaleResource("locale3", finalLocale);
         testSerialize(l, "locales with data 5");
 
-        l.destroyLocale("locale2");
         testSerialize(l, "locales with data 6");
     }
 
