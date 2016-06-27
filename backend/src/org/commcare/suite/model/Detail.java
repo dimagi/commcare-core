@@ -204,7 +204,7 @@ public class Detail implements Externalizable {
         Vector<DetailField> theFields = (Vector<DetailField>)ExtUtil.read(in, new ExtWrapList(DetailField.class), pf);
         fields = new DetailField[theFields.size()];
         ArrayUtilities.copyIntoArray(theFields, fields);
-        variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY));
+        variables = (OrderedHashtable<String, String>)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_ORDERED), pf);
         actions = (Vector<Action>)ExtUtil.read(in, new ExtWrapList(Action.class), pf);
         callout = (Callout)ExtUtil.read(in, new ExtWrapNullable(Callout.class), pf);
     }
