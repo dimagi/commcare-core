@@ -86,20 +86,6 @@ public class ResourceManager {
     }
 
     /**
-     * Loads the app's authoritative profile into the upgrade table.
-     *
-     * @param clearProgress Clear the 'incoming' table of any partial update
-     *                      info.
-     */
-    public void stageUpgradeTable(boolean clearProgress)
-            throws UnfullfilledRequirementsException, StorageFullException,
-            UnresolvedResourceException, InstallCancelledException {
-        Profile current = platform.getCurrentProfile();
-        String profileRef = current.getAuthReference();
-        stageUpgradeTable(profileRef, clearProgress);
-    }
-
-    /**
      * Loads the profile at the provided reference into the upgrade table.
      *
      * @param clearProgress Clear the 'incoming' table of any partial update

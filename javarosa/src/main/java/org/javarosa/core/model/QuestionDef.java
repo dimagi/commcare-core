@@ -97,10 +97,6 @@ public class QuestionDef implements IFormElement, Localizable {
         return mQuestionStrings.get(key);
     }
 
-    public boolean hasQuestionString(String key){
-        return (mQuestionStrings.get(key) != null);
-    }
-
     public int getID() {
         return id;
     }

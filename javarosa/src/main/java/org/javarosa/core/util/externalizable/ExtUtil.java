@@ -16,8 +16,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public class ExtUtil {
-    public static boolean interning = true;
-
     public static byte[] serialize(Object o) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
