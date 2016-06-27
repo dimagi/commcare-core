@@ -135,7 +135,7 @@ public class ResourceFileDataSource implements LocaleDataSource {
         line = line.trim();
 
         //clear comments
-        while (line.indexOf("#") != -1) {
+        while (line.contains("#")) {
             line = line.substring(0, line.indexOf("#"));
         }
         if (line.indexOf('=') == -1) {

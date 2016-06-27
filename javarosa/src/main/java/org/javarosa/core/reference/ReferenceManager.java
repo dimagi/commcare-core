@@ -197,7 +197,7 @@ public class ReferenceManager {
         try {
             String uriRoot = uri;
             String jrRefMessagePortion = "reference type";
-            if (uri.indexOf("jr://") != -1) {
+            if (uri.contains("jr://")) {
                 uriRoot = uri.substring("jr://".length());
                 jrRefMessagePortion = "javarosa jr:// reference root";
             }

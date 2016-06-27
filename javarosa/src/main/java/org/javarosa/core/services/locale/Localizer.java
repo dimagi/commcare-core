@@ -519,7 +519,7 @@ public class Localizer implements Externalizable {
      */
     public String getText(String textID, String locale) {
         String text = getRawText(locale, textID);
-        if (text == null && fallbackDefaultForm && textID.indexOf(";") != -1)
+        if (text == null && fallbackDefaultForm && textID.contains(";"))
             text = getRawText(locale, textID.substring(0, textID.indexOf(";")));
         //Update: We handle default text without forms without needing to do this. We still need it for default text with default forms, though  
         if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm)
@@ -654,7 +654,7 @@ public class Localizer implements Externalizable {
 
     public static String processArguments(String text, String[] args, int currentArg) {
 
-        if (text.indexOf("${") != -1 && args.length > currentArg) {
+        if (text.contains("${") && args.length > currentArg) {
             int index = extractNextIndex(text, args);
 
             if (index == -1) {

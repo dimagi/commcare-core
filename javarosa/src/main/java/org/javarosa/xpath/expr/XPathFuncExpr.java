@@ -328,7 +328,7 @@ public class XPathFuncExpr extends XPathExpression {
                 return normalizeCase(argVals[0], false);
             } else if (name.equals("contains")) {
                 checkArity(name, 2, args.length);
-                return toString(argVals[0]).indexOf(toString(argVals[1])) != -1;
+                return toString(argVals[0]).contains(toString(argVals[1]));
             } else if (name.equals("starts-with")) {
                 checkArity(name, 2, args.length);
                 return toString(argVals[0]).startsWith(toString(argVals[1]));
@@ -847,7 +847,7 @@ public class XPathFuncExpr extends XPathExpression {
         String s1 = (String)unpack(o1);
         String s2 = ((String)o2).trim();
 
-        return new Boolean((" " + s1 + " ").indexOf(" " + s2 + " ") != -1);
+        return new Boolean((" " + s1 + " ").contains(" " + s2 + " "));
     }
 
     public static XPathException generateBadArgumentMessage(String functionName, int argNumber, String type, Object endValue) {

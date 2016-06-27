@@ -2931,7 +2931,7 @@ public class XFormParser {
 
         if (type != null) {
             //cheap out and ignore namespace
-            if (type.indexOf(":") != -1) {
+            if (type.contains(":")) {
                 type = type.substring(type.indexOf(":") + 1);
             }
 

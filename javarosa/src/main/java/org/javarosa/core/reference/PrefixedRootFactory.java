@@ -40,7 +40,7 @@ public abstract class PrefixedRootFactory implements ReferenceFactory {
     public PrefixedRootFactory(String[] roots) {
         this.roots = new String[roots.length];
         for (int i = 0; i < this.roots.length; ++i) {
-            if (roots[i].indexOf("://") != -1) {
+            if (roots[i].contains("://")) {
                 //If this is the kind of root which is handling non-jr
                 //stuff, we should leave it alone.
                 this.roots[i] = roots[i];
@@ -57,7 +57,7 @@ public abstract class PrefixedRootFactory implements ReferenceFactory {
      */
     public Reference derive(String URI) throws InvalidReferenceException {
         for (String root : roots) {
-            if (URI.indexOf(root) != -1) {
+            if (URI.contains(root)) {
                 return factory(URI.substring(root.length()), URI);
             }
         }
@@ -88,7 +88,7 @@ public abstract class PrefixedRootFactory implements ReferenceFactory {
      */
     public boolean derives(String URI) {
         for (String root : roots) {
-            if (URI.indexOf(root) != -1) {
+            if (URI.contains(root)) {
                 return true;
             }
         }
