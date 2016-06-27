@@ -293,6 +293,7 @@ public class Localizer implements Externalizable {
         }
 
         if (locale.equals(currentLocale) || locale.equals(defaultLocale)) {
+            // Reload locale data if the resource is for a locale in use
             loadCurrentLocaleResources();
         }
     }
@@ -393,9 +394,8 @@ public class Localizer implements Externalizable {
         if (locale == null || !locales.contains(locale)) {
             throw new UnregisteredLocaleException("Attempted to access an undefined locale (" + locale + ") while checking for a mapping for  " + textID);
         }
-        Vector resources = (Vector)localeResources.get(locale);
-        for (Enumeration en = resources.elements(); en.hasMoreElements(); ) {
-            LocaleDataSource source = (LocaleDataSource)en.nextElement();
+        Vector<LocaleDataSource> resources = localeResources.get(locale);
+        for (LocaleDataSource source : resources) {
             if (source.getLocalizedText().containsKey(textID)) {
                 return true;
             }
