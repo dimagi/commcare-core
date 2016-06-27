@@ -43,7 +43,7 @@ public class CasePurgeFilter extends EntityFilter<Case> {
 
     private static final int STATUS_OPEN = 16;
 
-    private final Vector<Integer> idsToRemove = new Vector<Integer>();
+    private final Vector<Integer> idsToRemove = new Vector<>();
 
     // The index is a string containing the case GUID. The Nodes will be a int array containing
     // [STATUS_FLAGS, storageid]. Edges are a string representing the relationship between the
@@ -54,9 +54,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     private boolean invalidEdgesWereRemoved;
     // List of case ids for cases that were indexed and expected to be on the phone, but were
     // actually not present
-    private final Vector<String> missingCases = new Vector<String>();
+    private final Vector<String> missingCases = new Vector<>();
     // List of case ids for cases that were deleted off of the device as a result missing cases
-    private final Vector<String> casesRemovedDueToMissingCases = new Vector<String>();
+    private final Vector<String> casesRemovedDueToMissingCases = new Vector<>();
 
     public CasePurgeFilter(IStorageUtilityIndexed<Case> caseStorage) {
         this(caseStorage, null);
@@ -78,9 +78,9 @@ public class CasePurgeFilter extends EntityFilter<Case> {
     }
 
     private void setIdsToRemoveWithNewExtensions(IStorageUtilityIndexed<Case> caseStorage, Vector<String> owners) {
-        internalCaseDAG = new DAG<String, int[], String>();
+        internalCaseDAG = new DAG<>();
 
-        Vector<CaseIndex> indexHolder = new Vector<CaseIndex>();
+        Vector<CaseIndex> indexHolder = new Vector<>();
 
         // Pass 1: Create a DAG which contains all of the cases on the phone as nodes, and has a
         // directed edge for each index (from the 'child' case pointing to the 'parent' case) with
@@ -251,8 +251,8 @@ public class CasePurgeFilter extends EntityFilter<Case> {
      */
     private Vector<String[]> getInvalidEdges() {
         Hashtable<String, Vector<Edge<String, String>>> allEdges = internalCaseDAG.getEdges();
-        Vector<String> childOfNonexistentParent = new Vector<String>();
-        Vector<String[]> edgesToRemove = new Vector<String[]>();
+        Vector<String> childOfNonexistentParent = new Vector<>();
+        Vector<String[]> edgesToRemove = new Vector<>();
         Enumeration edgeOriginIndices = allEdges.keys();
         while (edgeOriginIndices.hasMoreElements()) {
             String originIndex = (String)edgeOriginIndices.nextElement();

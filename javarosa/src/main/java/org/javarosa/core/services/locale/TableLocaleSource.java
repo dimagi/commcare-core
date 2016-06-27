@@ -19,7 +19,7 @@ public class TableLocaleSource implements LocaleDataSource {
     private OrderedHashtable<String, String> localeData;
 
     public TableLocaleSource() {
-        localeData = new Map<String, String>();
+        localeData = new Map<>();
     }
 
     public TableLocaleSource(OrderedHashtable<String, String> localeData) {

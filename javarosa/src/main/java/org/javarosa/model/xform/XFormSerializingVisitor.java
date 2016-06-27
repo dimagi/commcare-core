@@ -60,7 +60,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
 
     private void init() {
         theXmlDoc = null;
-        dataPointers = new Vector<IDataPointer>();
+        dataPointers = new Vector<>();
     }
 
     @Override
@@ -172,7 +172,7 @@ public class XFormSerializingVisitor implements IInstanceSerializingVisitor {
             }
         } else {
             //make sure all children of the same tag name are written en bloc
-            Vector<String> childNames = new Vector<String>();
+            Vector<String> childNames = new Vector<>();
             for (int i = 0; i < instanceNode.getNumChildren(); i++) {
                 String childName = instanceNode.getChildAt(i).getName();
                 if (!childNames.contains(childName))

@@ -89,7 +89,7 @@ public class EvaluationContext {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = base.formInstances;
-        this.variables = new Hashtable<String, Object>();
+        this.variables = new Hashtable<>();
 
         //TODO: this is actually potentially much slower than
         //our old strategy (but is needed for this object to
@@ -140,8 +140,8 @@ public class EvaluationContext {
         this.formInstances = formInstances;
         this.instance = instance;
         this.contextNode = TreeReference.rootRef();
-        functionHandlers = new Hashtable<String, IFunctionHandler>();
-        variables = new Hashtable<String, Object>();
+        functionHandlers = new Hashtable<>();
+        variables = new Hashtable<>();
     }
 
     public DataInstance getInstance(String id) {
@@ -254,7 +254,7 @@ public class EvaluationContext {
         }
 
         DataInstance baseInstance = retrieveInstance(ref);
-        Vector<TreeReference> v = new Vector<TreeReference>();
+        Vector<TreeReference> v = new Vector<>();
         expandReferenceAccumulator(ref, baseInstance, baseInstance.getRoot().getRef(), v, includeTemplates);
         return v;
     }
@@ -289,7 +289,7 @@ public class EvaluationContext {
 
         // Batch fetch is going to mutate the predicates vector, create a copy
         if (predicates != null) {
-            Vector<XPathExpression> predCopy = new Vector<XPathExpression>(predicates.size());
+            Vector<XPathExpression> predCopy = new Vector<>(predicates.size());
             for (XPathExpression xpe : predicates) {
                 predCopy.addElement(xpe);
             }
@@ -373,7 +373,7 @@ public class EvaluationContext {
                                                          String childName,
                                                          int childMult,
                                                          boolean includeTemplates) {
-        Vector<TreeReference> childSet = new Vector<TreeReference>();
+        Vector<TreeReference> childSet = new Vector<>();
         if (node.hasChildren()) {
             if (childMult == TreeReference.INDEX_UNBOUND) {
                 int count = node.getChildMultiplicity(childName);

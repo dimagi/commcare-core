@@ -5,8 +5,8 @@ package org.javarosa.xform.schema;
 
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParserReporter;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  *
  */
 public class JSONReporter extends XFormParserReporter {
-    ArrayList<JSONObject> problems = new ArrayList<JSONObject>();
+    ArrayList<JSONObject> problems = new ArrayList<>();
 
     boolean passedValidation = false;
     private String failureReason;
@@ -72,11 +72,11 @@ public class JSONReporter extends XFormParserReporter {
 
         JSONArray problem = new JSONArray();
         for(JSONObject error : problems) {
-            problem.add(error);
+            problem.put(error);
         }
 
         report.put("problems", problems);
 
-        return report.toJSONString();
+        return report.toString();
     }
 }

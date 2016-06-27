@@ -21,7 +21,7 @@ import java.util.Vector;
  */
 public class FormEntrySession implements FormEntrySessionRecorder, Externalizable {
 
-    private Vector<FormEntryAction> actions = new Vector<FormEntryAction>();
+    private Vector<FormEntryAction> actions = new Vector<>();
     private String sessionStopRef;
 
     /**
@@ -138,7 +138,7 @@ public class FormEntrySession implements FormEntrySessionRecorder, Externalizabl
         boolean wasEscapeChar = false;
         int parenDepth = 0;
         int topParenStart = 0;
-        Vector<String> tokens = new Vector<String>();
+        Vector<String> tokens = new Vector<>();
 
         for (int i = 0, n = sessionString.length(); i < n; i++) {
             char c = sessionString.charAt(i);

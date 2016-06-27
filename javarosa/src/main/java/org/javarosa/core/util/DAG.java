@@ -23,9 +23,9 @@ public class DAG<I, N, E> {
     private final Hashtable<I, Vector<Edge<I, E>>> inverseEdges;
 
     public DAG() {
-        nodes = new Hashtable<I, N>();
-        edges = new Hashtable<I, Vector<Edge<I, E>>>();
-        inverseEdges = new Hashtable<I, Vector<Edge<I, E>>>();
+        nodes = new Hashtable<>();
+        edges = new Hashtable<>();
+        inverseEdges = new Hashtable<>();
     }
 
     public void addNode(I i, N n) {
@@ -49,9 +49,9 @@ public class DAG<I, N, E> {
         if (edgeList.containsKey(source)) {
             edge = edgeList.get(source);
         } else {
-            edge = new Vector<Edge<I, E>>();
+            edge = new Vector<>();
         }
-        edge.addElement(new Edge<I, E>(dest, edgeData));
+        edge.addElement(new Edge<>(dest, edgeData));
         edgeList.put(source, edge);
     }
 
@@ -92,13 +92,13 @@ public class DAG<I, N, E> {
         if (inverseEdges.containsKey(index)) {
             return inverseEdges.get(index);
         } else {
-            return new Vector<Edge<I, E>>();
+            return new Vector<>();
         }
     }
 
     public Vector<Edge<I, E>> getChildren(I index) {
         if (!edges.containsKey(index)) {
-            return new Vector<Edge<I, E>>();
+            return new Vector<>();
         } else {
             return edges.get(index);
         }
@@ -113,7 +113,7 @@ public class DAG<I, N, E> {
      * any edges in the graph
      */
     public Stack<I> getSources() {
-        Stack<I> sources = new Stack<I>();
+        Stack<I> sources = new Stack<>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!inverseEdges.containsKey(i)) {
@@ -127,7 +127,7 @@ public class DAG<I, N, E> {
      * @return Indices for all nodes that do not have any outgoing edges
      */
     public Stack<I> getSinks() {
-        Stack<I> roots = new Stack<I>();
+        Stack<I> roots = new Stack<>();
         for (Enumeration en = nodes.keys(); en.hasMoreElements(); ) {
             I i = (I)en.nextElement();
             if (!edges.containsKey(i)) {

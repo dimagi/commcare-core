@@ -43,7 +43,7 @@ public class ProfileInstaller extends CacheInstaller {
 
     private Hashtable<String, Profile> getlocal() {
         if (localTable == null) {
-            localTable = new Hashtable<String, Profile>();
+            localTable = new Hashtable<>();
         }
         return localTable;
     }

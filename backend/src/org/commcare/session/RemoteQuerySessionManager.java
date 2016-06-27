@@ -20,7 +20,7 @@ public class RemoteQuerySessionManager {
     private final RemoteQueryDatum queryDatum;
     private final EvaluationContext evaluationContext;
     private final Hashtable<String, String> userAnswers =
-            new Hashtable<String, String>();
+            new Hashtable<>();
 
     private RemoteQuerySessionManager(RemoteQueryDatum queryDatum,
                                      EvaluationContext evaluationContext) {
@@ -69,7 +69,7 @@ public class RemoteQuerySessionManager {
     }
 
     public Hashtable<String, String> getRawQueryParams() {
-        Hashtable<String, String> params = new Hashtable<String, String>();
+        Hashtable<String, String> params = new Hashtable<>();
         Hashtable<String, XPathExpression> hiddenQueryValues = queryDatum.getHiddenQueryValues();
         for (Enumeration e = hiddenQueryValues.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();

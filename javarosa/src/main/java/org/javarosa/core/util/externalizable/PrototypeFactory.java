@@ -54,8 +54,8 @@ public class PrototypeFactory {
     protected void lazyInit() {
         initialized = true;
 
-        classes = new Vector<Class>();
-        hashes = new Vector<byte[]>();
+        classes = new Vector<>();
+        hashes = new Vector<>();
 
         addDefaultClasses();
         addMigratedClasses();

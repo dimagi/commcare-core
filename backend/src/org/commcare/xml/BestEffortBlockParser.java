@@ -30,7 +30,7 @@ public abstract class BestEffortBlockParser extends TransactionParser<Hashtable<
 
     public Hashtable<String, String> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         String name = parser.getName();
-        Hashtable<String, String> ret = new Hashtable<String, String>();
+        Hashtable<String, String> ret = new Hashtable<>();
 
         boolean expecting = false;
         String expected = null;

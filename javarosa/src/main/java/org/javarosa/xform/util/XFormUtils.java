@@ -123,7 +123,7 @@ public class XFormUtils {
      * Get the list of attributes in an element
      */
     public static Vector<String> getAttributeList(Element e) {
-        Vector<String> atts = new Vector<String>();
+        Vector<String> atts = new Vector<>();
 
         for (int i = 0; i < e.getAttributeCount(); i++) {
             atts.addElement(e.getAttributeName(i));

@@ -182,7 +182,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
     }
 
     private Vector<TreeElement> getChildrenWithName(String name, boolean includeTemplate) {
-        Vector<TreeElement> v = new Vector<TreeElement>();
+        Vector<TreeElement> v = new Vector<>();
         if (children == null) {
             return v;
         }
@@ -239,7 +239,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
 
         if (children == null) {
-            children = new Vector<TreeElement>();
+            children = new Vector<>();
         }
 
         // try to keep things in order
@@ -328,7 +328,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         TreeElement newNode = shallowCopy();
 
         if (children != null) {
-            newNode.children = new Vector<TreeElement>();
+            newNode.children = new Vector<>();
             for (int i = 0; i < children.size(); i++) {
                 TreeElement child = children.elementAt(i);
                 if (includeTemplates || child.getMult() != TreeReference.INDEX_TEMPLATE) {
@@ -338,7 +338,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
 
         if (attributes != null) {
-            newNode.attributes = new Vector<TreeElement>();
+            newNode.attributes = new Vector<>();
             for (TreeElement attr : attributes) {
                 if (includeTemplates || attr.getMult() != TreeReference.INDEX_TEMPLATE) {
                     newNode.addAttribute(attr.deepCopy(includeTemplates));
@@ -355,7 +355,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         }
 
         if (attributes == null) {
-            attributes = new Vector<TreeElement>();
+            attributes = new Vector<>();
         }
 
         attributes.addElement(attr);
@@ -461,7 +461,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     public void registerStateObserver(FormElementStateListener qsl) {
         if (observers == null) {
-            observers = new Vector<FormElementStateListener>();
+            observers = new Vector<>();
         }
 
         if (!observers.contains(qsl)) {
@@ -558,7 +558,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     public void setAttribute(String namespace, String name, String value) {
         if (attributes == null) {
-            this.attributes = new Vector<TreeElement>();
+            this.attributes = new Vector<>();
         }
 
         if ("".equals(namespace)) {
@@ -610,7 +610,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (!ExtUtil.readBool(in)) {
             children = null;
         } else {
-            children = new Vector<TreeElement>();
+            children = new Vector<>();
             int numChildren = (int)ExtUtil.readNumeric(in);
             for (int i = 0; i < numChildren; ++i) {
                 TreeElement child = new TreeElement();
@@ -625,7 +625,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (!ExtUtil.readBool(in)) {
             attributes = null;
         } else {
-            attributes = new Vector<TreeElement>();
+            attributes = new Vector<>();
             int attrCount = (int)ExtUtil.readNumeric(in);
             for (int i = 0; i < attrCount; ++i) {
                 TreeElement attr = new TreeElement();
@@ -716,7 +716,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                         TreeElement newChild = child.deepCopy(true);
                         newChild.setMult(k);
                         if (children == null) {
-                            children = new Vector<TreeElement>();
+                            children = new Vector<>();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
                         newChild.populate((TreeElement)newChildren.elementAt(k));
@@ -765,7 +765,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
                         TreeElement newChild = template.deepCopy(false);
                         newChild.setMult(k);
                         if (children == null) {
-                            children = new Vector<TreeElement>();
+                            children = new Vector<>();
                         }
                         this.children.insertElementAt(newChild, i + k + 1);
                         newChild.populateTemplate((TreeElement)newChildren.elementAt(k), f);
@@ -1027,7 +1027,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
         if (!ExtUtil.readBool(in)) {
             children = null;
         } else {
-            children = new Vector<TreeElement>();
+            children = new Vector<>();
             int numChildren = (int)ExtUtil.readNumeric(in);
             for (int i = 0; i < numChildren; ++i) {
                 boolean normal = ExtUtil.readBool(in);
@@ -1059,7 +1059,7 @@ public class TreeElement implements Externalizable, AbstractTreeElement<TreeElem
 
     private void setAttributesFromSingleStringVector(Vector attStrings) {
         if (attStrings != null) {
-            this.attributes = new Vector<TreeElement>();
+            this.attributes = new Vector<>();
             for (int i = 0; i < attStrings.size(); i++) {
                 addSingleAttribute(i, attStrings);
             }

@@ -224,7 +224,7 @@ public class Detail implements Externalizable {
 
     public OrderedHashtable<String, XPathExpression> getVariableDeclarations() {
         if (variablesCompiled == null) {
-            variablesCompiled = new OrderedHashtable<String, XPathExpression>();
+            variablesCompiled = new OrderedHashtable<>();
             for (Enumeration en = variables.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 //TODO: This is stupid, parse this stuff at XML Parse time.
@@ -254,7 +254,7 @@ public class Detail implements Externalizable {
      * @return The indices of which fields should be used for sorting and their order
      */
     public int[] getSortOrder() {
-        Vector<Integer> indices = new Vector<Integer>();
+        Vector<Integer> indices = new Vector<>();
         outer:
         for (int i = 0; i < fields.length; ++i) {
             int order = fields[i].getSortOrder();

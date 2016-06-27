@@ -131,7 +131,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
     public static BufferedReader brOut = null;
     public static Process process = null;
 
-    static final Interner<String> interns = new Interner<String>();
+    static final Interner<String> interns = new Interner<>();
 
 
     public static void main(String argv[]) {
@@ -943,7 +943,7 @@ public class XFormValidatorGUI extends Frame implements ActionListener, KeyListe
 
         String line = null;
         while((line = reader.readLine()) != null) {
-            if(line.indexOf("MIDlet-Jar-Size:") != -1) {
+            if(line.contains("MIDlet-Jar-Size:")) {
                 writer.write("MIDlet-Jar-Size: " + newSize + "\n");
             } else {
                 writer.write(line + "\n");

@@ -65,7 +65,7 @@ public class ArrayUtilities {
         if (a == null) {
             return null;
         }
-        Vector<E> b = new Vector<E>();
+        Vector<E> b = new Vector<>();
         for (E e : a) {
             b.addElement(e);
         }
@@ -81,7 +81,7 @@ public class ArrayUtilities {
     }
 
     public static <E> Vector<E> toVector(E[] a) {
-        Vector<E> v = new Vector<E>();
+        Vector<E> v = new Vector<>();
         for (E e : a) {
             v.addElement(e);
         }

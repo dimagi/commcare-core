@@ -40,10 +40,10 @@ public class SqlStorageIndexedTests {
         otherOwner = "otherowner";
         groupOwner = "groupowned";
 
-        userOwned = new Vector<String>();
+        userOwned = new Vector<>();
         userOwned.addElement(owner);
 
-        groupOwned = new Vector<String>();
+        groupOwned = new Vector<>();
         groupOwned.addElement(owner);
         groupOwned.addElement(groupOwner);
 
@@ -85,7 +85,7 @@ public class SqlStorageIndexedTests {
             String storageKey = "TFCase";
             String username = "sql-storage-test";
 
-            caseStorage = new SqliteIndexedStorageUtility<Case>(Case.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
+            caseStorage = new SqliteIndexedStorageUtility<>(Case.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
 
             caseStorage.write(a);
 
@@ -144,7 +144,7 @@ public class SqlStorageIndexedTests {
             String storageKey = "Ledger";
             String username = "wspride";
 
-            ledgerStorage = new SqliteIndexedStorageUtility<Ledger>(Ledger.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
+            ledgerStorage = new SqliteIndexedStorageUtility<>(Ledger.class, username, storageKey, UserSqlSandbox.DEFAULT_DATBASE_PATH);
 
             ledgerStorage.write(l);
             ledgerStorage.write(l2);

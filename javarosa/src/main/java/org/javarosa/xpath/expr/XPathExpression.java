@@ -37,7 +37,7 @@ public abstract class XPathExpression implements Externalizable {
 
     public final Vector<Object> pivot(DataInstance model, EvaluationContext evalContext) throws UnpivotableExpressionException {
         try {
-            Vector<Object> pivots = new Vector<Object>();
+            Vector<Object> pivots = new Vector<>();
             this.pivot(model, evalContext, pivots, evalContext.getContextRef());
             return pivots;
         } catch (UnpivotableExpressionException uee) {

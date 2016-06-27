@@ -17,7 +17,7 @@ public class LocalizationUtils {
      */
     public static Map<String, String> parseLocaleInput(InputStream is) throws IOException {
         // TODO: This might very well fail. Best way to handle?
-        Map<String, String> locale = new Map<String, String>();
+        Map<String, String> locale = new Map<>();
         int chunk = 100;
         InputStreamReader isr;
         isr = new InputStreamReader(is, "UTF-8");

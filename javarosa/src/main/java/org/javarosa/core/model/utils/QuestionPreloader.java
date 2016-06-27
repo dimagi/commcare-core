@@ -27,7 +27,6 @@ import org.javarosa.core.util.Map;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.util.Date;
-import java.util.Vector;
 
 /**
  * The Question Preloader is responsible for maintaining a set of handlers which are capable

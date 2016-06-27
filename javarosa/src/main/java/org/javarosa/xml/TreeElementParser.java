@@ -33,7 +33,7 @@ public class TreeElementParser extends ElementParser<TreeElement> {
             element.setAttribute(parser.getAttributeNamespace(i), parser.getAttributeName(i), parser.getAttributeValue(i));
         }
 
-        Hashtable<String, Integer> multiplicities = new Hashtable<String, Integer>();
+        Hashtable<String, Integer> multiplicities = new Hashtable<>();
 
         // loop parses all siblings at a given depth
         while (parser.getDepth() >= depth) {

@@ -1,7 +1,6 @@
 package org.javarosa.core.model.data;
 
 import org.javarosa.core.model.data.helper.Selection;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;

@@ -76,7 +76,7 @@ public abstract class Triggerable implements Externalizable {
         this.expr = expr;
         this.contextRef = contextRef;
         this.originalContextRef = contextRef;
-        this.targets = new Vector<TreeReference>();
+        this.targets = new Vector<>();
         this.stopContextualizingAt = -1;
     }
 
@@ -99,7 +99,7 @@ public abstract class Triggerable implements Externalizable {
     public void setDebug(boolean mDebugMode) {
         this.mIsDebugOn = mDebugMode;
         if (mIsDebugOn) {
-            mTriggerDebugs = new Hashtable<TreeReference, EvaluationTrace>();
+            mTriggerDebugs = new Hashtable<>();
         } else {
             mTriggerDebugs = null;
         }
@@ -118,7 +118,7 @@ public abstract class Triggerable implements Externalizable {
             throw new IllegalStateException("Evaluation traces requested from triggerable not in debug mode.");
         }
         if (mTriggerDebugs == null) {
-            return new Hashtable<TreeReference, EvaluationTrace>();
+            return new Hashtable<>();
         }
         return this.mTriggerDebugs;
     }
@@ -182,7 +182,7 @@ public abstract class Triggerable implements Externalizable {
         Vector<TreeReference> relTriggers = expr.getExprsTriggers(originalContextRef);
 
         // construct absolute references by anchoring against the original context reference
-        Vector<TreeReference> absTriggers = new Vector<TreeReference>();
+        Vector<TreeReference> absTriggers = new Vector<>();
         for (int i = 0; i < relTriggers.size(); i++) {
             TreeReference ref = relTriggers.elementAt(i).anchor(originalContextRef);
             absTriggers.addElement(ref);

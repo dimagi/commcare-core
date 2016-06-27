@@ -66,7 +66,7 @@ public class TreeUtilities {
             return null;
         }
 
-        Vector<Integer> toRemove = new Vector<Integer>();
+        Vector<Integer> toRemove = new Vector<>();
         Vector<TreeReference> allSelectedChildren = null;
 
         //Lazy init these until we've determined that our predicate is hintable
@@ -79,7 +79,7 @@ public class TreeUtilities {
 
         predicate:
         for (int i = 0; i < predicates.size(); ++i) {
-            Vector<TreeReference> predicateMatches = new Vector<TreeReference>();
+            Vector<TreeReference> predicateMatches = new Vector<>();
             XPathExpression xpe = predicates.elementAt(i);
             //what we want here is a static evaluation of the expression to see if it consists of evaluating
             //something we index with something static.
@@ -143,8 +143,8 @@ public class TreeUtilities {
                     //but we currently don't robustly track changes to the models, so would
                     //be too dangerous at the moment
                     if (attributes == null) {
-                        attributes = new Vector<String>();
-                        indices = new Vector<XPathPathExpr>();
+                        attributes = new Vector<>();
+                        indices = new Vector<>();
                         kids = parent.getChildrenWithName(name);
 
                         if (kids.size() == 0) {
@@ -220,7 +220,7 @@ public class TreeUtilities {
 
 
     //Static XPathPathExpr cache. Not 100% clear whether this is the best caching strategy, but it's the easiest.
-    static final CacheTable<String, XPathPathExpr> table = new CacheTable<String, XPathPathExpr>();
+    static final CacheTable<String, XPathPathExpr> table = new CacheTable<>();
 
     public static XPathPathExpr getXPathAttrExpression(String attribute) {
         //Cache tables can only take in integers due to some terrible 1.3 design issues

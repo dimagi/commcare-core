@@ -17,7 +17,7 @@ public class EvaluationTrace {
     private Object value;
     private final String expression;
 
-    private final Vector<EvaluationTrace> children = new Vector<EvaluationTrace>();
+    private final Vector<EvaluationTrace> children = new Vector<>();
 
     /**
      * Creates a trace record.

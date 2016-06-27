@@ -75,7 +75,7 @@ public class TreeReference implements Externalizable {
 
     public TreeReference() {
         instanceName = null;
-        data = new Vector<TreeReferenceLevel>();
+        data = new Vector<>();
     }
 
     public TreeReference(String instanceName, int refLevel) {
@@ -86,7 +86,7 @@ public class TreeReference implements Externalizable {
         this.instanceName = instanceName;
         this.refLevel = refLevel;
         this.contextType = contextType;
-        this.data = new Vector<TreeReferenceLevel>();
+        this.data = new Vector<>();
         setupContextTypeFromInstanceName();
     }
 

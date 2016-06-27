@@ -100,9 +100,9 @@ public class TreeReferenceTest {
             fail("Bad tests! Rewrite xpath expressions for predicate tests");
         }
 
-        apreds = new Vector<XPathExpression>();
-        Vector<XPathExpression> amatchpreds = new Vector<XPathExpression>();
-        Vector<XPathExpression> anotpreds = new Vector<XPathExpression>();
+        apreds = new Vector<>();
+        Vector<XPathExpression> amatchpreds = new Vector<>();
+        Vector<XPathExpression> anotpreds = new Vector<>();
 
         apreds.add(testPred);
         amatchpreds.add(testPred);
