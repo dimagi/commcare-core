@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.model.utils;
 
 import org.javarosa.core.model.data.DateData;
@@ -23,10 +7,10 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.Map;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.util.Date;
+import java.util.Hashtable;
 
 /**
  * The Question Preloader is responsible for maintaining a set of handlers which are capable
@@ -35,14 +19,13 @@ import java.util.Date;
  * @author Clayton Sims
  */
 public class QuestionPreloader {
-    /* String -> IPreloadHandler */
-    private final Map preloadHandlers;
+    private final Hashtable<String, IPreloadHandler> preloadHandlers;
 
     /**
      * Creates a new Preloader with default handlers
      */
     public QuestionPreloader() {
-        preloadHandlers = new Map();
+        preloadHandlers = new Hashtable<>();
         initPreloadHandlers();
     }
 
@@ -164,7 +147,7 @@ public class QuestionPreloader {
      * the lack of a handler, or to invalid parameters
      */
     public IAnswerData getQuestionPreload(String preloadType, String preloadParams) {
-        IPreloadHandler handler = (IPreloadHandler)preloadHandlers.get(preloadType);
+        IPreloadHandler handler = preloadHandlers.get(preloadType);
         if (handler != null) {
             return handler.handlePreload(preloadParams);
         } else {
@@ -174,7 +157,7 @@ public class QuestionPreloader {
     }
 
     public boolean questionPostProcess(TreeElement node, String preloadType, String params) {
-        IPreloadHandler handler = (IPreloadHandler)preloadHandlers.get(preloadType);
+        IPreloadHandler handler = preloadHandlers.get(preloadType);
         if (handler != null) {
             return handler.handlePostProcess(node, params);
         } else {

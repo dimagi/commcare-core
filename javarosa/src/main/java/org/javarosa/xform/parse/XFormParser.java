@@ -34,9 +34,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.Interner;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.javarosa.core.util.externalizable.PrototypeFactoryDeprecated;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.util.InterningKXmlParser;
 import org.javarosa.xform.util.XFormSerializer;
@@ -99,7 +97,6 @@ public class XFormParser {
     private static Hashtable<String, IElementHandler> topLevelHandlers;
     private static Hashtable<String, IElementHandler> groupLevelHandlers;
     private static Hashtable<String, Integer> typeMappings;
-    private static PrototypeFactoryDeprecated modelPrototypes;
     private static Vector<SubmissionParser> submissionParsers;
 
     private final Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
@@ -161,7 +158,6 @@ public class XFormParser {
     private static void staticInit() {
         initProcessingRules();
         initTypeMappings();
-        modelPrototypes = new PrototypeFactoryDeprecated();
         submissionParsers = new Vector<>();
     }
 
@@ -2137,14 +2133,7 @@ public class XFormParser {
             if (typeMappings.get(modelType) == null) {
                 throw new XFormParseException("ModelType " + modelType + " is not recognized.", node);
             }
-            element = (TreeElement)modelPrototypes.getNewInstance((typeMappings.get(modelType)).toString());
-            if (element == null) {
-                element = new TreeElement(name, multiplicity);
-                System.out.println("No model type prototype available for " + modelType);
-            } else {
-                element.setName(name);
-                element.setMult(multiplicity);
-            }
+            element = new TreeElement(name, multiplicity);
         }
         if (node.getNamespace() != null) {
             if (!node.getNamespace().equals(docnamespace)) {
@@ -2942,10 +2931,6 @@ public class XFormParser {
         }
 
         return dataType;
-    }
-
-    public static void addModelPrototype(int type, TreeElement element) {
-        modelPrototypes.addNewPrototype(String.valueOf(type), element.getClass());
     }
 
     /**
