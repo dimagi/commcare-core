@@ -1,7 +1,6 @@
 package org.javarosa.core.model.instance;
 
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -26,10 +25,6 @@ public class TreeReferenceLevel implements Externalizable {
 
     // a cache for refence levels, to avoid keeping a bunch of the same levels
     // floating around at run-time.
-    private static Interner<TreeReferenceLevel> refs;
-
-    // Do we want to keep a cache of all reference levels?
-    public static boolean treeRefLevelInterningEnabled = true;
 
     public TreeReferenceLevel() {
         // for externalization
@@ -54,7 +49,7 @@ public class TreeReferenceLevel implements Externalizable {
     }
 
     public TreeReferenceLevel setMultiplicity(int mult) {
-        return new TreeReferenceLevel(name, mult, predicates).intern();
+        return new TreeReferenceLevel(name, mult, predicates);
     }
 
     /**
@@ -66,7 +61,7 @@ public class TreeReferenceLevel implements Externalizable {
      * attached.
      */
     public TreeReferenceLevel setPredicates(Vector<XPathExpression> xpe) {
-        return new TreeReferenceLevel(name, multiplicity, xpe).intern();
+        return new TreeReferenceLevel(name, multiplicity, xpe);
     }
 
     public Vector<XPathExpression> getPredicates() {
@@ -75,12 +70,12 @@ public class TreeReferenceLevel implements Externalizable {
 
     public TreeReferenceLevel shallowCopy() {
         return new TreeReferenceLevel(name, multiplicity,
-                ArrayUtilities.vectorCopy(predicates)).intern();
+                ArrayUtilities.vectorCopy(predicates));
     }
 
 
     public TreeReferenceLevel setName(String name) {
-        return new TreeReferenceLevel(name, multiplicity, predicates).intern();
+        return new TreeReferenceLevel(name, multiplicity, predicates);
     }
 
     @Override
@@ -148,23 +143,5 @@ public class TreeReferenceLevel implements Externalizable {
             }
         }
         return true;
-    }
-
-    /**
-     * Make sure this object has been added to the cache table.
-     */
-    public TreeReferenceLevel intern() {
-        if (!treeRefLevelInterningEnabled || refs == null) {
-            return this;
-        } else {
-            return refs.intern(this);
-        }
-    }
-
-    /**
-     * Used by J2ME
-     */
-    public static void attachCacheTable(Interner<TreeReferenceLevel> refs) {
-        TreeReferenceLevel.refs = refs;
     }
 }

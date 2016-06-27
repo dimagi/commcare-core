@@ -33,10 +33,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.Interner;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xform.util.InterningKXmlParser;
 import org.javarosa.xform.util.XFormSerializer;
 import org.javarosa.xform.util.XFormUtils;
 import org.javarosa.xpath.XPathConditional;
@@ -315,8 +313,6 @@ public class XFormParser {
 
     XFormParserReporter reporter = new XFormParserReporter();
 
-    Interner<String> stringCache;
-
     public XFormParser(Reader reader) {
         _reader = reader;
     }
@@ -432,7 +428,7 @@ public class XFormParser {
             System.out.println("Parsing form...");
 
             if (_xmldoc == null) {
-                _xmldoc = getXMLDocument(_reader, stringCache);
+                _xmldoc = getXMLDocument(_reader);
             }
 
             parseDoc();
@@ -457,20 +453,10 @@ public class XFormParser {
     }
 
     public static Document getXMLDocument(Reader reader) throws IOException {
-        return getXMLDocument(reader, null);
-    }
-
-    public static Document getXMLDocument(Reader reader, Interner<String> stringCache) throws IOException {
         Document doc = new Document();
 
         try {
-            KXmlParser parser;
-
-            if (stringCache != null) {
-                parser = new InterningKXmlParser(stringCache);
-            } else {
-                parser = new KXmlParser();
-            }
+            KXmlParser parser = new KXmlParser();
 
             parser.setInput(reader);
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true);
@@ -520,11 +506,7 @@ public class XFormParser {
                     }
                     String accumulatedString = accumulate.trim();
                     if (accumulatedString.length() != 0) {
-                        if (stringCache == null) {
-                            e.addChild(i, Element.TEXT, accumulate);
-                        } else {
-                            e.addChild(i, Element.TEXT, stringCache.intern(accumulate));
-                        }
+                        e.addChild(i, Element.TEXT, accumulate);
                         accumulate = "";
                         ++i;
                     } else {
@@ -533,11 +515,7 @@ public class XFormParser {
                 }
             }
             if (accumulate.trim().length() != 0) {
-                if (stringCache == null) {
-                    e.addChild(Element.TEXT, accumulate);
-                } else {
-                    e.addChild(Element.TEXT, stringCache.intern(accumulate));
-                }
+                e.addChild(Element.TEXT, accumulate);
             }
             for (int i = e.getChildCount() - 1; i >= 0; i--) {
                 if (toRemove[i]) {
@@ -3088,9 +3066,5 @@ public class XFormParser {
             elementString += "/>";
         }
         return elementString;
-    }
-
-    public void setStringCache(Interner<String> stringCache) {
-        this.stringCache = stringCache;
     }
 }

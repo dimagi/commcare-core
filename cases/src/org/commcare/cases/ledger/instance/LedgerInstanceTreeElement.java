@@ -36,8 +36,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     protected final Interner<TreeElement> treeCache = new Interner<>();
 
-    protected Interner<String> stringCache;
-
     int numRecords = -1;
 
     public LedgerInstanceTreeElement(AbstractTreeElement instanceRoot, IStorageUtilityIndexed storage) {
@@ -71,11 +69,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     @Override
     public String getInstanceName() {
         return instanceRoot.getInstanceName();
-    }
-
-    @SuppressWarnings("unused")
-    public void attachStringCache(Interner<String> stringCache) {
-        this.stringCache = stringCache;
     }
 
     @Override
@@ -245,14 +238,6 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     public String getNamespace() {
         return null;
-    }
-
-    public String intern(String s) {
-        if (stringCache == null) {
-            return s;
-        } else {
-            return stringCache.intern(s);
-        }
     }
 
     @Override
