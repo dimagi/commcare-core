@@ -317,37 +317,6 @@ public class LocalizerTest {
     }
 
     @Test
-    public void testGetNextLocale() {
-        Localizer l = new Localizer();
-        l.addAvailableLocale("test1");
-        l.addAvailableLocale("test2");
-        l.addAvailableLocale("test3");
-
-        if (l.getNextLocale() != null) {
-            fail("Unexpected next locale");
-        }
-
-        l.setDefaultLocale("test3");
-        if (!"test3".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-
-        l.setDefaultLocale(null);
-        l.setLocale("test1");
-        if (!"test2".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-        l.setLocale("test2");
-        if (!"test3".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-        l.setLocale("test3");
-        if (!"test1".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-    }
-
-    @Test
     public void testGetLocaleMap() {
         Localizer l = new Localizer();
         final String TEST_LOCALE = "test";
@@ -479,7 +448,8 @@ public class LocalizerTest {
         }
 
         try {
-            text2 = l.getLocalizedText(textID);
+
+            text2 = l.getText(textID);
 
             if (expected == null) {
                 fail("Should have gotten exception");

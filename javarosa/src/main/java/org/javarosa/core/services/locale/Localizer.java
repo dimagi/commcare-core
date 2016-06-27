@@ -406,11 +406,13 @@ public class Localizer implements Externalizable {
      */
     public String getText(String textID, String locale) {
         String text = getRawText(locale, textID);
-        if (text == null && fallbackDefaultForm && textID.contains(";"))
+        if (text == null && fallbackDefaultForm && textID.contains(";")) {
             text = getRawText(locale, textID.substring(0, textID.indexOf(";")));
+        }
         //Update: We handle default text without forms without needing to do this. We still need it for default text with default forms, though  
-        if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm)
+        if (text == null && fallbackDefaultLocale && !locale.equals(defaultLocale) && defaultLocale != null && fallbackDefaultForm) {
             text = getText(textID, defaultLocale);
+        }
         return text;
     }
 
@@ -662,20 +664,6 @@ public class Localizer implements Externalizable {
     }
 
     /**
-     * For Testing: Return the next locale in order, for cycling through locales.
-     *
-     * @return Next locale following the current locale (if the current locale is the last, cycle back to the beginning).
-     * If the current locale is not set, return the default locale. If the default locale is not set, return null.
-     */
-    public String getNextLocale() {
-        if (currentLocale == null) {
-            return defaultLocale;
-        } else {
-            return locales.elementAt((locales.indexOf(currentLocale) + 1) % locales.size());
-        }
-    }
-
-    /**
      * For Testing: Undefine a locale and remove all its data. Cannot be called on the current locale. If called on the default
      * locale, no default locale will be set afterward.
      *
@@ -696,22 +684,5 @@ public class Localizer implements Externalizable {
             defaultLocale = null;
 
         return removed;
-    }
-
-    /**
-     * For Testing: Retrieve localized text for a text handle in the current locale. Like getText(String), however throws exception
-     * if no localized text is found.
-     *
-     * @param textID Text handle (text ID appended with optional text form). Must not be null.
-     * @return Localized text
-     * @throws NoLocalizedTextException    If there is no text for the specified id
-     * @throws UnregisteredLocaleException If current locale is not set
-     * @throws NullPointerException        if textID is null
-     */
-    public String getLocalizedText(String textID) {
-        String text = getText(textID);
-        if (text == null)
-            throw new NoLocalizedTextException("Can't find localized text for current locale! text id: [" + textID + "] locale: [" + currentLocale + "]", textID, currentLocale);
-        return text;
     }
 }
