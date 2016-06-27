@@ -12,6 +12,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathConditional;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
+import org.xmlpull.mxp1_serializer.MXSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
