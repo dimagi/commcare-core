@@ -1,12 +1,10 @@
 package org.commcare.backend.session.test;
 
-import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
 import org.commcare.session.SessionFrame;
 import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

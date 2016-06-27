@@ -17,21 +17,14 @@ import org.javarosa.core.model.instance.test.DummyInstanceInitializationFactory;
 import org.javarosa.core.model.utils.test.PersistableSandbox;
 import org.javarosa.core.test.FormParseInit;
 import org.javarosa.form.api.FormEntryController;
-import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Vector;
-
-import org.javarosa.xform.parse.XFormParser;
 
 import static org.junit.Assert.*;
 
