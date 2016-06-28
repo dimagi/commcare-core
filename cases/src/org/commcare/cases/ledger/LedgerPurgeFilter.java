@@ -17,7 +17,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public class LedgerPurgeFilter extends EntityFilter<Ledger> {
-    final Vector<Integer> idsToRemove = new Vector<Integer>();
+    final Vector<Integer> idsToRemove = new Vector<>();
 
     /**
      * Create a filter for purging ledgers which should no longer be on the phone from

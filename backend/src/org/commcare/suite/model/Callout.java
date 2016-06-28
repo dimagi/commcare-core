@@ -61,7 +61,7 @@ public class Callout implements Externalizable, DetailTemplate {
 
     @Override
     public CalloutData evaluate(EvaluationContext context) {
-        Hashtable<String, String> evaluatedExtras = new Hashtable<String, String>();
+        Hashtable<String, String> evaluatedExtras = new Hashtable<>();
 
         Enumeration keys = extras.keys();
 

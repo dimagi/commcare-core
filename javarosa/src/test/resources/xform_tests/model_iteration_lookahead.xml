@@ -1,0 +1,102 @@
+<h:html xmlns="http://www.w3.org/2002/xforms"
+        xmlns:h="http://www.w3.org/1999/xhtml" xmlns:jr="http://openrosa.org/javarosa"
+        xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum_markup"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Model Iteration</h:title>
+        <model>
+            <instance>
+                <data name="Model Iteration"
+                      uiVersion="1"
+                      version="279"
+                      xmlns="http://openrosa.org/formdesigner/21D20D14-BF66-497D-8258-8356080CDB3C"
+                      xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+
+                    <!-- This is just here so the form works independently. This data connector might be case data or something instead. -->
+                    <itemdata>
+                        <item id="a" target="b" value="10">Item A</item>
+                        <item id="b" target="" value="20">Item B</item>
+                    </itemdata>
+
+                    <itemsetanswer/>
+
+                    <myiterator>
+                        <elements/>
+                        <num_elements/>
+                        <cur_element/>
+                        <iterator id="" index="" jr:template="">
+                            <question/>
+                            <value/>
+                            <target/>
+                            <target_value/>
+                            <relevancy_depending_on_future/>
+                        </iterator>
+                    </myiterator>
+
+                </data>
+
+            </instance>
+
+
+            <bind calculate="/data/itemdata/item[@id=current()/../@id]/@value"
+                  nodeset="/data/myiterator/iterator/value"/>
+            <bind calculate="/data/itemdata/item[@id=current()/../@id]/@target"
+                  nodeset="/data/myiterator/iterator/target"/>
+            <bind calculate="/data/myiterator/iterator[@id = current()/../target]/value"
+                  nodeset="/data/myiterator/iterator/target_value"/>
+
+            <bind calculate="join(' ', /data/itemdata/item/@id)"
+                  nodeset="/data/myiterator/elements"/>
+
+            <bind calculate="100"
+                  nodeset="/data/myiterator/iterator/relevancy_depending_on_future"
+                  relevant="/data/myiterator/iterator/target_value != ''"/>
+
+            <setvalue event="jr-insert"
+                      ref="/data/myiterator/iterator/@index"
+                      value="int(/data/myiterator/cur_element)"/>
+
+            <bind calculate="count-selected(/data/myiterator/elements)"
+                  nodeset="/data/myiterator/num_elements"
+                  type="int"/>
+            <bind calculate="count(/data/myiterator/iterator)"
+                  nodeset="/data/myiterator/cur_element"/>
+
+            <bind calculate="selected-at(/data/myiterator/elements,../@index)"
+                  nodeset="/data/myiterator/iterator/@id"/>
+            <bind nodeset="/data/myiterator/iterator/question"
+                  relevant="false()"/>
+
+            <itext>
+                <translation default="" lang="en">
+                    <text id="itemsetanswer-label">
+                        <value>Choose which items to include in the iteration</value>
+                    </text>
+                    <text id="repeatable-label">
+                        <value>Label for the repeat</value>
+                    </text>
+                    <text id="myiterator-question-label">
+                        <!-- This question text relies on the pattern of selecting the ID'd node from the datasource. that should be something that vellum makes relatively easy (although updating them will be hard and can be ignored for now) -->
+                        <value>Model
+                            <output ref="/data/itemdata/item[@id=current()/../@id]"/>
+                            is associated with the value:
+                            <output ref="/data/itemdata/item[@id=current()/../@id]/@value"/>
+                        </value>
+                    </text>
+
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+
+        <group>
+            <repeat nodeset="/data/myiterator/iterator" jr:count="/data/myiterator/num_elements">
+                <trigger ref="question">
+                    <label ref="jr:itext('myiterator-question-label')"></label>
+                </trigger>
+            </repeat>
+        </group>
+    </h:body>
+</h:html>

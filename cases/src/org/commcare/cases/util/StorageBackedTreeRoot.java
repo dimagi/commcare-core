@@ -62,13 +62,13 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
         }
 
         Vector<Integer> selectedElements = null;
-        Vector<Integer> toRemove = new Vector<Integer>();
+        Vector<Integer> toRemove = new Vector<>();
 
         IStorageUtilityIndexed<?> storage = getStorage();
         Hashtable<XPathPathExpr, String> indices = getStorageIndexMap();
 
-        Vector<String> keysToFetch = new Vector<String>();
-        Vector<Object> valuesToFetch = new Vector<Object>();
+        Vector<String> keysToFetch = new Vector<>();
+        Vector<Object> valuesToFetch = new Vector<>();
 
         //First, go get a list of predicates that we _might_be able to evaluate
         predicate:
@@ -123,7 +123,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
                 //Merge into the selected elements
                 if (uniqueValue != null) {
                     if (selectedElements == null) {
-                        selectedElements = new Vector<Integer>();
+                        selectedElements = new Vector<>();
                         selectedElements.addElement(uniqueValue);
                     } else {
                         if (!selectedElements.contains(uniqueValue)) {
@@ -182,7 +182,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
 
         initStorageCache();
 
-        Vector<TreeReference> filtered = new Vector<TreeReference>();
+        Vector<TreeReference> filtered = new Vector<>();
         for (Integer i : selectedElements) {
             //this takes _waaaaay_ too long, we need to refactor this
             TreeReference ref = base.clone();

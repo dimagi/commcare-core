@@ -57,7 +57,7 @@ public class ApplicationHost {
     private CLISessionWrapper mSession;
 
     private boolean mUpdatePending = false;
-    private boolean mForceLatestUpdate = false;
+    private String mUpdateTarget = null;
     private boolean mSessionHasNextFrameReady = false;
 
     private final PrototypeFactory mPrototypeFactory;
@@ -122,9 +122,9 @@ public class ApplicationHost {
     private void processAppUpdate() {
         mSession.clearAllState();
         this.mUpdatePending = false;
-        boolean forceUpdate = mForceLatestUpdate;
-        this.mForceLatestUpdate = false;
-        mEngine.attemptAppUpdate(forceUpdate);
+        String updateTarget = mUpdateTarget;
+        this.mUpdateTarget = null;
+        mEngine.attemptAppUpdate(updateTarget);
     }
 
     private boolean loopSession() throws IOException {
@@ -157,8 +157,15 @@ public class ApplicationHost {
                         if (input.startsWith(":update")) {
                             mUpdatePending = true;
 
-                            if (input.contains("-f")) {
-                                mForceLatestUpdate = true;
+                            if (input.contains(("--latest")) || input.contains("-f")) {
+                                mUpdateTarget = "build";
+                                System.out.println("Updating to most recent build");
+                            } else if(input.contains(("--preview")) || input.contains("-p")) {
+                                mUpdateTarget = "save";
+                                System.out.println("Updating to latest app preview");
+                            } else {
+                                mUpdateTarget = "release";
+                                System.out.println("Updating to newest Release");
                             }
                             return true;
                         }
@@ -168,7 +175,7 @@ public class ApplicationHost {
                         }
 
                         if (input.equals(":back")) {
-                            mSession.stepBack();
+                            mSession.stepBack(mSession.getEvaluationContext());
                             s = getNextScreen();
                             continue;
                         }
@@ -233,7 +240,7 @@ public class ApplicationHost {
                     finishSession();
                     return true;
                 } else if (player.getExecutionResult() == XFormPlayer.FormResult.Cancelled) {
-                    mSession.stepBack();
+                    mSession.stepBack(mSession.getEvaluationContext());
                     s = getNextScreen();
                 } else {
                     //Handle this later
@@ -295,7 +302,7 @@ public class ApplicationHost {
     }
 
     private Screen getNextScreen() {
-        String next = mSession.getNeededData();
+        String next = mSession.getNeededData(mSession.getEvaluationContext());
 
         if (next == null) {
             //XFORM TIME!
@@ -308,7 +315,7 @@ public class ApplicationHost {
             computeDatum();
             return getNextScreen();
         }
-        throw new RuntimeException("Unexpected Frame Request: " + mSession.getNeededData());
+        throw new RuntimeException("Unexpected Frame Request: " + next);
     }
 
     private void computeDatum() {

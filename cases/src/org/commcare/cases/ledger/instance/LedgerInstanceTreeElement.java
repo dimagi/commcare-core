@@ -34,7 +34,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
     //TODO: much of this is still shared w/the casedb and should be centralized there
     protected Vector<LedgerChildElement> ledgers;
 
-    protected final Interner<TreeElement> treeCache = new Interner<TreeElement>();
+    protected final Interner<TreeElement> treeCache = new Interner<>();
 
     protected Interner<String> stringCache;
 
@@ -104,7 +104,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
             getLedgers();
             return ledgers;
         } else {
-            return new Vector<LedgerChildElement>();
+            return new Vector<>();
         }
 
     }
@@ -132,8 +132,8 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
         if (ledgers != null) {
             return;
         }
-        objectIdMapping = new Hashtable<Integer, Integer>();
-        ledgers = new Vector<LedgerChildElement>();
+        objectIdMapping = new Hashtable<>();
+        ledgers = new Vector<>();
         int mult = 0;
         for (IStorageIterator i = storage.iterate(); i.hasMore(); ) {
             int id = i.nextID();
@@ -262,7 +262,7 @@ public class LedgerInstanceTreeElement extends StorageBackedTreeRoot<LedgerChild
 
     @Override
     protected Hashtable<XPathPathExpr, String> getStorageIndexMap() {
-        Hashtable<XPathPathExpr, String> indices = new Hashtable<XPathPathExpr, String>();
+        Hashtable<XPathPathExpr, String> indices = new Hashtable<>();
 
         //TODO: Much better matching
         indices.put(ENTITY_ID_EXPR, Ledger.INDEX_ENTITY_ID);

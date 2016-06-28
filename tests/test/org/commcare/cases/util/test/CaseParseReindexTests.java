@@ -16,7 +16,6 @@ import org.kxml2.io.KXmlParser;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 

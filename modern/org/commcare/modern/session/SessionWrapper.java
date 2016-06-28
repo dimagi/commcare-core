@@ -64,4 +64,12 @@ public class SessionWrapper extends CommCareSession {
     public void setComputedDatum() {
         setComputedDatum(getEvaluationContext());
     }
+
+    public String getNeededData() {
+        return super.getNeededData(getEvaluationContext());
+    }
+
+    public void stepBack() {
+        super.stepBack(getEvaluationContext());
+    }
 }

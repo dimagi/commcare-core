@@ -26,6 +26,9 @@ public class SessionNavigator {
     public static final int START_ENTITY_SELECTION = 4;
     public static final int LAUNCH_CONFIRM_DETAIL = 5;
     public static final int XPATH_EXCEPTION_THROWN = 6;
+    public static final int START_SYNC_REQUEST = 7;
+    public static final int PROCESS_QUERY_REQUEST = 8;
+    public static final int REPORT_CASE_AUTOSELECT = 9;
 
     private final SessionNavigationResponder responder;
     private CommCareSession currentSession;
@@ -59,11 +62,15 @@ public class SessionNavigator {
     public void startNextSessionStep() {
         currentSession = responder.getSessionForNavigator();
         ec = responder.getEvalContextForNavigator();
-        String needed = currentSession.getNeededData();
+        String needed = currentSession.getNeededData(ec);
         if (needed == null) {
             readyToProceed();
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             sendResponse(GET_COMMAND);
+        } else if (needed.equals(SessionFrame.STATE_SYNC_REQUEST)) {
+            sendResponse(START_SYNC_REQUEST);
+        } else if (needed.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+            sendResponse(PROCESS_QUERY_REQUEST);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum();
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
@@ -89,6 +96,7 @@ public class SessionNavigator {
         if (autoSelection == null) {
             sendResponse(START_ENTITY_SELECTION);
         } else {
+            sendResponse(REPORT_CASE_AUTOSELECT);
             this.currentAutoSelectedCase = autoSelection;
             handleAutoSelect();
         }
@@ -142,6 +150,6 @@ public class SessionNavigator {
     }
 
     public void stepBack() {
-        currentSession.stepBack();
+        currentSession.stepBack(ec);
     }
 }

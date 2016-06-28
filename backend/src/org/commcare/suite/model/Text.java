@@ -71,7 +71,7 @@ public class Text implements Externalizable, DetailTemplate {
         Text t = new Text();
         t.type = -1;
         t.argument = "";
-        t.arguments = new Hashtable<String, Text>();
+        t.arguments = new Hashtable<>();
         return t;
     }
 
@@ -96,7 +96,7 @@ public class Text implements Externalizable, DetailTemplate {
      */
     public static Text LocaleText(Text localeText) {
         Text t = TextFactory();
-        t.arguments = new Hashtable<String, Text>();
+        t.arguments = new Hashtable<>();
         t.arguments.put("id", localeText);
         t.argument = "";
         t.type = TEXT_TYPE_LOCALE;

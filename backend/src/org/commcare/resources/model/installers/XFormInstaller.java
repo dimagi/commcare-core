@@ -93,7 +93,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         String tempString = form.getInstance().schema;
 
         //Atomic. Don't re-do this if it was already done.
-        if (tempString.indexOf(UPGRADE_EXT) != -1) {
+        if (tempString.contains(UPGRADE_EXT)) {
             form.getInstance().schema = tempString.substring(0, tempString.indexOf(UPGRADE_EXT));
             storage().write(form);
         }
@@ -118,7 +118,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
         //This method should basically be atomic, so don't re-temp it if it's already
         //temp'd.
-        if (tempString.indexOf(destination) != -1) {
+        if (tempString.contains(destination)) {
             return true;
         } else {
             form.getInstance().schema = form.getInstance().schema + destination;
@@ -137,7 +137,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
         for (String ext : exts) {
             //Removing any staging/upgrade placeholders.
-            if (tempString.indexOf(ext) != -1) {
+            if (tempString.contains(ext)) {
                 form.getInstance().schema = tempString.substring(0, tempString.indexOf(ext));
                 storage().write(form);
             }
@@ -156,14 +156,14 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         switch (status) {
             case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
             case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:
-                if (currentSchema.indexOf(STAGING_EXT) != -1) {
+                if (currentSchema.contains(STAGING_EXT)) {
                     return Resource.RESOURCE_STATUS_UNSTAGED;
                 } else {
                     return Resource.RESOURCE_STATUS_INSTALLED;
                 }
             case Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL:
             case Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE:
-                if (currentSchema.indexOf(UPGRADE_EXT) != -1) {
+                if (currentSchema.contains(UPGRADE_EXT)) {
                     return Resource.RESOURCE_STATUS_UPGRADE;
                 } else {
                     return Resource.RESOURCE_STATUS_INSTALLED;
@@ -200,7 +200,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
             OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
             for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
-                if (key.indexOf(";") != -1) {
+                if (key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
 

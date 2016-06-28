@@ -309,8 +309,8 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
 
             TreeElement ledgerElement;
 
-            childAttributeHintMap = new Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>>();
-            Hashtable<String, TreeElement[]> sectionIdMap = new Hashtable<String, TreeElement[]>();
+            childAttributeHintMap = new Hashtable<>();
+            Hashtable<String, TreeElement[]> sectionIdMap = new Hashtable<>();
 
             String[] sectionList = ledger.getSectionList();
             for (int i = 0; i < sectionList.length; ++i) {
@@ -320,8 +320,8 @@ public class LedgerChildElement implements AbstractTreeElement<TreeElement> {
                 sectionIdMap.put(sectionList[i], new TreeElement[]{ledgerElement});
 
                 TreeElement entry;
-                Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> hintMap = new Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>>();
-                Hashtable<String, TreeElement[]> idMap = new Hashtable<String, TreeElement[]>();
+                Hashtable<XPathPathExpr, Hashtable<String, TreeElement[]>> hintMap = new Hashtable<>();
+                Hashtable<String, TreeElement[]> idMap = new Hashtable<>();
 
                 String[] entryList = ledger.getListOfEntries(sectionList[i]);
                 for (int j = 0; j < entryList.length; ++j) {

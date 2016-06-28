@@ -72,7 +72,7 @@ public class CommCareConfigEngine {
 
     public CommCareConfigEngine(OutputStream output, PrototypeFactory prototypeFactory) {
         this.print = new PrintStream(output);
-        this.platform = new CommCarePlatform(2, 28);
+        this.platform = new CommCarePlatform(2, 29);
 
         this.mLiveFactory = prototypeFactory;
 
@@ -243,8 +243,8 @@ public class CommCareConfigEngine {
 
         Localization.setDefaultLocale("default");
 
-        Vector<Menu> root = new Vector<Menu>();
-        Hashtable<String, Vector<Menu>> mapping = new Hashtable<String, Vector<Menu>>();
+        Vector<Menu> root = new Vector<>();
+        Hashtable<String, Vector<Menu>> mapping = new Hashtable<>();
         mapping.put("root",new Vector<Menu>());
 
         for(Suite s : platform.getInstalledSuites()) {
@@ -254,7 +254,7 @@ public class CommCareConfigEngine {
                 } else {
                     Vector<Menu> menus = mapping.get(m.getRoot());
                     if(menus == null) {
-                        menus = new Vector<Menu>();
+                        menus = new Vector<>();
                     }
                     menus.add(m);
                     mapping.put(m.getRoot(), menus);
@@ -341,7 +341,12 @@ public class CommCareConfigEngine {
         int lastComplete = 0;
 
         @Override
-        public void resourceStateUpdated(ResourceTable table) {
+        public void simpleResourceAdded() {
+
+        }
+
+        @Override
+        public void compoundResourceAdded(ResourceTable table) {
 
         }
 
@@ -355,7 +360,14 @@ public class CommCareConfigEngine {
         }
     }
 
-    public void attemptAppUpdate(boolean forceNew) {
+    /**
+     * @param updateTarget Null to request the default latest build. Otherwise a string identifying
+     *                     the target of the update:
+     *                     'release' - Latest released (or starred) build
+     *                     'build' - Latest completed build (released or not)
+     *                     'save' - Latest functional saved version of the app
+     */
+    public void attemptAppUpdate(String updateTarget) {
         ResourceTable global = table;
 
         // Ok, should figure out what the state of this bad boy is.
@@ -379,16 +391,16 @@ public class CommCareConfigEngine {
             // If we want to be using/updating to the latest build of the
             // app (instead of latest release), add it to the query tags of
             // the profile reference
-            if (forceNew &&
+            if (updateTarget!= null &&
                     ("https".equals(authUrl.getProtocol()) ||
                             "http".equals(authUrl.getProtocol()))) {
                 if (authUrl.getQuery() != null) {
                     // If the profileRef url already have query strings
                     // just add a new one to the end
-                    authRef = authRef + "&target=build";
+                    authRef = authRef + "&target=" + updateTarget;
                 } else {
                     // otherwise, start off the query string with a ?
-                    authRef = authRef + "?target=build";
+                    authRef = authRef + "?target" + updateTarget;
                 }
             }
         } catch (MalformedURLException e) {
@@ -413,6 +425,8 @@ public class CommCareConfigEngine {
             }
 
             System.out.println("Update found. New Version: " + newProfile.getVersion());
+            System.out.println("Downloading / Preparing Update");
+            resourceManager.prepareUpgradeResources();
             System.out.print("Installing update");
 
             // Replaces global table with temporary, or w/ recovery if
