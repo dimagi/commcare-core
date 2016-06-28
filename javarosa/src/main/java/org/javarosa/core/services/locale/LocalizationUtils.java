@@ -36,7 +36,7 @@ public class LocalizationUtils {
         int dec = line.length();
 
         //clear comments except if they have backslash before them (markdown '#'s)
-        while ((i = line.substring(0, dec).lastIndexOf("#")) != -1) {
+        while ((i = LocalizationUtils.lastIndexOf(line.substring(0, dec), "#")) != -1) {
             if ((i == 0) || !(line.charAt(i - 1) == '\\')) {
                 line = line.substring(0, i);
                 dec = line.length();
@@ -64,6 +64,44 @@ public class LocalizationUtils {
      * Replace markdown encodings
      */
     public static String parseValue(String value) {
-        return value.replaceAll("\\\\#", "#").replaceAll("\\\\n", "\n");
+        String ret = LocalizationUtils.replace(value, "\\#", "#");
+        ret = LocalizationUtils.replace(ret, "\\n", "\n");
+        return ret;
+    }
+
+    /**
+     * http://stackoverflow.com/questions/10626606/replace-string-with-string-in-j2me
+     */
+    private static String replace(String str, String pattern, String replace) {
+        int s = 0;
+        int e = 0;
+        StringBuffer result = new StringBuffer();
+
+        while ((e = str.indexOf(pattern, s)) >= 0) {
+            result.append(str.substring(s, e));
+            result.append(replace);
+            s = e + pattern.length();
+        }
+        result.append(str.substring(s));
+        return result.toString();
+    }
+
+    /**
+     * http://www.experts-exchange.com/Programming/Languages/Java/Q_27604323.html
+     */
+    private static int lastIndexOf(String str, String search) {
+        int i = 0;
+        int offset = 0;
+        int found = -1;
+
+        while (offset < str.length()) {
+            i = str.indexOf(search, offset);
+            if (i == -1) break;
+
+            found = i;
+
+            offset = i + 1;
+        }
+        return found;
     }
 }
