@@ -64,7 +64,7 @@ public class CommCareSession {
     /**
      * The current session frame data
      */
-    public SessionFrame frame;
+    private SessionFrame frame;
 
     /**
      * The stack of pending Frames
