@@ -14,7 +14,6 @@ import org.junit.Test;
  * @author ctsims
  */
 public class AppStructureTests {
-
     private MockApp mApp;
 
     @Before

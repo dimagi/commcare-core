@@ -1,0 +1,24 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Untitled Form</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E283B255-8F99-4329-BD18-03A313D6BD16" uiVersion="1" version="7" name="Untitled Form">
+                    <image_capture/>
+                </data>
+            </instance>
+            <itext>
+                <translation lang="en" default="">
+                    <text id="image_capture-label">
+                        <value>Image Capture</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <upload mediatype="image/*" ref="/data/image_capture" jr:imageDimensionScaledMax="800px">
+            <label ref="jr:itext('image_capture-label')"/>
+        </upload>
+    </h:body>
+</h:html>

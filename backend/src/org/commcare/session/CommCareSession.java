@@ -3,23 +3,25 @@ package org.commcare.session;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.FormIdDatum;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
+import org.commcare.suite.model.SyncEntry;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -69,22 +71,23 @@ public class CommCareSession {
      */
     private final Stack<SessionFrame> frameStack;
 
+    /**
+     * Used by touchforms
+     */
+    @SuppressWarnings("unused")
     public CommCareSession() {
-        platform = null;
-        collectedDatums = new OrderedHashtable<String, String>();
-        this.frame = new SessionFrame();
-        this.frameStack = new Stack<SessionFrame>();
+        this((CommCarePlatform)null);
     }
 
     public CommCareSession(CommCarePlatform platform) {
         this.platform = platform;
-        collectedDatums = new OrderedHashtable<String, String>();
+        this.collectedDatums = new OrderedHashtable<>();
         this.frame = new SessionFrame();
-        this.frameStack = new Stack<SessionFrame>();
+        this.frameStack = new Stack<>();
     }
 
     /**
-     *  Copy constructor
+     * Copy constructor
      */
     public CommCareSession(CommCareSession oldCommCareSession) {
         // NOTE: 'platform' is being copied in a shallow manner
@@ -97,13 +100,13 @@ public class CommCareSession {
         this.currentXmlns = oldCommCareSession.currentXmlns;
         this.frame = new SessionFrame(oldCommCareSession.frame);
 
-        collectedDatums = new OrderedHashtable<String, String>();
+        collectedDatums = new OrderedHashtable<>();
         for (Enumeration e = oldCommCareSession.collectedDatums.keys(); e.hasMoreElements(); ) {
             String key = (String)e.nextElement();
             collectedDatums.put(key, oldCommCareSession.collectedDatums.get(key));
         }
 
-        this.frameStack = new Stack<SessionFrame>();
+        this.frameStack = new Stack<>();
         // NOTE: can't use for/each due to J2ME build issues w/ Stack
         for (int i = 0; i < oldCommCareSession.frameStack.size(); i++) {
             frameStack.addElement(oldCommCareSession.frameStack.elementAt(i));
@@ -115,34 +118,38 @@ public class CommCareSession {
     }
 
     /**
-     * @param commandId the current command id
-     * @param data all of the datums already on the stack
+     * @param commandId          the current command id
+     * @param currentSessionData all of the datums already on the stack
      * @return A list of all of the form entry actions that are possible with the given commandId
      * and the given list of already-collected datums
      */
     private Vector<Entry> getEntriesForCommand(String commandId,
-                                               OrderedHashtable<String, String> data) {
+                                               OrderedHashtable<String, String> currentSessionData) {
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 // We need to see if everything in this menu can be matched
                 if (commandId.equals(m.getId())) {
-                    return getEntriesFromMenu(m, data);
+                    return getEntriesFromMenu(m, currentSessionData);
                 }
             }
 
             if (s.getEntries().containsKey(commandId)) {
-                Vector<Entry> entries = new Vector<Entry>();
+                Vector<Entry> entries = new Vector<>();
                 entries.addElement(s.getEntries().get(commandId));
                 return entries;
             }
         }
 
-        return new Vector<Entry>();
+        return new Vector<>();
     }
 
+    /**
+     * Get all entries that correspond to commands listed in the menu provided.
+     * Excludes entries whose data requirements aren't met by the 'currentSessionData'
+     */
     private Vector<Entry> getEntriesFromMenu(Menu menu,
-                                             OrderedHashtable<String, String> data) {
-        Vector<Entry> entries = new Vector<Entry>();
+                                             OrderedHashtable<String, String> currentSessionData) {
+        Vector<Entry> entries = new Vector<>();
         Hashtable<String, Entry> map = platform.getMenuMap();
         //We're in a menu we have a set of requirements which
         //need to be fulfilled
@@ -151,16 +158,7 @@ public class CommCareSession {
             if (e == null) {
                 throw new RuntimeException("No entry found for menu command [" + cmd + "]");
             }
-            boolean valid = true;
-            Vector<SessionDatum> requirements = e.getSessionDataReqs();
-            if (requirements.size() >= data.size()) {
-                for (int i = 0; i < data.size(); ++i) {
-                    if (!requirements.elementAt(i).getDataId().equals(data.keyAt(i))) {
-                        valid = false;
-                    }
-                }
-            }
-            if (valid) {
+            if (entryRequirementsSatsified(e, currentSessionData)) {
                 entries.addElement(e);
             }
         }
@@ -169,6 +167,18 @@ public class CommCareSession {
 
     public OrderedHashtable<String, String> getData() {
         return collectedDatums;
+    }
+    private static boolean entryRequirementsSatsified(Entry entry,
+                                                      OrderedHashtable<String, String> currentSessionData) {
+        Vector<SessionDatum> requirements = entry.getSessionDataReqs();
+        if (requirements.size() >= currentSessionData.size()) {
+            for (int i = 0; i < currentSessionData.size(); ++i) {
+                if (!requirements.elementAt(i).getDataId().equals(currentSessionData.keyAt(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public CommCarePlatform getPlatform() {
@@ -179,10 +189,10 @@ public class CommCareSession {
      * Based on the current state of the session, determine what information is needed next to
      * proceed
      *
-     * @return 1 of the 4 STATE strings declared at the top of SessionFrame, or null if
+     * @return One of the session SessionFrame.STATE_* strings, or null if
      * the session does not need anything else to proceed
      */
-    public String getNeededData() {
+    public String getNeededData(EvaluationContext evalContext) {
         if (currentCmd == null) {
             return SessionFrame.STATE_COMMAND_ID;
         }
@@ -192,6 +202,10 @@ public class CommCareSession {
 
         if (needDatum != null) {
             return needDatum;
+        } else if (entries.size() == 1
+                && entries.elementAt(0) instanceof SyncEntry
+                && ((SyncEntry)entries.elementAt(0)).getSyncPost().isRelevant(evalContext)) {
+            return SessionFrame.STATE_SYNC_REQUEST;
         } else if (entries.size() > 1 || !entries.elementAt(0).getCommandId().equals(currentCmd)) {
             //the only other thing we can need is a form command. If there's
             //still more than one applicable entry, we need to keep going
@@ -219,6 +233,8 @@ public class CommCareSession {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_VAL;
                     } else if (datumNeededForThisEntry instanceof ComputedDatum) {
                         datumNeededByAllEntriesSoFar = SessionFrame.STATE_DATUM_COMPUTED;
+                    } else if (datumNeededForThisEntry instanceof RemoteQueryDatum) {
+                        datumNeededByAllEntriesSoFar = SessionFrame.STATE_QUERY_REQUEST;
                     }
                 } else if (!neededDatumId.equals(datumNeededForThisEntry.getDataId())) {
                     // data needed from the first entry isn't consistent with
@@ -236,7 +252,7 @@ public class CommCareSession {
     }
 
     public String[] getHeaderTitles() {
-        Hashtable<String, String> menus = new Hashtable<String, String>();
+        Hashtable<String, String> menus = new Hashtable<>();
 
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
@@ -246,7 +262,6 @@ public class CommCareSession {
 
         Vector<StackFrameStep> steps = frame.getSteps();
         String[] returnVal = new String[steps.size()];
-
 
         Hashtable<String, Entry> entries = platform.getMenuMap();
         int i = 0;
@@ -290,7 +305,7 @@ public class CommCareSession {
      * @return A session datum definition if one is pending. Null otherwise.
      */
     public SessionDatum getNeededDatum(Entry entry) {
-        return getFirstMissingDatum(getData(), entry.getSessionDataReqs());
+        return getFirstMissingDatum(collectedDatums, entry.getSessionDataReqs());
     }
 
     /**
@@ -346,14 +361,14 @@ public class CommCareSession {
         return null;
     }
 
-    public void stepBack() {
+    public void stepBack(EvaluationContext evalContext) {
         // Pop the first thing off of the stack frame, no matter what
         popSessionFrameStack();
 
         // Keep popping things off until the value of needed data indicates that we are back to
         // somewhere where we are waiting for user-provided input
-        while (this.getNeededData() == null ||
-                this.getNeededData().equals(SessionFrame.STATE_DATUM_COMPUTED)) {
+        while (this.getNeededData(evalContext) == null ||
+                this.getNeededData(evalContext).equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             popSessionFrameStack();
         }
     }
@@ -368,6 +383,23 @@ public class CommCareSession {
     public void setDatum(String keyId, String value) {
         frame.pushStep(new StackFrameStep(SessionFrame.STATE_DATUM_VAL, keyId, value));
         syncState();
+    }
+
+    /**
+     * Set a (xml) data instance as the result to a session query datum.
+     * The instance is available in session's evaluation context until the corresponding query frame is removed
+     */
+    public void setQueryDatum(ExternalDataInstance queryResultInstance) {
+        SessionDatum datum = getNeededDatum();
+        if (datum instanceof RemoteQueryDatum) {
+            StackFrameStep step =
+                    new StackFrameStep(SessionFrame.STATE_QUERY_REQUEST,
+                            datum.getDataId(), datum.getValue(), queryResultInstance);
+            frame.pushStep(step);
+            syncState();
+        } else {
+            throw new RuntimeException("Trying to set query successful when one isn't needed.");
+        }
     }
 
     public void setComputedDatum(EvaluationContext ec) throws XPathException {
@@ -410,6 +442,8 @@ public class CommCareSession {
                 if (key != null && value != null) {
                     collectedDatums.put(key, value);
                 }
+            } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
+                collectedDatums.put(step.getId(), step.getValue());
             } else if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 this.currentCmd = step.getId();
             } else if (SessionFrame.STATE_FORM_XMLNS.equals(step.getType())) {
@@ -432,7 +466,7 @@ public class CommCareSession {
         }
 
         Entry e = platform.getMenuMap().get(command);
-        if (e.isView()) {
+        if (e.isView() || e.isSync()) {
             return null;
         } else {
             return ((FormEntry)e).getXFormNamespace();
@@ -472,20 +506,28 @@ public class CommCareSession {
      * @return Evaluation context for a command in the installed app
      */
     public EvaluationContext getEvaluationContext(InstanceInitializationFactory iif, String command) {
-
         if (command == null) {
             return new EvaluationContext(null);
         }
         Entry entry = getEntriesForCommand(command).elementAt(0);
 
-        Hashtable<String, DataInstance> instances = entry.getInstances();
+        Hashtable<String, DataInstance> instancesInScope = entry.getInstances();
 
-        for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
+        for (Enumeration en = instancesInScope.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            instances.put(key, instances.get(key).initialize(iif, key));
+            instancesInScope.put(key, instancesInScope.get(key).initialize(iif, key));
         }
+        addInstancesFromFrame(instancesInScope);
 
-        return new EvaluationContext(null, instances);
+        return new EvaluationContext(null, instancesInScope);
+    }
+
+    private void addInstancesFromFrame(Hashtable<String, DataInstance> instanceMap) {
+        for (StackFrameStep step : frame.getSteps()) {
+            if (step.hasXmlInstance()) {
+                instanceMap.put(step.getId(), step.getXmlInstance());
+            }
+        }
     }
 
     public SessionFrame getFrame() {
@@ -771,6 +813,11 @@ public class CommCareSession {
     public boolean isViewCommand(String command) {
         Vector<Entry> entries = this.getEntriesForCommand(command);
         return entries.size() == 1 && entries.elementAt(0).isView();
+    }
+
+    public boolean isSyncCommand(String command) {
+        Vector<Entry> entries = this.getEntriesForCommand(command);
+        return entries.size() == 1 && entries.elementAt(0).isSync();
     }
 
     public void addExtraToCurrentFrameStep(String key, Object value) {

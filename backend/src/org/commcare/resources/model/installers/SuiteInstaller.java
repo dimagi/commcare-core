@@ -68,7 +68,7 @@ public class SuiteInstaller extends CacheInstaller<Suite> {
                 storage().write(s);
                 cacheLocation = s.getID();
 
-                table.commit(r, Resource.RESOURCE_STATUS_INSTALLED);
+                table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED);
 
                 //TODOD:
                 //Add a resource location for r for its cache location

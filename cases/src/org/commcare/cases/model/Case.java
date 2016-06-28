@@ -47,7 +47,7 @@ public class Case implements Persistable, IMetaData, Secure {
 
     protected Hashtable data = new Hashtable();
 
-    protected Vector<CaseIndex> indices = new Vector<CaseIndex>();
+    protected Vector<CaseIndex> indices = new Vector<>();
 
     /**
      * NOTE: This constructor is for serialization only.
@@ -247,7 +247,7 @@ public class Case implements Persistable, IMetaData, Secure {
 
     //this is so terrible it hurts. We'll be redoing this
     public Vector<String> getAttachments() {
-        Vector<String> attachments = new Vector<String>();
+        Vector<String> attachments = new Vector<>();
         for (Enumeration en = data.keys(); en.hasMoreElements(); ) {
             String name = (String)en.nextElement();
             if (name.startsWith(ATTACHMENT_PREFIX)) {

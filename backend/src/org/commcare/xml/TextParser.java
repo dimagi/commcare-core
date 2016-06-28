@@ -18,7 +18,7 @@ public class TextParser extends ElementParser<Text> {
     }
 
     public Text parse() throws InvalidStructureException, IOException, XmlPullParserException {
-        Vector<Text> texts = new Vector<Text>();
+        Vector<Text> texts = new Vector<>();
 
         checkNode("text");
         int entryLevel = parser.getDepth();
@@ -47,7 +47,7 @@ public class TextParser extends ElementParser<Text> {
 
     private Text parseBody() throws InvalidStructureException, IOException, XmlPullParserException {
         //TODO: Should prevent compositing text and xpath/locales
-        Vector<Text> texts = new Vector<Text>();
+        Vector<Text> texts = new Vector<>();
 
         int eventType = parser.getEventType();
         String text = "";
@@ -109,7 +109,7 @@ public class TextParser extends ElementParser<Text> {
     private Text parseXPath() throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("xpath");
         String function = parser.getAttributeValue(null, "function");
-        Hashtable<String, Text> arguments = new Hashtable<String, Text>();
+        Hashtable<String, Text> arguments = new Hashtable<>();
 
         //Now get all of the variables which might be used
         while (nextTagInBlock("xpath")) {

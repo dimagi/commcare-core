@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Base Replication</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/3728ACF8-F162-4957-8A3C-2AED980FD52A" uiVersion="1" version="1" name="Base Replication">
+                    <outer_group>
+                        <num_repeat_outer />
+                        <outer_repeat jr:template="">
+                            <display />
+                            <num_repeat_inner />
+                            <inner_repeat jr:template="">
+                                <placeholder />
+                            </inner_repeat>
+                        </outer_repeat>
+                    </outer_group>
+                </data>
+            </instance>
+            <bind nodeset="/data/outer_group" />
+            <bind nodeset="/data/outer_group/num_repeat_outer" type="xsd:int" />
+            <bind nodeset="/data/outer_group/outer_repeat" />
+            <bind nodeset="/data/outer_group/outer_repeat/display" />
+            <bind nodeset="/data/outer_group/outer_repeat/num_repeat_inner" type="xsd:int" relevant="/data/outer_group/outer_repeat/display = 'yes'" />
+            <bind nodeset="/data/outer_group/outer_repeat/inner_repeat" relevant="/data/outer_group/outer_repeat/display = 'yes'" />
+            <bind nodeset="/data/outer_group/outer_repeat/inner_repeat/placeholder" type="xsd:string" />
+            <itext>
+                <translation lang="en" default="">
+                    <text id="outer_group-label">
+                        <value>outer_group</value>
+                    </text>
+                    <text id="outer_group/num_repeat_outer-label">
+                        <value>num_repeat_outer</value>
+                    </text>
+                    <text id="outer_group/outer_repeat-label">
+                        <value>outer_repeat</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/display-label">
+                        <value>display</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/display-yes-label">
+                        <value>yes</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/display-no-label">
+                        <value>no</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/num_repeat_inner-label">
+                        <value>num_repeat_inner</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/inner_repeat-label">
+                        <value>inner_repeat</value>
+                    </text>
+                    <text id="outer_group/outer_repeat/inner_repeat/placeholder-label">
+                        <value>placeholder</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <group ref="/data/outer_group">
+            <label ref="jr:itext('outer_group-label')" />
+            <input ref="/data/outer_group/num_repeat_outer">
+                <label ref="jr:itext('outer_group/num_repeat_outer-label')" />
+            </input>
+            <group>
+                <label ref="jr:itext('outer_group/outer_repeat-label')" />
+                <repeat jr:count="/data/outer_group/num_repeat_outer" jr:noAddRemove="true()" nodeset="/data/outer_group/outer_repeat">
+                    <select1 ref="/data/outer_group/outer_repeat/display">
+                        <label ref="jr:itext('outer_group/outer_repeat/display-label')" />
+                        <item>
+                            <label ref="jr:itext('outer_group/outer_repeat/display-yes-label')" />
+                            <value>yes</value>
+                        </item>
+                        <item>
+                            <label ref="jr:itext('outer_group/outer_repeat/display-no-label')" />
+                            <value>no</value>
+                        </item>
+                    </select1>
+                    <input ref="/data/outer_group/outer_repeat/num_repeat_inner">
+                        <label ref="jr:itext('outer_group/outer_repeat/num_repeat_inner-label')" />
+                    </input>
+                    <group>
+                        <label ref="jr:itext('outer_group/outer_repeat/inner_repeat-label')" />
+                        <repeat jr:count="/data/outer_group/outer_repeat/num_repeat_inner" jr:noAddRemove="true()" nodeset="/data/outer_group/outer_repeat/inner_repeat">
+                            <input ref="/data/outer_group/outer_repeat/inner_repeat/placeholder">
+                                <label ref="jr:itext('outer_group/outer_repeat/inner_repeat/placeholder-label')" />
+                            </input>
+                        </repeat>
+                    </group>
+                </repeat>
+            </group>
+        </group>
+    </h:body>
+</h:html>

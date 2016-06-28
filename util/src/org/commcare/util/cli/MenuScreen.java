@@ -45,7 +45,7 @@ public class MenuScreen extends Screen {
         this.mPlatform = session.getPlatform();
         this.mSandbox = session.getSandbox();
         
-        Vector<MenuDisplayable> choices = new Vector<MenuDisplayable>();
+        Vector<MenuDisplayable> choices = new Vector<>();
         
         Hashtable<String, Entry> map = mPlatform.getMenuMap();
         EvaluationContext ec = null;

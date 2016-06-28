@@ -28,7 +28,7 @@ public class ActionParser extends CommCareElementParser<Action> {
         this.checkNode(NAME_ACTION);
 
         DisplayUnit display = null;
-        Vector<StackOperation> stackOps = new Vector<StackOperation>();
+        Vector<StackOperation> stackOps = new Vector<>();
 
         while (nextTagInBlock(NAME_ACTION)) {
             if (parser.getName().equals("display")) {

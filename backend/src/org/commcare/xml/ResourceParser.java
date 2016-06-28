@@ -27,7 +27,7 @@ public class ResourceParser extends ElementParser<Resource> {
 
         String descriptor = parser.getAttributeValue(null, "descriptor");
 
-        Vector<ResourceLocation> locations = new Vector<ResourceLocation>();
+        Vector<ResourceLocation> locations = new Vector<>();
 
         while (nextTagInBlock("resource")) {
             //New Location

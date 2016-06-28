@@ -39,7 +39,7 @@ public class Ledger implements Persistable, IMetaData {
 
     public Ledger(String entityId) {
         this.entityId = entityId;
-        this.sections = new Hashtable<String, Hashtable<String, Integer>>();
+        this.sections = new Hashtable<>();
     }
 
     /**

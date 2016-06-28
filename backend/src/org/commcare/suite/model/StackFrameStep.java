@@ -2,9 +2,11 @@ package org.commcare.suite.model;
 
 import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
+import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.XPathException;
@@ -27,7 +29,14 @@ public class StackFrameStep implements Externalizable {
     private String id;
     private String value;
     private boolean valueIsXpath;
-    private Hashtable<String, Object> extras = new Hashtable<String, Object>();
+    private Hashtable<String, Object> extras = new Hashtable<>();
+
+    /**
+     * XML instance collected during session navigation that is made available
+     * in the session's evaulation context. For instance, useful to store
+     * results of a query command during case search and claim workflow
+     */
+    private ExternalDataInstance xmlInstance;
 
     /**
      * Serialization Only
@@ -49,12 +58,23 @@ public class StackFrameStep implements Externalizable {
             // shallow copy of extra value
             extras.put(key, oldStackFrameStep.extras.get(key));
         }
+
+        if (oldStackFrameStep.hasXmlInstance()) {
+            this.xmlInstance = new ExternalDataInstance(oldStackFrameStep.xmlInstance);
+        }
     }
 
     public StackFrameStep(String type, String id, String value) {
         this.elementType = type;
         this.id = id;
         this.value = value;
+    }
+
+    public StackFrameStep(String type, String id, String value,
+                          ExternalDataInstance xmlInstance) {
+        this(type, id, value);
+
+        this.xmlInstance = xmlInstance;
     }
 
     public StackFrameStep(String type, String id,
@@ -85,6 +105,14 @@ public class StackFrameStep implements Externalizable {
 
     public boolean getValueIsXPath() {
         return valueIsXpath;
+    }
+
+    public boolean hasXmlInstance() {
+        return xmlInstance != null;
+    }
+
+    public ExternalDataInstance getXmlInstance() {
+        return xmlInstance;
     }
 
     /**
@@ -139,6 +167,7 @@ public class StackFrameStep implements Externalizable {
         this.value = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.valueIsXpath = ExtUtil.readBool(in);
         this.extras = (Hashtable<String, Object>)ExtUtil.read(in, new ExtWrapMapPoly(String.class), pf);
+        this.xmlInstance = (ExternalDataInstance)ExtUtil.read(in, new ExtWrapNullable(ExternalDataInstance.class), pf);
     }
 
     @Override
@@ -148,6 +177,7 @@ public class StackFrameStep implements Externalizable {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(value));
         ExtUtil.writeBool(out, valueIsXpath);
         ExtUtil.write(out, new ExtWrapMapPoly(extras));
+        ExtUtil.write(out, new ExtWrapNullable(xmlInstance));
     }
 
     @Override

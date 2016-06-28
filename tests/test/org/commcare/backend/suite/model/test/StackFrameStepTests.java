@@ -1,7 +1,5 @@
 package org.commcare.backend.suite.model.test;
 
-import junit.framework.Assert;
-
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.test.utilities.PersistableSandbox;
 import org.commcare.session.SessionFrame;

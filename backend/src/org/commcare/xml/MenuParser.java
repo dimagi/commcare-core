@@ -61,8 +61,8 @@ public class MenuParser extends CommCareElementParser<Menu> {
 
         //name = new TextParser(parser).parse();
 
-        Vector<String> commandIds = new Vector<String>();
-        Vector<String> relevantExprs = new Vector<String>();
+        Vector<String> commandIds = new Vector<>();
+        Vector<String> relevantExprs = new Vector<>();
         while (nextTagInBlock("menu")) {
             checkNode("command");
             commandIds.addElement(parser.getAttributeValue(null, "id"));

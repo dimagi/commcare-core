@@ -57,6 +57,10 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
         return false;
     }
 
+    public boolean isSync() {
+        return false;
+    }
+
     /**
      * @return the ID of this entry command. Used by Menus to determine
      * where the command should be located.
@@ -78,7 +82,7 @@ public abstract class Entry implements Externalizable, MenuDisplayable {
     }
 
     public Hashtable<String, DataInstance> getInstances() {
-        Hashtable<String, DataInstance> copy = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> copy = new Hashtable<>();
         for (Enumeration en = instances.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
 

@@ -59,7 +59,7 @@ public class LedgerXmlParsers extends TransactionParser<Ledger[]> {
 
         String name = parser.getName().toLowerCase();
 
-        final Vector<Ledger> toWrite = new Vector<Ledger>();
+        final Vector<Ledger> toWrite = new Vector<>();
 
         String dateModified = parser.getAttributeValue(null, "date");
         if (dateModified == null) {

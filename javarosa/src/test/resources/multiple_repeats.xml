@@ -1,0 +1,72 @@
+
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Untitled Form</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/16732A09-88C5-4C73-99E7-704CC27200B1" uiVersion="1" version="3" name="Untitled Form">
+                    <question1 jr:template="">
+                        <question2/>
+                        <question3/>
+                    </question1>
+                    <question4 jr:template="">
+                        <question5/>
+                        <question6/>
+                    </question4>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+            </instance>
+            <bind nodeset="/data/question1"/>
+            <bind nodeset="/data/question1/question2" type="xsd:string"/>
+            <bind nodeset="/data/question1/question3" type="xsd:string"/>
+            <bind nodeset="/data/question4"/>
+            <bind nodeset="/data/question4/question5" type="xsd:string"/>
+            <bind nodeset="/data/question4/question6" type="xsd:string"/>
+            <itext>
+                <translation lang="en" default="">
+                    <text id="question1-label">
+                        <value>question1</value>
+                    </text>
+                    <text id="question1/question2-label">
+                        <value>question2</value>
+                    </text>
+                    <text id="question1/question3-label">
+                        <value>question3</value>
+                    </text>
+                    <text id="question4-label">
+                        <value>question4</value>
+                    </text>
+                    <text id="question4/question5-label">
+                        <value>question5</value>
+                    </text>
+                    <text id="question4/question6-label">
+                        <value>question6</value>
+                    </text>
+                </translation>
+            </itext>
+        </model>
+    </h:head>
+    <h:body>
+        <group>
+            <label ref="jr:itext('question1-label')"/>
+            <repeat nodeset="/data/question1">
+                <input ref="/data/question1/question2">
+                    <label ref="jr:itext('question1/question2-label')"/>
+                </input>
+                <input ref="/data/question1/question3">
+                    <label ref="jr:itext('question1/question3-label')"/>
+                </input>
+            </repeat>
+        </group>
+        <group>
+            <label ref="jr:itext('question4-label')"/>
+            <repeat nodeset="/data/question4">
+                <input ref="/data/question4/question5">
+                    <label ref="jr:itext('question4/question5-label')"/>
+                </input>
+                <input ref="/data/question4/question6">
+                    <label ref="jr:itext('question4/question6-label')"/>
+                </input>
+            </repeat>
+        </group>
+    </h:body>
+</h:html>

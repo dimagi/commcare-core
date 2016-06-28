@@ -43,7 +43,7 @@ public class ProfileInstaller extends CacheInstaller {
 
     private Hashtable<String, Profile> getlocal() {
         if (localTable == null) {
-            localTable = new Hashtable<String, Profile>();
+            localTable = new Hashtable<>();
         }
         return localTable;
     }
@@ -86,11 +86,11 @@ public class ProfileInstaller extends CacheInstaller {
             if (getlocal().containsKey(r.getRecordGuid()) && r.getStatus() == Resource.RESOURCE_STATUS_LOCAL) {
                 Profile local = getlocal().get(r.getRecordGuid());
                 installInternal(local);
-                table.commit(r, Resource.RESOURCE_STATUS_UPGRADE);
+                table.commitCompoundResource(r, Resource.RESOURCE_STATUS_UPGRADE);
                 localTable.remove(r.getRecordGuid());
 
                 for (Resource child : table.getResourcesForParent(r.getRecordGuid())) {
-                    table.commit(child, Resource.RESOURCE_STATUS_UNINITIALIZED);
+                    table.commitCompoundResource(child, Resource.RESOURCE_STATUS_UNINITIALIZED);
                 }
                 return true;
             }
@@ -120,12 +120,12 @@ public class ProfileInstaller extends CacheInstaller {
                 //If we're upgrading we need to come back and see if the statuses need to change
                 if (upgrade) {
                     getlocal().put(r.getRecordGuid(), p);
-                    table.commit(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
+                    table.commitCompoundResource(r, Resource.RESOURCE_STATUS_LOCAL, p.getVersion());
                 } else {
                     p.initializeProperties(true);
                     installInternal(p);
                     //TODO: What if this fails? Maybe we should be throwing exceptions...
-                    table.commit(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+                    table.commitCompoundResource(r, Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
                 }
 
                 return true;
