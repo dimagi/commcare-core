@@ -17,8 +17,11 @@ import java.nio.charset.StandardCharsets;
  * Convenience methods, mostly for touchforms so we don't have to deal with Java IO
  * in Jython which is terrible
  *
+ * Used by touchforms
+ *
  * Created by wpride1 on 8/20/15.
  */
+@SuppressWarnings("unused")
 public class ParseUtilsHelper  extends ParseUtils {
     public static void parseXMLIntoSandbox(String restore, UserSandbox sandbox)
             throws InvalidStructureException, UnfullfilledRequirementsException, XmlPullParserException, IOException {
