@@ -1,5 +1,6 @@
 package org.javarosa.core.util;
 
+import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -10,8 +11,6 @@ public class DataUtil {
     static final int low = -10;
     static final int high = 400;
     static Integer[] iarray;
-
-    static IntersectionLambda intersectionLambda = new IntersectionLambda();
 
     /**
      * Get Integer object that corresponds to int argument from a
@@ -36,23 +35,10 @@ public class DataUtil {
     }
 
     public static <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
-        return intersectionLambda.intersection(a, b);
-    }
-
-    public static void setIntersectionLambda(IntersectionLambda newIntersectionLambda) {
-        intersectionLambda = newIntersectionLambda;
-    }
-
-    public static class IntersectionLambda {
-        public <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
-            Vector<T> u = new Vector<>();
-            for (T i : a) {
-                if (b.contains(i)) {
-                    u.addElement(i);
-                }
-            }
-            return u;
-        }
+        HashSet<T> setA = new HashSet<>(a);
+        HashSet<T> setB = new HashSet<>(b);
+        setA.retainAll(setB);
+        return new Vector<>(setA);
     }
 
     public static String[] splitOnSpaces(String s) {
