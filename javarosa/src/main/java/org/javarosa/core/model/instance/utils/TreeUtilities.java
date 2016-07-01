@@ -216,7 +216,7 @@ public class TreeUtilities {
         if (allSelectedChildren == null) {
             return predicateMatches;
         }
-        return DataUtil.union(allSelectedChildren, predicateMatches);
+        return DataUtil.intersection(allSelectedChildren, predicateMatches);
     }
 
 

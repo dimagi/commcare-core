@@ -35,8 +35,8 @@ public class DataUtil {
         }
     }
 
-    public static <T> Vector<T> union(Vector<T> a, Vector<T> b) {
-        return intersectionLambda.union(a, b);
+    public static <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
+        return intersectionLambda.intersection(a, b);
     }
 
     public static void setIntersectionLambda(IntersectionLambda newIntersectionLambda) {
@@ -44,9 +44,8 @@ public class DataUtil {
     }
 
     public static class IntersectionLambda {
-        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+        public <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
             Vector<T> u = new Vector<>();
-            //Efficiency?
             for (T i : a) {
                 if (b.contains(i)) {
                     u.addElement(i);
