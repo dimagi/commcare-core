@@ -165,6 +165,9 @@ public class CommCareSession {
         return entries;
     }
 
+    public OrderedHashtable<String, String> getData() {
+        return collectedDatums;
+    }
     private static boolean entryRequirementsSatsified(Entry entry,
                                                       OrderedHashtable<String, String> currentSessionData) {
         Vector<SessionDatum> requirements = entry.getSessionDataReqs();
@@ -426,7 +429,7 @@ public class CommCareSession {
         syncState();
     }
 
-    private void syncState() {
+    public void syncState() {
         this.collectedDatums.clear();
         this.currentCmd = null;
         this.currentXmlns = null;

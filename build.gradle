@@ -91,11 +91,14 @@ dependencies {
       testCompile sourceSets.api.output
       testCompile sourceSets.cli.output
       testCompile 'junit:junit:4.12'
+
       testCompile 'org.json:json:20140107'
       testCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
 
       apiCompile sourceSets.main.output
+      apiCompile 'org.json:json:20140107'
       apiCompile 'org.xerial:sqlite-jdbc:3.8.11.1'
+      apiCompile 'kxml2:kxml2:2.3.0'
 
       harnessCompile 'kxml2:kxml2:2.3.0'
       harnessCompile 'xpp3:xpp3:1.1.4c'
@@ -117,6 +120,7 @@ jar {
 jar.dependsOn test
 
 configurations {
+  api
   cliOutput.extendsFrom (cliCompile)
   harness
   translate
@@ -145,6 +149,7 @@ task apiJar(type: Jar, dependsOn: apiClasses) {
     baseName = "commcare-api"
     from sourceSets.api.output
     from sourceSets.main.output
+    from sourceSets.cli.output
     from {
         configurations.apiCompile.collect {
             it.isDirectory() ? it : zipTree(it)
@@ -197,6 +202,7 @@ task formTranslateJar(type: Jar, dependsOn: translateClasses) {
 
 artifacts {
   cliOutput cliJar
+  api apiJar
   harness harnessJar
   translate formTranslateJar
   testsAsJar testsrcJar
