@@ -11,7 +11,7 @@ public class DataUtil {
     static final int high = 400;
     static Integer[] iarray;
 
-    static UnionLambda unionLambda = new UnionLambda();
+    static IntersectionLambda intersectionLambda = new IntersectionLambda();
 
     /**
      * Get Integer object that corresponds to int argument from a
@@ -36,14 +36,14 @@ public class DataUtil {
     }
 
     public static <T> Vector<T> union(Vector<T> a, Vector<T> b) {
-        return unionLambda.union(a, b);
+        return intersectionLambda.union(a, b);
     }
 
-    public static void setUnionLambda(UnionLambda newUnionLambda) {
-        unionLambda = newUnionLambda;
+    public static void setIntersectionLambda(IntersectionLambda newIntersectionLambda) {
+        intersectionLambda = newIntersectionLambda;
     }
 
-    public static class UnionLambda {
+    public static class IntersectionLambda {
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             Vector<T> u = new Vector<>();
             //Efficiency?
