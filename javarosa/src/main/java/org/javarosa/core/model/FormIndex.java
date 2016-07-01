@@ -208,11 +208,13 @@ public class FormIndex {
 
     @Override
     public int hashCode() {
-        return (beginningOfForm ? 0 : 31)
-                ^ (endOfForm ? 0 : 31)
-                ^ localIndex
-                ^ instanceIndex
-                ^ (nextLevel == null ? 0 : nextLevel.hashCode());
+        int result = 15;
+        result = 31 * result + (beginningOfForm ? 0 : 1);
+        result = 31 * result + (endOfForm ? 0 : 1);
+        result = 31 * result + localIndex;
+        result = 31 * result + instanceIndex;
+        result = 31 * result + (nextLevel == null ? 0 : nextLevel.hashCode());
+        return result;
     }
 
     @Override
