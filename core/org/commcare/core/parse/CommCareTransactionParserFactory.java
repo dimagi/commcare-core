@@ -159,18 +159,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    public String getResponseMessage(){
-        return null;
-    }
-
-    public int[] getCaseTallies() {
-        return null;
-    }
-
-    public OrderedHashtable<String,String> getResponseMessageMap() {
-        return null;
-    }
-
     public void initCaseParser() {
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;

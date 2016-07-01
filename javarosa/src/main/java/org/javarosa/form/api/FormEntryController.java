@@ -313,6 +313,10 @@ public class FormEntryController {
         return model.getFormIndex();
     }
 
+    /**
+     * Used by touchforms
+     */
+    @SuppressWarnings("unused")
     public FormIndex descendIntoRepeat(int n) {
         jumpToIndex(model.getForm().descendIntoRepeat(model.getFormIndex(), n));
         return model.getFormIndex();

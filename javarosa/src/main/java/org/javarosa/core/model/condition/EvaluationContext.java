@@ -73,16 +73,6 @@ public class EvaluationContext {
     DataInstance instance;
 
     /**
-     * Two-element array to keep track of how many candidate references have
-     * had their (complex) predicates evaluated during reference expansion.
-     *
-     * 1st element counts how refs have been processed, 2nd counts total
-     * references with (complex) predicates. Complex meaning not handled by
-     * tryBatchChildFetch.
-     */
-    int[] predicateEvaluationProgress;
-
-    /**
      * Copy Constructor
      */
     private EvaluationContext(EvaluationContext base) {
@@ -307,11 +297,6 @@ public class EvaluationContext {
             childSet = loadReferencesChildren(node, name, mult, includeTemplates);
         }
 
-        if (predicates != null && predicates.size() > 0) {
-            // child references need to be filtered over remaining predicates
-            incRefsToFilterCount(childSet.size());
-        }
-
         // Create a place to store the current position markers
         int[] positionContext = new int[predicates == null ? 0 : predicates.size()];
 
@@ -350,7 +335,6 @@ public class EvaluationContext {
                         break;
                     }
                 }
-                incRefsFilteredCount();
             }
             if (passedAll) {
                 expandReferenceAccumulator(sourceRef, sourceInstance, refToExpand, refs, includeTemplates);
@@ -470,38 +454,6 @@ public class EvaluationContext {
     public int getContextPosition() {
         return currentContextPosition;
     }
-
-    /**
-     * Point the local progress tracking array to the address passed in. Used
-     * to enable processes that call expandReference to keep track of
-     * predicates evaluation over candidate reference results.
-     */
-    public void setPredicateProcessSet(int[] loadingDetails) {
-        if (loadingDetails != null && loadingDetails.length == 2) {
-            predicateEvaluationProgress = loadingDetails;
-        }
-    }
-
-    /**
-     * Increment the amount of references left to filter during reference
-     * expansion.
-     */
-    private void incRefsToFilterCount(int amount) {
-        if (predicateEvaluationProgress != null) {
-            predicateEvaluationProgress[1] += amount;
-        }
-    }
-
-    /**
-     * Increment the amount of references that have been filtered during
-     * reference expansion.
-     */
-    private void incRefsFilteredCount() {
-        if (predicateEvaluationProgress != null) {
-            predicateEvaluationProgress[0]++;
-        }
-    }
-
 
     /**
      * Get the relevant cache host for the provided ref, if one exists.
