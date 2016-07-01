@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 public class DataUtilTest {
     @Test
     public void intersectionTest() {
-        DataUtil.IntersectionLambda intersectionLambda = new DataUtil.IntersectionLambda();
         Vector<String> setOne = new Vector<>();
         setOne.add("one");
         setOne.add("two");
@@ -22,7 +21,7 @@ public class DataUtilTest {
         Vector<String> setTwo = new Vector<>();
         setTwo.add("one");
         setTwo.add("three");
-        Vector<String> intersectSet = intersectionLambda.intersection(setOne, setTwo);
+        Vector<String> intersectSet = DataUtil.intersection(setOne, setTwo);
 
         // for safety, we want to return a whole new vector
         assertFalse(intersectSet == setOne);
