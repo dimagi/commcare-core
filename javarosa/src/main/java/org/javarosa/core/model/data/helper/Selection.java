@@ -133,7 +133,11 @@ public class Selection implements Externalizable {
         ExtUtil.writeString(out, getValue());
         ExtUtil.writeNumeric(out, index);
     }
-    // Compatibility index for Touchforms which expects 1-indexed selections
+    /**
+     * Used by touchforms
+     *
+     * Compatibility index for Touchforms which expects 1-indexed selections
+     */
     @SuppressWarnings("unused")
     public int getTouchformsIndex(){
         return index + 1;

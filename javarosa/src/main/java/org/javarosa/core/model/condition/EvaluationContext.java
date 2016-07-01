@@ -476,7 +476,6 @@ public class EvaluationContext {
      * to enable processes that call expandReference to keep track of
      * predicates evaluation over candidate reference results.
      */
-    @SuppressWarnings("unused")
     public void setPredicateProcessSet(int[] loadingDetails) {
         if (loadingDetails != null && loadingDetails.length == 2) {
             predicateEvaluationProgress = loadingDetails;

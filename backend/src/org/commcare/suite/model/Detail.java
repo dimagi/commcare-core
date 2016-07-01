@@ -152,19 +152,6 @@ public class Detail implements Externalizable {
     }
 
     /**
-     * Given an array of details, count their total number of fields.
-     */
-    @SuppressWarnings("unused")
-    public int getFlattenedFieldCount() {
-        Detail[] details = this.getFlattenedDetails();
-        int count = 0;
-        for (int i = 0; i < details.length; i++) {
-            count += details[i].getFields().length;
-        }
-        return count;
-    }
-
-    /**
      * @return Any fields belonging to this detail.
      */
     public DetailField[] getFields() {

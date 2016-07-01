@@ -159,17 +159,14 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         };
     }
 
-    @SuppressWarnings("unused")
     public String getResponseMessage(){
         return null;
     }
 
-    @SuppressWarnings("unused")
     public int[] getCaseTallies() {
         return null;
     }
 
-    @SuppressWarnings("unused")
     public OrderedHashtable<String,String> getResponseMessageMap() {
         return null;
     }

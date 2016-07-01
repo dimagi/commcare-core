@@ -67,7 +67,6 @@ public class StreamsUtil {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void writeToOutput(byte[] bytes, OutputStream out) throws IOException {
         writeToOutput(bytes, out, null);
     }
