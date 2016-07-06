@@ -270,7 +270,7 @@ public class CommCareSessionController {
         //TODO: Stuff can be in more than one suite!!!
         Suite suite = session.getCurrentSuite();
 
-        EntityDatum datum = (EntityDatum)session.getNeededDatum();
+        SessionDatum sessionDatum = session.getNeededDatum();
         EvaluationContext context = session.getEvaluationContext(getIif());
 
         //TODO: This should be part of the next/back protocol in the session, not here.
@@ -282,8 +282,11 @@ public class CommCareSessionController {
             }
             next();
             return;
+        } else if(!(sessionDatum instanceof EntityDatum)) {
+        	throw new RuntimeException("Unsupported Datum type on J2ME Phones: " + sessionDatum.getClass());
         }
-
+        
+        EntityDatum datum = (EntityDatum)sessionDatum;
 
         Detail shortDetail = suite.getDetail(datum.getShortDetail());
         Detail longDetail = null;
