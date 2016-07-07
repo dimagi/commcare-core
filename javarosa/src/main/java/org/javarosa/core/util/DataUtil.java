@@ -1,5 +1,6 @@
 package org.javarosa.core.util;
 
+import java.util.HashSet;
 import java.util.Vector;
 
 /**
@@ -10,9 +11,6 @@ public class DataUtil {
     static final int low = -10;
     static final int high = 400;
     static Integer[] iarray;
-
-    static UnionLambda unionLambda = new UnionLambda();
-    static StringSplitter stringSplitter = new StringSplitter();
 
     /**
      * Get Integer object that corresponds to int argument from a
@@ -36,113 +34,29 @@ public class DataUtil {
         }
     }
 
-    public static <T> Vector<T> union(Vector<T> a, Vector<T> b) {
-        return unionLambda.union(a, b);
-    }
-
-    public static void setUnionLambda(UnionLambda newUnionLambda) {
-        unionLambda = newUnionLambda;
-    }
-
-    public static class UnionLambda {
-        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
-            Vector<T> u = new Vector<>();
-            //Efficiency?
-            for (T i : a) {
-                if (b.contains(i)) {
-                    u.addElement(i);
-                }
-            }
-            return u;
-        }
+    public static <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
+        HashSet<T> setA = new HashSet<>(a);
+        HashSet<T> setB = new HashSet<>(b);
+        setA.retainAll(setB);
+        return new Vector<>(setA);
     }
 
     public static String[] splitOnSpaces(String s) {
-        return stringSplitter.splitOnSpaces(s);
+        if ("".equals(s)) {
+            return new String[0];
+        }
+        return s.split("[ ]+");
     }
 
     public static String[] splitOnDash(String s) {
-        return stringSplitter.splitOnDash(s);
+        return s.split("-");
     }
 
     public static String[] splitOnColon(String s) {
-        return stringSplitter.splitOnColon(s);
+        return s.split(":");
     }
 
     public static String[] splitOnPlus(String s) {
-        return stringSplitter.splitOnPlus(s);
+        return s.split("[+]");
     }
-
-    public static void setStringSplitter(StringSplitter newStringSplitter) {
-        stringSplitter = newStringSplitter;
-    }
-
-    public static class StringSplitter {
-
-        public String[] splitOnSpaces(String s) {
-            Vector<String> vectorSplit = split(s, " ", true);
-            return stringVectorToArray(vectorSplit);
-        }
-
-        public String[] splitOnDash(String s) {
-            Vector<String> vectorSplit = split(s, "-", false);
-            return stringVectorToArray(vectorSplit);
-        }
-
-        public String[] splitOnColon(String s) {
-            Vector<String> vectorSplit = split(s, ":", false);
-            return stringVectorToArray(vectorSplit);
-        }
-
-        public String[] splitOnPlus(String s) {
-            Vector<String> vectorSplit = split(s, "+", false);
-            return stringVectorToArray(vectorSplit);
-        }
-
-        private static String[] stringVectorToArray(Vector<String> v) {
-            String [] arr = new String[v.size()];
-            for (int i = 0; i < v.size(); i++) {
-                arr[i] = v.elementAt(i);
-            }
-            return arr;
-        }
-    }
-
-
-
-    /**
-     * Custom implementation of tokenizing a string based on a delimiter, for use in j2me
-     * (Java's String.split() method was not available until Java 1.4)
-     *
-     * @param str                       The string to be split
-     * @param delimiter                 The delimeter to be used
-     * @param combineMultipleDelimiters If two delimiters occur in a row,
-     *                                  remove the empty strings created by their split
-     * @return A vector of strings contained in original which were separated by the delimiter
-     */
-    public static Vector<String> split(String str, String delimiter, boolean combineMultipleDelimiters) {
-        Vector<String> pieces = new Vector<>();
-
-        int index = str.indexOf(delimiter);
-        // add all substrings, split by delimiter, to pieces.
-        while (index >= 0) {
-            pieces.addElement(str.substring(0, index));
-            str = str.substring(index + delimiter.length());
-            index = str.indexOf(delimiter);
-        }
-        pieces.addElement(str);
-
-        // remove all pieces that are empty string
-        if (combineMultipleDelimiters) {
-            for (int i = 0; i < pieces.size(); i++) {
-                if (pieces.elementAt(i).length() == 0) {
-                    pieces.removeElementAt(i);
-                    i--;
-                }
-            }
-        }
-
-        return pieces;
-    }
-
 }

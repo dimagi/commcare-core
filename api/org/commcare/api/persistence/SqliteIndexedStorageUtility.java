@@ -50,9 +50,9 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } catch(InstantiationException | IllegalAccessException | ClassNotFoundException e){
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -71,7 +71,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
 
         Class.forName("org.sqlite.JDBC");
         SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
-        dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" +  this.sandboxId + ".db");
+        dataSource.setUrl("jdbc:sqlite:" + databaseFolder + "/" + this.sandboxId + ".db");
         return dataSource.getConnection();
     }
 
@@ -94,7 +94,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -116,8 +116,8 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             return returnPrototype;
         } catch (InstantiationException | IllegalAccessException | DeserializationException | IOException e) {
             throw new RuntimeException(e);
-        } finally{
-            if(mByteStream != null){
+        } finally {
+            if (mByteStream != null) {
                 try {
                     mByteStream.close();
                 } catch (IOException e) {
@@ -141,12 +141,12 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
         try {
             c = this.getConnection();
             preparedStatement = SqlHelper.prepareTableSelectStatement(c, this.tableName,
-                    new String[]{fieldName}, new String[]{(String)value}, prototype.newInstance());
+                    new String[]{fieldName}, new String[]{(String) value}, prototype.newInstance());
             if (preparedStatement == null) {
                 return null;
             }
             ResultSet rs = preparedStatement.executeQuery();
-                    Vector<Integer> ids = new Vector<>();
+            Vector<Integer> ids = new Vector<>();
             while (rs.next()) {
                 ids.add(rs.getInt(org.commcare.modern.database.DatabaseHelper.ID_COL));
             }
@@ -176,7 +176,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c = this.getConnection();
             preparedStatement =
                     SqlHelper.prepareTableSelectStatement(c, this.tableName,
-                            new String[]{fieldName}, new String[]{(String)value},
+                            new String[]{fieldName}, new String[]{(String) value},
                             prototype.newInstance());
             ResultSet rs = preparedStatement.executeQuery();
             if (!rs.next()) {
@@ -215,7 +215,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             return id;
         } catch (SQLException | ClassNotFoundException ex) {
             throw new RuntimeException(ex);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -345,7 +345,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             return rs.getBytes(org.commcare.modern.database.DatabaseHelper.DATA_COL);
         } catch (Exception e) {
             System.out.println("SqliteIndexedStorageUtility readBytes exception: " + e);
-        } finally{
+        } finally {
             try {
                 if (preparedStatement != null) {
                     preparedStatement.close();
@@ -368,7 +368,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             SqlHelper.updateToTable(c, tableName, p, id);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -388,7 +388,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -413,7 +413,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             c.close();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } finally{
+        } finally {
             try {
                 if (c != null) {
                     c.close();
@@ -423,6 +423,7 @@ public class SqliteIndexedStorageUtility<T extends Persistable> implements IStor
             }
         }
     }
+
     // not yet implemented
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
