@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
@@ -14,8 +11,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
@@ -25,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -190,32 +186,30 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         //available
         Localizer localizer = formDef.getLocalizer();
         //get this out of the memory ASAP!
-        formDef = null;
         if (localizer == null) {
             //things are fine
             return false;
         }
 
         for (String locale : localizer.getAvailableLocales()) {
-            OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
-            for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
-                String key = (String)en.nextElement();
+            Hashtable<String, String> localeData = localizer.getLocaleData(locale);
+            for (String key : localeData.keySet()) {
                 if (key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_VIDEO)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.VIDEO);
                     }
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
                     }
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_AUDIO)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.AUDIO);
                     }
                 }

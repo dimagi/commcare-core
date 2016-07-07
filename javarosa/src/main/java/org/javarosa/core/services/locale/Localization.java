@@ -39,20 +39,6 @@ public class Localization {
         }
     }
 
-    /**
-     * Used by J2ME
-     */
-    public static void registerLanguageFile(String localeName, String resourceFileURI) {
-        init(false);
-        if (!globalLocalizer.hasLocale(localeName)) {
-            globalLocalizer.addAvailableLocale(localeName);
-        }
-        globalLocalizer.registerLocaleResource(localeName, new ResourceFileDataSource(resourceFileURI));
-        if (globalLocalizer.getDefaultLocale() == null) {
-            globalLocalizer.setDefaultLocale(localeName);
-        }
-    }
-
     public static void registerLanguageReference(String localeName, String referenceUri) {
         init(false);
         if (!globalLocalizer.hasLocale(localeName)) {

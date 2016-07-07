@@ -41,7 +41,8 @@ public class XmlFormRecordProcessor {
 
     }
 
-    public static void process(InputStream stream, TransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public static void process(InputStream stream, TransactionParserFactory factory) throws InvalidStructureException,
+            IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         DataModelPullParser parser = new DataModelPullParser(stream, factory, true, true);
         parser.parse();
     }
