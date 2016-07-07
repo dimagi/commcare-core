@@ -1,11 +1,11 @@
 package org.commcare.backend.session.test;
 
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.test.utilities.MockApp;
-import org.commcare.util.mocks.SessionWrapper;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.ExternalDataInstance;

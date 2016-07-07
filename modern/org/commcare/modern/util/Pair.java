@@ -71,4 +71,9 @@ public class Pair<F, S> {
     public static <A, B> Pair <A, B> create(A a, B b) {
         return new Pair<>(a, b);
     }
+
+    @Override
+    public String toString(){
+        return this.first + ", " + this.second;
+    }
 }

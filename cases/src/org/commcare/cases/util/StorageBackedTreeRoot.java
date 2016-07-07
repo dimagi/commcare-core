@@ -32,7 +32,7 @@ public abstract class StorageBackedTreeRoot<T extends AbstractTreeElement> imple
     protected abstract IStorageUtilityIndexed<?> getStorage();
 
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        return DataUtil.union(selectedCases, cases);
+        return DataUtil.intersection(selectedCases, cases);
     }
 
     protected abstract void initStorageCache();

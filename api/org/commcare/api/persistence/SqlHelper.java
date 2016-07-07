@@ -17,10 +17,10 @@ import java.util.List;
 /**
  * Set of Sql utility methods for clients running modern, non-Android Java (where prepared
  * statements in the place of cursors)
- *
+ * <p/>
  * All methods that return a ResultSet expect a PreparedStatement as an argument and the caller
  * is responsible for closing this statement when its finished with it.
- *
+ * <p/>
  * Created by wpride1 on 8/11/15.
  */
 public class SqlHelper {
@@ -76,7 +76,7 @@ public class SqlHelper {
 
     /**
      * @throws IllegalArgumentException when one or more of the fields we're selecting on
-     * is not a valid key to select on for this object
+     *                                  is not a valid key to select on for this object
      */
     public static PreparedStatement prepareTableSelectStatement(Connection c,
                                                                 String storageKey,
@@ -113,13 +113,13 @@ public class SqlHelper {
                 Object obj = mPair.second.get(i);
 
                 if (obj instanceof String) {
-                    preparedStatement.setString(i + 1, (String)obj);
+                    preparedStatement.setString(i + 1, (String) obj);
                 } else if (obj instanceof Blob) {
-                    preparedStatement.setBlob(i + 1, (Blob)obj);
+                    preparedStatement.setBlob(i + 1, (Blob) obj);
                 } else if (obj instanceof Integer) {
                     preparedStatement.setInt(i + 1, (Integer) obj);
                 } else if (obj instanceof byte[]) {
-                    preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
+                    preparedStatement.setBinaryStream(i + 1, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
                 }
             }
             int affectedRows = preparedStatement.executeUpdate();
@@ -192,10 +192,10 @@ public class SqlHelper {
     /**
      * Update entry under id with persistable p
      *
-     * @param connection         Database Connection
-     * @param tableName name of table
-     * @param persistable         persistable to update with
-     * @param id        sql record to update
+     * @param connection  Database Connection
+     * @param tableName   name of table
+     * @param persistable persistable to update with
+     * @param id          sql record to update
      */
     public static void updateToTable(Connection connection, String tableName, Persistable persistable, int id) {
         String queryStart = "UPDATE " + tableName + " SET " + DatabaseHelper.DATA_COL + " = ? ";
@@ -206,7 +206,7 @@ public class SqlHelper {
         Object[] values = map.values().toArray(new Object[map.values().size()]);
 
         StringBuilder stringBuilder = new StringBuilder(queryStart);
-        for(String fieldName: fieldNames){
+        for (String fieldName : fieldNames) {
             stringBuilder.append(", ").append(fieldName).append(" = ?");
         }
 
@@ -233,28 +233,28 @@ public class SqlHelper {
 
     /**
      * @param preparedStatement the PreparedStatement to populate with arguments
-     * @param persistable the Persistable object being stored
-     * @param values the ordered values to use in the PreparedStatement (corresponding to the
-     *               '?' in the query string)
+     * @param persistable       the Persistable object being stored
+     * @param values            the ordered values to use in the PreparedStatement (corresponding to the
+     *                          '?' in the query string)
      * @return the index of the next '?' NOT populated by this helper
      * @throws SQLException
      */
     public static int setPreparedStatementArgs(PreparedStatement preparedStatement,
-                                         Persistable persistable,
-                                         Object[] values) throws SQLException {
+                                               Persistable persistable,
+                                               Object[] values) throws SQLException {
         byte[] blob = org.commcare.modern.database.TableBuilder.toBlob(persistable);
         preparedStatement.setBinaryStream(1, new ByteArrayInputStream(blob), blob.length);
         // offset to 2 since 1) SQLite is 1 indexed and 2) we set the first arg above
         int i = 2;
-        for(Object obj: values){
+        for (Object obj : values) {
             if (obj instanceof String) {
-                preparedStatement.setString(i, (String)obj);
+                preparedStatement.setString(i, (String) obj);
             } else if (obj instanceof Blob) {
-                preparedStatement.setBlob(i, (Blob)obj);
+                preparedStatement.setBlob(i, (Blob) obj);
             } else if (obj instanceof Integer) {
-                preparedStatement.setInt(i, (Integer)obj);
+                preparedStatement.setInt(i, (Integer) obj);
             } else if (obj instanceof byte[]) {
-                preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[])obj), ((byte[])obj).length);
+                preparedStatement.setBinaryStream(i, new ByteArrayInputStream((byte[]) obj), ((byte[]) obj).length);
             } else if (obj == null) {
                 preparedStatement.setNull(i, 0);
             }
@@ -266,9 +266,9 @@ public class SqlHelper {
     /**
      * Update entry under id with persistable p
      *
-     * @param connection    Database Connection
-     * @param tableName     name of table
-     * @param id            sql record to update
+     * @param connection Database Connection
+     * @param tableName  name of table
+     * @param id         sql record to update
      */
     public static void deleteIdFromTable(Connection connection, String tableName, int id) {
         String query = "DELETE FROM " + tableName + " WHERE " + DatabaseHelper.ID_COL + " = ?;";
@@ -294,8 +294,8 @@ public class SqlHelper {
     /**
      * Update entry under id with persistable p
      *
-     * @param connection    Database Connection
-     * @param tableName     name of table
+     * @param connection Database Connection
+     * @param tableName  name of table
      */
     public static void deleteAllFromTable(Connection connection, String tableName) {
         String query = "DELETE FROM " + tableName;

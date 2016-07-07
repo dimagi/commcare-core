@@ -172,6 +172,10 @@ public class DetailField implements Externalizable {
         sortOrder = ExtUtil.readInt(in);
         sortDirection = ExtUtil.readInt(in);
         sortType = ExtUtil.readInt(in);
+        gridX = ExtUtil.readInt(in);
+        gridY = ExtUtil.readInt(in);
+        gridWidth = ExtUtil.readInt(in);
+        gridHeight = ExtUtil.readInt(in);
     }
 
     @Override
@@ -192,6 +196,10 @@ public class DetailField implements Externalizable {
         ExtUtil.writeNumeric(out, sortOrder);
         ExtUtil.writeNumeric(out, sortDirection);
         ExtUtil.writeNumeric(out, sortType);
+        ExtUtil.writeNumeric(out, gridX);
+        ExtUtil.writeNumeric(out, gridY);
+        ExtUtil.writeNumeric(out, gridWidth);
+        ExtUtil.writeNumeric(out, gridHeight);
     }
 
     public int getGridX() {
