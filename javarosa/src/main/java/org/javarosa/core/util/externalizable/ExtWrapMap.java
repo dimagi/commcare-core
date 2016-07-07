@@ -1,22 +1,5 @@
-/*
- * Copyright (C) 2009 JavaRosa
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.javarosa.core.util.externalizable;
 
-import org.javarosa.core.util.Map;
 import org.javarosa.core.util.OrderedHashtable;
 
 import java.io.DataInputStream;
@@ -30,14 +13,10 @@ public class ExtWrapMap extends ExternalizableWrapper {
 
     public static final int TYPE_NORMAL = 0;
     public static final int TYPE_ORDERED = 1;
-    public static final int TYPE_SLOW_COMPACT = 2;
-    public static final int TYPE_SLOW_READ_ONLY = 4;
 
     public ExternalizableWrapper keyType;
     public ExternalizableWrapper dataType;
     public int type;
-
-    /* serialization */
 
     public ExtWrapMap(Hashtable val) {
         this(val, null, null);
@@ -55,17 +34,12 @@ public class ExtWrapMap extends ExternalizableWrapper {
         this.val = val;
         this.keyType = keyType;
         this.dataType = dataType;
-        if (val instanceof Map) {
-            //TODO: check for sealed
-            type = TYPE_SLOW_READ_ONLY;
-        } else if (val instanceof OrderedHashtable) {
+        if (val instanceof OrderedHashtable) {
             type = TYPE_ORDERED;
         } else {
             type = TYPE_NORMAL;
         }
     }
-
-    /* deserialization */
 
     public ExtWrapMap() {
 
@@ -76,7 +50,7 @@ public class ExtWrapMap extends ExternalizableWrapper {
     }
 
     public ExtWrapMap(Class keyType, ExternalizableWrapper dataType) {
-        this(keyType, dataType, TYPE_NORMAL);
+        this(new ExtWrapBase(keyType), dataType, TYPE_NORMAL);
     }
 
     public ExtWrapMap(ExternalizableWrapper keyType, ExternalizableWrapper dataType) {
@@ -85,10 +59,6 @@ public class ExtWrapMap extends ExternalizableWrapper {
 
     public ExtWrapMap(Class keyType, Class dataType, int type) {
         this(new ExtWrapBase(keyType), new ExtWrapBase(dataType), type);
-    }
-
-    public ExtWrapMap(Class keyType, ExternalizableWrapper dataType, int type) {
-        this(new ExtWrapBase(keyType), dataType, type);
     }
 
     public ExtWrapMap(ExternalizableWrapper keyType, ExternalizableWrapper dataType, int type) {
@@ -106,39 +76,25 @@ public class ExtWrapMap extends ExternalizableWrapper {
     }
 
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        if (type != TYPE_SLOW_READ_ONLY) {
-            Hashtable h;
-            long size = ExtUtil.readNumeric(in);
-            switch (type) {
-                case (TYPE_NORMAL):
-                    h = new Hashtable((int)size);
-                    break;
-                case (TYPE_ORDERED):
-                    h = new OrderedHashtable((int)size);
-                    break;
-                case (TYPE_SLOW_COMPACT):
-                    h = new Map((int)size);
-                    break;
-                default:
-                    h = new Hashtable((int)size);
-            }
-
-            for (int i = 0; i < size; i++) {
-                Object key = ExtUtil.read(in, keyType, pf);
-                Object elem = ExtUtil.read(in, dataType, pf);
-                h.put(key, elem);
-            }
-            val = h;
-        } else {
-            int size = ExtUtil.readInt(in);
-            Object[] k = new Object[size];
-            Object[] v = new Object[size];
-            for (int i = 0; i < size; i++) {
-                k[i] = ExtUtil.read(in, keyType, pf);
-                v[i] = ExtUtil.read(in, dataType, pf);
-            }
-            val = new Map(k, v);
+        Hashtable h;
+        long size = ExtUtil.readNumeric(in);
+        switch (type) {
+            case (TYPE_NORMAL):
+                h = new Hashtable((int)size);
+                break;
+            case (TYPE_ORDERED):
+                h = new OrderedHashtable((int)size);
+                break;
+            default:
+                h = new Hashtable((int)size);
         }
+
+        for (int i = 0; i < size; i++) {
+            Object key = ExtUtil.read(in, keyType, pf);
+            Object elem = ExtUtil.read(in, dataType, pf);
+            h.put(key, elem);
+        }
+        val = h;
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
