@@ -66,6 +66,7 @@ sourceSets {
 
     test {
         java {
+            srcDir 'util/src'
             srcDir 'tests/test'
             srcDir 'javarosa/src/test/java'
             compileClasspath += api.output
