@@ -33,25 +33,22 @@ public class CaseXmlParser extends TransactionParser<Case> {
     public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
     final IStorageUtilityIndexed storage;
-    final int[] tallies;
     final boolean acceptCreateOverwrites;
 
 
     public CaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
-        this(parser, new int[3], true, storage);
+        this(parser, true, storage);
     }
 
     /**
      * Creates a Parser for case blocks in the XML stream provided.
      *
      * @param parser                 The parser for incoming XML.
-     * @param tallies                an int[3] array to place information about the parser's actions.
      * @param acceptCreateOverwrites Whether an Exception should be thrown if the transaction
      *                               contains create actions for cases which already exist.
      */
-    public CaseXmlParser(KXmlParser parser, int[] tallies, boolean acceptCreateOverwrites, IStorageUtilityIndexed storage) {
+    public CaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites, IStorageUtilityIndexed storage) {
         super(parser);
-        this.tallies = tallies;
         this.acceptCreateOverwrites = acceptCreateOverwrites;
         this.storage = storage;
     }
@@ -108,14 +105,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
             if (create) {
                 onCaseCreated(caseForBlock.getCaseId());
             }
-        }
-
-        if (create) {
-            tallies[0]++;
-        } else if (close) {
-            tallies[2]++;
-        } else if (update) {
-            tallies[1]++;
         }
 
         return null;
