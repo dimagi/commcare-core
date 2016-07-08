@@ -264,7 +264,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return new Case(name, typeId);
     }
 
-    public void commit(Case parsed) throws IOException {
+    @Override
+    protected void commit(Case parsed) throws IOException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {
@@ -273,7 +274,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
     }
 
-    public Case retrieve(String entityId) {
+    protected Case retrieve(String entityId) {
         try {
             return (Case)storage().getRecordForValue(Case.INDEX_CASE_ID, entityId);
         } catch (NoSuchElementException nsee) {

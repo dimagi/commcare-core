@@ -26,7 +26,8 @@ public abstract class BestEffortBlockParser extends TransactionParser<Hashtable<
         this.elements = elements;
     }
 
-    public abstract void commit(Hashtable<String, String> discovered) throws IOException;
+    @Override
+    protected abstract void commit(Hashtable<String, String> discovered) throws IOException;
 
     public Hashtable<String, String> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         String name = parser.getName();

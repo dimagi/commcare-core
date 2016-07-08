@@ -88,7 +88,8 @@ public class UserXmlParser extends TransactionParser<User> {
         //Don't do anything in base class
     }
 
-    public void commit(User parsed) throws IOException {
+    @Override
+    protected void commit(User parsed) throws IOException {
         try {
             storage().write(parsed);
         } catch (StorageFullException e) {
