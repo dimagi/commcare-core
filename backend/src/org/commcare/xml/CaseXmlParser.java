@@ -70,14 +70,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
-
         boolean create = false;
         boolean update = false;
         boolean close = false;
         Case caseForBlock = null;
 
-        //Now look for actions
-        while (this.nextTagInBlock("case")) {
+        while (nextTagInBlock("case")) {
 
             String action = parser.getName().toLowerCase();
 
@@ -85,112 +83,27 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 case "create":
                     caseForBlock = createCase(caseId, modified);
                     create = true;
-            }
-            if (action.equals("create")) {
-            } else if (action.equals("update")) {
-                if (caseForBlock == null) {
-                    caseForBlock = retrieve(caseId);
-                }
-                if (caseForBlock == null) {
-                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
-                }
-                while (this.nextTagInBlock("update")) {
-                    String key = parser.getName();
-                    String value = parser.nextText().trim();
-                    if (key.equals("case_type")) {
-                        caseForBlock.setTypeId(value);
-                    } else if (key.equals("case_name")) {
-                        caseForBlock.setName(value);
-                    } else if (key.equals("date_opened")) {
-                        caseForBlock.setDateOpened(DateUtils.parseDate(value));
-                    } else if (key.equals("owner_id")) {
-                        String oldUserId = caseForBlock.getUserId();
-
-                        if(!oldUserId.equals(value)) {
-                            onIndexDisrupted(caseId);
-                        }
-                        caseForBlock.setUserId(value);
-                    } else {
-                        caseForBlock.setProperty(key, value);
-                    }
-                }
-                update = true;
-            } else if (action.equals("close")) {
-                if (caseForBlock == null) {
-                    caseForBlock = retrieve(caseId);
-                }
-                if (caseForBlock == null) {
-                    throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
-                }
-                caseForBlock.setClosed(true);
-                commit(caseForBlock);
-                this.onIndexDisrupted(caseId);
-                //Logger.log("case-close", PropertyUtils.trim(c.getCaseId(), 12));
-                close = true;
-            } else if (action.equals("index")) {
-                if (caseForBlock == null) {
-                    caseForBlock = retrieve(caseId);
-                }
-                while (this.nextTagInBlock("index")) {
-                    String indexName = parser.getName();
-                    String caseType = parser.getAttributeValue(null, "case_type");
-
-                    String relationship = parser.getAttributeValue(null, "relationship");
-                    if (relationship == null) {
-                        relationship = CaseIndex.RELATIONSHIP_CHILD;
-                    }
-
-                    String value = parser.nextText().trim();
-
-                    if (value.equals(caseId)) {
-                        throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
-                    }
-
-                    //Remove any ambiguity associated with empty values
-                    if (value.equals("")) {
-                        value = null;
-                    }
-                    //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
-                    if (value == null) {
-                        if(caseForBlock.removeIndex(indexName)) {
-                            onIndexDisrupted(caseId);
-                        }
-                    } else {
-                        if(caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
-                                relationship))) {
-                            onIndexDisrupted(caseId);
-                        }
-                    }
-                }
-            } else if (action.equals("attachment")) {
-                if (caseForBlock == null) {
-                    caseForBlock = retrieve(caseId);
-                }
-
-                while (this.nextTagInBlock("attachment")) {
-                    String attachmentName = parser.getName();
-                    String src = parser.getAttributeValue(null, "src");
-                    String from = parser.getAttributeValue(null, "from");
-                    String fileName = parser.getAttributeValue(null, "name");
-
-                    if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
-                        //this is actually an attachment removal
-                        this.removeAttachment(caseForBlock, attachmentName);
-                        caseForBlock.removeAttachment(attachmentName);
-                        continue;
-                    }
-
-                    String reference = this.processAttachment(src, from, fileName, parser);
-                    if (reference != null) {
-                        caseForBlock.updateAttachment(attachmentName, reference);
-                    }
-                }
+                    break;
+                case "update":
+                    caseForBlock = updateCase(caseForBlock, caseId);
+                    update = true;
+                    break;
+                case "close":
+                    caseForBlock = closeCase(caseForBlock, caseId);
+                    close = true;
+                    break;
+                case "index":
+                    caseForBlock = indexCase(caseForBlock, caseId);
+                    break;
+                case "attachment":
+                    caseForBlock = processCaseAttachment(caseForBlock, caseId);
+                    break;
             }
         }
+
         if (caseForBlock != null) {
             caseForBlock.setLastModified(modified);
 
-            //Now that we've gotten any relevant transactions, commit this case
             commit(caseForBlock);
             if (create) {
                 onCaseCreated(caseForBlock.getCaseId());
@@ -249,6 +162,115 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
         if (data[1] != null) {
             caseForBlock.setUserId(data[1]);
+        }
+        return caseForBlock;
+    }
+
+    private Case updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException  {
+        if (caseForBlock == null) {
+            caseForBlock = retrieve(caseId);
+        }
+        if (caseForBlock == null) {
+            throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
+        }
+        while (nextTagInBlock("update")) {
+            String key = parser.getName();
+            String value = parser.nextText().trim();
+            if (key.equals("case_type")) {
+                caseForBlock.setTypeId(value);
+            } else if (key.equals("case_name")) {
+                caseForBlock.setName(value);
+            } else if (key.equals("date_opened")) {
+                caseForBlock.setDateOpened(DateUtils.parseDate(value));
+            } else if (key.equals("owner_id")) {
+                String oldUserId = caseForBlock.getUserId();
+
+                if(!oldUserId.equals(value)) {
+                    onIndexDisrupted(caseId);
+                }
+                caseForBlock.setUserId(value);
+            } else {
+                caseForBlock.setProperty(key, value);
+            }
+        }
+
+        return caseForBlock;
+    }
+
+    private Case closeCase(Case caseForBlock, String caseId ) throws IOException {
+        if (caseForBlock == null) {
+            caseForBlock = retrieve(caseId);
+        }
+        if (caseForBlock == null) {
+            throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
+        }
+        caseForBlock.setClosed(true);
+        commit(caseForBlock);
+        onIndexDisrupted(caseId);
+
+        return caseForBlock;
+    }
+
+    private Case indexCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
+        if (caseForBlock == null) {
+            caseForBlock = retrieve(caseId);
+        }
+        while (this.nextTagInBlock("index")) {
+            String indexName = parser.getName();
+            String caseType = parser.getAttributeValue(null, "case_type");
+
+            String relationship = parser.getAttributeValue(null, "relationship");
+            if (relationship == null) {
+                relationship = CaseIndex.RELATIONSHIP_CHILD;
+            }
+
+            String value = parser.nextText().trim();
+
+            if (value.equals(caseId)) {
+                throw new ActionableInvalidStructureException("case.error.self.index", new String[]{caseId}, "Case " + caseId + " cannot index itself");
+            }
+
+            //Remove any ambiguity associated with empty values
+            if (value.equals("")) {
+                value = null;
+            }
+            //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
+            if (value == null) {
+                if(caseForBlock.removeIndex(indexName)) {
+                    onIndexDisrupted(caseId);
+                }
+            } else {
+                if(caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
+                        relationship))) {
+                    onIndexDisrupted(caseId);
+                }
+            }
+        }
+        return caseForBlock;
+    }
+
+    private Case processCaseAttachment(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
+        if (caseForBlock == null) {
+            caseForBlock = retrieve(caseId);
+        }
+
+        while (this.nextTagInBlock("attachment")) {
+            String attachmentName = parser.getName();
+            String src = parser.getAttributeValue(null, "src");
+            String from = parser.getAttributeValue(null, "from");
+            String fileName = parser.getAttributeValue(null, "name");
+
+            if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
+                //this is actually an attachment removal
+                this.removeAttachment(caseForBlock, attachmentName);
+                caseForBlock.removeAttachment(attachmentName);
+                continue;
+            }
+
+            String reference = this.processAttachment(src, from, fileName, parser);
+            if (reference != null) {
+                caseForBlock.updateAttachment(attachmentName, reference);
+            }
         }
         return caseForBlock;
     }
