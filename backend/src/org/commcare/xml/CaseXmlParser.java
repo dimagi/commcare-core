@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.xml;
 
 import org.commcare.cases.model.Case;
@@ -84,53 +81,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
             String action = parser.getName().toLowerCase();
 
+            switch (action) {
+                case "create":
+                    caseForBlock = createCase(caseId, modified);
+                    create = true;
+            }
             if (action.equals("create")) {
-                String[] data = new String[3];
-                //Collect all data
-                while (this.nextTagInBlock("create")) {
-                    if (parser.getName().equals("case_type")) {
-                        data[0] = parser.nextText().trim();
-                    } else if (parser.getName().equals("owner_id")) {
-                        data[1] = parser.nextText().trim();
-                    } else if (parser.getName().equals("case_name")) {
-                        data[2] = parser.nextText().trim();
-                    } else {
-                        throw new InvalidStructureException("Expected one of [case_type, owner_id, case_name], found " + parser.getName(), parser);
-                    }
-                }
-
-                //Verify that we got all the pieces
-                if (data[0] == null || data[2] == null) {
-                    throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
-                }
-                boolean overriden = false;
-                //CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
-                if (acceptCreateOverwrites) {
-                    //If it exists, try to retrieve it
-                    caseForBlock = retrieve(caseId);
-
-                    //If we found one, override the existing data
-                    if (caseForBlock != null) {
-                        caseForBlock.setName(data[2]);
-                        caseForBlock.setTypeId(data[0]);
-                        overriden = true;
-                    }
-                }
-
-                if (caseForBlock == null) {
-                    //The case is either not present on the phone, or we're on strict tolerance
-                    caseForBlock = CreateCase(data[2], data[0]);
-                    caseForBlock.setCaseId(caseId);
-                    caseForBlock.setDateOpened(modified);
-                }
-
-                if (data[1] != null) {
-                    caseForBlock.setUserId(data[1]);
-                }
-                create = true;
-                String succesfulAction = overriden ? "case-recreate" : "case-create";
-                //Logger.log(succesfulAction, c.getID() + ";" + PropertyUtils.trim(c.getCaseId(), 12) + ";" + c.getTypeId());
-
             } else if (action.equals("update")) {
                 if (caseForBlock == null) {
                     caseForBlock = retrieve(caseId);
@@ -252,6 +208,51 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return null;
     }
 
+    private Case createCase(String caseId, Date modified) throws InvalidStructureException, IOException, XmlPullParserException {
+        String[] data = new String[3];
+        Case caseForBlock = null;
+        //Collect all data
+        while (nextTagInBlock("create")) {
+            if (parser.getName().equals("case_type")) {
+                data[0] = parser.nextText().trim();
+            } else if (parser.getName().equals("owner_id")) {
+                data[1] = parser.nextText().trim();
+            } else if (parser.getName().equals("case_name")) {
+                data[2] = parser.nextText().trim();
+            } else {
+                throw new InvalidStructureException("Expected one of [case_type, owner_id, case_name], found " + parser.getName(), parser);
+            }
+        }
+
+        //Verify that we got all the pieces
+        if (data[0] == null || data[2] == null) {
+            throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
+        }
+        //CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
+        if (acceptCreateOverwrites) {
+            //If it exists, try to retrieve it
+            caseForBlock = retrieve(caseId);
+
+            //If we found one, override the existing data
+            if (caseForBlock != null) {
+                caseForBlock.setName(data[2]);
+                caseForBlock.setTypeId(data[0]);
+            }
+        }
+
+        if (caseForBlock == null) {
+            //The case is either not present on the phone, or we're on strict tolerance
+            caseForBlock = buildCase(data[2], data[0]);
+            caseForBlock.setCaseId(caseId);
+            caseForBlock.setDateOpened(modified);
+        }
+
+        if (data[1] != null) {
+            caseForBlock.setUserId(data[1]);
+        }
+        return caseForBlock;
+    }
+
     protected void removeAttachment(Case caseForBlock, String attachmentName) {
 
     }
@@ -260,7 +261,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return null;
     }
 
-    protected Case CreateCase(String name, String typeId) {
+    protected Case buildCase(String name, String typeId) {
         return new Case(name, typeId);
     }
 
