@@ -120,7 +120,7 @@ public class EntityDatum extends SessionDatum {
         TreeReference nodesetRef = this.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
         if (predicates == null) {
-            predicates = new Vector<XPathExpression>();
+            predicates = new Vector<>();
         }
         predicates.addElement(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId)));
         nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);

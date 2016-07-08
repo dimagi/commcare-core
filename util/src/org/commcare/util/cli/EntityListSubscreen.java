@@ -129,6 +129,11 @@ public class EntityListSubscreen extends Subscreen<EntityScreen> {
     }
 
     @Override
+    public String[] getOptions() {
+        return rows;
+    }
+
+    @Override
     public boolean handleInputAndUpdateHost(String input, EntityScreen host) throws CommCareSessionException {
         if(input.startsWith("action ") && actions != null) {
             int chosenActionIndex;

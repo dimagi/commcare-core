@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.resources.model.installers;
 
 import org.commcare.resources.model.MissingMediaException;
@@ -14,8 +11,6 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
@@ -25,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -93,7 +89,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         String tempString = form.getInstance().schema;
 
         //Atomic. Don't re-do this if it was already done.
-        if (tempString.indexOf(UPGRADE_EXT) != -1) {
+        if (tempString.contains(UPGRADE_EXT)) {
             form.getInstance().schema = tempString.substring(0, tempString.indexOf(UPGRADE_EXT));
             storage().write(form);
         }
@@ -118,7 +114,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
         //This method should basically be atomic, so don't re-temp it if it's already
         //temp'd.
-        if (tempString.indexOf(destination) != -1) {
+        if (tempString.contains(destination)) {
             return true;
         } else {
             form.getInstance().schema = form.getInstance().schema + destination;
@@ -137,7 +133,7 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
 
         for (String ext : exts) {
             //Removing any staging/upgrade placeholders.
-            if (tempString.indexOf(ext) != -1) {
+            if (tempString.contains(ext)) {
                 form.getInstance().schema = tempString.substring(0, tempString.indexOf(ext));
                 storage().write(form);
             }
@@ -156,14 +152,14 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         switch (status) {
             case Resource.RESOURCE_STATUS_INSTALL_TO_UNSTAGE:
             case Resource.RESOURCE_STATUS_UNSTAGE_TO_INSTALL:
-                if (currentSchema.indexOf(STAGING_EXT) != -1) {
+                if (currentSchema.contains(STAGING_EXT)) {
                     return Resource.RESOURCE_STATUS_UNSTAGED;
                 } else {
                     return Resource.RESOURCE_STATUS_INSTALLED;
                 }
             case Resource.RESOURCE_STATUS_UPGRADE_TO_INSTALL:
             case Resource.RESOURCE_STATUS_INSTALL_TO_UPGRADE:
-                if (currentSchema.indexOf(UPGRADE_EXT) != -1) {
+                if (currentSchema.contains(UPGRADE_EXT)) {
                     return Resource.RESOURCE_STATUS_UPGRADE;
                 } else {
                     return Resource.RESOURCE_STATUS_INSTALLED;
@@ -190,32 +186,30 @@ public class XFormInstaller extends CacheInstaller<FormDef> {
         //available
         Localizer localizer = formDef.getLocalizer();
         //get this out of the memory ASAP!
-        formDef = null;
         if (localizer == null) {
             //things are fine
             return false;
         }
 
         for (String locale : localizer.getAvailableLocales()) {
-            OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
-            for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
-                String key = (String)en.nextElement();
-                if (key.indexOf(";") != -1) {
+            Hashtable<String, String> localeData = localizer.getLocaleData(locale);
+            for (String key : localeData.keySet()) {
+                if (key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_VIDEO)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.VIDEO);
                     }
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.IMAGE);
                     }
 
                     if (form.equals(FormEntryCaption.TEXT_FORM_AUDIO)) {
-                        String externalMedia = localeData.get(key).render();
+                        String externalMedia = localeData.get(key);
                         InstallerUtil.checkMedia(r, externalMedia, sizeBoundProblems, InstallerUtil.MediaType.AUDIO);
                     }
                 }

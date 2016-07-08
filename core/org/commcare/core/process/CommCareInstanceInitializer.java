@@ -64,15 +64,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     @Override
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         String ref = instance.getReference();
-        if (ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
+        if (ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             return setupLedgerData(instance);
-        } else if (ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
+        } else if (ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             return setupCaseData(instance);
-        } else if (instance.getReference().indexOf("fixture") != -1) {
+        } else if (instance.getReference().contains("fixture")) {
             return setupFixtureData(instance);
-        } else if (instance.getReference().indexOf("session") != -1) {
+        } else if (instance.getReference().contains("session")) {
             return setupSessionData(instance);
-        } else if (ref.indexOf("migration") != -1) {
+        } else if (ref.contains("migration")) {
             return setupMigrationData(instance);
         }
         return null;

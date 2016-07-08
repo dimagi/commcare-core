@@ -42,11 +42,11 @@ public class MockUserDataSandbox extends UserSandbox {
      * @param factory A prototype factory for deserializing records
      */
     public MockUserDataSandbox(PrototypeFactory factory) {
-        caseStorage = new DummyIndexedStorageUtility<Case>(Case.class, factory);
-        ledgerStorage = new DummyIndexedStorageUtility<Ledger>(Ledger.class, factory);
-        userStorage = new DummyIndexedStorageUtility<User>(User.class, factory);
-        userFixtureStorage = new DummyIndexedStorageUtility<FormInstance>(FormInstance.class, factory);
-        appFixtureStorage = new DummyIndexedStorageUtility<FormInstance>(FormInstance.class, factory);
+        caseStorage = new DummyIndexedStorageUtility<>(Case.class, factory);
+        ledgerStorage = new DummyIndexedStorageUtility<>(Ledger.class, factory);
+        userStorage = new DummyIndexedStorageUtility<>(User.class, factory);
+        userFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
+        appFixtureStorage = new DummyIndexedStorageUtility<>(FormInstance.class, factory);
     }
 
     public IStorageUtilityIndexed<Case> getCaseStorage() {

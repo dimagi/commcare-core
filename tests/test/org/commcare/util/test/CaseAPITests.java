@@ -45,10 +45,10 @@ public class CaseAPITests {
         owner = "owner";
         groupOwner = "groupowned";
 
-        userOwned = new Vector<String>();
+        userOwned = new Vector<>();
         userOwned.addElement(owner);
 
-        groupOwned = new Vector<String>();
+        groupOwned = new Vector<>();
         groupOwned.addElement(owner);
         groupOwned.addElement(groupOwner);
 

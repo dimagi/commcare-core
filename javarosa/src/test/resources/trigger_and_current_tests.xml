@@ -1,0 +1,44 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.w3.org/2002/xforms"
+    >
+    <h:head>
+        <h:title>Bad Constraint Propagation</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/formdesigner/C1417AEE-F51D-4BA6-9769-381896D4CB9F"
+                    uiVersion="1" version="1" name="Bad Constraint Propagation">
+                    <show>yes</show>
+                    <display/>
+                </data>
+            </instance>
+
+            <instance id="alternate">
+                <root>
+                    <show id="id">yes</show>
+                </root>
+            </instance>
+
+            <bind nodeset="/data/display"
+                  relevant="count(instance('alternate')/root/show[@id='id'][. = current()/../show]) &gt; 0"/>
+        </model>
+    </h:head>
+    <h:body>
+        <select1 ref="/data/show">
+            <label>Display the next label?</label>
+            <item>
+                <label>Yes</label>
+                <value>yes</value>
+            </item>
+            <item>
+                <label>No</label>
+                <value>no</value>
+            </item>
+        </select1>
+        <trigger ref="/data/display">
+            <label>Should this label have been displayed?:
+                <output ref="/data/show"/>
+            </label>
+        </trigger>
+    </h:body>
+</h:html>

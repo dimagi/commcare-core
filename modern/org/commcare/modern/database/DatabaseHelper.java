@@ -35,7 +35,7 @@ public class DatabaseHelper {
         if(p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;
             String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
+            fields = new HashSet<>();
             for(String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
@@ -45,7 +45,7 @@ public class DatabaseHelper {
         if(em instanceof IMetaData) {
             IMetaData m = (IMetaData)em;
             String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
+            fields = new HashSet<>();
             for(String s : thefields) {
                 fields.add(TableBuilder.scrubName(s));
             }
@@ -53,7 +53,7 @@ public class DatabaseHelper {
 
 
         StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<String> arguments = new ArrayList<String>();
+        ArrayList<String> arguments = new ArrayList<>();
         boolean set = false;
         for(int i = 0 ; i < fieldNames.length; ++i) {
             String columnName = TableBuilder.scrubName(fieldNames[i]);
@@ -82,7 +82,7 @@ public class DatabaseHelper {
         String[] retArray = new String[arguments.size()];
         arguments.toArray(retArray);
 
-        return new Pair<String, String[]>(stringBuilder.toString(), retArray);
+        return new Pair<>(stringBuilder.toString(), retArray);
     }
 
     public static HashMap<String, Object> getMetaFieldsAndValues(Externalizable e) throws RecordTooLargeException{
@@ -102,7 +102,7 @@ public class DatabaseHelper {
     }
 
     public static HashMap<String, Object> getNonDataMetaEntries(Externalizable e) {
-        HashMap<String, Object> values = new HashMap<String, Object>();
+        HashMap<String, Object> values = new HashMap<>();
 
         if(e instanceof IMetaData) {
             IMetaData m = (IMetaData)e;

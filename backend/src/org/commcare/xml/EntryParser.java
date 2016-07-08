@@ -54,12 +54,12 @@ public class EntryParser extends CommCareElementParser<Entry> {
         this.checkNode(parserBlockTag);
 
         String xFormNamespace = null;
-        Vector<SessionDatum> data = new Vector<SessionDatum>();
-        Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
+        Vector<SessionDatum> data = new Vector<>();
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
 
         String commandId = "";
         DisplayUnit display = null;
-        Vector<StackOperation> stackOps = new Vector<StackOperation>();
+        Vector<StackOperation> stackOps = new Vector<>();
         AssertionSet assertions = null;
         SyncPost post = null;
 
@@ -165,7 +165,7 @@ public class EntryParser extends CommCareElementParser<Entry> {
             }
         }
 
-        Hashtable<String, XPathExpression> postData = new Hashtable<String, XPathExpression>();
+        Hashtable<String, XPathExpression> postData = new Hashtable<>();
         while (nextTagInBlock("post")) {
             if ("data".equals(parser.getName())) {
                 String refString = parser.getAttributeValue(null, "ref");

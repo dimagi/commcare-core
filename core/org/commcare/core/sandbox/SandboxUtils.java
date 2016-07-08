@@ -28,8 +28,8 @@ public class SandboxUtils {
      *
      */
     public static Vector<String> extractEntityOwners(UserSandbox sandbox) {
-        Vector<String> owners = new Vector<String>();
-        Vector<String> users = new Vector<String>();
+        Vector<String> owners = new Vector<>();
+        Vector<String> users = new Vector<>();
 
         for (IStorageIterator<User> userIterator = sandbox.getUserStorage().iterate(); userIterator.hasMore(); ) {
             String id = userIterator.nextRecord().getUniqueId();
@@ -65,7 +65,7 @@ public class SandboxUtils {
     public static EvaluationContext getInstanceContexts(UserSandbox sandbox, String instanceId, String instanceRef){
         InstanceInitializationFactory iif = new CommCareInstanceInitializer(sandbox);
 
-        Hashtable<String, DataInstance> instances = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> instances = new Hashtable<>();
         ExternalDataInstance edi = new ExternalDataInstance(instanceRef, instanceId);
         edi.initialize(iif, instanceId);
         instances.put(instanceId, edi);

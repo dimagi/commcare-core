@@ -30,8 +30,8 @@ public class AssertionSetParser extends ElementParser<AssertionSet> {
     public AssertionSet parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("assertions");
 
-        Vector<String> tests = new Vector<String>();
-        Vector<Text> messages = new Vector<Text>();
+        Vector<String> tests = new Vector<>();
+        Vector<Text> messages = new Vector<>();
 
 
         while (nextTagInBlock("assertions")) {

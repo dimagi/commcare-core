@@ -54,7 +54,7 @@ public class DataModelPullParser extends ElementParser<Boolean> {
         this.is = is;
         this.failfast = failfast;
         this.factory = factory;
-        errors = new Vector<String>();
+        errors = new Vector<>();
         this.deep = deep;
         this.rListener = rListener;
     }

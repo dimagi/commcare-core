@@ -35,15 +35,15 @@ public class TableBuilder {
 
     public TableBuilder(Class c, String name) {
         this.name = name;
-        cols = new Vector<String>();
-        rawCols = new Vector<String>();
+        cols = new Vector<>();
+        rawCols = new Vector<>();
         this.addData(c);
     }
 
     public TableBuilder(String name) {
         this.name = name;
-        cols = new Vector<String>();
-        rawCols = new Vector<String>();
+        cols = new Vector<>();
+        rawCols = new Vector<>();
     }
 
     public void addData(Class c) {
@@ -127,7 +127,7 @@ public class TableBuilder {
         rawCols.add(DatabaseHelper.FILE_COL);
     }
 
-    final HashSet<String> unique = new HashSet<String>();
+    final HashSet<String> unique = new HashSet<>();
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
     }
@@ -152,7 +152,7 @@ public class TableBuilder {
         stringBuilder.append("INSERT INTO " + scrubName(name) + " (");
         HashMap<String, Object> contentValues = DatabaseHelper.getMetaFieldsAndValues(p);
 
-        ArrayList<Object> params = new ArrayList<Object>();
+        ArrayList<Object> params = new ArrayList<>();
 
 
         for(int i = 0 ; i < rawCols.size() ; ++i) {

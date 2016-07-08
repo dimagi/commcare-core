@@ -57,7 +57,7 @@ public class JdbcSqlStorageIterator<E extends Persistable> implements IStorageIt
         int nextID = peekID();
         try {
             boolean hasMore = resultSet.next();
-            if(!hasMore){
+            if (!hasMore) {
                 resultSet.close();
                 preparedStatement.close();
             }

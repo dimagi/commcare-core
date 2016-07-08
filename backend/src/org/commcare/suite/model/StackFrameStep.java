@@ -29,7 +29,7 @@ public class StackFrameStep implements Externalizable {
     private String id;
     private String value;
     private boolean valueIsXpath;
-    private Hashtable<String, Object> extras = new Hashtable<String, Object>();
+    private Hashtable<String, Object> extras = new Hashtable<>();
 
     /**
      * XML instance collected during session navigation that is made available

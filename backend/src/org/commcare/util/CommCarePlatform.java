@@ -57,7 +57,7 @@ public class CommCarePlatform implements CommCareInstance {
     }
 
     public Vector<Suite> getInstalledSuites() {
-        Vector<Suite> installedSuites = new Vector<Suite>();
+        Vector<Suite> installedSuites = new Vector<>();
         IStorageUtility utility = StorageManager.getStorage(Suite.STORAGE_KEY);
 
         IStorageIterator iterator = utility.iterate();
@@ -117,7 +117,7 @@ public class CommCarePlatform implements CommCareInstance {
 
     public Hashtable<String, Entry> getMenuMap() {
         Vector<Suite> installed = getInstalledSuites();
-        Hashtable<String, Entry> merged = new Hashtable<String, Entry>();
+        Hashtable<String, Entry> merged = new Hashtable<>();
 
         for (Suite s : installed) {
             Hashtable<String, Entry> table = s.getEntries();

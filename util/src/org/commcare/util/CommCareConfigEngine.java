@@ -3,6 +3,7 @@ package org.commcare.util;
 import org.commcare.modern.reference.ArchiveFileRoot;
 import org.commcare.modern.reference.JavaFileRoot;
 import org.commcare.modern.reference.JavaHttpRoot;
+import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
@@ -10,7 +11,6 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.modern.reference.JavaResourceRoot;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
@@ -243,8 +243,8 @@ public class CommCareConfigEngine {
 
         Localization.setDefaultLocale("default");
 
-        Vector<Menu> root = new Vector<Menu>();
-        Hashtable<String, Vector<Menu>> mapping = new Hashtable<String, Vector<Menu>>();
+        Vector<Menu> root = new Vector<>();
+        Hashtable<String, Vector<Menu>> mapping = new Hashtable<>();
         mapping.put("root",new Vector<Menu>());
 
         for(Suite s : platform.getInstalledSuites()) {
@@ -254,7 +254,7 @@ public class CommCareConfigEngine {
                 } else {
                     Vector<Menu> menus = mapping.get(m.getRoot());
                     if(menus == null) {
-                        menus = new Vector<Menu>();
+                        menus = new Vector<>();
                     }
                     menus.add(m);
                     mapping.put(m.getRoot(), menus);
