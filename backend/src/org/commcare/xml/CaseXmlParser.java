@@ -67,9 +67,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
         Date modified = DateUtils.parseDateTime(dateModified);
 
-        boolean create = false;
-        boolean update = false;
-        boolean close = false;
         Case caseForBlock = null;
 
         while (nextTagInBlock("case")) {
@@ -79,15 +76,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
             switch (action) {
                 case "create":
                     caseForBlock = createCase(caseId, modified);
-                    create = true;
                     break;
                 case "update":
                     caseForBlock = updateCase(caseForBlock, caseId);
-                    update = true;
                     break;
                 case "close":
                     caseForBlock = closeCase(caseForBlock, caseId);
-                    close = true;
                     break;
                 case "index":
                     caseForBlock = indexCase(caseForBlock, caseId);
@@ -102,9 +96,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
             caseForBlock.setLastModified(modified);
 
             commit(caseForBlock);
-            if (create) {
-                onCaseCreated(caseForBlock.getCaseId());
-            }
         }
 
         return null;
@@ -311,9 +302,4 @@ public class CaseXmlParser extends TransactionParser<Case> {
     public void onIndexDisrupted(String caseId) {
 
     }
-
-    public void onCaseCreated(String caseId) {
-
-    }
-
 }
