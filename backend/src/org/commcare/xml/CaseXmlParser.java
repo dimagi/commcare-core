@@ -32,9 +32,8 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
     public static final String CASE_XML_NAMESPACE = "http://commcarehq.org/case/transaction/v2";
 
-    final IStorageUtilityIndexed storage;
-    final boolean acceptCreateOverwrites;
-
+    private final IStorageUtilityIndexed storage;
+    private final boolean acceptCreateOverwrites;
 
     public CaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage) {
         this(parser, true, storage);
@@ -47,14 +46,16 @@ public class CaseXmlParser extends TransactionParser<Case> {
      * @param acceptCreateOverwrites Whether an Exception should be thrown if the transaction
      *                               contains create actions for cases which already exist.
      */
-    public CaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites, IStorageUtilityIndexed storage) {
+    public CaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
+                         IStorageUtilityIndexed storage) {
         super(parser);
+
         this.acceptCreateOverwrites = acceptCreateOverwrites;
         this.storage = storage;
     }
 
     public Case parse() throws InvalidStructureException, IOException, XmlPullParserException {
-        this.checkNode("case");
+        checkNode("case");
 
         String caseId = parser.getAttributeValue(null, "case_id");
         if (caseId == null || caseId.equals("")) {
@@ -70,9 +71,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         Case caseForBlock = null;
 
         while (nextTagInBlock("case")) {
-
             String action = parser.getName().toLowerCase();
-
             switch (action) {
                 case "create":
                     caseForBlock = createCase(caseId, modified);
@@ -104,29 +103,31 @@ public class CaseXmlParser extends TransactionParser<Case> {
     private Case createCase(String caseId, Date modified) throws InvalidStructureException, IOException, XmlPullParserException {
         String[] data = new String[3];
         Case caseForBlock = null;
-        //Collect all data
+
         while (nextTagInBlock("create")) {
-            if (parser.getName().equals("case_type")) {
-                data[0] = parser.nextText().trim();
-            } else if (parser.getName().equals("owner_id")) {
-                data[1] = parser.nextText().trim();
-            } else if (parser.getName().equals("case_name")) {
-                data[2] = parser.nextText().trim();
-            } else {
-                throw new InvalidStructureException("Expected one of [case_type, owner_id, case_name], found " + parser.getName(), parser);
+            String tag = parser.getName();
+            switch (tag) {
+                case "case_type":
+                    data[0] = parser.nextText().trim();
+                    break;
+                case "owner_id":
+                    data[1] = parser.nextText().trim();
+                    break;
+                case "case_name":
+                    data[2] = parser.nextText().trim();
+                    break;
+                default:
+                    throw new InvalidStructureException("Expected one of [case_type, owner_id, case_name], found " + parser.getName(), parser);
             }
         }
 
-        //Verify that we got all the pieces
         if (data[0] == null || data[2] == null) {
             throw new InvalidStructureException("One of [case_type, case_name] is missing for case <create> with ID: " + caseId, parser);
         }
-        //CaseXML Block is Valid. If we're on loose tolerance, first check if the case exists
+
         if (acceptCreateOverwrites) {
-            //If it exists, try to retrieve it
             caseForBlock = retrieve(caseId);
 
-            //If we found one, override the existing data
             if (caseForBlock != null) {
                 caseForBlock.setName(data[2]);
                 caseForBlock.setTypeId(data[0]);
@@ -134,7 +135,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         }
 
         if (caseForBlock == null) {
-            //The case is either not present on the phone, or we're on strict tolerance
+            // The case is either not present on the phone, or we're on strict tolerance
             caseForBlock = buildCase(data[2], data[0]);
             caseForBlock.setCaseId(caseId);
             caseForBlock.setDateOpened(modified);
@@ -146,7 +147,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return caseForBlock;
     }
 
-    private Case updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException  {
+    private Case updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
         if (caseForBlock == null) {
             caseForBlock = retrieve(caseId);
         }
@@ -156,28 +157,35 @@ public class CaseXmlParser extends TransactionParser<Case> {
         while (nextTagInBlock("update")) {
             String key = parser.getName();
             String value = parser.nextText().trim();
-            if (key.equals("case_type")) {
-                caseForBlock.setTypeId(value);
-            } else if (key.equals("case_name")) {
-                caseForBlock.setName(value);
-            } else if (key.equals("date_opened")) {
-                caseForBlock.setDateOpened(DateUtils.parseDate(value));
-            } else if (key.equals("owner_id")) {
-                String oldUserId = caseForBlock.getUserId();
 
-                if(!oldUserId.equals(value)) {
-                    onIndexDisrupted(caseId);
-                }
-                caseForBlock.setUserId(value);
-            } else {
-                caseForBlock.setProperty(key, value);
+            switch (key) {
+                case "case_type":
+                    caseForBlock.setTypeId(value);
+                    break;
+                case "case_name":
+                    caseForBlock.setName(value);
+                    break;
+                case "date_opened":
+                    caseForBlock.setDateOpened(DateUtils.parseDate(value));
+                    break;
+                case "owner_id":
+                    String oldUserId = caseForBlock.getUserId();
+
+                    if (!oldUserId.equals(value)) {
+                        onIndexDisrupted(caseId);
+                    }
+                    caseForBlock.setUserId(value);
+                    break;
+                default:
+                    caseForBlock.setProperty(key, value);
+                    break;
             }
         }
 
         return caseForBlock;
     }
 
-    private Case closeCase(Case caseForBlock, String caseId ) throws IOException {
+    private Case closeCase(Case caseForBlock, String caseId) throws IOException {
         if (caseForBlock == null) {
             caseForBlock = retrieve(caseId);
         }
@@ -195,7 +203,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         if (caseForBlock == null) {
             caseForBlock = retrieve(caseId);
         }
-        while (this.nextTagInBlock("index")) {
+        while (nextTagInBlock("index")) {
             String indexName = parser.getName();
             String caseType = parser.getAttributeValue(null, "case_type");
 
@@ -216,11 +224,11 @@ public class CaseXmlParser extends TransactionParser<Case> {
             }
             //Process blank inputs in the same manner as data fields (IE: Remove the underlying model)
             if (value == null) {
-                if(caseForBlock.removeIndex(indexName)) {
+                if (caseForBlock.removeIndex(indexName)) {
                     onIndexDisrupted(caseId);
                 }
             } else {
-                if(caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
+                if (caseForBlock.setIndex(new CaseIndex(indexName, caseType, value,
                         relationship))) {
                     onIndexDisrupted(caseId);
                 }
@@ -234,7 +242,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
             caseForBlock = retrieve(caseId);
         }
 
-        while (this.nextTagInBlock("attachment")) {
+        while (nextTagInBlock("attachment")) {
             String attachmentName = parser.getName();
             String src = parser.getAttributeValue(null, "src");
             String from = parser.getAttributeValue(null, "from");
@@ -242,12 +250,12 @@ public class CaseXmlParser extends TransactionParser<Case> {
 
             if ((src == null || "".equals(src)) && (from == null || "".equals(from))) {
                 //this is actually an attachment removal
-                this.removeAttachment(caseForBlock, attachmentName);
+                removeAttachment(caseForBlock, attachmentName);
                 caseForBlock.removeAttachment(attachmentName);
                 continue;
             }
 
-            String reference = this.processAttachment(src, from, fileName, parser);
+            String reference = processAttachment(src, from, fileName, parser);
             if (reference != null) {
                 caseForBlock.updateAttachment(attachmentName, reference);
             }
