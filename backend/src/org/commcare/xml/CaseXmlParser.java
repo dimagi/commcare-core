@@ -77,16 +77,20 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     caseForBlock = createCase(caseId, modified);
                     break;
                 case "update":
-                    caseForBlock = updateCase(caseForBlock, caseId);
+                    caseForBlock = loadCase(caseForBlock, caseId, true);
+                    updateCase(caseForBlock, caseId);
                     break;
                 case "close":
-                    caseForBlock = closeCase(caseForBlock, caseId);
+                    caseForBlock = loadCase(caseForBlock, caseId, true);
+                    closeCase(caseForBlock, caseId);
                     break;
                 case "index":
-                    caseForBlock = indexCase(caseForBlock, caseId);
+                    caseForBlock = loadCase(caseForBlock, caseId, false);
+                    indexCase(caseForBlock, caseId);
                     break;
                 case "attachment":
-                    caseForBlock = processCaseAttachment(caseForBlock, caseId);
+                    caseForBlock = loadCase(caseForBlock, caseId, false);
+                    processCaseAttachment(caseForBlock);
                     break;
             }
         }
@@ -147,13 +151,7 @@ public class CaseXmlParser extends TransactionParser<Case> {
         return caseForBlock;
     }
 
-    private Case updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
-        if (caseForBlock == null) {
-            caseForBlock = retrieve(caseId);
-        }
-        if (caseForBlock == null) {
-            throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
-        }
+    private void updateCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("update")) {
             String key = parser.getName();
             String value = parser.nextText().trim();
@@ -181,28 +179,25 @@ public class CaseXmlParser extends TransactionParser<Case> {
                     break;
             }
         }
-
-        return caseForBlock;
     }
 
-    private Case closeCase(Case caseForBlock, String caseId) throws IOException {
+    private Case loadCase(Case caseForBlock, String caseId, boolean errorIfMissing) {
         if (caseForBlock == null) {
             caseForBlock = retrieve(caseId);
         }
-        if (caseForBlock == null) {
+        if (errorIfMissing && caseForBlock == null) {
             throw new InvalidStorageStructureException("Unable to update case " + caseId + ", it wasn't found", parser);
         }
+        return caseForBlock;
+    }
+
+    private void closeCase(Case caseForBlock, String caseId) throws IOException {
         caseForBlock.setClosed(true);
         commit(caseForBlock);
         onIndexDisrupted(caseId);
-
-        return caseForBlock;
     }
 
-    private Case indexCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
-        if (caseForBlock == null) {
-            caseForBlock = retrieve(caseId);
-        }
+    private void indexCase(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("index")) {
             String indexName = parser.getName();
             String caseType = parser.getAttributeValue(null, "case_type");
@@ -234,14 +229,9 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 }
             }
         }
-        return caseForBlock;
     }
 
-    private Case processCaseAttachment(Case caseForBlock, String caseId) throws InvalidStructureException, IOException, XmlPullParserException {
-        if (caseForBlock == null) {
-            caseForBlock = retrieve(caseId);
-        }
-
+    private void processCaseAttachment(Case caseForBlock) throws InvalidStructureException, IOException, XmlPullParserException {
         while (nextTagInBlock("attachment")) {
             String attachmentName = parser.getName();
             String src = parser.getAttributeValue(null, "src");
@@ -260,7 +250,6 @@ public class CaseXmlParser extends TransactionParser<Case> {
                 caseForBlock.updateAttachment(attachmentName, reference);
             }
         }
-        return caseForBlock;
     }
 
     protected void removeAttachment(Case caseForBlock, String attachmentName) {
