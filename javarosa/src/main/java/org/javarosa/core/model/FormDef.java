@@ -1693,14 +1693,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         return total;
     }
 
-    public void registerStateObserver(FormElementStateListener qsl) {
-        // NO. (Or at least not yet).
-    }
-
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        // NO. (Or at least not yet).
-    }
-
     @Override
     public Vector<IFormElement> getChildren() {
         return children;

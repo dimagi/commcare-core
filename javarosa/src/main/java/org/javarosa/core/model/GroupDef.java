@@ -48,8 +48,6 @@ public class GroupDef implements IFormElement {
     public String delHeader;
     public String mainHeader;
 
-    private final Vector<FormElementStateListener> observers;
-
     /**
      * When set the user can only create as many children as specified by the
      * 'count' reference.
@@ -70,7 +68,6 @@ public class GroupDef implements IFormElement {
         setID(id);
         setChildren(children);
         setRepeat(repeat);
-        observers = new Vector<>();
     }
 
     @Override
@@ -240,18 +237,6 @@ public class GroupDef implements IFormElement {
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(delHeader));
         ExtUtil.writeString(dos, ExtUtil.emptyIfNull(mainHeader));
 
-    }
-
-    @Override
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    @Override
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
     }
 
     @Override

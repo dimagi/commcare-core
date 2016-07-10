@@ -65,16 +65,6 @@ public interface IFormElement extends Persistable, Externalizable {
     XPathReference getBind();
 
     /**
-     * Registers a state observer for this element.
-     */
-    void registerStateObserver(FormElementStateListener qsl);
-
-    /**
-     * Unregisters a state observer for this element.
-     */
-    void unregisterStateObserver(FormElementStateListener qsl);
-
-    /**
      * This method returns the regular
      * innertext betweem label tags (if present) (&ltlabel&gtinnertext&lt/label&gt).
      *

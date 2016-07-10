@@ -49,8 +49,6 @@ public class QuestionDef implements IFormElement {
 
     Vector<QuestionDataExtension> extensions;
 
-    final Vector<FormElementStateListener> observers;
-
     private ActionController actionController;
 
     public QuestionDef() {
@@ -60,7 +58,6 @@ public class QuestionDef implements IFormElement {
     public QuestionDef(int id, int controlType) {
         setID(id);
         setControlType(controlType);
-        observers = new Vector<>();
         mQuestionStrings = new Hashtable<>();
         extensions = new Vector<>();
         
@@ -236,25 +233,6 @@ public class QuestionDef implements IFormElement {
         ExtUtil.write(dos, new ExtWrapMap(mQuestionStrings));
         ExtUtil.write(dos, new ExtWrapListPoly(extensions));
         ExtUtil.write(dos, new ExtWrapNullable(actionController));
-    }
-
-    /* === MANAGING OBSERVERS === */
-
-    @Override
-    public void registerStateObserver(FormElementStateListener qsl) {
-        if (!observers.contains(qsl)) {
-            observers.addElement(qsl);
-        }
-    }
-
-    @Override
-    public void unregisterStateObserver(FormElementStateListener qsl) {
-        observers.removeElement(qsl);
-    }
-
-    public void alertStateObservers(int changeFlags) {
-        for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((FormElementStateListener)e.nextElement()).formElementStateChanged(this, changeFlags);
     }
 
     @Override
