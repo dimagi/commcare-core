@@ -82,10 +82,41 @@ public class EvaluationContext {
      */
     int[] predicateEvaluationProgress;
 
+    public EvaluationContext(DataInstance instance) {
+        this(instance, new Hashtable<String, DataInstance>());
+    }
+
+    public EvaluationContext(EvaluationContext base, TreeReference context) {
+        this(base, base.instance, context, base.formInstances);
+    }
+
+    public EvaluationContext(EvaluationContext base,
+                             Hashtable<String, DataInstance> formInstances,
+                             TreeReference context) {
+        this(base, base.instance, context, formInstances);
+    }
+
+    public EvaluationContext(FormInstance instance,
+                             Hashtable<String, DataInstance> formInstances,
+                             EvaluationContext base) {
+        this(base, instance, base.contextNode, formInstances);
+    }
+
+    public EvaluationContext(DataInstance instance,
+                             Hashtable<String, DataInstance> formInstances) {
+        this.formInstances = formInstances;
+        this.instance = instance;
+        this.contextNode = TreeReference.rootRef();
+        functionHandlers = new Hashtable<>();
+        variables = new Hashtable<>();
+    }
+
     /**
      * Copy Constructor
      */
-    private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode, Hashtable<String, DataInstance> formInstances) {
+    private EvaluationContext(EvaluationContext base, DataInstance instance,
+                              TreeReference contextNode,
+                              Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
         this.formInstances = formInstances;
@@ -114,30 +145,6 @@ public class EvaluationContext {
             this.mAccumulateExprs = true;
             this.mDebugCore = base.mDebugCore;
         }
-    }
-
-    public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base, base.instance, context, base.formInstances);
-    }
-
-    public EvaluationContext(EvaluationContext base, Hashtable<String, DataInstance> formInstances, TreeReference context) {
-        this(base, base.instance, context, formInstances);
-    }
-
-    public EvaluationContext(FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
-        this(base, instance, base.contextNode, formInstances);
-    }
-
-    public EvaluationContext(DataInstance instance) {
-        this(instance, new Hashtable<String, DataInstance>());
-    }
-
-    public EvaluationContext(DataInstance instance, Hashtable<String, DataInstance> formInstances) {
-        this.formInstances = formInstances;
-        this.instance = instance;
-        this.contextNode = TreeReference.rootRef();
-        functionHandlers = new Hashtable<>();
-        variables = new Hashtable<>();
     }
 
     public DataInstance getInstance(String id) {
@@ -237,7 +244,7 @@ public class EvaluationContext {
      * '/' returns {'/'}
      * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
      *
-     * @param ref              Potentially ambiguous reference
+     * @param ref Potentially ambiguous reference
      * @return Null if 'ref' is relative reference. Otherwise, returns a vector
      * of references that point to nodes that match 'ref' argument. These
      * references are unambiguous (no index will ever be INDEX_UNBOUND) template
@@ -259,13 +266,13 @@ public class EvaluationContext {
      * Recursive helper function for expandReference that performs the search
      * for all repeated nodes that match the pattern of the 'ref' argument.
      *
-     * @param sourceRef        original path we're matching against
-     * @param sourceInstance   original node obtained from sourceRef
-     * @param workingRef       explicit path that refers to the current node
-     * @param refs             Accumulator vector to collect matching paths. Contained
-     *                         references are unambiguous. Template nodes won't be included when
-     *                         matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
-     *                         set.
+     * @param sourceRef      original path we're matching against
+     * @param sourceInstance original node obtained from sourceRef
+     * @param workingRef     explicit path that refers to the current node
+     * @param refs           Accumulator vector to collect matching paths. Contained
+     *                       references are unambiguous. Template nodes won't be included when
+     *                       matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     *                       set.
      */
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,
