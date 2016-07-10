@@ -61,13 +61,9 @@ public class GroupDef implements IFormElement {
     public XPathReference count = null;
 
     public GroupDef() {
-        this(Constants.NULL_ID, null, false);
-    }
-
-    public GroupDef(int id, Vector children, boolean repeat) {
-        setID(id);
-        setChildren(children);
-        setRepeat(repeat);
+        id = Constants.NULL_ID;
+        children = null;
+        repeat = false;
     }
 
     @Override
