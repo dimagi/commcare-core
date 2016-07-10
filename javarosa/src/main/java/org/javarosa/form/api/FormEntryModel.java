@@ -262,7 +262,6 @@ public class FormEntryModel {
         return captionArray;
     }
 
-
     /**
      * Returns a hierarchical list of FormEntryCaption objects for the current
      * FormIndex
@@ -272,7 +271,6 @@ public class FormEntryModel {
     public FormEntryCaption[] getCaptionHierarchy() {
         return getCaptionHierarchy(currentFormIndex);
     }
-
 
     /**
      * @return true if the element at the specified index is read only
@@ -363,7 +361,7 @@ public class FormEntryModel {
                     if (count != null) {
                         int fullcount = -1;
                         try {
-                            fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue()).intValue();
+                            fullcount = ((Integer)new IntegerData().cast(count.uncast()).getValue());
                         } catch (IllegalArgumentException iae) {
                             throw new RuntimeException("The repeat count value \"" + count.uncast().getString() + "\" at " + g.getConextualizedCountReference(index.getReference()).toString() + " must be a number!");
                         }
@@ -425,7 +423,6 @@ public class FormEntryModel {
         return array;
     }
 
-
     /**
      * Used by J2ME
      * @return The Current Repeat style which should be used.
@@ -475,26 +472,23 @@ public class FormEntryModel {
                 GroupDef group = (GroupDef)elements.elementAt(i);
                 if (group.getRepeat()) {
                     if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-
                         if ((multiplicities.lastElement()).intValue() == TreeReference.INDEX_REPEAT_JUNCTURE) {
                             descend = false;
                             exitRepeat = true;
                         }
-
                     } else {
                         if (form.getMainInstance().resolveReference(form.getChildInstanceRef(elements, multiplicities)) == null) {
                             descend = false; // repeat instance does not exist; do not descend into it
                             exitRepeat = true;
                         }
-
                     }
                 }
             }
 
-            if (descend && (i == -1 || ((IFormElement)elements.elementAt(i)).getChildren().size() > 0)) {
+            if (descend && (i == -1 || elements.elementAt(i).getChildren().size() > 0)) {
                 indexes.addElement(0);
                 multiplicities.addElement(0);
-                elements.addElement((i == -1 ? form : (IFormElement)elements.elementAt(i)).getChild(0));
+                elements.addElement((i == -1 ? form : elements.elementAt(i)).getChild(0));
 
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
                     if (elements.lastElement() instanceof GroupDef && ((GroupDef)elements.lastElement()).getRepeat()) {
@@ -513,13 +507,9 @@ public class FormEntryModel {
             // will be true)
             if (!exitRepeat && elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat()) {
                 if (repeatStructure == REPEAT_STRUCTURE_NON_LINEAR) {
-
                     multiplicities.setElementAt(TreeReference.INDEX_REPEAT_JUNCTURE, i);
-
                 } else {
-
                     multiplicities.setElementAt(multiplicities.elementAt(i) + 1, i);
-
                 }
                 return;
             }
