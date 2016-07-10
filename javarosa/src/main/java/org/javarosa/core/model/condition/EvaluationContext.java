@@ -45,7 +45,7 @@ public class EvaluationContext {
     private EvaluationTrace mTraceRoot = null;
 
     // Unambiguous anchor reference for relative paths
-    private TreeReference contextNode;
+    private final TreeReference contextNode;
 
     private final Hashtable<String, IFunctionHandler> functionHandlers;
     private final Hashtable<String, Object> variables;
@@ -59,7 +59,7 @@ public class EvaluationContext {
     // Responsible for informing itext what form is requested if relevant
     private String outputTextForm = null;
 
-    private Hashtable<String, DataInstance> formInstances;
+    private final Hashtable<String, DataInstance> formInstances;
 
     // original context reference used for evaluating current()
     private TreeReference original;
@@ -70,7 +70,7 @@ public class EvaluationContext {
      */
     private int currentContextPosition = -1;
 
-    DataInstance instance;
+    private final DataInstance instance;
 
     /**
      * Two-element array to keep track of how many candidate references have
@@ -85,10 +85,10 @@ public class EvaluationContext {
     /**
      * Copy Constructor
      */
-    private EvaluationContext(EvaluationContext base) {
+    private EvaluationContext(EvaluationContext base, DataInstance instance, TreeReference contextNode, Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
-        this.formInstances = base.formInstances;
+        this.formInstances = formInstances;
         this.variables = new Hashtable<>();
 
         //TODO: this is actually potentially much slower than
@@ -96,8 +96,8 @@ public class EvaluationContext {
         //be threadsafe). We should evaluate the potential impact.
         this.shallowVariablesCopy(base.variables);
 
-        this.contextNode = base.contextNode;
-        this.instance = base.instance;
+        this.contextNode = contextNode;
+        this.instance = instance;
 
         this.isConstraint = base.isConstraint;
         this.candidateValue = base.candidateValue;
@@ -117,19 +117,15 @@ public class EvaluationContext {
     }
 
     public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base);
-        this.contextNode = context;
+        this(base, base.instance, context, base.formInstances);
     }
 
     public EvaluationContext(EvaluationContext base, Hashtable<String, DataInstance> formInstances, TreeReference context) {
-        this(base, context);
-        this.formInstances = formInstances;
+        this(base, base.instance, context, formInstances);
     }
 
     public EvaluationContext(FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
-        this(base);
-        this.formInstances = formInstances;
-        this.instance = instance;
+        this(base, instance, base.contextNode, formInstances);
     }
 
     public EvaluationContext(DataInstance instance) {
