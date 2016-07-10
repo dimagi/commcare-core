@@ -2,6 +2,7 @@ package org.commcare.xml;
 
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.suite.model.Alert;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import sun.rmi.runtime.Log;
 
 /**
  * Parses a suite file resource and creates the associated object 
@@ -69,6 +72,7 @@ public class SuiteParser extends ElementParser<Suite> {
         Hashtable<String, Entry> entries = new Hashtable<>();
 
         Vector<Menu> menus = new Vector<>();
+        Vector<Alert> alerts = new Vector<>();
 
         try {
             //Now that we've covered being inside of a suite,
@@ -122,14 +126,23 @@ public class SuiteParser extends ElementParser<Suite> {
                         if (!inValidationMode()) {
                             new FixtureXmlParser(parser, false, fixtureStorage).parse();
                         }
-                    } else {
+                    } else if (parser.getName().toLowerCase().equals("alert")){
+                        alerts.add(new AlertParser(parser).parse());
+                        System.out.println("Parsed an alert!!");
+                    }
+                    else {
                         System.out.println("Unrecognized Tag: " + parser.getName());
                     }
                 }
                 eventType = parser.next();
             } while (eventType != KXmlParser.END_DOCUMENT);
 
-            return new Suite(version, details, entries, menus);
+            Suite suite = new Suite(version, details, entries, menus);
+            for(Alert a: alerts){
+                suite.addAlert(a);
+            }
+
+            return suite;
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             throw new InvalidStructureException("Pull Parse Exception, malformed XML.", parser);

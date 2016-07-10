@@ -40,6 +40,7 @@ public class Suite implements Persistable {
      */
     private Hashtable<String, Entry> entries;
     private Vector<Menu> menus;
+    private Vector<Alert> alerts;
 
     @SuppressWarnings("unused")
     public Suite() {
@@ -52,6 +53,7 @@ public class Suite implements Persistable {
         this.details = details;
         this.entries = entries;
         this.menus = menus;
+        alerts = new Vector<>();
     }
 
     @Override
@@ -114,5 +116,16 @@ public class Suite implements Persistable {
         ExtUtil.write(out, new ExtWrapMap(details));
         ExtUtil.write(out, new ExtWrapMapPoly(entries));
         ExtUtil.write(out, new ExtWrapList(menus));
+    }
+
+    public void addAlert(Alert a){
+        alerts.add(a);
+        System.out.println(a.getCaseProperty1());
+        System.out.println(a.getCaseProperty2());
+        System.out.println(a.getCaseType());
+    }
+
+    public Vector<Alert> getAlerts(){
+        return alerts;
     }
 }
