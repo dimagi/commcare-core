@@ -159,7 +159,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         actionController = new ActionController();
     }
 
-
     /**
      * Getters and setters for the vectors tha
      */
@@ -279,7 +278,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             if (temp instanceof GroupDef && ((GroupDef)temp).getRepeat()) {
                 TreeReference repRef = FormInstance.unpackReference(temp.getBind());
                 if (repRef.isParentOf(ref, false)) {
-                    int repMult = multiplicities.elementAt(i).intValue();
+                    int repMult = multiplicities.elementAt(i);
                     ref.setMultiplicity(repRef.size() - 1, repMult);
                 } else {
                     // question/repeat hierarchy is not consistent with
@@ -332,16 +331,16 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
      * method on a node that is not contained within a repeat.
      */
     public FormIndex deleteRepeat(FormIndex index) {
-        Vector indexes = new Vector();
-        Vector multiplicities = new Vector();
-        Vector elements = new Vector();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
         collapseIndex(index, indexes, multiplicities, elements);
 
         // loop backwards through the elements, removing objects from each
         // vector, until we find a repeat
         // TODO: should probably check to make sure size > 0
         for (int i = elements.size() - 1; i >= 0; i--) {
-            IFormElement e = (IFormElement)elements.elementAt(i);
+            IFormElement e = elements.elementAt(i);
             if (e instanceof GroupDef && ((GroupDef)e).getRepeat()) {
                 break;
             } else {
@@ -473,7 +472,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
                     count = 0;
                 } else {
                     try {
-                        count = ((Integer)new IntegerData().cast(boxedCount.uncast()).getValue()).intValue();
+                        count = ((Integer)new IntegerData().cast(boxedCount.uncast()).getValue());
                     } catch (IllegalArgumentException iae) {
                         throw new XPathTypeMismatchException("The repeat count value \"" +
                                 boxedCount.uncast().getString() +
@@ -1627,21 +1626,21 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         }
     }
 
-    public FormIndex buildIndex(Vector indexes, Vector multiplicities, Vector elements) {
+    public FormIndex buildIndex(Vector<Integer> indexes, Vector<Integer> multiplicities, Vector<IFormElement> elements) {
         FormIndex cur = null;
-        Vector curMultiplicities = new Vector();
+        Vector<Integer> curMultiplicities = new Vector<>();
         for (int j = 0; j < multiplicities.size(); ++j) {
             curMultiplicities.addElement(multiplicities.elementAt(j));
         }
 
-        Vector curElements = new Vector();
+        Vector<IFormElement> curElements = new Vector<>();
         for (int j = 0; j < elements.size(); ++j) {
             curElements.addElement(elements.elementAt(j));
         }
 
         for (int i = indexes.size() - 1; i >= 0; i--) {
-            int ix = ((Integer)indexes.elementAt(i)).intValue();
-            int mult = ((Integer)multiplicities.elementAt(i)).intValue();
+            int ix = indexes.elementAt(i);
+            int mult = multiplicities.elementAt(i);
 
             if (!(elements.elementAt(i) instanceof GroupDef && ((GroupDef)elements.elementAt(i)).getRepeat())) {
                 mult = -1;
@@ -1654,11 +1653,10 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         return cur;
     }
 
-
     public int getNumRepetitions(FormIndex index) {
-        Vector<Integer> indexes = new Vector();
-        Vector<Integer> multiplicities = new Vector();
-        Vector<IFormElement> elements = new Vector();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
 
         if (!index.isInForm()) {
             throw new RuntimeException("not an in-form index");
@@ -1681,9 +1679,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     public FormIndex descendIntoRepeat(FormIndex index, int repIndex) {
         int numRepetitions = getNumRepetitions(index);
 
-        Vector<Integer> indexes = new Vector();
-        Vector<Integer> multiplicities = new Vector();
-        Vector<IFormElement> elements = new Vector();
+        Vector<Integer> indexes = new Vector<>();
+        Vector<Integer> multiplicities = new Vector<>();
+        Vector<IFormElement> elements = new Vector<>();
         collapseIndex(index, indexes, multiplicities, elements);
 
         if (repIndex == -1) {
@@ -1699,11 +1697,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         return buildIndex(indexes, multiplicities, elements);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.javarosa.core.model.IFormElement#getDeepChildCount()
-     */
+    @Override
     public int getDeepChildCount() {
         int total = 0;
         Enumeration e = children.elements();
@@ -1721,12 +1715,13 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         // NO. (Or at least not yet).
     }
 
-    public Vector getChildren() {
+    @Override
+    public Vector<IFormElement> getChildren() {
         return children;
     }
 
-    public void setChildren(Vector children) {
-        this.children = (children == null ? new Vector() : children);
+    public void setChildren(Vector<IFormElement> children) {
+        this.children = (children == null ? new Vector<IFormElement>() : children);
     }
 
     public String getTitle() {
