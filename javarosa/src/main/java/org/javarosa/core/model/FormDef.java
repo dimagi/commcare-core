@@ -292,14 +292,7 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     }
 
     public void setLocalizer(Localizer l) {
-        if (this.localizer != null) {
-            this.localizer.unregisterLocalizable(this);
-        }
-
         this.localizer = l;
-        if (this.localizer != null) {
-            this.localizer.registerLocalizable(this);
-        }
     }
 
     // don't think this should ever be called(!)
@@ -1385,13 +1378,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
 
     public void setPreloader(QuestionPreloader preloads) {
         this.preloader = preloads;
-    }
-
-    @Override
-    public void localeChanged(String locale, Localizer localizer) {
-        for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
-        }
     }
 
     public String toString() {

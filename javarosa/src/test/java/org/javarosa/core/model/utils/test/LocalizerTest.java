@@ -1,6 +1,5 @@
 package org.javarosa.core.model.utils.test;
 
-import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
 import org.javarosa.core.util.UnregisteredLocaleException;
@@ -471,68 +470,6 @@ public class LocalizerTest {
             fail("Retrieved current locale text when current locale not set");
         } catch (UnregisteredLocaleException nsee) {
             //expected
-        }
-    }
-
-    private class LocalizationObserver implements Localizable {
-        public boolean flag = false;
-        public String locale;
-        public Localizer l;
-
-        public void localeChanged(String locale, Localizer l) {
-            flag = true;
-            this.locale = locale;
-            this.l = l;
-        }
-    }
-
-    @Test
-    public void testLocalizationObservers() {
-        Localizer l = new Localizer();
-        l.addAvailableLocale("test1");
-        l.addAvailableLocale("test2");
-        LocalizationObserver lo = new LocalizationObserver();
-        l.registerLocalizable(lo);
-
-        if (lo.flag || lo.locale != null || lo.l != null) {
-            fail("Improper state in localization observer");
-        }
-
-        l.setLocale("test1");
-        if (!lo.flag || !"test1".equals(lo.locale) || l != lo.l) {
-            fail("Improper state in localization observer, or not updated properly");
-        }
-        lo.flag = false;
-
-        l.setLocale("test2");
-        if (!lo.flag || !"test2".equals(lo.locale) || l != lo.l) {
-            fail("Improper state in localization observer, or not updated properly");
-        }
-        lo.flag = false;
-
-        l.setLocale("test2");
-        if (lo.flag || !"test2".equals(lo.locale) || l != lo.l) {
-            fail("Localization observer improperly updated");
-        }
-
-        l.unregisterLocalizable(lo);
-        l.setLocale("test1");
-        if (lo.flag || !"test2".equals(lo.locale) || l != lo.l) {
-            fail("Localization observer updated after unregistered");
-        }
-    }
-
-    @Test
-    public void testLocalizationObserverUpdateOnRegister() {
-        Localizer l = new Localizer();
-        l.addAvailableLocale("test1");
-        l.setLocale("test1");
-
-        LocalizationObserver lo = new LocalizationObserver();
-        l.registerLocalizable(lo);
-
-        if (!lo.flag || !"test1".equals(lo.locale) || l != lo.l) {
-            fail("Localization observer did not update properly on registration");
         }
     }
 

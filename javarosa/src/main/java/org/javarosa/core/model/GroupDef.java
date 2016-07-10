@@ -4,8 +4,6 @@ import org.javarosa.core.model.actions.ActionController;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.locale.Localizable;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapListPoly;
@@ -25,7 +23,7 @@ import java.util.Vector;
  *
  * @author Daniel Kayiwa
  */
-public class GroupDef implements IFormElement, Localizable {
+public class GroupDef implements IFormElement {
     // A list of questions on a group.
     private Vector<IFormElement> children;
     // True if this is a "repeat", false if it is a "group"
@@ -149,13 +147,6 @@ public class GroupDef implements IFormElement, Localizable {
     @Override
     public ActionController getActionController() {
         return null;
-    }
-
-    @Override
-    public void localeChanged(String locale, Localizer localizer) {
-        for (Enumeration e = children.elements(); e.hasMoreElements(); ) {
-            ((IFormElement)e.nextElement()).localeChanged(locale, localizer);
-        }
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.javarosa.core.model;
 
 import org.javarosa.core.model.actions.ActionController;
-import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.model.xform.XPathReference;
@@ -15,7 +14,7 @@ import java.util.Vector;
  *
  * @author Drew Roos
  */
-public interface IFormElement extends Persistable, Localizable, Externalizable {
+public interface IFormElement extends Persistable, Externalizable {
 
     /**
      * get the TextID for this element used for localization purposes

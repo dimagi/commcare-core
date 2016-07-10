@@ -34,7 +34,6 @@ public class Localizer implements Externalizable {
     private String currentLocale;
     private boolean fallbackDefaultLocale;
     private boolean fallbackDefaultForm;
-    private final Vector<Localizable> observers;
 
     /**
      * Default constructor. Disables all fallback modes.
@@ -55,7 +54,6 @@ public class Localizer implements Externalizable {
         locales = new Vector<>();
         defaultLocale = null;
         currentLocale = null;
-        observers = new Vector<>();
         this.fallbackDefaultLocale = fallbackDefaultLocale;
         this.fallbackDefaultForm = fallbackDefaultForm;
     }
@@ -118,15 +116,10 @@ public class Localizer implements Externalizable {
             throw new UnregisteredLocaleException("Attempted to set to a locale that is not defined. Attempted Locale: " + currentLocale);
         }
 
-        boolean alert = false;
         if (!currentLocale.equals(this.currentLocale)) {
             this.currentLocale = currentLocale;
-            alert = true;
         }
         loadCurrentLocaleResources();
-        if (alert) {
-            alertLocalizables();
-        }
     }
 
     public String getDefaultLocale() {
@@ -412,40 +405,6 @@ public class Localizer implements Externalizable {
         } else {
             return getLocaleMap(locale).get(textID);
         }
-    }
-
-    /**
-     * Register a Localizable to receive updates when the locale is changed. If the Localizable is already
-     * registered, nothing happens. If a locale is currently set, the new Localizable will receive an
-     * immediate 'locale changed' event.
-     *
-     * @param l Localizable to register.
-     */
-    public void registerLocalizable(Localizable l) {
-        if (!observers.contains(l)) {
-            observers.addElement(l);
-            if (currentLocale != null) {
-                l.localeChanged(currentLocale, this);
-            }
-        }
-    }
-
-    /**
-     * Unregister an Localizable from receiving locale change updates. No effect if the Localizable was never
-     * registered in the first place.
-     *
-     * @param l Localizable to unregister.
-     */
-    public void unregisterLocalizable(Localizable l) {
-        observers.removeElement(l);
-    }
-
-    /**
-     * Send a locale change update to all registered ILocalizables.
-     */
-    private void alertLocalizables() {
-        for (Enumeration e = observers.elements(); e.hasMoreElements(); )
-            ((Localizable)e.nextElement()).localeChanged(currentLocale, this);
     }
 
     public static Vector getArgs(String text) {
