@@ -62,7 +62,7 @@ public class GroupDef implements IFormElement {
 
     public GroupDef() {
         id = Constants.NULL_ID;
-        children = null;
+        children = new Vector<>();
         repeat = false;
     }
 
