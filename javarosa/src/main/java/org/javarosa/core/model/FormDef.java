@@ -90,11 +90,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
     // depend on any result from evaluating tB
     private Vector<Triggerable> triggerables;
 
-    // true if triggerables has been ordered topologically (DON'T DELETE ME
-    // EVEN THOUGH I'M UNUSED)
-    private boolean triggerablesInOrder;
-
-
     // <IConditionExpr> contents of <output> tags that serve as parameterized
     // arguments to captions
     private Vector outputFragments;
@@ -148,7 +143,6 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
         setID(-1);
         setChildren(null);
         triggerables = new Vector<>();
-        triggerablesInOrder = true;
         triggerIndex = new Hashtable<>();
         //This is kind of a wreck...
         setEvaluationContext(new EvaluationContext(null));
@@ -594,8 +588,9 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             // 'identical' condition has a shorter contextRef, and use that one
             // instead?
         } else {
+            // The triggerable isn't being added in any order, so topological
+            // sorting has been disrupted
             triggerables.addElement(t);
-            triggerablesInOrder = false;
 
             for (TreeReference trigger : t.getTriggers()) {
                 TreeReference predicatelessTrigger = t.widenContextToAndClearPredicates(trigger);
@@ -671,7 +666,8 @@ public class FormDef implements IFormElement, Persistable, IMetaData,
             setOrderOfTriggerable(roots, vertices, partialOrdering);
         }
 
-        triggerablesInOrder = true;
+        // At this point triggerables should be topologically sorted (according
+        // to Drew)
 
         buildConditionRepeatTargetIndex();
     }
