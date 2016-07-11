@@ -122,7 +122,11 @@ public class EntityDatum extends SessionDatum {
         if (predicates == null) {
             predicates = new Vector<>();
         }
-        predicates.addElement(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId)));
+        // For speed reasons, add a case id selection as the first predicate
+        // This has potential to change outcomes if other predicates utilize 'position'
+        XPathEqExpr caseIdSelection =
+                new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(this.getValue()), new XPathStringLiteral(elementId));
+        predicates.insertElementAt(caseIdSelection, 0);
         nodesetRef.addPredicate(nodesetRef.size() - 1, predicates);
 
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
