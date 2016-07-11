@@ -40,7 +40,7 @@ public class FormTranslationFormatter {
     public static StringBuffer dumpTranslationsIntoCSV(FormDef f, StringBuffer messages) {
         f.getLocalizer().setToDefault();
 
-        Hashtable<String,OrderedHashtable> localeData = new Hashtable<>();
+        Hashtable<String, Hashtable<String, String>> localeData = new Hashtable<>();
         Hashtable<Integer, String[]> techStrings = new Hashtable<>();
 
         StringWriter writer = new StringWriter();
@@ -61,7 +61,7 @@ public class FormTranslationFormatter {
             messages.append("Error!" + e.getMessage());
         }
 
-        OrderedHashtable defaultLocales = localeData.get(f.getLocalizer().getLocale());
+        Hashtable<String, String> defaultLocales = localeData.get(f.getLocalizer().getLocale());
         //Go through the keys for the default translation, there should be a one-to-one mapping between
         //each set of available keys.
         for(Enumeration en = defaultLocales.keys(); en.hasMoreElements();) {
@@ -71,7 +71,7 @@ public class FormTranslationFormatter {
             int index = 1;
             //Now dump the translation for each key per-language
             for(String locale : locales) {
-                String translation = (String)localeData.get(locale).get(key);
+                String translation = localeData.get(locale).get(key);
                 rowOfTranslations[index] = translation;
 
                 Vector<String> arguments = (Vector<String>) Localizer.getArgs(translation);

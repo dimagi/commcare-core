@@ -26,8 +26,9 @@ import static org.junit.Assert.fail;
 
 public class ExternalizableTest {
     public static void testExternalizable(Object orig, Object template, PrototypeFactory pf, String failMessage) {
-        if (failMessage == null)
+        if (failMessage == null) {
             failMessage = "Serialization Failure";
+        }
 
         byte[] bytes;
         Object deser;
@@ -62,11 +63,6 @@ public class ExternalizableTest {
             e.printStackTrace();
             fail(failMessage + ": Exception! " + e.getClass().getName() + " " + e.getMessage());
         }
-    }
-
-    //for outside test suites to call
-    public static void testExternalizable(Externalizable original, PrototypeFactory pf) {
-        testExternalizable(original, pf, "Serialization failure for " + original.getClass().getName());
     }
 
     public static void testExternalizable(Externalizable original, PrototypeFactory pf, String failMessage) {

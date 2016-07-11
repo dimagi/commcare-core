@@ -3,8 +3,6 @@ package org.javarosa.core.model.utils.test;
 import org.javarosa.core.services.locale.Localizable;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.services.locale.TableLocaleSource;
-import org.javarosa.core.util.NoLocalizedTextException;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.core.util.test.ExternalizableTest;
@@ -56,7 +54,7 @@ public class LocalizerTest {
         if (!l.hasLocale(TEST_LOCALE)) {
             fail("Localizer reports it does not contain newly added locale");
         }
-        OrderedHashtable localeData = l.getLocaleData(TEST_LOCALE);
+        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
         if (localeData == null || localeData.size() != 0) {
             fail("Newly created locale not empty (or undefined)");
         }
@@ -95,7 +93,7 @@ public class LocalizerTest {
         table.setLocaleMapping("textID", "text");
         l.registerLocaleResource(TEST_LOCALE, table);
 
-        OrderedHashtable localeData = l.getLocaleData(TEST_LOCALE);
+        Hashtable<String, String> localeData = l.getLocaleData(TEST_LOCALE);
 
         boolean result = l.addAvailableLocale(TEST_LOCALE);
         if (result) {
@@ -223,58 +221,6 @@ public class LocalizerTest {
     }
 
     @Test
-    public void testDestroyLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-
-        boolean result = l.destroyLocale(TEST_LOCALE);
-        if (!result || l.hasLocale(TEST_LOCALE)) {
-            fail("Locale not destroyed");
-        }
-    }
-
-    @Test
-    public void testDestroyLocaleNotExist() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-
-        boolean result = l.destroyLocale(TEST_LOCALE);
-        if (result) {
-            fail("Destroyed non-existent locale");
-        }
-    }
-
-    @Test
-    public void testDestroyCurrentLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-        l.setLocale(TEST_LOCALE);
-
-        try {
-            l.destroyLocale(TEST_LOCALE);
-
-            fail("Destroyed current locale");
-        } catch (IllegalArgumentException iae) {
-            //expected
-        }
-    }
-
-    @Test
-    public void testDestroyDefaultLocale() {
-        Localizer l = new Localizer();
-        final String TEST_LOCALE = "test";
-        l.addAvailableLocale(TEST_LOCALE);
-        l.setDefaultLocale(TEST_LOCALE);
-
-        l.destroyLocale(TEST_LOCALE);
-        if (l.getDefaultLocale() != null) {
-            fail("Default locale still set to destroyed locale");
-        }
-    }
-
-    @Test
     public void testAvailableLocales() {
         Localizer l = new Localizer();
         String[] locales;
@@ -295,55 +241,6 @@ public class LocalizerTest {
         locales = l.getAvailableLocales();
         if (locales.length != 3 || !locales[0].equals("test1") || !locales[1].equals("test2") || !locales[2].equals("test3")) {
             fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test2");
-        locales = l.getAvailableLocales();
-        if (locales.length != 2 || !locales[0].equals("test1") || !locales[1].equals("test3")) {
-            fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test1");
-        locales = l.getAvailableLocales();
-        if (locales.length != 1 || !locales[0].equals("test3")) {
-            fail("Available locales not as expected");
-        }
-
-        l.destroyLocale("test3");
-        locales = l.getAvailableLocales();
-        if (locales == null || locales.length != 0) {
-            fail("Available locales not as expected");
-        }
-    }
-
-    @Test
-    public void testGetNextLocale() {
-        Localizer l = new Localizer();
-        l.addAvailableLocale("test1");
-        l.addAvailableLocale("test2");
-        l.addAvailableLocale("test3");
-
-        if (l.getNextLocale() != null) {
-            fail("Unexpected next locale");
-        }
-
-        l.setDefaultLocale("test3");
-        if (!"test3".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-
-        l.setDefaultLocale(null);
-        l.setLocale("test1");
-        if (!"test2".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-        l.setLocale("test2");
-        if (!"test3".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
-        }
-        l.setLocale("test3");
-        if (!"test1".equals(l.getNextLocale())) {
-            fail("Unexpected next locale");
         }
     }
 
@@ -388,7 +285,7 @@ public class LocalizerTest {
         if (!l.hasMapping(TEST_LOCALE, "textID")) {
             fail("Localizer does not contain newly added text mapping");
         }
-        if (!"text".equals(l.getLocaleData(TEST_LOCALE).get("textID").render())) {
+        if (!"text".equals(l.getLocaleData(TEST_LOCALE).get("textID"))) {
             fail("Newly added text mapping does not match source");
         }
     }
@@ -411,7 +308,7 @@ public class LocalizerTest {
         if (!l.hasMapping(TEST_LOCALE, "textID")) {
             fail("Localizer does not contain overwritten text mapping");
         }
-        if (!"newText".equals(l.getLocaleData(TEST_LOCALE).get("textID").render())) {
+        if (!"newText".equals(l.getLocaleData(TEST_LOCALE).get("textID"))) {
             fail("Newly overwritten text mapping does not match source");
         }
     }
@@ -478,18 +375,12 @@ public class LocalizerTest {
             fail("Did not retrieve expected text from localizer [" + localeCase + "," + formCase + "," + i + "," + j + "," + k + "]");
         }
 
-        try {
-            text2 = l.getLocalizedText(textID);
+        text2 = l.getText(textID);
 
-            if (expected == null) {
-                fail("Should have gotten exception");
-            } else if (!expected.equals(text2)) {
-                fail("Did not retrieve expected text");
-            }
-        } catch (NoLocalizedTextException nsee) {
-            if (expected != null) {
-                fail("Got unexpected exception");
-            }
+        if (expected == null && text2 != null) {
+            fail("Localization shouldn't have returned a result");
+        } else if (expected != null && !expected.equals(text2)) {
+            fail("Did not retrieve expected text");
         }
     }
 
@@ -721,14 +612,6 @@ public class LocalizerTest {
         }
 
         try {
-            l.destroyLocale(null);
-
-            fail("destroyLocale: Did not get expected null pointer exception");
-        } catch (NullPointerException npe) {
-            //expected
-        }
-
-        try {
             l.getText("textID", (String)null);
 
             fail("getText: Did not get expected exception");
@@ -795,7 +678,6 @@ public class LocalizerTest {
         l.registerLocaleResource("locale3", finalLocale);
         testSerialize(l, "locales with data 5");
 
-        l.destroyLocale("locale2");
         testSerialize(l, "locales with data 6");
     }
 

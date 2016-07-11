@@ -1,7 +1,5 @@
 package org.javarosa.core.services.locale;
 
-import org.javarosa.core.util.Map;
-import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.core.util.UnregisteredLocaleException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -11,22 +9,21 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * @author Clayton Sims
- * @date May 26, 2009
  */
 public class TableLocaleSource implements LocaleDataSource {
-    private OrderedHashtable<String, String> localeData; /*{ String -> String } */
+    private Hashtable<String, String> localeData;
 
     public TableLocaleSource() {
-        localeData = new Map<>();
+        localeData = new Hashtable<>();
     }
 
-    public TableLocaleSource(OrderedHashtable<String, String> localeData) {
+    public TableLocaleSource(Hashtable<String, String> localeData) {
         this.localeData = localeData;
     }
-
 
     /**
      * Set a text mapping for a single text handle for a given locale.
@@ -60,7 +57,7 @@ public class TableLocaleSource implements LocaleDataSource {
         return (textID != null && localeData.get(textID) != null);
     }
 
-
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof TableLocaleSource)) {
             return false;
@@ -69,18 +66,24 @@ public class TableLocaleSource implements LocaleDataSource {
         return ExtUtil.equals(localeData, l.localeData, true);
     }
 
-    public OrderedHashtable getLocalizedText() {
+    @Override
+    public int hashCode() {
+        return localeData.hashCode();
+    }
+
+    @Override
+    public Hashtable<String, String> getLocalizedText() {
         return localeData;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
-        localeData = (OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class, ExtWrapMap.TYPE_SLOW_READ_ONLY), pf);
-        //localeData.readExternal(in, pf);
+        localeData = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, new ExtWrapMap(localeData));
-        //localeData.writeExternal(out);
     }
 }
