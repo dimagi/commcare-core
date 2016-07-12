@@ -155,6 +155,10 @@ public class DetailField implements Externalizable {
         return sortType;
     }
 
+    public boolean isCaseTileField(){
+        return gridX > -1 && gridY > -1 && gridWidth > -1 && gridHeight > -1;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         header = (Text)ExtUtil.read(in, Text.class, pf);
@@ -176,6 +180,7 @@ public class DetailField implements Externalizable {
         gridY = ExtUtil.readInt(in);
         gridWidth = ExtUtil.readInt(in);
         gridHeight = ExtUtil.readInt(in);
+        fontSize = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
     @Override
@@ -200,6 +205,7 @@ public class DetailField implements Externalizable {
         ExtUtil.writeNumeric(out, gridY);
         ExtUtil.writeNumeric(out, gridWidth);
         ExtUtil.writeNumeric(out, gridHeight);
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull(fontSize));
     }
 
     public int getGridX() {
