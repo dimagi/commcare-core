@@ -267,7 +267,7 @@ public class LocaleFileInstaller implements ResourceInstaller<CommCareInstance> 
             throws IOException, DeserializationException {
         locale = ExtUtil.readString(in);
         localReference = ExtUtil.readString(in);
-        cache = (OrderedHashtable)ExtUtil.nullIfEmpty((OrderedHashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf));
+        cache = (Hashtable)ExtUtil.nullIfEmpty((Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf));
     }
 
     @Override
