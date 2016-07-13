@@ -568,6 +568,13 @@ public class ResourceTable {
         }
     }
 
+    /**
+     * Force a recomputation of table stage progress; useful for resuming upgrades
+     */
+    public void setResourceProgressStale() {
+        isResourceProgressStale = true;
+    }
+
     private boolean isResourceUninitialized(String resourceId) {
         Resource res = this.getResourceWithId(resourceId);
         return ((res == null) ||
