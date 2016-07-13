@@ -1,5 +1,6 @@
 package org.javarosa.core.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -77,4 +78,71 @@ public class StreamsUtil {
             super(internal);
         }
     }
+
+    public static byte[] inputStreamToByteArray(InputStream input) throws IOException {
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
+
+    /**
+     * Writes input stream to output stream in a buffered fasion, but doesn't
+     * close either stream.
+     */
+    public static void writeFromInputToOutputUnmanaged(InputStream is,
+                                                       OutputStream os) throws IOException {
+        byte[] buffer = new byte[8192];
+        int count = is.read(buffer);
+        while (count != -1) {
+            os.write(buffer, 0, count);
+            count = is.read(buffer);
+        }
+    }
+
+    /**
+     * Write is to os and close both
+     */
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os) throws IOException {
+        writeFromInputToOutputNew(is, os, null);
+    }
+
+    /**
+     * Write is to os and close both
+     */
+    public static void writeFromInputToOutputNew(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
+        byte[] buffer = new byte[8192];
+        long counter = 0;
+
+        try {
+            int count = is.read(buffer);
+            while (count != -1) {
+                counter += count;
+                if (observer != null) {
+                    observer.notifyCurrentCount(counter);
+                }
+                os.write(buffer, 0, count);
+                count = is.read(buffer);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public interface StreamReadObserver {
+        void notifyCurrentCount(long bytesRead);
+    }
+
 }
