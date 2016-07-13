@@ -168,6 +168,7 @@ public class ResourceManager {
 
             tempTable.destroy();
 
+            upgradeTable.setResourceProgressStale();
             upgradeTable.prepareResources(masterTable, this.platform);
         }
     }

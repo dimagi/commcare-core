@@ -45,7 +45,7 @@ public class EvaluationContext {
     private EvaluationTrace mTraceRoot = null;
 
     // Unambiguous anchor reference for relative paths
-    private TreeReference contextNode;
+    private final TreeReference contextNode;
 
     private final Hashtable<String, IFunctionHandler> functionHandlers;
     private final Hashtable<String, Object> variables;
@@ -59,7 +59,7 @@ public class EvaluationContext {
     // Responsible for informing itext what form is requested if relevant
     private String outputTextForm = null;
 
-    private Hashtable<String, DataInstance> formInstances;
+    private final Hashtable<String, DataInstance> formInstances;
 
     // original context reference used for evaluating current()
     private TreeReference original;
@@ -70,15 +70,46 @@ public class EvaluationContext {
      */
     private int currentContextPosition = -1;
 
-    DataInstance instance;
+    private final DataInstance instance;
+
+    public EvaluationContext(DataInstance instance) {
+        this(instance, new Hashtable<String, DataInstance>());
+    }
+
+    public EvaluationContext(EvaluationContext base, TreeReference context) {
+        this(base, base.instance, context, base.formInstances);
+    }
+
+    public EvaluationContext(EvaluationContext base,
+                             Hashtable<String, DataInstance> formInstances,
+                             TreeReference context) {
+        this(base, base.instance, context, formInstances);
+    }
+
+    public EvaluationContext(FormInstance instance,
+                             Hashtable<String, DataInstance> formInstances,
+                             EvaluationContext base) {
+        this(base, instance, base.contextNode, formInstances);
+    }
+
+    public EvaluationContext(DataInstance instance,
+                             Hashtable<String, DataInstance> formInstances) {
+        this.formInstances = formInstances;
+        this.instance = instance;
+        this.contextNode = TreeReference.rootRef();
+        functionHandlers = new Hashtable<>();
+        variables = new Hashtable<>();
+    }
 
     /**
      * Copy Constructor
      */
-    private EvaluationContext(EvaluationContext base) {
+    private EvaluationContext(EvaluationContext base, DataInstance instance,
+                              TreeReference contextNode,
+                              Hashtable<String, DataInstance> formInstances) {
         //TODO: These should be deep, not shallow
         this.functionHandlers = base.functionHandlers;
-        this.formInstances = base.formInstances;
+        this.formInstances = formInstances;
         this.variables = new Hashtable<>();
 
         //TODO: this is actually potentially much slower than
@@ -86,8 +117,8 @@ public class EvaluationContext {
         //be threadsafe). We should evaluate the potential impact.
         this.shallowVariablesCopy(base.variables);
 
-        this.contextNode = base.contextNode;
-        this.instance = base.instance;
+        this.contextNode = contextNode;
+        this.instance = instance;
 
         this.isConstraint = base.isConstraint;
         this.candidateValue = base.candidateValue;
@@ -104,34 +135,6 @@ public class EvaluationContext {
             this.mAccumulateExprs = true;
             this.mDebugCore = base.mDebugCore;
         }
-    }
-
-    public EvaluationContext(EvaluationContext base, TreeReference context) {
-        this(base);
-        this.contextNode = context;
-    }
-
-    public EvaluationContext(EvaluationContext base, Hashtable<String, DataInstance> formInstances, TreeReference context) {
-        this(base, context);
-        this.formInstances = formInstances;
-    }
-
-    public EvaluationContext(FormInstance instance, Hashtable<String, DataInstance> formInstances, EvaluationContext base) {
-        this(base);
-        this.formInstances = formInstances;
-        this.instance = instance;
-    }
-
-    public EvaluationContext(DataInstance instance) {
-        this(instance, new Hashtable<String, DataInstance>());
-    }
-
-    public EvaluationContext(DataInstance instance, Hashtable<String, DataInstance> formInstances) {
-        this.formInstances = formInstances;
-        this.instance = instance;
-        this.contextNode = TreeReference.rootRef();
-        functionHandlers = new Hashtable<>();
-        variables = new Hashtable<>();
     }
 
     public DataInstance getInstance(String id) {
@@ -231,7 +234,7 @@ public class EvaluationContext {
      * '/' returns {'/'}
      * can handle sub-repetitions (e.g., {/a[1]/b[1], /a[1]/b[2], /a[2]/b[1]})
      *
-     * @param ref              Potentially ambiguous reference
+     * @param ref Potentially ambiguous reference
      * @return Null if 'ref' is relative reference. Otherwise, returns a vector
      * of references that point to nodes that match 'ref' argument. These
      * references are unambiguous (no index will ever be INDEX_UNBOUND) template
@@ -253,13 +256,13 @@ public class EvaluationContext {
      * Recursive helper function for expandReference that performs the search
      * for all repeated nodes that match the pattern of the 'ref' argument.
      *
-     * @param sourceRef        original path we're matching against
-     * @param sourceInstance   original node obtained from sourceRef
-     * @param workingRef       explicit path that refers to the current node
-     * @param refs             Accumulator vector to collect matching paths. Contained
-     *                         references are unambiguous. Template nodes won't be included when
-     *                         matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
-     *                         set.
+     * @param sourceRef      original path we're matching against
+     * @param sourceInstance original node obtained from sourceRef
+     * @param workingRef     explicit path that refers to the current node
+     * @param refs           Accumulator vector to collect matching paths. Contained
+     *                       references are unambiguous. Template nodes won't be included when
+     *                       matching INDEX_UNBOUND, but will be when INDEX_TEMPLATE is explicitly
+     *                       set.
      */
     private void expandReferenceAccumulator(TreeReference sourceRef, DataInstance sourceInstance,
                                             TreeReference workingRef, Vector<TreeReference> refs,

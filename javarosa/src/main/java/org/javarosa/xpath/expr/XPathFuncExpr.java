@@ -1125,16 +1125,9 @@ public class XPathFuncExpr extends XPathExpression {
         boolean result;
         try {
             result = regexp.match(str);
-        }
-        //#if polish.cldc
-        //# catch (java.lang.OutOfMemoryError e) {
-        //#     throw new XPathException("The regular expression '" + str + "' took too long or too much memory to process");
-        //# }
-        //#else
-        catch (java.lang.StackOverflowError e) {
+        } catch (java.lang.StackOverflowError e) {
             throw new XPathException("The regular expression '" + str + "' took too long to process.");
-        } 
-        //#endif
+        }
 
         return new Boolean(result);
     }
@@ -1228,180 +1221,92 @@ public class XPathFuncExpr extends XPathExpression {
     /**
      * Implementation of natural logarithm
      *
-     * @param o Value
      * @return Natural log of value
      */
     private Double log(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.log(value);
-        //#endif
     }
 
     /**
      * Returns the sine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return sine of value
      */
     private Double sin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, sines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.sin(value);
-        //#endif
     }
 
     /**
      * Returns the cosine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return cosine of value
      */
     private Double cosin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, cosines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.cos(value);
-        //#endif
     }
 
     /**
      * Returns the tangent of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double tan(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, tangents are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.tan(value);
-        //#endif
     }
 
     /**
      * Returns the square root of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double sqrt(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, square roots are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.sqrt(value);
-        //#endif
     }
 
     /**
      * Returns the arc cosine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double acos(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc cosines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.acos(value);
-        //#endif
     }
 
     /**
      * Returns the arc sine of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double asin(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc sines are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.asin(value);
-        //#endif
     }
 
     /**
      * Returns the arc tan of the argument, expressed in radians.
-     *
-     * @param o Value
-     * @return tan of value
      */
     private Double atan(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, arc tans are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.atan(value);
-        //#endif
     }
 
     /**
      * Implementation of logarithm with base ten
      *
-     * @param o Value
      * @return Base ten log of value
      */
     private Double log10(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, logarithms are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.log10(value);
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @return Base ten log of value
-     */
     private Double pi() {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, Pi are not supported on your platform");
-        //#else
         return Math.PI;
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @param o1, o2 Value
-     * @return Base ten log of value
-     */
     private Double atan2(Object o1, Object o2) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, atan are not supported on your platform");
-        //#else
         double value1 = toDouble(o1).doubleValue();
         double value2 = toDouble(o2).doubleValue();
         return Math.atan2(value1, value2);
-        //#endif
     }
 
-    /**
-     * Implementation of logarithm with base ten
-     *
-     * @param o Value
-     * @return Base ten log of value
-     */
     private Double exp(Object o) {
-        //#if polish.cldc
-        //# throw new XPathUnsupportedException("Sorry, exponentials are not supported on your platform");
-        //#else
         double value = toDouble(o).doubleValue();
         return Math.exp(value);
-        //#endif
     }
 
     /**
@@ -1415,16 +1320,10 @@ public class XPathFuncExpr extends XPathExpression {
      * used otherwise.
      */
     private Double power(Object o1, Object o2) {
-        //#if polish.cldc
-        //# //CLDC doesn't support craziness like "power" functions, so we're on our own.
-        //# return powerApprox(o1, o2);
-        //#else
-        //Just use the native lib! should be available.
         double a = toDouble(o1).doubleValue();
         double b = toDouble(o2).doubleValue();
 
         return Math.pow(a, b);
-        //#endif
     }
 
     @SuppressWarnings("unused")
